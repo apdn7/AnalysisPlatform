@@ -35,6 +35,7 @@ from ap.common.constants import (
     SAVE_DATETIME,
     SAVE_GRAPH_SETTINGS,
     SAVE_LATEST,
+    SOURCE_PATH,
     START_DATETIME,
     UNIQUE_CATEGORIES,
     PagePath,
@@ -42,7 +43,7 @@ from ap.common.constants import (
 from ap.common.logger import log_execution_time
 from ap.common.services.api_exceptions import APIError, ErrorMessage
 from ap.common.services.http_content import json_dumps
-from ap.setting_module.models import CfgOption, CfgRequest, insert_or_update_config, make_session
+from ap.setting_module.models import CfgOption, CfgProcessColumn, CfgRequest, make_session
 
 
 @log_execution_time()
@@ -69,20 +70,6 @@ def save_params_and_odf_data_of_request(dic_param):
 
         with make_session() as meta_session:
             CfgRequest.save_odf_and_params_by_req_id(meta_session, req_id, json_dumps(od_filters), params)
-
-
-@log_execution_time()
-def save_request_option(cfg_option):
-    option = None
-    with make_session() as meta_session:
-        # data source
-        option = insert_or_update_config(
-            meta_session,
-            cfg_option,
-        )
-        meta_session.commit()
-
-    return option
 
 
 @log_execution_time()
@@ -123,6 +110,19 @@ def get_selected_columns_from_trace_data_form(req_data, target_component_name=GE
         for component in req_data
         if target_component_name in component.get('name', '') and component.get('checked')
     ]
+
+
+def get_end_procs_by_cols(columns):
+    end_procs = []
+    if columns:
+        for col_id in columns:
+            col_cfg = CfgProcessColumn.get_by_id(col_id)
+            if not col_cfg:
+                continue
+            proc_id = col_cfg.process_id
+            if proc_id not in end_procs:
+                end_procs.append(proc_id)
+    return end_procs
 
 
 @dataclasses.dataclass
@@ -752,6 +752,655 @@ class Validation:
         ]
         return self
 
+    def fpp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def skd(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        objective_rules = ValidationRules(
+            {self._REQUIRED: True, self._FORMAT: True},
+            self._SMALL_INT,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            OBJECTIVE: objective_rules,
+            LATEST: latest_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def rlp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+        div_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+            DIV: div_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def chm(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def msp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def pcp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        objective_rules = ValidationRules(
+            {self._REQUIRED: True, self._FORMAT: True},
+            self._SMALL_INT,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            OBJECTIVE: objective_rules,
+            LATEST: latest_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def scp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+        div_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+            DIV: div_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def agp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+        div_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+            DIV: div_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
+    def stp(self):
+        req_id_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._DUPLICATED: True,  # not allow duplicate when not option_id
+            },
+        )
+        column_rules = ValidationRules(
+            {
+                self._REQUIRED: True,
+                self._FORMAT: True,
+            },
+            {self._FORMAT: self._POSITIVE_INT, self._LIST_ALLOW: True},
+        )
+        datetime_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            self._ISO_DATETIME,
+        )
+        latest_rules = ValidationRules(
+            {self._REQUIRED: False, self._FORMAT: True, self._RANGE_VALUE: True},
+            {
+                self._FORMAT: self._REAL,
+                self._RANGE_VALUE: [0.01, 20000],
+                self._EXAMPLE_VALUE: '24 (=1day), 0.5 (=30min)',
+            },
+        )
+        facet_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+                self._LENGTH_RANGE: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+                self._LENGTH_RANGE: [0, 2],
+            },
+        )
+        filter_rules = ValidationRules(
+            {
+                self._REQUIRED: False,
+                self._FORMAT: True,
+            },
+            {
+                self._FORMAT: self._POSITIVE_INT,
+                self._LIST_ALLOW: True,
+            },
+        )
+
+        # add rules to params
+        self.params = {
+            REQ_ID: req_id_rules,
+            COLUMNS: column_rules,
+            START_DATETIME: datetime_rules,
+            END_DATETIME: datetime_rules,
+            LATEST: latest_rules,
+            FACET: facet_rules,
+            FILTER: filter_rules,
+        }
+
+        # validate params
+        self.validate_func = [
+            self.validate_required(),
+            self.validate_duplicated_req_id(),
+            self.validate_format(),
+            self.validate_option_id_not_found(),
+        ]
+        return self
+
     def columns_of_processes(self):
         process_id_rules = ValidationRules(
             {self._REQUIRED: True, self._FORMAT: True},
@@ -887,6 +1536,22 @@ class Validation:
             self.validate_req_id_not_found(),
         ]
 
+        return self
+
+    def register_by_file(self):
+        source_path = ValidationRules(
+            {
+                self._REQUIRED: True,
+            },
+        )
+
+        self.params = {
+            SOURCE_PATH: source_path,
+        }
+
+        self.validate_func = [
+            self.validate_required(),
+        ]
         return self
 
     def _add_api_error(self, status, error_msg: ErrorMessage):

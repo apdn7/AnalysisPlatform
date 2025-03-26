@@ -25,9 +25,7 @@
             </div>
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.')) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="d-flex align-items-center justify-content-center show-graph-div"
-            >
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -80,31 +78,20 @@
                         class="form-control border-white w-auto scale-dropdown ml-1"
                         style="min-width: max-content;"
                     ></select>
-                    <select
-                        id="hmColor"
-                        class="form-control ml-2 border-white scale-dropdown"
-                        name="hmColor"
-                    >
+                    <select id="hmColor" class="form-control ml-2 border-white scale-dropdown" name="hmColor">
                         <option value="BLUE">{{ _('Blue') }}</option>
                         <option value="BLUE_REV">{{ _('Blue.Rev') }}</option>
                         <option value="JET">{{ _('Jet') }}</option>
                         <option value="JET_REV">{{ _('Jet.Rev') }}</option>
                         <option value="JET_ABS">{{ _('JetAbs') }}</option>
-                        <option value="JET_ABS_REV">
-                            {{ _('JetAbs.Rev') }}
-                        </option>
+                        <option value="JET_ABS_REV">{{ _('JetAbs.Rev') }}</option>
                     </select>
                 </div>
                 <div class="d-flex align-items-center mr-4">
-                    <span
-                        class="mr-2 hint-text"
-                        title="{{ _('Col num hover msg') }}"
+                    <span class="mr-2 hint-text" title="{{ _('Col num hover msg') }}"
                         >{{ _('Number of graph on column') }}</span
                     >
-                    <select
-                        name="colNumber"
-                        class="form-control border-white w-auto scale-dropdown ml-1"
-                    >
+                    <select name="colNumber" class="form-control border-white w-auto scale-dropdown ml-1">
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -129,11 +116,7 @@
             </div>
         </div>
     </div>
-    <div
-        class="card graph-navi plot-content"
-        id="sctr-card-parent"
-        style="width: inherit; display: none;"
-    >
+    <div class="card graph-navi plot-content" id="sctr-card-parent" style="width: inherit; display: none;">
         <div class="align-items-center ml-3 pr-3" id="navigation-bar">
             <div class="modebar">
                 <div class="modebar-group">
@@ -145,12 +128,7 @@
                         data-toggle="false"
                         data-gravity="n"
                     >
-                        <svg
-                            viewBox="0 0 875 1000"
-                            class="icon"
-                            height="1em"
-                            width="1em"
-                        >
+                        <svg viewBox="0 0 875 1000" class="icon" height="1em" width="1em">
                             <path
                                 d="m500 450c-83 0-150-67-150-150 0-83 67-150 150-150 83 0 150 67 150 150 0 83-67 150-150 150z m400 150h-120c-16 0-34 13-39 29l-31 93c-6 15-23 28-40 28h-340c-16 0-34-13-39-28l-31-94c-6-15-23-28-40-28h-120c-55 0-100-45-100-100v-450c0-55 45-100 100-100h800c55 0 100 45 100 100v450c0 55-45 100-100 100z m-400-550c-138 0-250 112-250 250 0 138 112 250 250 250 138 0 250-112 250-250 0-138-112-250-250-250z m365 380c-19 0-35 16-35 35 0 19 16 35 35 35 19 0 35-16 35-35 0-19-16-35-35-35z"
                                 transform="matrix(1 0 0 -1 0 850)"
@@ -167,12 +145,7 @@
                         data-toggle="false"
                         data-gravity="n"
                     >
-                        <svg
-                            viewBox="0 0 1000 1000"
-                            class="icon"
-                            height="1em"
-                            width="1em"
-                        >
+                        <svg viewBox="0 0 1000 1000" class="icon" height="1em" width="1em">
                             <path
                                 d="m250 850l-187 0-63 0 0-62 0-188 63 0 0 188 187 0 0 62z m688 0l-188 0 0-62 188 0 0-188 62 0 0 188 0 62-62 0z m-875-938l0 188-63 0 0-188 0-62 63 0 187 0 0 62-187 0z m875 188l0-188-188 0 0-62 188 0 62 0 0 62 0 188-62 0z m-125 188l-1 0-93-94-156 156 156 156 92-93 2 0 0 250-250 0 0-2 93-92-156-156-156 156 94 92 0 2-250 0 0-250 0 0 93 93 157-156-157-156-93 94 0 0 0-250 250 0 0 0-94 93 156 157 156-157-93-93 0 0 250 0 0 250z"
                                 transform="matrix(1 0 0 -1 0 850)"
@@ -189,12 +162,7 @@
                         data-toggle="false"
                         data-gravity="n"
                     >
-                        <svg
-                            viewBox="0 0 928.6 1000"
-                            class="icon"
-                            height="1em"
-                            width="1em"
-                        >
+                        <svg viewBox="0 0 928.6 1000" class="icon" height="1em" width="1em">
                             <path
                                 d="m786 296v-267q0-15-11-26t-25-10h-214v214h-143v-214h-214q-15 0-25 10t-11 26v267q0 1 0 2t0 2l321 264 321-264q1-1 1-4z m124 39l-34-41q-5-5-12-6h-2q-7 0-12 3l-386 322-386-322q-7-4-13-4-7 2-12 7l-35 41q-4 5-3 13t6 12l401 334q18 15 42 15t43-15l136-114v109q0 8 5 13t13 5h107q8 0 13-5t5-13v-227l122-102q5-5 6-12t-4-13z"
                                 transform="matrix(1 0 0 -1 0 850)"
@@ -204,39 +172,23 @@
                 </div>
             </div>
         </div>
-        <div
-            class="text-center position-relative"
-            id="sctr-card"
-            style="width: inherit"
-        ></div>
+        <div class="text-center position-relative" id="sctr-card" style="width: inherit"></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
 
     <div>
-        <ul
-            id="contextMenuTimeSeries"
-            class="context-menu"
-            style="display:none;"
-            name="contextMenu"
-        >
-            <li class="menu-item" onclick="handleSelectedPlotView()">
-                {{ _("Plot View") }}
-            </li>
-            <li
-                class="menu-item"
-                onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')"
-            >
+        <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;" name="contextMenu">
+            <li class="menu-item" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
+            <li class="menu-item" onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')">
                 {{ _("Threshold/Graph Config") }}
             </li>
         </ul>
     </div>
 
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

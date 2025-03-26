@@ -1,0 +1,4 @@
+- HMp_sample_data
+  - Based on MIR-WM811K Semiconductor Data Set
+  - Downloaded from: Roger Jang, "MIR Corpora", http://mirlab.org/dataSet/public/
+  - Reference paper: Ming-Ju Wu, Jyh-Shing Roger Jang, and Jui-Long Chen, "Wafer Map Failure Pattern Recognition and Similarity Ranking for Large-Scale Data Sets," in IEEE Transactions on Semiconductor Manufacturing, vol. 28, no. 1, pp. 1-12, Feb. 2015, doi: 10.1109/TSM.2014.2364237

@@ -6,17 +6,11 @@ from functools import cached_property
 from typing import Any, List, Optional, Union
 
 import sqlalchemy as sa
-from sqlalchemy import cast, func, join, or_, select
-from sqlalchemy.sql import operators, sqltypes
-from sqlalchemy.sql.elements import ColumnClause, Label, and_
-from sqlalchemy.sql.operators import ColumnOperators, Operators
-from sqlalchemy.sql.selectable import CTE, Join, Select
 from typing_extensions import Self
 
 from ap.api.common.services.utils import gen_proc_time_label
 from ap.common.common_utils import gen_sql_label, gen_sql_like_value
 from ap.common.constants import (
-    SQL_REGEXP_FUNC,
     TIME_COL,
     UNIXEPOCH,
     DuplicateSerialShow,
@@ -72,14 +66,14 @@ def gen_row_number_col_name(proc_id: int) -> str:
 
 
 def join_table(
-    join_conditions: Optional[Join],
+    join_conditions: Optional[sa.Join],
     left: Any,
     right: Any,
-    onclause: Union[Operators, bool],
+    onclause: Union[sa.Operators, bool],
     isouter: bool = True,
-) -> Join:
+) -> sa.Join:
     if join_conditions is None:
-        return join(left=left, right=right, onclause=onclause, isouter=isouter)
+        return sa.join(left=left, right=right, onclause=onclause, isouter=isouter)
     return join_conditions.join(right=right, onclause=onclause, isouter=isouter)
 
 
@@ -179,7 +173,7 @@ class SqlProcLink:
     def gen_proc_time_label(self, is_start_proc: bool = False) -> str:
         return TIME_COL if is_start_proc else gen_proc_time_label(self.process_id)
 
-    def filter_conditions(self, cte: CTE) -> Optional[Operators]:
+    def filter_conditions(self, cte: sa.CTE) -> sa.Operators | None:
         """Filter master after we get cte from single process"""
         conditions = set()
 
@@ -199,15 +193,14 @@ class SqlProcLink:
 
         if not conditions:
             return None
-        return and_(*conditions)
+        return sa.and_(*conditions)
 
-    def apply_filter(self, cte: CTE) -> CTE:
+    def apply_filter(self, cte: sa.CTE) -> sa.CTE:
         filter_conditions = self.filter_conditions(cte)
         if filter_conditions is None:
             return cte
         name_aliased = f'{FILTER_PREFIX}_{cte.description}'
-        stmt = select([cte])
-        stmt.append_whereclause(filter_conditions)
+        stmt = sa.select(cte).where(filter_conditions)
         return stmt.cte(name_aliased)
 
     @log_execution_time(SQL_GENERATOR_PREFIX)
@@ -240,17 +233,17 @@ class SqlProcLink:
             if distinct_cols:
                 query_builder.distinct(columns=distinct_cols)
                 if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST:
-                    query_builder.having(columns=[func.min(query_builder_time_col)])
+                    query_builder.having(columns=[sa.func.min(query_builder_time_col)])
                 else:
-                    query_builder.having(columns=[func.max(query_builder_time_col)])
+                    query_builder.having(columns=[sa.func.max(query_builder_time_col)])
 
         cte = query_builder.build().cte(f'{CTE_PROCESS_PREFIX}{idx}')
-        cte: CTE = self.apply_filter(cte)
+        cte = self.apply_filter(cte)
         cte = self.gen_cached_unixepoch_cte(cte)
 
         return cte
 
-    def gen_cached_unixepoch_cte(self, cte: CTE) -> CTE:
+    def gen_cached_unixepoch_cte(self, cte: sa.CTE) -> sa.CTE:
         unixepoch_cols = []
         for key in self.link_keys:
             if key.is_delta_time_cut_off_linked:
@@ -263,46 +256,37 @@ class SqlProcLink:
         if not unixepoch_cols:
             return cte
 
-        return (
-            sa.select(
-                [
-                    *unixepoch_cols,
-                    *cte.c,
-                ],
-            )
-            .cte(f'{cte.description}_{UNIXEPOCH}')
-            .prefix_with('MATERIALIZED')
-        )
+        return sa.select(*unixepoch_cols, *cte.c).cte(f'{cte.description}_{UNIXEPOCH}').prefix_with('MATERIALIZED')
 
 
-def cast_col_to_text(col: ColumnClause, raw_data_type: str) -> Union[ColumnClause, ColumnOperators]:
+def cast_col_to_text(col: sa.ColumnClause, raw_data_type: str) -> Union[sa.ColumnClause, sa.ColumnOperators]:
     if RawDataTypeDB.is_text_data_type(raw_data_type):
         return col
-    return cast(col, sqltypes.Text)
+    return sa.cast(col, sa.Text)
 
 
 def force_take_substr(
-    col: ColumnClause,
+    col: sa.ColumnClause,
     key: SqlProcLinkKey,
     raw_data_type: str,
-) -> Union[ColumnClause, ColumnOperators]:
+) -> Union[sa.ColumnClause, sa.ColumnOperators]:
     try:
         substr_col = cast_col_to_text(col, raw_data_type)
         distance = key.substr_to - key.substr_from + 1
     except Exception:
         return col
 
-    return func.substr(substr_col, key.substr_from, distance)
+    return sa.func.substr(substr_col, key.substr_from, distance)
 
 
 def make_comparison_column_with_cast_and_substr(
-    col1: ColumnClause,
+    col1: sa.ColumnClause,
     key1: SqlProcLinkKey,
     type1: str,
-    col2: ColumnClause,
+    col2: sa.ColumnClause,
     key2: SqlProcLinkKey,
     type2: str,
-) -> Optional[ColumnOperators, bool]:
+) -> Optional[sa.ColumnOperators, bool]:
     modified_col1 = col1 if key1.bad else force_take_substr(col1, key1, type1)
     modified_col2 = col2 if key2.bad else force_take_substr(col2, key2, type2)
 
@@ -320,17 +304,17 @@ def make_comparison_column_with_cast_and_substr(
     return modified_col1 == modified_col2
 
 
-def convert_to_unixepoch(col: ColumnClause) -> ColumnClause:
-    return func.unixepoch(col)
+def convert_to_unixepoch(col: sa.ColumnClause) -> sa.ColumnClause:
+    return sa.func.unixepoch(col)
 
 
 def make_comparisons_column_delta_time_and_cut_off(
-    from_col: ColumnClause,
+    from_col: sa.ColumnClause,
     from_key: SqlProcLinkKey,
-    to_col: ColumnClause,
+    to_col: sa.ColumnClause,
     to_key: SqlProcLinkKey,
 ):
-    def _make_comparison(col: ColumnClause, key: SqlProcLinkKey, other_col: ColumnClause):
+    def _make_comparison(col: sa.ColumnClause, key: SqlProcLinkKey, other_col: sa.ColumnClause):
         cut_off = abs(key.cut_off if key.cut_off is not None else 0)
         return [
             other_col > col,
@@ -348,10 +332,10 @@ def make_comparisons_column_delta_time_and_cut_off(
 
 
 def make_comparisons_column(
-    from_col: ColumnClause,
+    from_col: sa.ColumnClause,
     from_key: SqlProcLinkKey,
     from_data_type: str,
-    to_col: ColumnClause,
+    to_col: sa.ColumnClause,
     to_key: SqlProcLinkKey,
     to_data_type: str,
 ):
@@ -377,16 +361,16 @@ def make_comparisons_column(
 
 
 def make_delta_time_diff(
-    from_col: ColumnClause,
+    from_col: sa.ColumnClause,
     from_key: SqlProcLinkKey,
-    to_col: ColumnClause,
+    to_col: sa.ColumnClause,
     to_key: SqlProcLinkKey,
 ):
     if from_key.delta_time is not None:
-        return func.abs(to_col - (from_col + from_key.delta_time * 60))
+        return sa.func.abs(to_col - (from_col + from_key.delta_time * 60))
 
     if to_key.delta_time is not None:
-        return func.abs(from_col - (to_col + to_key.delta_time * 60))
+        return sa.func.abs(from_col - (to_col + to_key.delta_time * 60))
 
     return None
 
@@ -394,16 +378,16 @@ def make_delta_time_diff(
 @log_execution_time(SQL_GENERATOR_PREFIX)
 def gen_tracing_cte(
     tracing_table_alias: str,
-    cte_proc_list: list[CTE],
+    cte_proc_list: list[sa.CTE],
     sql_objs: list[SqlProcLink],
     duplicated_serial_show: DuplicateSerialShow,
     dict_cond_procs: dict,
 ):
     start_proc_table = cte_proc_list[0] if cte_proc_list else None
     assert start_proc_table is not None
-    stmt = select(cte_proc_list)
+    stmt = sa.select(*cte_proc_list)
 
-    join_conditions: Optional[Join] = None
+    join_conditions: Optional[sa.Join] = None
 
     for i in range(1, len(sql_objs)):
         sql_obj = sql_objs[i]
@@ -444,7 +428,7 @@ def gen_tracing_cte(
             join_conditions,
             left=prev_cte_proc,
             right=cte_proc,
-            onclause=and_(*comparisons),
+            onclause=sa.and_(*comparisons),
             isouter=not is_has_condition(
                 sql_obj.process_id,
                 dict_cond_procs,
@@ -482,10 +466,10 @@ def gen_conditions_per_column(filters):
 
 
 def gen_sql_condition_per_col(
-    col: ColumnClause,
+    col: sa.ColumnClause,
     datatype: str,
     filters: list[ConditionProcDetail],
-) -> Operators:
+) -> sa.Operators:
     text_col = cast_col_to_text(col, datatype)
 
     and_conditions = gen_conditions_per_column(filters)
@@ -497,15 +481,13 @@ def gen_sql_condition_per_col(
         if like_vals:
             ors.extend(text_col.like(like_val) for like_val in like_vals)
         if regex_vals:
-            # sqlalchemy 1.3 does not support regex yet
-            # in 1.4 we could use col.regex_match(regex_val)
-            ors.extend(text_col.operate(operators.custom_op(SQL_REGEXP_FUNC), regex_val) for regex_val in regex_vals)
+            ors.extend(text_col.regexp_match(regex_val) for regex_val in regex_vals)
         if ors:
-            ands.append(or_(*ors))
-    return and_(*ands)
+            ands.append(sa.or_(*ors))
+    return sa.and_(*ands)
 
 
-def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: CTE, sql_objs: list[SqlProcLink]) -> CTE:
+def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: sa.CTE, sql_objs: list[SqlProcLink]) -> sa.CTE:
     timediff_cols = []
     for sql_obj, prev_sql_obj in zip(sql_objs[1:], sql_objs):
         link_keys = sql_obj.link_keys
@@ -522,7 +504,7 @@ def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: CTE, sql_objs: list[Sql
     timediff_labels = [f'{TIMEDIFF_PREFIX}_{i}' for i in range(len(timediff_cols))]
     timediff_cols = [col.label(label) for col, label in zip(timediff_cols, timediff_labels)]
 
-    cte_tracing_timediff = select([*cte_tracing.columns, *timediff_cols]).cte(CTE_TRACING_TIMEDIFF)
+    cte_tracing_timediff = sa.select(*cte_tracing.columns, *timediff_cols).cte(CTE_TRACING_TIMEDIFF)
 
     rank_by_timediff = (
         sa.func.rank()
@@ -532,10 +514,10 @@ def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: CTE, sql_objs: list[Sql
         )
         .label(RANK_BY_TIMEDIFF)
     )
-    cte_tracing_rank = select([*cte_tracing_timediff.columns, rank_by_timediff]).cte(CTE_TRACING_RANK_BY_TIMEDIFF)
+    cte_tracing_rank = sa.select(*cte_tracing_timediff.columns, rank_by_timediff).cte(CTE_TRACING_RANK_BY_TIMEDIFF)
 
     cte_tracing_filtered_rank = (
-        select([*cte_tracing_rank.columns])
+        sa.select(*cte_tracing_rank.columns)
         .where(cte_tracing_rank.c.get(RANK_BY_TIMEDIFF) == 1)
         .cte(CTE_TRACING_MIN_TIMEDIFF)
     )
@@ -545,10 +527,10 @@ def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: CTE, sql_objs: list[Sql
 
 @log_execution_time(SQL_GENERATOR_PREFIX)
 def gen_show_stmt(
-    cte_tracing: CTE,
+    cte_tracing: sa.CTE,
     sql_objs: list[SqlProcLink],
     types_should_be_casted: List[RawDataTypeDB] = [],  # noqa
-) -> Select:
+) -> sa.Select:
     # we must add id and time to shown_cols
     shown_cols = [cte_tracing.c.get(TransactionData.id_col_name).label(TransactionData.id_col_name)]
 
@@ -574,25 +556,15 @@ def gen_show_stmt(
 
             shown_cols.append(col)
 
-    return select(shown_cols)
+    return sa.select(*shown_cols)
 
 
-def gen_id_stmt(cte_tracing: CTE) -> Select:
+def gen_id_stmt(cte_tracing: sa.CTE) -> sa.Select:
     col = cte_tracing.c.get(TransactionData.id_col_name)
-    return select([col])
-    # return select([1])
+    return sa.select(col)
 
 
-# def count_proc_link_by_delta_time(trace: CfgTrace, limit: Optional[int] = None) -> Select:
-#     self_proc_link_keys: list[SqlProcLinkKey] = []
-#     target_proc_link_keys: list[SqlProcLinkKey] = []
-#
-#     self_trans_data = TransactionData(trace.self_process_id)
-#     target_trans_data = TransactionData(trace.target_process_id)
-#     return None
-
-
-def gen_sql_proc_link_count(trace: CfgTrace, limit: Optional[int] = None) -> Select:
+def gen_sql_proc_link_count(trace: CfgTrace, limit: Optional[int] = None) -> sa.Select:
     self_proc_link_keys: list[SqlProcLinkKey] = []
     target_proc_link_keys: list[SqlProcLinkKey] = []
 
@@ -652,8 +624,8 @@ class TransactionDataQueryBuilder:
         self.trans_model = trans_model
         self.table = self.trans_model.table_model
 
-        self.selected_columns: list[Label] = []
-        self.join_conditions: Optional[Join] = None
+        self.selected_columns: list[sa.Label] = []
+        self.join_conditions: Optional[sa.Join] = None
         self.where_clauses = []
 
         self.distinct_columns = []
@@ -669,7 +641,7 @@ class TransactionDataQueryBuilder:
             raise AssertionError(f'{column} does not existed in {self.table.name}')
         return column
 
-    def column(self, name: str) -> Label:
+    def column(self, name: str) -> sa.Label:
         for column in self.selected_columns:
             if column.name == name:
                 return column
@@ -678,7 +650,7 @@ class TransactionDataQueryBuilder:
     def add_column(
         self,
         *,
-        column: Union[ColumnClause, str, Label],
+        column: Union[sa.ColumnClause, str, sa.Label],
         label: Optional[str] = None,
     ) -> None:
         if isinstance(column, str):
@@ -687,42 +659,32 @@ class TransactionDataQueryBuilder:
             column = column.label(label)
         self.selected_columns.append(column)
 
-    def distinct(self, *, columns: list[sa.Column | Label]) -> None:
+    def distinct(self, *, columns: list[sa.Column | sa.Label]) -> None:
         self.distinct_columns = columns
 
-    def order_by(self, *, columns: list[sa.Column | Label]) -> None:
+    def order_by(self, *, columns: list[sa.Column | sa.Label]) -> None:
         self.orderby_columns = columns
 
-    def having(self, *, columns: list[sa.Column | Label]) -> None:
+    def having(self, *, columns: list[sa.Column | sa.Label]) -> None:
         self.having_columns = columns
 
     def between(self, *, start_tm: str, end_tm: str) -> None:
         time_col = self.table_column(self.trans_model.getdate_column.bridge_column_name)
         self.where_clauses.append(sa.and_(time_col >= start_tm, time_col < end_tm))
 
-    def build(self, limit: Optional[int] = None) -> Select:
-        stmt = sa.select(self.selected_columns)
+    def build(self, limit: Optional[int] = None) -> sa.Select:
+        stmt = sa.select(*self.selected_columns)
+        # FIXME: change this to list self.join_conditions, so we can chain the builder
         if self.join_conditions is not None:
             stmt = stmt.select_from(self.join_conditions)
-
-        for clause in self.where_clauses:
-            stmt.append_whereclause(clause)
-
-        # SQLITE3 use HAVING for distinct some columns in SELECT
-        if self.distinct_columns:
-            # stmt = stmt.distinct(*self.distinct_columns)
-            stmt.append_group_by(*self.distinct_columns)
-
-        if self.having_columns:
-            for clause in self.having_columns:
-                stmt.append_having(clause)
-
-        if self.orderby_columns:
-            stmt = stmt.order_by(*self.orderby_columns)
-
-        if limit is not None:
-            stmt = stmt.limit(limit)
-
+        stmt = (
+            stmt.where(*self.where_clauses)
+            # SQLITE3 use HAVING for distinct some columns in SELECT
+            .group_by(*self.distinct_columns)
+            .having(*self.having_columns)
+            .order_by(*self.orderby_columns)
+            .limit(limit)
+        )
         del self
         return stmt
 
@@ -743,7 +705,7 @@ class TransactionDataProcLinkQueryBuilder:
             self.table_alias = uuid.uuid4().hex
 
         self.limit = limit
-        self.cte: Optional[CTE] = None
+        self.cte: Optional[sa.CTE] = None
 
     def build_proc_link_cte(self) -> Self:
         query_builder = TransactionDataQueryBuilder(self.trans_model)
@@ -754,7 +716,7 @@ class TransactionDataProcLinkQueryBuilder:
         self.cte = self.gen_cached_unixepoch_cte()
         return self
 
-    def gen_cached_unixepoch_cte(self) -> CTE:
+    def gen_cached_unixepoch_cte(self) -> sa.CTE:
         unixepoch_cols = []
         for key in self.proc_link_keys:
             if key.is_delta_time_cut_off_linked:
@@ -768,20 +730,13 @@ class TransactionDataProcLinkQueryBuilder:
             return self.cte
 
         return (
-            sa.select(
-                [
-                    *unixepoch_cols,
-                    *self.cte.c,
-                ],
-            )
-            .cte(f'{self.table_alias}_{UNIXEPOCH}')
-            .prefix_with('MATERIALIZED')
+            sa.select(*unixepoch_cols, *self.cte.c).cte(f'{self.table_alias}_{UNIXEPOCH}').prefix_with('MATERIALIZED')
         )
 
-    def get_column_by_label(self, label: str) -> Optional[ColumnClause]:
+    def get_column_by_label(self, label: str) -> Optional[sa.ColumnClause]:
         return self.cte.c.get(label)
 
-    def make_link_comparison(self, other: Self) -> list[ColumnOperators]:
+    def make_link_comparison(self, other: Self) -> list[sa.ColumnOperators]:
         comparisons = []
         for key, other_key in zip(self.proc_link_keys, other.proc_link_keys):
             if key.is_delta_time_cut_off_linked:
@@ -804,12 +759,12 @@ class TransactionDataProcLinkQueryBuilder:
 
         return comparisons
 
-    def build_count_query(self, other: Self) -> Select:
+    def build_count_query(self, other: Self) -> sa.Select:
         if self.cte is None:
             self.build_proc_link_cte()
         if other.cte is None:
             other.build_proc_link_cte()
         comparisons = self.make_link_comparison(other)
-        exists_stmt = sa.exists([1]).where(sa.and_(*comparisons))
-        count_stmt = sa.select([sa.func.count()]).select_from(self.cte)
+        exists_stmt = sa.exists(1).where(sa.and_(*comparisons))
+        count_stmt = sa.select(sa.func.count()).select_from(self.cte)
         return count_stmt.where(exists_stmt)

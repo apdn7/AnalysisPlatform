@@ -1,7 +1,9 @@
 ### EXPORT
 import io
+import logging
 import os
 import pickle
+import shutil
 from zipfile import ZIP_DEFLATED, ZipFile
 
 import pandas as pd
@@ -11,6 +13,7 @@ from ap.api.common.services.show_graph_database import get_proc_ids_in_graph_par
 from ap.common.common_utils import (
     delete_file,
     get_basename,
+    get_data_path,
     get_export_path,
     read_pickle_file,
     set_debug_data,
@@ -22,6 +25,7 @@ from ap.common.constants import (
     DIC_FORM_NAME,
     IS_EXPORT_MODE,
     IS_IMPORT_MODE,
+    PROCESS_QUEUE_FILE_NAME,
     USER_SETTING_NAME,
     CsvDelimiter,
     DebugKey,
@@ -47,6 +51,8 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import CfgUserSettingSchema, ProcessFullSchema
+
+logger = logging.getLogger(__name__)
 
 
 def export_debug_info(dataset_id, user_setting_id):
@@ -315,3 +321,35 @@ def get_zip_full_path(filename):
         return None
 
     return os.path.join(get_export_path(), get_basename(filename))
+
+
+def delete_file_and_folder_by_path(path, ignore_folder=None):
+    is_data_path = path == get_data_path()
+    for root, dirs, files in os.walk(path):
+        if ignore_folder and ignore_folder in root:
+            continue
+
+        for file in files:
+            if is_data_path and PROCESS_QUEUE_FILE_NAME in file:
+                # do not remove process_queue.pkl file, it necessary for multiprocessing management
+                continue
+
+            file_path = os.path.join(root, file)
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                logger.error(f'File could not be deleted. {e}')
+
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            if os.path.basename(dir_path) != ignore_folder:
+                try:
+                    shutil.rmtree(dir_path)
+                except OSError as e:
+                    logger.error(f'Folder data could not be deleted. {e}')
+    return {}, 200
+
+
+def delete_folder_data(ignore_folder='preview'):
+    data_path = get_data_path()
+    delete_file_and_folder_by_path(data_path, ignore_folder=ignore_folder)

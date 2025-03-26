@@ -8,21 +8,46 @@
 }
 
 .form-group .list-group-item {
-    padding: 1px 1rem;
+    padding: 1px 1.2rem;
     font-size: 14px;
-    border-left: none;
-    border-right: none;
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
 }
 
 .end-proc .sortCol {
-    padding: 0 10px;
     font-size: 10px;
+
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
+
 .end-proc .sortCol:hover path {
     color: #7d7d7d !important;
 }
 
+/*16px: 10px - padding-right; 6px - width of icon*/
+.col-has-checkbox .sortCol {
+    padding-left: calc(50% - 16px);
+}
+
+.col-without-checkbox .sortCol {
+    padding-left: calc(50% - 16px);
+}
+
+.col-without-checkbox {
+    padding-left: 0px;
+}
+
+/*hide sort in filter, and inside modal*/
+.modal .sortCol,
 #cndPrc .sortCol {
+    display: none;
+}
+
+/*hide extend name column in filter, and inside modal*/
+.modal #btn-extend-toggle-container,
+#cndPrc #btn-extend-toggle-container {
     display: none;
 }
 
@@ -32,9 +57,6 @@
     /*max-width: 13vw;*/
     overflow: hidden !important;
     text-overflow: ellipsis;
-}
-.fit-item {
-    max-width: 55px;
 }
 
 .objective-item {
@@ -215,8 +237,34 @@ h6 {
     }
 }
 
+.fit-item {
+    max-width: 55px;
+}
+
 .small-col {
-    width: 50px;
+    width: 48px;
+    max-width: 48px;
+}
+.large-col {
+    max-width: 120px;
+    min-width: 120px;
+}
+
+.center-checkbox-label-filter {
+    padding-left: 34px;
+}
+
+/*adjust select2 size by large-col | using important to against with select2 css in main.css*/
+.large-col .select2-selection__rendered {
+    padding-right: 2px !important;
+    padding-left: 4px !important;
+    text-align: left !important;
+    font-size: 13px;
+}
+
+.large-col .select2-selection__placeholder {
+    text-align: left !important;
+    margin-left: 0px !important;
 }
 
 @media (max-width: 1200px) {
@@ -264,4 +312,28 @@ h6 {
 
 .blink {
     animation: blink-animation 1s linear infinite;
+}
+
+.default-width-sys-name {
+    width: 84px;
+}
+#btn-extend-toggle-container {
+    display: inline-block;
+    height: 100%;
+
+    padding: 0;
+    padding-right: calc(50% - 20px);
+}
+
+#btn-extend-toggle {
+    height: 50%;
+    line-height: 0.2;
+
+    padding: 0;
+    padding-right: calc(50% - 20px);
+    text-decoration: underline;
+}
+
+#btn-extend-toggle-container:hover #btn-extend-toggle {
+    color: gray;
 }

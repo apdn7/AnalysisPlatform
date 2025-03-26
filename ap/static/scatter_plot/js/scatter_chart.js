@@ -47,9 +47,7 @@ const genScatterLayout = (chartOptions) => {
         colorBarLength = colorBarHeight / chartOptions.totalHeight;
     }
 
-    const [tickVals, tickText] = buildCategoryColors(
-        chartOptions.colorsValSets,
-    );
+    const [tickVals, tickText] = buildCategoryColors(chartOptions.colorsValSets);
     let colorbarTitle = narrowText(chartOptions.colorVarName);
     if (chartOptions.colorOrderVar !== 'colors') {
         colorbarTitle = $(i18nColorBar[chartOptions.colorOrderVar]).text();
@@ -277,13 +275,7 @@ const calcTickSteps = (rows, cols) => {
     return [rowSteps, colSteps];
 };
 
-const calcTicksDomain = (
-    idx,
-    ticksStep,
-    isCol = 0,
-    defaultMargin = 0.015,
-    totalColRow,
-) => {
+const calcTicksDomain = (idx, ticksStep, isCol = 0, defaultMargin = 0.015, totalColRow) => {
     // 0.035 is space between charts
     const margin = totalColRow > 1 ? defaultMargin : 0;
     const start = idx * ticksStep[isCol];
@@ -292,35 +284,19 @@ const calcTicksDomain = (
 };
 
 const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
-    const itemIdx =
-        layoutAttrs.rowIdx * layoutAttrs.colsTotal + layoutAttrs.colIdx;
+    const itemIdx = layoutAttrs.rowIdx * layoutAttrs.colsTotal + layoutAttrs.colIdx;
     const itemId = itemIdx !== 0 ? itemIdx + 1 : '';
 
     const yAxisName = `yaxis${itemId}`;
     const xAxisName = `xaxis${itemId}`;
     const yAxisId = `y${itemId}`;
     const xAxisId = `x${itemId}`;
-    const ticksStep = calcTickSteps(
-        layoutAttrs.rowsTotal,
-        layoutAttrs.colsTotal,
-    );
+    const ticksStep = calcTickSteps(layoutAttrs.rowsTotal, layoutAttrs.colsTotal);
     const isBreakLine = layoutAttrs.hLabel.includes('<br>');
     // const verticalMargin = (layoutAttrs.hLabel && isBreakLine && layoutAttrs.colsTotal > 1)
     //     ? SCATTER_MARGIN.H_TITLE_MULTI_LINES : SCATTER_MARGIN.Y_NORMAL;
-    const yDomain = calcTicksDomain(
-        layoutAttrs.rowIdx,
-        ticksStep,
-        0,
-        SCATTER_MARGIN.Y_NORMAL,
-        layoutAttrs.rowsTotal,
-    );
-    const xDomain = calcTicksDomain(
-        layoutAttrs.colIdx,
-        ticksStep,
-        1,
-        SCATTER_MARGIN.X_NORMAL,
-        layoutAttrs.colsTotal,
-    );
+    const yDomain = calcTicksDomain(layoutAttrs.rowIdx, ticksStep, 0, SCATTER_MARGIN.Y_NORMAL, layoutAttrs.rowsTotal);
+    const xDomain = calcTicksDomain(layoutAttrs.colIdx, ticksStep, 1, SCATTER_MARGIN.X_NORMAL, layoutAttrs.colsTotal);
 
     const isShowXTicks = layoutAttrs.rowIdx === 0;
     const isShowYTicks = layoutAttrs.colIdx === 0;
@@ -381,12 +357,7 @@ const genLayoutAxis = (layoutAttrs, isNotEmptyPlot) => {
     };
 };
 
-const removeInvalidDataPoints = (
-    scpMatrix,
-    xRange,
-    yRange,
-    colorVar = 'colors',
-) => {
+const removeInvalidDataPoints = (scpMatrix, xRange, yRange, colorVar = 'colors') => {
     scpMatrix.forEach((row) => {
         row.forEach((col) => {
             if (col) {
@@ -405,15 +376,9 @@ const removeInvalidDataPoints = (
                             cycle_ids: col.cycle_ids[i],
                             elapsed_time: col.elapsed_time[i],
                             times: col.times[i],
-                            x_serial: col.x_serial
-                                ? col.x_serial.map((xSerial) => xSerial.data[i])
-                                : null,
-                            y_serial: col.y_serial
-                                ? col.y_serial.map((ySerial) => ySerial.data[i])
-                                : null,
-                            time_numberings: col.time_numberings
-                                ? col.time_numberings[i]
-                                : null,
+                            x_serial: col.x_serial ? col.x_serial.map((xSerial) => xSerial.data[i]) : null,
+                            y_serial: col.y_serial ? col.y_serial.map((ySerial) => ySerial.data[i]) : null,
+                            time_numberings: col.time_numberings ? col.time_numberings[i] : null,
                         });
                     }
                 });
@@ -429,31 +394,21 @@ const removeInvalidDataPoints = (
                 col.array_x = pointObjs.map((pointData) => pointData.x);
                 col.array_y = pointObjs.map((pointData) => pointData.y);
                 col.colors = pointObjs.map((pointData) => pointData.colors);
-                col.cycle_ids = pointObjs.map(
-                    (pointData) => pointData.cycle_ids,
-                );
-                col.elapsed_time = pointObjs.map(
-                    (pointData) => pointData.elapsed_time,
-                );
+                col.cycle_ids = pointObjs.map((pointData) => pointData.cycle_ids);
+                col.elapsed_time = pointObjs.map((pointData) => pointData.elapsed_time);
                 col.times = pointObjs.map((pointData) => pointData.times);
                 if (col.time_numberings) {
-                    col.time_numberings = pointObjs.map(
-                        (pointData) => pointData.time_numberings,
-                    );
+                    col.time_numberings = pointObjs.map((pointData) => pointData.time_numberings);
                 }
 
                 if (col.x_serial) {
                     col.x_serial.forEach((xSerial, i) => {
-                        xSerial.data = pointObjs.map(
-                            (pointData) => pointData.x_serial[i],
-                        );
+                        xSerial.data = pointObjs.map((pointData) => pointData.x_serial[i]);
                     });
                 }
                 if (col.y_serial) {
                     col.y_serial.forEach((ySerial, i) => {
-                        ySerial.data = pointObjs.map(
-                            (pointData) => pointData.y_serial[i],
-                        );
+                        ySerial.data = pointObjs.map((pointData) => pointData.y_serial[i]);
                     });
                 }
             }

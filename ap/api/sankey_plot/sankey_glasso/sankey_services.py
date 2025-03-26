@@ -124,7 +124,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     # outliers count
     dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     dic_param = filter_cat_dict_common(
         df,
@@ -162,7 +162,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     dic_param['importance_columns_ids'] = None
     if not df.empty:
         dic_label_id, dic_id_name, dic_col_proc_id = get_sensors_objective_explanation(orig_graph_param)
-        df_sensors: pd.DataFrame = df[dic_label_id]
+        df_sensors: pd.DataFrame = df[dic_label_id.keys()]
         df_sensors = df_sensors.rename(columns=dic_label_id)
         df_sensors, data_clean, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
         if data_clean and not errors:
@@ -305,7 +305,7 @@ def clean_input_data(df: pd.DataFrame):
     data_clean = True
     errors = []
     # calculate null percentage and zero variance
-    dic_null_percent = (df.isnull().sum() * 100 / len(df)).to_dict()
+    dic_null_percent = (df.isna().sum() * 100 / len(df)).to_dict()
     dic_var = {}
 
     # if there are greater than 50% Null percent -> remove these columns
@@ -321,18 +321,25 @@ def clean_input_data(df: pd.DataFrame):
     df_drop = df.drop(remove_cols, axis=1)
     original_dtypes = df_drop.dtypes
 
-    df_drop = df_drop.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna(how='any')
+    df_drop = df_drop.replace([np.inf, -np.inf], np.nan).dropna(how='any')
     # After dropping NA, int columns will be converted to float
     # convert int columns back to their original datatypes of the dataframe
+    cat_dims = []
     for column in df_drop.columns:
         if original_dtypes.get(column).name == pd.Int64Dtype().name:
             df_drop[column] = df_drop[column].astype(original_dtypes.get(column))
+        if pd.api.types.is_object_dtype(df_drop[column]):
+            cat_dims.append(column)
 
     is_zero_var, err_cols = zero_variance(df_drop)
     if is_zero_var:
         data_clean = False
         errors.append(ErrorMsg.E_ZERO_VARIANCE.name)
-        dic_var = df_drop.var().to_dict()
+        _drop_df = df_drop.copy()
+        if len(cat_dims):
+            for column in cat_dims:
+                _drop_df[column] = pd.Series(_drop_df[column].astype('category').cat.codes)
+        dic_var = _drop_df.var().to_dict()
 
     if na_error:
         errors.append(ErrorMsg.E_ALL_NA.name)
@@ -348,8 +355,8 @@ def gen_sankey_grouplasso_plot_data(df: pd.DataFrame, x_cols, y_col, groups, cat
     x_col_names = np.array(list(x_cols.values()))
 
     # Inputs
-    x_2d = df[x_cols]
-    y_1d = df[[y_col_id]].values
+    x_2d = df[x_cols.keys()]
+    y_1d = df[[y_col_id]].to_numpy()
 
     x_col_ids = np.array(x_2d.columns.tolist())
     # please set verbose=False if info should not be printed
@@ -445,5 +452,5 @@ def gen_confusion_matrix(actual, fitted):
     uniq_vals = [str(x) for x in np.unique(actual)]
     cm = confusion_matrix(actual, fitted)
     cm = pd.DataFrame(cm, index=uniq_vals, columns=uniq_vals)
-    cm_data = {'columns': uniq_vals, 'data': cm.values.tolist()}
+    cm_data = {'columns': uniq_vals, 'data': cm.to_numpy().tolist()}
     return cm_data

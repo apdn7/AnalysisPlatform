@@ -45,12 +45,8 @@ const i18n = {
     selectOver100SensorMsg: $('#i18nSelectOver100SensorMsg').text(),
     objectiveHoverMsg: $('#i18nSkDObjectiveHoverMsg').text(),
     SkDPlotHoverRelationship: $('#i18nSkDPlotHoverRelationship').text(),
-    SkDPlotHoverRelationshipPositive: $(
-        '#i18nSkDPlotHoverRelationshipPositive',
-    ).text(),
-    SkDPlotHoverRelationshipNegative: $(
-        '#i18nSkDPlotHoverRelationshipNegative',
-    ).text(),
+    SkDPlotHoverRelationshipPositive: $('#i18nSkDPlotHoverRelationshipPositive').text(),
+    SkDPlotHoverRelationshipNegative: $('#i18nSkDPlotHoverRelationshipNegative').text(),
     SkDPlotHoverCoefficient: $('#i18nSkDPlotHoverCoefficient').text(),
     SkDPlotHoverVariable: $('#i18nSkDPlotHoverVariable').text(),
     SkDPlotHoverProcess: $('#i18nSkDPlotHoverProcess').text(),
@@ -90,13 +86,7 @@ $(() => {
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -427,12 +417,9 @@ const showGroupLasso = (sankeyJson) => {
             nodeValue.push(linkValue[nodeIndex]);
         } else if (objectiveVarIndex === nodeIndex) {
             // Case3: for objective_index (the last index in LinkTarget) => incoming: size of set of linkTarget (not include objectiveIndex), outgoing: 0, value: sum of case 1
-            const incomingValue = new Set(
-                linkTarget.filter((n) => n !== objectiveVarIndex),
-            ).size;
+            const incomingValue = new Set(linkTarget.filter((n) => n !== objectiveVarIndex)).size;
             const value = linkValue.reduce(
-                (sum, value, nodeIndex) =>
-                    linkTargetSet.includes(nodeIndex) ? sum : sum + value,
+                (sum, value, nodeIndex) => (linkTargetSet.includes(nodeIndex) ? sum : sum + value),
                 0,
             );
             incoming.push(incomingValue);
@@ -711,7 +698,10 @@ const showGroupLasso = (sankeyJson) => {
     });
 };
 
-const collectFormDataSkD = (clearOnFlyFilter = false) => {
+const collectFormDataSkD = (clearOnFlyFilter = false, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     const traceForm = $(formElements.formID);
     let formData = new FormData(traceForm[0]);
     if (clearOnFlyFilter) {
@@ -741,54 +731,61 @@ const checkNumberOfSelectedSensor = (fromData) => {
     }
 };
 
-const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false) => {
-    const formData = collectFormDataSkD(clearOnFlyFilter || reselectVars);
+const handleSetPollingData = () => {
+    const settings = collectFormDataSkD(false);
+    callToBackEndAPI(settings, false, true);
+};
+
+const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUpdate = false) => {
+    const formData = collectFormDataSkD(clearOnFlyFilter || reselectVars, autoUpdate);
 
     checkNumberOfSelectedSensor(formData);
 
-    showGraphCallApi(
-        '/ap/api/skd/index',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (!res.actual_record_number) {
-                showToastrAnomalGraph();
-                return;
+    showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
+        if (!res.actual_record_number) {
+            showToastrAnomalGraph();
+            return;
+        }
+        if (res.errors && res.errors.length) {
+            showErrorToastr(res.errors);
+            loadingHide();
+
+            if (clearOnFlyFilter) {
+                // click show graph
+                reselectCallback = callToBackEndAPI;
             }
-            if (res.errors && res.errors.length) {
-                showErrorToastr(res.errors);
-                loadingHide();
-
-                if (clearOnFlyFilter) {
-                    // click show graph
-                    problematicData = {
-                        null_percent: res.null_percent || {},
-                        zero_variance: res.err_cols || [],
-                        selected_vars: res.selected_vars || [],
-                    };
-                    reselectCallback = callToBackEndAPI;
-                }
-                const errors = res.errors || [];
-                if (problematicData && errors.length) {
-                    showRemoveProblematicColsMdl(problematicData);
-                }
-                return;
+            // Update problematic Data
+            if (!reselectVars) {
+                problematicData = {
+                    null_percent: res.null_percent || {},
+                    zero_variance: res.err_cols || [],
+                    selected_vars: res.selected_vars || [],
+                };
             }
+            const errors = res.errors || [];
+            if (problematicData && errors.length) {
+                showRemoveProblematicColsMdl(problematicData);
+            }
+            return;
+        }
 
-            // render cat, category label filer modal
-            fillDataToFilterModal(res.filter_on_demand, () => {
-                callToBackEndAPI(false);
-            });
+        // render cat, category label filer modal
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            callToBackEndAPI(false);
+        });
 
-            graphStore.setTraceData(_.cloneDeep(res));
-            showSankeyPlot(res.plotly_data);
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            showScatterPlot(res.dic_scp, {});
+        // auto update
+        setPollingData(formData, handleSetPollingData, []);
 
-            // show info table
-            showInfoTable(res);
-        },
-    );
+        showSankeyPlot(res.plotly_data);
+
+        showScatterPlot(res.dic_scp, {});
+
+        // show info table
+        showInfoTable(res);
+    });
 };
 
 const showErrorToastr = (errors) => {

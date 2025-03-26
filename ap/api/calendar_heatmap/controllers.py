@@ -117,6 +117,7 @@ def data_export(export_type):
 
     delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
     csv_data, csv_list_name = gen_csv_data(graph_param, dic_param, delimiter=delimiter, by_cells=True)
-
-    response = zip_file_to_response([csv_data], csv_list_name, export_type=export_type)
+    # Special case for CHM: can return a string or a list
+    csv_data = [csv_data] if isinstance(csv_data, str) else csv_data
+    response = zip_file_to_response(csv_data, csv_list_name, export_type=export_type)
     return response

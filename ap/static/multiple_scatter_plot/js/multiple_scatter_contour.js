@@ -3,13 +3,7 @@ const getColName = (procId, colId) => {
     return column.shown_name || colId;
 };
 
-const genScatterOutlierTrace = (
-    sctData,
-    isShowContour = false,
-    procName = null,
-    cycleIDs = [],
-    options,
-) => {
+const genScatterOutlierTrace = (sctData, isShowContour = false, procName = null, cycleIDs = [], options) => {
     let suffixLabel = '';
     suffixLabel = ` @${options.start_proc_name}`;
     const scatterData = sctData.scatter_data;
@@ -117,12 +111,7 @@ const getScatterContourData = (cId, scatterContourData) => {
     }
 };
 
-const genScatterContourLayout = (
-    backgroundColor,
-    x_fmt,
-    y_fmt,
-    isLargeOfSensors = false,
-) => {
+const genScatterContourLayout = (backgroundColor, x_fmt, y_fmt, isLargeOfSensors = false) => {
     const layout = {
         annotationdefaults: {
             arrowcolor: '#2a3f5f',
@@ -330,13 +319,7 @@ const genScatterContourLayout = (
     return layout;
 };
 
-const addScatterThresholds = (
-    layout,
-    uclThresholds,
-    procThresholds,
-    rowRange,
-    colRange,
-) => {
+const addScatterThresholds = (layout, uclThresholds, procThresholds, rowRange, colRange) => {
     layout.shapes = [];
     // procThresholds.xMin
     if (!isEmpty(procThresholds.xMin)) {

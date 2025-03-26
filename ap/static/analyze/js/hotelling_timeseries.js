@@ -26,13 +26,7 @@ const drawShapes = (x = null, display = true) => {
     });
 };
 
-const drawTimeSeriesT2Chart = (
-    json,
-    jsonDtTest = {},
-    chartConfig = {},
-    sizeOfData = null,
-    arrayPlotdata = null,
-) => {
+const drawTimeSeriesT2Chart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
     if (!json) return;
 
     const startTime = performance.now();
@@ -96,11 +90,7 @@ const drawTimeSeriesT2Chart = (
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(
-            dataPoint,
-            (startingChart = 'timeSeriesT2'),
-            (jsonPCAScoreTest = jsonDtTest),
-        );
+        broadcastClickEvent(dataPoint, (startingChart = 'timeSeriesT2'), (jsonPCAScoreTest = jsonDtTest));
     });
 
     // Add hover event for t2 & q plots
@@ -130,13 +120,7 @@ const drawTimeSeriesT2Chart = (
     });
 };
 
-const drawTimeSeriesQChart = (
-    json,
-    jsonDtTest = {},
-    chartConfig = {},
-    sizeOfData = null,
-    arrayPlotdata = null,
-) => {
+const drawTimeSeriesQChart = (json, jsonDtTest = {}, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
     if (!json) return;
 
     const startTime = performance.now();
@@ -201,11 +185,7 @@ const drawTimeSeriesQChart = (
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(
-            dataPoint,
-            (startingChart = 'timeSeriesQ'),
-            (jsonPCAScoreTest = jsonDtTest),
-        );
+        broadcastClickEvent(dataPoint, (startingChart = 'timeSeriesQ'), (jsonPCAScoreTest = jsonDtTest));
     });
     // Add hover event for t2 & q plots
     timeSeriesQElement
@@ -257,8 +237,7 @@ const genTimeSeriesData = (data, type = 'test', label = 'T2_statics') => {
     };
     retData.text = data.map((v, k) => {
         const n = type === 'test' ? k + 1 : k + 1 - data.length;
-        retData.line.color =
-            type === 'test' ? 'rgba(255,165,0,1)' : 'rgba(255,255,255,1)';
+        retData.line.color = type === 'test' ? 'rgba(255,165,0,1)' : 'rgba(255,255,255,1)';
         retData.x.push(n);
         retData.y.push(v);
         return `sample_no:  ${n}<br />${label}: ${v}`;
@@ -422,12 +401,7 @@ const drawTimeSeriesT2ChartFromObj = (
 
     const timeSeriesT2Element = document.getElementById('timeSeriesT2');
 
-    Plotly.newPlot(
-        timeSeriesT2Element,
-        t2TimeSeriesData,
-        t2TimeSeriesLayout,
-        plotConfig,
-    );
+    Plotly.newPlot(timeSeriesT2Element, t2TimeSeriesData, t2TimeSeriesLayout, plotConfig);
 
     // xtest click event
     timeSeriesT2Element.on('plotly_click', (dataPoint) => {
@@ -444,11 +418,7 @@ const drawTimeSeriesT2ChartFromObj = (
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(
-            dataPoint,
-            (startingChart = 'timeSeriesT2'),
-            (jsonPCAScoreTest = jsonDtTest),
-        );
+        broadcastClickEvent(dataPoint, (startingChart = 'timeSeriesT2'), (jsonPCAScoreTest = jsonDtTest));
     });
 
     // Add hover event for t2 & q plots
@@ -491,16 +461,8 @@ const drawTimeSeriesQChartFromObj = (
 
     const startTime = performance.now();
 
-    const qTrainTimeSeries = genTimeSeriesData(
-        objData.SPE,
-        'train',
-        'Q_statics',
-    );
-    const qTestTimeSeries = genTimeSeriesData(
-        objData.test,
-        'test',
-        'Q_statics',
-    );
+    const qTrainTimeSeries = genTimeSeriesData(objData.SPE, 'train', 'Q_statics');
+    const qTestTimeSeries = genTimeSeriesData(objData.test, 'test', 'Q_statics');
     const qTimeSeriesData = [qTrainTimeSeries, qTestTimeSeries];
     const qTimeSeriesLayout = {
         margin: {
@@ -643,12 +605,7 @@ const drawTimeSeriesQChartFromObj = (
     });
     const timeSeriesQElement = document.getElementById('timeSeriesQ');
 
-    Plotly.newPlot(
-        timeSeriesQElement,
-        qTimeSeriesData,
-        qTimeSeriesLayout,
-        plotConfig,
-    );
+    Plotly.newPlot(timeSeriesQElement, qTimeSeriesData, qTimeSeriesLayout, plotConfig);
 
     // xtest click event
     timeSeriesQElement.on('plotly_click', (dataPoint) => {
@@ -665,11 +622,7 @@ const drawTimeSeriesQChartFromObj = (
         }
 
         // to broadcast click event to other charts
-        broadcastClickEvent(
-            dataPoint,
-            (startingChart = 'timeSeriesQ'),
-            (jsonPCAScoreTest = jsonDtTest),
-        );
+        broadcastClickEvent(dataPoint, (startingChart = 'timeSeriesQ'), (jsonPCAScoreTest = jsonDtTest));
     });
 
     // Add hover event for t2 & q plots

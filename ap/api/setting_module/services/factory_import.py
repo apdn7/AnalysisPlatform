@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 import pytz
@@ -27,7 +30,7 @@ from ap.api.setting_module.services.software_workshop_etl_services import (
     get_transaction_data_stmt,
     transform_df_for_software_workshop,
 )
-from ap.api.trace_data.services.proc_link import add_gen_proc_link_job
+from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, finished_transaction_import
 from ap.common.common_utils import (
     DATE_FORMAT_STR_ONLY_DIGIT,
     add_days,
@@ -41,7 +44,6 @@ from ap.common.constants import (
     DATA_TYPE_ERROR_MSG,
     DATETIME_DUMMY,
     PAST_IMPORT_LIMIT_DATA_COUNT,
-    DataColumnType,
     DataType,
     DBType,
     JobStatus,
@@ -53,8 +55,9 @@ from ap.common.logger import log_execution_time
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle, sqlite
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
+from ap.common.services.normalization import normalize_list
 from ap.common.timezone_utils import detect_timezone, gen_sql, get_db_timezone, get_time_info
-from ap.setting_module.models import CfgDataSourceDB, CfgProcess, JobManagement
+from ap.setting_module.models import CfgDataSourceDB, CfgProcess, CfgProcessColumn, JobManagement
 from ap.setting_module.services.background_process import (
     JobInfo,
     format_factory_date_to_meta_data,
@@ -92,9 +95,10 @@ def import_factory_job(
         db_code=data_source_id,
         process_id=process_id,
         process_name=process_name,
-        after_success_func=add_gen_proc_link_job,
+        after_success_func=finished_transaction_import,
         after_success_func_kwargs={'process_id': process_id, 'is_user_request': is_user_request, 'publish': True},
     )
+    add_gen_proc_link_job(process_id=process_id, is_user_request=True, publish=True)
 
 
 @log_execution_time()
@@ -111,13 +115,26 @@ def import_factory(proc_id):
     yield 0
 
     # get process id in edge db
-    proc_cfg: CfgProcess = CfgProcess.query.get(proc_id)
-    data_src: CfgDataSourceDB = CfgDataSourceDB.query.get(proc_cfg.data_source_id)
+    proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
+    if not proc_cfg:
+        return
+
+    # Isolate object that not link to SQLAlchemy to avoid changes in other session
+    proc_cfg = proc_cfg.clone()
+    data_src: CfgDataSourceDB = proc_cfg.data_source.db_detail
+    cfg_columns = proc_cfg.get_transaction_process_columns()
+
+    # get parent process config
+    parent_cfg_proc: Optional[CfgProcess] = None
+    parent_cfg_columns: Optional[list[CfgProcessColumn]] = None
+    if proc_cfg.parent_id:
+        parent_cfg_proc: Optional[CfgProcess] = CfgProcess.get_proc_by_id(proc_cfg.parent_id)
+        parent_cfg_columns: Optional[list[CfgProcessColumn]] = parent_cfg_proc.get_transaction_process_columns()
 
     # check db connection
     DbProxy.check_db_connection(data_src)
 
-    trans_data = TransactionData(proc_cfg.id)
+    trans_data = TransactionData(proc_cfg)
     with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
         trans_data.create_table(db_instance)
         # last import date
@@ -125,11 +142,10 @@ def import_factory(proc_id):
 
     # columns info
     proc_name = proc_cfg.name
-    column_names = [col.column_name for col in proc_cfg.columns]
+    transaction_columns = proc_cfg.get_transaction_process_columns()
+    raw_column_names = [col.column_raw_name for col in transaction_columns if col.is_normal_column]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
-    auto_increment_idx = column_names.index(auto_increment_col)
-    dic_use_cols = {col.column_name: col for col in proc_cfg.columns}
-    cfg_columns = proc_cfg.columns
+    dic_use_cols = {col.column_name: col for col in transaction_columns}
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
@@ -168,6 +184,7 @@ def import_factory(proc_id):
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
+    # has_data = False
 
     while inserted_row_count < MAX_RECORD and is_import:
         # get sql range
@@ -191,6 +208,7 @@ def import_factory(proc_id):
 
         # no data in range, stop
         if start_time > fac_max_date:
+            # has_data = False
             break
 
         # validate import date range
@@ -201,27 +219,24 @@ def import_factory(proc_id):
             is_import = False
 
         # get data from factory
-        data = get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end_time)
+        data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
         if not data:
+            # has_data = False
             break
 
         cols = next(data)
+        cols_normalize = normalize_list(cols)
         remain_rows = ()
         error_type = None
         for _rows in data:
-            # Reassign attribute
-            get_date_col = proc_cfg.get_date_col()
-            proc_id = proc_cfg.id
-            cfg_columns = [
-                col for col in proc_cfg.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
-            ]
+            is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, cols, auto_increment_col)
 
-            is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
             if not is_import:
                 continue
 
             # dataframe
-            df = pd.DataFrame(rows, columns=cols)
+            # has_data = True
+            df = pd.DataFrame(rows, columns=cols_normalize)
             # to save into import history
             imported_end_time = str(df[auto_increment_col].max())
             # pivot if this is vertical data
@@ -233,7 +248,6 @@ def import_factory(proc_id):
                     master_type=MasterDBType[proc_cfg.master_type],
                     rename_columns={col.column_raw_name: col.column_name for col in cfg_columns},
                 )
-
             # no records
             if not len(df):
                 error_type = DATA_TYPE_ERROR_EMPTY_DATA
@@ -246,11 +260,8 @@ def import_factory(proc_id):
                 if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
                     continue
 
-                null_is_error = False
-                if col == get_date_col:
-                    null_is_error = True
-
-                validate_datetime(df, col, is_strip=False, null_is_error=null_is_error)
+                empty_as_error = col == get_date_col
+                df = validate_datetime(df, col, is_strip=False, empty_as_error=empty_as_error)
                 df[col] = convert_df_col_to_utc(df, col, *dic_tz_info[col])
                 df[col] = convert_df_datetime_to_str(df, col)
 
@@ -261,7 +272,7 @@ def import_factory(proc_id):
             orig_df = df.copy()
 
             # data pre-processing
-            df_error = data_pre_processing(
+            df, df_error = data_pre_processing(
                 df,
                 orig_df,
                 dic_use_cols,
@@ -288,11 +299,13 @@ def import_factory(proc_id):
                 continue
 
             # merge mode
-            cfg_proc: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
-            parent_id = cfg_proc.parent_id
-            if parent_id:
-                cfg_parent_proc: CfgProcess = CfgProcess.get_proc_by_id(parent_id)
-                dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in cfg_parent_proc.columns}
+            target_cfg_process = proc_cfg
+            target_get_date_col = get_date_col
+            target_cfg_columns = cfg_columns
+            if parent_cfg_proc:
+                target_cfg_process = parent_cfg_proc
+                target_cfg_columns = parent_cfg_columns
+                dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in parent_cfg_columns}
                 dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
                 dic_rename = {}
                 for col in df.columns:
@@ -301,14 +314,19 @@ def import_factory(proc_id):
                 df = df.rename(columns=dic_rename)
                 orig_df = orig_df.rename(columns=dic_rename)
                 df_error = df_error.rename(columns=dic_rename)
-                proc_id = parent_id
-                cfg_columns = [
-                    col for col in cfg_parent_proc.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
-                ]
-                get_date_col = cfg_parent_proc.get_date_col()
+                target_get_date_col = parent_cfg_proc.get_date_col()
+
+            # Handle calculate data for main::Serial function column
+            main_serial_function_col = target_cfg_process.get_main_serial_function_col()
+            if main_serial_function_col:
+                from ap.api.setting_module.services.import_function_column import (
+                    calculate_data_for_main_serial_function_column,
+                )
+
+                df = calculate_data_for_main_serial_function_column(df, target_cfg_process, main_serial_function_col)
 
             # remove duplicate records which exists DB
-            df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
+            df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
             df_duplicate_cnt = len(df_duplicate)
             if df_duplicate_cnt:
                 write_duplicate_records_to_file_factory(
@@ -333,9 +351,8 @@ def import_factory(proc_id):
                 job_info.status = JobStatus.FAILED.name
                 job_info.err_msg = error_type
 
-            df = remove_non_exist_columns_in_df(df, [col.column_name for col in cfg_columns])
-            save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
-
+            df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
+            save_res = import_data(df, target_cfg_process, target_get_date_col, job_info)
             gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
 
             # total row of one job
@@ -343,8 +360,8 @@ def import_factory(proc_id):
             inserted_row_count += total_row
 
             job_info.calc_percent(inserted_row_count, MAX_RECORD)
-
-            yield job_info
+            with job_info.interruptible() as job_info:
+                yield job_info
 
             # raise exception if FATAL error happened
             if job_info.status is JobStatus.FATAL:
@@ -354,7 +371,7 @@ def import_factory(proc_id):
             logger.info(
                 f'FACTORY DATA IMPORT SQL(days = {sql_day}, records = {total_row}, range = {start_time} - {end_time})',
             )
-
+    # TODO: Enable after fixing duplicate logic
     # if not has_data:
     #     # save record into factory import to start job FACTORY PAST
     #     gen_import_job_info(job_info, 0, start_time, start_time)
@@ -363,7 +380,7 @@ def import_factory(proc_id):
     #     # insert import history
     #     job_info.import_type = JobType.FACTORY_IMPORT.name
     #     job_info.import_from = start_time
-    #     job_info.import_to = start_time
+    #     job_info.import_to = end_time
     #     save_import_history(proc_id, job_info=job_info)
     #     yield job_info
 
@@ -643,9 +660,10 @@ def factory_past_data_transform_job(process_id: int, process_name: str, data_sou
         db_code=data_source_id,
         process_id=process_id,
         process_name=process_name,
-        after_success_func=add_gen_proc_link_job,
+        after_success_func=finished_transaction_import,
         after_success_func_kwargs={'process_id': process_id},
     )
+    add_gen_proc_link_job(process_id=process_id, is_user_request=True)
 
 
 @log_execution_time()
@@ -662,24 +680,28 @@ def factory_past_data_transform(proc_id):
     yield 0
 
     # get process id in edge db
-    proc_cfg: CfgProcess = CfgProcess.query.get(proc_id)
-    data_src: CfgDataSourceDB = CfgDataSourceDB.query.get(proc_cfg.data_source_id)
+    proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
+    if not proc_cfg:
+        return
+
+    # Isolate object that not link to SQLAlchemy to avoid changes in other session
+    proc_cfg = proc_cfg.clone()
+    data_src: CfgDataSourceDB = proc_cfg.data_source.db_detail
 
     # check db connection
     DbProxy.check_db_connection(data_src)
 
     # columns info
     proc_name = proc_cfg.name
-    cfg_columns = [col for col in proc_cfg.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value]
-    column_names = [col.column_name for col in cfg_columns]
+    cfg_columns = proc_cfg.get_transaction_process_columns()
+    raw_column_names = [col.column_raw_name for col in cfg_columns if col.is_normal_column]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
-    auto_increment_idx = column_names.index(auto_increment_col)
     dic_use_cols = {col.column_name: col for col in cfg_columns}
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
 
-    trans_data = TransactionData(proc_id)
+    trans_data = TransactionData(proc_cfg)
     with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
         trans_data.create_table(db_instance)
         # last import date
@@ -736,7 +758,7 @@ def factory_past_data_transform(proc_id):
     job_info.target = proc_cfg.name
 
     # get data from factory
-    data = get_factory_data(proc_cfg, column_names, auto_increment_col, start_time, end_time)
+    data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
 
     # there is no data , return
     if not data:
@@ -755,18 +777,19 @@ def factory_past_data_transform(proc_id):
 
     # start import data
     cols = next(data)
+    cols_normalize = normalize_list(cols)
     remain_rows = ()
     inserted_row_count = 0
     has_data = False
     error_type = None
     for _rows in data:
         has_data = True
-        is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, auto_increment_idx)
+        is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, cols, auto_increment_col)
         if not is_import:
             continue
 
         # dataframe
-        df = pd.DataFrame(rows, columns=cols)
+        df = pd.DataFrame(rows, columns=cols_normalize)
         # pivot if this is vertical data
         if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
             df = transform_df_for_software_workshop(
@@ -789,11 +812,8 @@ def factory_past_data_transform(proc_id):
             if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
                 continue
 
-            null_is_error = False
-            if col == get_date_col:
-                null_is_error = True
-
-            validate_datetime(df, col, is_strip=False, null_is_error=null_is_error)
+            empty_as_error = col == get_date_col
+            df = validate_datetime(df, col, is_strip=False, empty_as_error=empty_as_error)
             df[col] = convert_df_col_to_utc(df, col, *dic_tz_info[col])
             df[col] = convert_df_datetime_to_str(df, col)
 
@@ -804,7 +824,7 @@ def factory_past_data_transform(proc_id):
         orig_df = df.copy()
 
         # data pre-processing
-        df_error = data_pre_processing(
+        df, df_error = data_pre_processing(
             df,
             orig_df,
             dic_use_cols,
@@ -824,8 +844,17 @@ def factory_past_data_transform(proc_id):
             write_error_import(df_error, proc_cfg.name)
             error_type = DATA_TYPE_ERROR_MSG
 
+        # Handle calculate data for main::Serial function column
+        main_serial_function_col: CfgProcessColumn | None = proc_cfg.get_main_serial_function_col()
+        if main_serial_function_col:
+            from ap.api.setting_module.services.import_function_column import (
+                calculate_data_for_main_serial_function_column,
+            )
+
+            df = calculate_data_for_main_serial_function_column(df, proc_cfg, main_serial_function_col)
+
         # remove duplicate records which exists DB
-        df_duplicate = remove_duplicates(df, orig_df, df_error, proc_id, get_date_col, cfg_columns)
+        df, df_duplicate = remove_duplicates(df, orig_df, df_error, proc_cfg, get_date_col)
         df_duplicate_cnt = len(df_duplicate)
         if df_duplicate_cnt:
             write_duplicate_records_to_file_factory(
@@ -841,10 +870,10 @@ def factory_past_data_transform(proc_id):
         # import data
         job_info.import_type = JobType.FACTORY_PAST_IMPORT.name
 
-        imported_end_time = rows[-1][auto_increment_idx]
+        imported_end_time = str(df[auto_increment_col].max())
         # to save into import history
         job_info.import_from = start_time
-        job_info.import_to = imported_end_time
+        job_info.import_to = format_factory_date_to_meta_data(imported_end_time, is_tz_col)
 
         job_info.status = JobStatus.DONE.name
         if error_type:
@@ -853,7 +882,7 @@ def factory_past_data_transform(proc_id):
             job_info.err_msg = error_type
 
         df = remove_non_exist_columns_in_df(df, [col.column_name for col in cfg_columns])
-        save_res = import_data(df, proc_id, get_date_col, cfg_columns, job_info)
+        save_res = import_data(df, proc_cfg, get_date_col, job_info)
 
         # update job info
         gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
@@ -863,7 +892,8 @@ def factory_past_data_transform(proc_id):
         inserted_row_count += total_row
 
         job_info.calc_percent(inserted_row_count, MAX_RECORD)
-        yield job_info
+        with job_info.interruptible() as job_info:
+            yield job_info
 
         # raise exception if FATAL error happened
         if job_info.status is JobStatus.FATAL:
@@ -919,7 +949,7 @@ def handle_time_zone(proc_cfg, get_date_col):
 
 
 @log_execution_time()
-def gen_import_data(rows, remain_rows, auto_increment_idx):
+def gen_import_data(rows, remain_rows, cols, auto_increment_col):
     is_allow_import = True
     # last fetch
     if len(rows) < FETCH_MANY_SIZE:
@@ -929,9 +959,10 @@ def gen_import_data(rows, remain_rows, auto_increment_idx):
     last_row_idx = len(rows) - 1
     first_row_idx = max(last_row_idx - 1000, 0)
 
+    rows_df = pd.DataFrame(rows, columns=cols)
     for i in range(last_row_idx, first_row_idx, -1):
         # difference time
-        if rows[i][auto_increment_idx] != rows[i - 1][auto_increment_idx]:
+        if rows_df.iloc[i][auto_increment_col] != rows_df.iloc[i - 1][auto_increment_col]:
             return is_allow_import, rows[:i], rows[i:]
 
     # no difference

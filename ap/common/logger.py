@@ -459,22 +459,11 @@ def log_exec_time_inside_func(prefix, func_name, is_log_debug=False):
     start = perf_counter()
     start_dt = datetime.utcnow()
 
-    def inner(msg: str = ''):
+    def inner():
         end = perf_counter()
-        end_dt = datetime.utcnow()
-        message = '{0} Function Name: {1}; START: {2}; END: {3}; Execution Time: {4:.6f}s; {5}; {6}'.format(
-            prefix,
-            func_name,
-            start_dt,
-            end_dt,
-            end - start,
-            msg,
-            '',
-        )
-        if is_log_debug:
-            logger.debug(message)
-        else:
-            logger.info(message)
+        count_time = end - start
+        log_func = logger.debug if is_log_debug else logger.info
+        log_func(f'{prefix} Function: {func_name}; START: {start_dt}; ExecTime: {count_time:.6f}s')
 
     return inner
 

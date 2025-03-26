@@ -130,8 +130,7 @@ const scatterChart = (ctx, data, prop) => {
                 afterTickToLabelConversion: function adjust(context) {
                     const { ticks } = context;
                     context.ticks[0].label = '';
-                    if (ticks.length)
-                        context.ticks[ticks.length - 1].label = '';
+                    if (ticks.length) context.ticks[ticks.length - 1].label = '';
                 },
                 afterFit(scaleInstance) {
                     scaleInstance.width = 60; // sets the width to 100px
@@ -193,12 +192,7 @@ const scatterChart = (ctx, data, prop) => {
             }
         },
         onHover(e) {
-            const point = this.getElementsAtEventForMode(
-                e,
-                'nearest',
-                { intersect: true },
-                false,
-            );
+            const point = this.getElementsAtEventForMode(e, 'nearest', { intersect: true }, false);
             // if (point.length) e.target.style.cursor = 'pointer';
             // else e.target.style.cursor = 'default';
 
@@ -237,63 +231,71 @@ const scatterChart = (ctx, data, prop) => {
 
     // procThresholds.xLow
     if (!isEmpty(procThresholds.xLow)) {
-        chartOptions.plugins.annotation.annotations.vlpcl =
-            createVerticalThreshold(
-                procThresholds.xLow,
-                CONST.BLUE,
-                CONST.vLPCL,
-            );
+        chartOptions.plugins.annotation.annotations.vlpcl = createVerticalThreshold(
+            procThresholds.xLow,
+            CONST.BLUE,
+            CONST.vLPCL,
+        );
     }
 
     // procThresholds.xHigh
     if (!isEmpty(procThresholds.xHigh)) {
-        chartOptions.plugins.annotation.annotations.vupcl =
-            createVerticalThreshold(
-                procThresholds.xHigh,
-                CONST.BLUE,
-                CONST.vUPCL,
-            );
+        chartOptions.plugins.annotation.annotations.vupcl = createVerticalThreshold(
+            procThresholds.xHigh,
+            CONST.BLUE,
+            CONST.vUPCL,
+        );
     }
 
     // procThresholds.yLow
     if (!isEmpty(procThresholds.yLow)) {
-        chartOptions.plugins.annotation.annotations.lpcl =
-            createHorizonalThreshold(
-                procThresholds.yLow,
-                CONST.BLUE,
-                CONST.LPCL,
-            );
+        chartOptions.plugins.annotation.annotations.lpcl = createHorizonalThreshold(
+            procThresholds.yLow,
+            CONST.BLUE,
+            CONST.LPCL,
+        );
     }
 
     // procThresholds.yHigh
     if (!isEmpty(procThresholds.yHigh)) {
-        chartOptions.plugins.annotation.annotations.upcl =
-            createHorizonalThreshold(
-                procThresholds.yHigh,
-                CONST.BLUE,
-                CONST.UPCL,
-            );
+        chartOptions.plugins.annotation.annotations.upcl = createHorizonalThreshold(
+            procThresholds.yHigh,
+            CONST.BLUE,
+            CONST.UPCL,
+        );
     }
 
     // draw line annotation
     if (!isEmpty(uclThresholds.xLow)) {
-        chartOptions.plugins.annotation.annotations.vlcl =
-            createVerticalThreshold(uclThresholds.xLow, CONST.RED, CONST.vLCL);
+        chartOptions.plugins.annotation.annotations.vlcl = createVerticalThreshold(
+            uclThresholds.xLow,
+            CONST.RED,
+            CONST.vLCL,
+        );
     }
 
     if (!isEmpty(uclThresholds.xHigh)) {
-        chartOptions.plugins.annotation.annotations.vucl =
-            createVerticalThreshold(uclThresholds.xHigh, CONST.RED, CONST.vUCL);
+        chartOptions.plugins.annotation.annotations.vucl = createVerticalThreshold(
+            uclThresholds.xHigh,
+            CONST.RED,
+            CONST.vUCL,
+        );
     }
 
     if (!isEmpty(uclThresholds.yLow)) {
-        chartOptions.plugins.annotation.annotations.lcl =
-            createHorizonalThreshold(uclThresholds.yLow, CONST.RED, CONST.LCL);
+        chartOptions.plugins.annotation.annotations.lcl = createHorizonalThreshold(
+            uclThresholds.yLow,
+            CONST.RED,
+            CONST.LCL,
+        );
     }
 
     if (!isEmpty(uclThresholds.yHigh)) {
-        chartOptions.plugins.annotation.annotations.ucl =
-            createHorizonalThreshold(uclThresholds.yHigh, CONST.RED, CONST.UCL);
+        chartOptions.plugins.annotation.annotations.ucl = createHorizonalThreshold(
+            uclThresholds.yHigh,
+            CONST.RED,
+            CONST.UCL,
+        );
     }
 
     // destroy instance
@@ -354,12 +356,7 @@ function scatterPlotOnDbClick(chart, event) {
     // removeAllCrossHair(false);
 
     // get clicked x,y values to draw cross hair lines
-    const eventElement = chart.getElementsAtEventForMode(
-        event,
-        'nearest',
-        { intersect: true },
-        false,
-    );
+    const eventElement = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
     if (!eventElement || eventElement.length < 1) return;
     const clickedIdx = eventElement[0].index + 1;
 
@@ -375,12 +372,7 @@ function scatterPlotOnDbClick(chart, event) {
 
 function scatterPlotOnClick(chart, event) {
     // get clicked x,y values to draw cross hair lines
-    const eventElement = chart.getElementsAtEventForMode(
-        event,
-        'nearest',
-        { intersect: true },
-        false,
-    );
+    const eventElement = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
     if (!eventElement || eventElement.length < 1) {
         removeAllCrossHair(true, true, true);
         return;
@@ -395,16 +387,12 @@ function scatterPlotOnClick(chart, event) {
     const xValue = clickedDataPoint.x;
     const yValue = clickedDataPoint.y;
     // console.log('xValue=', xValue, ', yValue=', yValue);
-    chart.options.plugins.annotation.annotations['crosshair-x'] =
-        scatterVertialLine(xValue, CONST.CH_SELF);
-    chart.options.plugins.annotation.annotations['crosshair-y'] =
-        scatterHorizontalline(yValue, CONST.CH_SELF);
+    chart.options.plugins.annotation.annotations['crosshair-x'] = scatterVertialLine(xValue, CONST.CH_SELF);
+    chart.options.plugins.annotation.annotations['crosshair-y'] = scatterHorizontalline(yValue, CONST.CH_SELF);
     chart.update((mode = 'none'));
 
     // same row TODO use class to get
-    const sameRowCanvases = $(event.chart.canvas)
-        .closest('div .chart-row')
-        .find('canvas');
+    const sameRowCanvases = $(event.chart.canvas).closest('div .chart-row').find('canvas');
     sameRowCanvases.each(function f() {
         const canvasId = $(this).attr('id');
         const chartType = $(this).attr('chart-type');
@@ -412,9 +400,7 @@ function scatterPlotOnClick(chart, event) {
         if (chartType === 'histogram') {
             const histChartObject = graphStore.getHistById(canvasId);
             if (histChartObject) {
-                histChartObject.options.plugins.annotation.annotations[
-                    'crosshair-y'
-                ] = scatterHorizontalline(yValue);
+                histChartObject.options.plugins.annotation.annotations['crosshair-y'] = scatterHorizontalline(yValue);
                 histChartObject.update((mode = 'none'));
             }
         }
@@ -422,9 +408,7 @@ function scatterPlotOnClick(chart, event) {
         if (chartType === 'timeSeries') {
             // draw horizontal from yValue
             const tsChartObject = graphStore.getTimeSeriesById(canvasId);
-            tsChartObject.options.plugins.annotation.annotations[
-                'crosshair-y'
-            ] = tsHorizonalLine(yValue);
+            tsChartObject.options.plugins.annotation.annotations['crosshair-y'] = tsHorizonalLine(yValue);
             tsChartObject.update((mode = 'none'));
         }
     });
@@ -465,17 +449,13 @@ const drawNextChartCrosshair = (currentCanvasId, clickedIdx) => {
     const tsChartObject = graphStore.getTimeSeriesById(nextTsCanvasId);
     const coYValue = tsChartObject.data.datasets[0].data[clickedIdx + 1];
     if (!isEmpty(coYValue)) {
-        tsChartObject.options.plugins.annotation.annotations['crosshair-y'] =
-            tsHorizonalLine(coYValue, CONST.CH_OTHER);
+        tsChartObject.options.plugins.annotation.annotations['crosshair-y'] = tsHorizonalLine(coYValue, CONST.CH_OTHER);
         tsChartObject.update((mode = 'none'));
     }
 };
 
 const getPlotData = (data, xSensorIdx, ySensorIdx) => {
-    if (
-        xSensorIdx > data.array_plotdata.length - 1 ||
-        ySensorIdx > data.array_plotdata.length - 1
-    ) {
+    if (xSensorIdx > data.array_plotdata.length - 1 || ySensorIdx > data.array_plotdata.length - 1) {
         return null;
     }
     const xData = data.array_plotdata[xSensorIdx];
@@ -516,27 +496,13 @@ const generateScatterData = (xArr, yArr) => {
 
 const getThresholdData = (data, xSensorIdx, ySensorIdx) => {
     const chartInfosX = data.array_plotdata[xSensorIdx].chart_infos || [];
-    const chartInfosXOrg =
-        data.array_plotdata[xSensorIdx].chart_infos_org || [];
+    const chartInfosXOrg = data.array_plotdata[xSensorIdx].chart_infos_org || [];
     const chartInfosY = data.array_plotdata[ySensorIdx].chart_infos || [];
-    const chartInfosYOrg =
-        data.array_plotdata[ySensorIdx].chart_infos_org || [];
-    const [latestChartInfoX, _x] = chooseLatestThresholds(
-        chartInfosX,
-        chartInfosXOrg,
-    );
-    const [latestChartInfoY, _y] = chooseLatestThresholds(
-        chartInfosY,
-        chartInfosYOrg,
-    );
-    const xScaleOption = getScaleInfo(
-        data.array_plotdata[xSensorIdx],
-        currentScaleOption,
-    );
-    const yScaleOption = getScaleInfo(
-        data.array_plotdata[ySensorIdx],
-        currentScaleOption,
-    );
+    const chartInfosYOrg = data.array_plotdata[ySensorIdx].chart_infos_org || [];
+    const [latestChartInfoX, _x] = chooseLatestThresholds(chartInfosX, chartInfosXOrg);
+    const [latestChartInfoY, _y] = chooseLatestThresholds(chartInfosY, chartInfosYOrg);
+    const xScaleOption = getScaleInfo(data.array_plotdata[xSensorIdx], currentScaleOption);
+    const yScaleOption = getScaleInfo(data.array_plotdata[ySensorIdx], currentScaleOption);
 
     return {
         procThresholds: {
@@ -589,8 +555,7 @@ const produceScatterPlotCharts = (data, scaleOption = null) => {
         const scatterData = generateScatterData(pdt.xArr, pdt.yArr);
 
         // get threshold data
-        const { uclThresholds, procThresholds, scaleMinMaxTicks } =
-            getThresholdData(data, xSensorIdx, ySensorIdx);
+        const { uclThresholds, procThresholds, scaleMinMaxTicks } = getThresholdData(data, xSensorIdx, ySensorIdx);
 
         // chart properties
         const prop = {
@@ -620,10 +585,7 @@ const produceScatterPlotCharts = (data, scaleOption = null) => {
 const redrawScatterAfterMoveCart = () => {
     // destroy all scatter plots + reset dict
     for (const graphIdx in Chart.instances) {
-        if (
-            Chart.instances[graphIdx].canvas &&
-            $(Chart.instances[graphIdx].canvas).attr('chart-type') === 'scatter'
-        ) {
+        if (Chart.instances[graphIdx].canvas && $(Chart.instances[graphIdx].canvas).attr('chart-type') === 'scatter') {
             try {
                 Chart.instances[graphIdx].destroy(); // destroy scatter plot instances
             } catch (e) {
@@ -653,8 +615,7 @@ const redrawScatterAfterMoveCart = () => {
     // re-new scatter axies
     $('.sctr-plot-ts').each((k, scatterContainter) => {
         // x is vertical axis -> sensor data of the next card
-        const newXSensorIdx =
-            latestSensorOrders[(k + 1) % latestSensorOrders.length];
+        const newXSensorIdx = latestSensorOrders[(k + 1) % latestSensorOrders.length];
         $(scatterContainter).attr('x-sensor-idx', newXSensorIdx);
     });
 
@@ -695,7 +656,7 @@ const addTimeSeriesCardSortableEventHandler = () => {
             fetch('/ap/api/fpp/save_order', {
                 method: 'POST',
                 headers: {
-                    Accept: 'application/json',
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -714,28 +675,28 @@ const handleSelectSCPMenuItem = (selectedItem = 'click') => {
     if (!selectedCanvasId) return;
     const scpChartObj = graphStore.getScatterById(selectedCanvasId);
     if (!scpChartObj) return;
-    const lastHoveredDataPoint =
-        graphStore.getLastHoveredDataPoint(selectedCanvasId);
+    const lastHoveredDataPoint = graphStore.getLastHoveredDataPoint(selectedCanvasId);
     if (!lastHoveredDataPoint) return;
 
     const { index, datasetIndex } = lastHoveredDataPoint;
-    const clickedDataPoint =
-        scpChartObj.data.datasets[datasetIndex].data[index];
+    const clickedDataPoint = scpChartObj.data.datasets[datasetIndex].data[index];
     const yValue = clickedDataPoint.y;
     const xValue = clickedDataPoint.x;
     switch (selectedItem) {
         case 'click': {
             removeAllCrossHair(true, true, true);
-            scpChartObj.options.plugins.annotation.annotations['crosshair-x'] =
-                scatterVertialLine(xValue, CONST.CH_SELF);
-            scpChartObj.options.plugins.annotation.annotations['crosshair-y'] =
-                scatterHorizontalline(yValue, CONST.CH_SELF);
+            scpChartObj.options.plugins.annotation.annotations['crosshair-x'] = scatterVertialLine(
+                xValue,
+                CONST.CH_SELF,
+            );
+            scpChartObj.options.plugins.annotation.annotations['crosshair-y'] = scatterHorizontalline(
+                yValue,
+                CONST.CH_SELF,
+            );
             scpChartObj.update((mode = 'none'));
 
             // same row TODO use class to get
-            const sameRowCanvases = $(`#${selectedCanvasId}`)
-                .closest('div .chart-row')
-                .find('canvas');
+            const sameRowCanvases = $(`#${selectedCanvasId}`).closest('div .chart-row').find('canvas');
             sameRowCanvases.each(function f() {
                 const canvasId = $(this).attr('id');
                 const chartType = $(this).attr('chart-type');
@@ -743,20 +704,16 @@ const handleSelectSCPMenuItem = (selectedItem = 'click') => {
                 if (chartType === 'histogram') {
                     const histChartObject = graphStore.getHistById(canvasId);
                     if (histChartObject) {
-                        histChartObject.options.plugins.annotation.annotations[
-                            'crosshair-y'
-                        ] = scatterHorizontalline(yValue);
+                        histChartObject.options.plugins.annotation.annotations['crosshair-y'] =
+                            scatterHorizontalline(yValue);
                         histChartObject.update((mode = 'none'));
                     }
                 }
 
                 if (chartType === 'timeSeries') {
                     // draw horizontal from yValue
-                    const tsChartObject =
-                        graphStore.getTimeSeriesById(canvasId);
-                    tsChartObject.options.plugins.annotation.annotations[
-                        'crosshair-y'
-                    ] = tsHorizonalLine(yValue);
+                    const tsChartObject = graphStore.getTimeSeriesById(canvasId);
+                    tsChartObject.options.plugins.annotation.annotations['crosshair-y'] = tsHorizonalLine(yValue);
                     tsChartObject.update((mode = 'none'));
                 }
             });
@@ -774,12 +731,7 @@ const handleSelectSCPMenuItem = (selectedItem = 'click') => {
     }
 };
 
-const createHorizonalThreshold = (
-    threshHold,
-    color = CONST.RED,
-    id = CONST.UCL,
-    borderDash = [],
-) => ({
+const createHorizonalThreshold = (threshHold, color = CONST.RED, id = CONST.UCL, borderDash = []) => ({
     type: 'line',
     id,
     mode: 'horizontal',
@@ -790,12 +742,7 @@ const createHorizonalThreshold = (
     borderDash,
 });
 
-const createVerticalThreshold = (
-    threshHold,
-    color = CONST.RED,
-    id = CONST.vUCL,
-    borderDash = [],
-) => ({
+const createVerticalThreshold = (threshHold, color = CONST.RED, id = CONST.vUCL, borderDash = []) => ({
     type: 'line',
     id,
     mode: 'vertical',

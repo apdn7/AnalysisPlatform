@@ -152,16 +152,14 @@ def get_processes_stmt(limit: int | None = None):
 
     stmt = (
         sa.select(
-            [
-                sa.func.concat(
-                    factory_table.c.fctry_name,
-                    UNDER_SCORE,
-                    lines_table.c.line_name,
-                    UNDER_SCORE,
-                    child_equips_table.c.child_equip_name,
-                ).label(TABLE_PROCESS_NAME),
-                child_equips_table.c.child_equip_id,
-            ],
+            sa.func.concat(
+                factory_table.c.fctry_name,
+                UNDER_SCORE,
+                lines_table.c.line_name,
+                UNDER_SCORE,
+                child_equips_table.c.child_equip_name,
+            ).label(TABLE_PROCESS_NAME),
+            child_equips_table.c.child_equip_id,
         )
         .select_from(join_master)
         .order_by(child_equips_table.c.child_equip_id)
@@ -177,10 +175,8 @@ def get_processes_stmt(limit: int | None = None):
 def get_code_name_mapping_stmt(process_factid: str):
     stmt = (
         sa.select(
-            [
-                child_equip_meas_items_table.c.meas_item_code,
-                child_equip_meas_items_table.c.meas_item_name,
-            ],
+            child_equip_meas_items_table.c.meas_item_code,
+            child_equip_meas_items_table.c.meas_item_name,
         )
         .where(child_equip_meas_items_table.c.child_equip_id == process_factid)
         .order_by(child_equip_meas_items_table.c.meas_item_code)
@@ -230,20 +226,18 @@ def get_master_data_stmt(
         conditions.append(target_table.c.event_time <= end_date)
 
     stmt = sa.select(
-        [
-            target_table.c.quality_measurement_id if is_measurement else target_table.c.quality_traceability_id,
-            target_table.c.event_time,
-            target_table.c.part_no,
-            target_table.c.lot_no,
-            target_table.c.tray_no,
-            target_table.c.serial_no,
-            factory_table.c.fctry_id,
-            factory_table.c.fctry_name,
-            lines_table.c.line_id,
-            lines_table.c.line_name,
-            child_equips_table.c.child_equip_id,
-            child_equips_table.c.child_equip_name,
-        ],
+        target_table.c.quality_measurement_id if is_measurement else target_table.c.quality_traceability_id,
+        target_table.c.event_time,
+        target_table.c.part_no,
+        target_table.c.lot_no,
+        target_table.c.tray_no,
+        target_table.c.serial_no,
+        factory_table.c.fctry_id,
+        factory_table.c.fctry_name,
+        lines_table.c.line_id,
+        lines_table.c.line_name,
+        child_equips_table.c.child_equip_id,
+        child_equips_table.c.child_equip_name,
     ).select_from(join_master)
 
     if conditions:
@@ -287,13 +281,11 @@ def get_measurement_transaction_data_stmt(
     cte = get_master_data_stmt(process_factid, start_date, end_date, limit).cte('master_data')
 
     measurements_stmt = sa.select(
-        [
-            cte,
-            measurements_table.c.code,
-            measurements_table.c.unit,
-            # need to cast data to text in order to union
-            sa.cast(measurements_table.c.value, sa.sql.sqltypes.TEXT).label(measurements_table.c.value.name),
-        ],
+        cte,
+        measurements_table.c.code,
+        measurements_table.c.unit,
+        # need to cast data to text in order to union
+        sa.cast(measurements_table.c.value, sa.sql.sqltypes.TEXT).label(measurements_table.c.value.name),
     ).select_from(
         sa.join(
             left=cte,
@@ -303,12 +295,10 @@ def get_measurement_transaction_data_stmt(
     )
 
     string_measurements_stmt = sa.select(
-        [
-            cte,
-            string_measurements_table.c.code,
-            string_measurements_table.c.unit,
-            string_measurements_table.c.value,
-        ],
+        cte,
+        string_measurements_table.c.code,
+        string_measurements_table.c.unit,
+        string_measurements_table.c.value,
     ).select_from(
         sa.join(
             left=cte,
@@ -332,14 +322,12 @@ def get_history_transaction_data_stmt(
     cte = get_master_data_stmt(process_factid, start_date, end_date, limit, is_measurement=False).cte('master_data')
 
     stmt = sa.select(
-        [
-            cte,
-            components_table.c.component_id,  # for order records
-            components_table.c.part_no.label(SubColumns.SUB_PART_NO.value),
-            components_table.c.lot_no.label(SubColumns.SUB_LOT_NO.value),
-            components_table.c.tray_no.label(SubColumns.SUB_TRAY_NO.value),
-            components_table.c.serial_no.label(SubColumns.SUB_SERIAL_NO.value),
-        ],
+        cte,
+        components_table.c.component_id,  # for order records
+        components_table.c.part_no.label(SubColumns.SUB_PART_NO.value),
+        components_table.c.lot_no.label(SubColumns.SUB_LOT_NO.value),
+        components_table.c.tray_no.label(SubColumns.SUB_TRAY_NO.value),
+        components_table.c.serial_no.label(SubColumns.SUB_SERIAL_NO.value),
     ).select_from(
         sa.join(
             left=cte,
@@ -348,7 +336,9 @@ def get_history_transaction_data_stmt(
         ),
     )
 
-    stmt = stmt.order_by(stmt.c.event_time, stmt.c.component_id)
+    # Need to change to `cte` and `components_table`. If we used the old `stmt`,
+    # sqlalchemy will create `anon`. Not sure why ...
+    stmt = stmt.order_by(cte.c.event_time, components_table.c.component_id)
 
     return stmt
 

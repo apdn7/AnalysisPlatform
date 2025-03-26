@@ -125,7 +125,10 @@ def read_data(
 
     normalize_func = normalize_list if do_normalize else lambda x: x
 
-    delimiter, encoding = get_delimiter_encoding(f_name, skip_head=skip_head)
+    _delimiter, encoding = get_delimiter_encoding(f_name, skip_head=skip_head)
+    # prioritize provided delimiter
+    if delimiter is None or delimiter == 'Auto':
+        delimiter = _delimiter
 
     with open_with_zip(f_name, 'r', encoding=encoding) as f:
         _f = f

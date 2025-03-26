@@ -221,25 +221,13 @@ const whiskerPlot = (ctx, prop) => {
 const getChartInforIndex = (plotData, clickedVal) => {
     const chartInfosY = plotData.chart_infos || [];
     const chartInfosYOrg = plotData.chart_infos_org || [];
-    const [latestChartInfoY, idx] = chooseLatestThresholds(
-        chartInfosY,
-        chartInfosYOrg,
-        clickedVal,
-    );
+    const [latestChartInfoY, idx] = chooseLatestThresholds(chartInfosY, chartInfosYOrg, clickedVal);
     return idx;
 };
 
-const genProp = (
-    plotData,
-    chartInforIndex = null,
-    cfgYMin = null,
-    cfgYMax = null,
-) => {
-    const nonParametric =
-        getNode(plotData.summaries[chartInforIndex], ['non_parametric']) || {};
-    const stats =
-        getNode(plotData.summaries[chartInforIndex], ['basic_statistics']) ||
-        {};
+const genProp = (plotData, chartInforIndex = null, cfgYMin = null, cfgYMax = null) => {
+    const nonParametric = getNode(plotData.summaries[chartInforIndex], ['non_parametric']) || {};
+    const stats = getNode(plotData.summaries[chartInforIndex], ['basic_statistics']) || {};
 
     let yMax = cfgYMax;
     let yMin = cfgYMin;
@@ -284,8 +272,7 @@ const genProp = (
 };
 
 const showWhiskerHover = (e) => {
-    const tooltipsEnabled =
-        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    const tooltipsEnabled = JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
     if (!tooltipsEnabled) return;
 
     // hide all before show new
@@ -313,8 +300,7 @@ const calWhiskerParamTblRect = (whiskerId) => {
     const tblOffsetBottom =
         parseInt(whiskerHoverElem.css('padding-bottom').slice(0, -2)) +
         parseInt(whiskerHoverElem.css('margin-bottom').slice(0, -2));
-    const tblHeight =
-        whiskerHoverElem.height() + tblOffsetBottom + tblOffsetTop - 35;
+    const tblHeight = whiskerHoverElem.height() + tblOffsetBottom + tblOffsetTop - 35;
     const tblVisible = $(window).height() - (whiskerRect.y + tblOffsetTop);
     const overTblBottom = tblHeight - tblVisible;
     const posLeft = whiskerRect.x + whiskerRect.width - 35;
@@ -355,13 +341,7 @@ const produceWhiskerPlots = (data) => {
     });
 };
 
-const drawSensorWhisker = (
-    sensorIdx,
-    plotData,
-    clickedVal = null,
-    cfgYMin = null,
-    cfgYMax = null,
-) => {
+const drawSensorWhisker = (sensorIdx, plotData, clickedVal = null, cfgYMin = null, cfgYMax = null) => {
     const canvasId = `whisker0${parseInt(sensorIdx) + 1}`;
     const canvasElement = $(`#${canvasId}`);
     const chartInforIndex = getChartInforIndex(plotData, clickedVal);

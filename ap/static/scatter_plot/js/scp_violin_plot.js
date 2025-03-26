@@ -20,12 +20,10 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     // add prefix to change int to str type
     const isXIntType =
         option.xDataType === DataTypes.INTEGER.name ||
-        (option.xDataType === DataTypes.STRING.name &&
-            !isNaN(Number(prop.array_x[0])));
+        (option.xDataType === DataTypes.STRING.name && !isNaN(Number(prop.array_x[0])));
     const isYIntType =
         option.yDataType === DataTypes.INTEGER.name ||
-        (option.yDataType === DataTypes.STRING.name &&
-            !isNaN(Number(prop.array_y[0])));
+        (option.yDataType === DataTypes.STRING.name && !isNaN(Number(prop.array_y[0])));
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
     if (isXIntType) {
@@ -87,11 +85,8 @@ const generateViolinPlot = (prop, zoomRange, option) => {
             const index = prop.org_array_y.indexOf(key);
             let orgLineColor = prop.isHideHover
                 ? 'transparent'
-                : prop.styles.filter((style) => style.target === key)[0].value
-                      .line.color;
-            const lineColor = prop.is_resampling
-                ? resamplingColor
-                : orgLineColor;
+                : prop.styles.filter((style) => style.target === key)[0].value.line.color;
+            const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
             // key = isYIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
@@ -110,11 +105,8 @@ const generateViolinPlot = (prop, zoomRange, option) => {
             const index = prop.org_array_x.indexOf(key);
             let orgLineColor = prop.isHideHover
                 ? 'transparent'
-                : prop.styles.filter((style) => style.target === key)[0].value
-                      .line.color;
-            const lineColor = prop.is_resampling
-                ? resamplingColor
-                : orgLineColor;
+                : prop.styles.filter((style) => style.target === key)[0].value.line.color;
+            const lineColor = prop.is_resampling ? resamplingColor : orgLineColor;
             // key = isXIntType ? `${STR_PREFIX}${key}` : key;
             return {
                 ...dataCommon,
@@ -134,13 +126,7 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     const yChartRange = yRange || [-0.5, prop.uniqueColors.length - 0.5];
 
     const lines = !prop.isHideHover
-        ? genThresholds(
-              prop.x_threshold,
-              prop.y_threshold,
-              { xaxis: 'x', yaxis: 'y' },
-              xChartRange,
-              yChartRange,
-          )
+        ? genThresholds(prop.x_threshold, prop.y_threshold, { xaxis: 'x', yaxis: 'y' }, xChartRange, yChartRange)
         : [];
 
     const layout = {
@@ -200,10 +186,7 @@ const generateViolinPlot = (prop, zoomRange, option) => {
     };
 
     // set default range axes
-    $(`#${prop.canvasId}`).attr(
-        'data-default-axes',
-        JSON.stringify(prop.scale),
-    );
+    $(`#${prop.canvasId}`).attr('data-default-axes', JSON.stringify(prop.scale));
     $(`#${prop.canvasId}`).attr('data-is-horizontal', prop.isHorizontal);
 
     Plotly.react(prop.canvasId, data, layout, config);
@@ -218,11 +201,7 @@ const makeHoverInfoBox = (prop, key, option, x, y) => {
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
     const facet = option.isShowFacet
         ? `Lv1 = ${prop.v_label.toString().split('|')[0]} ${
-              option.hasLv2
-                  ? `, Lv2 = ${
-                        prop.v_label.toString().split('|')[1] || prop.h_label
-                    }`
-                  : ''
+              option.hasLv2 ? `, Lv2 = ${prop.v_label.toString().split('|')[1] || prop.h_label}` : ''
           }`
         : null;
     const div = option.isShowDiv ? prop.h_label : '';

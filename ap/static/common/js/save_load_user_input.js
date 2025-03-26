@@ -5,6 +5,7 @@ let previousSettingInfor = null;
 let mainFormSettings = null;
 let currentLoadSetting = null;
 let currentFromDataFromLoadSetting = null;
+let currentHoverFromData = null;
 let isSettingChanged = false;
 let isSettingLoading = false;
 const INVALID_FILTER_DETAIL_IDS = 'invalid_filter_detail_ids';
@@ -97,33 +98,20 @@ const getShowFormId = () => {
 };
 
 const genInvalidFilterName = (procId, startDate, startTime, endDate, endTime) =>
-    [
-        INVALID_FILTER_DETAIL_IDS,
-        procId,
-        startDate,
-        startTime,
-        endDate,
-        endTime,
-    ].join('_');
+    [INVALID_FILTER_DETAIL_IDS, procId, startDate, startTime, endDate, endTime].join('_');
 
 const getConditionGroups = (parentDiv) => {
-    const searchGroups = $(parentDiv).find(
-        '[id*=cond-proc].grouplist-checkbox-with-search',
-    );
+    const searchGroups = $(parentDiv).find('[id*=cond-proc].grouplist-checkbox-with-search');
     return searchGroups;
 };
 
 const getNonConditionGroups = (parentDiv) => {
-    const searchGroups = $(parentDiv)
-        .find('.grouplist-checkbox-with-search')
-        .not('[id*=cond-proc]');
+    const searchGroups = $(parentDiv).find('.grouplist-checkbox-with-search').not('[id*=cond-proc]');
     return searchGroups;
 };
 
 const getCheckedFilters = (parentDiv) => {
-    const filterEles = $(parentDiv).find(
-        '[id$=cond-proc-row] input:checkbox:checked',
-    );
+    const filterEles = $(parentDiv).find('[id$=cond-proc-row] input:checkbox:checked');
     const filterDetailIds = [];
     for (el of filterEles) {
         const val = Number(el.value);
@@ -144,9 +132,7 @@ const getFilterKeys = (parentDiv) => {
         return null;
     }
 
-    const timeRadio = $(parentDiv).find(
-        'input[type=radio][name*=raceTime]:checked',
-    );
+    const timeRadio = $(parentDiv).find('input[type=radio][name*=raceTime]:checked');
     if (!timeRadio.length) {
         return null;
     }
@@ -177,13 +163,7 @@ const getFilterKeys = (parentDiv) => {
             endTime = endTimes[i].value;
         }
 
-        const key = genInvalidFilterName(
-            proc.val(),
-            startDates[i].value,
-            startTime,
-            endDate,
-            endTime,
-        );
+        const key = genInvalidFilterName(proc.val(), startDates[i].value, startTime, endDate, endTime);
         keys.push(key);
     }
 
@@ -191,8 +171,7 @@ const getFilterKeys = (parentDiv) => {
 };
 
 const controlInvalidFilterLifeCycle = (key) => {
-    const invalidFilterKeys =
-        JSON.parse(localStorage.getItem(INVALID_FILTER_DETAIL_IDS)) || [];
+    const invalidFilterKeys = JSON.parse(localStorage.getItem(INVALID_FILTER_DETAIL_IDS)) || [];
     const pos = invalidFilterKeys.indexOf(key);
     if (pos >= 0) {
         invalidFilterKeys.splice(pos, 1);
@@ -206,10 +185,7 @@ const controlInvalidFilterLifeCycle = (key) => {
         invalidFilterKeys.splice(i, 1);
     }
 
-    localStorage.setItem(
-        INVALID_FILTER_DETAIL_IDS,
-        JSON.stringify(invalidFilterKeys),
-    );
+    localStorage.setItem(INVALID_FILTER_DETAIL_IDS, JSON.stringify(invalidFilterKeys));
 };
 
 const saveInvalidFilters = (key, invalidFilterDetailIds) => {
@@ -257,31 +233,16 @@ const getSortKeys = (targetEle, isSimple = null) => {
     const cycleTimeCol = $(targetEle).find('.data-type');
     const colorValElm = $(targetEle).find('select[name=colorVar]');
     const facetSelect = $(targetEle).find('select:not([name=colorVar])');
-    const colorVal =
-        colorValElm.length > 0 && colorValElm.val() !== ''
-            ? Number(colorValElm.val())
-            : lastPosNumber;
-    const facetLevel =
-        facetSelect.length > 0 && facetSelect.val() !== ''
-            ? Number(facetSelect.val())
-            : lastPosNumber;
+    const colorVal = colorValElm.length > 0 && colorValElm.val() !== '' ? Number(colorValElm.val()) : lastPosNumber;
+    const facetLevel = facetSelect.length > 0 && facetSelect.val() !== '' ? Number(facetSelect.val()) : lastPosNumber;
     const checkboxs = $(targetEle).find('input:checkbox,input:radio');
     const val = checkboxs.length === 0 ? lastPosNumber : checkboxs[0].value;
-    const sensorOrder =
-        checkboxs.length > 0
-            ? Number($(checkboxs[0]).attr('data-order'))
-            : null;
+    const sensorOrder = checkboxs.length > 0 ? Number($(checkboxs[0]).attr('data-order')) : null;
     const isChecked = !!(checkboxs.length > 0 && checkboxs[0].checked);
-    const isColumnNameBlank = !!(
-        columnName.length > 0 && columnName.text() === ''
-    );
+    const isColumnNameBlank = !!(columnName.length > 0 && columnName.text() === '');
     // order by sensor x, y
-    const sensor =
-        checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
-    const order =
-        checkboxs.length > 0 && isChecked
-            ? $(checkboxs[0]).attr('order')
-            : null;
+    const sensor = checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
+    const order = checkboxs.length > 0 && isChecked ? $(checkboxs[0]).attr('order') : null;
 
     if (val === 'NO_FILTER') {
         keys.push(0);
@@ -323,16 +284,25 @@ const getSortKeys = (targetEle, isSimple = null) => {
         keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
     }
     keys.push(liGrey ? 2 : liBlue ? 1 : 0);
-    keys.push(checkboxs.length >= 2 ? (checkboxs[1].checked ? 0 : 1) : 2);
+
+    // checkBox_keys when checkboxs.length >= 2, need to check checkbox[index]
+    keys.push(checkboxs.length >= 2 ? (checkboxs[1].checked || checkboxs[2]?.checked ? 0 : 1) : 2);
     keys.push(cycleTimeVal);
     // keys.push(Number(val));
 
     return keys;
 };
 
-const sortHtmlElements = (parentEle, isSimple = null) => {
+const sortHtmlElements = (parentEle, isSimple = null, isMouseLeave = false) => {
     let isChanged = false;
+    let isSettingChanged = false;
     const ul = $(parentEle);
+
+    if (currentHoverFromData && currentFormID) {
+        const newFormData = new FormData($(currentFormID)[0]);
+        isSettingChanged =
+            JSON.stringify([...currentHoverFromData.entries()]) !== JSON.stringify([...newFormData.entries()]);
+    }
 
     // unsort if nothing is selected - START
     const isInitSort = $(ul).data('init-sort');
@@ -341,7 +311,7 @@ const sortHtmlElements = (parentEle, isSimple = null) => {
         .find('select')
         .toArray()
         .some((select) => $(select).val());
-    if (isCheckBoxChecked.length === 0 && !isSelectHasVal && !isInitSort) {
+    if ((isCheckBoxChecked.length === 0 && !isSelectHasVal && !isInitSort) || (isMouseLeave && !isSettingChanged)) {
         return;
     }
     // unsort if nothing is selected - END
@@ -370,14 +340,12 @@ const sortHtmlElements = (parentEle, isSimple = null) => {
     $.each(items, (i, li) => {
         ul.append(li);
     });
+    // reset currentHoverFromData to null after sort
+    currentHoverFromData = null;
     return isChanged;
 };
 
-const moveFilter = (
-    searchGroup,
-    invalidFilterDetailIds,
-    onlyCheckedFilter = true,
-) => {
+const moveFilter = (searchGroup, invalidFilterDetailIds, onlyCheckedFilter = true) => {
     const items = $(searchGroup).find('.list-group-item');
     for (e of items) {
         const ele = $(e);
@@ -393,9 +361,7 @@ const moveFilter = (
         }
 
         if (filterEle.length) {
-            if (
-                invalidFilterDetailIds.indexOf(Number(filterEle[0].value)) >= 0
-            ) {
+            if (invalidFilterDetailIds.indexOf(Number(filterEle[0].value)) >= 0) {
                 if (!ele.hasClass('li-grey')) {
                     ele.addClass('li-grey');
                 }
@@ -489,22 +455,13 @@ const setTriggerInvalidFilter = (parentDiv) => {
         proc = $(parentDiv).find('select[name^=end_proc]').first();
     }
 
-    const timeRadio = $(parentDiv).find(
-        'input[type=radio][name*=raceTime]:checked',
-    );
+    const timeRadio = $(parentDiv).find('input[type=radio][name*=raceTime]:checked');
     const startDates = $(parentDiv).find('input[name*=START_DATE]');
     const startTimes = $(parentDiv).find('input[name*=START_TIME]');
     const endDates = $(parentDiv).find('input[name*=END_DATE]');
     const endTimes = $(parentDiv).find('input[name*=END_TIME]');
 
-    for (const ele of [
-        proc,
-        timeRadio,
-        startDates,
-        startTimes,
-        endDates,
-        endTimes,
-    ]) {
+    for (const ele of [proc, timeRadio, startDates, startTimes, endDates, endTimes]) {
         ele.on('change', (_) => {
             const showTab = getShowTab();
             loadAllInvalidFilterCaller(showTab);
@@ -595,15 +552,12 @@ const saveLoadUserInput = (
     const tabPanes = document.querySelectorAll('.tab-pane');
 
     const checkActiveTab = (el) => {
-        return (
-            el.classList.contains('tab-pane') &&
-            el.classList.contains('active') &&
-            el.classList.contains('show')
-        );
+        return el.classList.contains('tab-pane') && el.classList.contains('active') && el.classList.contains('show');
     };
 
     const serializeArray = () => {
         const serializeData = [];
+        let isCheckedShowCycleTime = false;
 
         elements.forEach((el) => {
             const data = {
@@ -627,13 +581,8 @@ const saveLoadUserInput = (
                         data.checked = false;
                     }
                 } else if (/GET02_VALS_SELECT/.test(data.name)) {
-                    if (
-                        jumpCheckedAllSensors.length ||
-                        jumpCheckedAllSensors.length
-                    ) {
-                        data.checked = jumpCheckedAllSensors.includes(
-                            data.value,
-                        );
+                    if (jumpCheckedAllSensors.length || jumpCheckedAllSensors.length) {
+                        data.checked = jumpCheckedAllSensors.includes(data.value);
                     } else {
                         data.checked = el.checked;
                     }
@@ -644,28 +593,23 @@ const saveLoadUserInput = (
                 // dynamic generate div
                 data.genBtnId = el.getAttribute(DYNAMIC_ELE_ATTR);
             }
+            // AP select [Cycle Time Analysis] automatically on PCP in case of Jump with datatime data
+            if ($(el).data('is_get_date') && data.checked && !$('#show-ct-time').length) isCheckedShowCycleTime = true;
             // when jumping from PCA where there are datetimePickers for train and test
             // use the datetime range picker of test data for the landing page
-            if (
-                data.id === 'datetimeRangePickertest' &&
-                data.name === 'DATETIME_RANGE_PICKER'
-            ) {
+            if (data.id === 'datetimeRangePickertest' && data.name === 'DATETIME_RANGE_PICKER') {
                 data.id = 'datetimeRangePicker';
             }
 
             // convert data.name === 'DATETIME_RANGE_PICKER'
             if (data.name === 'DATETIME_RANGE_PICKER') {
-                const { startDate, startTime, endDate, endTime } =
-                    splitDateTimeRange(data.value);
+                const { startDate, startTime, endDate, endTime } = splitDateTimeRange(data.value);
                 if (!startTime && !endTime) {
                     data.value = `${startDate} 00:00 ${DATETIME_PICKER_SEPARATOR} ${endDate} 00:00`;
                 }
             }
 
-            if (
-                data.id === 'datetimeRangePicker' &&
-                data.name === 'DATETIME_RANGE_PICKER'
-            ) {
+            if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
                 if (divideOption === divideOptions.cyclicTerm) {
                     // assign new data
                     serializeData.push({
@@ -706,6 +650,16 @@ const saveLoadUserInput = (
             serializeData.push(data);
         });
 
+        //
+        if (isCheckedShowCycleTime) {
+            serializeData.unshift({
+                id: 'show-ct-time',
+                name: 'is_show_ct_time',
+                type: 'checkbox',
+                checked: true,
+            });
+        }
+
         if (divideOption) {
             serializeData.push({
                 id: 'divideOption',
@@ -733,10 +687,7 @@ const saveLoadUserInput = (
         });
 
         // sort checked judge
-        const checkedJudge = serializeData.filter(
-            (setting) =>
-                setting.name === 'judgeVar' && setting.checked === true,
-        );
+        const checkedJudge = serializeData.filter((setting) => setting.name === 'judgeVar' && setting.checked === true);
         if (checkedJudge.length) {
             serializeData.push(checkedJudge[0]);
         }
@@ -754,10 +705,7 @@ const saveLoadUserInput = (
             if (isJumpWithOdf) {
                 userShareSettings.settings.filter = getOnDemandFilterInput();
             }
-            localStorage.setItem(
-                JUMP_SHARED_USER_SETTING,
-                JSON.stringify(userShareSettings),
-            );
+            localStorage.setItem(JUMP_SHARED_USER_SETTING, JSON.stringify(userShareSettings));
         } else {
             // Save share user setting for copy page
             localStorage.setItem(key, JSON.stringify(formData));
@@ -785,9 +733,7 @@ const saveLoadUserInput = (
         let shownEles = [];
         for (const keyword of [id, name]) {
             if (keyword) {
-                shownEles = form.querySelectorAll(
-                    `[${DYNAMIC_ELE_ATTR}="${id}"]`,
-                );
+                shownEles = form.querySelectorAll(`[${DYNAMIC_ELE_ATTR}="${id}"]`);
                 if (shownEles.length) {
                     return shownEles;
                 }
@@ -861,13 +807,8 @@ const saveLoadUserInput = (
         const shownEles = getShownEles(dataGenBtnId, dataGenBtnName);
         for (const shownEle of shownEles) {
             if (!usedEleNames.includes(shownEle.name)) {
-                const target = form.querySelectorAll(
-                    `[name="${shownEle.name}"]`,
-                );
-                $(target)
-                    .closest('.dynamic-element')
-                    .find('.close-icon')
-                    .trigger('click');
+                const target = form.querySelectorAll(`[name="${shownEle.name}"]`);
+                $(target).closest('.dynamic-element').find('.close-icon').trigger('click');
             }
         }
     };
@@ -898,10 +839,7 @@ const saveLoadUserInput = (
                 const ele = eles[idx];
                 eleNames.push(ele.name);
                 // check if process is exists then render HTML elements
-                if (
-                    procConfigs[ele.value] &&
-                    !['TermSerialProcess', 'serialProcess'].includes(ele.name)
-                ) {
+                if (procConfigs[ele.value] && !['TermSerialProcess', 'serialProcess'].includes(ele.name)) {
                     genNewEle(btn, ele);
                 }
 
@@ -909,9 +847,7 @@ const saveLoadUserInput = (
                     ele.value = convertDatetimePickerSeparator(ele.value);
                     callAllEvent($(`#${btn}`), ['click']);
                     // APPLY VALUE TO RENDERED DATE TIME PICKER
-                    const dates = $('.datetimerange-group').find(
-                        `[name=${DATETIME_RANGE_PICKER_CLASS}]`,
-                    );
+                    const dates = $('.datetimerange-group').find(`[name=${DATETIME_RANGE_PICKER_CLASS}]`);
                     const renderedInput = dates[dates.length - 1];
                     $(renderedInput).val(ele.value).trigger('change');
 
@@ -937,12 +873,9 @@ const saveLoadUserInput = (
 
     const isDateTimePickerEl = (name) => {
         if (
-            [
-                DATETIME_RANGE_PICKER_CLASS,
-                DATE_RANGE_PICKER_CLASS,
-                DATETIME_PICKER_CLASS,
-                DATE_PICKER_CLASS,
-            ].includes(name)
+            [DATETIME_RANGE_PICKER_CLASS, DATE_RANGE_PICKER_CLASS, DATETIME_PICKER_CLASS, DATE_PICKER_CLASS].includes(
+                name,
+            )
         ) {
             return true;
         }
@@ -950,7 +883,7 @@ const saveLoadUserInput = (
     };
 
     // todo: check 09/16 endtime
-    const loadNonRadioCheckEle = (data) => {
+    const loadNonRadioCheckEle = (data, agpColorVars = []) => {
         const remainEles = [];
         const srcSetting = getLocalStorageSrcSetting();
         const desSetting = window.location.pathname;
@@ -970,25 +903,14 @@ const saveLoadUserInput = (
                 let eleSelector = buildEleSelector(v.name, null, v.id);
                 input = form.querySelector(eleSelector);
                 // selection
-                if (
-                    v.name === 'remove_outlier_type' &&
-                    v.value === 'majority'
-                ) {
+                if (v.name === 'remove_outlier_type' && v.value === 'majority') {
                     continue;
                 }
                 if (v.type === 'select-one') {
                     // in case of existing selection, but not existing item/option
                     // do nothing
-                    if (
-                        input !== null &&
-                        v.name === 'catExpBox' &&
-                        !isLoadNew
-                    ) {
-                        v.value = facetGenerate(
-                            srcSetting?.srcPath,
-                            desSetting,
-                            v,
-                        );
+                    if (input !== null && v.name === 'catExpBox' && !isLoadNew) {
+                        v.value = facetGenerate(srcSetting?.srcPath, desSetting, v);
                     }
                 }
 
@@ -1016,12 +938,8 @@ const saveLoadUserInput = (
             if (v.name === 'compareType') {
                 const devideDOM = $('select[id=divideOption]');
                 if (devideDOM.length) {
-                    const optionsDOM = $('select[id=divideOption]').find(
-                        'option',
-                    );
-                    const options = Array.from(optionsDOM).map((opt) =>
-                        $(opt).val(),
-                    );
+                    const optionsDOM = $('select[id=divideOption]').find('option');
+                    const options = Array.from(optionsDOM).map((opt) => $(opt).val());
                     if (!options.includes(v.value)) {
                         v.value = options[0];
                     }
@@ -1030,15 +948,15 @@ const saveLoadUserInput = (
 
             if (input.type === 'select-one') {
                 // check available options
-                const availableOptions = Array.from(input.options).map(
-                    (opt) => opt.value,
-                );
+                const availableOptions = Array.from(input.options).map((opt) => opt.value);
                 if (!availableOptions.includes(v.value)) {
                     continue;
                 }
             }
             input.value = v.value;
-            callAllEvent(input);
+            const isEndProc = input.id?.startsWith('end-proc-process');
+            const events = isEndProc ? [$.Event('change', { colorVals: agpColorVars })] : ['change'];
+            callAllEvent(input, events);
         }
         return remainEles;
     };
@@ -1082,8 +1000,9 @@ const saveLoadUserInput = (
                         $(el).trigger('change');
                     }
                     const oldCheck = el.checked;
+                    const isCycleTimeElm = el.id === 'show-ct-time' && el.name === 'is_show_ct_time';
                     el.checked = v.checked;
-                    if (oldCheck !== el.checked) {
+                    if (oldCheck !== el.checked && !isCycleTimeElm) {
                         callAllEvent(el);
                     }
                 }
@@ -1097,11 +1016,7 @@ const saveLoadUserInput = (
 
         if (!src || !des || isEmpty(dataUpdate)) return;
 
-        if (
-            !isLoadNew &&
-            outlierFromPages.includes(src) &&
-            !outlierFromPages.includes(des)
-        ) {
+        if (!isLoadNew && outlierFromPages.includes(src) && !outlierFromPages.includes(des)) {
             updateOutlierSetting(src, des, dataUpdate);
         }
     };
@@ -1116,15 +1031,9 @@ const saveLoadUserInput = (
     |     No check     |       No check        |   No check       |
     */
     const updateOutlierSetting = (src, des, dataUpdate) => {
-        const objectiveVar = dataUpdate.find(
-            (e) => e.name === 'remove_outlier_objective_var',
-        );
-        const explanatoryVar = dataUpdate.find(
-            (e) => e.name === 'remove_outlier_explanatory_var',
-        );
-        const outlierIndex = dataUpdate.findIndex(
-            (e) => e.name === 'remove_outlier',
-        );
+        const objectiveVar = dataUpdate.find((e) => e.name === 'remove_outlier_objective_var');
+        const explanatoryVar = dataUpdate.find((e) => e.name === 'remove_outlier_explanatory_var');
+        const outlierIndex = dataUpdate.findIndex((e) => e.name === 'remove_outlier');
         if (objectiveVar && explanatoryVar && outlierIndex !== -1) {
             dataUpdate[outlierIndex].checked = explanatoryVar.checked;
         }
@@ -1132,17 +1041,26 @@ const saveLoadUserInput = (
 
     const divideElementGroup = (data) => {
         const xIndexNames = ['serialProcess', 'serialColumn', 'serialOrder'];
+        const endProcCheckBoxes = ['GET02_VALS_SELECT', 'GET02_CATE_SELECT'];
+        const endProcRadios = ['objectiveVar', 'judgeVar', 'colorVar'];
+        const endProcSelectBoxes = ['catExpBox', 'colorVar'];
         const activeTabs = [];
         const radioChecks = [];
         const others1 = [];
         const others2 = [];
         const indexVals = [];
         for (v of data) {
+            const isCheckboxOrRadioIgnore =
+                endProcCheckBoxes.some((prefix) => v.name?.startsWith(prefix)) ||
+                endProcRadios.some((prefix) => v.name?.startsWith(prefix));
+            const isSelectBoxesIgnore = endProcSelectBoxes.some((name) => v.name === name);
             if (v.type === 'radio' || v.type === 'checkbox') {
+                if (isCheckboxOrRadioIgnore && !v.checked) continue;
                 radioChecks.push(v);
             } else if (v.isActiveTab) {
                 activeTabs.push(v);
             } else if (Number(v.level) === 2) {
+                if (isSelectBoxesIgnore && !v.value) continue;
                 others2.push(v);
             } else {
                 others1.push(v);
@@ -1197,31 +1115,15 @@ const saveLoadUserInput = (
             return;
         }
         const currentPage = getCurrentPage();
-        const pagePasteHasDivideOption =
-            Object.keys(ALL_DIVISION).includes(currentPage);
-        const pageCopiedHasDivideOption = Object.keys(ALL_DIVISION).includes(
-            srcSetting.pageName,
-        );
-        const radioDefaultInterval = data.find(
-            (d) => d.id === 'radioDefaultInterval' && d.name === 'traceTime',
-        );
-        const isDefaultInterval =
-            radioDefaultInterval && radioDefaultInterval.checked;
+        const pagePasteHasDivideOption = Object.keys(ALL_DIVISION).includes(currentPage);
+        const pageCopiedHasDivideOption = Object.keys(ALL_DIVISION).includes(srcSetting.pageName);
+        const radioDefaultInterval = data.find((d) => d.id === 'radioDefaultInterval' && d.name === 'traceTime');
+        const isDefaultInterval = radioDefaultInterval && radioDefaultInterval.checked;
         // Case copy page not division option to pages have DIVISION
-        if (
-            !pageCopiedHasDivideOption &&
-            pagePasteHasDivideOption &&
-            isDefaultInterval
-        ) {
-            const setDefaultCyclicTerm =
-                $('#divideOption').val() === CYCLIC_TERM.NAME;
-            const datetimeRange = data.find(
-                (d) => d.name === 'DATETIME_RANGE_PICKER',
-            );
-            setDefaultCyclicTermConfig(
-                datetimeRange?.value,
-                setDefaultCyclicTerm,
-            );
+        if (!pageCopiedHasDivideOption && pagePasteHasDivideOption && isDefaultInterval) {
+            const setDefaultCyclicTerm = $('#divideOption').val() === CYCLIC_TERM.NAME;
+            const datetimeRange = data.find((d) => d.name === 'DATETIME_RANGE_PICKER');
+            setDefaultCyclicTermConfig(datetimeRange?.value, setDefaultCyclicTerm);
         }
     };
 
@@ -1242,15 +1144,11 @@ const saveLoadUserInput = (
         return srcSetting;
     };
 
-    const innerFunc = (
-        isLoad = true,
-        isSaveToLocalStorage = true,
-        savedData = null,
-    ) => {
+    const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
         if (isLoad) {
             let data;
             if (isSaveToLocalStorage) {
-                const shareSettings = getLocalStorageShareUserSetting();
+                const shareSettings = getLocalStorageShareUserSetting(key);
                 data = shareSettings?.settings?.traceDataForm || null;
             } else {
                 data = savedData;
@@ -1259,30 +1157,22 @@ const saveLoadUserInput = (
             if (!data) {
                 return;
             }
-            const jumpDefaultRangeTime = data.find(
-                (e) => e.name === DEFAULT_DATETIME_RANGE,
-            );
-            const isJumpPath =
-                window.location.href.includes(goToFromJumpFunction);
-            const isUseDefaultRangeTime =
-                isJumpPath && jumpDefaultRangeTime !== undefined;
+            const jumpDefaultRangeTime = data.find((e) => e.name === DEFAULT_DATETIME_RANGE);
+            const isJumpPath = window.location.href.includes(goToFromJumpFunction);
+            const isUseDefaultRangeTime = isJumpPath && jumpDefaultRangeTime !== undefined;
             const srcSetting = getLocalStorageSrcSetting();
 
             // gen dynamic eles
             genDynamicEle(data);
-            updateShareUserSetting(
-                srcSetting?.pageName,
-                getCurrentPage(),
-                data,
-            );
+            updateShareUserSetting(srcSetting?.pageName, getCurrentPage(), data);
 
-            const [activeTabs, radioChecks, others1, others2, indexVals] =
-                divideElementGroup(data);
+            const [activeTabs, radioChecks, others1, others2, indexVals] = divideElementGroup(data);
+            const colorVals = others2.filter((e) => e.name === 'colorVar');
 
             if (isSaveToLocalStorage) {
                 loadActiveTab(activeTabs);
             }
-            const remainOthers1 = loadNonRadioCheckEle(others1);
+            const remainOthers1 = loadNonRadioCheckEle(others1, colorVals);
 
             setTimeout(() => {
                 loadNonRadioCheckEle(remainOthers1);
@@ -1290,7 +1180,6 @@ const saveLoadUserInput = (
 
             setTimeout(() => {
                 const remainOthers2 = loadNonRadioCheckEle(others2);
-
                 setTimeout(() => {
                     loadNonRadioCheckEle(remainOthers2);
                     loadIndex(indexVals);
@@ -1303,10 +1192,7 @@ const saveLoadUserInput = (
                         loadRadioCheckboxEle(remainRadioChecks);
                         // Set default datetime range for jump target page
                         if (isUseDefaultRangeTime) {
-                            setDefaultCyclicTermConfig(
-                                jumpDefaultRangeTime.value,
-                                true,
-                            );
+                            setDefaultCyclicTermConfig(jumpDefaultRangeTime.value, true);
                         }
                         // Handler set default division
                         handlerSettingDefaultDivide(data, srcSetting);
@@ -1407,27 +1293,23 @@ const clearSettingID = () => {
 const updateSettingPriority = (elem, userSettingId) => {
     const settingPriority = $(elem).val();
     if (settingPriority) {
-        $.get(
-            `/ap/api/setting/user_setting/${userSettingId}`,
-            { _: $.now() },
-            (res) => {
-                if (res.status === 200) {
-                    const settingDat = {
-                        id: userSettingId,
-                        priority: settingPriority,
-                        created_by: res.data.created_by,
-                        description: res.data.description,
-                        key: res.data.key,
-                        page: res.data.page,
-                        settings: res.data.settings,
-                        share_info: res.data.share_info,
-                        title: res.data.title,
-                        use_current_time: res.data.use_current_time,
-                    };
-                    createOrUpdateSetting(settingDat);
-                }
-            },
-        );
+        $.get(`/ap/api/setting/user_setting/${userSettingId}`, { _: $.now() }, (res) => {
+            if (res.status === 200) {
+                const settingDat = {
+                    id: userSettingId,
+                    priority: settingPriority,
+                    created_by: res.data.created_by,
+                    description: res.data.description,
+                    key: res.data.key,
+                    page: res.data.page,
+                    settings: res.data.settings,
+                    share_info: res.data.share_info,
+                    title: res.data.title,
+                    use_current_time: res.data.use_current_time,
+                };
+                createOrUpdateSetting(settingDat);
+            }
+        });
     }
 };
 
@@ -1457,9 +1339,7 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
         return '';
     }
 
-    const backgroundColor = isCurrentSetting
-        ? ' style=" background-color: steelblue;"'
-        : '';
+    const backgroundColor = isCurrentSetting ? ' style=" background-color: steelblue;"' : '';
     const htmlRow = `<tr data-setting-id="${setting.id}" ${backgroundColor}>
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
@@ -1511,15 +1391,10 @@ const showUserSettingsToModal = (userSettings) => {
     const currentUser = localStorage.getItem('settingCommonUserName');
     let idx = 1;
     for (const setting of userSettings) {
-        const isShowSetting =
-            !currentUser ||
-            (currentUser && setting.created_by === currentUser) ||
-            setting.share_info;
+        const isShowSetting = !currentUser || (currentUser && setting.created_by === currentUser) || setting.share_info;
 
         if (isShowSetting) {
-            const isCurrentSetting = currentLoadSetting
-                ? setting.id == currentLoadSetting.id
-                : false;
+            const isCurrentSetting = currentLoadSetting ? setting.id == currentLoadSetting.id : false;
             const rowHTML = createHTMLRow(setting, idx, isCurrentSetting);
             rowHTMLs.push(rowHTML);
             idx += 1;
@@ -1569,7 +1444,7 @@ const deleteUserSetting = (e) => {
     fetch(`/ap/api/setting/user_setting/${userSettingId}`, {
         method: 'DELETE',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({}),
@@ -1592,12 +1467,7 @@ const clearLoadingSetting = () => {
 
 const setExportMode = (isExport) => (isExportMode = isExport);
 
-const goToSettingPage = (
-    userSettingId,
-    settingPage,
-    isImportMode = false,
-    isBlank = false,
-) => {
+const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBlank = false) => {
     localStorage.setItem(
         'loadingSetting',
         JSON.stringify({
@@ -1801,21 +1671,18 @@ const showSettingModal = (userSetting) => {
     Object.keys(userSetting).forEach((settingKey) => {
         const setting = userSetting[settingKey];
         if (settingModalKeys.includes(settingKey)) {
-            const settingInput = $(settingModals.userSetting).find(
-                `[name="${settingKey}"]`,
-            );
-            const elType = settingInput.is('select')
-                ? 'select'
-                : settingInput.attr('type');
+            const settingInput = $(settingModals.userSetting).find(`[name="${settingKey}"]`);
+            const elType = settingInput.is('select') ? 'select' : settingInput.attr('type');
+
+            // setting for observer
+            settingInput.attr(DATA_OBSERVER, setting);
             switch (elType) {
                 case 'checkbox':
                     settingInput.prop('checked', setting);
                     break;
                 case 'select':
                     if (settingKey === 'priority' && setting === 0) {
-                        settingInput.append(
-                            `<option value="0">0 (Demo)</option>`,
-                        );
+                        settingInput.append(`<option value="0">0 (Demo)</option>`);
                         settingInput.val(0);
                         settingInput.prop('disabled', true);
                     } else {
@@ -1833,14 +1700,14 @@ const showSettingModal = (userSetting) => {
     previousSettingInfor = userSetting.settings || null;
     $(settingModals.loadSettingModal).modal('hide');
     $(settingModals.common).modal('show');
+
+    // add observer
+    inputMutationObserver = new InputChangeObserver(document.querySelector(settingModals.common));
+    inputMutationObserver.startObserving();
 };
 
 const getUserSettingById = async (userSettingId) => {
-    const res = await fetchData(
-        `/ap/api/setting/user_setting/${userSettingId}`,
-        {},
-        'GET',
-    );
+    const res = await fetchData(`/ap/api/setting/user_setting/${userSettingId}`, {}, 'GET');
     return res;
 };
 
@@ -1862,9 +1729,13 @@ const editSettings = async (userSettingId) => {
 const autoFillUserSetting = () => {
     const defaultTitle = generateDefaultNameExport();
     resetSaveUserSettingModal();
+    // add observer
+    inputMutationObserver = new InputChangeObserver(document.querySelector(settingModals.common));
+    inputMutationObserver.startObserving();
+
     $(settingModals.userSettingLabel).text(i18nCommon.saveSetting);
-    $('input[name=title]').val(defaultTitle);
-    $('select[name=priority]').val(1);
+    $('input[name=title]').val(defaultTitle).change();
+    $('select[name=priority]').val(1).change();
 };
 
 const resetSaveUserSettingModal = () => {
@@ -1873,29 +1744,30 @@ const resetSaveUserSettingModal = () => {
     $(settingModals.common).find('input[name=page]').val('');
     $(settingModals.common).find('input[name=created_by]').val('');
     $(settingModals.common).find('select[name=priority]').val('1');
-    $(settingModals.common)
-        .find('select[name=priority] option[value="0"]')
-        .remove();
-    $(settingModals.common)
-        .find('select[name=priority]')
-        .prop('disabled', false);
+    $(settingModals.common).find('select[name=priority] option[value="0"]').remove();
+    $(settingModals.common).find('select[name=priority]').prop('disabled', false);
     $(settingModals.common).find('input[name=description]').val('');
-    $(settingModals.common)
-        .find('input[name=use_current_time]')
-        .prop('checked', true);
-    $(settingModals.common)
-        .find('input[name=share_info]')
-        .prop('checked', true);
+    $(settingModals.common).find('input[name=use_current_time]').prop('checked', true);
+    $(settingModals.common).find('input[name=share_info]').prop('checked', true);
+
+    // reset observer
+    $(settingModals.common).find('input[name=title]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('input[name=created_by]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('select[name=priority]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('input[name=description]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('input[name=use_current_time]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('input[name=share_info]').attr(DATA_OBSERVER, '');
+    $(settingModals.common).find('input[name=save_graph_settings]').attr(DATA_OBSERVER, '');
 };
 
 const showOverwriteConfirmModel = () => {
     $(settingModals.overwriteConfirmation).modal('show');
 };
 
-const createOrUpdateSetting = (settingDat, inplace = true) => {
+const createOrUpdateSetting = (settingDat, inplace = true, excludeColumns = []) => {
     $.ajax({
         url: '/ap/api/setting/user_setting',
-        data: JSON.stringify(settingDat),
+        data: JSON.stringify({ data: settingDat, exclude_columns: excludeColumns }),
         dataType: 'json',
         type: 'POST',
         contentType: false,
@@ -1991,9 +1863,7 @@ const getSettingCommonInfo = () => {
 
         const graphSettings = [];
 
-        const radioEls = graphSettingsArea.find(
-            'input[type=radio]:is(:checked)',
-        );
+        const radioEls = graphSettingsArea.find('input[type=radio]:is(:checked)');
 
         radioEls.each((i, el) => {
             graphSettings.push({
@@ -2040,9 +1910,7 @@ const getSettingCommonInfo = () => {
             });
         });
 
-        const texts = graphSettingsArea.find(
-            'input:not([type=checkbox]):not([type=radio])',
-        );
+        const texts = graphSettingsArea.find('input:not([type=checkbox]):not([type=radio])');
         texts.each((i, el) => {
             graphSettings.push({
                 name: $(el).attr('name'),
@@ -2075,25 +1943,16 @@ const getSettingCommonInfo = () => {
 
 const getOnDemandFilterInput = () => {
     return {
-        dic_cat_filters: lastUsedFormData
-            ? JSON.parse(lastUsedFormData.get('dic_cat_filters'))
-            : '',
-        temp_cat_exp: lastUsedFormData
-            ? JSON.parse(lastUsedFormData.get('temp_cat_exp'))
-            : '',
-        temp_cat_procs: lastUsedFormData
-            ? JSON.parse(lastUsedFormData.get('temp_cat_procs'))
-            : '',
+        dic_cat_filters: lastUsedFormData ? JSON.parse(lastUsedFormData.get('dic_cat_filters')) : '',
+        temp_cat_exp: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_exp')) : '',
+        temp_cat_procs: lastUsedFormData ? JSON.parse(lastUsedFormData.get('temp_cat_procs')) : '',
     };
 };
 
 const hasIndexOrderInGraphSetting = (graphSettings = []) => {
     if (!graphSettings) return null;
     const isIndexOrder =
-        graphSettings.filter(
-            (graph) =>
-                graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX,
-        ).length > 0;
+        graphSettings.filter((graph) => graph.name === 'XAxisOrder' && graph.value === CONST.XOPT_INDEX).length > 0;
     return isIndexOrder;
 };
 
@@ -2143,20 +2002,14 @@ $(document).ready(() => {
     }
     $(saveUserBtn).click(() => {
         inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(
-                `#${form.id}`,
-                window.location.pathname,
-            );
+            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
             userInput(false);
         });
     });
 
     $(loadUserBtn).click(() => {
         inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(
-                `#${form.id}`,
-                window.location.pathname,
-            );
+            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
             userInput();
         });
     });
@@ -2188,19 +2041,13 @@ $(document).ready(() => {
 
     // trigger to save user setting
     $(settingModals.confirmBtn).on('click', () => {
-        let invalidPage = false;
+        let excludeColumns = [];
         Object.keys(saveSettingExceptionPages).forEach((k) => {
-            if (
-                window.location.pathname.includes(saveSettingExceptionPages[k])
-            ) {
-                invalidPage = true;
+            if (window.location.pathname.includes(saveSettingExceptionPages[k])) {
+                // Don't update 'settings' column
+                excludeColumns = ['settings'];
             }
         });
-
-        // return if invalidPage
-        if (invalidPage) {
-            return false;
-        }
 
         // retrieve data from setting forms
         const settingCommonInfo = getSettingCommonInfo();
@@ -2213,7 +2060,7 @@ $(document).ready(() => {
             : currentLoadSetting && settingCommonInfo
               ? Number(currentLoadSetting.id) === Number(settingCommonInfo.id)
               : true;
-        createOrUpdateSetting(settingCommonInfo, inplaceSetting);
+        createOrUpdateSetting(settingCommonInfo, inplaceSetting, excludeColumns);
     });
 
     // trigger to overwrite save user setting
@@ -2221,9 +2068,7 @@ $(document).ready(() => {
         // retrieve data from setting forms
         const settingCommonInfo = currentLoadSetting;
         const settingInfo = getSettingCommonInfo();
-        const saveGraphSetting = $('[name=save_graph_settings_overwrite]').prop(
-            'checked',
-        );
+        const saveGraphSetting = $('[name=save_graph_settings_overwrite]').prop('checked');
         settingCommonInfo.save_graph_settings = saveGraphSetting || '';
         settingCommonInfo.settings = settingInfo.settings;
 
@@ -2295,6 +2140,16 @@ const showGraphWithDebugInfo = () => {
     }
 };
 
+const loadBookmarkInNewTab = () => {
+    const event = $.Event('click');
+    event.ctrlKey = true;
+    if (UserSettingExportInfo !== null) {
+        $(UserSettingExportInfo).trigger(event);
+        // After AP shows graph in new tab, AP close bookmark modal.
+        $('#loadUserSettingModal').modal('hide');
+    }
+};
+
 const openImportDialog = () => {
     $('#importForDebug').modal('show');
 };
@@ -2315,9 +2170,8 @@ const compareSettingChange = () => {
                 newFormData.delete(val);
             });
             isSettingChanged =
-                JSON.stringify([
-                    ...currentFromDataFromLoadSetting.entries(),
-                ]) !== JSON.stringify([...newFormData.entries()]);
+                JSON.stringify([...currentFromDataFromLoadSetting.entries()]) !==
+                JSON.stringify([...newFormData.entries()]);
         }
     }
 
@@ -2370,13 +2224,7 @@ const showSettingChangeModalHandler = (callback) => {
     }
 };
 
-const goToOtherPage = (
-    href,
-    inplace = true,
-    emptyPage = false,
-    mainPage = '',
-    useLatestSetting = false,
-) => {
+const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '', useLatestSetting = false) => {
     if (!href) {
         href = selectedHref;
     }
@@ -2406,11 +2254,7 @@ const handleUseUserSetting = (id) => {
 };
 
 const isSaveGraphSetting = () => {
-    return (
-        currentLoadSetting &&
-        currentLoadSetting.save_graph_settings &&
-        !isSettingChanged
-    );
+    return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
 };
 
 const isLoadingFromJumpPage = () => {
@@ -2421,11 +2265,7 @@ const isLoadingFromJumpPage = () => {
 const isSaveColumnOrdering = () => {
     if (!(currentLoadSetting | 0)) return false;
     const settings = JSON.parse(currentLoadSetting.settings);
-    return (
-        !isSettingChanged &&
-        settings.column_ordering &&
-        settings.column_ordering.length
-    );
+    return !isSettingChanged && settings.column_ordering && settings.column_ordering.length;
 };
 
 const handleCopyUrlToClipBoard = async (e, userSettingId) => {
@@ -2475,7 +2315,7 @@ const getIndexOrder = () => {
     return settings.indexOrder || [];
 };
 
-const setFitlerIntoFormData = (formData) => {
+const setFilterIntoFormData = (formData) => {
     if (!isSaveGraphSetting() && !isLoadingFromJumpPage()) return formData;
     const filter = getFilterOnDemand();
     if (!filter) return formData;
@@ -2511,9 +2351,7 @@ const loadGraphSettings = (isFirstTime = false) => {
         // get default value of element
         if (setting.type === 'radio') {
             defaultValue = graphArea.find(`${selectorStr}:checked`).val();
-            el = graphArea
-                .find(`${selectorStr}[value=${setting.value}]`)
-                .prop('checked', true);
+            el = graphArea.find(`${selectorStr}[value=${setting.value}]`).prop('checked', true);
         } else if (setting.type === 'select') {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.val();
@@ -2577,8 +2415,7 @@ const isShowCTTime = (settingData) => {
 
 const calcCyclicTermConfig = (rangeTime) => {
     const DatetimeRange = rangeTime.split(DATETIME_PICKER_SEPARATOR);
-    const hoursDiff =
-        moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') / 60;
+    const hoursDiff = moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') / 60;
     const stepSize = hoursDiff / (CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE.rlp + 1);
     const windowLength = stepSize * 2;
     const defaultTimeRange = {
@@ -2605,12 +2442,7 @@ const calcCyclicTermConfig = (rangeTime) => {
         type: 'text',
         value: stepSize,
     };
-    return [
-        defaultTimeRange,
-        cyclicTermDivNum,
-        cyclicTermWindowLength,
-        cyclicTermInterval,
-    ];
+    return [defaultTimeRange, cyclicTermDivNum, cyclicTermWindowLength, cyclicTermInterval];
 };
 
 const setDefaultCyclicTermConfig = (rangeTime, isSetDefaultCyclicTerm) => {
@@ -2624,18 +2456,15 @@ const setDefaultCyclicTermConfig = (rangeTime, isSetDefaultCyclicTerm) => {
         B [step size] * 2 = C [window length]
     */
     if (isSetDefaultCyclicTerm) {
-        const cyclicTermDefaultVal =
-            CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE[getCurrentPage()];
-        const hoursDiff =
-            moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') /
-            60;
+        const cyclicTermDefaultVal = CYCLIC_TERM.DEFAULT_DIV_NUM_BY_PAGE[getCurrentPage()];
+        const hoursDiff = moment(DatetimeRange[1]).diff(moment(DatetimeRange[0]), 'minutes') / 60;
         const stepSize = hoursDiff / cyclicTermDefaultVal;
         const windowLength = stepSize * 2;
         $(`#${CYCLIC_TERM.DIV_NUM}`).val(cyclicTermDefaultVal);
         $(`#${CYCLIC_TERM.WINDOW_LENGTH}`).val(windowLength);
         $(`#${CYCLIC_TERM.INTERVAL}`).val(stepSize);
     }
-    // Set date time range for options [category], [cyclicTerm], [directTerm](first input of datetimeList), [var], [dataNumberTerm]
+    // Set date time range for options [category], [cyclicTerm], [directTerm](first input of datetimeList), [var], [dataNumberTerm], [cyclicCalendar]
     switch (divideOption) {
         case divideOptions.category:
             isChangeDatetimeRange = true;
@@ -2647,12 +2476,11 @@ const setDefaultCyclicTermConfig = (rangeTime, isSetDefaultCyclicTerm) => {
             break;
         case divideOptions.directTerm:
             isChangeDatetimeRange = true;
-            $('#datetimeList input:first[name=DATETIME_RANGE_PICKER]').val(
-                rangeTime,
-            );
+            $('#datetimeList input:first[name=DATETIME_RANGE_PICKER]').val(rangeTime);
             break;
         case divideOptions.cyclicCalender:
-            // Nothing
+            isChangeDatetimeRange = true;
+            $('#datetimeRangePickercyclicCalender').val(rangeTime);
             break;
         default:
             isChangeDatetimeRange = true;
@@ -2664,9 +2492,7 @@ const setDefaultCyclicTermConfig = (rangeTime, isSetDefaultCyclicTerm) => {
 };
 
 const getJumpFilterOnDemand = () => {
-    const userSetting = JSON.parse(
-        localStorage.getItem(JUMP_SHARED_USER_SETTING),
-    );
+    const userSetting = JSON.parse(localStorage.getItem(JUMP_SHARED_USER_SETTING));
     if (userSetting && userSetting.settings) {
         const filter = userSetting.settings.filter;
         return filter || null;
@@ -2680,7 +2506,15 @@ const getLocalStorageShareUserSetting = (key) => {
     if (key === JUMP_SHARED_USER_SETTING) {
         return isEmptyShareUserSetting ? null : shareUserSetting;
     }
-    return isEmptyShareUserSetting
-        ? null
-        : { settings: { traceDataForm: shareUserSetting } };
+    return isEmptyShareUserSetting ? null : { settings: { traceDataForm: shareUserSetting } };
+};
+
+const handleCloseBookmarkModal = (ele) => {
+    if (typeof inputMutationObserver !== 'undefined') {
+        if (inputMutationObserver.nodeStatus.filter((node) => node.modifyStatus).length) {
+            $('#modifyConfirmationModal').modal('show');
+            return;
+        }
+        $(ele).closest('.modal').modal('hide');
+    }
 };

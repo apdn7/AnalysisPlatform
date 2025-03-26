@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import logging
 import re
 from abc import abstractmethod
 from typing import Any, ClassVar, Optional
@@ -16,6 +17,8 @@ from ap.common.constants import EMPTY_STRING, MULTIPLE_VALUES_CONNECTOR, DataTyp
 from ap.common.memoize import CustomCache
 from ap.equations.error import INVALID_VALUE_MSG, MUST_HAVE_THE_SAME_TYPE_MSG, ErrorField, FunctionFieldError
 from ap.setting_module.models import MFunction
+
+logger = logging.getLogger(__name__)
 
 BOOLEAN_DICT_VALUES = {
     'true': True,
@@ -88,12 +91,25 @@ def cast_value_based_on_series(series: pd.Series, value: Any) -> tuple[Any, bool
 
 def try_cast_series_pd_types(series: pd.Series, pd_types: list[pd.ExtensionType]) -> pd.Series | None:
     for dtype in pd_types:
+        if series.dtype == dtype:
+            return series
+
         result_series = series
 
         current_type_is_not_boolean = not pd.api.types.is_bool_dtype(result_series)
         type_should_be_boolean = pd.api.types.is_bool_dtype(dtype)
         if current_type_is_not_boolean and type_should_be_boolean:
-            result_series = result_series.replace(BOOLEAN_DICT_VALUES)
+            result_series = result_series.astype(object).replace(BOOLEAN_DICT_VALUES)
+
+        # pandas 2.0 does not allow to astype datetime data from tz-naive to tz-aware
+        if pd.api.types.is_datetime64_any_dtype(dtype):
+            with contextlib.suppress(TypeError, ValueError, OverflowError):
+                dtype_timezone = getattr(dtype, 'tz', None)
+                return pd.to_datetime(result_series).dt.tz_localize(tz=dtype_timezone)
+
+        if pd.api.types.is_numeric_dtype(dtype):
+            with contextlib.suppress(TypeError, ValueError, OverflowError):
+                return pd.to_numeric(result_series, errors='coerce').convert_dtypes().astype(dtype)
 
         with contextlib.suppress(TypeError, ValueError, OverflowError):
             return result_series.astype(dtype)
@@ -102,9 +118,7 @@ def try_cast_series_pd_types(series: pd.Series, pd_types: list[pd.ExtensionType]
         with contextlib.suppress(TypeError, ValueError, OverflowError):
             return result_series.convert_dtypes().astype(dtype)
         with contextlib.suppress(TypeError, ValueError, OverflowError):
-            return result_series.astype('object').astype(dtype)
-        with contextlib.suppress(TypeError, ValueError, OverflowError):
-            return pd.to_numeric(result_series).convert_dtypes().astype(dtype)
+            return result_series.astype(object).astype(dtype)
     return None
 
 
@@ -137,8 +151,6 @@ def try_cast_series(series: pd.Series, raw_data_types: list[RawDataTypeDB | None
 def get_data_encoding_type_from_series(series: pd.Series) -> DataTypeEncode:
     if pd.api.types.is_integer_dtype(series):
         return DataTypeEncode.INTEGER
-    # if pd.api.types.is_int64_dtype(series): # ES not use BIG_INT
-    #     return DataTypeEncode.BIG_INT
     if pd.api.types.is_float_dtype(series):
         return DataTypeEncode.REAL
     if pd.api.types.is_string_dtype(series):
@@ -224,10 +236,6 @@ class BaseFunction(BaseModel):
         if output_type_cast == DataTypeEncode.REAL.value:
             return RawDataTypeDB.REAL.value
 
-        # TODO: ES not use BIG_INT
-        # if output_type_cast == DataTypeEncode.BIG_INT.value:
-        #     return RawDataTypeDB.BIG_INT.value
-
         if output_type_cast == DataTypeEncode.INTEGER.value:
             return RawDataTypeDB.INTEGER.value
 
@@ -266,7 +274,7 @@ class BaseFunction(BaseModel):
         if df.empty:
             result_series = pd.Series([])
         else:
-            df.reset_index(inplace=True, drop=True)
+            df = df.reset_index(drop=True)
             m_function = self.get_function_orm()
 
             series_x = None
@@ -301,7 +309,16 @@ class BaseFunction(BaseModel):
 
         raw_output_type = self.get_output_type(x_data_type=x_dtype, y_data_type=y_dtype)
         output_dtype = RawDataTypeDB.get_pandas_dtype(raw_output_type.value)
-        result_series = result_series.convert_dtypes().astype(output_dtype)
+        result_series = result_series.convert_dtypes()
+
+        maybe_none_result_series = try_cast_series_pd_types(result_series, [output_dtype])
+        if maybe_none_result_series is None:
+            logger.error(
+                f'Function {self.__class__.__name__}:'
+                f'cannot cast output from `{result_series.dtype}` to `{output_dtype}',
+            )
+        if maybe_none_result_series is not None:
+            result_series = maybe_none_result_series
 
         # must change null string to NA
         if raw_output_type == RawDataTypeDB.TEXT:
@@ -1088,7 +1105,6 @@ class TypeConvert(BaseFunction):
             DataTypeEncode.INTEGER.value,
             DataTypeEncode.TEXT.value,
             DataTypeEncode.CATEGORY.value,
-            DataTypeEncode.BIG_INT.value,
         ]
         if self.t.strip() not in required_ts:
             raise FunctionFieldError(INVALID_VALUE_MSG).add_error(

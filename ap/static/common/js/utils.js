@@ -1,4 +1,5 @@
 /* eslint-disable no-useless-escape */
+let inputMutationObserver;
 
 let xhr = null;
 const SQL_LIMIT = 50000;
@@ -7,6 +8,9 @@ let $closeAllToast = null;
 let showElapsedTime = null;
 const RLP_DUMMY_ID = 1000001;
 const EMD_DIFF_ID = 1000000;
+
+// do not normalize/convert hankaku to zekaku for V2 Process name in Datasource config
+const EXCLUDE_NORMALIZE = ['v2Process'];
 
 // FPP: If yScale is Threshold: this number is the margin between threshold line (red line) with the border of the chart
 // margin is 10%
@@ -262,6 +266,10 @@ const START_POINT_PROC_VALS = {
     NO_LINK_DATA: '0',
 };
 
+const DATA_OBSERVER = 'data-observer';
+
+const DATA_DISCARD_CHANGE = 'discard-change';
+
 const trimLeft = (target) => target.replace(new RegExp(/^[\s]+/), '');
 
 const trimRight = (target) => target.replace(new RegExp(/[\s]+$/), '');
@@ -284,17 +292,7 @@ const isEmpty = (val) => {
 };
 
 const isNumericDatatype = (type) => {
-    const NUMERIC_TYPE = [
-        'int',
-        'num',
-        'real',
-        'float',
-        'double',
-        'long',
-        'dec',
-        'bit',
-        'money',
-    ];
+    const NUMERIC_TYPE = ['int', 'num', 'real', 'float', 'double', 'long', 'dec', 'bit', 'money'];
     if (!type) return false;
     // convert to lower case before compare
     const lowerType = type.toLowerCase();
@@ -337,10 +335,7 @@ const docCookies = {
         if (vEnd) {
             switch (vEnd.constructor) {
                 case Number:
-                    sExpires =
-                        vEnd === Infinity
-                            ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT'
-                            : `; max-age=${vEnd}`;
+                    sExpires = vEnd === Infinity ? '; expires=Fri, 31 Dec 9999 23:59:59 GMT' : `; max-age=${vEnd}`;
                     break;
                 case String:
                     sExpires = `; expires=${vEnd}`;
@@ -361,12 +356,12 @@ const docCookies = {
         return true;
     },
     hasItem(sKey) {
-        return new RegExp(
-            `(?:^|;\\s*)${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=`,
-        ).test(document.cookie);
+        return new RegExp(`(?:^|;\\s*)${encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&')}\\s*\\=`).test(
+            document.cookie,
+        );
     },
     getLocale() {
-        return this.getItem('locale') || 'en';
+        return this.getItem(keyPort('locale')) || 'en';
     },
     isJaLocale() {
         return this.getLocale() === 'ja';
@@ -433,8 +428,7 @@ const getValueByIndexes = (indexes, targetArray, atlArray) => {
 
 const setPageTitle = () => {
     // Set sub_title
-    const subTitle =
-        docCookies.getItem('sub_title') || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
+    const subTitle = docCookies.getItem(keyPort('sub_title')) || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
     $('#page-sub-title').text(subTitle);
     const currentPageTitle = $('title').text();
     const fullTitle = `${currentPageTitle} ${subTitle}`;
@@ -448,12 +442,8 @@ const setPageTitle = () => {
  * This function ONLY effects to show graph pages
  */
 function showHideExportToClipboardOptions() {
-    const $exportDataToClipboardRow = $('#exportDataToClipboardAcr').closest(
-        'div.row',
-    );
-    const $exportImageToClipboardRow = $('#exportImageToClipboardAcr').closest(
-        'div.row',
-    );
+    const $exportDataToClipboardRow = $('#exportDataToClipboardAcr').closest('div.row');
+    const $exportImageToClipboardRow = $('#exportImageToClipboardAcr').closest('div.row');
     if (window.isSecureContext) {
         $exportDataToClipboardRow.show();
         $exportImageToClipboardRow.show();
@@ -467,7 +457,7 @@ const DEFAULT_LOCALE = 'ja';
 
 $(() => {
     // show selected locale for pages
-    const locale = docCookies.getItem('locale') || 'ja';
+    const locale = docCookies.getItem(keyPort('locale')) || 'ja';
     // console.log(locale);
     $('#select-language').val(locale).trigger('change');
 
@@ -475,8 +465,7 @@ $(() => {
     $('#select-language').change(function changeLocal() {
         let selectedLocale = $(this).children('option:selected').val();
         if (selectedLocale) {
-            docCookies.setItem('locale', selectedLocale);
-            const locale = docCookies.getItem('locale') || 'ja';
+            docCookies.setItem(keyPort('locale'), selectedLocale);
         } else {
             selectedLocale = DEFAULT_LOCALE;
         }
@@ -510,9 +499,7 @@ const validateNumericInput = (textbox) => {
     textbox.on('change', (eve) => {
         let { value } = eve.currentTarget;
         const replaceVal = /[０-９]/gi;
-        value = value.replaceAll(replaceVal, (s) =>
-            String.fromCharCode(s.charCodeAt(0) - 65248),
-        );
+        value = value.replaceAll(replaceVal, (s) => String.fromCharCode(s.charCodeAt(0) - 65248));
         eve.currentTarget.value = value;
     });
 };
@@ -554,14 +541,12 @@ const stringNormalization = (val) => {
 };
 
 // convert input textbox element from Zenkaku to Hankaku on specific event
-const handleInputTextZenToHanEvent = (
-    event,
-    afterOKCheckFn = null,
-    callbackParams = null,
-) => {
-    event.currentTarget.value = stringNormalization(event.currentTarget.value);
-    event.currentTarget.oldValue = event.currentTarget.value;
-
+const handleInputTextZenToHanEvent = (event, afterOKCheckFn = null, callbackParams = null) => {
+    const eleName = $(event.currentTarget).attr('name');
+    if (!EXCLUDE_NORMALIZE.includes(eleName)) {
+        event.currentTarget.value = stringNormalization(event.currentTarget.value);
+        event.currentTarget.oldValue = event.currentTarget.value;
+    }
     // チェックOKの場合は、Callbackを呼び出す。
     if (afterOKCheckFn != null) {
         afterOKCheckFn(callbackParams);
@@ -594,9 +579,7 @@ const assignValueToSelect2 = (select2Element, val) => {
     const matchOptions = [];
     for (const word of words) {
         if (!isEmpty(word)) {
-            const found = select2Element
-                .find('option')
-                .filter((i, e) => $(e).val() === word).length;
+            const found = select2Element.find('option').filter((i, e) => $(e).val() === word).length;
             if (!found) {
                 const newOption = new Option(word, word, false, false);
                 select2Element.append(newOption).trigger('change');
@@ -735,38 +718,23 @@ const convertTextH2Z = (parent = null) => {
 // };
 
 // gen Json for Db Config Data
-const genJsonfromHTML = (
-    searchFromHtml,
-    jsonRootKey,
-    valAlwaysArray = false,
-) => {
+const genJsonfromHTML = (searchFromHtml, jsonRootKey, valAlwaysArray = false) => {
     const result = {};
-    const parentHtml =
-        typeof searchFromHtml === 'string'
-            ? $(`${searchFromHtml}`)
-            : searchFromHtml;
+    const parentHtml = typeof searchFromHtml === 'string' ? $(`${searchFromHtml}`) : searchFromHtml;
 
     if (parentHtml.length === 1) {
         // root value is a json
         result[jsonRootKey] = {};
     } else {
         // root value is an array
-        result[jsonRootKey] = [...Array(parentHtml.length)].map(() =>
-            JSON.parse('{}'),
-        );
+        result[jsonRootKey] = [...Array(parentHtml.length)].map(() => JSON.parse('{}'));
     }
 
     // closure
-    const inner = (
-        searchHtmlName,
-        getHtmlValFunc = null,
-        jsonKey = searchHtmlName,
-    ) => {
+    const inner = (searchHtmlName, getHtmlValFunc = null, jsonKey = searchHtmlName) => {
         // loop parent HTML elements
         parentHtml.each((i, parentEle) => {
-            const vals = [
-                ...parentEle.querySelectorAll(`[name=${searchHtmlName}]`),
-            ].map((e) =>
+            const vals = [...parentEle.querySelectorAll(`[name=${searchHtmlName}]`)].map((e) =>
                 getHtmlValFunc === null ? e.value : getHtmlValFunc(e),
             );
             // const vals = [...$(parentEle).find(`[name=${searchHtmlName}]`)].map(e => (getHtmlValFunc === null ? e.value : getHtmlValFunc(e)));
@@ -820,10 +788,7 @@ const getNode = (dictObj, keys, defaultVal = null) => {
 };
 
 // display message after press register buttons
-const displayRegisterMessage = (
-    alertID,
-    flaskMessage = { message: '', is_error: false, is_warning: false },
-) => {
+const displayRegisterMessage = (alertID, flaskMessage = { message: '', is_error: false, is_warning: false }) => {
     if (alertID === null || alertID === undefined) return;
     if (flaskMessage.message) {
         $(`${alertID}-content`).html(flaskMessage.message);
@@ -852,11 +817,7 @@ const hideAlertMessages = () => {
     $('.alert.alert-dismissible.fade.show').css('display', 'none');
 };
 
-const generateRegisterMessage = (
-    message,
-    isError = false,
-    isWarning = false,
-) => {
+const generateRegisterMessage = (message, isError = false, isWarning = false) => {
     return {
         message: message,
         isError: isError,
@@ -880,6 +841,8 @@ const sidebarEles = {
     cfgSm: 'cfgSm',
     sidebarCollapseId: '#sidebarCollapse',
     collapse: '.collapse',
+    searchBox: '#sidebar-searchbox',
+    sidebarMenulist: '#sidebarBody li[data-search]',
 };
 
 const sidebarCollapse = () => {
@@ -904,8 +867,74 @@ const sidebarCollapse = () => {
     });
     $(sidebarEles.ulList).removeClass('show');
 
+    // handle event for searchBox | start
+    if (isSidebarOpen()) {
+        $(sidebarEles.searchBox).focus();
+
+        // add event input to searchBox
+        $(sidebarEles.searchBox)
+            .off('input')
+            .on('input', function () {
+                const searchStr = $(this).val();
+                if (searchStr === '') {
+                    resetSidebarMenu();
+                    return;
+                }
+                // show/hide matching results
+                $(sidebarEles.sidebarMenulist).each(function () {
+                    const dataSearchText = $(this).data('search');
+                    if (dataSearchText && dataSearchText.toLowerCase().includes(searchStr.toLowerCase())) {
+                        // open menu list
+                        $(sidebarEles.ulList).addClass('show');
+                        $('a[data-toggle="collapse"]').hide();
+
+                        // show matching results
+                        $(this).show();
+                        $('.go-to-page').addClass('sidebar-is-searching');
+                    } else {
+                        // hide un-matching results
+                        $(this).hide();
+                        $('a[data-toggle="collapse"]').hide();
+                    }
+                });
+            });
+
+        // when press Ctrl+Enter or Enter
+        $(sidebarEles.searchBox)
+            .off('keydown')
+            .on('keydown', function (event) {
+                const sidebarNavLinks = $('#sidebarBody a:visible');
+                if ($(sidebarEles.searchBox).val() === '' || sidebarNavLinks.length === 0) return;
+
+                if (event.ctrlKey && event.key === 'Enter') {
+                    const url = sidebarNavLinks[0].href;
+                    window.open(url, '_blank');
+                } else if (event.key === 'Enter') {
+                    event.preventDefault();
+                    sidebarNavLinks[0].click();
+                }
+            });
+    } else {
+        resetSidebarMenu();
+        $(sidebarEles.searchBox).val('');
+    }
+    // handle event for searchBox | end
+
     // trigger resize window
     window.dispatchEvent(new Event('resize'));
+};
+
+const resetSidebarMenu = () => {
+    // display menu list again
+    $(sidebarEles.sidebarMenulist).each(function () {
+        $(this).show();
+    });
+    $('a[data-toggle="collapse"]').show();
+    // remove css for a.go-to-page
+    $('.go-to-page').removeClass('sidebar-is-searching');
+
+    // collapse menu list
+    $(sidebarEles.ulList).removeClass('show');
 };
 
 const isSidebarOpen = () => {
@@ -937,7 +966,7 @@ const fetchBackgroundJobs = (cb) => {
     fetch('/ap/api/setting/job', {
         method: 'POST',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
     })
@@ -1096,8 +1125,7 @@ function niceNum(localRange, round) {
 }
 
 function getPrecision(n) {
-    let loggedPrecision =
-        1 - Math.floor(Math.log(Math.abs(n % 1))) / Math.log(10);
+    let loggedPrecision = 1 - Math.floor(Math.log(Math.abs(n % 1))) / Math.log(10);
     loggedPrecision = Math.round(loggedPrecision);
     if (Number.isFinite(loggedPrecision)) {
         return loggedPrecision;
@@ -1127,13 +1155,10 @@ const dragDropRowInTable = (() => {
 
     // get values of order columns
     const getValuesOfOrderCols = (ele) =>
-        $(ele).attr('id') ||
-        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
+        $(ele).attr('id') || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
     const getValuesOfOrderColsMasterConfig = (ele) =>
-        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)]
-            .map((e) => e.value)
-            .join('_') || $(ele).attr('id');
+        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_') || $(ele).attr('id');
 
     // fix width of tr when drag drop
     const fixHelper = (_v, ui) => {
@@ -1145,12 +1170,10 @@ const dragDropRowInTable = (() => {
 
     // get values of order columns
     const getValuesOfOrderColsAndDsId = (ele) =>
-        $(ele).attr('data-ds-id') ||
-        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
+        $(ele).attr('data-ds-id') || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
     const getValuesOfOrderColsAndDsProcId = (ele) =>
-        $(ele).attr('data-proc-id') ||
-        [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
+        $(ele).attr('data-proc-id') || [...$(ele).find(`[${DATA_ORDER_ATTR}]`)].map((e) => e.value).join('_');
 
     // Update LocalStorage for ordering
     const setItemLocalStorage = (tblBody, prefix = null) => {
@@ -1162,19 +1185,9 @@ const dragDropRowInTable = (() => {
         }
 
         if (localStorageId === 'tblDbConfig') {
-            dicRowId = Object.fromEntries(
-                [...tblBody.rows].map((ele, i) => [
-                    getValuesOfOrderColsAndDsId(ele),
-                    i,
-                ]),
-            );
+            dicRowId = Object.fromEntries([...tblBody.rows].map((ele, i) => [getValuesOfOrderColsAndDsId(ele), i]));
         } else {
-            dicRowId = Object.fromEntries(
-                [...tblBody.rows].map((ele, i) => [
-                    getValuesOfOrderColsAndDsProcId(ele),
-                    i,
-                ]),
-            );
+            dicRowId = Object.fromEntries([...tblBody.rows].map((ele, i) => [getValuesOfOrderColsAndDsProcId(ele), i]));
         }
 
         localStorage.setItem(localStorageId, JSON.stringify(dicRowId));
@@ -1261,24 +1274,14 @@ const stickyHeaders = (() => {
             const $thisSticky = $(e);
             const $stickyPosition = $thisSticky.data('originalPosition');
 
-            if (
-                $stickyPosition <= $window.scrollTop() &&
-                !$cardParent.is(':offscreen')
-            ) {
+            if ($stickyPosition <= $window.scrollTop() && !$cardParent.is(':offscreen')) {
                 const $nextSticky = $stickies.eq(i + 1);
-                const $nextStickyPosition =
-                    $nextSticky.data('originalPosition') -
-                    $thisSticky.data('originalHeight');
+                const $nextStickyPosition = $nextSticky.data('originalPosition') - $thisSticky.data('originalHeight');
 
                 $thisSticky.addClass('btn-fixed');
 
-                if (
-                    $nextSticky.length > 0 &&
-                    $thisSticky.offset().top >= $nextStickyPosition
-                ) {
-                    $thisSticky
-                        .addClass('absolute')
-                        .css('top', $nextStickyPosition);
+                if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
+                    $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
                 }
             } else {
                 const $prevSticky = $stickies.eq(i - 1);
@@ -1287,9 +1290,7 @@ const stickyHeaders = (() => {
 
                 if (
                     $prevSticky.length > 0 &&
-                    $window.scrollTop() <=
-                        $thisSticky.data('originalPosition') -
-                            $thisSticky.data('originalHeight')
+                    $window.scrollTop() <= $thisSticky.data('originalPosition') - $thisSticky.data('originalHeight')
                 ) {
                     $prevSticky.removeClass('absolute').removeAttr('style');
                 }
@@ -1297,11 +1298,7 @@ const stickyHeaders = (() => {
         });
     };
     const load = (stickies) => {
-        if (
-            typeof stickies === 'object' &&
-            stickies instanceof jQuery &&
-            stickies.length > 0
-        ) {
+        if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="btnWrap">');
@@ -1357,25 +1354,15 @@ const scrollFloatingElement = (() => {
             const $thisSticky = $(e);
             const $stickyPosition = $thisSticky.data('originalPosition');
 
-            if (
-                $stickyPosition <= $window.scrollTop() &&
-                !$cardParent.is(':offscreen')
-            ) {
+            if ($stickyPosition <= $window.scrollTop() && !$cardParent.is(':offscreen')) {
                 const $nextSticky = $stickies.eq(i + 1);
-                const $nextStickyPosition =
-                    $nextSticky.data('originalPosition') -
-                    $thisSticky.data('originalHeight');
+                const $nextStickyPosition = $nextSticky.data('originalPosition') - $thisSticky.data('originalHeight');
 
                 // add custom css
                 $thisSticky.addClass($adjustCSSClass);
 
-                if (
-                    $nextSticky.length > 0 &&
-                    $thisSticky.offset().top >= $nextStickyPosition
-                ) {
-                    $thisSticky
-                        .addClass('absolute')
-                        .css('top', $nextStickyPosition);
+                if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
+                    $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
                 }
 
                 if ($callBackFunc) {
@@ -1389,9 +1376,7 @@ const scrollFloatingElement = (() => {
 
                 if (
                     $prevSticky.length > 0 &&
-                    $window.scrollTop() <=
-                        $thisSticky.data('originalPosition') -
-                            $thisSticky.data('originalHeight')
+                    $window.scrollTop() <= $thisSticky.data('originalPosition') - $thisSticky.data('originalHeight')
                 ) {
                     $prevSticky.removeClass('absolute').removeAttr('style');
                 }
@@ -1399,11 +1384,7 @@ const scrollFloatingElement = (() => {
         });
     };
     const load = (stickies, adjustCSSClass = '', callBackFunc = null) => {
-        if (
-            typeof stickies === 'object' &&
-            stickies instanceof jQuery &&
-            stickies.length > 0
-        ) {
+        if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_v, e) => {
                 const $thisSticky = $(e).wrap('<div class="">');
@@ -1510,10 +1491,7 @@ const closeAllToast = () => {
 // show toastr msg to warn about abnormal result
 const showToastrAnomalGraph = () => {
     const i18nTexts = {
-        abnormalGraphShow: $('#i18nAbnormalGraphShow')
-            .text()
-            .split('BREAK_LINE')
-            .join('<br>'),
+        abnormalGraphShow: $('#i18nAbnormalGraphShow').text().split('BREAK_LINE').join('<br>'),
     };
 
     const msgContent = `<p>${i18nTexts.abnormalGraphShow}</p>`;
@@ -1572,15 +1550,12 @@ const syncTraceDateTimeRange = (parentId = '', dtNames = {}, dtValues = {}) => {
     const datetimeRangeVal = dtValues.DATETIME_RANGE_PICKER;
 
     if (!isEmpty(datetimeRange) && !isEmpty(datetimeRangeVal)) {
-        $(`#${parentId} input[name=${datetimeRange}]`)
-            .first()
-            .val(datetimeRangeVal);
+        $(`#${parentId} input[name=${datetimeRange}]`).first().val(datetimeRangeVal);
     }
 };
 
 const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
-    if (!withDateTime && (isEmpty(localDate) || isEmpty(localTime)))
-        return { date: localDate, time: localTime };
+    if (!withDateTime && (isEmpty(localDate) || isEmpty(localTime))) return { date: localDate, time: localTime };
 
     const datetime = withDateTime ? localDate : `${localDate} ${localTime}`;
     const utcDT = moment.utc(moment(datetime, `${DATE_FORMAT} ${TIME_FORMAT}`));
@@ -1687,10 +1662,7 @@ const chooseLatestThresholds = (
             const chartInfo = chartInfos[idx];
             const latestActTo = latestChartInfo['act-to'];
             const actTo = chartInfo['act-to'];
-            if (
-                isEmpty(actTo) ||
-                (!isEmpty(latestActTo) && actTo > latestActTo)
-            ) {
+            if (isEmpty(actTo) || (!isEmpty(latestActTo) && actTo > latestActTo)) {
                 latestChartInfo = chartInfo;
                 latestIndex = idx;
             }
@@ -1706,12 +1678,8 @@ const chooseLatestThresholds = (
     let latestIndexOrg = null;
     for (const idx in chartInfosOrg) {
         const chartInfo = chartInfosOrg[idx];
-        const actFrom = isEmpty(chartInfo['act-from'])
-            ? defaultActFrom
-            : convertFunc(chartInfo['act-from']);
-        const actTo = isEmpty(chartInfo['act-to'])
-            ? defaultActTo
-            : convertFunc(chartInfo['act-to']);
+        const actFrom = isEmpty(chartInfo['act-from']) ? defaultActFrom : convertFunc(chartInfo['act-from']);
+        const actTo = isEmpty(chartInfo['act-to']) ? defaultActTo : convertFunc(chartInfo['act-to']);
         let relevantChartInfo = false;
         if (actFrom <= sensorDateTime && sensorDateTime <= actTo) {
             relevantChartInfo = true;
@@ -1775,11 +1743,7 @@ const formatResultMulti = (data) => {
 
     const $result = $(
         `${
-            '<div class="row"' +
-            attrDataId +
-            attrDataTitle +
-            '>' +
-            '<div class="col-md-6 col-xs-6'
+            '<div class="row"' + attrDataId + attrDataTitle + '>' + '<div class="col-md-6 col-xs-6'
         }${classAttr}">${columnName}</div>` +
             `<div class="col-md-6 col-xs-6${classAttr}">${data.text}</div>` +
             '</div>',
@@ -1808,10 +1772,7 @@ const matchCustom = (params, data) => {
     params.term = params.term.toLowerCase();
     const dataText = data.text.toLowerCase();
     const dataTitle = data.title.toLowerCase();
-    if (
-        dataText.indexOf(params.term) > -1 ||
-        dataTitle.indexOf(params.term) > -1
-    ) {
+    if (dataText.indexOf(params.term) > -1 || dataTitle.indexOf(params.term) > -1) {
         const modifiedData = $.extend({}, data, true);
 
         // You can return modified objects from here
@@ -1823,7 +1784,7 @@ const matchCustom = (params, data) => {
     return null;
 };
 
-const setSelect2Selection = (parent = null, additionalOption = {}) => {
+const setSelect2Selection = (parent = null, additionalOption = {}, optionsLoadLast = []) => {
     let eles;
     if (parent) {
         eles = $(parent);
@@ -1858,42 +1819,40 @@ const setSelect2Selection = (parent = null, additionalOption = {}) => {
     };
 
     // single select2
-    eles.find('select.select2-selection--single:not([hidden])').each(
-        function () {
-            const ele = $(this);
-            let select2El = null;
+    eles.find('select.select2-selection--single:not([hidden])').each(function () {
+        const ele = $(this);
+        let select2El = null;
 
-            if (ele.attr('data-allow-clear')) {
-                Object.assign(dicNColsOptions, { allowClear: true });
-                Object.assign(dicOptions, { allowClear: true });
-            }
-            if (ele.hasClass(nColCls)) {
-                select2El = ele.select2(dicNColsOptions);
-            } else {
-                select2El = ele.select2(dicOptions);
-            }
+        if (ele.attr('data-allow-clear')) {
+            Object.assign(dicNColsOptions, { allowClear: true });
+            Object.assign(dicOptions, { allowClear: true });
+        }
+        if (ele.hasClass(nColCls)) {
+            select2El = ele.select2(dicNColsOptions);
+        } else {
+            select2El = ele.select2(dicOptions);
+        }
 
-            // Handler for user control the order of process name in drop down of config page and show graph page
-            let sortSpan = '';
-            if (isEndProcProcessSelectBox(this)) {
-                sortSpan = `<div style="position:absolute; top: 20px; right: 4px;">
+        // Handler for user control the order of process name in drop down of config page and show graph page
+        let sortSpan = '';
+        if (isEndProcProcessSelectBox(this)) {
+            sortSpan = `<div style="position:absolute; top: 20px; right: 4px;">
                         <span style="font-size:16px" class="mr-1 sortCol select2-sort-icon" title="Sort">
                             <i class="fa fa-sm fa-play asc"></i>
                             <i class="fa fa-sm fa-play desc"></i>
                         </span>
                     </div>`;
-            }
+        }
 
-            // Add placeholder in search input
-            $(ele)
-                .data('select2')
-                .$dropdown.find(':input.select2-search__field')
-                .attr('placeholder', i18nCommon.search + '...')
-                .parent()
-                .append(sortSpan);
-            handlerSelectEvent(select2El);
-        },
-    );
+        // Add placeholder in search input
+        $(ele)
+            .data('select2')
+            .$dropdown.find(':input.select2-search__field')
+            .attr('placeholder', i18nCommon.search + '...')
+            .parent()
+            .append(sortSpan);
+        handlerSelectEvent(select2El, optionsLoadLast);
+    });
 };
 
 const isEndProcProcessSelectBox = (targetElm) => {
@@ -1905,7 +1864,7 @@ const isEndProcProcessSelectBox = (targetElm) => {
     return false;
 };
 
-const handlerSelectEvent = (select2El) => {
+const handlerSelectEvent = (select2El, optionsLoadLast) => {
     let sortPaths = null;
     const sortResultOptions = (isAsc = true, attrSort) => {
         const ulResultOption = $('.select2-results__options');
@@ -1914,8 +1873,7 @@ const handlerSelectEvent = (select2El) => {
                 const val1 = $(a).find('.row').data(attrSort);
                 const val2 = $(b).find('.row').data(attrSort);
                 if (val1 && val2) {
-                    if (isAsc)
-                        return val1.toUpperCase() > val2.toUpperCase() ? 1 : -1;
+                    if (isAsc) return val1.toUpperCase() > val2.toUpperCase() ? 1 : -1;
                     return val1.toUpperCase() > val2.toUpperCase() ? -1 : 1;
                 }
             })
@@ -1954,16 +1912,41 @@ const handlerSelectEvent = (select2El) => {
         }
     };
 
+    const handleEventSelect2Open = (elem) => {
+        if (elem.attr('id')?.includes('agp-color')) {
+            const options = optionsLoadLast.availableColorVars;
+            if (options && options.length) {
+                const optionSelected = elem.val();
+                const optionSelectedIndex = options.findIndex((e) => e.id.toString() === optionSelected);
+                options.forEach((col, index) => {
+                    if (optionSelected === col.id.toString()) return;
+                    const option = `<option value="${col.id}" title="${col.name_en}">${col.shown_name}<\option>`;
+                    if (index > optionSelectedIndex) elem.append(option);
+                    else elem.children().last().before(option);
+                });
+            }
+        }
+    };
+
+    const handleEventSelect2Close = (elem) => {
+        if (elem.attr('id')?.includes('agp-color')) {
+            const optionSelected = elem.val();
+            elem.find(`option[value!=""][value!="${optionSelected}"]`).remove();
+        }
+    };
+
     // Triggered whenever the dropdown is opened
     select2El.off('select2:open');
     select2El.on('select2:open', (e) => {
-        resizeListOptionSelect2(select2El);
+        resizeListOptionSelect2({ select2El });
         addEventListenerSelect2Sorter();
+        handleEventSelect2Open(select2El);
     });
     // Triggered before the dropdown is closed
     select2El.off('select2:closing');
     select2El.on('select2:closing', (e) => {
         destroySelect2IconSorter();
+        handleEventSelect2Close(select2El);
     });
 };
 
@@ -2051,11 +2034,9 @@ const genPlotlyIconSettings = () => ({
 
 const initializeDateTime = (dtElements = {}, syncStartEnd = true) => {
     let dateDiff = 0;
-    const startDateElement =
-        dtElements.START_DATE || $('input[name="START_DATE"]');
+    const startDateElement = dtElements.START_DATE || $('input[name="START_DATE"]');
     const endDateElement = dtElements.END_DATE || $('input[name="END_DATE"]');
-    const startTimeElement =
-        dtElements.START_TIME || $('input[name="START_TIME"]');
+    const startTimeElement = dtElements.START_TIME || $('input[name="START_TIME"]');
     const endTimeElement = dtElements.END_TIME || $('input[name="END_TIME"]');
 
     // set default time
@@ -2087,9 +2068,7 @@ const initializeDateTime = (dtElements = {}, syncStartEnd = true) => {
             // update end_date to value of start_date
             const startDate = startDateElement.val();
             const mStartDate = moment(startDate, DATE_FORMAT);
-            const newEndDate = mStartDate
-                .add(dateDiff, 'days')
-                .format(DATE_FORMAT);
+            const newEndDate = mStartDate.add(dateDiff, 'days').format(DATE_FORMAT);
             endDateElement.val(newEndDate);
             endDateElement.attr('data-current-val', newEndDate);
             // todo: update datetime range span
@@ -2138,10 +2117,7 @@ const validateDateTime = (event, dtFormat) => {
     }
 };
 
-const adjustMinMax1Percent = (minY, maxY) => [
-    minY - 0.01 * Math.abs(minY),
-    maxY + 0.01 * Math.abs(maxY),
-];
+const adjustMinMax1Percent = (minY, maxY) => [minY - 0.01 * Math.abs(minY), maxY + 0.01 * Math.abs(maxY)];
 
 const createHistogramParams = (
     scaleOption,
@@ -2167,11 +2143,7 @@ const createHistogramParams = (
     } else if (scaleOption === '3') {
         const threshHigh = latestChartInfo['thresh-high'];
         const threshLow = latestChartInfo['thresh-low'];
-        if (
-            !isEmpty(threshHigh) &&
-            !isEmpty(threshLow) &&
-            threshHigh !== threshLow
-        ) {
+        if (!isEmpty(threshHigh) && !isEmpty(threshLow) && threshHigh !== threshLow) {
             maxY = threshHigh + Math.abs(threshHigh - threshLow) * 0.125;
             minY = threshLow - Math.abs(threshHigh - threshLow) * 0.125;
         }
@@ -2191,11 +2163,7 @@ const createHistogramParams = (
     }
 
     const globalRange = [minY, maxY];
-    const customBinSize =
-        Math.max(
-            (globalRange[1] - globalRange[0]) / 128,
-            Math.round(setYMax - setYMin) / 128,
-        ) || 1;
+    const customBinSize = Math.max((globalRange[1] - globalRange[0]) / 128, Math.round(setYMax - setYMin) / 128) || 1;
 
     return [minY, maxY, globalRange, customBinSize];
 };
@@ -2203,29 +2171,18 @@ const createHistogramParams = (
 const colorErrorCells = (jexcelDivId, errorCells, requiredErrorEles = []) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce(
-        (a, b) => ({ ...a, [b]: 'color:red;' }),
-        {},
-    );
+    const styleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'color:red;' }), {});
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
     if (requiredErrorEles.length) {
-        const emptyCellsParams = requiredErrorEles.reduce(
-            (a, b) => ({ ...a, [b]: 'background-color: red;' }),
-            {},
-        );
-        document
-            .getElementById(jexcelDivId)
-            .jspreadsheet.setStyle(emptyCellsParams);
+        const emptyCellsParams = requiredErrorEles.reduce((a, b) => ({ ...a, [b]: 'background-color: red;' }), {});
+        document.getElementById(jexcelDivId).jspreadsheet.setStyle(emptyCellsParams);
     }
 };
 
 const colorErrorCheckboxCells = (jexcelDivId, errorCells) => {
     if (isEmpty(errorCells)) return;
 
-    const styleParams = errorCells.reduce(
-        (a, b) => ({ ...a, [b]: 'background-color: red;' }),
-        {},
-    );
+    const styleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'background-color: red;' }), {});
     document.getElementById(jexcelDivId).jspreadsheet.setStyle(styleParams);
 };
 
@@ -2239,10 +2196,7 @@ const showGAToastr = (errors) => {
     showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
 };
 
-const getSelectedItems = (
-    isCategoryItem = false,
-    selectParent = $(formElements.endProcSelectedItem),
-) => {
+const getSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
     const selectedItems = [];
 
     let allSelected = [];
@@ -2255,10 +2209,7 @@ const getSelectedItems = (
     if (allSelected.length > 0) {
         Array.prototype.forEach.call(allSelected, (selected) => {
             if ($(selected).attr('name') !== 'catExpBox') {
-                if (
-                    selected.value &&
-                    selectedItems.includes(selected.value) === false
-                ) {
+                if (selected.value && selectedItems.includes(selected.value) === false) {
                     selectedItems.push(selected.value);
                 }
             }
@@ -2268,18 +2219,9 @@ const getSelectedItems = (
 };
 
 // PythonのNumpyのhistgram関数相当のヒストグラム計算処理を実施
-function genHistLabelsCounts(
-    arrayVals,
-    localNumBins,
-    localValMin,
-    localValMax,
-) {
-    const labelMin = !isEmpty(localValMin)
-        ? localValMin
-        : Math.min.apply(null, arrayVals);
-    const labelMax = !isEmpty(localValMax)
-        ? localValMax
-        : Math.max.apply(null, arrayVals);
+function genHistLabelsCounts(arrayVals, localNumBins, localValMin, localValMax) {
+    const labelMin = !isEmpty(localValMin) ? localValMin : Math.min.apply(null, arrayVals);
+    const labelMax = !isEmpty(localValMax) ? localValMax : Math.max.apply(null, arrayVals);
 
     const histLabels = genHistLabels(labelMin, labelMax, localNumBins);
     const histCounts = genHistCounts(histLabels, arrayVals, labelMin, labelMax);
@@ -2332,12 +2274,7 @@ function genHistCounts(histLabels, arrayVals, labelMin, labelMax) {
             }
             const histLabelMin = histLabels[j];
             const histLabelMax = histLabels[j + 1];
-            if (
-                val !== null &&
-                val !== undefined &&
-                val >= histLabelMin &&
-                val < histLabelMax
-            ) {
+            if (val !== null && val !== undefined && val >= histLabelMin && val < histLabelMax) {
                 histCounts[j] += 1;
             }
         }
@@ -2360,11 +2297,14 @@ const endProcMultiSelectOnChange = async (count, props) => {
     $(`#count-variables-${count}`).text(0);
 
     // remove old elements
+    $(`#end-proc-val-div-${count}`).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
     if (procInfo == null) {
         updateSelectedItems();
         return;
     }
+
+    checkUpdateTransactionDataJobInShowGraph(procId).then();
     const ids = [];
     const vals = [];
     const names = [];
@@ -2375,9 +2315,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     await procInfo.updateColumns();
     const procColumns = procInfo.getColumns();
 
-    const dataTypeTargets = props.showStrColumn
-        ? CfgProcess_CONST.ALL_TYPES
-        : CfgProcess_CONST.NUMERIC_TYPES;
+    const dataTypeTargets = props.showStrColumn ? CfgProcess_CONST.ALL_TYPES : CfgProcess_CONST.NUMERIC_TYPES;
 
     // push cycle time columns first
     if (props.showStrColumn && !props.hideCTCol) {
@@ -2411,10 +2349,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
         if (col.is_get_date) {
             getDateColID = col.id;
         }
-        if (
-            dataTypeTargets.includes(col.data_type) &&
-            !CfgProcess_CONST.CT_TYPES.includes(col.data_type)
-        ) {
+        if (dataTypeTargets.includes(col.data_type) && !CfgProcess_CONST.CT_TYPES.includes(col.data_type)) {
             ids.push(col.id);
             vals.push(col.name_en);
             names.push(col.shown_name);
@@ -2433,21 +2368,11 @@ const endProcMultiSelectOnChange = async (count, props) => {
                 .children()
                 .index($(`#end-proc-process-div-${count}-parent`).parent()) + 1;
         const dataFilterSystemAllowCheck = masterDataFilterSystem
-            .filter(
-                (e) =>
-                    e.propTarget === processOrderForFilterCheck.all ||
-                    e.propTarget === propIndex.toString(),
-            )
+            .filter((e) => e.propTarget === processOrderForFilterCheck.all || e.propTarget === propIndex.toString())
             .map((e) => e.id);
-        const dataFilterSystem = columnInfo.filter((col) =>
-            dataFilterSystemAllowCheck.includes(col.columnType),
-        );
+        const dataFilterSystem = columnInfo.filter((col) => dataFilterSystemAllowCheck.includes(col.columnType));
         const availableColorVars = procColumns.filter((col) =>
-            [
-                DataTypes.STRING.name,
-                DataTypes.INTEGER.name,
-                DataTypes.TEXT.name,
-            ].includes(col.data_type),
+            [DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name].includes(col.data_type),
         );
         const listGroupProps = {
             checkedIds,
@@ -2455,9 +2380,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
             noFilter: false,
             itemNames: names,
             itemDataTypes: props.showDataType ? dataTypes : null,
-            itemDataTypeShownNames: props.showDataType
-                ? dataTypeShownName
-                : null,
+            itemDataTypeShownNames: props.showDataType ? dataTypeShownName : null,
             isRadio: !!props.radio,
             showCatExp: props.showCatExp,
             isRequired: props.isRequired,
@@ -2481,16 +2404,12 @@ const endProcMultiSelectOnChange = async (count, props) => {
             isColorRequired: props.isColorRequired || false,
             procId,
             dataFilterSystem,
+            isSelectColorBySelect2: props.isSelectColorBySelect2 || false,
+            colorValsSelected: props.colorValsSelected,
         };
-        addGroupListCheckboxWithSearch(
-            parentId,
-            `end-proc-val-${count}`,
-            '',
-            ids,
-            vals,
-            listGroupProps,
-        );
+        addGroupListCheckboxWithSearch(parentId, `end-proc-val-${count}`, '', ids, vals, listGroupProps);
     }
+    reSizeElementForDateTime(count);
     updateSelectedItems();
     onchangeRequiredInput();
     setProcessID();
@@ -2513,9 +2432,7 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
             const itemId = procIds[i];
             const itemVal = procVals[i].shown_name;
             const itemEnVal = procVals[i].name_en;
-            itemList.push(
-                `<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`,
-            );
+            itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
         }
 
         while (checkExistDataGenBtn('btn-add-end-proc', count)) {
@@ -2552,12 +2469,11 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
         $(`#end-proc-process-${count}`).on('change', (e) => {
             const eleNumber = e.currentTarget.id.match(/\d+$/)[0];
             const isShowCTTime = $(formElements.showCT_Time).prop('checked');
+            props.colorValsSelected = e.colorVals || [];
             if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
                 props.hideCTCol = isShowCTTime ? !isShowCTTime : true;
             }
-            const variableSelected = getEndProcVariableSelected(
-                $(e.currentTarget).closest('.card'),
-            );
+            const variableSelected = getEndProcVariableSelected($(e.currentTarget).closest('.card'));
             removeLimitedCheckedList(variableSelected);
             endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
@@ -2569,13 +2485,10 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
                 }
             });
             countTotalVariables();
+            currentHoverFromData = null;
         });
 
-        cardRemovalByClick(
-            '#end-proc-row div',
-            onCloseCallbackFunc,
-            onCloseCallbackDicParam,
-        );
+        cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
         updateSelectedItems();
     };
     return innerFunc;
@@ -2616,11 +2529,7 @@ const scrollList2Top = () => {
     $('ul').scrollTop(0);
 };
 
-const updateTableRowNumber = (
-    tableId = null,
-    tableElement = null,
-    tableBody = null,
-) => {
+const updateTableRowNumber = (tableId = null, tableElement = null, tableBody = null) => {
     // numbering rows in a table
     try {
         if (!isEmpty(tableElement)) {
@@ -2709,17 +2618,13 @@ const keyPress = (e) => {
                 // TODO limit to a max iteration
                 if ($(previousBox).hasClass('keyboard-movement')) {
                     // reset previous box
-                    $(
-                        '#cateTable table td.box-has-data.cate-box-border',
-                    ).removeClass('cate-box-border');
+                    $('#cateTable table td.box-has-data.cate-box-border').removeClass('cate-box-border');
                     $(savedBox).removeClass('cate-box-border');
 
                     // update current box
                     savedBox = previousBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox)
-                        .find('span.cate-value .cate-tooltip')
-                        .css({ visibility: 'visible' });
+                    $(savedBox).find('span.cate-value .cate-tooltip').css({ visibility: 'visible' });
                     break;
                 } else {
                     previousBox = previousBox.previousSibling;
@@ -2734,16 +2639,12 @@ const keyPress = (e) => {
             let nextBox = savedBox.nextSibling;
             while (nextBox && count < 2000) {
                 if ($(nextBox).hasClass('keyboard-movement')) {
-                    $(
-                        '#cateTable table td.box-has-data.cate-box-border',
-                    ).removeClass('cate-box-border');
+                    $('#cateTable table td.box-has-data.cate-box-border').removeClass('cate-box-border');
                     $(savedBox).removeClass('cate-box-border');
 
                     savedBox = nextBox;
                     $(savedBox).addClass('cate-box-border');
-                    $(savedBox)
-                        .find('span.cate-value .cate-tooltip')
-                        .css({ visibility: 'visible' });
+                    $(savedBox).find('span.cate-value .cate-tooltip').css({ visibility: 'visible' });
                     break;
                 } else {
                     nextBox = nextBox.nextSibling;
@@ -2849,8 +2750,7 @@ const loadingShowImmediately = (showGraph = false) => {
     });
 };
 
-const sleep = (second) =>
-    new Promise((resolve) => setTimeout(resolve, second * 1000));
+const sleep = (second) => new Promise((resolve) => setTimeout(resolve, second * 1000));
 
 const removeAbortButton = async (res) => {
     $('.abort-button').prop('disabled', true);
@@ -2888,9 +2788,7 @@ const errorHandling = (error, type = '') => {
         console.log('request timeout..');
         const i18nTexts = {
             abnormalGraphShow:
-                type === 'front'
-                    ? $('#i18nFrontProcessTimeout').text()
-                    : $('#i18nRequestTimeout').text(),
+                type === 'front' ? $('#i18nFrontProcessTimeout').text() : $('#i18nRequestTimeout').text(),
         };
 
         const msgContent = `<p>${i18nTexts.abnormalGraphShow}</p>`;
@@ -3063,8 +2961,7 @@ class GraphStore {
     }
 
     getDataAtIndex(dataIdx, dataPointIdx) {
-        const plotDatas =
-            getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
         const empty = { x: '', y: '' };
         if (isEmpty(plotDatas) || plotDatas.length <= dataIdx) {
             return empty;
@@ -3081,8 +2978,7 @@ class GraphStore {
 
     getArrayPlotData(canvasId) {
         const dataIdx = $(`#${canvasId}`).attr('plotdata-index') || 0;
-        const plotDatas =
-            getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
         if (isEmpty(plotDatas) || plotDatas.length <= dataIdx) {
             return empty;
         }
@@ -3093,10 +2989,7 @@ class GraphStore {
         if (isEmpty(this.traceDataResult)) {
             this.dataPointCount = 0;
         } else {
-            const timeColLenght =
-                'times' in this.traceDataResult
-                    ? this.traceDataResult.times.length
-                    : 0;
+            const timeColLenght = 'times' in this.traceDataResult ? this.traceDataResult.times.length : 0;
             if (timeColLenght) {
                 const numSensors = this.traceDataResult.array_plotdata.length;
                 this.dataPointCount = (timeColLenght + 128) * numSensors * 2;
@@ -3110,8 +3003,7 @@ class GraphStore {
     }
 
     getPCPArrayPlotDataByID(colID) {
-        const plotDatas =
-            getNode(this.traceDataResult, ['array_plotdata']) || [];
+        const plotDatas = getNode(this.traceDataResult, ['array_plotdata']) || [];
         if (isEmpty(plotDatas)) {
             return {};
         }
@@ -3125,12 +3017,7 @@ class GraphStore {
         return plotObj;
     }
 
-    getVariableOrdering(
-        procConfig,
-        useFeatureImportance = true,
-        loadByOrderIDs = false,
-        useT2Ordering = false,
-    ) {
+    getVariableOrdering(procConfig, useFeatureImportance = true, loadByOrderIDs = false, useT2Ordering = false) {
         const ordering = [];
         let orderingID = [];
         let allColIds = [];
@@ -3138,29 +3025,19 @@ class GraphStore {
         const objectiveVariable = currentTrace.COMMON.objectiveVar
             ? Number(currentTrace.COMMON.objectiveVar[0])
             : undefined;
-        const hasObjectiveVarInGUI = $(
-            'input[name=objectiveVar]:checked',
-        ).length;
+        const hasObjectiveVarInGUI = $('input[name=objectiveVar]:checked').length;
         // const latestSortProcs = latestSortColIds.map(val => Number(val.split('-')[0]));
         // const endProcIds = latestSortProcs.filter((procId, index, procs) => procs.indexOf(procId) === index);
         const endProcIds = getSelectedEndProcIds();
-        let endProcColIds = endProcIds
-            .map((id) => procConfig[id].getColumns())
-            .flat();
-        const endProcObj = Object.fromEntries(
-            endProcColIds.map((proc) => [proc.id, proc.process_id]),
-        );
+        let endProcColIds = endProcIds.map((id) => procConfig[id].getColumns()).flat();
+        const endProcObj = Object.fromEntries(endProcColIds.map((proc) => [proc.id, proc.process_id]));
 
         if (objectiveVariable && hasObjectiveVarInGUI) {
             orderingID.push(objectiveVariable);
         }
 
         let sensorList = [];
-        if (
-            useFeatureImportance &&
-            currentTrace.importance_columns_ids &&
-            currentTrace.importance_columns_ids.length
-        ) {
+        if (useFeatureImportance && currentTrace.importance_columns_ids && currentTrace.importance_columns_ids.length) {
             sensorList = currentTrace.importance_columns_ids;
             endProcColIds = [];
         }
@@ -3172,18 +3049,14 @@ class GraphStore {
             sensorList = currentTrace.COMMON.GET02_VALS_SELECT;
         }
         if (loadByOrderIDs) {
-            sensorList = latestSortColIds.map((val) =>
-                Number(val.split('-')[1]),
-            );
+            sensorList = latestSortColIds.map((val) => Number(val.split('-')[1]));
         }
         if (useT2Ordering) {
             sensorList = currentTrace['json_t2_contribution']['id'];
         }
         orderingID = [...orderingID, ...sensorList];
         allColIds = [...orderingID, ...endProcColIds.map((col) => col.id)];
-        allColIds = allColIds.filter(
-            (value, index, array) => array.indexOf(value) === index,
-        );
+        allColIds = allColIds.filter((value, index, array) => array.indexOf(value) === index);
         allColIds = new Set(allColIds);
         allColIds = Array.from(allColIds);
         if (allColIds.length) {
@@ -3211,14 +3084,7 @@ class GraphStore {
             use_feature_importance: true,
         };
     }
-    genDfLabel(
-        id,
-        name,
-        dfMode,
-        mode,
-        isNGRate = false,
-        needToMultipleID = false,
-    ) {
+    genDfLabel(id, name, dfMode, mode, isNGRate = false, needToMultipleID = false) {
         let labelID = id;
         let modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
         modeLabel = `EMD|${modeLabel}`;
@@ -3236,11 +3102,7 @@ class GraphStore {
         const targetVariables = [];
         const RLPMode = currentTrace.emdType;
         // ng rate append
-        if (
-            dfMode &&
-            COMMON_CONSTANT.NG_RATE in currentTrace &&
-            currentTrace.ng_rates
-        ) {
+        if (dfMode && COMMON_CONSTANT.NG_RATE in currentTrace && currentTrace.ng_rates) {
             currentTrace.ng_rates.forEach((sensorDat) => {
                 const [colID, colName, colLabel] = this.genDfLabel(
                     sensorDat.end_col_id,
@@ -3263,9 +3125,7 @@ class GraphStore {
         }
         // end variable append
         currentTrace.array_plotdata.forEach((sensorDat) => {
-            const sensor = procConfigs[sensorDat.end_proc_id].getColumnById(
-                sensorDat.sensor_id,
-            );
+            const sensor = procConfigs[sensorDat.end_proc_id].getColumnById(sensorDat.sensor_id);
             if ([EMDType.BOTH, EMDType.DRIFT].includes(RLPMode)) {
                 const [colID, colName, colLabel] = this.genDfLabel(
                     sensorDat.sensor_id,
@@ -3379,13 +3239,7 @@ const makeDictFrom2Arrays = (keys, vals) => {
 };
 
 // draw processing time
-const drawProcessingTime = (
-    t0,
-    t1,
-    backendTime,
-    rowNumber,
-    uniqueSerial = null,
-) => {
+const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null) => {
     const frontendTime = (t1 - t0) / 1000;
     const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
@@ -3393,9 +3247,7 @@ const drawProcessingTime = (
         ? `, Duplicate: ${uniqueSerial !== null ? applySignificantDigit(rowNumber - uniqueSerial) : 'No checked'}`
         : '';
     let numberOfQueriedDat = checkTrue(rowNumber)
-        ? `, Number of queried data : ${applySignificantDigit(rowNumber)}${
-              duplicate
-          }`
+        ? `, Number of queried data : ${applySignificantDigit(rowNumber)}${duplicate}`
         : '';
     let processTime = `Net time: ${applySignificantDigit(netTime)} sec, Tb: ${
         backendTime ? applySignificantDigit(backendTime) : 0
@@ -3464,11 +3316,7 @@ const scatterInsideTitle = {
         if (options.xContent.length) {
             ctx.fillStyle = options.color[0];
             const xTextWidth = ctx.measureText(options.xContent[0]).width;
-            ctx.fillText(
-                options.xContent,
-                left + (width / 2 - xTextWidth / 2),
-                height - top + 10,
-            );
+            ctx.fillText(options.xContent, left + (width / 2 - xTextWidth / 2), height - top + 10);
         }
         if (options.yContent.length) {
             ctx.fillStyle = options.color[1];
@@ -3503,12 +3351,8 @@ const transformFacetParams = (formData, eleIdPrefix = '') => {
 };
 
 const getSetFacetValue = (value, name, formData, eleIdPrefix) => {
-    const endProcDiv = eleIdPrefix
-        ? `${eleIdPrefix}-end-proc-row`
-        : 'end-proc-row';
-    const facetItem = $(
-        `#${endProcDiv} select[name="catExpBox"] option:selected[value="${value}"]`,
-    )
+    const endProcDiv = eleIdPrefix ? `${eleIdPrefix}-end-proc-row` : 'end-proc-row';
+    const facetItem = $(`#${endProcDiv} select[name="catExpBox"] option:selected[value="${value}"]`)
         .parent()
         .attr('id');
     if (facetItem) {
@@ -3560,10 +3404,7 @@ const hideTooltip = (selector, timeOut = 1000) => {
 const setTooltip = (selector, message, autoHide = true) => {
     if ($(selector).parent().is(':visible')) {
         const title = $(selector).attr('title');
-        $(selector)
-            .attr('data-original-title', message)
-            .attr('title', '')
-            .tooltip('show');
+        $(selector).attr('data-original-title', message).attr('title', '').tooltip('show');
 
         if (autoHide) {
             hideTooltip(selector);
@@ -3595,16 +3436,8 @@ const getTransKDE = (kdeData) => {
 };
 
 const transformDatetimeRange = (formData) => {
-    const datetimeRangeKeys = [
-        'DATETIME_RANGE_PICKER',
-        CONST.STARTDATE,
-        CONST.STARTTIME,
-        CONST.ENDDATE,
-        CONST.ENDTIME,
-    ];
-    const validDatetimeRanges = formData
-        .getAll(datetimeRangeKeys[0])
-        .filter((value) => value !== '');
+    const datetimeRangeKeys = ['DATETIME_RANGE_PICKER', CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
+    const validDatetimeRanges = formData.getAll(datetimeRangeKeys[0]).filter((value) => value !== '');
     if (validDatetimeRanges.length) {
         // to remove empty datetime range from terms
         datetimeRangeKeys.forEach((key) => formData.delete(key));
@@ -3632,10 +3465,7 @@ const transformCategoryTraceTime = (formData, eleIdPrefix) => {
 
 const transformCHMParams = (formData) => {
     // set params
-    const catExpVal =
-        formData.get('catExpBox1') ||
-        formData.get('catExpBox2') ||
-        formData.get('catExpBox');
+    const catExpVal = formData.get('catExpBox1') || formData.get('catExpBox2') || formData.get('catExpBox');
     if (catExpVal) {
         formData.set('categoryVariable1', catExpVal);
         formData.set('categoryValueMulti1', 'NO_FILTER'); // default
@@ -3647,9 +3477,7 @@ const transformSKDParam = (formData, procConf) => {
     const objectiveVarID = formData.get('objectiveVar');
     const valsSelected = formData.getAll('GET02_VALS_SELECT1');
     const setEndProcs = () => {
-        const endProcs = [...formData.keys()].filter((key) =>
-            key.includes('end_proc'),
-        );
+        const endProcs = [...formData.keys()].filter((key) => key.includes('end_proc'));
         if (endProcs.length) {
             endProcs.forEach((key) => {
                 const [, procCountId] = key.split('end_proc');
@@ -3660,9 +3488,7 @@ const transformSKDParam = (formData, procConf) => {
     // const endProcCate = formData.get('objectiveVar');
     let endProcObjective = null;
     if (objectiveVarID) {
-        const [procObj] = Object.values(procConf).filter((proc) =>
-            proc.getColumnById(objectiveVarID),
-        );
+        const [procObj] = Object.values(procConf).filter((proc) => proc.getColumnById(objectiveVarID));
         if (procObj) {
             endProcObjective = procObj.id;
         }
@@ -3683,8 +3509,7 @@ const transformSKDParam = (formData, procConf) => {
 
 // convert hsv color to rgb
 const hsv2rgb = ({ h, s, v }, opacity = false) => {
-    const f = (n, k = (n + h / 60) % 6) =>
-        v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+    const f = (n, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
     const rgb = [f(5), f(3), f(1)].map((value) => value * 255);
     if (opacity) {
         return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.5)`;
@@ -3708,11 +3533,7 @@ const getCurrentTimeStr = () => {
     const now = new Date();
     const offsetMs = now.getTimezoneOffset() * 60 * 1000;
     const dateLocal = new Date(now.getTime() - offsetMs);
-    const timeStr = dateLocal
-        .toISOString()
-        .slice(0, 23)
-        .replace(/[-:]/g, '')
-        .replace('T', '_');
+    const timeStr = dateLocal.toISOString().slice(0, 23).replace(/[-:]/g, '').replace('T', '_');
     return timeStr;
 };
 
@@ -3744,9 +3565,7 @@ const downloadTextFile = (url, filename = null) => {
 // formData is FormData object
 const chooseCyclicTraceTimeInterval = (formData) => {
     if (!formData) return formData;
-    const traceTimes = [...formData.keys()].filter((e) =>
-        e.match(/.+TraceTime\d+/),
-    );
+    const traceTimes = [...formData.keys()].filter((e) => e.match(/.+TraceTime\d+/));
     const traceTimeOptions = traceTimes.map((e) => formData.get(e));
 
     const divisionNum = formData.get(CYCLIC_TERM.DIV_NUM);
@@ -3754,29 +3573,17 @@ const chooseCyclicTraceTimeInterval = (formData) => {
     const windowsLengthNum = formData.get(CYCLIC_TERM.WINDOW_LENGTH);
 
     const targetDate =
-        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
-            ? moment().format('YYYY-MM-DD')
-            : formData.get(CONST.STARTDATE);
+        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT ? moment().format('YYYY-MM-DD') : formData.get(CONST.STARTDATE);
     const targetTime =
-        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT
-            ? moment().format('HH:mm')
-            : formData.get(CONST.STARTTIME);
+        traceTimeOptions[0] === TRACE_TIME_CONST.RECENT ? moment().format('HH:mm') : formData.get(CONST.STARTTIME);
 
     // clear all datetimes before customize
-    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].forEach(
-        (e) => formData.delete(e),
-    );
+    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].forEach((e) => formData.delete(e));
 
     traceTimeOptions.forEach((traceTimeOption, i) => {
         const [startTimeRange, endTimeRange] =
             traceTimeOption === TRACE_TIME_CONST.FROM
-                ? getEndTimeRange(
-                      targetDate,
-                      targetTime,
-                      divisionNum,
-                      intervalNum,
-                      windowsLengthNum,
-                  )
+                ? getEndTimeRange(targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum)
                 : getStartTimeRange(
                       traceTimeOption,
                       targetDate,
@@ -3824,10 +3631,7 @@ function validateInputByNameWithOnchange(name, option) {
         }
 
         if (name === CYCLIC_TERM.INTERVAL || name === CYCLIC_TERM.DIV_OFFSET) {
-            if (
-                Math.abs(Number(value)) < option.DEFAULT &&
-                value > option.MIN
-            ) {
+            if (Math.abs(Number(value)) < option.DEFAULT && value > option.MIN) {
                 e.currentTarget.value = option.DEFAULT;
                 showToastrMsg(i18nCommon.changedToMaxValue);
                 e.target.focus();
@@ -3850,11 +3654,7 @@ const copyTextToClipboard = (url) => {
 };
 
 const getFilterItemDetail = (procCond, condition, filterType) => {
-    const listCond = Array.isArray(condition)
-        ? condition
-        : condition !== 'NO_FILTER'
-          ? [condition]
-          : [];
+    const listCond = Array.isArray(condition) ? condition : condition !== 'NO_FILTER' ? [condition] : [];
     const filterItems = [];
     if (listCond.length) {
         listCond.forEach((item) => {
@@ -3915,13 +3715,8 @@ const getConditionFromSetting = (traceDat) => {
 };
 
 const genInfoTableBody = (traceDat) => {
-    const firstEndProc = traceDat[CONST.ARRAY_FORMVAL].length
-        ? traceDat[CONST.ARRAY_FORMVAL][0].end_proc
-        : undefined;
-    const startProc =
-        procConfigs[traceDat[CONST.COMMON].start_proc] ||
-        procConfigs[firstEndProc] ||
-        undefined;
+    const firstEndProc = traceDat[CONST.ARRAY_FORMVAL].length ? traceDat[CONST.ARRAY_FORMVAL][0].end_proc : undefined;
+    const startProc = procConfigs[traceDat[CONST.COMMON].start_proc] || procConfigs[firstEndProc] || undefined;
     const startProcName = startProc ? startProc.name : '';
     const startDate = _.isArray(traceDat[CONST.COMMON][CONST.STARTDATE])
         ? traceDat[CONST.COMMON][CONST.STARTDATE][0]
@@ -4131,16 +3926,8 @@ const overrideUiSortable = () => {
 
             if (this.options.mouseButton === 3) {
                 this.element.bind(`contextmenu.${this.widgetName}`, (event) => {
-                    if (
-                        $.data(
-                            event.target,
-                            `${that.widgetName}.preventClickEvent`,
-                        ) === true
-                    ) {
-                        $.removeData(
-                            event.target,
-                            `${that.widgetName}.preventClickEvent`,
-                        );
+                    if ($.data(event.target, `${that.widgetName}.preventClickEvent`) === true) {
+                        $.removeData(event.target, `${that.widgetName}.preventClickEvent`);
                         event.stopImmediatePropagation();
                         return false;
                     }
@@ -4190,14 +3977,8 @@ const overrideUiSortable = () => {
             }
 
             // Click event may never have fired (Gecko & Opera)
-            if (
-                $.data(event.target, `${this.widgetName}.preventClickEvent`) ===
-                true
-            ) {
-                $.removeData(
-                    event.target,
-                    `${this.widgetName}.preventClickEvent`,
-                );
+            if ($.data(event.target, `${this.widgetName}.preventClickEvent`) === true) {
+                $.removeData(event.target, `${this.widgetName}.preventClickEvent`);
             }
 
             // these delegates are required to keep context
@@ -4230,27 +4011,12 @@ const getDateTimeRangeFromCyclic = (formData, traceTimeOption) => {
             ? moment().format('YYYY-MM-DD')
             : moment(datetimeVal).format('YYYY-MM-DD');
     const targetTime =
-        traceTimeOption === TRACE_TIME_CONST.RECENT
-            ? moment().format('HH:mm')
-            : moment(datetimeVal).format('HH:mm');
+        traceTimeOption === TRACE_TIME_CONST.RECENT ? moment().format('HH:mm') : moment(datetimeVal).format('HH:mm');
 
     const [startTimeRange, endTimeRange] =
         traceTimeOption === TRACE_TIME_CONST.FROM
-            ? getEndTimeRange(
-                  targetDate,
-                  targetTime,
-                  divisionNum,
-                  intervalNum,
-                  windowsLengthNum,
-              )
-            : getStartTimeRange(
-                  traceTimeOption,
-                  targetDate,
-                  targetTime,
-                  divisionNum,
-                  intervalNum,
-                  windowsLengthNum,
-              );
+            ? getEndTimeRange(targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum)
+            : getStartTimeRange(traceTimeOption, targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum);
     return `${startTimeRange[0]} ${startTimeRange[1]}${DATETIME_PICKER_SEPARATOR}${endTimeRange[0]} ${endTimeRange[1]}`;
 };
 const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
@@ -4270,19 +4036,13 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         formData.delete('recentTimeInterval');
     }
     const isCyclicTerm = divideOption === CYCLIC_TERM.NAME;
-    const isCyclicCalender =
-        divideOption && divideOption === divideOptions.cyclicCalender;
+    const isCyclicCalender = divideOption && divideOption === divideOptions.cyclicCalender;
     if (isCyclicCalender) {
         datetimeRange = [$('#datetimeRangeShowValue').text()];
     } else {
         datetimeRange = formData.getAll('DATETIME_RANGE_PICKER');
     }
-    const timeKeys = [
-        CONST.STARTDATE,
-        CONST.STARTTIME,
-        CONST.ENDDATE,
-        CONST.ENDTIME,
-    ];
+    const timeKeys = [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
     // delete all old value
     timeKeys.forEach((key) => {
         formData.delete(key);
@@ -4296,9 +4056,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         if (pickedTimeRange !== '') {
             datetimeRange = [pickedTimeRange];
         } else {
-            datetimeRange = [
-                getDateTimeRangeFromCyclic(formData, traceTimeOption),
-            ];
+            datetimeRange = [getDateTimeRangeFromCyclic(formData, traceTimeOption)];
         }
     } else if (useLatestTime && !isCyclicCalender) {
         // in case of PCA, only apply for Target data
@@ -4307,10 +4065,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         const timeUnit = formData.get('timeUnit') || 60;
         const recentTimeInterval = formData.get('recentTimeInterval') || 24;
         if (!isEmpty(recentTimeInterval)) {
-            datetimeRange[lastDatetimeEles] = calcLatestDateTime(
-                timeUnit,
-                recentTimeInterval,
-            );
+            datetimeRange[lastDatetimeEles] = calcLatestDateTime(timeUnit, recentTimeInterval);
         }
     }
     datetimeRange.forEach((timeRange) => {
@@ -4319,10 +4074,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
             if (starting && ending) {
                 const [startDate, startTime] = starting && starting.split(' ');
                 const [endDate, endTime] = ending.split(' ');
-                const startUTCDt = toUTCDateTime(
-                    startDate,
-                    startTime || '00:00',
-                );
+                const startUTCDt = toUTCDateTime(startDate, startTime || '00:00');
                 const endUTCDt = toUTCDateTime(endDate, endTime || '00:00');
                 formData.append(timeKeys[0], startUTCDt.date);
                 formData.append(timeKeys[1], startUTCDt.time);
@@ -4334,7 +4086,7 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
     // formData.delete('DATETIME_RANGE_PICKER');
     // formData.delete('DATETIME_PICKER');
 
-    formData = setFitlerIntoFormData(formData);
+    formData = setFilterIntoFormData(formData);
     formData = bindCategoryParams(formData);
 
     return formData;
@@ -4344,20 +4096,12 @@ const calcLatestDateTime = (timeUnit, recentTimeInterval) => {
     let timeDiffMinute, newStartDate, newEndDate, newStartTime, newEndTime;
 
     if (['months', 'years'].includes(timeUnit)) {
-        newStartDate = moment()
-            .subtract(recentTimeInterval, timeUnit)
-            .format(DATE_FORMAT);
-        newStartTime = moment()
-            .subtract(recentTimeInterval, timeUnit)
-            .format(TIME_FORMAT);
+        newStartDate = moment().subtract(recentTimeInterval, timeUnit).format(DATE_FORMAT);
+        newStartTime = moment().subtract(recentTimeInterval, timeUnit).format(TIME_FORMAT);
     } else {
         timeDiffMinute = Number(recentTimeInterval) * Number(timeUnit);
-        newStartDate = moment()
-            .add(-timeDiffMinute, 'minute')
-            .format(DATE_FORMAT);
-        newStartTime = moment()
-            .add(-timeDiffMinute, 'minute')
-            .format(TIME_FORMAT);
+        newStartDate = moment().add(-timeDiffMinute, 'minute').format(DATE_FORMAT);
+        newStartTime = moment().add(-timeDiffMinute, 'minute').format(TIME_FORMAT);
     }
     newEndDate = moment().format(DATE_FORMAT);
     newEndTime = moment().format(TIME_FORMAT);
@@ -4379,8 +4123,7 @@ const generateDefaultNameExport = () => {
             dateTimeRange = getDateTimeRangeValue('var', 'traceTime', false);
         }
 
-        const { startDate, startTime, endDate, endTime } =
-            splitDateTimeRange(dateTimeRange);
+        const { startDate, startTime, endDate, endTime } = splitDateTimeRange(dateTimeRange);
 
         return `${title}_${endProc}_${startDate}-${startTime.split(':').join('')}_${endDate}-${endTime.split(':').join('')}`;
     } catch (e) {
@@ -4396,10 +4139,7 @@ const handleLoadSettingBtns = () => {
 
 const calMinMaxYScale = (minY, maxY, scaleOption) => {
     const margin = (maxY - minY) * FPP_THRESHOLD_MARGIN;
-    if (
-        scaleOption === scaleOptionConst.THRESHOLD ||
-        scaleOption === 'scale_threshold'
-    ) {
+    if (scaleOption === scaleOptionConst.THRESHOLD || scaleOption === 'scale_threshold') {
         return [minY - margin, maxY + margin];
     }
 
@@ -4408,10 +4148,10 @@ const calMinMaxYScale = (minY, maxY, scaleOption) => {
 
 const fetchData = async (url, data, method = 'GET', options = {}) => {
     const headers = {
-        Accept: 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        content_type: 'json',
+        'content_type': 'json',
         ...options.headers,
     };
 
@@ -4470,13 +4210,7 @@ const afterReceiveResponseCommon = (res) => {
     dataSetID = res['dataset_id'];
 };
 
-const sortableTable = (
-    tableID,
-    filterCols = [],
-    maxheight = null,
-    scrollToBottom = false,
-    iconSort = true,
-) => {
+const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false, iconSort = true) => {
     const tableIDEl = `#${tableID}`;
     const table = $(tableIDEl);
 
@@ -4525,8 +4259,8 @@ const sortableTable = (
 
 const initSortIcon = (containerSelector = 'table') => {
     // handle sort
-    $('.sortCol').off('click');
-    $('.sortCol').on('click', (el) => {
+    $(`${containerSelector} .sortCol`).off('click');
+    $(`${containerSelector} .sortCol`).on('click', (el) => {
         el.stopPropagation();
         let asc = true;
         const sortEl = $(el.target.closest('.sortCol'));
@@ -4565,21 +4299,10 @@ const initSortIcon = (containerSelector = 'table') => {
             $(containerEl).data('init-sort', false);
             Array.from($(containerEl).find('li:not(.keep-header)'))
                 .sort((a, b) => {
-                    const val1 = $(a)
-                        .find('.row')
-                        .children('div')
-                        .eq(idx)
-                        .data('for-sort');
-                    const val2 = $(b)
-                        .find('.row')
-                        .children('div')
-                        .eq(idx)
-                        .data('for-sort');
+                    const val1 = $(a).find('.row').children('div').eq(idx).data('for-sort');
+                    const val2 = $(b).find('.row').children('div').eq(idx).data('for-sort');
                     if (val1 && val2) {
-                        if (asc)
-                            return val1.toUpperCase() > val2.toUpperCase()
-                                ? 1
-                                : -1;
+                        if (asc) return val1.toUpperCase() > val2.toUpperCase() ? 1 : -1;
                         return val1.toUpperCase() > val2.toUpperCase() ? -1 : 1;
                     }
                 })
@@ -4633,13 +4356,9 @@ const comparer = (index, asc) => {
         const valA = getCellValue(a, index);
         const valB = getCellValue(b, index);
         if (!asc) {
-            return $.isNumeric(valA) && $.isNumeric(valB)
-                ? valB - valA
-                : valB.toString().localeCompare(valA);
+            return $.isNumeric(valA) && $.isNumeric(valB) ? valB - valA : valB.toString().localeCompare(valA);
         }
-        return $.isNumeric(valA) && $.isNumeric(valB)
-            ? valA - valB
-            : valA.toString().localeCompare(valB);
+        return $.isNumeric(valA) && $.isNumeric(valB) ? valA - valB : valA.toString().localeCompare(valB);
     };
 };
 
@@ -4647,15 +4366,10 @@ const tableScroll = (tblID, maxHeight, toBottom = false) => {
     const tableIDEl = `#${tblID}`;
     const table = $(tableIDEl);
 
-    const h =
-        maxHeight && maxHeight.toString().includes('%')
-            ? maxHeight
-            : `${maxHeight}px`;
+    const h = maxHeight && maxHeight.toString().includes('%') ? maxHeight : `${maxHeight}px`;
 
     table.addClass('table-fixed');
-    table.wrap(
-        `<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`,
-    );
+    table.wrap(`<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`);
 
     if (toBottom) {
         scrollToBottom(`${tblID}_wrap`);
@@ -4821,9 +4535,7 @@ const genThresholds = (
 
 const changeNoDataLinkSelection = (selection = true) => {
     // check startProc has noLinkData option (StP, RLP, CHM)
-    const hasNoDataLink = Array.from(
-        $('select#start_proc option').map((k, v) => $(v).val()),
-    ).includes('0');
+    const hasNoDataLink = Array.from($('select#start_proc option').map((k, v) => $(v).val())).includes('0');
     if (!hasNoDataLink) {
         return;
     }
@@ -4904,9 +4616,7 @@ const bindFilterChangeEvents = (selectedProc) => {
 
 const checkHasFilter = () => {
     const afterClearDOM = $('select[name^="cond_proc"]');
-    const filterValues = Array.from(
-        afterClearDOM.map((i, filter) => $(filter).val()),
-    ).filter((i) => i !== '').length;
+    const filterValues = Array.from(afterClearDOM.map((i, filter) => $(filter).val())).filter((i) => i !== '').length;
 
     return filterValues;
 };
@@ -4955,22 +4665,15 @@ const onChangeDivideOption = () => {
     let selectedCatExpBox = [];
     $('#divideOption').on('change', (e) => {
         // check if there Div was selected.
-        selectedCatExpBox = $('select[name=catExpBox] option:selected').filter(
-            (i, el) => el.value,
-        );
-        const isSelectedDiv = [...selectedCatExpBox]
-            .map((el) => el.value)
-            .includes(facetLevels.DIV);
+        selectedCatExpBox = $('select[name=catExpBox] option:selected').filter((i, el) => el.value);
+        const isSelectedDiv = [...selectedCatExpBox].map((el) => el.value).includes(facetLevels.DIV);
         const { value } = e.currentTarget;
         if (value !== 'category' && isSelectedDiv) {
-            const categoryDivideText = $(
-                'select[name=compareType] option[value=category]',
-            ).text();
-            const confirmText =
-                i18nCommon.changeDivideOptionConfirmText.replaceAll(
-                    'CATEGORY_DIVIDE_OPTION',
-                    categoryDivideText,
-                );
+            const categoryDivideText = $('select[name=compareType] option[value=category]').text();
+            const confirmText = i18nCommon.changeDivideOptionConfirmText.replaceAll(
+                'CATEGORY_DIVIDE_OPTION',
+                categoryDivideText,
+            );
             $('#changeDivideOptionConfirmMessage').html(confirmText);
             $('#changeCompareTypeConfirm').modal().toggle();
         }
@@ -4998,12 +4701,8 @@ const onChangeDivInFacet = () => {
         const { value } = e.currentTarget;
         currentSelectedDiv = $(e.currentTarget);
         const currentDivideOption = $('select[name=compareType]').val();
-        const currentDivideOptionText = $(
-            'select[name=compareType] option:selected',
-        ).text();
-        const categoryDivideText = $(
-            'select[name=compareType] option[value=category]',
-        ).text();
+        const currentDivideOptionText = $('select[name=compareType] option:selected').text();
+        const categoryDivideText = $('select[name=compareType] option[value=category]').text();
 
         if (value === facetLevels.DIV && currentDivideOption !== 'category') {
             const confirmText = i18nCommon.changeDivConfirmText
@@ -5041,6 +4740,22 @@ const checkTrue = (value) => {
     return value !== null && value !== undefined;
 };
 
+const checkAndReturnLocalDateTime = (value) => {
+    // return to datetime if value is datetime object
+    if (_.isDate(value) && !isNaN(value.getTime())) {
+        return toLocalTime(value);
+    }
+
+    // parse date time with ISO datetime type (ISO8601)
+    if (_.isString(value)) {
+        const ISO8601Regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
+        if (ISO8601Regex.test(value)) {
+            const parsedDate = new Date(value);
+            return toLocalTime(parsedDate);
+        }
+    }
+    return value;
+};
 const toLocalTime = (datetime) => {
     return moment.utc(datetime).local().format(DATETIME_FORMAT);
 };
@@ -5080,11 +4795,7 @@ const tsvClipBoard = async (url, formData) => {
     return false;
 };
 
-const handleExportDataCommon = (
-    type,
-    formData,
-    url = '/ap/api/fpp/data_export',
-) => {
+const handleExportDataCommon = (type, formData, url = '/ap/api/fpp/data_export') => {
     if (formData.get(CONST.ONLY_EXPORT_DATA_SELECTED) !== 'true') {
         const exportFrom = getExportDataSrc();
         formData.set('export_from', exportFrom);
@@ -5166,23 +4877,16 @@ const isDefined = (variable) => {
 
 function create_UUID() {
     var dt = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-        /[xy]/g,
-        function (c) {
-            var r = (dt + Math.random() * 16) % 16 | 0;
-            dt = Math.floor(dt / 16);
-            return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
-        },
-    );
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
     return uuid;
 }
 
 const getEndProcCfg = async () => {
-    if (
-        !processId ||
-        !procConfigs[processId] ||
-        !procConfigs[processId].is_use_dummy_datetime
-    ) {
+    if (!processId || !procConfigs[processId] || !procConfigs[processId].is_use_dummy_datetime) {
         return false;
     }
     const endProcCfg = procConfigs[processId];
@@ -5252,16 +4956,12 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
     }
 
     const newMinute = divideUnit * unit;
-    return moment(moment(dateStr).format('YYYY-MM-DD HH:00'))
-        .add(newMinute, 'minutes')
-        .format(DATE_TIME_FMT);
+    return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
 };
 const reselectVariablesToShowGraph = () => {
     $('input[name^=selectedVar]').each((_v, el) => {
         const elStatus = $(el).is(':checked');
-        const guiDOM = $(
-            `input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`,
-        );
+        const guiDOM = $(`input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`);
         const guiStatus = guiDOM.prop('checked');
 
         if (elStatus !== guiStatus) {
@@ -5271,11 +4971,9 @@ const reselectVariablesToShowGraph = () => {
     if (reselectCallback) {
         const jumpKey = getParamFromUrl('jump_key');
         if (jumpKey) {
-            const excludedColumns = [
-                ...$(domEles.problematicTbl).find(
-                    'input[name^=selectedVar]:not(:checked)',
-                ),
-            ].map((el) => Number($(el).val()));
+            const excludedColumns = [...$(domEles.problematicTbl).find('input[name^=selectedVar]:not(:checked)')].map(
+                (el) => Number($(el).val()),
+            );
             const url = new URL(window.location.href);
             url.searchParams.set('excluded_columns', excludedColumns.join(','));
             window.history.replaceState(null, null, url);
@@ -5298,47 +4996,29 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         const selectedVarsTarget = plotData.target_data.selected_vars;
         const nullPercentTarget = plotData.target_data.null_percent;
 
-        const trainDataSensorIDs = Object.keys(selectedVars).length
-            ? Object.keys(selectedVars)
-            : null;
-        const trainDataSensorIDsFromNADict = Object.keys(nullPercent).length
-            ? Object.keys(nullPercent)
-            : null;
-        const targetDataSensorIDs = Object.keys(selectedVarsTarget).length
-            ? Object.keys(selectedVarsTarget)
-            : null;
-        const targetDataSensorIDsFromNADict = Object.keys(nullPercentTarget)
-            .length
+        const trainDataSensorIDs = Object.keys(selectedVars).length ? Object.keys(selectedVars) : null;
+        const trainDataSensorIDsFromNADict = Object.keys(nullPercent).length ? Object.keys(nullPercent) : null;
+        const targetDataSensorIDs = Object.keys(selectedVarsTarget).length ? Object.keys(selectedVarsTarget) : null;
+        const targetDataSensorIDsFromNADict = Object.keys(nullPercentTarget).length
             ? Object.keys(nullPercentTarget)
             : null;
         const selectedCols =
-            trainDataSensorIDs ||
-            targetDataSensorIDs ||
-            trainDataSensorIDsFromNADict ||
-            targetDataSensorIDsFromNADict;
+            trainDataSensorIDs || targetDataSensorIDs || trainDataSensorIDsFromNADict || targetDataSensorIDsFromNADict;
 
         if (selectedCols) {
             selectedCols.forEach((colID) => {
-                const colName =
-                    selectedVars[colID] || selectedVarsTarget[colID] || '';
-                const zeroVar = plotData.train_data.zero_variance
-                    .map((i) => String(i))
-                    .includes(colID);
-                const naRate = trainDataSensorIDsFromNADict
-                    ? applySignificantDigit(nullPercent[colID])
-                    : 100;
+                const colName = selectedVars[colID] || selectedVarsTarget[colID] || '';
+                const zeroVar = plotData.train_data.zero_variance.map((i) => String(i)).includes(colID);
+                const naRate = trainDataSensorIDsFromNADict ? applySignificantDigit(nullPercent[colID]) : 100;
                 const selectedTrain = naRate <= 50 && !zeroVar;
 
-                const zeroVarTarget = plotData.target_data.zero_variance
-                    .map((i) => String(i))
-                    .includes(colID);
+                const zeroVarTarget = plotData.target_data.zero_variance.map((i) => String(i)).includes(colID);
                 const naRateTarget = targetDataSensorIDsFromNADict
                     ? applySignificantDigit(nullPercentTarget[colID])
                     : 100;
                 const selectedTarget = naRateTarget <= 50 && !zeroVarTarget;
 
-                const selected =
-                    selectedTrain && selectedTarget ? ' checked' : '';
+                const selected = selectedTrain && selectedTarget ? ' checked' : '';
                 const rowContent = `<tr>
                     <td>
                         <div class="custom-control custom-radio">
@@ -5360,22 +5040,14 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         $(domEles.problematicPCATbl).hide();
         $(domEles.problematicTbl).show();
 
-        const selectedVars = Object.keys(plotData.selected_vars).length
-            ? Object.keys(plotData.selected_vars)
-            : null;
-        const nullPercent = Object.keys(plotData.null_percent).length
-            ? Object.keys(plotData.null_percent)
-            : null;
+        const selectedVars = Object.keys(plotData.selected_vars).length ? Object.keys(plotData.selected_vars) : null;
+        const nullPercent = Object.keys(plotData.null_percent).length ? Object.keys(plotData.null_percent) : null;
 
         const selectedCols = selectedVars || nullPercent;
         selectedCols.forEach((colID) => {
             const colName = plotData.selected_vars[colID] || '';
-            const zeroVar = plotData.zero_variance
-                .map((i) => String(i))
-                .includes(colID);
-            const naRate = nullPercent
-                ? applySignificantDigit(plotData.null_percent[colID])
-                : 0;
+            const zeroVar = plotData.zero_variance.map((i) => String(i)).includes(colID);
+            const naRate = nullPercent ? applySignificantDigit(plotData.null_percent[colID]) : 0;
             const selected = naRate <= 50 && !zeroVar ? ' checked' : '';
             const rowContent = `<tr>
                 <td>
@@ -5394,10 +5066,7 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
     }
 };
 
-const showRemoveProblematicColsMdl = (
-    resPlotData = null,
-    multipleTimeRange = false,
-) => {
+const showRemoveProblematicColsMdl = (resPlotData = null, multipleTimeRange = false) => {
     setTimeout(() => {
         genProblematicContent(resPlotData, multipleTimeRange);
         $(domEles.problematicModal).modal().show();
@@ -5474,10 +5143,7 @@ const getFmtValueOfArrayTrim5Percent = (array) => {
     const start = Math.floor(sortedArray.length * 0.05);
     const end = sortedArray.length - start;
     sortedArray = sortedArray.slice(start, end);
-    const fmt =
-        sortedArray.length > 0
-            ? significantDigitFmt(Math.max(...sortedArray))
-            : '';
+    const fmt = sortedArray.length > 0 ? significantDigitFmt(Math.max(...sortedArray)) : '';
     return fmt;
 };
 
@@ -5485,16 +5151,17 @@ const getFmtValueOfArray = (array) => {
     const decimal = '.';
     let sortedArray = [...array].sort();
     let usageNum = 0;
-    let sigDigit = 0;
+    let decimalPlace = 0;
+    // find the number with the most decimal places
     sortedArray.forEach((num) => {
         const vals = String(num).split(decimal);
-        if (vals.length > 1 && vals[1].length > sigDigit) {
-            sigDigit = vals[1].length;
+        if (vals.length > 1 && vals[1].length > decimalPlace) {
+            decimalPlace = vals[1].length;
             usageNum = num;
         }
     });
-    const fmt =
-        sortedArray.length > 0 ? significantDigitFmt(usageNum, sigDigit) : '';
+    // use the number with the most decimal places to find the format
+    const fmt = sortedArray.length > 0 ? significantDigitFmt(usageNum) : '';
     return fmt === ',.1f' ? ',.2f' : fmt;
 };
 
@@ -5515,10 +5182,7 @@ const alignLengthTickLabels = (ticks) => {
         const minLen = Math.min(...zeroLens);
         if (minLen > 0) {
             ticks.map((tick) => {
-                tick.label = tick.label.substring(
-                    0,
-                    tick.label.length - minLen,
-                );
+                tick.label = tick.label.substring(0, tick.label.length - minLen);
                 const lastIdx = tick.label.length - 1;
                 const decimalIdx = tick.label.lastIndexOf(decimal);
                 // remove decimal if no number after that (10.)
@@ -5538,7 +5202,7 @@ const clearEmptyEndProcs = (formData) => {
             emptyEndProcKeys.push(pair[0]);
         }
     }
-    emptyEndProcKeys.forEach((ngKey) => formData.delete(ngkey));
+    emptyEndProcKeys.forEach((ngKey) => formData.delete(ngKey));
 
     // add start proc key
     if (!formData.get('start_proc')) {
@@ -5548,8 +5212,7 @@ const clearEmptyEndProcs = (formData) => {
 };
 
 const jspreadsheetCustomHooks = () => {
-    const onbeforechange = (instance, cell, x, y, value) =>
-        stringNormalization(value);
+    const onbeforechange = (instance, cell, x, y, value) => stringNormalization(value);
     const onpaste = (instance) => {
         const history = instance.jspreadsheet.history.at(-1);
         const { oldStyle, records } = history;
@@ -5559,8 +5222,7 @@ const jspreadsheetCustomHooks = () => {
         // turn off readonly so we can modify style
         for (const { x, y } of records) {
             const cellName = jspreadsheet.getColumnNameFromId([x, y]);
-            readOnlyStates[cellName] =
-                instance.jspreadsheet.isReadOnly(cellName);
+            readOnlyStates[cellName] = instance.jspreadsheet.isReadOnly(cellName);
             instance.jspreadsheet.setReadOnly(cellName, false);
         }
 
@@ -5570,10 +5232,7 @@ const jspreadsheetCustomHooks = () => {
         // rollback read only state
         for (const { x, y } of records) {
             const cellName = jspreadsheet.getColumnNameFromId([x, y]);
-            instance.jspreadsheet.setReadOnly(
-                cellName,
-                readOnlyStates[cellName],
-            );
+            instance.jspreadsheet.setReadOnly(cellName, readOnlyStates[cellName]);
         }
     };
 
@@ -5594,9 +5253,7 @@ const bindNominalSelection = (formData, clearOnFlyFilter) => {
             formData.delete('nominal_vars');
             const nominalValues = [];
             let selectedNominalVars = [];
-            selectedNominalVars = Array.from(
-                nominalVars.filter((i, item) => $(item).is(':checked')),
-            );
+            selectedNominalVars = Array.from(nominalVars.filter((i, item) => $(item).is(':checked')));
             selectedNominalVars.forEach((item, i) => {
                 nominalValues.push($(item).val());
             });
@@ -5634,11 +5291,9 @@ const convertDatetimePreview = (dateStr) => {
     // case 4: YY年MM月DD日
 
     const regex1 = /^(\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}|\d{1,2}月\d{1,2}日)$/;
-    const regex2 =
-        /^(\d{4}-\d{1,2}-\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}年\d{1,2}月\d{1,2}日)$/;
+    const regex2 = /^(\d{4}-\d{1,2}-\d{1,2}|\d{4}\/\d{1,2}\/\d{1,2}|\d{4}年\d{1,2}月\d{1,2}日)$/;
     const regex3 = /^\d{4}年\d{1,2}月\d{1,2}日\d{1,2}時\d{1,2}分\d{1,2}秒$/;
-    const regex4 =
-        /^(\d{1,2}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{1,2}|\d{1,2}年\d{1,2}月\d{1,2}日)$/;
+    const regex4 = /^(\d{1,2}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{1,2}|\d{1,2}年\d{1,2}月\d{1,2}日)$/;
 
     let dateFormat = dateStr;
 
@@ -5649,9 +5304,7 @@ const convertDatetimePreview = (dateStr) => {
 
     if (regex1.test(dateStr)) {
         const matched = getMatched(dateStr);
-        dateFormat = moment().format(
-            `YYYY-${matched[0]}-${matched[1]} 00:00:00`,
-        );
+        dateFormat = moment().format(`YYYY-${matched[0]}-${matched[1]} 00:00:00`);
     }
 
     if (regex2.test(dateStr)) {
@@ -5727,21 +5380,13 @@ const getOffsetTopDisplayGraph = (elem) => {
  */
 const changeBackgroundColor = (ele) => {
     if (
-        [
-            DataTypes.STRING.bs_value,
-            DataTypes.REAL_SEP.bs_value,
-            DataTypes.EU_REAL_SEP.bs_value,
-        ].includes(ele.getAttribute('value'))
+        [DataTypes.STRING.bs_value, DataTypes.REAL_SEP.bs_value, DataTypes.EU_REAL_SEP.bs_value].includes(
+            ele.getAttribute('value'),
+        )
     ) {
-        $(ele)
-            .closest('.config-data-type-dropdown')
-            .find('[name=dataType]')
-            .css('color', 'orange');
+        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]').css('color', 'orange');
     } else {
-        $(ele)
-            .closest('.config-data-type-dropdown')
-            .find('[name=dataType]')
-            .css('color', 'white');
+        $(ele).closest('.config-data-type-dropdown').find('[name=dataType]').css('color', 'white');
     }
 };
 
@@ -5757,11 +5402,7 @@ const changeBackgroundColor = (ele) => {
  */
 function checkFolderOrFile(path) {
     const data = { path: path };
-    return fetchData(
-        '/ap/api/setting/check_folder_or_file',
-        JSON.stringify(data),
-        'POST',
-    );
+    return fetchData('/ap/api/setting/check_folder_or_file', JSON.stringify(data), 'POST');
 }
 
 /**
@@ -5771,9 +5412,7 @@ function checkFolderOrFile(path) {
  * @param classFilter - add class for rows filter
  */
 const searchByValueOfTable = (event, rows, classFilter = 'gray') => {
-    const filterValue = stringNormalization(
-        event.currentTarget.value.trim().toLowerCase(),
-    );
+    const filterValue = stringNormalization(event.currentTarget.value.trim().toLowerCase());
     if (filterValue === '') {
         // In case of non filter
         rows.forEach((row) => {
@@ -5793,19 +5432,16 @@ const searchByValueOfTable = (event, rows, classFilter = 'gray') => {
         regex = { test: (v) => false };
     }
     const mappedRows = rows.filter((row) => {
-        const firstMappedColumn = [...row.querySelectorAll('td')].find(
-            (col) => {
-                const text = (
-                    col.childElementCount &&
-                    col.firstElementChild.tagName === 'INPUT'
-                        ? col.firstElementChild.value
-                        : col.textContent
-                )
-                    .trim()
-                    .toLowerCase();
-                return regex.test(text) || text.includes(filterValue);
-            },
-        );
+        const firstMappedColumn = [...row.querySelectorAll('td')].find((col) => {
+            const text = (
+                col.childElementCount && col.firstElementChild.tagName === 'INPUT'
+                    ? col.firstElementChild.value
+                    : col.textContent
+            )
+                .trim()
+                .toLowerCase();
+            return regex.test(text) || text.includes(filterValue);
+        });
         return firstMappedColumn != null;
     });
 
@@ -5845,9 +5481,7 @@ function downloadText(fileName, content) {
     // Create a temporary <a> element to trigger the download
     const a = document.createElement('a');
     try {
-        a.href =
-            'data:text/tab-separated-values;charset=utf-8,' +
-            encodeURIComponent(content);
+        a.href = 'data:text/tab-separated-values;charset=utf-8,' + encodeURIComponent(content);
         a.download = fileName ?? 'data';
         document.body.appendChild(a);
         a.click();
@@ -5858,3 +5492,188 @@ function downloadText(fileName, content) {
         document.body.removeChild(a);
     }
 }
+
+/**
+ * Call Api to check UPDATE_TRANSACTION_DATA job is completed or not
+ * @param {string | number} processId
+ * @return {Promise<boolean>} - a promise object with result as below
+ * - true: the job is completed
+ * - false: otherwise
+ */
+function callApiToCheckUpdateTransactionDataJob(processId) {
+    const apiUrl = `/ap/api/common/is_update_transaction_data_job_completed/${processId}`;
+    return fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+    }).then((response) => {
+        let result = true;
+        if (response.status === 200) {
+            result = response.json();
+        }
+
+        return result;
+    });
+}
+
+/**
+ * Check UPDATE_TRANSACTION_DATA job is completed or not for selecting process in link key
+ *
+ * If the job is not executed or running, it will show warning message. Otherwise
+ * @param {string | number} fromProcessId
+ * @param {string | number} toProcessId
+ * @return {Promise<boolean>}
+ * - false: warning message is shown
+ * - true: no warning message
+ */
+async function checkUpdateTransactionDataJobInTraceConfig(fromProcessId, toProcessId) {
+    const inner = async function inner(processId) {
+        if (processId === '' || processId == null || (await callApiToCheckUpdateTransactionDataJob(processId))) {
+            // In case not select process or selected process does not have any UPDATE_TRANSACTION_DATA job -> do nothing
+            $('#alertMsgCheckUpdateTransactionDataJobTraceConfig').hide();
+            return true;
+        }
+
+        // In case selected process is waiting or executing UPDATE_TRANSACTION_DATA job
+        const warningMsg = document.getElementById(
+            'i18nWarningUpdateTransactionDataJobNotCompleteInChangingLinkKeyMsg',
+        ).textContent;
+        displayRegisterMessage('#alertMsgCheckUpdateTransactionDataJobTraceConfig', {
+            message: warningMsg,
+            is_warning: true,
+            is_error: false,
+        });
+        return false;
+    };
+
+    for (const processId of [fromProcessId, toProcessId]) {
+        if (!(await inner(processId))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Check UPDATE_TRANSACTION_DATA job is completed or not for selecting process in show graph
+ *
+ * If the job is not executed or running, it will show warning message. Otherwise
+ * @param {string | number} processId
+ * @return {Promise<boolean>}
+ * - false: warning message is shown
+ * - true: no warning message
+ */
+async function checkUpdateTransactionDataJobInShowGraph(processId) {
+    const inner = async function inner(processId) {
+        if (processId === '' || processId == null || (await callApiToCheckUpdateTransactionDataJob(processId))) {
+            // In case not select process or selected process does not have any UPDATE_TRANSACTION_DATA job -> do nothing
+            $('#alertMsgCheckUpdateTransactionDataJobShowGraph').hide();
+            return true;
+        }
+
+        // In case selected process is waiting or executing UPDATE_TRANSACTION_DATA job
+        const warningMsg = document.getElementById(
+            'i18nWarningUpdateTransactionDataJobNotCompleteInShowGraphMsg',
+        ).textContent;
+        displayRegisterMessage('#alertMsgCheckUpdateTransactionDataJobShowGraph', {
+            message: warningMsg,
+            is_warning: true,
+            is_error: false,
+        });
+        return false;
+    };
+
+    // Check target process
+    let isCompleted = await inner(processId);
+    if (!isCompleted) return true;
+
+    // Go to check another processes
+    const select2Els = document.querySelectorAll(`select[id^="end-proc-process-"]`);
+    for (const selectEl of select2Els) {
+        const selectedProcessId = selectEl.value;
+        if (selectedProcessId === processId) {
+            // already checked in above, skip
+            continue;
+        }
+
+        isCompleted = await inner(selectedProcessId);
+        if (!isCompleted) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function genColorScaleForJudge(uniqueColor) {
+    let NGOKScaleSets = JudgeColorPallets.OK_NG;
+    if (uniqueColor.length === 1 && uniqueColor.indexOf('OK') > -1) {
+        NGOKScaleSets = JudgeColorPallets.OK;
+    }
+    if (uniqueColor.length === 1 && uniqueColor.indexOf('NG') > -1) {
+        NGOKScaleSets = JudgeColorPallets.NG;
+    }
+    return NGOKScaleSets;
+}
+
+const clearOldChartTitles = () => {
+    // reset title
+    $('#x-title').text('');
+    $('#y-title').text('');
+};
+
+const trimQuotesSpacesAndUpdate = (inputEl) => {
+    const url = $(inputEl).val().replace(/"/g, '').trim();
+    $(inputEl).val(url);
+};
+
+const removeLastBackslashFromInputAndUpdate = (inputEl) => {
+    const url = $(inputEl).val().replace(/\\$/g, '');
+    $(inputEl).val(url);
+};
+
+const filePathProcessing = (el) => {
+    trimQuotesSpacesAndUpdate(el);
+    removeLastBackslashFromInputAndUpdate(el);
+};
+
+const discardAllChanges = () => {
+    if (typeof inputMutationObserver !== 'undefined') {
+        inputMutationObserver.stopObserving();
+        $('.modal').modal('hide');
+    }
+};
+
+const saveAllChanges = () => {
+    // find submit btn element for proc_config
+    const callbackEle = $('button[data-submit-btn="true"]:visible');
+    if (callbackEle.length) {
+        // trigger target ele.
+        if (callbackEle.data('submit-callback')) {
+            // in case of re-register, save without confirm again
+            $(`#${callbackEle.data('submit-callback')}`).trigger('click');
+        } else {
+            // in case of import data, necessary to validate and confirm to import
+            callbackEle.trigger('click');
+        }
+    }
+
+    // for ds config
+    const $saveDsBtn = $('.saveDBInfoBtn:visible');
+    if ($saveDsBtn.length) {
+        if ($saveDsBtn.hasClass('btn-secondary')) {
+            $('#showResources').trigger('click');
+        } else {
+            $saveDsBtn.trigger('click');
+        }
+    }
+
+    // find save button for bookmark (save user setting)
+    const $saveUserSetting = $('button#saveSettingConfirmBtn:visible');
+    if ($saveUserSetting.length) {
+        $saveUserSetting.trigger('click');
+    }
+};

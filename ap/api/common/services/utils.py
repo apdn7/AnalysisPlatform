@@ -4,9 +4,9 @@ import copy
 import re
 import uuid
 from collections import Counter, defaultdict
-from typing import TYPE_CHECKING, Dict, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, Dict, Iterator, TypeVar
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import sqlite
 
 from ap.common.constants import TIME_COL, WELL_KNOWN_COLUMNS, DataGroupType, MasterDBType
@@ -37,8 +37,10 @@ MUST_EXISTED_COLUMNS_FOR_MASTER_TYPE = {
 }
 
 
-def gen_sql_and_params(stmt: Select) -> tuple[str, dict[str, str]]:
-    compiled_stmt = stmt.compile(dialect=sqlite.dialect())
+def gen_sql_and_params(stmt: Select) -> tuple[str, list[Any]]:
+    # FIXME: need to set these because sqlalchemy 2.0 use postcompiled, which is incompatible with current dialect
+    compile_kwargs = {'literal_binds': True}
+    compiled_stmt = stmt.compile(dialect=sqlite.dialect(), compile_kwargs=compile_kwargs)
     # return compiled_stmt.string, compiled_stmt.params
     position_params = compiled_stmt.positiontup
     dict_params = compiled_stmt.params
@@ -46,7 +48,7 @@ def gen_sql_and_params(stmt: Select) -> tuple[str, dict[str, str]]:
     return compiled_stmt.string, params
 
 
-def run_sql_from_query_with_casted(*, query: BaseQuery, db_instance: SQLite3, cls: type[T]) -> Iterator[T]:
+def run_sql_from_query_with_casted(*, query: Query, db_instance: SQLite3, cls: type[T]) -> Iterator[T]:
     sql, params = gen_sql_and_params(query.statement)
     _, rows = db_instance.run_sql(sql, row_is_dict=True, params=params)
     for row in rows:

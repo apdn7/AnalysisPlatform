@@ -49,12 +49,8 @@ const bindCategorySort = () => {
     // get category order from on-demand filter
     const categoryBox = modalEls.categoriesBox;
     const catOnDemand = categoryBox.find('.column-datas');
-    const catOrderIds = catOnDemand
-        .map((i, el) => String($(el).data('id')))
-        .get();
-    const catOrderProcIds = catOnDemand
-        .map((i, el) => String($(el).data('proc-id')))
-        .get();
+    const catOrderIds = catOnDemand.map((i, el) => String($(el).data('id'))).get();
+    const catOrderProcIds = catOnDemand.map((i, el) => String($(el).data('proc-id'))).get();
 
     let _serialCols = currentTrace.COMMON.serialColumn;
     if (!Array.isArray(_serialCols)) {
@@ -66,9 +62,7 @@ const bindCategorySort = () => {
         updateOrderCols = [];
         catOrderIds.forEach((col, idx) => {
             // find in serial series list
-            let colIdx = serialCols
-                .map((col_id) => String(col_id))
-                .indexOf(String(col));
+            let colIdx = serialCols.map((col_id) => String(col_id)).indexOf(String(col));
             const processId = catOrderProcIds[idx];
             let orderType = 1; // default as asc, 0 for desc
             if (colIdx >= 0) {
@@ -81,11 +75,7 @@ const bindCategorySort = () => {
         serialCols.forEach((col, idx) => {
             if (!catOrderIds.includes(col)) {
                 updateOrderCols.push(
-                    orderColumn(
-                        currentTrace.COMMON.serialProcess[idx],
-                        col,
-                        currentTrace.COMMON.serialOrder[idx],
-                    ),
+                    orderColumn(currentTrace.COMMON.serialProcess[idx], col, currentTrace.COMMON.serialOrder[idx]),
                 );
             }
         });
@@ -133,12 +123,8 @@ const isPageHaveLabelAndFilter = () => {
 function fillDataToFilterModal(data = filterDataModal, callback) {
     const [categoriesLabel, categoriesFilter] = getLabelAndFilterValues();
     if (isPageHaveLabelAndFilter()) {
-        data.filter = data.filter.filter((e) =>
-            categoriesFilter.includes(e.column_id),
-        );
-        data.category = data.category.filter((item, index, self) =>
-            categoriesLabel.includes(item.column_id),
-        );
+        data.filter = data.filter.filter((e) => categoriesFilter.includes(e.column_id));
+        data.category = data.category.filter((item, index, self) => categoriesLabel.includes(item.column_id));
     }
     let facetHtml = renderFilterHtml(data.facet);
     let categoryHtml = renderFilterHtml(data.category);
@@ -239,8 +225,7 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
     // Sort
     modalEls.sortBtn.unbind('click');
     modalEls.sortBtn.click(() => {
-        const dicTarget =
-            Object.keys(dicEnter).length === 0 ? dicCheckboxes : dicEnter;
+        const dicTarget = Object.keys(dicEnter).length === 0 ? dicCheckboxes : dicEnter;
         let dicCheckboxesSorted;
         isSort = (isSort + 1) % 5;
         if (isSort) {
@@ -286,30 +271,20 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
 
     function addHighLightToSelectedColumn(selectedColumnID) {
         if (selectedColumnID) {
-            const columnEl = modalEls.categoriesBox.find(
-                '.filter-data .column-datas',
-            );
+            const columnEl = modalEls.categoriesBox.find('.filter-data .column-datas');
             if (selectedColumnID === 'color') {
-                modalEls.colorBox
-                    .find('.filter-data .column-datas')
-                    .addClass('active');
+                modalEls.colorBox.find('.filter-data .column-datas').addClass('active');
             } else if (selectedColumnID === 'x') {
                 columnEl.length && columnEl[0].classList.add('active');
             } else if (selectedColumnID === 'y') {
-                columnEl.length &&
-                    columnEl.length > 1 &&
-                    columnEl[1].classList.add('active');
+                columnEl.length && columnEl.length > 1 && columnEl[1].classList.add('active');
             } else {
                 modalEls.categoriesBox
-                    .find(
-                        `.filter-data .column-datas[data-id=${selectedColumnID}]`,
-                    )
+                    .find(`.filter-data .column-datas[data-id=${selectedColumnID}]`)
                     .addClass('active');
             }
         } else {
-            modalEls.catExpBox
-                .find('.filter-data .column-datas')
-                .addClass('active');
+            modalEls.catExpBox.find('.filter-data .column-datas').addClass('active');
         }
     }
 
@@ -323,10 +298,7 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
                     preparedCatBox[i].isDisabled = true;
                 } else {
                     preparedCategories.forEach((cat2, i2) => {
-                        if (
-                            cat.column_id !== Number(selectedColumnID) &&
-                            cat.column_id === cat2.column_id
-                        ) {
+                        if (cat.column_id !== Number(selectedColumnID) && cat.column_id === cat2.column_id) {
                             preparedCategories[i2].unique_categories = [];
                             preparedCategories[i2].isDisabled = true;
                         }
@@ -401,9 +373,7 @@ function setAndResetFilter(isSet = true) {
     const regex = new RegExp(currentRegexVal, 'i');
     targets.filter(function () {
         const val = $(this).val();
-        if (
-            regex.test(['null', null].includes(val) ? COMMON_CONSTANT.NA : val)
-        ) {
+        if (regex.test(['null', null].includes(val) ? COMMON_CONSTANT.NA : val)) {
             $(this).prop('checked', isSet);
         }
     });
@@ -416,11 +386,7 @@ function setAndResetFilter(isSet = true) {
         }
     } else {
         for (const key of Object.keys(dicChecked)) {
-            dicChecked[key] = searchRegexOnList(
-                currentRegexVal,
-                dicChecked[key],
-                true,
-            );
+            dicChecked[key] = searchRegexOnList(currentRegexVal, dicChecked[key], true);
         }
     }
 }
@@ -470,14 +436,7 @@ function resetCheckedCats() {
 function renderFilterHtml(filterData) {
     if (!filterData || !_.isArray(filterData)) return;
     return filterData.map((cat) => {
-        const {
-            unique_categories,
-            column_id,
-            column_master_name,
-            proc_master_name,
-            isDisabled,
-            proc_name,
-        } = cat;
+        const { unique_categories, column_id, column_master_name, proc_master_name, isDisabled, proc_name } = cat;
         let divColId = '';
         let divPagingId = '';
         if (!isDisabled) {
@@ -578,17 +537,9 @@ const pagination = (columnId, dataSource) => {
                 dataContainer.html(allCheckbox + html.join(' '));
                 const thisEL = $(pagi.el[0]);
                 const ul = thisEL.find('.paginationjs-pages ul');
-                const totalPageNum = thisEL
-                    .find('.paginationjs-nav.J-paginationjs-nav')
-                    .text()
-                    .split('/')[1]
-                    .trim();
-                const isDisibleNext = ul
-                    .find('.paginationjs-next')
-                    .hasClass('disabled');
-                const isDisiblePre = ul
-                    .find('.paginationjs-prev')
-                    .hasClass('disabled');
+                const totalPageNum = thisEL.find('.paginationjs-nav.J-paginationjs-nav').text().split('/')[1].trim();
+                const isDisibleNext = ul.find('.paginationjs-next').hasClass('disabled');
+                const isDisiblePre = ul.find('.paginationjs-prev').hasClass('disabled');
 
                 const goToFirstHtml = `
             <li class="paginationjs-page paginationjs-first J-paginationjs-page${isDisiblePre ? ' disabled' : ''}" data-num="1"><a><i class="fa fa-step-backward"></i></a></li>
@@ -654,9 +605,7 @@ const showCheckStatus = (dicTarget, parentEle = null) => {
         const val = $(this).val() === 'null' ? null : $(this).val();
 
         const columnId = Number($(this).attr('data-column'));
-        const stringSearchList = dicTarget[columnId].map((v) =>
-            v !== null ? v.toString() : v,
-        );
+        const stringSearchList = dicTarget[columnId].map((v) => (v !== null ? v.toString() : v));
 
         if (stringSearchList.includes(val)) {
             $(this).prop('checked', true);
@@ -672,10 +621,7 @@ const regexFilter = (typingCount) => {
     for (const key of Object.keys(dicCheckboxes)) {
         const vals = searchRegexOnList(currentRegexVal, dicCheckboxes[key]);
         const checkedList = dicChecked[key];
-        dicEnter[key] = uniq([
-            ...checkedList,
-            ...vals.map((el) => (el !== null ? el.toString() : null)),
-        ]);
+        dicEnter[key] = uniq([...checkedList, ...vals.map((el) => (el !== null ? el.toString() : null))]);
     }
     filterPaging(dicEnter);
     setTimeout(() => {
@@ -687,10 +633,8 @@ const regexFilter = (typingCount) => {
     }, 500);
 };
 
-const sortCheckedAsc = (a, b, checkedVals) =>
-    checkedVals.indexOf(a) < checkedVals.indexOf(b) ? 1 : -1;
-const sortCheckedDesc = (a, b, checkedVals) =>
-    checkedVals.indexOf(a) > checkedVals.indexOf(b) ? 1 : -1;
+const sortCheckedAsc = (a, b, checkedVals) => (checkedVals.indexOf(a) < checkedVals.indexOf(b) ? 1 : -1);
+const sortCheckedDesc = (a, b, checkedVals) => (checkedVals.indexOf(a) > checkedVals.indexOf(b) ? 1 : -1);
 
 const sortCate = (dicTarget, sortType) => {
     const dicOutput = {};
@@ -702,14 +646,10 @@ const sortCate = (dicTarget, sortType) => {
             sortedVals = [...vals].sort().reverse();
         } else if (sortType === 3) {
             const checkedVals = dicChecked[key];
-            sortedVals = [...vals].sort((a, b) =>
-                sortCheckedAsc(a, b, checkedVals),
-            );
+            sortedVals = [...vals].sort((a, b) => sortCheckedAsc(a, b, checkedVals));
         } else if (sortType === 4) {
             const checkedVals = dicChecked[key];
-            sortedVals = [...vals].sort((a, b) =>
-                sortCheckedDesc(a, b, checkedVals),
-            );
+            sortedVals = [...vals].sort((a, b) => sortCheckedDesc(a, b, checkedVals));
         }
         dicOutput[key] = sortedVals;
     }
@@ -766,10 +706,7 @@ const filterAvailableLabels = () => {
         // availableDic = merge each dicPair
         for (const key in dicPair) {
             if (availableDic[key]) {
-                availableDic[key] = _.intersection(
-                    availableDic[key],
-                    dicPair[key],
-                );
+                availableDic[key] = _.intersection(availableDic[key], dicPair[key]);
             } else {
                 availableDic[key] = dicPair[key];
             }

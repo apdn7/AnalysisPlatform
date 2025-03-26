@@ -12,12 +12,7 @@ const showBorderWhenHoverCateBox = () => {
     );
 };
 
-const buildCategoryBoxes = (
-    cateCol,
-    timeCol = null,
-    uiStartTime = null,
-    uiEndTime = null,
-) => {
+const buildCategoryBoxes = (cateCol, timeCol = null, uiStartTime = null, uiEndTime = null) => {
     let isIndex = false;
     if (timeCol === null) {
         isIndex = true;
@@ -59,9 +54,7 @@ const buildCategoryBoxes = (
             if (boxes.length) {
                 // update boxEndPos
                 const prevBoxEndTime = boxes[boxes.length - 1].endTime;
-                const endTimeObj = isIndex
-                    ? prevBoxEndTime
-                    : new Date(prevBoxEndTime);
+                const endTimeObj = isIndex ? prevBoxEndTime : new Date(prevBoxEndTime);
                 const prevBoxEndPos = (endTimeObj - minDt) / totalLen;
                 boxes[boxes.length - 1].boxEndPos = prevBoxEndPos;
 
@@ -93,9 +86,7 @@ const buildCategoryBoxes = (
             });
         } else {
             const prevBoxEndTime = boxes[boxes.length - 1].endTime;
-            const endTimeObj = isIndex
-                ? prevBoxEndTime
-                : new Date(prevBoxEndTime);
+            const endTimeObj = isIndex ? prevBoxEndTime : new Date(prevBoxEndTime);
             const prevBoxEndPos = (endTimeObj - minDt) / totalLen;
             boxes[boxes.length - 1].boxEndPos = prevBoxEndPos;
             const currentRangePercent = (timeCol[i] - endTimeObj) / totalLen;
@@ -138,9 +129,7 @@ const buildCategoryBoxes = (
         prevCateVal = currentCateVal;
     }
     // update boxEndPos of the last box
-    const endTimeObj = isIndex
-        ? boxes[boxes.length - 1].endTime
-        : new Date(boxes[boxes.length - 1].endTime);
+    const endTimeObj = isIndex ? boxes[boxes.length - 1].endTime : new Date(boxes[boxes.length - 1].endTime);
     boxes[boxes.length - 1].boxEndPos = (endTimeObj - minDt) / totalLen;
 
     // last box
@@ -219,8 +208,7 @@ const combineSmallBoxes = (boxes) => {
                 combinedBoxes[lastIdx].boxEndPos = boxes[i].boxEndPos;
                 combinedBoxes[lastIdx].endTime = boxes[i].endTime;
                 combinedBoxes[lastIdx].endIndex = boxes[i].endIndex;
-                combinedBoxes[lastIdx].count =
-                    parseInt(combinedBoxes[lastIdx].count || 0) + count;
+                combinedBoxes[lastIdx].count = parseInt(combinedBoxes[lastIdx].count || 0) + count;
                 // combinedBoxes[lastIdx].cateName += `.${boxes[i].cateName}`;  // TODO display name
                 combinedBoxes[lastIdx].isGroup = true;
                 isNarrowBoxCombined = true;
@@ -237,14 +225,7 @@ const combineSmallBoxes = (boxes) => {
     return { combinedBoxes, isNarrowBoxCombined };
 };
 
-const createCateTableHTML = (
-    cateBoxes,
-    cateId,
-    thinDataGroupCounts,
-    indexOrderColumns,
-    isThinData,
-    xAxisOption,
-) => {
+const createCateTableHTML = (cateBoxes, cateId, thinDataGroupCounts, indexOrderColumns, isThinData, xAxisOption) => {
     let tds = '';
     if (cateBoxes === null) {
         tds = `<td id="cate-${cateId}" style="width: 100%;" class="cate-td  keyboard-movement">
@@ -288,10 +269,7 @@ const createCateTableHTML = (
             // }
 
             // NA case (have data but it is unknown/undefined data)
-            if (
-                (box.cateName === '' || box.cateName === null) &&
-                box.count > 0
-            ) {
+            if ((box.cateName === '' || box.cateName === null) && box.count > 0) {
                 colorClass = 'box-is-na';
                 showLabelTooltip = COMMON_CONSTANT.NA;
                 showLabelBox = COMMON_CONSTANT.NA;
@@ -302,16 +280,13 @@ const createCateTableHTML = (
                 colorClass = 'box-is-group';
                 showLabelTooltip = i18n.cannotBeDisplayed;
                 showLabelBox = '';
-                widthPercent =
-                    widthPercent > 0.01 ? widthPercent : widthPercent * 0.85;
+                widthPercent = widthPercent > 0.01 ? widthPercent : widthPercent * 0.85;
             }
 
             let hoverStr = `${i18n.value}: ${showLabelTooltip}<br>`;
             let dataCount = 0;
             if (isThinData) {
-                dataCount = thinDataGroupCounts
-                    .slice(box.startIndex, box.endIndex + 1)
-                    .reduce((a, b) => a + b, 0);
+                dataCount = thinDataGroupCounts.slice(box.startIndex, box.endIndex + 1).reduce((a, b) => a + b, 0);
             } else {
                 dataCount = box.count;
             }
@@ -323,24 +298,18 @@ const createCateTableHTML = (
                     for (const aggKey of ['min', 'max', 'value']) {
                         if (dicOrder[aggKey]) {
                             // val.concat(dicOrder[aggKey].slice(box.startIndex, box.endIndex + 1));
-                            val = [
-                                ...val,
-                                ...dicOrder[aggKey].slice(
-                                    box.startIndex,
-                                    box.endIndex + 1,
-                                ),
-                            ];
+                            val = [...val, ...dicOrder[aggKey].slice(box.startIndex, box.endIndex + 1)];
                         }
                     }
                     // console.log(val);
                     const [minVal, maxVal] = findMinMax(val);
                     hoverStr += `<br>${dicOrder['name']}:<br>`;
-                    hoverStr += `${i18n.minVal}: ${checkTrue(minVal) ? minVal : COMMON_CONSTANT.NA}<br>`;
-                    hoverStr += `${i18n.maxVal}: ${checkTrue(maxVal) ? maxVal : COMMON_CONSTANT.NA}<br>`;
+                    hoverStr += `${i18n.minVal}: ${checkTrue(minVal) ? checkAndReturnLocalDateTime(minVal) : COMMON_CONSTANT.NA}<br>`;
+                    hoverStr += `${i18n.maxVal}: ${checkTrue(maxVal) ? checkAndReturnLocalDateTime(maxVal) : COMMON_CONSTANT.NA}<br>`;
                 }
             } else {
-                hoverStr += `${i18n.startTime}: ${new Date(box.startTime).toLocaleString()}<br>
-                             ${i18n.endTime}: ${new Date(box.endTime).toLocaleString()}<br>`;
+                hoverStr += `${i18n.startTime}: ${toLocalTime(new Date(box.startTime))}<br>
+                             ${i18n.endTime}: ${toLocalTime(new Date(box.endTime))}<br>`;
             }
 
             const boxInfo =
@@ -374,13 +343,7 @@ const pinCategoryTable = () => {
     scrollCategoryTable.load($(formElements.cateCard));
 };
 
-const createCateCard = (
-    cateNameHTMLs,
-    tableHTMLs,
-    width,
-    cols = {},
-    traceDat = {},
-) => {
+const createCateCard = (cateNameHTMLs, tableHTMLs, width, cols = {}, traceDat = {}) => {
     const tblWidthCSS = width ? `width: ${width}px;` : '';
     // tableHTMLs.length = 1;
     const cardHtml = `<div class="row chart-row " id="cateArea" style="margin: 0 auto;">
@@ -434,20 +397,12 @@ let isDivResizing = false;
 
 // adjust category table to be aligned with TS chart
 const getFirstTSChartId = () => {
-    const firstChartId =
-        $('#plot-cards')
-            .find('canvas[chart-type="timeSeries"]')
-            .first()
-            .attr('id') || 'chart01';
+    const firstChartId = $('#plot-cards').find('canvas[chart-type="timeSeries"]').first().attr('id') || 'chart01';
     return `#${firstChartId}`;
 };
 
 const getFirstHistChartId = () => {
-    const firstChartId =
-        $('#plot-cards')
-            .find('canvas[chart-type="histogram"]')
-            .first()
-            .attr('id') || 'hist01';
+    const firstChartId = $('#plot-cards').find('canvas[chart-type="histogram"]').first().attr('id') || 'hist01';
     return `#${firstChartId}`;
 };
 
@@ -480,10 +435,7 @@ const adjustCatetoryTableLength = () => {
         // set catetable position
         const chartArea = getChartErea(firstTSChartId);
         const tableWidth1 = chartArea.right - chartArea.left + 2; // 2 is border width of two sides
-        const zoomRate = Math.min(
-            1,
-            Math.round(window.devicePixelRatio * 100) / 100,
-        );
+        const zoomRate = Math.min(1, Math.round(window.devicePixelRatio * 100) / 100);
         const adjust = Math.abs((1 - zoomRate) * 12);
         const chartOffsetLeft = firstTSChart.offset().left;
         const cateTblOffsetLeft = chartOffsetLeft + chartArea.left - 1 - adjust; // -1 to reserve left border
@@ -540,29 +492,18 @@ const scrollCategoryTable = (() => {
             const $thisSticky = $(e);
             const $stickyPosition = $thisSticky.data('originalPosition');
 
-            if (
-                $stickyPosition <= $window.scrollTop() &&
-                !$cardParent.is(':offscreen')
-            ) {
+            if ($stickyPosition <= $window.scrollTop() && !$cardParent.is(':offscreen')) {
                 const $nextSticky = $stickies.eq(i + 1);
-                const $nextStickyPosition =
-                    $nextSticky.data('originalPosition') -
-                    $thisSticky.data('originalHeight');
+                const $nextStickyPosition = $nextSticky.data('originalPosition') - $thisSticky.data('originalHeight');
 
                 $thisSticky.addClass('cate-fixed');
 
-                if (
-                    $nextSticky.length > 0 &&
-                    $thisSticky.offset().top >= $nextStickyPosition
-                ) {
-                    $thisSticky
-                        .addClass('absolute')
-                        .css('top', $nextStickyPosition);
+                if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
+                    $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
                 }
 
                 // align scrolled category table with plot-cards
-                const tableLeftOffset = $(formElements.tsPlotCards).offset()
-                    .left;
+                const tableLeftOffset = $(formElements.tsPlotCards).offset().left;
                 const plotCardWidth = $(formElements.tsPlotCards).outerWidth();
                 $thisSticky.css('left', tableLeftOffset);
                 $thisSticky.css('width', plotCardWidth);
@@ -573,9 +514,7 @@ const scrollCategoryTable = (() => {
 
                 if (
                     $prevSticky.length > 0 &&
-                    $window.scrollTop() <=
-                        $thisSticky.data('originalPosition') -
-                            $thisSticky.data('originalHeight')
+                    $window.scrollTop() <= $thisSticky.data('originalPosition') - $thisSticky.data('originalHeight')
                 ) {
                     $prevSticky.removeClass('absolute').removeAttr('style');
                 }
@@ -583,11 +522,7 @@ const scrollCategoryTable = (() => {
         });
     };
     const load = (stickies) => {
-        if (
-            typeof stickies === 'object' &&
-            stickies instanceof jQuery &&
-            stickies.length > 0
-        ) {
+        if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_, e) => {
                 const $thisSticky = $(e).wrap('<div class="">');
@@ -624,11 +559,7 @@ const nonNACalcuation = (cates) => {
     }
     const total = cates.length;
     const nonNACount = cates.filter((c) => c !== null).length;
-    return [
-        Number((100 * nonNACount) / (total || 1)).toFixed(2),
-        nonNACount,
-        total,
-    ];
+    return [Number((100 * nonNACount) / (total || 1)).toFixed(2), nonNACount, total];
 };
 
 const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
@@ -652,9 +583,7 @@ const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
             }
         });
     // remove empty category data
-    categoryDataAfterOrdering = categoryDataAfterOrdering.filter(
-        (cat) => cat !== null,
-    );
+    categoryDataAfterOrdering = categoryDataAfterOrdering.filter((cat) => cat !== null);
     // cat which not match in serial ordering: shoow at below of category box
     categoryDataAfterOrdering = categoryDataAfterOrdering.concat(notMatchedCat);
     return categoryDataAfterOrdering;
@@ -663,21 +592,15 @@ const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
 const produceCategoricalTable = (traceData, options = {}) => {
     const [categoriesLabel, _] = getLabelAndFilterValues();
     let { category } = traceData.filter_on_demand;
-    category = category.filter((cate) =>
-        categoriesLabel.includes(cate.column_id),
-    );
+    category = category.filter((cate) => categoriesLabel.includes(cate.column_id));
     // fix x-axis with datetime range
     const startDt = traceData.COMMON[CONST.STARTDATE];
     const startTm = traceData.COMMON[CONST.STARTTIME];
     const endDt = traceData.COMMON[CONST.ENDDATE];
     const endTm = traceData.COMMON[CONST.ENDTIME];
     const fmt = 'YYYY/MM/DD HH:mm';
-    const uiStartTime = new Date(
-        formatDateTime(`${startDt} ${startTm}`, fmt),
-    ).toISOString();
-    const uiEndTime = new Date(
-        formatDateTime(`${endDt} ${endTm}`, fmt),
-    ).toISOString();
+    const uiStartTime = new Date(formatDateTime(`${startDt} ${startTm}`, fmt)).toISOString();
+    const uiEndTime = new Date(formatDateTime(`${endDt} ${endTm}`, fmt)).toISOString();
     const { thinDataGroupCounts, indexOrderColumns, is_thin_data } = traceData;
 
     // calculate categorical boxes: start/end position, count, etc
@@ -704,18 +627,12 @@ const produceCategoricalTable = (traceData, options = {}) => {
             if (xAxisOption === 'INDEX') {
                 boxes = buildCategoryBoxes(dicCate.data);
             } else {
-                boxes = buildCategoryBoxes(
-                    dicCate.data,
-                    traceData.times,
-                    uiStartTime,
-                    uiEndTime,
-                );
+                boxes = buildCategoryBoxes(dicCate.data, traceData.times, uiStartTime, uiEndTime);
             }
 
             // pre-process boxes code
             // const { combinedBoxes, isNarrowBoxCombined } = combineEmptyBoxes(boxes);
-            const { combinedBoxes, isNarrowBoxCombined } =
-                combineSmallBoxes(boxes);
+            const { combinedBoxes, isNarrowBoxCombined } = combineSmallBoxes(boxes);
             boxes = combinedBoxes;
             isBoxCombined = isNarrowBoxCombined;
         }
@@ -788,13 +705,7 @@ const produceCategoricalTable = (traceData, options = {}) => {
         histogram: 3,
         scatterPlot: 0,
     };
-    const cateCardHTML = createCateCard(
-        cateNameHTMLs,
-        tblHTMLs,
-        tableWidth,
-        cols,
-        traceData,
-    );
+    const cateCardHTML = createCateCard(cateNameHTMLs, tblHTMLs, tableWidth, cols, traceData);
 
     // clear old result
     $(formElements.cateCard).empty();
@@ -859,11 +770,7 @@ const initIndexModal = () => {
         if (option === CONST.XOPT_INDEX) {
             showSerialModal(formElements.serialTableModal2);
             setSelect2Selection(formElements.serialTable2);
-            bindDragNDrop(
-                $(`${formElements.serialTable2} tbody`),
-                formElements.serialTable2,
-                name.serial,
-            );
+            bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, name.serial);
             disableUnselectedOption(selectedSerials, name.serial);
             disableUnselectedOption(selectedProcess, name.process);
 
@@ -908,12 +815,7 @@ const initIndexModal = () => {
 
     $(formElements.okOrderIndexModal).unbind('click');
     $(formElements.okOrderIndexModal).on('click', () => {
-        getLastedSelectedValue(
-            formElements.serialTable2,
-            name.process,
-            name.serial,
-            name.order,
-        );
+        getLastedSelectedValue(formElements.serialTable2, name.process, name.serial, name.order);
         xOption = CONST.XOPT_INDEX;
         currentXOption = xOption;
         // reset xAxisShowSettings
@@ -945,20 +847,12 @@ function disableUnselectedOption(selectedSerials, serialName) {
 
             if (!selectedSerials.has(val)) {
                 if ((isGetDate || isSerialNo) && procData.includes(procColId)) {
-                    option.attr(
-                        'disabled',
-                        selectedProcessSerial &&
-                            selectedProcessSerial.has(currentOption),
-                    );
+                    option.attr('disabled', selectedProcessSerial && selectedProcessSerial.has(currentOption));
                 } else {
                     option.attr('disabled', true);
                 }
             } else if (procData.includes(procColId) && optionSelected !== val) {
-                option.attr(
-                    'disabled',
-                    selectedProcessSerial &&
-                        selectedProcessSerial.has(currentOption),
-                );
+                option.attr('disabled', selectedProcessSerial && selectedProcessSerial.has(currentOption));
             } else {
                 option.attr('disabled', false);
             }
@@ -967,24 +861,15 @@ function disableUnselectedOption(selectedSerials, serialName) {
 }
 
 function initSelect() {
-    bindChangeProcessEvent(
-        formElements.serialTable2,
-        name.process,
-        name.serial,
-        () => {
-            disableUnselectedOption(selectedSerials, name.serial);
-            disableUnselectedOption(selectedProcess, name.process);
-        },
-    );
+    bindChangeProcessEvent(formElements.serialTable2, name.process, name.serial, () => {
+        disableUnselectedOption(selectedSerials, name.serial);
+        disableUnselectedOption(selectedProcess, name.process);
+    });
     updatePriorityAndDisableSelected(formElements.serialTable2, name.serial);
 
     setTimeout(() => {
         // wait select2 to be shown
-        bindChangeOrderColEvent(
-            formElements.serialTable2,
-            name.serial,
-            () => {},
-        );
+        bindChangeOrderColEvent(formElements.serialTable2, name.serial, () => {});
     }, 200);
 }
 
@@ -1014,8 +899,7 @@ function renderTableContent() {
     const procInfo = procConfigs[startProc];
 
     const hasAvailableOrderColumn =
-        availableOrderingSettings[startProc] &&
-        availableOrderingSettings[startProc].length > 0;
+        availableOrderingSettings[startProc] && availableOrderingSettings[startProc].length > 0;
 
     const noTableRow = lastSelectedOrder.length <= 0;
     const isShowDefaultRow = hasAvailableOrderColumn && noTableRow;
@@ -1049,17 +933,10 @@ function renderTableContent() {
     }
     setTimeout(() => {
         selectedSerials = getSelectedOrderCols();
-        selectedProcess = getSelectedOrderCols(
-            formElements.serialTable,
-            'serialProcess',
-        );
-        const availableProcess = new Set(
-            Object.keys(availableOrderingSettings),
-        );
+        selectedProcess = getSelectedOrderCols(formElements.serialTable, 'serialProcess');
+        const availableProcess = new Set(Object.keys(availableOrderingSettings));
         let availableSerials = [];
-        Object.values(availableOrderingSettings).forEach((cols) =>
-            availableSerials.push(...cols),
-        );
+        Object.values(availableOrderingSettings).forEach((cols) => availableSerials.push(...cols));
         availableSerials = availableSerials.map((colID) => String(colID));
         selectedSerials = new Set([...selectedSerials, ...availableSerials]);
         selectedProcess = new Set([...selectedProcess, ...availableProcess]);
@@ -1072,18 +949,10 @@ function renderTableContent() {
 function initTableValue() {
     currentXOption = lastUsedFormData.get('xOption');
     if (currentXOption === CONST.XOPT_INDEX) {
-        getLastedSelectedValue(
-            formElements.serialTable,
-            'serialProcess',
-            'serialColumn',
-            'serialOrder',
-        );
+        getLastedSelectedValue(formElements.serialTable, 'serialProcess', 'serialColumn', 'serialOrder');
     }
 
-    if (
-        isSaveGraphSetting() &&
-        hasIndexOrderInGraphSetting(getGraphSettings())
-    ) {
+    if (isSaveGraphSetting() && hasIndexOrderInGraphSetting(getGraphSettings())) {
         const indexOrder = getIndexOrder();
         if (indexOrder.length > 0) {
             lastSelectedOrder = indexOrder;

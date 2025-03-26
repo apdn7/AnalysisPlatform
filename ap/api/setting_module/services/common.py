@@ -19,10 +19,10 @@ def is_local_client(req):
     return False
 
 
-def save_user_settings(request_params):
+def save_user_settings(request_params, exclude_columns=None):
     with make_session() as meta_session:
         cfg_user_setting = parse_user_setting(request_params)
-        new_setting = insert_or_update_config(meta_session, cfg_user_setting)
+        new_setting = insert_or_update_config(meta_session, cfg_user_setting, exclude_columns=exclude_columns)
         meta_session.commit()
     return new_setting
 

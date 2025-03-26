@@ -117,6 +117,7 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.pandas_helper import append_series
 from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -218,7 +219,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
 
     export_df = df.copy()
 
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
     # check filter match or not ( for GUI show )
     (
         matched_filter_ids,
@@ -528,27 +529,28 @@ def cal_emd_data(dic_param):
     num_bins = 100
     emds = []
     for sensor_dat in array_plotdatas:
-        data = sensor_dat[RL_DATA]
+        data, groups = sensor_dat[RL_DATA], sensor_dat[RL_GROUPS]
+
         if not len(data):
             continue
 
-        group_ids = sensor_dat[RL_GROUPS]
+        if len(data) != len(groups):
+            logger.error('data size and group size must be equal')
 
-        # convert to dataframe
-        dic_emds = {RL_GROUPS: group_ids, 'data': data}
-        df = pd.DataFrame(dic_emds)
+        # construct pd.Series to handle `pd.NA` (because numpy does not understand this)
+        emd_data = pd.Series(data, dtype=pd.Float64Dtype()).to_numpy(dtype=np.float64)
+        group_ids = np.array(groups, dtype=np.str_)
 
-        # dropna before calc emd
-        df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
-        group_ids = df[RL_GROUPS]
+        # remove infinity and na data
+        is_finite = np.isfinite(emd_data)
+        emd_data = emd_data[is_finite]
+        group_ids = group_ids[is_finite]
 
-        # revert original dataframe without groups
-        df.drop(RL_GROUPS, inplace=True, axis=1)
-        emd_stacked_without_nan = df.to_numpy()
         for diff in emd_value:
-            if emd_stacked_without_nan.size:
-                emd_array = calc_emd_for_ridgeline(emd_stacked_without_nan, np.array(group_ids), num_bins, diff=diff)
+            if emd_data.size:
+                emd_array = calc_emd_for_ridgeline(emd_data, group_ids, num_bins, diff=diff)
                 if len(emd_array) > 0:
+                    # FIXME: shouldn't tolist here
                     emds.append(np.stack(emd_array, axis=-1).tolist()[0])
                 else:
                     emds.append([])
@@ -588,8 +590,9 @@ def calc_emd_for_ridgeline(data, group_id, num_bins, signed=True, diff=False):
         x = data[:, sensor]
 
         # generate bins for histograms
-        x_wo_none = x[x != None]
-        group_id_wo_none = np.delete(group_id, np.where(x == None))
+        is_not_none = ~np.isnan(x)
+        x_wo_none = x[is_not_none]
+        group_id_wo_none = group_id[is_not_none]
 
         x_min = np.nanmin(x_wo_none)
         x_max = np.nanmax(x_wo_none)
@@ -632,11 +635,11 @@ def calc_emd_for_ridgeline(data, group_id, num_bins, signed=True, diff=False):
 
 @log_execution_time()
 def gen_term_groups(terms_obj):
-    if 'Z' not in terms_obj['start_dt']:
-        terms_obj['start_dt'] = terms_obj['start_dt'] + 'Z'
-    if 'Z' not in terms_obj['end_dt']:
-        terms_obj['end_dt'] = terms_obj['end_dt'] + 'Z'
-    return '{} | {}'.format(terms_obj['start_dt'], terms_obj['end_dt'])
+    if 'Z' not in terms_obj[START_DT]:
+        terms_obj[START_DT] += 'Z'
+    if 'Z' not in terms_obj[END_DT]:
+        terms_obj[END_DT] += 'Z'
+    return '{} | {}'.format(terms_obj[START_DT], terms_obj[END_DT])
 
 
 @log_execution_time()
@@ -796,7 +799,7 @@ def gen_rlp_kde(dic_param):
     # retrieve the ridge-lines from array_plotdata
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
     fmt = {}
-    for _, plotdata in enumerate(array_plotdata):
+    for plotdata in array_plotdata:
         # plotdata[RL_KDE] = {}
         plotdata_rlp = plotdata.get(RL_RIDGELINES)
         sensor_id = plotdata.get(SENSOR_ID)
@@ -814,9 +817,9 @@ def gen_rlp_kde(dic_param):
         else:
             bounds = get_bound(plotdata_rlp)
         grid_points = get_grid_points(plotdata_rlp, bounds=bounds)
-        for num, ridgeline in enumerate(plotdata_rlp):
+        for ridgeline in plotdata_rlp:
             array_x = ridgeline.get(ARRAY_X, pd.Series())
-            fmt[sensor_id] = fmt[sensor_id].append(array_x.reset_index(drop=True))
+            fmt[sensor_id] = append_series(fmt[sensor_id], array_x.reset_index(drop=True))
             ridgeline[RL_KDE] = calculate_kde_for_ridgeline(array_x, grid_points, height=3, use_hist_counts=True)
 
     for idx in fmt:
@@ -846,22 +849,14 @@ def transform_rlp_kde(dic_param):
 
         plotdata[RL_XAXIS] = []
         # distinct groups
-        # plotdata[RL_CATES] = div_names if len(div_names) else list(dict.fromkeys(plotdata[RL_GROUPS]))
-        # plotdata['categories'] = distinct_rlp_groups(plotdata['groups'])
         rlp_range_min = []
         rlp_range_max = []
 
         # get max value from kde, use to make new xaxis range
-        max_kde_list = []
         tmp_histlabel = []
         for num, ridgeline in enumerate(plotdata_rlp):
             # calculate trans value from start_value and line_steps
-            trans_val = start_value + (num * line_steps)
             kde_data = ridgeline.get(RL_KDE)
-
-            if kde_data[RL_DEN_VAL]:
-                max_value = max(kde_data[RL_DEN_VAL]) + trans_val
-                max_kde_list.append(max_value)
 
             if len(kde_data[RL_HIST_LABELS]) > 1:
                 tmp_histlabel = kde_data[RL_HIST_LABELS]
@@ -891,7 +886,7 @@ def transform_rlp_kde(dic_param):
             plotdata[RL_XAXIS].append(trans_val)
 
             # get min/max range from numpy array kde_data
-            if kde_data[RL_DEN_VAL] and kde_data[RL_HIST_LABELS]:
+            if len(kde_data[RL_DEN_VAL]) and len(kde_data[RL_HIST_LABELS]):
                 rlp_range_min.append(min(kde_data[RL_HIST_LABELS]))
                 rlp_range_max.append(max(kde_data[RL_HIST_LABELS]))
 
@@ -1162,12 +1157,12 @@ def cast_data_type(ng_condition_val, data_type):
     if 'int' in data_type:
         if '64' in data_type:
             return np.int64(ng_condition_val)
-        return np.int(ng_condition_val)
+        return int(ng_condition_val)
 
     if 'float' in data_type:
         if '64' in data_type:
             return np.float64(ng_condition_val)
-        return np.float(ng_condition_val)
+        return float(ng_condition_val)
 
     return ng_condition_val
 
@@ -1207,7 +1202,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
         for name, _sub_df in sub_dfs:
             sub_df = _sub_df.groupby(div_label)
             ng_df = sub_df.count()
-            ng_df.rename(columns={judge_col_name: COUNT}, inplace=True)
+            ng_df = ng_df.rename(columns={judge_col_name: COUNT})
             ng_df[TRUE_MATCH] = sub_df[judge_col_name].apply(
                 get_ng_aggregate_func,
                 type=ng_condition,
@@ -1217,7 +1212,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
 
             if isinstance(ng_df.index, pd.MultiIndex):
                 ng_df[GROUP] = [f'{i} | {j}' for i, j in ng_df.index]
-                ng_df.set_index(GROUP, inplace=True)
+                ng_df = ng_df.set_index(GROUP)
 
             # ng data info
             ng_info = {

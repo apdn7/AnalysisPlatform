@@ -36,46 +36,46 @@ const isFailedJobPage = () => {
 
 const JOB_STATUS = {
     DONE: {
-        title: i18n.statusDone,
-        class: 'check green',
+        'title': i18n.statusDone,
+        'class': 'check green',
         'class-progress-bar': 'bg-success',
-        text: 'Done',
-        db_text: 'DONE',
+        'text': 'Done',
+        'db_text': 'DONE',
     },
     FAILED: {
-        title: i18n.statusFailed,
-        class: 'exclamation-triangle yellow',
+        'title': i18n.statusFailed,
+        'class': 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
-        text: 'Error',
-        db_text: 'ERROR',
+        'text': 'Error',
+        'db_text': 'ERROR',
     },
     KILLED: {
-        title: i18n.statusFailed,
-        class: 'exclamation-triangle yellow',
+        'title': i18n.statusFailed,
+        'class': 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
-        text: 'Killed',
-        db_text: 'KILLED',
+        'text': 'Killed',
+        'db_text': 'KILLED',
     },
     PROCESSING: {
-        title: i18n.statusImporting,
-        class: 'spinner fa-spin',
+        'title': i18n.statusImporting,
+        'class': 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
-        text: 'Processing',
-        db_text: 'PROCESSING',
+        'text': 'Processing',
+        'db_text': 'PROCESSING',
     },
     PENDING: {
-        title: i18n.statusPending,
-        class: 'spinner fa-spin',
+        'title': i18n.statusPending,
+        'class': 'spinner fa-spin',
         'class-progress-bar': 'progress-bar-animated',
-        text: 'Pending',
-        db_text: 'PENDING',
+        'text': 'Pending',
+        'db_text': 'PENDING',
     },
     FATAL: {
-        title: i18n.statusFailed,
-        class: 'exclamation-triangle yellow',
+        'title': i18n.statusFailed,
+        'class': 'exclamation-triangle yellow',
         'class-progress-bar': 'bg-warning',
-        text: 'Fatal',
-        db_text: 'FATAL',
+        'text': 'Fatal',
+        'db_text': 'FATAL',
     },
 };
 
@@ -132,14 +132,11 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
         ignoreStatus.push(...NON_FAILED_JOB_STATUS);
     }
     rows.forEach((row) => {
-        const statusClass =
-            JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
-        const statusTooltip =
-            JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
+        const statusClass = JOB_STATUS[row.status].class || JOB_STATUS.FAILED.class;
+        const statusTooltip = JOB_STATUS[row.status].title || JOB_STATUS.FAILED.title;
 
         const statusProgressBar =
-            JOB_STATUS[row.status]['class-progress-bar'] ||
-            JOB_STATUS.FAILED['class-progress-bar'];
+            JOB_STATUS[row.status]['class-progress-bar'] || JOB_STATUS.FAILED['class-progress-bar'];
         // const rowHtml = tableBody.find(`#job-${row.job_id}`);
         let rowHtml = dicTableRows[row.job_id];
         const updatedStatus = JOB_STATUS[row.status].text;
@@ -162,18 +159,12 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
         if (rowHtml) {
             rowHtml = $(rowHtml);
             if (isFirstTime) {
-                rowHtml
-                    .find('.job-name')
-                    .text(convertJobName(row.job_name) || ' ');
-                rowHtml
-                    .find('.job-start-time')
-                    .text(moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ));
+                rowHtml.find('.job-name').text(convertJobName(row.job_name) || ' ');
+                rowHtml.find('.job-start-time').text(moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ));
             }
             rowHtml.find('.job-duration').text(row.duration);
             rowHtml.find('.job-progress').html(progress);
-            if (
-                rowHtml.find('.job-status').attr('data-status') !== row.status
-            ) {
+            if (rowHtml.find('.job-status').attr('data-status') !== row.status) {
                 rowHtml.find('.job-status').html(updatedStatus);
             }
             rowHtml.find('.job-detail').html(jobDetailHTML);
@@ -227,14 +218,11 @@ function copyToClipboard() {
 const getJobDetail = async (jobId) => {
     if (jobId === null || jobId === undefined) return;
 
-    const url = new URL(
-        `/ap/api/setting/job_detail/${jobId}`,
-        window.location.href,
-    ).href;
+    const url = new URL(`/ap/api/setting/job_detail/${jobId}`, window.location.href).href;
     const json = await fetch(url, {
         method: 'GET',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
     })
@@ -379,10 +367,7 @@ const reloadPageAfterInterval = () => {
             },
         },
     };
-    $.extend(
-        $.fn.bootstrapTable.defaults,
-        $.fn.bootstrapTable.locales['en-US'],
-    );
+    $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US']);
 })(jQuery);
 
 $(() => {
@@ -396,9 +381,7 @@ $(() => {
         pagination: true,
         paginationVAlign: 'both',
         pageSize: pageOptions ? pageOptions.pageSize : 50,
-        locale: $('option:selected', $(ids.selectLanguage)).attr(
-            'bootstrap-locale',
-        ),
+        locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
         errorPage: isFailedJobPage(),
         // formatShowingRows() {
         //     return sprintf('');
@@ -468,7 +451,7 @@ function ajaxRequest(params) {
     const json = fetch(url + '?' + $.param(params.data), {
         method: 'GET',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
     })

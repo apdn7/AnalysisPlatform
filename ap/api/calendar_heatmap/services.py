@@ -67,6 +67,7 @@ from ap.common.constants import (
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
+from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
@@ -285,8 +286,8 @@ def build_hover(df, end_col, hm_function):
 def build_plot_data(df, end_col, hm_function):
     """Build data for heatmap trace of Plotly"""
     df = df.sort_values(by=['x', 'y'])
-    df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan))
-    df = df.where(pd.notnull(df), None)
+    df = df.replace([np.inf, -np.inf], np.nan)
+    df = df.where(df.notna(), None)
 
     x = df['x'].reset_index(drop=True)
     y = df['y'].reset_index(drop=True)
@@ -294,10 +295,10 @@ def build_plot_data(df, end_col, hm_function):
 
     # build color scale
     z_min = df[end_col].dropna().min()
-    if np.isnan(z_min):
+    if pd.isna(z_min):
         z_min = None
     z_max = df[end_col].dropna().max()
-    if np.isnan(z_max):
+    if pd.isna(z_max):
         z_max = None
 
     hover_texts = build_hover(df, end_col, hm_function)
@@ -626,8 +627,9 @@ def gen_df_end_col(df_batch, end_col, var_agg_cols):
         df_end_col = df_batch[[TIME_COL, AGG_COL, end_col_label]]
 
     if var_agg_cols and end_col_label in var_agg_cols:
+        # FIXME: rename column ?
         c_id = list(df_end_col.columns).index(end_col_label)
-        df_end_col.columns.values[c_id] = end_col.id
+        df_end_col.columns.values[c_id] = end_col.id  # noqa
     else:
         df_end_col = df_end_col.rename({end_col_label: end_col.id}, axis=1)
     return df_end_col
@@ -686,24 +688,29 @@ def convert_to_pandas_step(hm_step, hm_mode):
 @abort_process_handler()
 def create_agg_column(df, agg_col=AGG_COL, hm_mode=7, hm_step=4, df_cells=None):
     """Create aggregate column data"""
-    dt = pd.to_datetime(df[TIME_COL], format='%Y-%m-%dT%H:%M', utc=True)
-    df[agg_col] = None
-    #
-    group_list = df_cells[TIME_COL]
-    next_cell = pd.Series(
-        group_list.iloc[-1] + pd.Timedelta(minutes=hm_step)
-        if hm_mode == 1
-        else group_list.iloc[-1] + pd.Timedelta(hours=hm_step),
-    )
-    group_list = group_list.append(next_cell)
-    group_list = pd.to_datetime(group_list, format='%Y-%m-%dT%H:%M', utc=True).reset_index(drop=True)
 
-    labels = df_cells[AGG_COL]
-    for i, label in enumerate(labels):
-        start_time = group_list[i]
-        end_time = group_list[i + 1]
-        start_index, end_index = dt.searchsorted([start_time, end_time])
-        df[start_index:end_index][agg_col] = label
+    # create temporary column for searching values
+    temp_col = '__temp__datetime__'
+    df[temp_col] = pd.to_datetime(df[TIME_COL], utc=True)
+
+    # create groups
+    groups = df_cells[TIME_COL]
+    delta = pd.Timedelta(minutes=hm_step) if hm_mode == 1 else pd.Timedelta(hours=hm_step)
+    next_cell = groups.iloc[-1] + delta
+    groups = append_series(groups, next_cell)
+    groups = pd.to_datetime(groups, utc=True)
+
+    df = assign_group_labels_for_dataframe(
+        df,
+        by=temp_col,
+        label_column=agg_col,
+        bins=groups,
+        labels=df_cells[AGG_COL],
+    )
+
+    # remove temporary column
+    df = df.drop(columns=[temp_col])
+
     return df
 
 
@@ -841,7 +848,7 @@ def gen_heatmap_data_as_dict(
     export_df = df.copy()
 
     # convert datetime columns to CT
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
     target_var_data = get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param)
     # check filter match or not ( for GUI show )
     (
@@ -926,8 +933,8 @@ def gen_plot_df(df, transform_target_sensor_name, transform_facets_name=None):
         export_columns += list(transform_facets_name.keys())
         transform_cols.update(transform_facets_name)
 
-    sub_df = df[export_columns]
-    sub_df.rename(columns=transform_cols, inplace=True)
+    sub_df = df[export_columns].rename(columns=transform_cols)
+
     return sub_df
 
 

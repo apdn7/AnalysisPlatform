@@ -279,9 +279,5 @@ $(() => {
 const updateNodeLabel = (e) => {
     const isShowAllNodeLabels = $(e).prop('checked');
     coOccElements.plotCOG.empty();
-    showCoOccurrencePlot(
-        currentData.nodes,
-        currentData.edges,
-        isShowAllNodeLabels,
-    );
+    showCoOccurrencePlot(currentData.nodes, currentData.edges, isShowAllNodeLabels);
 };

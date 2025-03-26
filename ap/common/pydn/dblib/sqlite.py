@@ -270,7 +270,7 @@ self.is_connected: {self.is_connected}
 
         cur.close()
 
-    def execute_sql(self, sql, params=None, return_value: str = None):
+    def execute_sql(self, sql, params=None, return_value: str = None, auto_commit: bool = True):
         """For executing any query requires commit action
         :param sql: SQL to be executed
         :return: Execution result
@@ -289,7 +289,9 @@ self.is_connected: {self.is_connected}
             return_value = 'rowcount'  # todo draft
         affected_rows = getattr(cur, return_value)
         cur.close()
-        self.connection.commit()
+
+        if auto_commit:
+            self.connection.commit()
 
         return affected_rows  # changed from return res ot affected rows
 

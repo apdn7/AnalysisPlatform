@@ -43,20 +43,12 @@ const addLimitNumSensors = () => {
 
 // generate HTML for tabs
 const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
-    const genNavItemHTML = (
-        tabId,
-        sensorMasterName,
-        status = '',
-        sensorID = null,
-    ) => `<li class="nav-item ${status}">
+    const genNavItemHTML = (tabId, sensorMasterName, status = '', sensorID = null) => `<li class="nav-item ${status}">
             <a href="#${tabId}" class="nav-link ${status} tab-name" role="tab" data-toggle="tab" data-sensor-id="${sensorID}" data-original-title="${sensorMasterName}"
                 >${sensorMasterName}</a>
         </li>`;
 
-    const catLimitMsgs = $('#i18nCatLimitedMsg')
-        .text()
-        .split('BREAK_LINE')
-        .join('<br>');
+    const catLimitMsgs = $('#i18nCatLimitedMsg').text().split('BREAK_LINE').join('<br>');
     const genTabContentHTML = (
         tabId,
         plotCardId,
@@ -71,17 +63,11 @@ const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
     const tabContentHTMLs = [];
     const existPlotData = !_.isEmpty(data.array_plotdata);
     const procNamesSet = new Set();
-    for (
-        let sensorIdx = 0;
-        existPlotData && sensorIdx < sensors.length;
-        sensorIdx++
-    ) {
+    for (let sensorIdx = 0; existPlotData && sensorIdx < sensors.length; sensorIdx++) {
         const sensorPlotDatas =
             eleIdPrefix !== 'directTerm'
                 ? data.array_plotdata[sensors[sensorIdx]]
-                : data.array_plotdata.filter(
-                      (plot) => plot.end_col === Number(sensors[sensorIdx]),
-                  );
+                : data.array_plotdata.filter((plot) => plot.end_col === Number(sensors[sensorIdx]));
         // カラム名を取得する。
         const { end_proc_name, end_col_name } = sensorPlotDatas[0];
         const sensorMasterName = procNamesSet.has(end_proc_name)
@@ -94,12 +80,7 @@ const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
         }
         const tabId = `${eleIdPrefix}HistogramsTab-${sensorIdx}`;
         const sensorID = sensors[sensorIdx];
-        const navItemHTML = genNavItemHTML(
-            tabId,
-            sensorMasterName,
-            status,
-            sensorID,
-        );
+        const navItemHTML = genNavItemHTML(tabId, sensorMasterName, status, sensorID);
         navItemHTMLs.push(navItemHTML);
         const plotCardId = `${eleIdPrefix}CatePlotCards-${sensorIdx}`;
         const tabContentHTML = genTabContentHTML(tabId, plotCardId, status);
@@ -108,14 +89,8 @@ const generateTabHTML = (eleIdPrefix, data, sensors, showViewer = false) => {
     let viewerNavHTML = '';
     let viewerContentHTML = '';
     if (showViewer) {
-        viewerNavHTML = genNavItemHTML(
-            (tabId = 'scattersTab'),
-            (sensorMasterName = i18n.viewerTabName),
-        );
-        viewerContentHTML = genTabContentHTML(
-            (tabId = 'scattersTab'),
-            (plotCardId = 'varScatterPlotCards'),
-        );
+        viewerNavHTML = genNavItemHTML((tabId = 'scattersTab'), (sensorMasterName = i18n.viewerTabName));
+        viewerContentHTML = genTabContentHTML((tabId = 'scattersTab'), (plotCardId = 'varScatterPlotCards'));
     }
 
     const stratifiedVarTabHTML = `<ul id="${eleIdPrefix}Tabs" class="nav nav-tabs justify-content-end stp-tab" role="tablist">
@@ -148,9 +123,7 @@ const showResultTabHTMLs = (eleIdPrefix, data, sensors, showViewer = false) => {
 };
 
 const getEndProcFromFormVal = (sensorId, arrayFormval) => {
-    const proc = arrayFormval.filter((proc) =>
-        proc.GET02_VALS_SELECT.includes(sensorId.toString()),
-    );
+    const proc = arrayFormval.filter((proc) => proc.GET02_VALS_SELECT.includes(sensorId.toString()));
     return proc[0].end_proc;
 };
 
@@ -186,13 +159,9 @@ const concatAllArrayY = (tabPrefix, traceData, numChart, sensorID = '') => {
     let arrayPlotdataY = [];
     for (let idx = 0; idx < numChart; idx++) {
         if (tabPrefix === eles.varTabPrefix) {
-            arrayPlotdataY = arrayPlotdataY.concat(
-                traceData.array_plotdata[sensorID][idx].array_y,
-            );
+            arrayPlotdataY = arrayPlotdataY.concat(traceData.array_plotdata[sensorID][idx].array_y);
         } else if (tabPrefix === eles.termTabPrefix) {
-            arrayPlotdataY = arrayPlotdataY.concat(
-                traceData.array_plotdata[idx].array_y,
-            );
+            arrayPlotdataY = arrayPlotdataY.concat(traceData.array_plotdata[idx].array_y);
         }
     }
     arrayPlotdataY = arrayPlotdataY.filter((e) => $.isNumeric(e));
@@ -218,10 +187,7 @@ const updateHistogramWhenChaneScale = (
     if (!numChart) return;
 
     for (let i = 0; i < numChart; i++) {
-        const scaleInfo = getScaleInfo(
-            currentTraceData.array_plotdata[sensorID][i],
-            scaleOption,
-        );
+        const scaleInfo = getScaleInfo(currentTraceData.array_plotdata[sensorID][i], scaleOption);
         const kdeData = scaleInfo.kde_data;
         const yMax = scaleInfo['y-max'];
         const yMin = scaleInfo['y-min'];
@@ -249,11 +215,7 @@ const dumpData = (exportType, dataSrc) => {
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard(STP_EXPORT_URL.TSV.url, formData);
     } else {
-        exportData(
-            STP_EXPORT_URL[exportType].url,
-            STP_EXPORT_URL[exportType].ext_name,
-            formData,
-        );
+        exportData(STP_EXPORT_URL[exportType].url, STP_EXPORT_URL[exportType].ext_name, formData);
     }
 };
 const handleExportData = (exportType) => {

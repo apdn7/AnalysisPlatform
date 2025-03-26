@@ -1663,11 +1663,7 @@
 
     background-color: #000;
     background: rgba(92, 92, 92, 1);
-    background: linear-gradient(
-        0deg,
-        rgba(92, 92, 92, 1) 0%,
-        rgba(77, 77, 77, 1) 100%
-    );
+    background: linear-gradient(0deg, rgba(92, 92, 92, 1) 0%, rgba(77, 77, 77, 1) 100%);
     color: #fff;
     width: 320px;
     margin: 30px;
@@ -1717,11 +1713,7 @@
 
 .jnotification-error .jnotification-container {
     background: rgb(182, 38, 6);
-    background: linear-gradient(
-        0deg,
-        rgba(170, 41, 13, 1) 0%,
-        rgba(149, 11, 11, 1) 100%
-    );
+    background: linear-gradient(0deg, rgba(170, 41, 13, 1) 0%, rgba(149, 11, 11, 1) 100%);
 }
 
 @media (max-width: 800px) {

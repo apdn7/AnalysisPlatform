@@ -81,7 +81,7 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
     dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     # get category sensors from df
     cat_sensors = []
@@ -253,20 +253,21 @@ def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose
     """drop Infs, NAs, resampling, convert string variables and zero-variance variables"""
 
     if X.shape[0] > max_datapoints:
-        np.random.seed(1)
+        # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
+        np.random.seed(1)  # noqa: NPY002
         X = X.sample(n=max_datapoints, replace=False)
         if verbose:
             logger.info('Number of data points exceeded {max_datapoints}. Data is automatically resampled.')
 
     # convert string variables
     if (idx_tgt is not None) and (len(cat_cols) > 0):
-        y = X.iloc[:, idx_tgt].values.copy()
+        y = X.iloc[:, idx_tgt].to_numpy().copy()
         # convert y to np array with type is float
         y = np.array(y, dtype='float64')
         for col in cat_cols:
             is_nominal_scale = col in nominal_variables
-            X.loc[:, col] = labelencode_by_stat(
-                X[col].astype(str).values.flatten(),
+            X[col] = labelencode_by_stat(
+                X[col].astype('string').to_numpy().flatten(),
                 y.flatten(),
                 is_nominal_scale=is_nominal_scale,
             )
@@ -275,10 +276,10 @@ def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose
     X = X[np.isfinite(X).all(1)]
 
     # replace zero variance variable with an independent random variable
-    is_zerovar = X.var(axis=0).values == 0
+    is_zerovar = X.var(axis=0).to_numpy() == 0
     if np.sum(is_zerovar > 0):
         for col in X.columns[is_zerovar]:
-            X[col] = np.random.uniform(size=X.shape[0])
+            X[col] = np.random.uniform(size=X.shape[0])  # noqa: NPY002
     return X
 
 

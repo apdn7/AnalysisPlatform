@@ -1,63 +1,21 @@
 from __future__ import annotations
 
-import contextlib
 import inspect
 import logging
 from functools import wraps
-from threading import Lock
 from typing import Any
 
-from apscheduler.jobstores.base import JobLookupError
-
-from ap import close_sessions, scheduler
-from ap.common.constants import JobType
+from ap import close_sessions, dic_config, scheduler
+from ap.common.constants import PROCESS_QUEUE, ListenNotifyType
 from ap.common.logger import log_execution_time
-from ap.common.multiprocess_sharing import EventQueue, EventRescheduleJob, RunningJob, RunningJobs
 
 logger = logging.getLogger(__name__)
 
 # RESCHEDULE_SECONDS
-RESCHEDULE_SECONDS = 5
+RESCHEDULE_SECONDS = 30
 
 # max concurrent importing jobs
 MAX_CONCURRENT_JOBS = 10
-
-# multi thread lock
-lock = Lock()
-
-PRIORITY_JOBS = [
-    JobType.CSV_IMPORT.name,
-    JobType.FACTORY_IMPORT.name,
-    JobType.FACTORY_PAST_IMPORT.name,
-]
-
-# check parallel running
-# ex: (JobType.CSV_IMPORT, JobType.GEN_GLOBAL): False
-#       csv import and gen global can not run in the same time
-#       False: Don't need to check key between 2 job (key: job parameter).
-#       True: Need to check key between 2 job , if key is not the same , they can run parallel
-CONFLICT_PAIR = {
-    # (JobType.DEL_PROCESS.name, JobType.DEL_PROCESS.name),
-    # (JobType.DEL_PROCESS.name, JobType.GEN_GLOBAL.name),
-    # (JobType.DEL_PROCESS.name, JobType.RESTRUCTURE_INDEXES.name),
-    # (JobType.DEL_PROCESS.name, JobType.CSV_IMPORT.name),
-    # (JobType.DEL_PROCESS.name, JobType.FACTORY_IMPORT.name),
-    # (JobType.DEL_PROCESS.name, JobType.FACTORY_PAST_IMPORT.name),
-    (JobType.GEN_GLOBAL.name, JobType.GEN_GLOBAL.name),
-    (JobType.GEN_GLOBAL.name, JobType.RESTRUCTURE_INDEXES.name),
-    # (JobType.GEN_GLOBAL.name, JobType.CSV_IMPORT.name),
-    # (JobType.GEN_GLOBAL.name, JobType.FACTORY_IMPORT.name),
-    # (JobType.GEN_GLOBAL.name, JobType.FACTORY_PAST_IMPORT.name),
-    # (JobType.RESTRUCTURE_INDEXES.name, JobType.CSV_IMPORT.name),
-    # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_IMPORT.name),
-    # (JobType.RESTRUCTURE_INDEXES.name, JobType.FACTORY_PAST_IMPORT.name),
-}
-
-# jobs with `_id` suffixes
-EXCLUSIVE_JOBS_WITH_IDS = {
-    JobType.USER_BACKUP_DATABASE.name,
-    JobType.USER_RESTORE_DATABASE.name,
-}
 
 
 @log_execution_time(logging_exception=True)
@@ -79,25 +37,14 @@ def scheduler_app_context(fn):
                 'Please remove those `args` when you add job in `scheduler`',
             )
 
-        running_jobs = RunningJobs.get()
-
-        logger.info('--------CHECK_BEFORE_RUN---------')
-        job_id = kwargs.get('_job_id')
-        job_name = kwargs.get('_job_name')
-        proc_id = kwargs.get('process_id')
-
-        # check before run
-        if not scheduler_check_before_run(job_id, job_name, proc_id, running_jobs):
-            EventQueue.put(EventRescheduleJob(job_id=job_id, fn=fn, kwargs=kwargs))
-            return None
-
+        # TODO: Refactor that do not use scheduler.app, replace to call make_session instead of using db session
+        #  because db.get_app() will throw error due to app not initialize yet
         flask_app = scheduler.app
         with flask_app.app_context():
+            job_id = kwargs.get('_job_id')
             logger.info(f'--------{job_id} START---------')
 
             try:
-                running_jobs[job_id] = RunningJob(id=job_id, name=job_name, proc_id=proc_id)
-
                 # FIXME: remove this function after 3 release. (Current release: 4.7.4v240)
                 # We refactored our scheduler.
                 # To avoid breaking changes that users' schedulers don't work,
@@ -112,7 +59,6 @@ def scheduler_app_context(fn):
             except Exception as e:
                 raise e
             finally:
-                running_jobs.pop(job_id)
                 # rollback and close session to avoid database locked.
                 close_sessions()
 
@@ -173,85 +119,12 @@ def filter_kwargs_for_function(function, kwargs: dict[str, Any]) -> dict[str, An
     return reduced_kwargs
 
 
-def is_job_existed_in_exclusive_jobs_with_ids(job: str, running_job_name: str):
-    def extract_id_from_job(job_name: str) -> int | None:
-        for exclusive_job_with_id in EXCLUSIVE_JOBS_WITH_IDS:
-            if job_name.startswith(exclusive_job_with_id):
-                id_from_job = job_name[len(exclusive_job_with_id) + 1 :]
-                with contextlib.suppress(ValueError):
-                    return int(id_from_job)
-        return None
+def is_job_running(job_id=None, job_name=None):
+    dic_jobs = dic_config[PROCESS_QUEUE][ListenNotifyType.RUNNING_JOB.name]
+    if job_id:
+        return job_id in dic_jobs
 
-    job_id = extract_id_from_job(job)
-    running_job_id = extract_id_from_job(running_job_name)
-    return job_id is not None and running_job_id is not None and job_id == running_job_id
+    if job_name:
+        return job_name in list(dic_jobs.values())
 
-
-def scheduler_check_before_run(job_id, job_name, proc_id, running_jobs: dict[str, RunningJob]):
-    """check if job can run parallel with other jobs"""
-
-    logger.info(
-        f'''\
-job_id: {job_id}
-job_name: {job_name}
-proc_id: {proc_id}
-RUNNING JOBS: {running_jobs}
-''',
-    )
-
-    if job_id in running_jobs:
-        logger.warning('The same job is running')
-        return False
-
-    for running_job in running_jobs.values():
-        if is_job_existed_in_exclusive_jobs_with_ids(job_name, running_job.name):
-            return False
-
-        if (job_name, running_job.name) in CONFLICT_PAIR or (running_job.name, job_name) in CONFLICT_PAIR:
-            logger.info(f'{job_name} job can not run parallel with {running_job.name}')
-            return False
-
-        if proc_id is not None and proc_id == running_job.proc_id:
-            return False
-
-    return True
-
-
-@log_execution_time()
-def remove_jobs(job_types, process_id=None):
-    """remove all interval jobs
-
-    Keyword Arguments:
-        target_job_names {[type]} -- [description] (default: {None})
-    """
-    with lock:
-        try:
-            scheduler.pause()
-            jobs = scheduler.get_jobs()
-            for job in jobs:
-                if job.name not in JobType.__members__ or JobType[job.name] not in job_types:
-                    continue
-
-                if process_id:
-                    if job.id == f'{job.name}_{process_id}':
-                        job.remove()
-                else:
-                    job.remove()
-        except JobLookupError:
-            pass
-        finally:
-            scheduler.resume()
-
-
-def get_job_details(job_id):
-    job = scheduler.get_job(job_id)
-    if job is None:
-        return None
-    return {
-        'func': job.func,
-        'trigger': job.trigger,
-        'args': job.args,
-        'kwargs': job.kwargs,
-        'job_id': job.id,
-        'name': job.name,
-    }
+    return False

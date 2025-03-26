@@ -13,18 +13,12 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
      * @param {number} idx
      * @param {DataTypeObject} defaultValue
      * @param {string} getKey
-     * @param {?boolean} isRegisteredMainDatetimeColumn
+     * @param {?boolean} disableDropDownToggle
      * @return {string} - string HTML of dropdown
      */
-    static generateHtml(
-        idx = 0,
-        defaultValue = this.DataTypeDefaultObject,
-        getKey,
-        isRegisteredMainDatetimeColumn = false,
-    ) {
+    static generateHtml(idx = 0, defaultValue = this.DataTypeDefaultObject, getKey, disableDropDownToggle = false) {
         const text = this.translateDatatypeName(defaultValue, getKey);
-        const setClassForSelectedItem = (itemValue) =>
-            defaultValue.raw_data_type === itemValue ? 'active' : '';
+        const setClassForSelectedItem = (itemValue) => (defaultValue.raw_data_type === itemValue ? 'active' : '');
         const attrKey = getKey
             ? `${getKey}="true" column_type=${this.DataGroupType[mappingDataGroupType[getKey]]} data-attr-key=${getKey}`
             : '';
@@ -36,7 +30,7 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
     <button 
         class="btn btn-default dropdown-toggle" 
         type="button"
-        ${defaultValue.is_master_col || isRegisteredMainDatetimeColumn ? 'disabled' : ''}
+        ${defaultValue.is_master_col || disableDropDownToggle ? 'disabled' : ''}
     >
         <span 
             class="csv-datatype-selection row-item for-search"
@@ -44,9 +38,9 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
             id="dataTypeShowValue_${idx}"
             value="${defaultValue.value}"
             is-registered-col="${defaultValue.isRegisteredCol}"
-            is-big-int="${defaultValue.is_big_int || false}"
             is_get_date="${defaultValue.is_get_date ?? ''}"
             data-attr-key="${getKey}"
+            data-observer="${text}"
             ${attrKey}
             ${defaultValue.checked}
         >${text}</span>

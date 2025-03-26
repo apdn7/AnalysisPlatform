@@ -73,14 +73,7 @@
     table
     tbody
     td
-    input:not(
-        [name='coef'],
-        [name='a_n_s'],
-        [name='b_k'],
-        [name='c_t'],
-        [name='note'],
-        [name='unit']
-    ) {
+    input:not([name='coef'], [name='a_n_s'], [name='b_k'], [name='c_t'], [name='note'], [name='unit']) {
     width: fit-content;
 }
 
@@ -179,17 +172,12 @@
     background-color: #444444 !important;
 }
 
-#functionSettingModal
-    span.select2-container--disabled
-    .select2-selection--single {
+#functionSettingModal span.select2-container--disabled .select2-selection--single {
     background-color: unset !important;
     border: none !important;
 }
 
-#functionSettingModal
-    .select2-container
-    .select2-selection--single
-    .select2-selection__rendered {
+#functionSettingModal .select2-container .select2-selection--single .select2-selection__rendered {
     padding-left: 0.5em;
 }
 
@@ -242,9 +230,7 @@
     flex: 1;
 }
 
-#functionSettingModal
-    .function-config-value
-    span:not(.select2-selection__arrow),
+#functionSettingModal .function-config-value span:not(.select2-selection__arrow),
 #functionSettingModal .param-value-x span:not(.select2-selection__arrow),
 #functionSettingModal .param-value-y span:not(.select2-selection__arrow) {
     min-width: 75px;
@@ -342,14 +328,14 @@
 
 #functionTable .column-note-header,
 #functionTable .column-note {
-    min-width: 200px;
-    max-width: 200px;
+    min-width: 150px;
+    max-width: 150px;
 }
 
 #functionTable .column-output-header,
 #functionTable .column-output {
-    min-width: 90px;
-    max-width: 90px;
+    max-width: 150px;
+    min-width: 150px;
 }
 
 #functionTable .column-sample-data {
@@ -412,10 +398,7 @@
 #functionTable tr:not([checked='checked']) input.row-item,
 #functionTable tr:not([checked='checked']) span.row-item,
 #functionTable tr:not([checked='checked']) select.row-item,
-#functionTable
-    tr:not([checked='checked'])
-    td.row-item
-    .config-data-type-dropdown {
+#functionTable tr:not([checked='checked']) td.row-item .config-data-type-dropdown {
     color: white !important;
 }
 
@@ -477,11 +460,7 @@
     z-index: 10;
 }
 
-#collapseFunctionConfig
-    .functionSampleDataUtilities
-    .custom-switch
-    .custom-control-label
-    span {
+#collapseFunctionConfig .functionSampleDataUtilities .custom-switch .custom-control-label span {
     position: absolute;
     display: block;
     top: calc(0.203125rem - 4px);

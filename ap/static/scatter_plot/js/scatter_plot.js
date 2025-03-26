@@ -49,6 +49,13 @@ const colorOrders = {
     3: 'elapsed_time',
 };
 
+const colorOrderValue = {
+    colors: '0',
+    settingColors: '1',
+    time_numberings: '2',
+    elapsed_time: '3',
+};
+
 const otherColors = ['time_numberings', 'elapsed_time'];
 
 const colorScales = {
@@ -278,13 +285,7 @@ $(() => {
     });
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -364,14 +365,10 @@ const scpTracing = () => {
 };
 
 const showErrorMsgHeatMapChart = () => {
-    const categoryTypes = [
-        DataTypes.SERIAL.short,
-        DataTypes.INTEGER_CAT.short,
-        DataTypes.TEXT.short,
-    ];
-    const checkedVariablesType = [
-        ...$('input[name^=GET02_VALS_SELECT]:checked'),
-    ].map((el) => categoryTypes.includes($(el).attr('data-type-shown-name')));
+    const categoryTypes = [DataTypes.SERIAL.short, DataTypes.INTEGER_CAT.short, DataTypes.TEXT.short];
+    const checkedVariablesType = [...$('input[name^=GET02_VALS_SELECT]:checked')].map((el) =>
+        categoryTypes.includes($(el).attr('data-type-shown-name')),
+    );
     if (!checkedVariablesType.includes(false)) {
         // show error msg
         showToastrMsg(i18n.i18nGotoHMpMsg, MESSAGE_LEVEL.ERROR);
@@ -394,9 +391,7 @@ const colorTransform = (colorValSets, colorRange, dummyColorSet = false) => {
         );
     }
     return colorValSets.map((colorItem) => {
-        const value = _.isString(colorItem)
-            ? colorRange.codes.indexOf(colorItem)
-            : colorItem;
+        const value = _.isString(colorItem) ? colorRange.codes.indexOf(colorItem) : colorItem;
         const newVal = ((value - colorRange.minVal) * 100) / rangeVal;
         const hValue = Math.round(100 - newVal);
         return hsv2rgb({
@@ -492,9 +487,7 @@ const genColorScaleBar = (colorData, title, customScaleSets = null) => {
         },
     ];
     if (isString) {
-        const tempVals = uniqueColorData.map(
-            (val, i) => i / uniqueColorData.length,
-        );
+        const tempVals = uniqueColorData.map((val, i) => i / uniqueColorData.length);
         data[0].z = [tempVals];
         data[0].colorbar.title.size = 8;
         data[0].colorbar.tickangle = -45;
@@ -544,16 +537,7 @@ const genTicksColor = (ticksList) => {
     return ticks;
 };
 
-const getHtitle = (
-    showVTitle,
-    showHTitle,
-    isFirstCol,
-    isFirstRow,
-    hTitle,
-    colDat,
-    divType,
-    numRows,
-) => {
+const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDat, divType, numRows) => {
     if (!colDat && !isFirstRow && numRows > 1) {
         return '';
     }
@@ -594,19 +578,12 @@ const genScatterPlots = (
     const unique_color = res.filter_on_demand.color;
     const isTimeNumberOrder = colorOrdering === colorOrders[2];
     const isUseColorVar = !otherColors.includes(colorOrdering);
-    const colorOrderVar =
-        (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) ||
-        colorOrders[0];
+    const colorOrderVar = (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) || colorOrders[0];
     // console.log(allColorValSets);
     let allColorValSets = [];
-    if (
-        !res.is_filtered &&
-        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)
-    ) {
+    if (!res.is_filtered && [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)) {
         allColorValSets =
-            unique_color &&
-            unique_color.length &&
-            colorOrderVar === colorOrders[0]
+            unique_color && unique_color.length && colorOrderVar === colorOrders[0]
                 ? unique_color[0].unique_categories
                 : [];
     }
@@ -619,9 +596,7 @@ const genScatterPlots = (
     }
     if (unique_color.length && colorOrderVar === colorOrders[0]) {
         const allSetValue = new Set(allColorValSets);
-        allColorValSets = unique_color[0].unique_categories.filter((color) =>
-            Array.from(allSetValue).includes(color),
-        );
+        allColorValSets = unique_color[0].unique_categories.filter((color) => Array.from(allSetValue).includes(color));
     }
     let [minColorVal, maxColorVal] = findMinMax(allColorValSets);
     // category color, reassign by key instead of value
@@ -634,8 +609,7 @@ const genScatterPlots = (
         // If divide option is [Divide by data's number (Cyclic)] => set maxColorVal is [Number of data]
         const dataNumber = parseInt(res.COMMON.dataNumber);
         minColorVal = COLOR_TIME_SORT_MIN_VAL;
-        maxColorVal =
-            dataNumber && dataNumber < maxColorVal ? dataNumber : maxColorVal;
+        maxColorVal = dataNumber && dataNumber < maxColorVal ? dataNumber : maxColorVal;
     }
     let minColorRange = minColorVal;
     let maxColorRange = maxColorVal;
@@ -645,9 +619,7 @@ const genScatterPlots = (
     }
     // Ignore update [minColorRange, maxColorRange] follow scale_color (color variable) for case setting color is [Time sort] or [Elapsed Time]
     if (isUseColorVar && colorScaleOption) {
-        const scaleColorSettings = res.scale_color
-            ? res.scale_color[colorScaleOption]
-            : {};
+        const scaleColorSettings = res.scale_color ? res.scale_color[colorScaleOption] : {};
         const minSettingColorVal = scaleColorSettings['y-min'];
         const maxSettingColorVal = scaleColorSettings['y-max'];
         if (minSettingColorVal) {
@@ -657,10 +629,24 @@ const genScatterPlots = (
             [maxColorRange] = findMinMax([maxColorVal, maxSettingColorVal]);
         }
     }
+
+    let colorScaleSets = defaultScaleSets;
+    // set color scale for Judge
+    // -------------------------
+    const isApplyJudgeColorScale =
+        getCurrentSettings().colorOrderVal === colorOrderValue.settingColors &&
+        res?.is_judge_color &&
+        unique_color.length;
+    if (isApplyJudgeColorScale) {
+        const colorVals = unique_color[0].unique_categories;
+        colorScaleSets = genColorScaleForJudge(colorVals);
+    }
+    // -------------------------
+
     const chartOptions = {
         yAxisLabel: res.y_name,
         xAxisLabel: res.x_name,
-        colorScaleSets: defaultScaleSets,
+        colorScaleSets: colorScaleSets,
         colorVarName: res.color_name,
         colorsValSets: allColorValSets,
         colorOrderVar,
@@ -677,16 +663,8 @@ const genScatterPlots = (
     if (!chartScale) {
         chartScale = colorScales.SETTING;
     }
-    const xRange = calMinMaxYScale(
-        res.scale_x[chartScale]['y-min'],
-        res.scale_x[chartScale]['y-max'],
-        chartScale,
-    );
-    const yRange = calMinMaxYScale(
-        res.scale_y[chartScale]['y-min'],
-        res.scale_y[chartScale]['y-max'],
-        chartScale,
-    );
+    const xRange = calMinMaxYScale(res.scale_x[chartScale]['y-min'], res.scale_x[chartScale]['y-max'], chartScale);
+    const yRange = calMinMaxYScale(res.scale_y[chartScale]['y-min'], res.scale_y[chartScale]['y-max'], chartScale);
     const scaleRatio = (xRange[1] - xRange[0]) / (yRange[1] - yRange[0]);
     const layoutAttributes = {
         rowsTotal: scpDataMatrix.length,
@@ -706,12 +684,7 @@ const genScatterPlots = (
     }
 
     if (plotType !== plotTypeConst.POINT.name) {
-        reversedMatrix = removeInvalidDataPoints(
-            reversedMatrix,
-            xRange,
-            yRange,
-            colorOrderVar,
-        );
+        reversedMatrix = removeInvalidDataPoints(reversedMatrix, xRange, yRange, colorOrderVar);
     }
     reversedMatrix.forEach((row, r) => {
         row.forEach((col, c) => {
@@ -771,10 +744,7 @@ const genScatterPlots = (
                 time_numberings: [],
             };
             if (col) {
-                if (
-                    minColorRange !== minColorVal ||
-                    maxColorRange !== maxColorVal
-                ) {
+                if (minColorRange !== minColorVal || maxColorRange !== maxColorVal) {
                     // get keys of color in range
                     const colorKeysInsideOfRange = [];
                     const colorKeysOutsideOfRange = [];
@@ -808,49 +778,32 @@ const genScatterPlots = (
                         } else {
                             colorKeysOutsideOfRange.push(k);
                             traceDataOutsideColorRange.color_val.push(v);
-                            traceDataOutsideColorRange.org_color_val.push(
-                                col.colors[k],
-                            );
-                            traceDataOutsideColorRange.array_x.push(
-                                col.array_x[k],
-                            );
-                            traceDataOutsideColorRange.array_y.push(
-                                col.array_y[k],
-                            );
-                            traceDataOutsideColorRange.elapsed_time.push(
-                                col.elapsed_time[k],
-                            );
+                            traceDataOutsideColorRange.org_color_val.push(col.colors[k]);
+                            traceDataOutsideColorRange.array_x.push(col.array_x[k]);
+                            traceDataOutsideColorRange.array_y.push(col.array_y[k]);
+                            traceDataOutsideColorRange.elapsed_time.push(col.elapsed_time[k]);
                             traceDataOutsideColorRange.times.push(col.times[k]);
                             if (col.x_serial && col.x_serial[k]) {
-                                traceDataOutsideColorRange.x_serial.push(
-                                    col.x_serial[k],
-                                );
+                                traceDataOutsideColorRange.x_serial.push(col.x_serial[k]);
                             }
                             if (col.y_serial && col.y_serial[k]) {
-                                traceDataOutsideColorRange.y_serial.push(
-                                    col.y_serial[k],
-                                );
+                                traceDataOutsideColorRange.y_serial.push(col.y_serial[k]);
                             }
                             if (col.time_numberings) {
-                                traceDataOutsideColorRange.time_numberings.push(
-                                    col.time_numberings[k],
-                                );
+                                traceDataOutsideColorRange.time_numberings.push(col.time_numberings[k]);
                             }
                         }
                     });
                     if (insideArrayX) {
                         traceDataInsideColorRange.array_x = insideArrayX;
                         traceDataInsideColorRange.array_y = insideArrayY;
-                        traceDataInsideColorRange.elapsed_time =
-                            insideElapsedTime;
+                        traceDataInsideColorRange.elapsed_time = insideElapsedTime;
                         traceDataInsideColorRange.times = insideTimes;
                         traceDataInsideColorRange.color_val = insideColorVal;
                         traceDataInsideColorRange.x_serial = insideXSerial;
                         traceDataInsideColorRange.y_serial = insideYSerial;
-                        traceDataInsideColorRange.org_color_val =
-                            insideOrgColor;
-                        traceDataInsideColorRange.time_numberings =
-                            insideTimeSort;
+                        traceDataInsideColorRange.org_color_val = insideOrgColor;
+                        traceDataInsideColorRange.time_numberings = insideTimeSort;
                     }
                 }
             }
@@ -882,8 +835,7 @@ const genScatterPlots = (
                         array_y: traceDataOutsideColorRange.array_y,
                         elapsed_time: traceDataOutsideColorRange.elapsed_time,
                         times: traceDataOutsideColorRange.times,
-                        time_numberings:
-                            traceDataOutsideColorRange.time_numberings,
+                        time_numberings: traceDataOutsideColorRange.time_numberings,
                         colors: traceDataOutsideColorRange.color_val,
                         org_colors: traceDataOutsideColorRange.org_color_val,
                         x_serial: traceDataOutsideColorRange.x_serial,
@@ -899,10 +851,7 @@ const genScatterPlots = (
                 };
                 scatterDat.push(scatterItemOutsideColorRange);
             }
-            const colorRange =
-                !isUseColorVar || res.scale_color
-                    ? traceDataInsideColorRange.color_val
-                    : colors;
+            const colorRange = !isUseColorVar || res.scale_color ? traceDataInsideColorRange.color_val : colors;
             const scatterItemInsideColorRange = {
                 legendgroup: '',
                 marker: {
@@ -941,21 +890,13 @@ const genScatterPlots = (
                 },
             };
             if (colorScaleOption === colorScales.AUTO) {
-                scatterItemInsideColorRange.marker.colorscale =
-                    chartOptions.colorScaleSets;
+                scatterItemInsideColorRange.marker.colorscale = chartOptions.colorScaleSets;
             }
+
             scatterDat.push(scatterItemInsideColorRange);
 
             if (col && (col.x_threshold || col.y_threshold)) {
-                layout.shapes.push(
-                    ...genThresholds(
-                        col.x_threshold,
-                        col.y_threshold,
-                        axisItem,
-                        xRange,
-                        yRange,
-                    ),
-                );
+                layout.shapes.push(...genThresholds(col.x_threshold, col.y_threshold, axisItem, xRange, yRange));
             }
         });
     });
@@ -963,9 +904,7 @@ const genScatterPlots = (
     layout.coloraxis.cmin = minColorRange;
     layout.coloraxis.cmax = maxColorRange;
     if (
-        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(
-            res.color_type,
-        ) &&
+        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type) &&
         layout.coloraxis.colorbar.tickvals
     ) {
         let tickVals = layout.coloraxis.colorbar.tickvals;
@@ -977,22 +916,13 @@ const genScatterPlots = (
         layout.coloraxis.colorbar.tickvals = ticksColor;
         [layout.coloraxis.cmin, layout.coloraxis.cmax] = findMinMax(ticksColor);
     } else {
-        let isIntColor = isTimeNumberOrder
-            ? true
-            : res.color_type === DataTypes.INTEGER.name;
-        const customTicks = genLinearColorBar(
-            [minColorRange, maxColorRange],
-            isIntColor,
-            chartOptions.colorFmt,
-        );
+        let isIntColor = isTimeNumberOrder ? true : res.color_type === DataTypes.INTEGER.name;
+        const customTicks = genLinearColorBar([minColorRange, maxColorRange], isIntColor, chartOptions.colorFmt);
         layout.coloraxis.colorbar.tickvals = customTicks;
         layout.coloraxis.colorbar.ticktext = customTicks;
         // reassign colorbar range to show first tick and last tick
         if (customTicks.length) {
-            let colorCMax = customTicks[customTicks.length - 1].replace(
-                /,/g,
-                '',
-            );
+            let colorCMax = customTicks[customTicks.length - 1].replace(/,/g, '');
             colorCMax = Number(colorCMax);
             if (colorCMax > layout.coloraxis.cmax) {
                 layout.coloraxis.cmax = colorCMax;
@@ -1011,6 +941,7 @@ const genScatterPlots = (
             plotType,
             [layout.coloraxis.cmin, layout.coloraxis.cmax],
             layout,
+            isApplyJudgeColorScale ? genColorScaleForJudge(unique_color[0].unique_categories) : null,
         );
     }
 
@@ -1037,13 +968,8 @@ const genScatterPlots = (
         if (!dataScp) return;
         const { pageX, pageY } = data.event;
         if ('customdata' in dataScp.data) {
-            if (
-                dataScp.data.customdata.x_serial &&
-                dataScp.data.customdata.x_serial.length
-            ) {
-                serials = dataScp.data.customdata.x_serial.map(
-                    (xserials) => xserials.data,
-                );
+            if (dataScp.data.customdata.x_serial && dataScp.data.customdata.x_serial.length) {
+                serials = dataScp.data.customdata.x_serial.map((xserials) => xserials.data);
             }
             if (dataScp.data.customdata.times) {
                 datetime = dataScp.data.customdata.times;
@@ -1062,8 +988,7 @@ const genScatterPlots = (
             datetime: datetime,
             start_proc: res.start_proc,
         };
-        const key =
-            dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
+        const key = dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
         setTimeout(() => {
             makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
         }, 100);
@@ -1095,8 +1020,7 @@ const genLinearColorBar = (colorRange, isIntColor = false, fmt) => {
 
 // generate scatter hover information
 const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
-    if (!prop || !prop.data.customdata || !prop.data.customdata.columndata)
-        return;
+    if (!prop || !prop.data.customdata || !prop.data.customdata.columndata) return;
     const col = prop.data.customdata.columndata;
     const vTitle = prop.data.customdata.vtitle;
     const hTitle = prop.data.customdata.htitle;
@@ -1107,26 +1031,16 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
     const timeSort = prop.data.customdata.time_numberings || [];
     const orgColorValue = prop.data.customdata.org_colors;
     const xSerial = prop.data.customdata.x_serial;
-    const [lv1Label, lv2Label] = vTitle
-        ? vTitle.toString().split('|')
-        : [null, null];
+    const [lv1Label, lv2Label] = vTitle ? vTitle.toString().split('|') : [null, null];
     const level1 = lv1Label ? `Lv1 = ${lv1Label}` : '';
     const level2 = lv2Label ? `Lv2 = ${lv2Label}` : '';
     const seperator = level1 && level2 ? ', ' : '';
-    const dataNo =
-        option.compare_type === els.dataNumberTerm && hTitle ? hTitle : null;
+    const dataNo = option.compare_type === els.dataNumberTerm && hTitle ? hTitle : null;
     const category = option.div_name ? hTitle : null;
     const facet = level1 || level2 ? `${level1}${seperator}${level2}` : null;
-    const timeStart = col.time_min
-        ? moment.utc(col.time_min).local().format(DATE_FORMAT_WITHOUT_TZ)
-        : '';
-    const timeEnd = col.time_max
-        ? moment.utc(col.time_max).local().format(DATE_FORMAT_WITHOUT_TZ)
-        : '';
-    const getPointTime = (pointer) =>
-        pointer
-            ? moment.utc(pointer).local().format(DATE_FORMAT_WITHOUT_TZ)
-            : '';
+    const timeStart = col.time_min ? moment.utc(col.time_min).local().format(DATE_FORMAT_WITHOUT_TZ) : '';
+    const timeEnd = col.time_max ? moment.utc(col.time_max).local().format(DATE_FORMAT_WITHOUT_TZ) : '';
+    const getPointTime = (pointer) => (pointer ? moment.utc(pointer).local().format(DATE_FORMAT_WITHOUT_TZ) : '');
     const getPointValue = (i) => {
         const xValue = applySignificantDigit(arxValue[i]);
         const yValue = applySignificantDigit(aryValue[i]);
@@ -1137,18 +1051,14 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
     };
     const getDatetime = (key) => {
         let datetime = getPointTime(option.datetime[key]);
-        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(
-            option.start_proc,
-        );
+        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(option.start_proc);
         const xProcName = fromDiffStartProc ? ` @${option.start_proc}` : '';
         datetime += xProcName;
         return datetime;
     };
     const getSerial = (xSerials, itemIdx) => {
         let serialInfo = [];
-        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(
-            option.start_proc,
-        );
+        const fromDiffStartProc = ![option.x_proc, option.y_proc].includes(option.start_proc);
         const xProcName = fromDiffStartProc ? ` @${option.start_proc}` : '';
         if (xSerials) {
             serialInfo = xSerials.map((serial) => {
@@ -1157,9 +1067,7 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
         }
         return serialInfo;
     };
-    const colorVal = orgColorValue[key]
-        ? applySignificantDigit(orgColorValue[key])
-        : '';
+    const colorVal = orgColorValue[key] ? applySignificantDigit(orgColorValue[key]) : '';
     const pointValue = getPointValue(key);
     const datetime = getDatetime(key);
     const serialValue = getSerial(option.serials, key);
@@ -1173,13 +1081,8 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
             datetime,
             serial: serialValue,
             elapsed_time:
-                elapsedTimeValue[key] || elapsedTimeValue[key] == 0
-                    ? applySignificantDigit(elapsedTimeValue[key])
-                    : '',
-            time_numberings:
-                timeSort[key] || timeSort[key] == 0
-                    ? applySignificantDigit(timeSort[key])
-                    : '',
+                elapsedTimeValue[key] || elapsedTimeValue[key] == 0 ? applySignificantDigit(elapsedTimeValue[key]) : '',
+            time_numberings: timeSort[key] || timeSort[key] == 0 ? applySignificantDigit(timeSort[key]) : '',
             from: timeStart,
             to: timeEnd,
             n_total: col.n_total,
@@ -1199,15 +1102,11 @@ const makeScatterHoverInfoBox = (prop, option, key, pageX, pageY) => {
 };
 
 const removeEmptyFromMatrix = (matrix) => {
-    const validRows = matrix.filter(
-        (row) => row.filter((col) => col !== null).length > 0,
-    );
+    const validRows = matrix.filter((row) => row.filter((col) => col !== null).length > 0);
     const invalidCols = [];
     // loop cols
     for (let i = 0; i < validRows[0].length; i++) {
-        const colValues = validRows
-            .map((row) => row[i])
-            .filter((col) => col !== null);
+        const colValues = validRows.map((row) => row[i]).filter((col) => col !== null);
         if (!colValues.length) {
             invalidCols.push(i);
         }
@@ -1221,14 +1120,7 @@ const removeEmptyFromMatrix = (matrix) => {
     return validRows;
 };
 
-const genVLabels = (
-    vLabels,
-    parentId = 'sctr-card',
-    chartHeight,
-    figSize,
-    xName,
-    yName,
-) => {
+const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName, yName) => {
     // remove all rendered html
     $('.scp-html-tag').remove();
 
@@ -1258,8 +1150,7 @@ const genVLabels = (
     const padding = 25; // gap between charts
 
     vLabels.forEach((vLabel, i) => {
-        const startPosition =
-            distanceFromLabelToChart + (i * heightOfElement + padding);
+        const startPosition = distanceFromLabelToChart + (i * heightOfElement + padding);
         const top = startPosition + heightOfElement / 2;
         vLabelHtml += `<div id="scp-vlabel-${i}" class="matrix-level cat-exp-box position-absolute scp-html-tag" i="${i}" style="height: 0px;left: ${(figSize / 2) * -1 + 50}px; top: ${top}px;"><span class="show-detail" style="line-height: 1; text-overflow: ellipsis; overflow: hidden;">${vLabel}</span></div>`;
     });
@@ -1274,12 +1165,7 @@ const genVLabels = (
     });
 };
 
-const setChartSize = (
-    scpMatrix,
-    chartHeight,
-    hasColorbar,
-    hTileISBreakLine,
-) => {
+const setChartSize = (scpMatrix, chartHeight, hasColorbar, hTileISBreakLine) => {
     SCATTER_MARGIN.X_NORMAL = X_NORMAL;
     SCATTER_MARGIN.Y_NORMAL = Y_NORMAL;
 
@@ -1298,10 +1184,7 @@ const setChartSize = (
 
     const hOffset = 90;
     const chartH = yPage - hOffset;
-    const yM2 =
-        chartH * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN
-            ? MIN_Y_MARGIN
-            : chartH * SCATTER_MARGIN.Y_NORMAL;
+    const yM2 = chartH * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN ? MIN_Y_MARGIN : chartH * SCATTER_MARGIN.Y_NORMAL;
     let yFig = (chartH - yM2 * (nRow - 1)) / nRow;
 
     // Aspect ratio 1:1
@@ -1319,20 +1202,15 @@ const setChartSize = (
     }
 
     if (actualXPage * SCATTER_MARGIN.X_NORMAL < MIN_X_MARGIN) {
-        const addMargin =
-            (MIN_X_MARGIN - actualYPage * SCATTER_MARGIN.X_NORMAL) * (nCol - 1);
+        const addMargin = (MIN_X_MARGIN - actualYPage * SCATTER_MARGIN.X_NORMAL) * (nCol - 1);
         if (actualXPage + addMargin < xPage) {
             actualXPage += addMargin;
             SCATTER_MARGIN.X_NORMAL = MIN_X_MARGIN / actualXPage;
         }
     }
 
-    if (
-        hTileISBreakLine &&
-        actualYPage * SCATTER_MARGIN.Y_NORMAL < MIN_Y_MARGIN
-    ) {
-        const addMargin =
-            (MIN_Y_MARGIN - actualYPage * SCATTER_MARGIN.Y_NORMAL) * (nRow - 1);
+    if (hTileISBreakLine && actualYPage * SCATTER_MARGIN.Y_NORMAL < MIN_Y_MARGIN) {
+        const addMargin = (MIN_Y_MARGIN - actualYPage * SCATTER_MARGIN.Y_NORMAL) * (nRow - 1);
         actualYPage += addMargin;
         SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
     }
@@ -1352,12 +1230,7 @@ const resetChartSize = () => {
     $('#sctr-card').removeAttr('style');
 };
 
-const showSCP = async (
-    res,
-    settings = undefined,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!res.array_plotdata) {
         loadingHide();
         return;
@@ -1387,9 +1260,7 @@ const showSCP = async (
         // $(`select[name=${els.scpColorOrder}]`).val('1');
         // reverse array to show latest first
         let zoomRange = null;
-        const isShowDate =
-            res.COMMON.compareType === els.cyclicTerm ||
-            res.COMMON.compareType === els.directTerm;
+        const isShowDate = res.COMMON.compareType === els.cyclicTerm || res.COMMON.compareType === els.directTerm;
 
         const cloneScpPlotData = () => {
             const isShowArrangeDiv = $(`#${els.scpArrangeDiv}`).is(':checked');
@@ -1424,19 +1295,9 @@ const showSCP = async (
                 let actualHeight;
                 let figSize;
                 const hasColorBar =
-                    res.color_name ||
-                    (settings.colorOrdering &&
-                        settings.colorOrdering !== colorOrders[1]);
-                const isShowDateTime = [
-                    els.cyclicTerm,
-                    els.directTerm,
-                ].includes(res.COMMON.compareType);
-                [actualHeight, figSize] = setChartSize(
-                    scpMatrix,
-                    chartHeight,
-                    hasColorBar,
-                    isShowDateTime,
-                );
+                    res.color_name || (settings.colorOrdering && settings.colorOrdering !== colorOrders[1]);
+                const isShowDateTime = [els.cyclicTerm, els.directTerm].includes(res.COMMON.compareType);
+                [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
                 genScatterPlots(
                     scpMatrix,
                     vLabels,
@@ -1448,26 +1309,14 @@ const showSCP = async (
                     settings.plotType || plotTypeConst.POINT.name,
                     actualHeight,
                 );
-                genVLabels(
-                    vLabels,
-                    'sctr-card',
-                    actualHeight,
-                    figSize,
-                    res.x_name,
-                    res.y_name,
-                );
+                genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
 
                 let timerVar = null;
 
                 $(window).on('resize', () => {
                     clearTimeout(timerVar);
                     timerVar = setTimeout(() => {
-                        [actualHeight, figSize] = setChartSize(
-                            scpMatrix,
-                            chartHeight,
-                            hasColorBar,
-                            isShowDateTime,
-                        );
+                        [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
                         genScatterPlots(
                             scpMatrix,
                             vLabels,
@@ -1479,37 +1328,16 @@ const showSCP = async (
                             settings.plotType,
                             actualHeight,
                         );
-                        genVLabels(
-                            vLabels,
-                            'sctr-card',
-                            actualHeight,
-                            figSize,
-                            res.x_name,
-                            res.y_name,
-                        );
+                        genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
                         initFilterModal(res, false);
                     }, 500);
                 });
             }
-            const divNumber =
-                res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if (
-                [scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(
-                    chartType,
-                )
-            ) {
-                genHTMLContentMatrix(
-                    scpMatrix,
-                    'sctr-card',
-                    xName,
-                    yName,
-                    isShowFirstLabelH,
-                    isShowDate,
-                    divNumber,
-                );
+            const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
+            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
+                genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber);
                 const option = {
-                    isShowNumberOfData:
-                        res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     isShowDiv: res.div_name !== null,
                     hasLv2: res.level_names && res.level_names.length >= 2,
@@ -1540,8 +1368,7 @@ const showSCP = async (
                     stringCol,
                 );
                 const option = {
-                    isShowNumberOfData:
-                        res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     hasLv2: res.level_names && res.level_names.length >= 2,
                     isShowDiv: res.div_name !== null,
@@ -1567,6 +1394,7 @@ const showSCP = async (
                         showGraph(sets);
                     },
                 );
+                $(`select[name=${els.selectPlotType}]`).attr('disabled', true);
             }
 
             // remove map_xy and map_xy_n if there is not heatmap by int
@@ -1580,8 +1408,7 @@ const showSCP = async (
 
             if (!autoUpdate) {
                 // scroll to chart
-                const scpCardPosition =
-                    getOffsetTopDisplayGraph('#colorSettingGrp');
+                const scpCardPosition = getOffsetTopDisplayGraph('#colorSettingGrp');
                 $('html,body').animate({ scrollTop: scpCardPosition }, 1000);
             }
             initFilterModal(res, clearOnFlyFilter);
@@ -1706,11 +1533,7 @@ const resetGraphSetting = () => {
     currentMatrix = MAX_MATRIX;
 
     // Reset Arrange Div switch button to OFF
-    $(`.${els.arrangeDivSwitch}`)[0].style.setProperty(
-        'display',
-        'none',
-        'important',
-    );
+    $(`.${els.arrangeDivSwitch}`)[0].style.setProperty('display', 'none', 'important');
     $(`input#${els.scpArrangeDiv}`).prop('checked', false);
 };
 
@@ -1762,11 +1585,7 @@ const genHTMLContentMatrix = (
             if (isShowFirstLabelH) {
                 labelH = i === 0 ? firstLabelH[j] : '';
             } else {
-                labelH = item
-                    ? item.h_label === null
-                        ? ''
-                        : item.h_label
-                    : '';
+                labelH = item ? (item.h_label === null ? '' : item.h_label) : '';
             }
 
             if (isShowDate) {
@@ -1794,10 +1613,7 @@ const genHTMLContentMatrix = (
             </div>`;
         }
 
-        const height =
-            i === totalRow - 1
-                ? `calc(100% / ${totalRow} + 20px)`
-                : `calc(100% / ${totalRow} - 10px)`;
+        const height = i === totalRow - 1 ? `calc(100% / ${totalRow} + 20px)` : `calc(100% / ${totalRow} - 10px)`;
 
         contentDOM += `
             <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
@@ -1842,12 +1658,7 @@ const genHTMLContentMatrix = (
     $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
 };
 
-const genHeatMapPlots = (
-    scpData,
-    option,
-    zoomRange = null,
-    callback = null,
-) => {
+const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
     let allColorValSets = [];
     const allYValues = [];
     const allXValues = [];
@@ -1860,10 +1671,7 @@ const genHeatMapPlots = (
                 allYValue = [...allYValue, ...item.array_y];
                 if (item.array_z) {
                     item.array_z.forEach((z) => {
-                        allColorValSets = [
-                            ...allColorValSets,
-                            ...z.map((y) => y),
-                        ];
+                        allColorValSets = [...allColorValSets, ...z.map((y) => y)];
                     });
                 } else {
                     allColorValSets = item.colors;
@@ -1910,9 +1718,7 @@ const genHeatMapPlots = (
                 fakeItem.isShowX = i === scpData.length - 1;
                 fakeItem.array_x = allXValues[j];
                 fakeItem.array_y = allYValues[i];
-                fakeItem.array_z = Array(allYValues[i].length).fill(
-                    Array(allXValues[j].length).fill(-1),
-                );
+                fakeItem.array_z = Array(allYValues[i].length).fill(Array(allXValues[j].length).fill(-1));
                 generateHeatmapPlot(fakeItem, option, zoomRange);
             }
             graphDiv.on('plotly_relayout', (eventdata) => {
@@ -1926,14 +1732,7 @@ const genHeatMapPlots = (
                     if (!dataScp) return;
                     const { x, y } = data.points[0];
                     const { pageX, pageY } = data.event;
-                    makeHeatmapHoverInfoBox(
-                        dataScp,
-                        x,
-                        y,
-                        option,
-                        pageX,
-                        pageY,
-                    );
+                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY);
                 }, 200);
             });
 
@@ -1949,34 +1748,16 @@ const genHeatMapPlots = (
     genColorScaleBar(allColorValSets, colorBarTitle, colorPalettes);
 };
 
-const genViolinPlots = (
-    scpData,
-    option,
-    scaleX,
-    scaleY,
-    scaleOption = chartScales[1],
-    zoomRange = null,
-    callback,
-) => {
+const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScales[1], zoomRange = null, callback) => {
     let rangeScaleX = [null, null];
     let rangeScaleY = [null, null];
     let yThreshold = null;
     let xThreshold = null;
     if (scaleOption) {
         rangeScaleX =
-            scaleX &&
-            calMinMaxYScale(
-                scaleX[scaleOption]['y-min'],
-                scaleX[scaleOption]['y-max'],
-                scaleOption,
-            );
+            scaleX && calMinMaxYScale(scaleX[scaleOption]['y-min'], scaleX[scaleOption]['y-max'], scaleOption);
         rangeScaleY =
-            scaleY &&
-            calMinMaxYScale(
-                scaleY[scaleOption]['y-min'],
-                scaleY[scaleOption]['y-max'],
-                scaleOption,
-            );
+            scaleY && calMinMaxYScale(scaleY[scaleOption]['y-min'], scaleY[scaleOption]['y-max'], scaleOption);
     }
 
     let allColors = [];
@@ -1992,9 +1773,7 @@ const genViolinPlots = (
             }
         });
     });
-    const uniqueColors = allColors
-        .map((el) => el.toString())
-        .filter(onlyUniqueFilter);
+    const uniqueColors = allColors.map((el) => el.toString()).filter(onlyUniqueFilter);
     const violinColors = violinDefaultColorSets(uniqueColors.length);
     const styles = uniqueColors.map((color, k) => ({
         target: color,
@@ -2069,9 +1848,7 @@ const genViolinPlots = (
                     const dataScp = scpData[i][j];
                     if (!dataScp) return;
                     const { pageX, pageY } = data.event;
-                    const key = dataScp.isHorizontal
-                        ? data.points[0].y
-                        : data.points[0].x;
+                    const key = dataScp.isHorizontal ? data.points[0].y : data.points[0].x;
                     makeHoverInfoBox(dataScp, key, option, pageX, pageY);
                 }, 10);
             });
@@ -2158,11 +1935,7 @@ const genColorBarForViolin = (allColors, styles) => {
     Plotly.newPlot('coloScaleBar', data, layout, config);
 };
 
-const callToBackEndAPI = (
-    settings = undefined,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
     const formData = transformFormdata(clearOnFlyFilter, autoUpdate);
     if (settings) {
         formData.set('colNumber', settings.colNumber);
@@ -2171,20 +1944,15 @@ const callToBackEndAPI = (
     // clear old html elements
     $('.scp-hover-info').remove();
 
-    showGraphCallApi(
-        '/ap/api/scp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
+    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
 
-            await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
+        await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-            setPollingData(formData, handleSetPollingData, []);
-        },
-    );
+        setPollingData(formData, handleSetPollingData, []);
+    });
 };
 
 const handleSetPollingData = () => {
@@ -2223,8 +1991,7 @@ const validateXYColorType = (formData) => {
     }
 
     if (xType === DataTypes.STRING.short && yType === DataTypes.STRING.short) {
-        if (sensors[0] !== color || colorType !== DataTypes.STRING.short)
-            return false;
+        if (sensors[0] !== color || colorType !== DataTypes.STRING.short) return false;
     }
 
     return true;
@@ -2307,58 +2074,47 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi(
-        '/ap/api/scp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
+    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
 
-            $('#sctr-card').empty();
+        $('#sctr-card').empty();
+        $(`select[name=${els.selectPlotType}]`).attr('disabled', false);
 
-            // check result and show toastr msg
-            if (
-                isEmpty(res.array_plotdata) ||
-                isEmpty(
-                    res.array_plotdata.find((d) => !d.is_empty_graph).array_y,
-                )
-            ) {
-                showToastrAnomalGraph();
-            }
+        // check result and show toastr msg
+        if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata.find((d) => !d.is_empty_graph).array_y)) {
+            showToastrAnomalGraph();
+        }
 
-            await showSCP(res, setting, clearOnFlyFilter);
+        await showSCP(res, setting, clearOnFlyFilter);
 
-            // show toastr to inform result was truncated upto 5000
-            if (res.is_res_limited) {
-                showToastrMsg(
-                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
-                );
-            }
+        // show toastr to inform result was truncated upto 5000
+        if (res.is_res_limited) {
+            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
+        }
 
-            // show reduced violin message
-            if (res.is_reduce_violin_number) {
-                showToastrMsg(i18n.reduceViolinNumberMessage);
-            }
+        // show reduced violin message
+        if (res.is_reduce_violin_number) {
+            showToastrMsg(i18n.reduceViolinNumberMessage);
+        }
 
-            // show reduced data per graph
-            // only for scatter plot
-            if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
-                showToastrMsg(i18n.limitPerGraphMessage);
-            }
+        // show reduced data per graph
+        // only for scatter plot
+        if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
+            showToastrMsg(i18n.limitPerGraphMessage);
+        }
 
-            // show violin resampling msg
-            if (res.is_resampling) {
-                showToastrMsg(i18n.isResampleMsg);
-            }
+        // show violin resampling msg
+        if (res.is_resampling) {
+            showToastrMsg(i18n.isResampleMsg);
+        }
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            setPollingData(formData, handleSetPollingData, []);
-        },
-    );
+        setPollingData(formData, handleSetPollingData, []);
+    });
 
     $('#plot-cards').empty();
 };
@@ -2440,9 +2196,7 @@ const downloadPlot = () => {
         document.getElementById('screenshot').appendChild(canvas);
         // generate filename
         const filename = 'screenshot.png';
-        const screenshot = document
-            .getElementById('screenshot')
-            .querySelectorAll('canvas')[0];
+        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             targetLink.setAttribute('download', filename);
@@ -2493,7 +2247,7 @@ const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
 };
 
-const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
+const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout, initLineColor) => {
     const linesDat = [];
     scatterDat.forEach((scpDat) => {
         if (Array.isArray(scpDat.marker.color)) {
@@ -2519,7 +2273,9 @@ const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
                         hoverinfo: 'none',
                         showlegend: false,
                     };
-                    const lineColor = genLineColor(colorVal, cmin, cmax);
+                    const lineColor = initLineColor
+                        ? genLineColorForJudge(initLineColor, colorVal)
+                        : genLineColor(colorVal, cmin, cmax);
                     if (lineColor) {
                         lineTrace.line.color = lineColor;
                     }
@@ -2531,9 +2287,7 @@ const updatePlotType = (scatterDat, plotType, [cmin, cmax], layout) => {
     if (plotType == plotTypeConst.LINE.name) {
         // hide scatter points in line chart
         layout.template.data.scatter.forEach((sct) => (sct.marker.opacity = 0));
-        layout.template.data.scattergl.forEach(
-            (sct) => (sct.marker.opacity = 0),
-        );
+        layout.template.data.scattergl.forEach((sct) => (sct.marker.opacity = 0));
 
         if (!linesDat.length) {
             scatterDat.forEach((scpDat) => (scpDat.mode = 'lines'));
@@ -2564,4 +2318,10 @@ const genLineColor = (color, cmin, cmax) => {
         s: 1,
         v: 1,
     });
+};
+
+const genLineColorForJudge = (scaleColor, colorVal) => {
+    // get color of last item in scaleColor (value = 1 => OK)
+    // get color of first item in scaleColor (value = 0 => NG)
+    return colorVal > 0 ? scaleColor[scaleColor.length - 1][1] : scaleColor[0][1];
 };

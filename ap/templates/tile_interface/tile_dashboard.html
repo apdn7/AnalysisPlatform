@@ -25,24 +25,14 @@
                                     title="{{ tile.hover|replace('"', "&quot;")|safe }}"
                                 >
                                     {% if tile != None %}
-                                        <div
-                                            class="tile-content"
-                                            onclick="return redirectPage(this);"
-                                        >
-                                            <i
-                                                class="fa fa-external-link-alt ghost-button"
-                                                onclick="setOpenTab();"
-                                            ></i>
+                                        <div class="tile-content" onclick="return redirectPage(this);">
+                                            <i class="fa fa-external-link-alt ghost-button" onclick="setOpenTab();"></i>
                                             <div class="tile-thumb">
-                                                <img
-                                                    src="{{ tile.png_path }}"
-                                                />
+                                                <img src="{{ tile.png_path }}" />
                                             </div>
                                             <div class="tile-title">
                                                 <h5>
-                                                    <a
-                                                        class="link-address"
-                                                        href="{{ tile.link_address }}"
+                                                    <a class="link-address" href="{{ tile.link_address }}"
                                                         >{{ tile.title }}</a
                                                     >
                                                 </h5>

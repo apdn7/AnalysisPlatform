@@ -115,6 +115,7 @@ def trace_data():
                 max_graph_config[MaxGraphNumber.STP_MAX_GRAPH.name],
                 df,
             )
+        stp_dat = get_filter_on_demand_data(stp_dat)
         org_dicparam = update_data_from_multiple_dic_params(org_dicparam, stp_dat)
 
     stop = timeit.default_timer()
@@ -124,8 +125,6 @@ def trace_data():
     set_export_dataset_id_to_dic_param(org_dicparam)
 
     org_dicparam['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.STP))
-
-    org_dicparam = get_filter_on_demand_data(org_dicparam)
 
     # trace_data.htmlをもとにHTML生成
     out_dict = orjson_dumps(org_dicparam)

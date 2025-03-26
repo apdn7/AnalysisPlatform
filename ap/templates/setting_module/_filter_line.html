@@ -1,11 +1,6 @@
 <div class="card graph-navi" id="line">
     <div class="card-body">
-        <div
-            class="panel-group"
-            id="accordionLine"
-            role="tablist"
-            aria-multiselectable="true"
-        >
+        <div class="panel-group" id="accordionLine" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
                 <form id="lineFilterForm" onSubmit="return false;">
                     <div class="panel-heading" role="tab" id="headingLine">
@@ -22,17 +17,10 @@
                                         aria-controls="collapseLine"
                                     >
                                     </a>
-                                    <h3
-                                        class="header-left"
-                                        style="margin-left: 10px"
-                                    >
-                                        {{ _("Line Filter Config") }}
-                                    </h3>
+                                    <h3 class="header-left" style="margin-left: 10px">{{ _("Line Filter Config") }}</h3>
                                 </div>
                             </div>
-                            <div
-                                class="col-lg-7 col-12 d-flex align-items-center justify-content-end"
-                            >
+                            <div class="col-lg-7 col-12 d-flex align-items-center justify-content-end">
                                 <div class="mr-3">
                                     <input
                                         id="searchLineFilter"
@@ -74,11 +62,7 @@
                                 <!--                                >-->
                                 <!--                                    <i class="fa fa-file-import"></i>-->
                                 <!--                                </button>-->
-                                <button
-                                    name="configRegister"
-                                    class="btn btn-primary btn-right"
-                                    type="button"
-                                >
+                                <button name="configRegister" class="btn btn-primary btn-right" type="button">
                                     <i class="far fa-save"></i>
                                     {{ _("Register") }}
                                 </button>
@@ -114,41 +98,21 @@
                                 </select>
                             </div>
                         </div>
-                        <table
-                            id="tblConfigline"
-                            class="table table-bordered table-main table-hover-light"
-                        >
+                        <table id="tblConfigline" class="table table-bordered table-main table-hover-light">
                             <thead>
                                 <tr>
                                     <th class="col-number">{{ _("No.") }}</th>
-                                    <th class="filter-name text-center">
-                                        {{ _("Filter Name") }}
-                                    </th>
+                                    <th class="filter-name text-center">{{ _("Filter Name") }}</th>
                                     <th
                                         class="text-center"
-                                        title="{{
-                                            _(" Please enter a character string for the filter condition.
-                                            ")
-                                        }}"
+                                        title="{{ _("Please enter a character string for the filter condition.") }}"
                                     >
-                                        <span class="hint-text"
-                                            >{{ _("Filter") }}</span
-                                        >
+                                        <span class="hint-text">{{ _("Filter") }}</span>
                                     </th>
-                                    <th
-                                        class="filter-condition text-center"
-                                        title="{{
-                                            _(" Search Options
-                                            ")
-                                        }}"
-                                    >
-                                        <span class="hint-text"
-                                            >{{ _("Filter Type") }}</span
-                                        >
+                                    <th class="filter-condition text-center" title="{{ _("Search Options") }}">
+                                        <span class="hint-text">{{ _("Filter Type") }}</span>
                                     </th>
-                                    <th class="filter-start-digit text-center">
-                                        {{ _("Starting Digit") }}
-                                    </th>
+                                    <th class="filter-start-digit text-center">{{ _("Starting Digit") }}</th>
                                     <th class="text-center button-column"></th>
                                 </tr>
                                 <!--                            <tr id="filters" class="filter-row">-->
@@ -166,11 +130,7 @@
                         </div>
                         <div class="row" style="padding-top: 5px;">
                             <div class="col-2">
-                                <button
-                                    class="btn btn-success icon-btn"
-                                    name="addConfig"
-                                    type="button"
-                                >
+                                <button class="btn btn-success icon-btn" name="addConfig" type="button">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
                             </div>
@@ -182,65 +142,32 @@
             </div>
         </div>
     </div>
-    <div
-        id="filterConfirmModal"
-        class="modal fade in"
-        data-backdrop="static"
-        data-keyboard="false"
-    >
+    <div id="filterConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-hidden="true"
-                    >
-                        ×
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
-                    <p class="modal-inform">
-                        {{ _("Do you want to save changes?") }}
-                    </p>
+                    <p class="modal-inform">{{ _("Do you want to save changes?") }}</p>
                 </div>
                 <div class="modal-footer">
-                    <a
-                        id="confirmRegister"
-                        class="btn btn-primary"
-                        data-item-id=""
-                        data-dismiss="modal"
+                    <a id="confirmRegister" class="btn btn-primary" data-item-id="" data-dismiss="modal"
                         >{{ _("OK") }}</a
                     >
-                    <a class="btn btn-secondary" data-dismiss="modal"
-                        >{{ _("Cancel") }}</a
-                    >
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div
-        id=""
-        class="modal fade in"
-        name="filterConfirmSwitchModal"
-        data-backdrop="static"
-        data-keyboard="false"
-    >
+    <div id="" class="modal fade in" name="filterConfirmSwitchModal" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-hidden="true"
-                    >
-                        ×
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
                     <p class="modal-inform">
@@ -248,17 +175,10 @@
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <a
-                        id=""
-                        class="btn btn-primary"
-                        name="confirmSwitch"
-                        data-item-id=""
-                        data-dismiss="modal"
+                    <a id="" class="btn btn-primary" name="confirmSwitch" data-item-id="" data-dismiss="modal"
                         >{{ _("OK") }}</a
                     >
-                    <a class="btn btn-secondary" data-dismiss="modal"
-                        >{{ _("Cancel") }}</a
-                    >
+                    <a class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</a>
                 </div>
             </div>
         </div>

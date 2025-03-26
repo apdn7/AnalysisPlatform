@@ -153,13 +153,7 @@ $(() => {
     endProcItem(endProcOnChange, checkAndHideStratifiedVar);
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -286,8 +280,7 @@ const countNumSensorSelected = (id = eles.endProcRow) =>
 
 const checkAndHideStratifiedVar = () => {
     const card = $('#end-proc-row');
-    const moreThanOneProcSelected =
-        card && card.parent().find('.card').length > 1;
+    const moreThanOneProcSelected = card && card.parent().find('.card').length > 1;
     // const numCheckedSensors = countNumSensorSelected();
     if (moreThanOneProcSelected) {
         formElements.stratifiedVar.css('display', 'none');
@@ -384,35 +377,27 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
     return formData;
 };
 
-const queryDataAndShowHeatMap = (
-    clearOnFlyFilter = true,
-    autoUpdate = false,
-) => {
+const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) => {
     let formData = collectInputAsFormData(clearOnFlyFilter, autoUpdate);
 
-    showGraphCallApi(
-        '/ap/api/chm/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            afterShowCHM();
+    showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        afterShowCHM();
 
-            res = sortArrayFormVal(res);
-            currentData = res;
-            graphStore.setTraceData(_.cloneDeep(res));
+        res = sortArrayFormVal(res);
+        currentData = res;
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            const scale = formElements.heatmapScale.val();
+        const scale = formElements.heatmapScale.val();
 
-            drawHeatMap(res, scale, autoUpdate);
+        drawHeatMap(res, scale, autoUpdate);
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            checkAndShowToastr(res, clearOnFlyFilter);
+        checkAndShowToastr(res, clearOnFlyFilter);
 
-            setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
-        },
-    );
+        setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
+    });
 };
 
 const sortArrayFormVal = (res) => {
@@ -431,16 +416,8 @@ const sortArrayFormVal = (res) => {
     }
     // sort graphs
     if (latestSortColIds && latestSortColIds.length) {
-        res.ARRAY_FORMVAL = sortGraphs(
-            res.ARRAY_FORMVAL,
-            'GET02_VALS_SELECT',
-            latestSortColIds,
-        );
-        res.array_plotdata = sortGraphs(
-            res.array_plotdata,
-            'end_col',
-            latestSortColIds,
-        );
+        res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+        res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col', latestSortColIds);
     }
 
     // if has facet and facet > 1 and sensor > 1 break row
@@ -492,25 +469,14 @@ const checkAndShowToastr = (data, clearOnFlyFilter) => {
 
     // show limit graphs displayed message
     if (data.isGraphLimited) {
-        showToastrMsg(
-            i18nCommon.limitDisplayedGraphs.replace(
-                'NUMBER',
-                MAX_NUMBER_OF_GRAPH,
-            ),
-        );
+        showToastrMsg(i18nCommon.limitDisplayedGraphs.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
     }
 };
 
 const drawHeatMapFromPlotData = (canvasId, plotData) => {
-    const numericDataTypes = [
-        DataTypes.REAL.name,
-        DataTypes.INTEGER.name,
-        DataTypes.DATETIME.name,
-    ];
+    const numericDataTypes = [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.DATETIME.name];
     const colorSelectDOM =
-        !plotData.is_serial_no && numericDataTypes.includes(plotData.data_type)
-            ? eles.colorReal
-            : eles.colorCat;
+        !plotData.is_serial_no && numericDataTypes.includes(plotData.data_type) ? eles.colorReal : eles.colorCat;
     const colorOption = colorSelectDOM.val();
     const prop = {
         canvasId,
@@ -635,10 +601,7 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
         if (!isEmpty(cateValue)) {
             facetTitle = cateValue;
             if (Array.isArray(cateValue)) {
-                facetTitle =
-                    cateValue.length > 1
-                        ? `${cateValue[0]} | ${cateValue[1]}`
-                        : cateValue[0];
+                facetTitle = cateValue.length > 1 ? `${cateValue[0]} | ${cateValue[1]}` : cateValue[0];
             }
             title = `${end_proc_name}-${sensorName}`;
         }
@@ -654,26 +617,16 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
         const rowCardId = createRowHTML(rowIdx, arrayPlotData.length);
         for (const plotIdx in arrayPlotData) {
             const plotData = arrayPlotData[plotIdx];
-            if (
-                orgData.row > 1 &&
-                orgData.sensors[rowIdx] !== plotData.end_col
-            ) {
+            if (orgData.row > 1 && orgData.sensors[rowIdx] !== plotData.end_col) {
                 continue;
             }
             const procId = plotData.proc_id;
-            const [title, sensorName, cardValue, facet, isCTCol] =
-                buildGraphTitle(plotData, procId);
+            const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
             plotData.sensorName = sensorName;
             plotData.title = title;
             plotData.cardValue = cardValue;
 
-            createCardHTML(
-                rowCardId,
-                `${rowIdx}_${plotIdx}`,
-                title,
-                facet,
-                isCTCol,
-            );
+            createCardHTML(rowCardId, `${rowIdx}_${plotIdx}`, title, facet, isCTCol);
 
             // draw heat map
             const plotContainerId = `chm_${rowIdx}_${plotIdx}`;
@@ -719,9 +672,7 @@ const endProcOnChange = async (event) => {
         $(`#${eles.endProcValDiv}${id}`).empty();
         // clear stratified options
         const stratifiedVarSelectId = `#${eles.categoryVariableSelect}${id}`;
-        $(stratifiedVarSelectId)
-            .empty()
-            .append('<option value="">---</option>');
+        $(stratifiedVarSelectId).empty().append('<option value="">---</option>');
 
         $(`#${eles.condMachinePartnoDiv}${id}`).empty();
     };
@@ -776,11 +727,7 @@ const dumpData = (exportType, dataSrc) => {
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard(CHM_EXPORT_URL.TSV.url, formData);
     } else {
-        exportData(
-            CHM_EXPORT_URL[exportType].url,
-            CHM_EXPORT_URL[exportType].ext_name,
-            formData,
-        );
+        exportData(CHM_EXPORT_URL[exportType].url, CHM_EXPORT_URL[exportType].ext_name, formData);
     }
 };
 

@@ -111,10 +111,8 @@
     border: 1px solid #222;
 }
 
-.mcs-container--default.mcs-container--open.mcs-container--below
-    .mcs-selection--single,
-.mcs-container--default.mcs-container--open.mcs-container--below
-    .mcs-selection--multiple {
+.mcs-container--default.mcs-container--open.mcs-container--below .mcs-selection--single,
+.mcs-container--default.mcs-container--open.mcs-container--below .mcs-selection--multiple {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -130,34 +128,21 @@
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__rendered,
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+.select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #ffffff;
     line-height: 34px;
     height: 34px;
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__arrow,
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow {
+.select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 32px;
 }
 
 .mcs-container--default .mcs-selection--single .mcs-selection__arrow b,
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow
-    b,
-.mcs-container--default.mcs-container--open
-    .mcs-selection--single
-    .mcs-selection__arrow
-    b,
-.select2-container--default.select2-container--open
-    .select2-selection--single
-    .select2-selection__arrow
-    b {
+.select2-container--default .select2-selection--single .select2-selection__arrow b,
+.mcs-container--default.mcs-container--open .mcs-selection--single .mcs-selection__arrow b,
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
     border-width: 6px 3px 0 3px;
     margin-left: -1px;
     border-color: #ffffff transparent transparent transparent;

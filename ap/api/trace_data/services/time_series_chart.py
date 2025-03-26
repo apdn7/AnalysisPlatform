@@ -1,7 +1,6 @@
 from copy import deepcopy
 from math import ceil
 
-import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
@@ -64,6 +63,7 @@ from ap.common.constants import (
     IS_GRAPH_LIMITED,
     IS_OVER_UNIQUE_LIMIT,
     MAX_CATEGORY_SHOW,
+    NA_STR,
     NONE_IDXS,
     RANK_COL,
     ROWID,
@@ -137,7 +137,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     else:
         graph_param_with_cate = graph_param
 
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     # use for enable and disable index columns
     all_procs = []
@@ -180,7 +180,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     dic_unique_cate = gen_unique_data(df, dic_proc_cfgs, graph_param.common.cate_col_ids, True)
 
     # reset index (keep sorted position)
-    df.reset_index(inplace=True, drop=True)
+    df = df.reset_index(drop=True)
 
     str_cols = dic_param.get(STRING_COL_IDS)
     dic_str_cols = dic_param.get(DIC_STR_COLS, {})
@@ -224,10 +224,10 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
 
             dic_order_cols[sql_label] = cfg_col
 
-        df_order = df[dic_order_cols]
+        df_order = df[dic_order_cols.keys()]
         if is_thin_data:
             count_per_group = ceil(len(df_order) / THIN_DATA_CHUNK)
-            df_order[group_col] = df_order.index // count_per_group
+            df_order.loc[:, group_col] = df_order.index // count_per_group
             df_order = df_order.dropna().groupby(group_col).agg(['min', 'max'])
             for sql_label, col in dic_order_cols.items():
                 output_orders.append(
@@ -366,14 +366,10 @@ def gen_thin_dic_param(graph_param, df, dic_param, dic_cat_exp_labels=None, dic_
             )
 
         if min_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].replace(
-                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'},
-            )
+            plot[ARRAY_Y_MIN] = df_cat_exp[min_label].astype(pd.StringDtype()).fillna(NA_STR)
 
         if max_label in df_cat_exp.columns:
-            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].replace(
-                {pd.NA: 'NA', float('inf'): 'inf', float('-inf'): '-inf', np.nan: 'NA'},
-            )
+            plot[ARRAY_Y_MAX] = df_cat_exp[max_label].astype(pd.StringDtype()).fillna(NA_STR)
 
         if cycle_label in df_cat_exp.columns:
             plot[CYCLE_IDS] = df_cat_exp[cycle_label]
@@ -389,10 +385,9 @@ def gen_thin_dic_param(graph_param, df, dic_param, dic_cat_exp_labels=None, dic_
 
         if plot[END_COL_ID] in dic_ranks:
             # category variable
-            p_array_y = pd.Series(plot[ARRAY_Y]).dropna()
-            cat_size = 0
-            if len(p_array_y):
-                cat_size = np.unique(p_array_y).size
+            # need to cast to series and use `nunique` instead of `np.unique` because numpy doesn't understand pd.NA
+            # can remove `pd.Series` if we remove tolist completely
+            cat_size = pd.Series(plot[ARRAY_Y]).nunique()
             plot[CAT_TOTAL] = cat_size
             plot[IS_CAT_LIMITED] = cat_size >= MAX_CATEGORY_SHOW
 
@@ -414,16 +409,31 @@ def get_summary_infos(dic_param):
 
 
 @log_execution_time()
-def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_cols, df_from_to_count, dic_min_med_max):
-    thin_idxs_len = len(df_thin)
-    thin_boxes = [None] * thin_idxs_len
-    df_cat_exp = pd.DataFrame({TIME_COL: thin_boxes}, index=df_thin.index)
+def gen_df_thin_values(
+    df: pd.DataFrame,
+    graph_param: DicParam,
+    df_thin: pd.DataFrame,
+    dic_str_cols,
+    df_from_to_count,
+    dic_min_med_max,
+):
+    """
+    `df_thin` is the dataframe that actually holds the index of original dataframe.
 
+    More specifically, each series in `df_thin` is a pair:
+    (`index`, `df's index`)
+    where `index` is the index of `df_thin`, and `df's index` is the index of original `df`.
+
+    We want to construct a `df_cat_exp` based on `df_thin` by replacing `df's index` by its original values.
+    More specifically, each series in `df_cat_exp` is a pair:
+    (`index`, `df's value of df's index`)
+    """
+
+    df_cat_exp = pd.DataFrame()
     df_cat_exp[TIME_COL] = df_thin[TIME_COL]
     if CAT_EXP_BOX in df_thin.columns:
         df_cat_exp[CAT_EXP_BOX] = df_thin[CAT_EXP_BOX]
 
-    series = pd.Series(thin_boxes, index=df_thin.index)
     for proc in graph_param.array_formval:
         orig_sql_label_serial = gen_sql_label(SERIAL_DATA, proc.proc_id)
         time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
@@ -441,51 +451,61 @@ def gen_df_thin_values(df: DataFrame, graph_param: DicParam, df_thin, dic_str_co
                 sql_label_from = gen_sql_label(SLOT_FROM, sql_label)
                 sql_label_to = gen_sql_label(SLOT_TO, sql_label)
                 sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
-                idxs = df_thin[sql_label].notnull()
 
-                if not len(idxs) or not len(df_thin[idxs]):
-                    df_cat_exp[sql_label] = thin_boxes
-                    df_cat_exp[sql_label_min] = thin_boxes
-                    df_cat_exp[sql_label_max] = thin_boxes
+                # Get the index in `df_thin` that we want to replace value into,
+                # we ignore the na values (though there is no NA value because `df_thin` contains index, no?).
+                df_thin_non_na_indexes = df_thin[sql_label].dropna().index
+
+                # If all our dataframe is none, then we don't do anything here
+                if df_thin_non_na_indexes.empty:
+                    df_cat_exp[sql_label] = None
+                    df_cat_exp[sql_label_min] = None
+                    df_cat_exp[sql_label_max] = None
                     continue
 
                 # before rank
                 if target_col_info:
-                    rows = df_thin[sql_label]
-                    df_cat_exp[sql_label] = rows
-                    df_cat_exp[sql_label_min] = thin_boxes
-                    df_cat_exp[sql_label_max] = thin_boxes
+                    df_cat_exp[sql_label] = df_thin[sql_label]
+                    df_cat_exp[sql_label_min] = None
+                    df_cat_exp[sql_label_max] = None
                     continue
 
-                med_idxs = list(df_thin.loc[idxs, sql_label])
-                df_cat_exp[sql_label] = dic_min_med_max[sql_label]['median']
+                # Find the correct original indexes that we want to replace our value.
+                # In our requirements, the original indexes points to the median values of dataframe
+                df_original_indexes = df_thin.loc[df_thin_non_na_indexes, sql_label]
+
+                # Get median values.
+                df_median = df.loc[df_original_indexes]
+
+                # New dataframe will now hold original indexes.
+                # We need to set its index to `df_thin_non_na_indexes` so that later assignments can be correct.
+                df_median = df_median.set_index(df_thin_non_na_indexes)
 
                 # time start proc
                 if TIME_COL in df.columns:
-                    series[:] = None
-                    series[idxs] = df.loc[med_idxs, TIME_COL].values
-                    df_cat_exp[TIME_COL] = np.where(series.isnull(), df_cat_exp[TIME_COL], series)
+                    # only replace non na time col
+                    df_median_time_col_non_na = df_median[TIME_COL].dropna()
+                    df_cat_exp.loc[df_median_time_col_non_na.index, TIME_COL] = df_median_time_col_non_na
+
+                # In these series assignment belows.
+                # Even though `df_thin_non_na_indexes` (from `df_median`)
+                # is just a subset of `df_thin.indexes` (from `df_cat_exp`)
+                # the assignments are still correct, because missing rows will be filled with `NA` values.
 
                 # time end proc
                 if time_col_alias in df.columns:
-                    series[:] = None
-                    series[idxs] = df.loc[med_idxs, time_col_alias].values
-                    df_cat_exp[sql_label_time] = series
+                    df_cat_exp[sql_label_time] = df_median[time_col_alias]
 
                 # cycle ids
                 if ROWID in df.columns:
-                    series[:] = None
-                    series[idxs] = df.loc[med_idxs, ROWID].values
-                    df_cat_exp[sql_label_cycle] = series
+                    df_cat_exp[sql_label_cycle] = df_median[ROWID]
 
                 # serial ids
                 if orig_sql_label_serial in df.columns:
-                    series[:] = None
-                    series[idxs] = df.loc[med_idxs, orig_sql_label_serial].values
-                    df_cat_exp[sql_label_serial] = series
+                    df_cat_exp[sql_label_serial] = df_median[orig_sql_label_serial]
 
+                df_cat_exp[sql_label] = dic_min_med_max[sql_label]['median']
                 df_cat_exp[sql_label_min] = dic_min_med_max[sql_label]['min']
-
                 df_cat_exp[sql_label_max] = dic_min_med_max[sql_label]['max']
                 df_cat_exp[sql_label_from] = df_from_to_count['min']
                 df_cat_exp[sql_label_to] = df_from_to_count['max']
@@ -519,6 +539,8 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
 
         is_not_exist = set(cols) - set(df.columns)
         if not is_not_exist and cols:
-            dic_param[SERIAL_DATA][proc_id] = df[cols].replace({np.nan: ''}).to_records(index=False).tolist()
+            dic_param[SERIAL_DATA][proc_id] = (
+                df[cols].astype(pd.StringDtype()).fillna('').to_records(index=False).tolist()
+            )
         else:
             dic_param[SERIAL_DATA][proc_id] = []

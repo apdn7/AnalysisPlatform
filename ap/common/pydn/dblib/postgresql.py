@@ -44,7 +44,7 @@ self.is_connected: {self.is_connected}
 
     def connect(self):
         dsn = 'host={0:s} '.format(self.host)
-        dsn += 'port={0:d} '.format(self.port)
+        dsn += 'port={0:d} '.format(int(self.port))
         dsn += 'dbname={0:s} '.format(self.dbname)
         dsn += 'user={0:s} '.format(self.username)
         dsn += 'password={0:s}'.format(self.password)

@@ -71,7 +71,7 @@ const getProcessConfigFromDB = async (procId) => {
     const json = await fetch(`/ap/api/setting/proc_filter_config/${procId}`, {
         method: 'GET',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
     }).then((response) => response.clone().json());
@@ -97,11 +97,7 @@ const loadFilterOthers = async (processConfig) => {
             const filterCardId = `${htmlCardId.FILTER_OTHER}${filterId}`;
 
             // generate HTML + funcs
-            const otherFuncs = genSmartHtmlOther(
-                processConfig.id,
-                filterCardId,
-                filterConfig,
-            );
+            const otherFuncs = genSmartHtmlOther(processConfig.id, filterCardId, filterConfig);
 
             const filterColumnId = filterConfig.column_id;
             await cfgProcess.updateColDataFromUDB(filterColumnId);
@@ -133,28 +129,19 @@ const showProcessSettings = async (procId) => {
 
     if (!isEmpty(processConfig)) {
         // show line setting
-        const lineCfgFuncs = filterCfgGenerator(
-            htmlCardId.LINE,
-            filterTypes.LINE,
-        );
+        const lineCfgFuncs = filterCfgGenerator(htmlCardId.LINE, filterTypes.LINE);
         lineCfgFuncs.genEvents();
         await lineCfgFuncs.showLineSetting(processConfig, cfgProcess);
         addAttributeToElement($(lineCfgFuncs.eles.thisCard));
 
         // show machine setting
-        const machineCfgFuncs = filterCfgGenerator(
-            htmlCardId.MACHINE_ID,
-            filterTypes.MACHINE,
-        );
+        const machineCfgFuncs = filterCfgGenerator(htmlCardId.MACHINE_ID, filterTypes.MACHINE);
         machineCfgFuncs.genEvents();
         await machineCfgFuncs.showMachineSetting(processConfig);
         addAttributeToElement($(machineCfgFuncs.eles.thisCard));
 
         // show partno setting
-        const partnoFuncs = filterCfgGenerator(
-            htmlCardId.PART_NO,
-            filterTypes.PART_NO,
-        );
+        const partnoFuncs = filterCfgGenerator(htmlCardId.PART_NO, filterTypes.PART_NO);
         partnoFuncs.genEvents();
         await partnoFuncs.showPartnoSetting(processConfig);
         addAttributeToElement($(partnoFuncs.eles.thisCard));
@@ -194,36 +181,12 @@ $(() => {
         });
     });
 
-    $(filterElements.divLineConfig)[0].addEventListener(
-        'contextmenu',
-        baseRightClickHandler,
-        false,
-    );
-    $(filterElements.divLineConfig)[0].addEventListener(
-        'mouseup',
-        handleMouseUp,
-        false,
-    );
-    $(filterElements.divMachineConfig)[0].addEventListener(
-        'contextmenu',
-        baseRightClickHandler,
-        false,
-    );
-    $(filterElements.divMachineConfig)[0].addEventListener(
-        'mouseup',
-        handleMouseUp,
-        false,
-    );
-    $(filterElements.divPartnoConfig)[0].addEventListener(
-        'contextmenu',
-        baseRightClickHandler,
-        false,
-    );
-    $(filterElements.divPartnoConfig)[0].addEventListener(
-        'mouseup',
-        handleMouseUp,
-        false,
-    );
+    $(filterElements.divLineConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
+    $(filterElements.divLineConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+    $(filterElements.divMachineConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
+    $(filterElements.divMachineConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+    $(filterElements.divPartnoConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
+    $(filterElements.divPartnoConfig)[0].addEventListener('mouseup', handleMouseUp, false);
     $(filterElements.divOtherConfig).each(function () {
         this.addEventListener('contextmenu', baseRightClickHandler, false);
         this.addEventListener('mouseup', handleMouseUp, false);

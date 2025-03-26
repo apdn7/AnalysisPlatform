@@ -4,18 +4,10 @@
         <div class="modal-content">
             <div class="modal-body">
                 <!--    head actions    -->
-                <div
-                    class="d-flex align-items-center justify-content-between mb-4"
-                >
+                <div class="d-flex align-items-center justify-content-between mb-4">
                     <h4>{{ _('Jump to') }}</h4>
                     <div class="d-flex align-items-center">
-                        <button
-                            type="button"
-                            id="jumpOKButton"
-                            class="btn btn-setting simple-btn mr-1"
-                        >
-                            OK
-                        </button>
+                        <button type="button" id="jumpOKButton" class="btn btn-setting simple-btn mr-1">OK</button>
                         <button
                             type="button"
                             class="btn btn-setting simple-btn"
@@ -32,13 +24,8 @@
                 <div class="jump-content">
                     <div class="jump-page-list">
                         <div class="jump-recommended">
-                            <h4 class="jump-recommended-header jump-sub-header">
-                                {{ _('Recommended') }}
-                            </h4>
-                            <div
-                                class="jump-recommended-list jump-list"
-                                id="recommendedList"
-                            ></div>
+                            <h4 class="jump-recommended-header jump-sub-header">{{ _('Recommended') }}</h4>
+                            <div class="jump-recommended-list jump-list" id="recommendedList"></div>
                         </div>
                         <div class="jump-all-page">
                             <div
@@ -56,25 +43,18 @@
                                     ></a>
                                 </div>
                                 <h4 class="mb-0 jump-sub-header">
-                                    <span
-                                        class="hint-text"
-                                        title="{{ _('A list of pages that you can jump to.') }}"
+                                    <span class="hint-text" title="{{ _('A list of pages that you can jump to.') }}"
                                         >{{ _('ALL') }}</span
                                     >
                                 </h4>
                             </div>
                             <!--         Jump all list                   -->
-                            <div
-                                id="jumpAllList"
-                                class="jump-all-list jump-list jump-recommended-list collapse"
-                            ></div>
+                            <div id="jumpAllList" class="jump-all-list jump-list jump-recommended-list collapse"></div>
                         </div>
                     </div>
                     <div class="jump-sensor-list">
                         <h4 class="jump-sensor-list-header jump-sub-header">
-                            <span
-                                class="hint-text"
-                                title="{{ _('Variable setting hover') }}"
+                            <span class="hint-text" title="{{ _('Variable setting hover') }}"
                                 >{{ _('Variable setting') }}</span
                             >
                         </h4>
@@ -90,33 +70,21 @@
                                     onchange="bindChangeVariableOrderingSKD(this)"
                                     checked
                                 />
-                                <label
-                                    class="custom-control-label"
-                                    for="jumpVariableSetting"
-                                >
-                                    <span
-                                        class="hint-text"
-                                        title="{{ _('Select sensor hover') }}"
+                                <label class="custom-control-label" for="jumpVariableSetting">
+                                    <span class="hint-text" title="{{ _('Select sensor hover') }}"
                                         >{{ _('Select only the objective and top important variables (Max: 20)') }}</span
                                     >
                                 </label>
                             </div>
-                            <div
-                                class="custom-control custom-checkbox custom-control-inline"
-                            >
+                            <div class="custom-control custom-checkbox custom-control-inline">
                                 <input
                                     type="checkbox"
                                     class="custom-control custom-control-input"
                                     id="useOdfSettingCheckbox"
                                     checked
                                 />
-                                <label
-                                    class="custom-control-label"
-                                    for="useOdfSettingCheckbox"
-                                >
-                                    <span
-                                        class="hint-text"
-                                        title="{{ _('useODFCheckboxHover') }}"
+                                <label class="custom-control-label" for="useOdfSettingCheckbox">
+                                    <span class="hint-text" title="{{ _('useODFCheckboxHover') }}"
                                         >{{ _('useODFCheckboxText') }}</span
                                     >
                                 </label>
@@ -132,39 +100,24 @@
                                     onchange="jumpWithEMDAndNGCols(this)"
                                     checked
                                 />
-                                <label
-                                    class="custom-control-label"
-                                    for="jumpByEmd"
-                                >
-                                    <span
-                                        class="hint-text"
-                                        title="{{ _('Pass EMD values to the new page hover msg') }}"
+                                <label class="custom-control-label" for="jumpByEmd">
+                                    <span class="hint-text" title="{{ _('Pass EMD values to the new page hover msg') }}"
                                         >{{ _('Pass EMD values to the new page') }}</span
                                     >
                                 </label>
                             </div>
                         </div>
                         <div class="jump-sensor-table">
-                            <div
-                                class="mb-2 d-flex justify-content-between align-items-center position-relative"
-                            >
-                                <div
-                                    class="d-flex justify-content-between align-items-center"
-                                >
-                                    <div
-                                        id="jumpSelectAllColumn"
-                                        class="custom-control custom-checkbox mr-3"
-                                        style=""
-                                    >
+                            <div class="mb-2 d-flex justify-content-between align-items-center position-relative">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div id="jumpSelectAllColumn" class="custom-control custom-checkbox mr-3" style="">
                                         <input
                                             type="checkbox"
                                             class="custom-control-input"
                                             id="jumpSelectAllSensor"
                                             onchange="handleJumpChangeSelectAll(this)"
                                         />
-                                        <label
-                                            class="custom-control-label"
-                                            for="jumpSelectAllSensor"
+                                        <label class="custom-control-label" for="jumpSelectAllSensor"
                                             >{{ _("Select All") }}</label
                                         >
                                     </div>
@@ -179,17 +132,13 @@
                                             id="jumpAutoSelectedItems"
                                             onchange="handleJumpSelectedItems(this)"
                                         />
-                                        <label
-                                            class="custom-control-label"
-                                            for="jumpAutoSelectedItems"
+                                        <label class="custom-control-label" for="jumpAutoSelectedItems"
                                             >{{ _("Selected items") }}</label
                                         >
                                     </div>
                                     <div class="jump-column-checked ml-3">
                                         <div class="total-checked-columns">
-                                            <span id="jumpTotalCheckedColumn"
-                                                >0</span
-                                            >
+                                            <span id="jumpTotalCheckedColumn">0</span>
                                             <span>/</span>
                                             <span id="jumpTotalColumns">0</span>
                                         </div>
@@ -200,28 +149,16 @@
                                             id="jumpSearchInput"
                                             placeholder="{{ _('Search') }}.."
                                         />
-                                        <button
-                                            type="button"
-                                            id="jumpSetBtn"
-                                            class="btn simple-btn btn-setting"
-                                        >
+                                        <button type="button" id="jumpSetBtn" class="btn simple-btn btn-setting">
                                             Set
                                         </button>
-                                        <button
-                                            type="button"
-                                            id="jumpResetBtn"
-                                            class="btn simple-btn btn-setting"
-                                        >
+                                        <button type="button" id="jumpResetBtn" class="btn simple-btn btn-setting">
                                             Reset
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <div
-                                id="jumpSensorTbl_wrap"
-                                class="table-responsive"
-                                style="max-height: 73vh;"
-                            >
+                            <div id="jumpSensorTbl_wrap" class="table-responsive" style="max-height: 73vh;">
                                 <table
                                     id="jumpSensorTbl"
                                     class="table table-bordered table-main table-bordered table-fixed table-dark table-striped table-hover table-hover-light"

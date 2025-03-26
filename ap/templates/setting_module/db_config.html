@@ -1,11 +1,6 @@
 <div class="card graph-navi" id="data_source">
     <div class="card-body">
-        <div
-            class="panel-group"
-            id="accordionDS"
-            role="tablist"
-            aria-multiselectable="true"
-        >
+        <div class="panel-group" id="accordionDS" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
                 <form id="db-config-form">
                     <div class="panel-heading" role="tab" id="headingDS">
@@ -27,13 +22,9 @@
                                         >
                                         </a>
                                     </div>
-                                    <h3 class="header-left">
-                                        {{ _("Data Source Config") }}
-                                    </h3>
+                                    <h3 class="header-left">{{ _("Data Source Config") }}</h3>
                                 </div>
-                                <div
-                                    class="col-7 d-flex align-items-center justify-content-end"
-                                >
+                                <div class="col-7 d-flex align-items-center justify-content-end">
                                     <div class="mr-3">
                                         <input
                                             id="searchDataSource"
@@ -50,9 +41,7 @@
                                             class="col-form-label vertical-center"
                                             style="margin: 0 15px 0 0; padding: 0;"
                                         >
-                                            <h5 class="m-0">
-                                                {{ _("Polling Frequency") }}
-                                            </h5></label
+                                            <h5 class="m-0">{{ _("Polling Frequency") }}</h5></label
                                         >
                                         <div class="w-auto">
                                             <select
@@ -62,22 +51,13 @@
                                                 id="pollingFreq"
                                                 onchange="changePollingFreq(this);"
                                             >
-                                                <option
-                                                    value="0"
-                                                    {{ 'selected' if polling_frequency == 0 else '' }}
-                                                >
+                                                <option value="0" {{ 'selected' if polling_frequency == 0 else '' }}>
                                                     {{ _("Only once") }}
                                                 </option>
-                                                <option
-                                                    value="3"
-                                                    {{ 'selected' if polling_frequency == 3*60 else '' }}
-                                                >
+                                                <option value="3" {{ 'selected' if polling_frequency == 3*60 else '' }}>
                                                     {{ _("Once per 3 minutes") }}
                                                 </option>
-                                                <option
-                                                    value="5"
-                                                    {{ 'selected' if polling_frequency == 5*60 else '' }}
-                                                >
+                                                <option value="5" {{ 'selected' if polling_frequency == 5*60 else '' }}>
                                                     {{ _("Once per 5 minutes") }}
                                                 </option>
                                                 <option
@@ -123,32 +103,12 @@
                             >
                                 <thead>
                                     <tr>
-                                        <th class="col-number">
-                                            {{ _("No.") }}
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            class="text-center th-lg"
-                                        >
-                                            {{ _("Data Source Name") }}
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            class="text-center th-lg"
-                                        >
-                                            {{ _("Data Source Type") }}
-                                        </th>
-                                        <th
-                                            class="text-center button-column"
-                                            scope="col"
-                                        ></th>
-                                        <th class="text-center" scope="col">
-                                            {{ _("Comment") }}
-                                        </th>
-                                        <th
-                                            class="text-center button-column"
-                                            scope="col"
-                                        >
+                                        <th class="col-number">{{ _("No.") }}</th>
+                                        <th scope="col" class="text-center th-lg">{{ _("Data Source Name") }}</th>
+                                        <th scope="col" class="text-center th-lg">{{ _("Data Source Type") }}</th>
+                                        <th class="text-center button-column" scope="col"></th>
+                                        <th class="text-center" scope="col">{{ _("Comment") }}</th>
+                                        <th class="text-center button-column" scope="col">
                                             <!-- <i class="fas fa-filter icon-secondary"
                                             style="color:#449fff;cursor:pointer;"
                                             onclick="showFilter('tblDbConfig', true)"></i> -->
@@ -162,9 +122,7 @@
                                             id="ds_{{ db_info.id.data }}"
                                             data-ds-id="{{ db_info.id.data }}"
                                         >
-                                            <td class="col-number">
-                                                {{ loop.index }}
-                                            </td>
+                                            <td class="col-number">{{ loop.index }}</td>
                                             <td>
                                                 <input
                                                     name="name"
@@ -177,10 +135,7 @@
                                                 />
                                             </td>
                                             <td class="text-center">
-                                                <select
-                                                    name="type"
-                                                    class="form-control"
-                                                >
+                                                <select name="type" class="form-control">
                                                     <option
                                                         value="CSV"
                                                         {% if db_info.type.data == 'CSV' %}selected{% endif %}
@@ -239,9 +194,7 @@
                                                     data-item-id="{{ db_info.id.data }}"
                                                     title=""
                                                 >
-                                                    <i
-                                                        class="fas fa-edit icon-secondary"
-                                                    ></i>
+                                                    <i class="fas fa-edit icon-secondary"></i>
                                                 </button>
                                             </td>
                                             <td>
@@ -269,9 +222,7 @@
                                                     type="button"
                                                     class="btn btn-secondary icon-btn"
                                                 >
-                                                    <i
-                                                        class="fas fa-trash-alt icon-secondary"
-                                                    ></i>
+                                                    <i class="fas fa-trash-alt icon-secondary"></i>
                                                 </button>
                                             </td>
                                         </tr>

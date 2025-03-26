@@ -13,11 +13,7 @@
 {% endmacro %}
 
 {% macro input_hidden(name, value, id='') %}
-    <input
-        type="hidden"
-        {% if id !='' %}id="{{ id }}"{% endif %}name="{{ name }}"
-        value="{{ value }}"
-    />
+    <input type="hidden" {% if id !='' %}id="{{ id }}"{% endif %}name="{{ name }}" value="{{ value }}" />
 {% endmacro %}
 
 {% macro flash(type, message) %}
@@ -43,12 +39,7 @@
         role="alert"
     >
         <strong id="{{ alertID }}-content"></strong>
-        <button
-            type="button"
-            class="close"
-            onclick="$(this).parent().css('display','none');"
-            aria-label="Close"
-        >
+        <button type="button" class="close" onclick="$(this).parent().css('display','none');" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -56,10 +47,7 @@
 
 {% macro input_row(name, label, value='', type='text',label_block_cnt = 4,input_block_cnt = 8, id='') %}
     <div class="form-group row">
-        <label
-            for="{{ id or name }}"
-            class="col-sm-{{ label_block_cnt }} col-form-label label-right"
-        >
+        <label for="{{ id or name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
             <h5>{{ _(label) }}</h5>
         </label>
         <div class="col-sm-{{ input_block_cnt }}">
@@ -69,6 +57,7 @@
                 class="form-control"
                 value="{{ value | escape }}"
                 id="{{ id or name }}"
+                data-observer="{{ value | escape }}"
                 {% if type == 'password' %}autocomplete=on{% endif %}
             />
             <span
@@ -84,9 +73,7 @@
 {% macro label(label, h=5, name='', title='', hl='') %}
     <label for="{{ name }}" class="col-form-label label-left{{ hl }}">
         {% if title %}
-            <span title="{{ title|e }}" class="hint-text section-label"
-                >{{ label }}</span
-            >
+            <span title="{{ title|e }}" class="hint-text section-label">{{ label }}</span>
         {% else %}
             <span class="section-label">{{ label }}</span>
         {% endif %}
@@ -96,9 +83,7 @@
 {% macro sub_label(label, name='', title='', hl='') %}
     <label for="{{ name }}" class="col-form-label label-left{{ hl }}">
         {% if title %}
-            <span title="{{ title|e }}" class="hint-text sub-label"
-                >{{ label }}</span
-            >
+            <span title="{{ title|e }}" class="hint-text sub-label">{{ label }}</span>
         {% else %}
             <span class="sub-label">{{ label }}</span>
         {% endif %}
@@ -109,10 +94,7 @@
 {% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false, no_link_data=false, multiple_cols=true, id='') %}
     <div class="mb-2 row">
         {% if label != '' %}
-            <label
-                for="{{ id or name }}"
-                class="col-sm-{{ label_block_cnt }} col-form-label label-right"
-            >
+            <label for="{{ id or name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
                 <h5>{{ label }}</h5>
             </label>
             {% set col = selectbox_block_cnt %}
@@ -124,16 +106,15 @@
                 class="form-control select2-selection--single {{ 'select-n-columns' if multiple_cols else '' }} {{ 'required-input' if is_required else '' }}"
                 name="{{ name }}"
                 id="{{ id or name }}"
+                data-observer=""
                 {{ 'onchange=validateDataLink(this);' if no_link_data else '' }}
             >
+                <option value="">---</option>
                 {% if no_link_data == true %}
                     <option value="0">{{ _('No data link') }}</option>
                 {% endif %}
-                <option value="">---</option>
                 {% for item in items %}
-                    <option value="{{ item[0] }}" title="{{ item[2] }}">
-                        {{ item[1] }}
-                    </option>
+                    <option value="{{ item[0] }}" title="{{ item[2] }}">{{ item[1] }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -207,9 +188,7 @@
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         {{ start_proc_interval(showAutoUpdate, showDataFinder=showDataFinder) }}
                     </div>
                 </div>
@@ -229,9 +208,7 @@
             </div>
             <div class="col-xl-10 col-9">
                 <div class="row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         {{ start_proc_interval(showAutoUpdate=True, isShowTimePicker=False) }}
                         {{ heatmap_cycle() }}
                     </div>
@@ -253,11 +230,7 @@
         </div>
         <div class="d-flex align-items-center">
             <span class="sub-label d-block mr-3">{{ _('Step') }}</span>
-            <select
-                id="stepMinute"
-                class="form-control w-auto"
-                name="step_minute"
-            >
+            <select id="stepMinute" class="form-control w-auto" name="step_minute">
                 <option value="10">10 min</option>
                 <option value="15">15 min</option>
                 <option value="20">20 min</option>
@@ -294,9 +267,7 @@
                 {% if traceData or showStartProc %}
                     <div class="mt-auto pl-3 pt-3">
                         {% if traceData %}
-                            <div
-                                class="custom-control custom-checkbox custom-control-inline grp-height-align mb-2"
-                            >
+                            <div class="custom-control custom-checkbox custom-control-inline grp-height-align mb-2">
                                 <input
                                     type="checkbox"
                                     name="showScatterPlotSelect"
@@ -304,9 +275,7 @@
                                     class="custom-control-input"
                                     id="showScatterPlotSelect"
                                 />
-                                <label
-                                    class="custom-control-label"
-                                    for="showScatterPlotSelect"
+                                <label class="custom-control-label" for="showScatterPlotSelect"
                                     >{{ _('Scatter Plot display') }}</label
                                 >
                             </div>
@@ -318,9 +287,7 @@
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="{{ dom_prefix }}end-proc-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         {% if multiple_proc == true %}
                             <button
                                 id="btn-add-end-proc"
@@ -351,15 +318,8 @@
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="end-proc-cate-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
-                        <button
-                            id="btn-add-end-proc-cate"
-                            name="btnAddEndProc"
-                            type="button"
-                            class="btn simple-btn"
-                        >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                        <button id="btn-add-end-proc-cate" name="btnAddEndProc" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
                     </div>
@@ -383,60 +343,24 @@
                         <div class="col">
                             {{ sub_label(_('numericLabel'), title=_('numericHoverMsg'), hl=' pb-0') }}
                             <div class="d-flex justify-content-center">
-                                <select
-                                    id="hmFunctionReal"
-                                    class="form-control mb-2"
-                                    name="function_real"
-                                >
-                                    <option value="median">
-                                        {{ _('CHMMedian') }}
-                                    </option>
-                                    <option value="max">
-                                        {{ _('CHMMax') }}
-                                    </option>
-                                    <option value="mean">
-                                        {{ _('CHMMean') }}
-                                    </option>
-                                    <option value="min">
-                                        {{ _('CHMMin') }}
-                                    </option>
-                                    <option value="std">
-                                        {{ _('CHMStd') }}
-                                    </option>
-                                    <option value="range">
-                                        {{ _('CHMRange') }}
-                                    </option>
-                                    <option value="iqr">
-                                        {{ _('IQR (Q3-Q1)') }}
-                                    </option>
-                                    <option value="sum">
-                                        {{ _('CHMSum') }}
-                                    </option>
+                                <select id="hmFunctionReal" class="form-control mb-2" name="function_real">
+                                    <option value="median">{{ _('CHMMedian') }}</option>
+                                    <option value="max">{{ _('CHMMax') }}</option>
+                                    <option value="mean">{{ _('CHMMean') }}</option>
+                                    <option value="min">{{ _('CHMMin') }}</option>
+                                    <option value="std">{{ _('CHMStd') }}</option>
+                                    <option value="range">{{ _('CHMRange') }}</option>
+                                    <option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
+                                    <option value="sum">{{ _('CHMSum') }}</option>
                                 </select>
                                 {% if color_scale %}
-                                    <select
-                                        id="hmColorReal"
-                                        class="form-control ml-2"
-                                        name="color_real"
-                                    >
-                                        <option value="BLUE">
-                                            {{ _('Blue') }}
-                                        </option>
-                                        <option value="BLUE_REV">
-                                            {{ _('Blue.Rev') }}
-                                        </option>
-                                        <option value="JET">
-                                            {{ _('Jet') }}
-                                        </option>
-                                        <option value="JET_REV">
-                                            {{ _('Jet.Rev') }}
-                                        </option>
-                                        <option value="JET_ABS">
-                                            {{ _('JetAbs') }}
-                                        </option>
-                                        <option value="JET_ABS_REV">
-                                            {{ _('JetAbs.Rev') }}
-                                        </option>
+                                    <select id="hmColorReal" class="form-control ml-2" name="color_real">
+                                        <option value="BLUE">{{ _('Blue') }}</option>
+                                        <option value="BLUE_REV">{{ _('Blue.Rev') }}</option>
+                                        <option value="JET">{{ _('Jet') }}</option>
+                                        <option value="JET_REV">{{ _('Jet.Rev') }}</option>
+                                        <option value="JET_ABS">{{ _('JetAbs') }}</option>
+                                        <option value="JET_ABS_REV">{{ _('JetAbs.Rev') }}</option>
                                     </select>
                                 {% endif %}
                             </div>
@@ -447,64 +371,32 @@
                             <div class="col">
                                 {{ sub_label(_('nonNumericLabel'), title=_('nonNumericHoverMsg'), hl=' pb-0') }}
                                 <div class="d-flex justify-content-center">
-                                    <select
-                                        id="hmFunctionCate"
-                                        class="form-control"
-                                        name="function_cate"
-                                    >
-                                        <option value="count">
-                                            {{ _('CHMCount') }}
-                                        </option>
-                                        <option value="count_per_hour">
-                                            {{ _('CHMCountPerHour') }}
-                                        </option>
-                                        <option value="count_per_min">
-                                            {{ _('CHMCountPerMin') }}
-                                        </option>
-                                        <option value="time_per_count">
-                                            {{ _('CHMTimePerCount') }}
-                                        </option>
+                                    <select id="hmFunctionCate" class="form-control" name="function_cate">
+                                        <option value="count">{{ _('CHMCount') }}</option>
+                                        <option value="count_per_hour">{{ _('CHMCountPerHour') }}</option>
+                                        <option value="count_per_min">{{ _('CHMCountPerMin') }}</option>
+                                        <option value="time_per_count">{{ _('CHMTimePerCount') }}</option>
                                     </select>
                                     {% if color_scale %}
-                                        <select
-                                            id="hmColorCate"
-                                            class="form-control ml-2"
-                                            name="color_cat"
-                                        >
-                                            <option value="BLUE">
-                                                {{ _('Blue') }}
-                                            </option>
-                                            <option value="BLUE_REV">
-                                                {{ _('Blue.Rev') }}
-                                            </option>
-                                            <option value="JET">
-                                                {{ _('Jet') }}
-                                            </option>
-                                            <option value="JET_REV">
-                                                {{ _('Jet.Rev') }}
-                                            </option>
-                                            <option value="JET_ABS">
-                                                {{ _('JetAbs') }}
-                                            </option>
-                                            <option value="JET_ABS_REV">
-                                                {{ _('JetAbs.Rev') }}
-                                            </option>
+                                        <select id="hmColorCate" class="form-control ml-2" name="color_cat">
+                                            <option value="BLUE">{{ _('Blue') }}</option>
+                                            <option value="BLUE_REV">{{ _('Blue.Rev') }}</option>
+                                            <option value="JET">{{ _('Jet') }}</option>
+                                            <option value="JET_REV">{{ _('Jet.Rev') }}</option>
+                                            <option value="JET_ABS">{{ _('JetAbs') }}</option>
+                                            <option value="JET_ABS_REV">{{ _('JetAbs.Rev') }}</option>
                                         </select>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
                     {% endif %}
-                    <div class="mt-4">
-                        {{ start_proc_select(procs, no_link_data=no_link_data) }}
-                    </div>
+                    <div class="mt-4">{{ start_proc_select(procs, no_link_data=no_link_data) }}</div>
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="end-proc-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         <button
                             id="btn-add-end-proc"
                             name="btnAddEndProc"
@@ -533,9 +425,7 @@
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="{{ prefix }}cond-proc-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         <button
                             id="{{ prefix }}btn-add-cond-proc"
                             name="btnAddCondProc"
@@ -574,12 +464,7 @@
         {{ label(label_text, title=title) }}
         <div id="{{ prefix }}cond-proc-row">
             <div class="col-12 p-1">
-                <button
-                    id="{{ prefix }}btn-add-cond-proc"
-                    name="btnAddCondProc"
-                    type="button"
-                    class="btn simple-btn"
-                >
+                <button id="{{ prefix }}btn-add-cond-proc" name="btnAddCondProc" type="button" class="btn simple-btn">
                     <i class="fas fa-plus-circle"></i>
                 </button>
             </div>
@@ -595,11 +480,7 @@
     >
         {{ _('Test connection') }}
     </button>
-    <span
-        id="{{ msgID }}"
-        class="check-db-msg text-left mr-auto"
-        style="text-align:left"
-    ></span>
+    <span id="{{ msgID }}" class="check-db-msg text-left mr-auto" style="text-align:left"></span>
 {% endmacro %}
 
 {% macro import_status(db_id, status) %}
@@ -628,12 +509,7 @@
         }
     %}
     <div class="align-middle text-center" data-st="{{ st[status]['title'] }}">
-        <div
-            class=""
-            data-toggle="tooltip"
-            data-placement="top"
-            title="{{ _(st[status]['title']) }}"
-        >
+        <div class="" data-toggle="tooltip" data-placement="top" title="{{ _(st[status]['title']) }}">
             <i class="fas fa-{{ st[status]['class'] }} status-i"></i>
         </div>
     </div>
@@ -687,67 +563,38 @@
                     <div class="pl-3">
                         <div class="d-flex align-items-center">
                             {{ sub_label(_('numericLabel'), title=_('numericHoverMsg'), hl=' mr-3') }}
-                            <select
-                                id="function_real"
-                                class="form-control"
-                                style="width: 120px"
-                                name="function_real"
-                            >
+                            <select id="function_real" class="form-control" style="width: 120px" name="function_real">
                                 <option value="last">Last</option>
                                 <option value="first">First</option>
-                                <option value="median">
-                                    {{ _('CHMMedian') }}
-                                </option>
+                                <option value="median">{{ _('CHMMedian') }}</option>
                                 <option value="max">{{ _('CHMMax') }}</option>
                                 <option value="mean">{{ _('CHMMean') }}</option>
                                 <option value="min">{{ _('CHMMin') }}</option>
                                 <option value="std">{{ _('CHMStd') }}</option>
-                                <option value="range">
-                                    {{ _('CHMRange') }}
-                                </option>
-                                <option value="iqr">
-                                    {{ _('IQR (Q3-Q1)') }}
-                                </option>
+                                <option value="range">{{ _('CHMRange') }}</option>
+                                <option value="iqr">{{ _('IQR (Q3-Q1)') }}</option>
                                 <option value="ratio">Ratio[%]</option>
-                                <option value="count">
-                                    {{ _('CHMCount') }}
-                                </option>
+                                <option value="count">{{ _('CHMCount') }}</option>
                                 <option value="sum">{{ _('CHMSum') }}</option>
                             </select>
                         </div>
                         <div class="d-flex align-items-center mt-1">
                             {{ sub_label(_('nonNumericLabel'), title=_('nonNumericHoverMsg'), hl=' mr-3') }}
-                            <select
-                                id="function_cate"
-                                class="form-control"
-                                style="width: 120px"
-                                name="function_cate"
-                            >
+                            <select id="function_cate" class="form-control" style="width: 120px" name="function_cate">
                                 <option value="ratio">Ratio[%]</option>
-                                <option value="count">
-                                    {{ _('CHMCount') }}
-                                </option>
+                                <option value="count">{{ _('CHMCount') }}</option>
                                 <option value="last">Last</option>
                                 <option value="first">First</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="mt-auto pl-3 pt-3">
-                    {{ start_proc_select(procs) }}
-                </div>
+                <div class="mt-auto pl-3 pt-3">{{ start_proc_select(procs) }}</div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="end-proc-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
-                        <button
-                            id="btn-add-end-proc"
-                            name="btnAddEndProc"
-                            type="button"
-                            class="btn simple-btn"
-                        >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
                     </div>
@@ -772,21 +619,12 @@
                         <span>{{ _('Max') }}: 7</span>
                     </label>
                 {% endif %}
-                <div class="mt-auto pl-3 pt-3">
-                    {{ start_proc_select(procs) }}
-                </div>
+                <div class="mt-auto pl-3 pt-3">{{ start_proc_select(procs) }}</div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="end-proc-row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
-                        <button
-                            id="btn-add-end-proc"
-                            name="btnAddEndProc"
-                            type="button"
-                            class="btn simple-btn"
-                        >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
                     </div>
@@ -807,9 +645,7 @@
                     {{ paste_btn(with_count=True) }}
                 </div>
                 <div class="pl-3 pt-3">
-                    <div
-                        class="custom-control custom-checkbox custom-control-inline"
-                    >
+                    <div class="custom-control custom-checkbox custom-control-inline">
                         <input
                             type="checkbox"
                             id="show-ct-time"
@@ -818,26 +654,15 @@
                             value="0"
                             onchange="onChangeShowCTTime(this);"
                         />
-                        <label class="custom-control-label" for="show-ct-time"
-                            >{{ _('Cycle Time Analysis') }}</label
-                        >
+                        <label class="custom-control-label" for="show-ct-time">{{ _('Cycle Time Analysis') }}</label>
                     </div>
                 </div>
-                <div class="mt-auto pl-3 pt-3">
-                    {{ start_proc_select(procs) }}
-                </div>
+                <div class="mt-auto pl-3 pt-3">{{ start_proc_select(procs) }}</div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row" id="end-proc-row" sensor-type="real">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
-                        <button
-                            id="btn-add-end-proc"
-                            name="btnAddEndProc"
-                            type="button"
-                            class="btn simple-btn"
-                        >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                        <button id="btn-add-end-proc" name="btnAddEndProc" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
                     </div>
@@ -858,14 +683,8 @@
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
-                <div
-                    class="row"
-                    id="end-proc-paracords-cate-row"
-                    sensor-type="cate"
-                >
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                <div class="row" id="end-proc-paracords-cate-row" sensor-type="cate">
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         <button
                             id="btn-add-end-proc-paracords-cate"
                             name="btnAddEndProc"
@@ -920,14 +739,8 @@
                         </button>
                     </div>
                     <div class="ml-5">
-                        <i
-                            id="setting-change-mark"
-                            class="fa fa-circle fa-sm hide"
-                        ></i
-                        ><span
-                            class="ml-2 bookmarked-label"
-                            id="setting-name"
-                        ></span>
+                        <i id="setting-change-mark" class="fa fa-circle fa-sm hide"></i
+                        ><span class="ml-2 bookmarked-label" id="setting-name"></span>
                     </div>
                 {% endif %}
             </div>
@@ -950,9 +763,7 @@
         </button>
         {% if with_count %}
             <div style="display: none" id="variables-count">
-                <span id="count-total-variables"></span>/<span
-                    id="max-variables"
-                ></span>
+                <span id="count-total-variables"></span>/<span id="max-variables"></span>
             </div>
         {% endif %}
     </div>
@@ -960,16 +771,8 @@
 <!-- -->
 <!-- Exception Estimation  -->
 {% macro exception_est(checkId='isValidateData') %}
-    <div
-        class="custom-control custom-checkbox custom-control-inline grp-height-align"
-    >
-        <input
-            type="checkbox"
-            name="isValidateData"
-            class="custom-control-input"
-            id="{{ checkId }}"
-            checked
-        />
+    <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
+        <input type="checkbox" name="isValidateData" class="custom-control-input" id="{{ checkId }}" checked />
         <label class="custom-control-label" for="{{ checkId }}">
             <span title="{{ _('Exception Estimation Explanation') }}">
                 <span class="hint-text">{{ _("Exception Estimation") }}</span>
@@ -1005,17 +808,11 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <!--    head actions    -->
-                    <div
-                        class="d-flex align-items-center justify-content-between"
-                    >
+                    <div class="d-flex align-items-center justify-content-between">
                         <h4>{{ _('Filter Setting') }}</h4>
                         <div class="d-flex align-items-center">
-                            <span id="filterSortBtn" class="mr-1" title="Sort"
-                                ><i class="fa fa-sort"></i
-                            ></span>
-                            <div
-                                class="d-flex align-items-center mr-3 border-gray-curve p-1"
-                            >
+                            <span id="filterSortBtn" class="mr-1" title="Sort"><i class="fa fa-sort"></i></span>
+                            <div class="d-flex align-items-center mr-3 border-gray-curve p-1">
                                 <div class="mr-1">
                                     <input
                                         title="{{ _('Filter search box hover msg') }}"
@@ -1024,24 +821,10 @@
                                         class="form-control"
                                     />
                                 </div>
-                                <button
-                                    class="btn simple-btn btn-setting mr-1"
-                                    id="catFilterSet"
-                                >
-                                    Set
-                                </button>
-                                <button
-                                    class="btn simple-btn btn-setting"
-                                    id="catFilterReset"
-                                >
-                                    Reset
-                                </button>
+                                <button class="btn simple-btn btn-setting mr-1" id="catFilterSet">Set</button>
+                                <button class="btn simple-btn btn-setting" id="catFilterReset">Reset</button>
                             </div>
-                            <button
-                                type="button"
-                                id="catFilterSubmit"
-                                class="btn btn-setting simple-btn mr-1"
-                            >
+                            <button type="button" id="catFilterSubmit" class="btn btn-setting simple-btn mr-1">
                                 OK
                             </button>
                             <button
@@ -1059,32 +842,16 @@
                     <div class="d-flex h-auto overflow-auto custom-scroll">
                         {% if not scp %}
                             <div class="mr-2 cats-exp-box">
-                                <span
-                                    id="categoriesBoxTitle"
-                                    class="cat-title ui-sortable"
-                                    >{{ 'Label' }}</span
-                                >
-                                <div
-                                    id="categoriesBox"
-                                    class="d-flex ui-sortable"
-                                ></div>
+                                <span id="categoriesBoxTitle" class="cat-title ui-sortable">{{ 'Label' }}</span>
+                                <div id="categoriesBox" class="d-flex ui-sortable"></div>
                             </div>
                         {% endif %}
                         <div class="mr-2 cats-exp-box">
-                            <span
-                                id="filterBoxTitle"
-                                class="cat-title ui-sortable"
-                                >{{ 'Filter' }}</span
-                            >
-                            <div
-                                id="filterBox"
-                                class="d-flex ui-sortable"
-                            ></div>
+                            <span id="filterBoxTitle" class="cat-title ui-sortable">{{ 'Filter' }}</span>
+                            <div id="filterBox" class="d-flex ui-sortable"></div>
                         </div>
                         <div class="mr-2 cats-exp-box">
-                            <span id="catExpBoxTitle" class="cat-title"
-                                >{{ _('Facet') }}</span
-                            >
+                            <span id="catExpBoxTitle" class="cat-title">{{ _('Facet') }}</span>
                             <div id="catExpBox" class="d-flex"></div>
                         </div>
                         <!--                        <div class="mr-2 cats-exp-box">-->
@@ -1096,22 +863,13 @@
                             <div id="colorBox" class="d-flex"></div>
                         </div>
                         <div class="category-box">
-                            <span id="categoriesVarTitle" class="cat-title"
-                                >System</span
-                            >
+                            <span id="categoriesVarTitle" class="cat-title">System</span>
                             <div id="categoriesVarBox" class="d-flex"></div>
                         </div>
                         {% if scp %}
                             <div class="mr-2 cats-exp-box">
-                                <span
-                                    id="categoriesBoxTitle"
-                                    class="cat-title ui-sortable"
-                                    >{{ 'Other' }}</span
-                                >
-                                <div
-                                    id="categoriesBox"
-                                    class="d-flex ui-sortable"
-                                ></div>
+                                <span id="categoriesBoxTitle" class="cat-title ui-sortable">{{ 'Other' }}</span>
+                                <div id="categoriesBox" class="d-flex ui-sortable"></div>
                             </div>
                         {% endif %}
                     </div>
@@ -1127,16 +885,10 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <!--    head actions    -->
-                    <div
-                        class="d-flex align-items-center justify-content-between"
-                    >
+                    <div class="d-flex align-items-center justify-content-between">
                         <h4>{{ _('Detail') }}</h4>
                         <div class="d-flex align-items-center">
-                            <button
-                                type="button"
-                                id="btnOKFailedCastDataModal"
-                                class="btn btn-setting simple-btn mr-1"
-                            >
+                            <button type="button" id="btnOKFailedCastDataModal" class="btn btn-setting simple-btn mr-1">
                                 OK
                             </button>
                         </div>
@@ -1152,15 +904,8 @@
                     <!--    body   -->
                     <div class="d-flex h-auto overflow-auto custom-scroll">
                         <div class="mr-2 cats-exp-box">
-                            <span
-                                id="columnsBoxTitle"
-                                class="cat-title ui-sortable"
-                                >{{ 'Columns' }}</span
-                            >
-                            <div
-                                id="columnsBox"
-                                class="d-flex ui-sortable"
-                            ></div>
+                            <span id="columnsBoxTitle" class="cat-title ui-sortable">{{ 'Columns' }}</span>
+                            <div id="columnsBox" class="d-flex ui-sortable"></div>
                         </div>
                     </div>
                 </div>
@@ -1175,12 +920,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _('Index ordering') }}</h4>
-                    <button
-                        type="button"
-                        class="close {{ cancelBtnId }}"
-                        data-dismiss="modal"
-                        aria-hidden="true"
-                    >
+                    <button type="button" class="close {{ cancelBtnId }}" data-dismiss="modal" aria-hidden="true">
                         ×
                     </button>
                 </div>
@@ -1192,39 +932,23 @@
                         <thead>
                             <tr>
                                 <th class="text-center">{{ _("Priority") }}</th>
-                                <th class="text-center col-serial">
-                                    {{ _("Process") }}
-                                </th>
-                                <th class="text-center col-serial">
-                                    {{ _("Column") }}
-                                </th>
+                                <th class="text-center col-serial">{{ _("Process") }}</th>
+                                <th class="text-center col-serial">{{ _("Column") }}</th>
                                 <th class="text-center">{{ _("Order") }}</th>
                                 <th class="text-center col-del-btn"></th>
                             </tr>
                         </thead>
                         <tbody></tbody>
                     </table>
-                    <button
-                        id="{{ addBtnId }}"
-                        class="btn btn-success icon-btn"
-                    >
+                    <button id="{{ addBtnId }}" class="btn btn-success icon-btn">
                         <i class="fas fa-plus-circle"></i>
                     </button>
                 </div>
                 <div class="modal-footer">
-                    <button
-                        id="{{ okBtnId }}"
-                        class="btn btn-primary"
-                        data-item-id=""
-                        data-dismiss="modal"
-                    >
+                    <button id="{{ okBtnId }}" class="btn btn-primary" data-item-id="" data-dismiss="modal">
                         {{ _('OK') }}
                     </button>
-                    <button
-                        id="{{ cancelBtnId }}"
-                        class="btn btn-secondary {{ cancelBtnId }}"
-                        data-dismiss="modal"
-                    >
+                    <button id="{{ cancelBtnId }}" class="btn btn-secondary {{ cancelBtnId }}" data-dismiss="modal">
                         {{ _('Cancel') }}
                     </button>
                 </div>
@@ -1252,10 +976,7 @@
                 for="{{ prefix }}radioDefaultInterval"
                 class="label-left"
             >
-                <span
-                    class="{{ 'hint-text ' if dateRangeHoverMsg else '' }}sub-label"
-                    >{{ _('Date range') }}</span
-                >
+                <span class="{{ 'hint-text ' if dateRangeHoverMsg else '' }}sub-label">{{ _('Date range') }}</span>
             </label>
         </div>
         <div
@@ -1291,13 +1012,7 @@
                     type="text"
                     hidden
                 />
-                <input
-                    name="START_TIME"
-                    class="form-control"
-                    id="{{ prefix }}startTime"
-                    type="text"
-                    hidden
-                />
+                <input name="START_TIME" class="form-control" id="{{ prefix }}startTime" type="text" hidden />
                 <input
                     id="{{ prefix }}endDate"
                     class="datepicker hasdatepicker form-control category-plot-time"
@@ -1306,13 +1021,7 @@
                     type="text"
                     hidden
                 />
-                <input
-                    name="END_TIME"
-                    class="form-control"
-                    id="{{ prefix }}endTime"
-                    type="text"
-                    hidden
-                />
+                <input name="END_TIME" class="form-control" id="{{ prefix }}endTime" type="text" hidden />
                 {% if showDataFinder %}
                     <button
                         type="button"
@@ -1345,31 +1054,17 @@
                         {{ 'disabled' if disableLatest else '' }}
                     >
                         {% if not cyclicCalender %}
-                            <option data-key="minute" value="1">
-                                {{ _('minute') }}
-                            </option>
+                            <option data-key="minute" value="1">{{ _('minute') }}</option>
                         {% endif %}
-                        <option data-key="hour" value="60" selected>
-                            {{ _('hour') }}
-                        </option>
+                        <option data-key="hour" value="60" selected>{{ _('hour') }}</option>
 
-                        <option data-key="day" value="1440">
-                            {{ _('day') }}
-                        </option>
-                        <option data-key="week" value="10080">
-                            {{ _('week') }}
-                        </option>
-                        <option data-key="month" value="months">
-                            {{ _('Latest month') }}
-                        </option>
-                        <option data-key="year" value="years">
-                            {{ _('Latest year') }}
-                        </option>
+                        <option data-key="day" value="1440">{{ _('day') }}</option>
+                        <option data-key="week" value="10080">{{ _('week') }}</option>
+                        <option data-key="month" value="months">{{ _('Latest month') }}</option>
+                        <option data-key="year" value="years">{{ _('Latest year') }}</option>
                     </select>
                     {% if showAutoUpdate %}
-                        <div
-                            class="custom-control custom-checkbox custom-control-inline grp-height-align"
-                        >
+                        <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
                             <input
                                 type="checkbox"
                                 name="autoUpdateInterval"
@@ -1378,9 +1073,7 @@
                                 id="{{ prefix }}autoUpdateInterval"
                                 {{ 'disabled' if disableLatest else '' }}
                             />
-                            <label
-                                class="custom-control-label"
-                                for="{{ prefix }}autoUpdateInterval"
+                            <label class="custom-control-label" for="{{ prefix }}autoUpdateInterval"
                                 >{{ _('Auto Update') }}</label
                             >
                         </div>
@@ -1406,19 +1099,11 @@
             </div>
             <div id="indexHoverContent" class="index-inform-content">
                 <span class="sub-label">{{ _('Index Ordering Setting') }}</span>
-                <button
-                    class="btn clipboard"
-                    style="float:right;"
-                    data-clipboard-target="#index-infor-table"
-                    title=""
-                >
+                <button class="btn clipboard" style="float:right;" data-clipboard-target="#index-infor-table" title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
                 <div class="index-content">
-                    <table
-                        class="table table-borderless"
-                        id="index-infor-table"
-                    >
+                    <table class="table table-borderless" id="index-infor-table">
                         <thead>
                             <tr>
                                 <th class="text-center">{{ _("Priority") }}</th>
@@ -1481,38 +1166,23 @@
                         >
                             {{ _('Divide by term (Cyclic)') }}
                         </option>
-                        <option
-                            title="{{ _('Divide by term (Direct) hover msg') }}"
-                            value="directTerm"
-                        >
+                        <option title="{{ _('Divide by term (Direct) hover msg') }}" value="directTerm">
                             {{ _('Divide by term (Direct)') }}
                         </option>
                     {% else %}
-                        <option
-                            title="{{ _('Stratify by variables hover msg StP') }}"
-                            value="var"
-                        >
+                        <option title="{{ _('Stratify by variables hover msg StP') }}" value="var">
                             {{ _("Stratify by variables") }}
                         </option>
-                        <option
-                            title="{{ _('Divide by term (Cyclic) hover msg') }}"
-                            value="cyclicTerm"
-                        >
+                        <option title="{{ _('Divide by term (Cyclic) hover msg') }}" value="cyclicTerm">
                             {{ _('Stratify by term (Cyclic)') }}
                         </option>
-                        <option
-                            title="{{ _('Divide by term (Direct) hover msg') }}"
-                            value="directTerm"
-                        >
+                        <option title="{{ _('Divide by term (Direct) hover msg') }}" value="directTerm">
                             {{ _('Stratify by term') }}
                         </option>
                     {% endif %}
 
                     {% if dataNumber %}
-                        <option
-                            title="{{ _('Divide by data number (Cyclic) hover msg') }}"
-                            value="dataNumberTerm"
-                        >
+                        <option title="{{ _('Divide by data number (Cyclic) hover msg') }}" value="dataNumberTerm">
                             {{ _('Divide by data number (Cyclic)') }}
                         </option>
                     {% endif %}
@@ -1527,10 +1197,9 @@
                     {% endif %}
                 </select>
             </div>
-            <span class="ml-2">
+            <span class="ml-2 flex-datetime-range">
                 {{ _('Datetime Range') }}
-                <span id="datetimeRangeShowValue"></span
-                ><span id="cyclicCalenderShowDiv"></span>
+                <span id="datetimeRangeShowValue"></span><span id="cyclicCalenderShowDiv"></span>
                 <span id="category-daterange" class="hide"></span>
                 <span id="var-daterange" class="hide"></span>
                 <span id="cyclicTerm-daterange" class="hide"></span>
@@ -1546,9 +1215,7 @@
             </div>
             <div id="for-cyclicTerm" style="display: none; visibility: hidden">
                 <div class="d-flex mb-2 flex-wrap">
-                    <div
-                        class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3"
-                    >
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input
                             type="radio"
                             name="cyclicTermTraceTime1"
@@ -1558,17 +1225,11 @@
                             value="from"
                             checked="checked"
                         />
-                        <label
-                            class="custom-control-label"
-                            for="cyclicTermFrom"
-                            class="label-left"
-                        >
+                        <label class="custom-control-label" for="cyclicTermFrom" class="label-left">
                             <span class="sub-label">{{ _('From') }}</span>
                         </label>
                     </div>
-                    <div
-                        class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3"
-                    >
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input
                             type="radio"
                             name="cyclicTermTraceTime1"
@@ -1577,17 +1238,11 @@
                             id="cyclicTermTo"
                             value="to"
                         />
-                        <label
-                            class="custom-control-label"
-                            for="cyclicTermTo"
-                            class="label-left"
-                        >
+                        <label class="custom-control-label" for="cyclicTermTo" class="label-left">
                             <span class="sub-label">{{ _('To') }}</span>
                         </label>
                     </div>
-                    <div
-                        class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3"
-                    >
+                    <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-median-3 mr-3">
                         <input
                             class="custom-control-input to-update-time-range"
                             type="radio"
@@ -1596,14 +1251,8 @@
                             id="cyclicRecentInterval"
                             value="recent"
                         />
-                        <label
-                            class="custom-control-label"
-                            for="cyclicRecentInterval"
-                            class="label-left"
-                        >
-                            <span
-                                class="sub-label hint-text"
-                                title="{{ _('Select a unit of time and input value.') }}"
+                        <label class="custom-control-label" for="cyclicRecentInterval" class="label-left">
+                            <span class="sub-label hint-text" title="{{ _('Select a unit of time and input value.') }}"
                                 >{{ _('Latest') }}</span
                             >
                         </label>
@@ -1619,13 +1268,7 @@
                                 type="text"
                                 hidden
                             />
-                            <input
-                                name="START_TIME"
-                                class="form-control"
-                                id="cyclicTermStartTime"
-                                type="text"
-                                hidden
-                            />
+                            <input name="START_TIME" class="form-control" id="cyclicTermStartTime" type="text" hidden />
                             <button
                                 type="button"
                                 onclick="showDataFinderModal(this)"
@@ -1637,9 +1280,7 @@
                             </button>
                         </div>
                         <div id="for-cyclicRecent" style="display: none">
-                            <div
-                                class="custom-control custom-checkbox custom-control-inline grp-height-align"
-                            >
+                            <div class="custom-control custom-checkbox custom-control-inline grp-height-align">
                                 <input
                                     type="checkbox"
                                     name="autoUpdateInterval"
@@ -1647,24 +1288,17 @@
                                     class="custom-control-input"
                                     id="CyclicAutoUpdateInterval"
                                 />
-                                <label
-                                    class="custom-control-label"
-                                    for="CyclicAutoUpdateInterval"
+                                <label class="custom-control-label" for="CyclicAutoUpdateInterval"
                                     >{{ _('Auto Update') }}</label
                                 >
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="d-flex align-items-center flex-wrap">
+                <div class="d-flex align-items-center flex-wrap flex-cyclic-term-fpp">
                     <div class="d-flex align-items-center mr-3 mb-2">
-                        <label
-                            class="mr-2 mb-0"
-                            title="{{ DivisionNumberHover }}"
-                        >
-                            <span class="hint-text sub-label"
-                                >{{ _('Division number') }}</span
-                            >
+                        <label class="mr-2 mb-0" title="{{ DivisionNumberHover }}">
+                            <span class="hint-text sub-label">{{ _('Division number') }}</span>
                         </label>
                         <input
                             type="text"
@@ -1676,13 +1310,8 @@
                         />
                     </div>
                     <div class="d-flex align-items-center mr-3 mb-2">
-                        <label
-                            title="{{ WindowLengthHover }}"
-                            class="mr-2 mb-0"
-                        >
-                            <span class="hint-text sub-label"
-                                >{{ _('Window length') }} [hour]</span
-                            >
+                        <label title="{{ WindowLengthHover }}" class="mr-2 mb-0">
+                            <span class="hint-text sub-label">{{ _('Window length') }} [hour]</span>
                         </label>
                         <input
                             type="text"
@@ -1695,9 +1324,7 @@
                     </div>
                     <div class="d-flex align-items-center mb-2">
                         <label class="mr-2 mb-0" title="{{ IntervalHover }}">
-                            <span class="hint-text sub-label"
-                                >{{ _('Interval') }} [hour]</span
-                            >
+                            <span class="hint-text sub-label">{{ _('Interval') }} [hour]</span>
                         </label>
                         <input
                             type="text"
@@ -1712,10 +1339,7 @@
             </div>
             <div id="for-directTerm" style="display: none; visibility: hidden">
                 <div class="d-flex">
-                    <div
-                        class="custom-control custom-radio grp-height-align"
-                        style="width: 200px"
-                    >
+                    <div class="custom-control custom-radio grp-height-align" style="width: 200px">
                         <input
                             type="radio"
                             name="termTraceTime1"
@@ -1725,19 +1349,13 @@
                             value="default"
                             checked="checked"
                         />
-                        <label
-                            class="custom-control-label"
-                            for="radioDefaultInterval"
-                            class="label-left"
-                        >
+                        <label class="custom-control-label" for="radioDefaultInterval" class="label-left">
                             <span class="sub-label">{{ _('Date range') }}</span>
                         </label>
                     </div>
                     <div class="position-relative d-flex flex-grow-1 ml-2">
                         <div id="datetimeList" class="w-100">
-                            <div
-                                class="datetimerange-group d-flex align-items-center"
-                            >
+                            <div class="datetimerange-group d-flex align-items-center">
                                 {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker1' , isSetDefaultValue=True, dtClassName='to-update-time-range') }}
                                 <input
                                     id="startDate1"
@@ -1747,13 +1365,7 @@
                                     type="text"
                                     hidden
                                 />
-                                <input
-                                    name="START_TIME"
-                                    class="form-control"
-                                    id="startTime1"
-                                    type="text"
-                                    hidden
-                                />
+                                <input name="START_TIME" class="form-control" id="startTime1" type="text" hidden />
                                 <input
                                     id="endDate1"
                                     class="datepicker hasdatepicker form-control category-plot-time"
@@ -1762,13 +1374,7 @@
                                     type="text"
                                     hidden
                                 />
-                                <input
-                                    name="END_TIME"
-                                    class="form-control"
-                                    id="endTime1"
-                                    type="text"
-                                    hidden
-                                />
+                                <input name="END_TIME" class="form-control" id="endTime1" type="text" hidden />
                                 <button
                                     type="button"
                                     onclick="showDataFinderModal(this)"
@@ -1781,9 +1387,7 @@
                                 <span class="ml-2" style="width: 8.5px"></span>
                             </div>
                             {% for i in range(2,9) %}
-                                <div
-                                    class="datetimerange-group d-flex align-items-center"
-                                >
+                                <div class="datetimerange-group d-flex align-items-center">
                                     {{ datetime_range_picker('DATETIME_RANGE_PICKER','',id='datetimeRangePicker' + i|string , isSetDefaultValue=False, dtClassName='to-update-time-range', focus='handleOnfocusEmptyDatetimeRange(this)') }}
                                     <input
                                         id="startDate{{ i }}"
@@ -1815,32 +1419,21 @@
                                         type="text"
                                         hidden
                                     />
-                                    <span class="ml-2 remove-date"
-                                        ><i class="fa fa-times fa-sm"></i
-                                    ></span>
+                                    <span class="ml-2 remove-date"><i class="fa fa-times fa-sm"></i></span>
                                 </div>
                             {% endfor %}
                         </div>
-                        <button
-                            id="termBtnAddDateTime"
-                            type="button"
-                            class="btn simple-btn"
-                        >
+                        <button id="termBtnAddDateTime" type="button" class="btn simple-btn">
                             <i class="fas fa-plus-circle"></i>
                         </button>
                     </div>
                 </div>
             </div>
             {% if dataNumber %}
-                <div
-                    id="for-dataNumberTerm"
-                    style="display: none; visibility: hidden"
-                >
+                <div id="for-dataNumberTerm" style="display: none; visibility: hidden">
                     {{ start_proc_interval(name='varTraceTime2', prefix='dataNumberTerm', commonClass='to-update-time-range', showAutoUpdate=true) }}
                     <div class="d-flex align-items-center mt-2">
-                        <span class="sub-label mr-2"
-                            >{{ _('Number of data') }}</span
-                        >
+                        <span class="sub-label mr-2">{{ _('Number of data') }}</span>
                         <input
                             type="text"
                             class="form-control to-update-time-range"
@@ -1854,20 +1447,12 @@
             {% endif %}
 
             {% if cyclicCalender %}
-                <div
-                    id="for-cyclicCalender"
-                    style="display: none; visibility: hidden"
-                >
+                <div id="for-cyclicCalender" style="display: none; visibility: hidden">
                     {{ start_proc_interval(name='varTraceTime2', prefix='cyclicCalender', commonClass='to-update-time-range', showAutoUpdate=true, cyclicCalender=True, dateRangeHoverMsg=_('Daterange divide by calender hover msg')) }}
                     <div class="d-flex mt-2">
                         <div class="d-flex align-items-center">
-                            <label
-                                class="mr-2 mb-0"
-                                title="{{ _('Divide format hover msg') }}"
-                            >
-                                <span class="hint-text sub-label"
-                                    >{{ _('Divide format') }}</span
-                                >
+                            <label class="mr-2 mb-0" title="{{ _('Divide format hover msg') }}">
+                                <span class="hint-text sub-label">{{ _('Divide format') }}</span>
                             </label>
                             <div class="custom-selection-section">
                                 <div
@@ -1875,28 +1460,14 @@
                                     style="width: auto; min-width: 240px"
                                     id="cyclicCalender-selection"
                                 >
-                                    <span id="cyclicCalender"
-                                        >yyyy-mm-dd 2022-04-01</span
-                                    >
-                                    <span class="selection__arrow"
-                                        ><b></b
-                                    ></span>
+                                    <span id="cyclicCalender">yyyy-mm-dd 2022-04-01</span>
+                                    <span class="selection__arrow"><b></b></span>
                                 </div>
-                                <div
-                                    class="custom-selection-content"
-                                    style="width: auto"
-                                    id="cyclicCalender-content"
-                                >
+                                <div class="custom-selection-content" style="width: auto" id="cyclicCalender-content">
                                     <div class="cyclic-calender-select-option">
-                                        <div
-                                            class="cyclic-calender-option-list"
-                                        >
-                                            <div
-                                                class="cyclic-calender-option-item"
-                                            >
-                                                <div
-                                                    class="custom-control custom-radio"
-                                                >
+                                        <div class="cyclic-calender-option-list">
+                                            <div class="cyclic-calender-option-item">
+                                                <div class="custom-control custom-radio">
                                                     <input
                                                         type="radio"
                                                         name="cyclicCalender"
@@ -1909,32 +1480,19 @@
                                                         for="cyclicCalender_{{ format }}"
                                                         class="label-left"
                                                     >
-                                                        <span class="sub-label"
-                                                            >{{ format }}</span
-                                                        >
+                                                        <span class="sub-label">{{ format }}</span>
                                                     </label>
                                                 </div>
-                                                <span
-                                                    class="cyclic-calender-option-example"
-                                                    >2022040112</span
-                                                >
+                                                <span class="cyclic-calender-option-example">2022040112</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div
-                            style="display: none;"
-                            class="align-items-center for-recent-cyclicCalender ml-2 hide"
-                        >
-                            <label
-                                class="mr-2 mb-0"
-                                title="{{ _('Offset hover msg') }}"
-                            >
-                                <span class="hint-text sub-label"
-                                    >{{ _('Offset') }} [hour]</span
-                                >
+                        <div style="display: none;" class="align-items-center for-recent-cyclicCalender ml-2 hide">
+                            <label class="mr-2 mb-0" title="{{ _('Offset hover msg') }}">
+                                <span class="hint-text sub-label">{{ _('Offset') }} [hour]</span>
                             </label>
                             <input
                                 type="text"
@@ -1958,12 +1516,7 @@
 {% macro remove_outlier(id='hmRemoveOutlier', name='remove_outlier', cl='', showHintText=true) %}
     <div class="d-flex justify-content-center align-items-center {{ cl }}">
         {{ sub_label(_('Remove outlier'), title=_('The targets of removing outlier are Max, Mean Min, σ, and Range.') if showHintText else '', hl=' pb-0 mr-3') }}
-        <select
-            id="{{ id }}"
-            class="form-control"
-            name="{{ name }}"
-            style="width: 100px"
-        >
+        <select id="{{ id }}" class="form-control" name="{{ name }}" style="width: 100px">
             <option value="1">{{ _('Yes') }}</option>
             <option selected value="0">{{ _('No') }}</option>
         </select>
@@ -1976,16 +1529,8 @@
         <div class="setting-inform border-white">
             <span><i class="fas fa-info-circle"></i></span>
         </div>
-        <div
-            id="settingHoverContent"
-            class="setting-inform-content show-filter-info"
-        >
-            <button
-                class="btn clipboard"
-                style="float:right;"
-                data-clipboard-target="#setting-infor-table"
-                title=""
-            >
+        <div id="settingHoverContent" class="setting-inform-content show-filter-info">
+            <button class="btn clipboard" style="float:right;" data-clipboard-target="#setting-infor-table" title="">
                 <i class="fa fa-copy" aria-hidden="true"></i>
             </button>
             <div class="setting-content">
@@ -2019,9 +1564,7 @@
                         value="all"
                         checked
                     />
-                    <label class="form-check-label" for="exportFromAll"
-                        >All (Original)</label
-                    >
+                    <label class="form-check-label" for="exportFromAll">All (Original)</label>
                 </div>
                 {% if not disable_plot %}
                     <div class="form-check form-check-inline">
@@ -2032,32 +1575,20 @@
                             id="exportFromPlot"
                             value="plot"
                         />
-                        <label class="form-check-label" for="exportFromPlot"
-                            >Plot (Filtered)</label
-                        >
+                        <label class="form-check-label" for="exportFromPlot">Plot (Filtered)</label>
                     </div>
                 {% endif %}
             </div>
             <div class="row ml-3">
                 <label class="col-sm-3 col-form-label">Data</label>
                 <div class="col-sm">
-                    <a
-                        class="dropdown-item"
-                        href="#"
-                        onclick="handleExportData('CSV')"
-                        >CSV</a
-                    >
+                    <a class="dropdown-item" href="#" onclick="handleExportData('CSV')">CSV</a>
                 </div>
             </div>
             <div class="row ml-3">
                 <div class="col-sm-3"></div>
                 <div class="col-sm">
-                    <a
-                        class="dropdown-item"
-                        href="#"
-                        onclick="handleExportData('TSV')"
-                        >TSV</a
-                    >
+                    <a class="dropdown-item" href="#" onclick="handleExportData('TSV')">TSV</a>
                 </div>
             </div>
             <div class="row ml-3">
@@ -2075,12 +1606,7 @@
             <div class="row ml-3">
                 <label class="col-sm-3 col-form-label">Image</label>
                 <div class="col-sm">
-                    <a
-                        class="dropdown-item"
-                        href="#"
-                        onclick="handleTakeScreenShot()"
-                        >PNG</a
-                    >
+                    <a class="dropdown-item" href="#" onclick="handleTakeScreenShot()">PNG</a>
                 </div>
             </div>
             <div class="row ml-3">
@@ -2110,25 +1636,12 @@
         >
             {{ _('Export data') }}
         </button>
-        <div
-            class="dropdown-menu"
-            style="text-align: center; min-width: 110px;"
-        >
+        <div class="dropdown-menu" style="text-align: center; min-width: 110px;">
             <div>
-                <a
-                    class="dropdown-item"
-                    href="#"
-                    onclick="handleExportData('CSV', true)"
-                    >CSV</a
-                >
+                <a class="dropdown-item" href="#" onclick="handleExportData('CSV', true)">CSV</a>
             </div>
             <div>
-                <a
-                    class="dropdown-item"
-                    href="#"
-                    onclick="handleExportData('TSV', true)"
-                    >TSV</a
-                >
+                <a class="dropdown-item" href="#" onclick="handleExportData('TSV', true)">TSV</a>
             </div>
         </div>
     </div>
@@ -2150,19 +1663,11 @@
 
 {% macro emd_select(name='emdType', cl='', selectCl='') %}
     <div class="d-flex align-items-center ml-2 {{ cl }}">
-        <span class="mr-2 hint-text" title="{{ _('Mode hover msg') }}"
-            >Mode</span
-        >
+        <span class="mr-2 hint-text" title="{{ _('Mode hover msg') }}">Mode</span>
         <select name="{{ name }}" class="form-control w-auto {{ selectCl }}">
-            <option title="{{ _('Drift hover msg') }}" value="drift" selected>
-                {{ _('Drift') }}
-            </option>
-            <option title="{{ _('Diff hover msg') }}" value="diff">
-                {{ _('Diff') }}
-            </option>
-            <option title="{{ _('Both hover msg') }}" value="both">
-                {{ _('Both') }}
-            </option>
+            <option title="{{ _('Drift hover msg') }}" value="drift" selected>{{ _('Drift') }}</option>
+            <option title="{{ _('Diff hover msg') }}" value="diff">{{ _('Diff') }}</option>
+            <option title="{{ _('Both hover msg') }}" value="both">{{ _('Both') }}</option>
         </select>
     </div>
 {% endmacro %}
@@ -2186,13 +1691,8 @@
         {% set cleansing_option = ['['] + cleansing_option + [']'] %}
     {% endif %}
     {% set cleansing_val = cleansing_option|join('') %}
-    <div
-        class="d-flex justify-content-center align-items-center custom-selection-section"
-    >
-        <div
-            class="custom-selection gui-custom-selection"
-            id="cleansing-selection"
-        >
+    <div class="d-flex justify-content-center align-items-center custom-selection-section">
+        <div class="custom-selection gui-custom-selection" id="cleansing-selection">
             <input type="hidden" name="cleansing" value="" />
             <span
                 >{{ _('Cleansing') }}
@@ -2213,24 +1713,15 @@
                     onchange="updateCleansing(this)"
                     {% if exception==True %}checked="checked"{% endif %}
                 />
-                <label
-                    class="custom-control-label hint-text"
-                    for="exception-input"
-                >
-                    <span title="{{ _('Exception Estimation Explanation') }}"
-                        >Exception</span
-                    >
+                <label class="custom-control-label hint-text" for="exception-input">
+                    <span title="{{ _('Exception Estimation Explanation') }}">Exception</span>
                 </label>
             </div>
             {% if objExp %}
                 <div class="my-1">
-                    <div
-                        class="d-flex justify-content-between align-items-center"
-                    >
+                    <div class="d-flex justify-content-between align-items-center">
                         <label class="mb-1 hint-text">
-                            <span title="{{ _('Remove outlier hover msg') }}"
-                                >Outlier</span
-                            >
+                            <span title="{{ _('Remove outlier hover msg') }}">Outlier</span>
                         </label>
                         {{ outlier_option(outlierDefault) }}
                     </div>
@@ -2247,12 +1738,8 @@
                                 onchange="updateCleansing(this)"
                                 checked
                             />
-                            <label
-                                class="custom-control-label hint-text"
-                                for="remove_outlier_objective_var"
-                            >
-                                <span
-                                    title="{{ _('Applies outlier removal to the objective variable.') }}"
+                            <label class="custom-control-label hint-text" for="remove_outlier_objective_var">
+                                <span title="{{ _('Applies outlier removal to the objective variable.') }}"
                                     >Objective var</span
                                 >
                             </label>
@@ -2267,12 +1754,8 @@
                                 name="remove_outlier_explanatory_var"
                                 onchange="updateCleansing(this)"
                             />
-                            <label
-                                class="custom-control-label hint-text"
-                                for="remove_outlier_explanatory_var"
-                            >
-                                <span
-                                    title="{{ _('Applies outlier removal to the explanatory variable.') }}"
+                            <label class="custom-control-label hint-text" for="remove_outlier_explanatory_var">
+                                <span title="{{ _('Applies outlier removal to the explanatory variable.') }}"
                                     >Explanatory var</span
                                 >
                             </label>
@@ -2292,10 +1775,7 @@
                             onchange="updateCleansing(this)"
                             {% if outlier==True %}checked="checked"{% endif %}
                         />
-                        <label
-                            class="custom-control-label hint-text"
-                            for="outlier-input"
-                        >
+                        <label class="custom-control-label hint-text" for="outlier-input">
                             <span
                                 title="{{ _('Remove outlier hover msg') }}
 {{ isRealOnlyMsg }}"
@@ -2304,13 +1784,7 @@
                         </label>
                     </div>
                     {% if isRealOnlyMsg %}
-                        <input
-                            type="checkbox"
-                            checked
-                            value="1"
-                            name="is_remove_outlier_real_only"
-                            hidden
-                        />
+                        <input type="checkbox" checked value="1" name="is_remove_outlier_real_only" hidden />
                     {% endif %}
                     {{ outlier_option(outlierDefault) }}
                 </div>
@@ -2326,10 +1800,7 @@
                     onchange="updateCleansing(this)"
                     {% if pulsed==True %}checked="checked"{% endif %}
                 />
-                <label
-                    class="custom-control-label hint-text"
-                    for="pulsed-input"
-                >
+                <label class="custom-control-label hint-text" for="pulsed-input">
                     <span
                         title="{{ _('Values those have pulsed number of occurrences compared to the neighbors: Replace to NA') }}"
                         >Pulsed</span
@@ -2339,9 +1810,7 @@
             {% if dup %}
                 <div class="custom-control d-flex justify-content-between mt-1">
                     <label class="mr-2 hint-text">
-                        <span title="{{ _('Duplicate serial hover message') }}"
-                            >Dup</span
-                        >
+                        <span title="{{ _('Duplicate serial hover message') }}">Dup</span>
                     </label>
                     <select
                         onchange="updateCleansing(this)"
@@ -2349,18 +1818,14 @@
                         name="duplicated_serial"
                         style="width: 84px; height: 30px; padding: 3px"
                     >
-                        <option selected value="all" show-value="Da">
-                            All
-                        </option>
+                        <option selected value="all" show-value="Da">All</option>
                         <option value="first" show-value="Df">First</option>
                         <option value="last" show-value="Dl">Last</option>
                     </select>
                 </div>
                 <div class="custom-control d-flex justify-content-between mt-1">
                     <label class="mr-2 hint-text">
-                        <span title="{{ _('Dup check message') }}"
-                            >Dup check</span
-                        >
+                        <span title="{{ _('Dup check message') }}">Dup check</span>
                     </label>
                     <select
                         onchange="updateCleansing(this)"
@@ -2368,9 +1833,7 @@
                         name="dup_check"
                         style="width: 84px; height: 30px; padding: 3px"
                     >
-                        <option selected value="auto" show-value="a">
-                            Auto
-                        </option>
+                        <option selected value="auto" show-value="a">Auto</option>
                         <option value="check" show-value="c">Check</option>
                         <option value="silent" show-value="s">Skip</option>
                     </select>
@@ -2388,74 +1851,30 @@
         name="remove_outlier_type"
         style="width: 101px; height: 30px; padding: 3px"
     >
-        <option
-            value="Op1"
-            show-value="p1"
-            {% if defaultValue=='Op1' %}selected="selected"{% endif %}
-        >
-            P1-P99
-        </option>
-        <option
-            value="Op5"
-            show-value="p5"
-            {% if defaultValue=='Op5' %}selected="selected"{% endif %}
-        >
-            P5-P95
-        </option>
-        <option
-            value="O4m"
-            show-value="4m"
-            {% if defaultValue=='O4m' %}selected="selected"{% endif %}
-        >
+        <option value="Op1" show-value="p1" {% if defaultValue=='Op1' %}selected="selected"{% endif %}>P1-P99</option>
+        <option value="Op5" show-value="p5" {% if defaultValue=='Op5' %}selected="selected"{% endif %}>P5-P95</option>
+        <option value="O4m" show-value="4m" {% if defaultValue=='O4m' %}selected="selected"{% endif %}>
             4IQR-Major
         </option>
-        <option
-            value="O4i"
-            show-value="4i"
-            {% if defaultValue=='O4i' %}selected="selected"{% endif %}
-        >
+        <option value="O4i" show-value="4i" {% if defaultValue=='O4i' %}selected="selected"{% endif %}>
             4IQR-Minor
         </option>
-        <option
-            value="O4u"
-            show-value="4u"
-            {% if defaultValue=='O4u' %}selected="selected"{% endif %}
-        >
+        <option value="O4u" show-value="4u" {% if defaultValue=='O4u' %}selected="selected"{% endif %}>
             4IQR-Upper
         </option>
-        <option
-            value="O4l"
-            show-value="4l"
-            {% if defaultValue=='O4l' %}selected="selected"{% endif %}
-        >
+        <option value="O4l" show-value="4l" {% if defaultValue=='O4l' %}selected="selected"{% endif %}>
             4IQR-Lower
         </option>
-        <option
-            value="O6m"
-            show-value="6m"
-            {% if defaultValue=='O6m' %}selected="selected"{% endif %}
-        >
+        <option value="O6m" show-value="6m" {% if defaultValue=='O6m' %}selected="selected"{% endif %}>
             6IQR-Major
         </option>
-        <option
-            value="O6i"
-            show-value="6i"
-            {% if defaultValue=='O6i' %}selected="selected"{% endif %}
-        >
+        <option value="O6i" show-value="6i" {% if defaultValue=='O6i' %}selected="selected"{% endif %}>
             6IQR-Minor
         </option>
-        <option
-            value="O6u"
-            show-value="6u"
-            {% if defaultValue=='O6u' %}selected="selected"{% endif %}
-        >
+        <option value="O6u" show-value="6u" {% if defaultValue=='O6u' %}selected="selected"{% endif %}>
             6IQR-Upper
         </option>
-        <option
-            value="O6l"
-            show-value="6l"
-            {% if defaultValue=='O6l' %}selected="selected"{% endif %}
-        >
+        <option value="O6l" show-value="6l" {% if defaultValue=='O6l' %}selected="selected"{% endif %}>
             6IQR-Lower
         </option>
     </select>
@@ -2531,10 +1950,7 @@
         class="form-control border-white w-auto scale-dropdown"
     >
         {% for value in values %}
-            <option
-                value="{{ value }}"
-                {{ 'selected' if selectedValue==value else '' }}
-            >
+            <option value="{{ value }}" {{ 'selected' if selectedValue==value else '' }}>
                 {{ texts[loop.index0] }}
             </option>
         {% endfor %}
@@ -2556,10 +1972,7 @@
 
 {% macro switch_button(id='', name='', label='', title='', cl='', onChange='', defaultVal=False) %}
     <div class="d-flex align-items-center {{ cl }}">
-        <label
-            for="{{ id }}"
-            title="{{ title }}"
-            class="mb-0 mr-2 {{ 'hint-text' if title else '' }}"
+        <label for="{{ id }}" title="{{ title }}" class="mb-0 mr-2 {{ 'hint-text' if title else '' }}"
             >{{ label }}</label
         >
         <label class="switch">
@@ -2587,10 +2000,7 @@
             </div>
             <div class="custom-selection-content" id="ordering-content">
                 <div class="form-check">
-                    <label
-                        class="form-check-label"
-                        for="sort-by-selected-order"
-                    >
+                    <label class="form-check-label" for="sort-by-selected-order">
                         <input
                             default-Value="correlation"
                             class="form-check-input"
@@ -2647,9 +2057,7 @@
                     </label>
                     <!-- 閾値 -->
                     <div>
-                        <span class="text"
-                            >{{ _('Corr threshold (abs)') }}</span
-                        >
+                        <span class="text">{{ _('Corr threshold (abs)') }}</span>
                     </div>
                     <div class="form-check group-input">
                         <input
@@ -2661,9 +2069,7 @@
                             default-Value="correlation"
                             data-action="reload"
                         />
-                        <label class="form-check-label" for="corr-threshold"
-                            >{{ _('|Corr|>') }}</label
-                        >
+                        <label class="form-check-label" for="corr-threshold">{{ _('|Corr|>') }}</label>
                         <input
                             type="number"
                             class="form-control sub-input"
@@ -2673,9 +2079,7 @@
                         />
                     </div>
                     <div class="form-check group-input">
-                        <label class="form-check-label" for="max-vars"
-                            >{{ _('Max') }}</label
-                        >
+                        <label class="form-check-label" for="max-vars">{{ _('Max') }}</label>
                         <input
                             type="number"
                             id="max-vars"
@@ -2697,9 +2101,7 @@
                             data-action="reload"
                             checked
                         />
-                        <label class="form-check-label" for="top-vars"
-                            >{{ _('Top') }}</label
-                        >
+                        <label class="form-check-label" for="top-vars">{{ _('Top') }}</label>
                         <input
                             type="number"
                             class="form-control sub-input"
@@ -2742,12 +2144,7 @@
 {% macro duplicated_serial(id='duplicatedSerial', name='duplicated_serial', cl='') %}
     <div class="d-flex justify-content-center align-items-center {{ cl }}">
         {{ sub_label(_('Duplicate serial'), title=_('Duplicate serial hover message'), hl=' pb-0 mr-3') }}
-        <select
-            id="{{ id }}"
-            class="form-control"
-            name="{{ name }}"
-            style="width: 80px"
-        >
+        <select id="{{ id }}" class="form-control" name="{{ name }}" style="width: 80px">
             <option selected value="all">{{ _('All 2') }}</option>
             <option value="first">{{ _('First') }}</option>
             <option value="last">{{ _('Last') }}</option>
@@ -2757,45 +2154,18 @@
 
 {% macro data_finder_modal() %}
     <div id="data-finder-modal" class="data-finder position-relative">
-        <span class="data-finder-close" onclick="closeCalenderModal()"
-            ><i class="fa fa-times"></i
-        ></span>
+        <span class="data-finder-close" onclick="closeCalenderModal()"><i class="fa fa-times"></i></span>
         <div class="data-finder-calendar">
-            <div
-                id="data-finder-year"
-                class="calender-box year-calendar"
-                style="display: none"
-            ></div>
-            <div
-                id="data-finder-month"
-                class="calender-box month-calendar"
-            ></div>
-            <div
-                id="data-finder-week"
-                class="calender-box week-calendar"
-                style="display: none"
-            ></div>
+            <div id="data-finder-year" class="calender-box year-calendar" style="display: none"></div>
+            <div id="data-finder-month" class="calender-box month-calendar"></div>
+            <div id="data-finder-week" class="calender-box week-calendar" style="display: none"></div>
         </div>
         <div class="data-finder-action">
-            <input
-                name="data-finder-from"
-                id="data-finder-from"
-                class="form-control"
-                type="text"
-                hidden
-            />
-            <input
-                name="data-finder-from"
-                id="data-finder-to"
-                class="form-control"
-                type="text"
-                hidden
-            />
+            <input name="data-finder-from" id="data-finder-from" class="form-control" type="text" hidden />
+            <input name="data-finder-from" id="data-finder-to" class="form-control" type="text" hidden />
             <div class="action">
                 <div class="action-offset">
-                    <label id="dataFinderInputLabel" for="data-finder-input"
-                        >From To</label
-                    >
+                    <label id="dataFinderInputLabel" for="data-finder-input">From To</label>
                 </div>
                 <div class="flex-grow-1">
                     <div class="form-group">
@@ -2826,11 +2196,7 @@
                             </button>
                         </div>
                         <div class="action-button-group">
-                            <button
-                                type="button"
-                                onclick="closeCalenderModal()"
-                                class="btn btn-sm btn-secondary"
-                            >
+                            <button type="button" onclick="closeCalenderModal()" class="btn btn-sm btn-secondary">
                                 Cancel
                             </button>
                         </div>
@@ -2865,79 +2231,39 @@
             </div>
         </div>
     </div>
-    <div
-        class="single-month-calendar single-calendar position-fixed"
-        style="display: none"
-    >
+    <div class="single-month-calendar single-calendar position-fixed" style="display: none">
         <div class="single-month-calendar-header single-calendar-header">
-            <div
-                class="single-month-calendar-title single-calendar-title"
-                id="singleMonthCalendarShowYear"
-            ></div>
+            <div class="single-month-calendar-title single-calendar-title" id="singleMonthCalendarShowYear"></div>
             <div class="single-month-calendar-action single-calendar-action">
-                <i
-                    class="fa fa-arrow-up"
-                    id="singleMonthCalendarGoToNextYear"
-                ></i>
-                <i
-                    class="fa fa-arrow-down"
-                    id="singleMonthCalendarGoToPrevYear"
-                ></i>
+                <i class="fa fa-arrow-up" id="singleMonthCalendarGoToNextYear"></i>
+                <i class="fa fa-arrow-down" id="singleMonthCalendarGoToPrevYear"></i>
             </div>
         </div>
-        <div
-            class="single-month-calendar-body single-calendar-body"
-            id="singleMonthCalendarBody"
-        ></div>
+        <div class="single-month-calendar-body single-calendar-body" id="singleMonthCalendarBody"></div>
         <div class="single-month-calendar-bottom single-calendar-bottom">
-            <div class="action" id="singleMonthCalendarThisWeek">
-                {{ _('This week') }}
-            </div>
+            <div class="action" id="singleMonthCalendarThisWeek">{{ _('This week') }}</div>
         </div>
     </div>
 
-    <div
-        class="single-date-calendar single-calendar position-fixed"
-        style="display: none"
-    >
+    <div class="single-date-calendar single-calendar position-fixed" style="display: none">
         <div class="single-date-calendar-header single-calendar-header">
-            <div
-                class="single-date-calendar-title single-calendar-title"
-                id="singleDateCalendarShowYearMonth"
-            ></div>
+            <div class="single-date-calendar-title single-calendar-title" id="singleDateCalendarShowYearMonth"></div>
             <div class="single-date-calendar-action single-calendar-action">
-                <i
-                    class="fa fa-arrow-up"
-                    id="singleDateCalendarGoToNextMonth"
-                ></i>
-                <i
-                    class="fa fa-arrow-down"
-                    id="singleDateCalendarGoToPrevMonth"
-                ></i>
+                <i class="fa fa-arrow-up" id="singleDateCalendarGoToNextMonth"></i>
+                <i class="fa fa-arrow-down" id="singleDateCalendarGoToPrevMonth"></i>
             </div>
         </div>
-        <div
-            class="single-date-calendar-body single-calendar-body"
-            id="singleDateCalendarBody"
-        ></div>
+        <div class="single-date-calendar-body single-calendar-body" id="singleDateCalendarBody"></div>
         <div class="single-date-calendar-bottom single-calendar-bottom">
-            <div class="action" id="singleDateCalendarThisDate">
-                {{ _('Today') }}
-            </div>
+            <div class="action" id="singleDateCalendarThisDate">{{ _('Today') }}</div>
         </div>
     </div>
 {% endmacro %}
 
 {% macro data_finder_card() %}
-    <div
-        id="data-finder-card"
-        class="card-body table-bordered graph-navi"
-        style="display: none"
-    >
+    <div id="data-finder-card" class="card-body table-bordered graph-navi" style="display: none">
         <div class="row">
-            <div class="col-xl-2 col-3">
-                {{ label(_('Data Finder'), title=_('DataFinderHoverMsg')) }}
-            </div>
+            <div class="col-xl-2 col-3">{{ label(_('Data Finder'), title=_('DataFinderHoverMsg')) }}</div>
             <div class="col-xl-10 col-9">{{ data_finder_modal() }}</div>
         </div>
     </div>
@@ -2964,12 +2290,7 @@
                     <h4 class="modal-title">
                         {{ _('Variable display ordering')  if not isSwitchXY else _('Variable axis setting') }}
                     </h4>
-                    <button
-                        type="button"
-                        class="close {{ cancelBtnId }}"
-                        data-dismiss="modal"
-                        aria-hidden="true"
-                    >
+                    <button type="button" class="close {{ cancelBtnId }}" data-dismiss="modal" aria-hidden="true">
                         ×
                     </button>
                 </div>
@@ -2985,31 +2306,16 @@
                         >
                             <thead>
                                 <tr>
-                                    <th
-                                        class="text-center"
-                                        style="max-width: 20px"
-                                    >
+                                    <th class="text-center" style="max-width: 20px">
                                         {{ _("Order") if not isSwitchXY else _('Axis') }}
                                     </th>
-                                    <th class="text-center">
-                                        {{ _("Process Name") }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _("Process Name") }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _("English Name") }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _("Shown Name") }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _("Data Type") }}
-                                    </th>
+                                    <th class="text-center">{{ _("Process Name") }}</th>
+                                    <th class="text-center">{{ _("Process Name") }}</th>
+                                    <th class="text-center">{{ _("English Name") }}</th>
+                                    <th class="text-center">{{ _("Shown Name") }}</th>
+                                    <th class="text-center">{{ _("Data Type") }}</th>
                                     {% if not graphArea %}
-                                        <th
-                                            class="text-center col-del-btn"
-                                        ></th>
+                                        <th class="text-center col-del-btn"></th>
                                     {% endif %}
                                 </tr>
                             </thead>
@@ -3068,23 +2374,15 @@
 {% endmacro %}
 
 {% macro judgeCondition() %}
-    <div
-        class="card-body table-bordered graph-navi"
-        id="judgeConditionCard"
-        style="display: none"
-    >
+    <div class="card-body table-bordered graph-navi" id="judgeConditionCard" style="display: none">
         <div class="row">
             <div class="col-xl-2 col-3"></div>
             <div class="col-xl-10 col-9">
                 <div class="row">
-                    <div
-                        class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                    >
+                    <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                         <div class="d-flex align-items-center">
                             <div class="d-flex align-items-center mr-3">
-                                <span
-                                    class="sub-label hint-text d-block mr-3"
-                                    title="{{ _('NG condition hover msg') }}"
+                                <span class="sub-label hint-text d-block mr-3" title="{{ _('NG condition hover msg') }}"
                                     >{{ _('NG Condition') }}</span
                                 >
                                 <select
@@ -3093,21 +2391,11 @@
                                     class="form-control w-auto"
                                     name="NGCondition"
                                 >
-                                    <option show-for="real" value=">">
-                                        {{ '>' }}
-                                    </option>
-                                    <option show-for="real" value=">=">
-                                        {{ '>=' }}
-                                    </option>
-                                    <option show-for="real" value="<">
-                                        {{ '<' }}
-                                    </option>
-                                    <option show-for="real" value="<=">
-                                        {{ '<=' }}
-                                    </option>
-                                    <option value="=" selected>
-                                        {{ '=' }}
-                                    </option>
+                                    <option show-for="real" value=">">{{ '>' }}</option>
+                                    <option show-for="real" value=">=">{{ '>=' }}</option>
+                                    <option show-for="real" value="<">{{ '<' }}</option>
+                                    <option show-for="real" value="<=">{{ '<=' }}</option>
+                                    <option value="=" selected>{{ '=' }}</option>
                                     <option value="!=">{{ '!=' }}</option>
                                 </select>
                             </div>
@@ -3138,10 +2426,7 @@
                 value="1"
                 checked
             />
-            <label
-                class="custom-control-label hint-text"
-                title="{{ _('Nominal scale hover msg') }}"
-                for="nominalScale"
+            <label class="custom-control-label hint-text" title="{{ _('Nominal scale hover msg') }}" for="nominalScale"
                 >{{ _('Nominal scale') }}</label
             >
         </div>
@@ -3163,14 +2448,10 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <!--    head actions    -->
-                    <div
-                        class="d-flex align-items-center justify-content-between mb-4"
-                    >
+                    <div class="d-flex align-items-center justify-content-between mb-4">
                         <h4></h4>
                         <div class="d-flex">
-                            <div
-                                class="d-flex align-items-center mr-3 border-gray-curve p-1"
-                            >
+                            <div class="d-flex align-items-center mr-3 border-gray-curve p-1">
                                 <div class="mr-1">
                                     <input
                                         title="{{ _('Filter search box hover msg') }}"
@@ -3179,18 +2460,8 @@
                                         class="form-control"
                                     />
                                 </div>
-                                <button
-                                    class="btn simple-btn btn-setting mr-1"
-                                    id="setNominalScaleInput"
-                                >
-                                    Set
-                                </button>
-                                <button
-                                    class="btn simple-btn btn-setting"
-                                    id="resetNominalScaleInput"
-                                >
-                                    Reset
-                                </button>
+                                <button class="btn simple-btn btn-setting mr-1" id="setNominalScaleInput">Set</button>
+                                <button class="btn simple-btn btn-setting" id="resetNominalScaleInput">Reset</button>
                             </div>
                             <div class="d-flex align-items-center">
                                 <button
@@ -3220,42 +2491,23 @@
                     <!--                4	Kensa 検査	Hinban 品番	Str	☑-->
 
                     <div class="mt-4">
-                        <h4>
-                            {{ _('Nominal/ordinal scale setting of categorical data') }}
-                        </h4>
+                        <h4>{{ _('Nominal/ordinal scale setting of categorical data') }}</h4>
                         <div class="mt-4">
                             {% for p in _('Nominal scale hover msg').split('\n') %}
-                                <p class="mb-0" style="line-height: 1.5">
-                                    {{ p }}
-                                </p>
+                                <p class="mb-0" style="line-height: 1.5">{{ p }}</p>
                             {% endfor %}
                         </div>
                     </div>
-                    <div
-                        id="nominalScaleTable_wrap"
-                        style="max-height: 65vh"
-                        class="table-responsive mt-5 mb-4"
-                    >
-                        <table
-                            class="table table-bordered table-fixed table-striped"
-                            id="nominalScaleTable"
-                        >
+                    <div id="nominalScaleTable_wrap" style="max-height: 65vh" class="table-responsive mt-5 mb-4">
+                        <table class="table table-bordered table-fixed table-striped" id="nominalScaleTable">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
-                                    <th class="text-center">
-                                        {{ _('Process Name') }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _('Column Name') }}
-                                    </th>
-                                    <th class="text-center">
-                                        {{ _('Data Type') }}
-                                    </th>
+                                    <th class="text-center">{{ _('Process Name') }}</th>
+                                    <th class="text-center">{{ _('Column Name') }}</th>
+                                    <th class="text-center">{{ _('Data Type') }}</th>
                                     <th>
-                                        <div
-                                            class="custom-control custom-checkbox custom-control-inline"
-                                        >
+                                        <div class="custom-control custom-checkbox custom-control-inline">
                                             <input
                                                 type="checkbox"
                                                 id="nominalScaleAll"
@@ -3264,9 +2516,7 @@
                                                 class="custom-control-input"
                                                 checked
                                             />
-                                            <label
-                                                class="custom-control-label"
-                                                for="nominalScaleAll"
+                                            <label class="custom-control-label" for="nominalScaleAll"
                                                 >{{ _('Nominal scale') }}</label
                                             >
                                         </div>
@@ -3281,12 +2531,9 @@
         </div>
     </div>
 {% endmacro %}
-{% macro input_and_select_btn(name, label, value='', placeholder='', type='text',label_block_cnt = 4,input_block_cnt = 8) %}
+{% macro input_and_select_btn(name, label, value='', placeholder='', type='text',label_block_cnt = 4,input_block_cnt = 8, on_change='') %}
     <div class="form-group row">
-        <label
-            for="{{ name }}"
-            class="col-sm-{{ label_block_cnt }} col-form-label label-right"
-        >
+        <label for="{{ name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
             <h5>{{ _(label) }}</h5>
         </label>
         <div class="col-sm-{{ input_block_cnt }} input-with-select-btn">
@@ -3297,6 +2544,7 @@
                 value="{{ value | escape }}"
                 id="{{ name }}"
                 placeholder="{{ placeholder }}"
+                onchange="{{ on_change }}"
             />
             {#            <button id="{{ name }}Btn" class="btn btn-light ml-1" style="width: 10%;">{{ _('Select') }}</button>#}
             {#            <input type="file" hidden id="{{ name }}Input"#}
@@ -3314,10 +2562,7 @@
         class="form-control border-white w-auto scale-dropdown"
     >
         {% for value in values %}
-            <option
-                value="{{ value }}"
-                {{ 'selected' if selectedValue==value else '' }}
-            >
+            <option value="{{ value }}" {{ 'selected' if selectedValue==value else '' }}>
                 {{ texts[loop.index0] }}
             </option>
         {% endfor %}

@@ -7,9 +7,12 @@ from flask_babel import gettext as _
 
 from ap.common.common_utils import (
     get_about_md_file,
+    get_data_path,
     get_error_trace_path,
     get_files,
+    get_log_path,
     get_terms_of_use_md_file,
+    get_user_scripts_path,
     get_wrapr_path,
     sort_processes_by_parent_children_relationship,
 )
@@ -56,33 +59,36 @@ def config_screen():
         )
 
     all_procs = get_all_process()
-    processes = get_all_process_no_nested()
-    # generate english name for process
-    for proc_data in processes:
-        if not proc_data['name_en']:
-            proc_data['name_en'] = to_romaji(proc_data['name'])
-    # procs = [(proc.get('id'), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
     all_functions = get_all_functions()
 
     output_dict = {
         'page_title': _('Application Configuration'),
-        'proc_list': all_procs,
         'procs': sort_processes_by_parent_children_relationship(all_procs),
         'import_err_dir': import_err_dir,
         'polling_frequency': int(polling_frequency),
         'data_sources': data_source_forms,
         'all_datasource': dumps(all_datasource),
+        'log_path': get_log_path(),
+        'data_path': get_data_path(),
         'all_function': dumps(all_functions),
         # 'ds_tables': ds_tables
     }
 
     # get R ETL wrap functions
-    wrap_path = get_wrapr_path()
-    func_etl_path = os.path.join(wrap_path, 'func', 'etl')
+    py_etl_path = os.path.join(get_user_scripts_path(), 'py')  # py etl folder path
+    r_etl_path = os.path.join(get_wrapr_path(), 'func', 'etl')  # r etl folder path
+
+    # todo: refactor. this is a borderline treasonous use of exceptions
     try:
-        etl_scripts = get_files(directory=func_etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
+        r_etl_scripts = get_files(directory=r_etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
     except Exception:
-        etl_scripts = []
+        r_etl_scripts = []
+    try:
+        py_etl_scripts = get_files(directory=py_etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
+    except Exception:
+        py_etl_scripts = []
+
+    etl_scripts = r_etl_scripts + py_etl_scripts
     output_dict.update({'etl_scripts': etl_scripts})
 
     return render_template('config.html', **output_dict)

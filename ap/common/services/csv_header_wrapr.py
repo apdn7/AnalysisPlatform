@@ -527,7 +527,7 @@ def summarize_header_as_df(hdr: dict, info: dict):
     # translate
     head['main'] = _translate_wellknown_jp2en(head['main'])
     # if head$main has some same value, add _01, _02, ...
-    head['main'], _ = add_suffix_if_duplicated(head['main'])
+    head['main'], *_ = add_suffix_if_duplicated(head['main'])
 
     df_head = pd.DataFrame(head, index=head['main'])
     return df_head
@@ -564,6 +564,34 @@ def _split_colnames_from_unit(x) -> dict:
     return units
 
 
+def convert_wellknown_col_name(col_name):
+    is_wellknown_col = False
+    _fromto = {
+        '品番': 'Part_No',
+        '品名': 'Part_Name',
+        'ライン': 'Line',
+        'ラインID': 'Line_ID',
+        'ライン群': 'Line_Group',
+        'ライン群ID': 'Line_Group_ID',
+        'ラインNo': 'Line_No',
+        'ライン名': 'Line_Name',
+        '工程': 'Process',
+        '工程ID': 'Process_ID',
+        '子設備': 'Child_Equip',
+        '子設備ID': 'Child_Equip_ID',
+        '設備': 'Equip',
+        '設備ID': 'Equip_ID',
+        '設備名': 'Equip_Name',
+        '設備No': 'Equip_No',
+        'ステーションNo': 'Station_No',
+        '判定': 'Judge',
+    }
+    if col_name in _fromto.keys():
+        col_name = _fromto[col_name]
+        is_wellknown_col = True
+    return col_name, is_wellknown_col
+
+
 def _translate_wellknown_jp2en(x):
     fromto = {
         '製品': 'Product',
@@ -589,26 +617,40 @@ def _translate_wellknown_jp2en(x):
 
 
 def add_suffix_if_duplicated(names):
+    """
+    names: original columns name
+    is_dupl_cols: the markers where is duplicated columns from original names
+    """
     is_dupl_cols = [False] * len(names)
     duplicated = [k for k, v in Counter(names).items() if v > 1]
+    partial_dummy_header = False
     if len(duplicated) == 0:
-        return names, is_dupl_cols
+        return names, is_dupl_cols, partial_dummy_header
 
     _max_item = len(names) + 1
     # [a_01, a_02, a_03]
     suffix_format = (f'_{str(x).zfill(2)!s}' for x in range(1, _max_item))
     dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated))))
+
+    def _gen_name(name, suffix):
+        # input: col, generator
+        _suffix = str(next(suffix))
+        _name = name + _suffix
+        if _name in names:
+            _name = _gen_name(name, suffix)
+        return _name
+
     for idx, s in enumerate(names):
         try:
-            suffix = str(next(dic_suffix[s]))
+            if s in dic_suffix:
+                _name = _gen_name(s, dic_suffix[s])
+                names[idx] = _name
+                if _name:
+                    is_dupl_cols[idx] = True
+                    partial_dummy_header = True
         except KeyError:
             continue
-        else:
-            names[idx] += suffix
-            if suffix:
-                is_dupl_cols[idx] = True
-
-    return names, is_dupl_cols
+    return names, is_dupl_cols, partial_dummy_header
 
 
 def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_original_cols):
@@ -664,7 +706,7 @@ def guess_datatypes(df) -> list:
     intg = []
     real = []
     dati = []
-    for col in df.columns.values:
+    for col in df.columns:
         uniq_vals = df[col].dropna().unique()
         dtypes.append(_guess_datatype(uniq_vals))
         intg.append(_can_parse_as_integer(uniq_vals))
@@ -889,7 +931,7 @@ def guess_escape_strings(df) -> list:
     e.g. 99999, -99999 sometime indicates Inf, -Inf, respectively.
     """
     escape_str = []
-    for col in df.columns.values:
+    for col in df.columns:
         escape_str.append(_extract_escape_str(df[col]))
     return escape_str
 
@@ -908,5 +950,5 @@ def _extract_escape_str(col) -> str:
 
 
 def gen_colsname_for_duplicated(cols_name):
-    cols_name, dup_cols = add_suffix_if_duplicated(cols_name)
+    cols_name, dup_cols, _ = add_suffix_if_duplicated(cols_name)
     return cols_name, dup_cols

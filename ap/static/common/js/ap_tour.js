@@ -92,59 +92,30 @@ const getTourContent = () => {
     const tourCleansingContent = (cleansingContent) => {
         const exception = `<span title="${$(
             '#i18nTourCleansingExp',
-        ).text()}" class="shepherd-hint-text">Exception</span> (${$(
-            '#partNoDefaultName',
-        ).text()}: ON)<br>`;
+        ).text()}" class="shepherd-hint-text">Exception</span> (${$('#partNoDefaultName').text()}: ON)<br>`;
         const outlier = `<span title="${$(
             '#i18nTourCleansingOutl',
-        ).text()}" class="shepherd-hint-text">Outlier(Trim)</span> (${$(
-            '#partNoDefaultName',
-        ).text()}: OFF)<br>`;
+        ).text()}" class="shepherd-hint-text">Outlier(Trim)</span> (${$('#partNoDefaultName').text()}: OFF)<br>`;
         const pulsed = `<span title="${$(
             '#i18nTourCleansingPulsed',
-        ).text()}" class="shepherd-hint-text">Pulsed</span> (${$(
-            '#partNoDefaultName',
-        ).text()}: ON)<br>`;
-        const dup = `<span title="${$(
-            '#i18nTourCleansingDup',
-        ).text()}" class="shepherd-hint-text">Dup</span> (${$(
+        ).text()}" class="shepherd-hint-text">Pulsed</span> (${$('#partNoDefaultName').text()}: ON)<br>`;
+        const dup = `<span title="${$('#i18nTourCleansingDup').text()}" class="shepherd-hint-text">Dup</span> (${$(
             '#partNoDefaultName',
         ).text()}: ON)<br>`;
         return `${cleansingContent}${exception}${outlier}${pulsed}${dup}`;
     };
 
-    tourSelectTargetVar.content = addHTMLTag(
-        tourSelectTargetVar.content,
-        'BREAK_LINE',
-    );
-    tourSelectTargetVar.content_2 = addHTMLTag(
-        tourSelectTargetVar.content_2,
-        'BREAK_LINE',
-    );
+    tourSelectTargetVar.content = addHTMLTag(tourSelectTargetVar.content, 'BREAK_LINE');
+    tourSelectTargetVar.content_2 = addHTMLTag(tourSelectTargetVar.content_2, 'BREAK_LINE');
     tourSelectTargetVar.content = `${tourSelectTargetVar.content}<span title="${tourSelectTargetVar.label}" 
         class="shepherd-hint-text">Label</span>, <span title="${tourSelectTargetVar.facet}" 
         class="shepherd-hint-text">Facet</span>:${tourSelectTargetVar.content_2}`;
-    tourSelectTargetPeriod.content = addHTMLTag(
-        tourSelectTargetPeriod.content,
-        'BREAK_LINE',
-    );
-    tourSelectTargetPeriodDatePicker.content = addHTMLTag(
-        tourSelectTargetPeriodDatePicker.content,
-        'BREAK_LINE',
-    );
+    tourSelectTargetPeriod.content = addHTMLTag(tourSelectTargetPeriod.content, 'BREAK_LINE');
+    tourSelectTargetPeriodDatePicker.content = addHTMLTag(tourSelectTargetPeriodDatePicker.content, 'BREAK_LINE');
     tourFindData.content = addHTMLTag(tourFindData.content, 'BREAK_LINE');
-    tourFindDataWithDatafinder.content = addHTMLTag(
-        tourFindDataWithDatafinder.content,
-        'BREAK_LINE',
-    );
-    tourFindDataWithDatafinder.content = addHTMLTag(
-        tourFindDataWithDatafinder.content,
-        'SPAN_TAG',
-    );
-    tourFindDataWithDatafinder.content = addHTMLTag(
-        tourFindDataWithDatafinder.content,
-        'SPAN_END_TAG',
-    );
+    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'BREAK_LINE');
+    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'SPAN_TAG');
+    tourFindDataWithDatafinder.content = addHTMLTag(tourFindDataWithDatafinder.content, 'SPAN_END_TAG');
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'BREAK_LINE');
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'A_TAG');
     tourUseFilter.content = addHTMLTag(tourUseFilter.content, 'A_END_TAG');
@@ -238,12 +209,8 @@ const tryTour = () => {
                 text: tourContent.tourSelectTargetPeriod.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const radioSelector = document.getElementById(
-                        'radioDefaultInterval',
-                    );
-                    const dttmPickerSelector = document.getElementById(
-                        'datetimeRangePicker',
-                    );
+                    const radioSelector = document.getElementById('radioDefaultInterval');
+                    const dttmPickerSelector = document.getElementById('datetimeRangePicker');
                     radioSelector.click();
                     dttmPickerSelector.select();
                     return this.next();
@@ -267,8 +234,7 @@ const tryTour = () => {
                 text: tourContent.tourSelectTargetPeriodDatePicker.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const dataFinderDOM =
-                        document.getElementsByName('dataFinderBtn')[0];
+                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
                     dataFinderDOM.style.display = 'inherit';
                     return this.next();
                 },
@@ -293,9 +259,7 @@ const tryTour = () => {
                 classes: 'btn btn-sm btn-secondary',
                 action() {
                     closeCalenderModal();
-                    const selector = document.getElementById(
-                        'datetimeRangePicker',
-                    );
+                    const selector = document.getElementById('datetimeRangePicker');
                     selector.select();
                     return this.back();
                 },
@@ -304,8 +268,7 @@ const tryTour = () => {
                 text: tourContent.tourFindData.next,
                 classes: 'btn btn-sm btn-primary',
                 action() {
-                    const selector =
-                        document.getElementsByName('dataFinderBtn')[0];
+                    const selector = document.getElementsByName('dataFinderBtn')[0];
                     selector.click();
                     return this.next();
                 },
@@ -327,12 +290,9 @@ const tryTour = () => {
                 classes: 'btn btn-sm btn-secondary',
                 action() {
                     closeCalenderModal();
-                    const dataFinderDOM =
-                        document.getElementsByName('dataFinderBtn')[0];
+                    const dataFinderDOM = document.getElementsByName('dataFinderBtn')[0];
                     dataFinderDOM.style.display = 'inherit';
-                    const selector = document.getElementById(
-                        'datetimeRangePicker',
-                    );
+                    const selector = document.getElementById('datetimeRangePicker');
                     selector.select();
                     return this.back();
                 },
@@ -354,8 +314,7 @@ const tryTour = () => {
                 text: tourContent.tourUseFilter.back,
                 classes: 'btn btn-sm btn-secondary',
                 action() {
-                    const elements =
-                        document.getElementById('data-finder-card');
+                    const elements = document.getElementById('data-finder-card');
                     const display = elements.style.display;
                     return this.back();
                 },

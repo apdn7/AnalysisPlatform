@@ -11,10 +11,7 @@
             {{ macros.start_proc(procs,'', traceData=true) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="d-flex align-items-center justify-content-center show-graph-div"
-                style="text-align: center;"
-            >
+            <div class="d-flex align-items-center justify-content-center show-graph-div" style="text-align: center;">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -48,10 +45,7 @@
         {{ macros.jump_modal() }}
     </div>
     <div class="row" id="showContour" style="display: none">
-        <div
-            class="d-flex align-items-center position-relative col-12"
-            id="graph-settings-area"
-        >
+        <div class="d-flex align-items-center position-relative col-12" id="graph-settings-area">
             <div>{{ macros.info_i_mark() }}</div>
             {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {scatterTraceData();}') }}
@@ -60,45 +54,27 @@
             {{ macros.scale_option(name='YScaleOption', className='ml-4', onChange='handleChangeScaleOption("y", this)') }}
             {{ macros.switch_button(id='showContourInput', name='showContourInput', label=_("with shading"), title=_('Contour hover msg'), cl='contour-button', onChange='showContour()') }}
             {{ macros.switch_button(id='showHeatmapInput', name='showHeatmapInput', label=_("Heatmap"), title=_('Heatmap hover msg'), cl='ml-4', onChange='showMSPHeatmap()', defaultVal=True) }}
-            <div class="ml-4 msp-chart-title">
-                <span id="x-title"></span><span id="y-title"></span>
-            </div>
+            <div class="ml-4 msp-chart-title"><span id="x-title"></span><span id="y-title"></span></div>
         </div>
     </div>
     <div class="plot-content">
-        <div
-            class="card graph-navi ui-sortable"
-            id="sctr-card"
-            style="display: none;"
-        ></div>
+        <div class="card graph-navi ui-sortable" id="sctr-card" style="display: none;"></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
 
     <div>
-        <ul
-            id="contextMenuTimeSeries"
-            class="context-menu"
-            style="display:none;"
-            name="contextMenu"
-        >
-            <li class="menu-item cross-hair" onclick="handleSelectedPlotView()">
-                {{ _("Plot View") }}
-            </li>
-            <li
-                class="menu-item"
-                onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')"
-            >
+        <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;" name="contextMenu">
+            <li class="menu-item cross-hair" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
+            <li class="menu-item" onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')">
                 {{ _("Threshold/Graph Config") }}
             </li>
         </ul>
     </div>
 
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

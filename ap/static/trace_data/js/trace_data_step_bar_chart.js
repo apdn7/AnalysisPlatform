@@ -48,12 +48,8 @@ const StepBarChart = ($, paramObj) => {
     categoryLabels.reverse();
 
     // get origin step bar chart data
-    const stepChartDat = categoryLabels.map(
-        (label) => categoryDistributed[label].pctg,
-    );
-    const shortCatLabels = categoryLabels.map(
-        (label) => categoryDistributed[label].short_name,
-    );
+    const stepChartDat = categoryLabels.map((label) => categoryDistributed[label].pctg);
+    const shortCatLabels = categoryLabels.map((label) => categoryDistributed[label].short_name);
     const data = {
         labels: isCatLimited ? [] : shortCatLabels,
         datasets: [
@@ -91,11 +87,7 @@ const StepBarChart = ($, paramObj) => {
         const dataIndex = tooltip.dataPoints[0].dataIndex;
         const plotData = graphStore.getArrayPlotData(chart.canvas.id);
         const categoryName = categoryLabels ? categoryLabels[dataIndex] : null;
-        const [cateName, count, ratio] = getStepChartHoverInfo(
-            dataIndex,
-            categoryName,
-            plotData,
-        );
+        const [cateName, count, ratio] = getStepChartHoverInfo(dataIndex, categoryName, plotData);
         genDataPointHoverTable(
             genDataTable(cateName, count, ratio),
             { x: leftPosition - 192, y: topPosition },
@@ -198,20 +190,32 @@ const StepBarChart = ($, paramObj) => {
     };
 
     if (!isEmpty(threshHigh)) {
-        config.options.plugins.annotation.annotations.ucl =
-            createHistHorizonalThreshold(threshHigh, CONST.RED, CONST.UCL);
+        config.options.plugins.annotation.annotations.ucl = createHistHorizonalThreshold(
+            threshHigh,
+            CONST.RED,
+            CONST.UCL,
+        );
     }
     if (!isEmpty(threshLow)) {
-        config.options.plugins.annotation.annotations.lcl =
-            createHistHorizonalThreshold(threshLow, CONST.RED, CONST.LCL);
+        config.options.plugins.annotation.annotations.lcl = createHistHorizonalThreshold(
+            threshLow,
+            CONST.RED,
+            CONST.LCL,
+        );
     }
     if (!isEmpty(prcMin)) {
-        config.options.plugins.annotation.annotations.lpcl =
-            createHistHorizonalThreshold(prcMin, CONST.BLUE, CONST.LPCL);
+        config.options.plugins.annotation.annotations.lpcl = createHistHorizonalThreshold(
+            prcMin,
+            CONST.BLUE,
+            CONST.LPCL,
+        );
     }
     if (!isEmpty(prcMax)) {
-        config.options.plugins.annotation.annotations.upcl =
-            createHistHorizonalThreshold(prcMax, CONST.BLUE, CONST.UPCL);
+        config.options.plugins.annotation.annotations.upcl = createHistHorizonalThreshold(
+            prcMax,
+            CONST.BLUE,
+            CONST.UPCL,
+        );
     }
 
     if (isCatLimited) {

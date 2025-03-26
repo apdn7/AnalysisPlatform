@@ -1,21 +1,18 @@
-from ap.common.constants import RelationShip
 from ap.setting_module.models import (
     CfgFilter,
     CfgFilterDetail,
-    crud_config,
-    insert_or_update_config,
     make_session,
 )
 
 
 def get_filter_request_data(params):
     process_id = params.get('processId')
-    filter_id = ''.join(params.get('filterId') or [])
+    filter_id = params.get('filterId') or None
     filter_type = params.get('filterType')
     filter_name = params.get('filterName')
     column_id = params.get('columnName') or None
     filter_parent_detail_ids = params.get('filterDetailParentIds') or []
-    filter_detail_ids = params.get('fitlerDetailIds') or []
+    filter_detail_ids = params.get('filterDetailIds') or []
     filter_detail_conds = params.get('filterConditions') or []
     filter_detail_names = params.get('filterDetailNames') or []
     filter_detail_functions = params.get('filterFunctions') or []
@@ -68,15 +65,8 @@ def save_filter_config(params):
                 'filter_type': filter_type,
             },
         )
-        cfg_filter = insert_or_update_config(meta_session, cfg_filter)
-        meta_session.commit()
-
-        filter_id = cfg_filter.id  # to return to frontend (must)
-
-        # crud filter details
-        num_details = len(filter_detail_conds)
         filter_details = []
-        for idx in range(num_details):
+        for idx in range(len(filter_detail_conds)):
             filter_detail = CfgFilterDetail(
                 **{
                     'id': int(filter_detail_ids[idx]) if filter_detail_ids[idx] else None,
@@ -90,17 +80,10 @@ def save_filter_config(params):
             )
             filter_details.append(filter_detail)
 
-        crud_config(
-            meta_session=meta_session,
-            data=filter_details,
-            model=CfgFilterDetail,
-            key_names=CfgFilterDetail.id.key,
-            parent_key_names=CfgFilterDetail.filter_id.key,
-            parent_obj=cfg_filter,
-            parent_relation_key=CfgFilter.filter_details.key,
-            parent_relation_type=RelationShip.MANY,
-        )
-    return filter_id
+        cfg_filter.filter_details = filter_details
+        cfg_filter = meta_session.merge(cfg_filter)
+
+    return cfg_filter.id
 
 
 def delete_cfg_filter_from_db(filter_id):

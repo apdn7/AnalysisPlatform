@@ -11,11 +11,7 @@ class DataTypeDropdown_Controller extends DataTypeDropdown_Core {
      */
     static injectEvent(dataTypeDropdownElement) {
         let dropdownElements = [];
-        if (
-            ['Array', 'NodeList'].includes(
-                dataTypeDropdownElement.constructor.name,
-            )
-        ) {
+        if (['Array', 'NodeList'].includes(dataTypeDropdownElement.constructor.name)) {
             dropdownElements = dataTypeDropdownElement;
         } else {
             dropdownElements.push(dataTypeDropdownElement);

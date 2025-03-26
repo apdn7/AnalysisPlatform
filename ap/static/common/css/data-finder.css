@@ -60,10 +60,7 @@
     width: 55px;
 }
 
-.data-finder-action
-    .action
-    .action-button
-    .action-button-group:not(:last-child) {
+.data-finder-action .action .action-button .action-button-group:not(:last-child) {
     margin-right: 8px;
 }
 

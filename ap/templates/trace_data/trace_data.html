@@ -27,9 +27,7 @@
             {{ macros.start_proc(procs,'', traceData=true, showDataFinder=True) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="d-flex align-items-center justify-content-center show-graph-div"
-            >
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -95,12 +93,7 @@
         </div>
         <ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">
             <li class="nav-item active" onclick="switchTabOption(this)">
-                <a
-                    href="#timeSeriestab"
-                    id="timeSeriestabMenu"
-                    class="nav-link active"
-                    role="tab"
-                    data-toggle="tab"
+                <a href="#timeSeriestab" id="timeSeriestabMenu" class="nav-link active" role="tab" data-toggle="tab"
                     >{{ _("Full-points Plot") }}</a
                 >
             </li>
@@ -116,17 +109,11 @@
             </li>
         </ul>
 
-        <div
-            id="tabContent"
-            class="plot-content tab-content clearfix histogram-tab-content"
-        >
+        <div id="tabContent" class="plot-content tab-content clearfix histogram-tab-content">
             <div class="tab-pane fade show active" id="timeSeriestab">
                 <div class="card chart-wrapper chart-margin">
                     <div class="justify-content-center" id="cate-card"></div>
-                    <div
-                        class="justify-content-center ui-sortable"
-                        id="plot-cards"
-                    ></div>
+                    <div class="justify-content-center ui-sortable" id="plot-cards"></div>
                     <div id="stContentTab">
                         <div class="setting-inform-content"></div>
                     </div>
@@ -137,11 +124,7 @@
     </div>
 
     <div>
-        <ul
-            id="contextMenuTimeSeries"
-            class="context-menu"
-            style="display:none;"
-        >
+        <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;">
             <li
                 class="menu-item show-filter-info"
                 onmouseover="hideGraphScaleMenu(); saveOffset(this);"
@@ -156,11 +139,7 @@
                 {{ _("Graph scale") }}<i class="fa fa-angle-right"></i>
             </li>
 
-            <li
-                class="menu-item"
-                onmouseover="hideGraphScaleMenu()"
-                onclick="handleSelectTSMenuItem('click')"
-            >
+            <li class="menu-item" onmouseover="hideGraphScaleMenu()" onclick="handleSelectTSMenuItem('click')">
                 {{ _("Display Cross hair cursor (Click)") }}
             </li>
             <li
@@ -193,10 +172,7 @@
             <li class="menu-item" onclick="handleSelectSCPMenuItem('click')">
                 {{ _("Display Cross hair cursor (Click)") }}
             </li>
-            <li
-                class="menu-item cross-hair"
-                onclick="handleSelectSCPMenuItem('doubleClick')"
-            >
+            <li class="menu-item cross-hair" onclick="handleSelectSCPMenuItem('doubleClick')">
                 {{ _("Display Multi cross hair cursor (Double click)") }}
             </li>
         </ul>
@@ -208,45 +184,22 @@
             style="display: none;"
             onmouseleave="hideGraphScaleMenu()"
         >
-            <li class="menu-item" onclick="handleGraphScaleClick('1')">
-                {{ _("Setting scale") }}
-            </li>
-            <li class="menu-item" onclick="handleGraphScaleClick('2')">
-                {{ _("Common scale") }}
-            </li>
-            <li class="menu-item" onclick="handleGraphScaleClick('3')">
-                {{ _("Threshold line") }}
-            </li>
-            <li class="menu-item" onclick="handleGraphScaleClick('4')">
-                {{ _("Auto range") }}
-            </li>
-            <li class="menu-item" onclick="handleGraphScaleClick('5')">
-                {{ _("Full range") }}
-            </li>
+            <li class="menu-item" onclick="handleGraphScaleClick('1')">{{ _("Setting scale") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('2')">{{ _("Common scale") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('3')">{{ _("Threshold line") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('4')">{{ _("Auto range") }}</li>
+            <li class="menu-item" onclick="handleGraphScaleClick('5')">{{ _("Full range") }}</li>
         </ul>
     </div>
 
-    <ul
-        id="showAnchorLabelPlotContextMenu"
-        name="contextMenu"
-        class="context-menu"
-        style="display:none;"
-    >
-        <li class="menu-item" onclick="handleShowAnchor(this)">
-            {{ _("Anchor cursor") }}
-        </li>
-        <li class="menu-item" onclick="handleShowALLCusorInLine(this)">
-            {{ _("Show  cursor from all labels") }}
-        </li>
-        <li class="menu-item" onclick="handleHideCusorInLine(this)">
-            {{ _("Hide cursor") }}
-        </li>
+    <ul id="showAnchorLabelPlotContextMenu" name="contextMenu" class="context-menu" style="display:none;">
+        <li class="menu-item" onclick="handleShowAnchor(this)">{{ _("Anchor cursor") }}</li>
+        <li class="menu-item" onclick="handleShowALLCusorInLine(this)">{{ _("Show  cursor from all labels") }}</li>
+        <li class="menu-item" onclick="handleHideCusorInLine(this)">{{ _("Hide cursor") }}</li>
     </ul>
 
     <div class="loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

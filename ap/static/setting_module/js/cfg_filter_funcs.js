@@ -9,15 +9,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         orSearch: 'OR_SEARCH',
         andSearch: 'AND_SEARCH',
     };
-    const applySearchFormulas = [
-        conditionFormula.matches,
-        conditionFormula.andSearch,
-        conditionFormula.orSearch,
-    ];
-    const multipleSelect2Formulas = [
-        conditionFormula.andSearch,
-        conditionFormula.orSearch,
-    ];
+    const applySearchFormulas = [conditionFormula.matches, conditionFormula.andSearch, conditionFormula.orSearch];
+    const multipleSelect2Formulas = [conditionFormula.andSearch, conditionFormula.orSearch];
     const singleSelect2Formulas = [conditionFormula.matches];
 
     const eles = {
@@ -95,16 +88,11 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     };
 
     const options = Array.from(Array(100).keys()).map(
-        (key) =>
-            `<option value="${key + 1}" ${key + 1 === 1 ? 'selected=selected' : ''}>${key + 1}</option>`,
+        (key) => `<option value="${key + 1}" ${key + 1 === 1 ? 'selected=selected' : ''}>${key + 1}</option>`,
     );
     const startDigitOptionsHTML = options.join('');
     const findFilterCondType = (formula) => {
-        if (
-            [conditionFormula.andSearch, conditionFormula.orSearch].includes(
-                formula,
-            )
-        ) {
+        if ([conditionFormula.andSearch, conditionFormula.orSearch].includes(formula)) {
             return 2;
         }
         if ([conditionFormula.matches].includes(formula)) {
@@ -113,59 +101,35 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         return 0;
     };
 
-    const genSelectValueOptions = (
-        filterCondition,
-        select2Type,
-        filterColumnData,
-    ) => {
-        const selectedValues =
-            select2Type === 2
-                ? `${filterCondition}`.split(/[ ]+/)
-                : [filterCondition]; // TODO split into 2 cases
+    const genSelectValueOptions = (filterCondition, select2Type, filterColumnData) => {
+        const selectedValues = select2Type === 2 ? `${filterCondition}`.split(/[ ]+/) : [filterCondition]; // TODO split into 2 cases
         const selectedValueOptions = [];
         for (const val of selectedValues) {
             if (!isEmpty(val)) {
-                selectedValueOptions.push(
-                    `<option value="${val}">${val}</option>`,
-                );
+                selectedValueOptions.push(`<option value="${val}">${val}</option>`);
             }
         }
         const filterValueOptions = [];
         for (const val of filterColumnData) {
             if (!selectedValues.includes(`${val}`)) {
-                filterValueOptions.push(
-                    `<option value="${val}">${val}</option>`,
-                );
+                filterValueOptions.push(`<option value="${val}">${val}</option>`);
             }
         }
         return [selectedValues, selectedValueOptions, filterValueOptions];
     };
 
-    const bindEventsAfterAddRow = (
-        startFromSelectPrefix,
-        filterStartPosition,
-        select2Type,
-        selectedValues,
-    ) => {
+    const bindEventsAfterAddRow = (startFromSelectPrefix, filterStartPosition, select2Type, selectedValues) => {
         // show startDigit select for partial match only
         // TODO add to function
-        $(`#${startFromSelectPrefix}Select`).on(
-            'change',
-            function changeFormulaHandler() {
-                const startDigitElement = $(
-                    `#${startFromSelectPrefix}StartDigit`,
-                );
-                const formulaElement = $(this);
-                startDigitElement.toggleClass(
-                    'd-none',
-                    formulaElement.val() !== `${conditionFormula.substring}`,
-                );
-                const condSelect2 = $(`#${startFromSelectPrefix}CondSelect2`);
-                const condInput = $(`#${startFromSelectPrefix}CondInput`);
+        $(`#${startFromSelectPrefix}Select`).on('change', function changeFormulaHandler() {
+            const startDigitElement = $(`#${startFromSelectPrefix}StartDigit`);
+            const formulaElement = $(this);
+            startDigitElement.toggleClass('d-none', formulaElement.val() !== `${conditionFormula.substring}`);
+            const condSelect2 = $(`#${startFromSelectPrefix}CondSelect2`);
+            const condInput = $(`#${startFromSelectPrefix}CondInput`);
 
-                exchangeSelectedValues(formulaElement, condSelect2, condInput);
-            },
-        );
+            exchangeSelectedValues(formulaElement, condSelect2, condInput);
+        });
 
         if (select2Type) {
             const condSelect2 = $(`#${startFromSelectPrefix}CondSelect2`);
@@ -178,11 +142,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     };
 
     const exchangeSelectedValues = (formulaElement, condSelect2, condInput) => {
-        const [changeAction, newValue] = decideChangeAction(
-            formulaElement,
-            condSelect2,
-            condInput,
-        );
+        const [changeAction, newValue] = decideChangeAction(formulaElement, condSelect2, condInput);
         if (changeAction === 'x->2') {
             condSelect2.select2(genSelect2Param(2));
             condSelect2.val(null).trigger('change');
@@ -209,44 +169,25 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     const decideChangeAction = (formulaElement, condSelect2, condInput) => {
         const newFormula = formulaElement.val();
         const oldFormula = formulaElement.attr('previousValue');
-        if (
-            singleSelect2Formulas.includes(newFormula) &&
-            multipleSelect2Formulas.includes(oldFormula)
-        ) {
+        if (singleSelect2Formulas.includes(newFormula) && multipleSelect2Formulas.includes(oldFormula)) {
             return ['x->1', condSelect2.val()];
         }
-        if (
-            singleSelect2Formulas.includes(newFormula) &&
-            !applySearchFormulas.includes(oldFormula)
-        ) {
+        if (singleSelect2Formulas.includes(newFormula) && !applySearchFormulas.includes(oldFormula)) {
             return ['x->1', condInput.val()];
         }
-        if (
-            multipleSelect2Formulas.includes(newFormula) &&
-            singleSelect2Formulas.includes(oldFormula)
-        ) {
+        if (multipleSelect2Formulas.includes(newFormula) && singleSelect2Formulas.includes(oldFormula)) {
             return ['x->2', condSelect2.val()];
         }
-        if (
-            multipleSelect2Formulas.includes(newFormula) &&
-            !applySearchFormulas.includes(oldFormula)
-        ) {
+        if (multipleSelect2Formulas.includes(newFormula) && !applySearchFormulas.includes(oldFormula)) {
             return ['x->2', condInput.val()];
         }
-        if (
-            !applySearchFormulas.includes(newFormula) &&
-            applySearchFormulas.includes(oldFormula)
-        ) {
+        if (!applySearchFormulas.includes(newFormula) && applySearchFormulas.includes(oldFormula)) {
             return ['x->0', condSelect2.val()];
         }
         return ['DO_NOTHING', null];
     };
 
-    const generateLineOptionsHTML = (
-        lineValues,
-        lineMasters,
-        selectedLine = '',
-    ) => {
+    const generateLineOptionsHTML = (lineValues, lineMasters, selectedLine = '') => {
         // build line select options
         let linesHTML = '<option value="">---</option>';
         [].concat(lineValues).forEach((lineValue, i) => {
@@ -284,48 +225,33 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             i18n.andSearch,
         ].map((e) => e[0].innerText);
         const formula = filterFunction;
-        const defaultSelected =
-            conditionFormula.matches === formula ? eles.selectedOptStr : '';
-        const endsSelected =
-            conditionFormula.endswith === formula ? eles.selectedOptStr : '';
-        const startsSelected =
-            conditionFormula.startswith === formula ? eles.selectedOptStr : '';
-        const regexSelected =
-            conditionFormula.regex === formula ? eles.selectedOptStr : '';
-        const substringSelected =
-            conditionFormula.substring === formula ? eles.selectedOptStr : '';
-        const orSearchSelected =
-            conditionFormula.orSearch === formula ? eles.selectedOptStr : '';
-        const andSearchSelected =
-            conditionFormula.andSearch === formula ? eles.selectedOptStr : '';
-        const showStartFrom =
-            conditionFormula.substring === formula ? '' : 'd-none';
+        const defaultSelected = conditionFormula.matches === formula ? eles.selectedOptStr : '';
+        const endsSelected = conditionFormula.endswith === formula ? eles.selectedOptStr : '';
+        const startsSelected = conditionFormula.startswith === formula ? eles.selectedOptStr : '';
+        const regexSelected = conditionFormula.regex === formula ? eles.selectedOptStr : '';
+        const substringSelected = conditionFormula.substring === formula ? eles.selectedOptStr : '';
+        const orSearchSelected = conditionFormula.orSearch === formula ? eles.selectedOptStr : '';
+        const andSearchSelected = conditionFormula.andSearch === formula ? eles.selectedOptStr : '';
+        const showStartFrom = conditionFormula.substring === formula ? '' : 'd-none';
         const startFromSelectPrefix = generateRandomString(6); // use for startFromSelect
 
         const select2Type = findFilterCondType(formula);
         const hideCondInput = select2Type ? 'hidden' : '';
         const hideCondSelect2 = select2Type ? '' : 'hidden';
         const selectedColumn = $(eles.columnName).val();
-        const filterColumnData = filterStore
-            .getSelectedProcessConfig()
-            .getColumnData(selectedColumn);
+        const filterColumnData = filterStore.getSelectedProcessConfig().getColumnData(selectedColumn);
         filterCondition = stringNormalization(filterCondition);
         filterName = stringNormalization(filterName);
-        const [selectedValues, selectedValueOptions, filterValueOptions] =
-            genSelectValueOptions(
-                filterCondition,
-                select2Type,
-                filterColumnData,
-            );
+        const [selectedValues, selectedValueOptions, filterValueOptions] = genSelectValueOptions(
+            filterCondition,
+            select2Type,
+            filterColumnData,
+        );
 
         // build line select options
         let lineHTML = '';
         if (isMachineRow) {
-            const lineOptionsHTML = generateLineOptionsHTML(
-                [].concat(lineIds),
-                [].concat(lineNames),
-                parentId,
-            );
+            const lineOptionsHTML = generateLineOptionsHTML([].concat(lineIds), [].concat(lineNames), parentId);
             lineHTML = `<td>
                 <select id="line${filterName}" name="filterDetailParentId" class="form-control select2-selection--single">
                     ${lineOptionsHTML}
@@ -387,17 +313,10 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
         // load startDigit value to UI
         if (substringSelected) {
-            $(`#${startFromSelectPrefix}StartFromSelect`).val(
-                `${filterStartPosition}`,
-            );
+            $(`#${startFromSelectPrefix}StartFromSelect`).val(`${filterStartPosition}`);
         }
 
-        bindEventsAfterAddRow(
-            startFromSelectPrefix,
-            filterStartPosition,
-            select2Type,
-            selectedValues,
-        );
+        bindEventsAfterAddRow(startFromSelectPrefix, filterStartPosition, select2Type, selectedValues);
     };
 
     const calcByteLength = (val) => {
@@ -414,9 +333,9 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     const calcMaxLengthColName = (columns) => {
         let maxLen = 0;
         for (let i = 0; i < columns.length; i++) {
-            if (columns[i].shown_name) {
-                if (calcByteLength(columns[i].shown_name) > maxLen) {
-                    maxLen = columns[i].shown_name.length;
+            if (columns[i].name) {
+                if (calcByteLength(columns[i].name) > maxLen) {
+                    maxLen = columns[i].name.length;
                 }
             }
         }
@@ -445,10 +364,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             }));
             $(eles.filterConditionSelect2).each(function updateOptions() {
                 const condSelect2 = $(this);
-                const formula = condSelect2
-                    .closest('tr')
-                    .find('select[name=filterConditionFormula]')
-                    .val();
+                const formula = condSelect2.closest('tr').find('select[name=filterConditionFormula]').val();
                 const select2Type = findFilterCondType(formula);
 
                 condSelect2.empty();
@@ -474,16 +390,11 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         columnElement.id = bindOnchangeColumnEvent();
     };
 
-    const genLineColumnNameSelectBox = (
-        procConfig,
-        selectedLineColumn = '',
-    ) => {
+    const genLineColumnNameSelectBox = (procConfig, selectedLineColumn = '') => {
         const columnElement = $(eles.columnName);
         columnElement.empty();
         columnElement.append('<option value="">---</option>');
-        columnElement.append(
-            `<option value="${eles.noColumn}" data-column="N/A">${i18n.noColumn} </option>`,
-        );
+        columnElement.append(`<option value="${eles.noColumn}" data-column="N/A">${i18n.noColumn} </option>`);
         columnElement.val('');
         const { columns } = procConfig;
         const maxLen = calcMaxLengthColName(columns);
@@ -673,10 +584,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             filterFromPositions,
             filterName,
         ] = extractFilterDetail(filterConfig);
-        const [_0, _1, lineIds, _2, lineNames, _3] = getFilterDetails(
-            procConfig,
-            filterTypes.LINE,
-        );
+        const [_0, _1, lineIds, _2, lineNames, _3] = getFilterDetails(procConfig, filterTypes.LINE);
 
         // generate select column
         if (filterCardId === htmlCardId.LINE) {
@@ -747,8 +655,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         genJson(eles.filterTitle);
         const data = genJson(eles.formula);
         const filterId = data[ROOT][eles.filterId] || [];
-        const filterDetailParentIds =
-            data[ROOT][eles.filterDetailParentId] || [];
+        const filterDetailParentIds = data[ROOT][eles.filterDetailParentId] || [];
         const names = data[ROOT][eles.name];
         const formulas = data[ROOT][eles.formula];
         const filterConditionInputs = data[ROOT][eles.filterCondition];
@@ -777,14 +684,9 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         ];
     };
 
-    const displayMessage = (
-        alertID,
-        message = { content: '', is_error: false },
-        card = '',
-    ) => {
+    const displayMessage = (alertID, message = { content: '', is_error: false }, card = '') => {
         if (isEmpty(alertID)) return;
-        const alertIdWithCard =
-            card === '' ? `#${alertID}` : `${card} #${alertID}`;
+        const alertIdWithCard = card === '' ? `#${alertID}` : `${card} #${alertID}`;
         $(`${alertIdWithCard}-content`).html(message.content);
         const alert = $(`${alertIdWithCard}`);
         if (!message.is_error) {
@@ -806,8 +708,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         }
     };
 
-    const invalidSetting = (arr) =>
-        !arr || ['', undefined, null].some((v) => arr.includes(v));
+    const invalidSetting = (arr) => !arr || ['', undefined, null].some((v) => arr.includes(v));
     const genDuplicateCheckString = (...args) => {
         const SEPARATE = '|';
         let compareStr = '';
@@ -826,10 +727,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     const validate = (e) => {
         let result = true;
         // validate shown name
-        const shownName = $(e.currentTarget)
-            .closest('form')
-            .find('.shown-name-ipt')
-            .val();
+        const shownName = $(e.currentTarget).closest('form').find('.shown-name-ipt').val();
         // if existing shown_name input but did not fill (!undefined)
         if (shownName !== undefined && !shownName) {
             displayMessage(
@@ -932,12 +830,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             }
             const cond = preProcessCond(conditions[i], formulas[i]);
             const startFrom = preProcessStartDigit(startFroms[i], formulas[i]);
-            const duplCheckStr = genDuplicateCheckString(
-                parentId,
-                cond,
-                formulas[i],
-                startFrom,
-            );
+            const duplCheckStr = genDuplicateCheckString(parentId, cond, formulas[i], startFrom);
             duplCheckStrings.push(duplCheckStr);
         }
         if (new Set(duplCheckStrings).size !== duplCheckStrings.length) {
@@ -969,15 +862,10 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     };
 
     const updateLineListForMachine = (procConfig) => {
-        const usedLineSelectDropdowns = $(
-            '#tblConfig_machine select[name=filterDetailParentId]',
-        ); // const filterDetailParentId
+        const usedLineSelectDropdowns = $('#tblConfig_machine select[name=filterDetailParentId]'); // const filterDetailParentId
 
         // get new line settings
-        const [_0, _1, lineIds, _2, lineNames] = getFilterDetails(
-            procConfig,
-            filterTypes.LINE,
-        );
+        const [_0, _1, lineIds, _2, lineNames] = getFilterDetails(procConfig, filterTypes.LINE);
 
         // new selection key
         const nSKeys = [''].concat(lineIds);
@@ -1018,11 +906,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             OR_SEARCH: '#filterOrSearch',
             AND_SEARCH: '#filterAndSearch',
         };
-        const formJsonCollecter = genJsonfromHTML(
-            `#${filterName}`,
-            'root',
-            true,
-        );
+        const formJsonCollecter = genJsonfromHTML(`#${filterName}`, 'root', true);
         formJsonCollecter(filterElements.filterName);
         formJsonCollecter(filterElements.filterCondition);
         formJsonCollecter(filterElements.startDigit);
@@ -1031,8 +915,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         formJsonCollecter(filterElements.filterDetailId);
         formJsonCollecter(filterElements.filterTitle);
         const data = formJsonCollecter(filterElements.filterFormula).root;
-        const filterDetailParentIds =
-            data[filterElements.filterDetailParentId] || [];
+        const filterDetailParentIds = data[filterElements.filterDetailParentId] || [];
         const names = data[filterElements.filterName];
         const formulas = data[filterElements.filterFormula];
 
@@ -1051,19 +934,13 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         if (!filterDetailIds) {
             return [];
         }
-        const filterDetails = getFilterDetails(
-            filterStore.getSelectedProcess(),
-            filterTypes.LINE,
-        );
+        const filterDetails = getFilterDetails(filterStore.getSelectedProcess(), filterTypes.LINE);
 
         return [...Array(filterDetailIds.length).keys()].map((e, i) => {
             const filterRaw = [];
             if (filterDetailParentIds.length) {
                 if (filterDetailParentIds[i]) {
-                    const lineName = getLineNameById(
-                        filterDetails,
-                        Number(filterDetailParentIds[i]),
-                    );
+                    const lineName = getLineNameById(filterDetails, Number(filterDetailParentIds[i]));
                     filterRaw.push(lineName);
                 } else {
                     filterRaw.push('');
@@ -1098,11 +975,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             } else {
                 const validData = validateData(editData);
                 if (validData) {
-                    sendSpreadSheetDataToSetting(
-                        tableId,
-                        settingData,
-                        editData,
-                    );
+                    sendSpreadSheetDataToSetting(tableId, settingData, editData);
                 } else {
                     $(eles.switchModalId).modal('show');
                     return;
@@ -1116,24 +989,13 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         if (cardId !== htmlCardId.MACHINE_ID) {
             return checkExcelDataValid(
                 editData,
-                [
-                    'filterName',
-                    'filterCondition',
-                    'filterConditionFormula',
-                    'startDigit',
-                ],
+                ['filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
                 ['filterConditionFormula', 'startDigit'],
             );
         }
         return checkExcelDataValid(
             editData,
-            [
-                'lineName',
-                'filterName',
-                'filterCondition',
-                'filterConditionFormula',
-                'startDigit',
-            ],
+            ['lineName', 'filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
             ['lineName', 'filterConditionFormula', 'startDigit'],
         ); // TODO validate line name too
     };
@@ -1145,41 +1007,18 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             const mergedConfigRows = mergeData(
                 editData,
                 settingData,
-                [
-                    'filterName',
-                    'filterCondition',
-                    'filterConditionFormula',
-                    'startDigit',
-                ],
+                ['filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
                 'filterName',
             );
             for (const configRow of mergedConfigRows) {
-                const {
-                    filterDetailId,
-                    filterName,
-                    filterCondition,
-                    filterConditionFormula,
-                    startDigit,
-                } = configRow;
-                addConfigRow(
-                    filterDetailId,
-                    filterName,
-                    filterCondition,
-                    filterConditionFormula,
-                    startDigit,
-                );
+                const { filterDetailId, filterName, filterCondition, filterConditionFormula, startDigit } = configRow;
+                addConfigRow(filterDetailId, filterName, filterCondition, filterConditionFormula, startDigit);
             }
         } else {
             const mergedConfigRows = mergeData(
                 editData,
                 settingData,
-                [
-                    'lineName',
-                    'filterName',
-                    'filterCondition',
-                    'filterConditionFormula',
-                    'startDigit',
-                ],
+                ['lineName', 'filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
                 'filterName',
             );
             const [_0, _1, lineIds, _2, lineNames] = getFilterDetails(
@@ -1188,14 +1027,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             );
 
             for (const configRow of mergedConfigRows) {
-                const {
-                    filterDetailId,
-                    lineName,
-                    filterName,
-                    filterCondition,
-                    filterConditionFormula,
-                    startDigit,
-                } = configRow;
+                const { filterDetailId, lineName, filterName, filterCondition, filterConditionFormula, startDigit } =
+                    configRow;
 
                 addConfigRow(
                     filterDetailId,
@@ -1228,27 +1061,17 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             if ($(eles.filterTitleName).length) {
                 filterColumnShowName = $(eles.filterTitleName)[0].value;
             }
-            filterColumnShowName = filterColumnShowName.length
-                ? filterColumnShowName
-                : filterTable;
+            filterColumnShowName = filterColumnShowName.length ? filterColumnShowName : filterTable;
             fileName = `${processName}_${filterColumnShowName}_filter_config.tsv`;
         } else {
             fileName = `${processName}_${filterTable}_filter_config.tsv`;
         }
         downloadText(fileName, text);
-        showToastrMsg(
-            document.getElementById('i18nStartedTSVDownload').textContent,
-            MESSAGE_LEVEL.INFO,
-        );
+        showToastrMsg(document.getElementById('i18nStartedTSVDownload').textContent, MESSAGE_LEVEL.INFO);
     };
     const copyAllFilterConfig = () => {
         const text = collectAllFilterConfigInfo();
-        navigator.clipboard
-            .writeText(text)
-            .then(
-                showToastCopyToClipboardSuccessful,
-                showToastCopyToClipboardFailed,
-            );
+        navigator.clipboard.writeText(text).then(showToastCopyToClipboardSuccessful, showToastCopyToClipboardFailed);
     };
     const pasteFilterConfig = () => {
         navigator.clipboard.readText().then(function (text) {
@@ -1270,16 +1093,10 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         headerTexts = headerTexts.flat();
         const headerCount = tableEle.find('thead tr').length;
         const colHeaderLen = headerTexts.length / headerCount;
-        const mainHeaderText = headerTexts
-            .slice(0, colHeaderLen)
-            .join(TAB_CHAR);
-        const searchHeaderText = headerTexts
-            .slice(colHeaderLen, 2 * colHeaderLen)
-            .join(TAB_CHAR);
+        const mainHeaderText = headerTexts.slice(0, colHeaderLen).join(TAB_CHAR);
+        const searchHeaderText = headerTexts.slice(colHeaderLen, 2 * colHeaderLen).join(TAB_CHAR);
         const bodyText = _.zip([...tableEle.find('tbody tr')])
-            .map(([trColumn]) =>
-                [...getTRFilterConfigDataValues(trColumn)].join(TAB_CHAR),
-            )
+            .map(([trColumn]) => [...getTRFilterConfigDataValues(trColumn)].join(TAB_CHAR))
             .join(NEW_LINE_CHAR);
 
         return [mainHeaderText, searchHeaderText, bodyText].join(NEW_LINE_CHAR);
@@ -1298,9 +1115,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             }
             const isStartDigit = td.getAttribute('name') === 'startDigit';
             const selectEl = isStartDigit
-                ? td
-                      .querySelector('div:not(.d-none)')
-                      ?.querySelector('option:checked')
+                ? td.querySelector('div:not(.d-none)')?.querySelector('option:checked')
                 : td.querySelector('option:checked');
             if (selectEl != null) {
                 return selectEl.text.trim();
@@ -1323,10 +1138,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         let newTable = dataTable;
         // user don't copy header rows
         let userHeaderRow = newTable[0];
-        const hasHeaderRow = _.isEqual(
-            userHeaderRow.slice(0, mainHeaderTexts.length),
-            mainHeaderTexts,
-        );
+        const hasHeaderRow = _.isEqual(userHeaderRow.slice(0, mainHeaderTexts.length), mainHeaderTexts);
         // if (!hasHeaderRow) {
         //     showToastrMsg(
         //         'There is no header in copied text. Please also copy header!',
@@ -1336,8 +1148,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         // }
 
         // should off by one if we have order column
-        const hasOrderColumn =
-            dataTable[0].length && dataTable[0][0] === mainHeaderTexts[0];
+        const hasOrderColumn = dataTable[0].length && dataTable[0][0] === mainHeaderTexts[0];
         if (hasOrderColumn) {
             newTable = dataTable.map((row) => row.slice(1));
         }
@@ -1347,12 +1158,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
     const checkExcelDataValid = (
         editData,
-        colNames = [
-            'filterName',
-            'filterCondition',
-            'filterConditionFormula',
-            'startDigit',
-        ],
+        colNames = ['filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
         validationColNames = ['filterConditionFormula'],
     ) => {
         const formulas = [
@@ -1382,22 +1188,13 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 const row = editData[rowIdx];
                 const cellValue = row[colIdx];
                 let isError = false;
-                if (
-                    validationCol === 'filterConditionFormula' &&
-                    !formulas.includes(cellValue)
-                ) {
+                if (validationCol === 'filterConditionFormula' && !formulas.includes(cellValue)) {
                     // formula
                     isError = true;
-                } else if (
-                    validationCol === 'lineName' &&
-                    !validLineNames.includes(cellValue)
-                ) {
+                } else if (validationCol === 'lineName' && !validLineNames.includes(cellValue)) {
                     // line name
                     isError = true;
-                } else if (
-                    validationCol === 'startDigit' &&
-                    !isEmpty(cellValue)
-                ) {
+                } else if (validationCol === 'startDigit' && !isEmpty(cellValue)) {
                     // digit
                     if (!(Number(cellValue) >= 1 && Number(cellValue) <= 100)) {
                         isError = true;
@@ -1428,8 +1225,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         const dicFormulaName2Val = {};
         dicFormulaName2Val[i18n.matches.text()] = conditionFormula.matches;
         dicFormulaName2Val[i18n.endsWith.text()] = conditionFormula.endswith;
-        dicFormulaName2Val[i18n.startsWith.text()] =
-            conditionFormula.startswith;
+        dicFormulaName2Val[i18n.startsWith.text()] = conditionFormula.startswith;
         dicFormulaName2Val[i18n.contains.text()] = conditionFormula.substring;
         dicFormulaName2Val[i18n.regex.text()] = conditionFormula.regex;
         dicFormulaName2Val[i18n.substring.text()] = conditionFormula.substring;
@@ -1440,10 +1236,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             filterStore.getSelectedProcess(),
             filterTypes.LINE,
         );
-        const dicLineName2Val = validLineNames.reduce(
-            (o, k, i) => ({ ...o, [k]: lineIds[i] }),
-            {},
-        );
+        const dicLineName2Val = validLineNames.reduce((o, k, i) => ({ ...o, [k]: lineIds[i] }), {});
 
         return {
             lineName: dicLineName2Val,
@@ -1454,12 +1247,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     const mergeData = (
         editData,
         settingData,
-        colNames = [
-            'filterName',
-            'filterCondition',
-            'filterConditionFormula',
-            'startDigit',
-        ],
+        colNames = ['filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
         mapKey = 'filterName',
     ) => {
         const settingDataRoot = eles.tblConfigId;
@@ -1478,9 +1266,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 let cellValue = row[colIdx];
                 if (colName in selectReferences) {
                     // cellValue = selectReferences[colName][cellValue] || cellValue;
-                    cellValue =
-                        getNode(selectReferences, [colName, cellValue]) ||
-                        cellValue;
+                    cellValue = getNode(selectReferences, [colName, cellValue]) || cellValue;
                 }
                 outputRow[colName] = cellValue;
             }
@@ -1517,12 +1303,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                     headerName = headerName.replaceAll('\n', '').trim();
                     const colWidth = $(th).width() + 6;
                     if (colspan) {
-                        headerLabels.push(
-                            ...Array(Number(colspan)).fill(headerName),
-                        );
-                        colWidths.push(
-                            ...Array(Number(colspan)).fill(colWidth / 2),
-                        );
+                        headerLabels.push(...Array(Number(colspan)).fill(headerName));
+                        colWidths.push(...Array(Number(colspan)).fill(colWidth / 2));
                     } else if (headerName) {
                         headerLabels.push(headerName);
                         colWidths.push(colWidth);
@@ -1567,10 +1349,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         } else {
             $(`${eles.changeModeBtn} span`).text(` ${i18n.editMode}`);
         }
-        $(eles.registerBtn).attr(
-            'disabled',
-            isEmpty($(eles.registerBtn).attr('disabled')),
-        );
+        $(eles.registerBtn).attr('disabled', isEmpty($(eles.registerBtn).attr('disabled')));
     };
 
     const register = () => {
@@ -1580,7 +1359,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             filterDetailNames,
             filterConditions,
             filterFunctions,
-            fitlerDetailIds,
+            filterDetailIds,
             filterStartFroms,
             filterName,
             filterDetailParentIds,
@@ -1590,15 +1369,12 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
         const requestData = {
             filterId,
-            columnName:
-                selectedColumnName === eles.noColumn
-                    ? null
-                    : selectedColumnName,
+            columnName: selectedColumnName === eles.noColumn ? null : selectedColumnName,
             filterDetailParentIds,
             filterDetailNames,
             filterConditions,
             filterFunctions,
-            fitlerDetailIds,
+            filterDetailIds,
             filterStartFroms,
             filterName,
             processId,
@@ -1608,7 +1384,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         fetch('/ap/api/setting/filter_config', {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(requestData),
@@ -1621,11 +1397,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 }
             })
             .then((res) => {
-                displayMessage(
-                    eles.alertMsg,
-                    { content: i18n.saveOK, is_error: false },
-                    eles.alertCard,
-                );
+                displayMessage(eles.alertMsg, { content: i18n.saveOK, is_error: false }, eles.alertCard);
 
                 const procConfig = res.proc;
 
@@ -1653,11 +1425,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 }
             })
             .catch(() => {
-                displayMessage(
-                    eles.alertMsg,
-                    { content: i18n.saveFailed, is_error: true },
-                    eles.alertCard,
-                );
+                displayMessage(eles.alertMsg, { content: i18n.saveFailed, is_error: true }, eles.alertCard);
             });
     };
 
@@ -1685,7 +1453,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         fetch(`/ap/api/setting/filter_config/${filterId}`, {
             method: 'DELETE',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({}),
@@ -1728,17 +1496,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                         filterStore.getSelectedProcess(),
                         filterTypes.LINE,
                     );
-                    addConfigRow(
-                        '',
-                        '',
-                        '',
-                        conditionFormula.matches,
-                        '',
-                        '',
-                        lineIds,
-                        lineNames,
-                        true,
-                    ); // todo check default
+                    addConfigRow('', '', '', conditionFormula.matches, '', '', lineIds, lineNames, true); // todo check default
                 } else {
                     addConfigRow();
                 }
@@ -1857,9 +1615,7 @@ const genSmartHtmlOther = (procId, cardId = null) => {
     }
     // create filter other object ,generate events, clear copy source data
     const otherFuncs = filterCfgGenerator(currId, filterTypes.OTHER);
-    filterElements.addFilterOther.before(
-        `<div name="filterOtherCard" class="card graph-navi" id="${currId}"></div>`,
-    );
+    filterElements.addFilterOther.before(`<div name="filterOtherCard" class="card graph-navi" id="${currId}"></div>`);
     const prevCard = filterElements.filterTemplate.clone();
     $(prevCard).find('table').attr('id', tableId);
     $(prevCard).find('#alertMsgSetting').removeClass('show');
@@ -1877,18 +1633,10 @@ const genSmartHtmlOther = (procId, cardId = null) => {
     $(prevCard).find('#accordionOther01').attr('id', `accordionOther${cardNo}`);
     $(prevCard).find('#headingOther01').attr('id', `headingOther${cardNo}`);
     $(prevCard).find('#collapseOther01').attr('id', `collapseOther${cardNo}`);
-    $(prevCard)
-        .find('[name=minMaxBtn]')
-        .attr('data-parent', `#accordionOther${cardNo}`);
-    $(prevCard)
-        .find('[name=minMaxBtn]')
-        .attr('href', `#collapseOther${cardNo}`);
-    $(prevCard)
-        .find('[name=minMaxBtn]')
-        .attr('aria-controls', `collapseOther${cardNo}`);
-    $(prevCard)
-        .find('#collapseOther01')
-        .attr('aria-labelledby', `headingOther${cardNo}`);
+    $(prevCard).find('[name=minMaxBtn]').attr('data-parent', `#accordionOther${cardNo}`);
+    $(prevCard).find('[name=minMaxBtn]').attr('href', `#collapseOther${cardNo}`);
+    $(prevCard).find('[name=minMaxBtn]').attr('aria-controls', `collapseOther${cardNo}`);
+    $(prevCard).find('#collapseOther01').attr('aria-labelledby', `headingOther${cardNo}`);
     $(prevCard).find('#collapseOther01').attr('id', `collapseOther${cardNo}`);
 
     $(`.card#${currId}`).append($(prevCard).children().clone());
@@ -1952,9 +1700,7 @@ const setShownName = (e) => {
 
 $(() => {
     filterElements.addFilterOther.click(() => {
-        const otherFuncs = genSmartHtmlOther(
-            filterStore.getSelectedProcessId(),
-        );
+        const otherFuncs = genSmartHtmlOther(filterStore.getSelectedProcessId());
         otherFuncs.genColumnNameSelectBox(filterStore.getSelectedProcess());
 
         addAttributeToElement($(otherFuncs.eles.thisCard));

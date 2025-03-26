@@ -31,16 +31,11 @@ function setClass(selector, className) {
 }
 
 function getValueSelect(name) {
-    return $(currentFormID)
-        .find(`select[name=${name}]`)
-        .children('option:selected')
-        .val();
+    return $(currentFormID).find(`select[name=${name}]`).children('option:selected').val();
 }
 
 function getValueCheckbox(name) {
-    return $(currentFormID)
-        .find(`input[type=checkbox][name=${name}]:checked`)
-        .val();
+    return $(currentFormID).find(`input[type=checkbox][name=${name}]:checked`).val();
 }
 
 function getValueText(name) {
@@ -48,9 +43,7 @@ function getValueText(name) {
 }
 
 function getValueRadio(name) {
-    return $(currentFormID)
-        .find(`input[type=radio][name=${name}]:checked`)
-        .val();
+    return $(currentFormID).find(`input[type=radio][name=${name}]:checked`).val();
 }
 
 function getValueInputByType(type, name) {
@@ -83,8 +76,7 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
         }
         if (!value) {
             if (/VALS_SELECT/.test(ob.name) || /end_proc/.test(ob.name)) {
-                if (!checkRelatedVariablesOfProcess(ob.name))
-                    invalids.push({ name: ob.name, id: ob.id });
+                if (!checkRelatedVariablesOfProcess(ob.name)) invalids.push({ name: ob.name, id: ob.id });
             } else {
                 invalids.push({ name: ob.name, id: ob.id });
             }
@@ -92,10 +84,7 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
     }
 
     if (minMaxNumOfEndproc) {
-        return (
-            invalids.length <= 0 &&
-            validateSelectedNumberOfEndProcs(minMaxNumOfEndproc)
-        );
+        return invalids.length <= 0 && validateSelectedNumberOfEndProcs(minMaxNumOfEndproc);
     }
 
     return invalids.length <= 0;
@@ -106,12 +95,6 @@ function updateStyleButtonByCheckingValid() {
     btn.removeAttr('disable');
     btn.removeAttr('style');
     const isValid = checkValidations();
-    if ($(formElements.showCT_Time).length) {
-        if ($(formElements.showCT_Time)[0].ready === true) {
-            $(formElements.showCT_Time).attr('disabled', false);
-            $(formElements.showCT_Time)[0].ready = null;
-        }
-    }
     if (!isValid) {
         btn.addClass('btn-secondary');
         btn.removeClass('btn-primary valid-show-graph');
@@ -127,6 +110,10 @@ function onchangeRequiredInput() {
         compareSettingChange();
         setTimeout(() => {
             updateStyleButtonByCheckingValid();
+            const dataIdToEnableCTTime = $(formElements.showCT_Time).data('target-id-to-enable-ct');
+            if (dataIdToEnableCTTime && el.currentTarget?.id === dataIdToEnableCTTime) {
+                enableCycleTimeAnalysis();
+            }
         }, 300);
     });
 }
@@ -135,12 +122,10 @@ function checkRelatedVariablesOfProcess(name) {
     const index = name.match(/\d+/g);
     const parent = $(`#end-proc-process-div-${index[1]}-parent`);
     const hasCatExp = parent.find('[name=catExpBox]').val();
-    const hasLabel =
-        $(`[name=GET02_CATE_SELECT${index[1]}]:checked`).length > 0;
+    const hasLabel = $(`[name=GET02_CATE_SELECT${index[1]}]:checked`).length > 0;
     const hasColor = parent.find('[name=colorVar]:checked').length > 0;
     //end_proc
-    const atLeastOneColumn =
-        $('input[name^=GET02_VALS_SELECT]:checked').length > 0;
+    const atLeastOneColumn = $('input[name^=GET02_VALS_SELECT]:checked').length > 0;
 
     return hasCatExp || hasLabel || hasColor || atLeastOneColumn;
 }
@@ -159,14 +144,8 @@ function updateStyleOfInvalidElements() {
             setClass(`#end-proc-process-div-${index}-parent`, 'invalid');
         } else if (/CATE_SELECT/.test(name)) {
             const index = name.match(/\d+/g);
-            setClass(
-                `#end-proc-process-cate-div-${index[1]}-parent`,
-                'invalid',
-            );
-        } else if (
-            /end_proc_cate/.test(name) ||
-            /categoryVariable/.test(name)
-        ) {
+            setClass(`#end-proc-process-cate-div-${index[1]}-parent`, 'invalid');
+        } else if (/end_proc_cate/.test(name) || /categoryVariable/.test(name)) {
             const index = name.match(/\d+/g);
             setClass(`#end-proc-process-cate-div-${index}-parent`, 'invalid');
         } else {
@@ -230,9 +209,7 @@ function validateSelectedNumberOfEndProcs(minMaxNumOfEndproc) {
     if (min && max) {
         if (endProcs.length < min || endProcs.length > max) {
             showToastrMsg(
-                i18nCommon.availableSelectMinMaxSensor
-                    .replace('MIN', min)
-                    .replace('MAX', max),
+                i18nCommon.availableSelectMinMaxSensor.replace('MIN', min).replace('MAX', max),
                 MESSAGE_LEVEL.ERROR,
             );
 
@@ -242,10 +219,7 @@ function validateSelectedNumberOfEndProcs(minMaxNumOfEndproc) {
 
     if (!min && max) {
         if (endProcs.length > max) {
-            showToastrMsg(
-                i18nCommon.availableSelectMaxSensor.replace('MAX', max),
-                MESSAGE_LEVEL.ERROR,
-            );
+            showToastrMsg(i18nCommon.availableSelectMaxSensor.replace('MAX', max), MESSAGE_LEVEL.ERROR);
             return false;
         }
     }
@@ -275,3 +249,12 @@ function updateBtnStyleWithValidation(btnDOM = '', isValid = true) {
 //         }, 300);
 //     });
 // }
+
+const enableCycleTimeAnalysis = () => {
+    if ($(formElements.showCT_Time).length) {
+        if ($(formElements.showCT_Time)[0].ready === true) {
+            $(formElements.showCT_Time).attr('disabled', false);
+            $(formElements.showCT_Time)[0].ready = null;
+        }
+    }
+};

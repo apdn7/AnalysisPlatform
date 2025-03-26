@@ -10,10 +10,11 @@ from ap.setting_module.models import (
 )
 
 process_name_column = """alter table cfg_data_source_csv add process_name text;"""
-dummy_header_column = """alter table cfg_data_source_csv add dummy_header boolean;"""
+dummy_header_column = """alter table cfg_data_source_csv add dummy_header boolean default false;"""
 n_rows_column = """alter table cfg_data_source_csv add column n_rows integer;"""
-is_transpose_column = """alter table cfg_data_source_csv add column is_transpose boolean;"""
-is_file_path_column = """alter table cfg_data_source_csv add column is_file_path boolean;"""
+is_transpose_column = """alter table cfg_data_source_csv add column is_transpose boolean default false;"""
+is_file_path_column = """alter table cfg_data_source_csv add column is_file_path boolean default false;"""
+is_file_checker = """alter table cfg_data_source_csv add column is_file_checker boolean default false;"""
 
 
 def migrate_cfg_data_source_csv(app_db_src):
@@ -32,6 +33,9 @@ def migrate_cfg_data_source_csv(app_db_src):
     is_file_path_column_existing = app_db.is_column_existing(
         CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.is_file_path.name
     )
+    is_file_checker_existing = app_db.is_column_existing(
+        CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.is_file_checker.name
+    )
     if not is_process_name_existing:
         app_db.execute_sql(process_name_column)
     if not is_dummy_header_existing:
@@ -42,6 +46,8 @@ def migrate_cfg_data_source_csv(app_db_src):
         app_db.execute_sql(is_transpose_column)
     if not is_file_path_column_existing:
         app_db.execute_sql(is_file_path_column)
+    if not is_file_checker_existing:
+        app_db.execute_sql(is_file_checker)
 
     migrate_cfg_process_column(app_db)
     app_db.disconnect()

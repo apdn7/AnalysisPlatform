@@ -2,7 +2,7 @@ import logging
 import re
 
 import markdown2
-from flask import Markup
+from markupsafe import Markup
 
 logger = logging.getLogger(__name__)
 

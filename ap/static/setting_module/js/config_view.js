@@ -52,6 +52,7 @@ const csvResourceElements = {
     dummyHeaderModal: '#dummyHeaderModal',
     dummyHeaderModalMsg: '#dummyHeaderModal .modal-msg',
     isDummyHeader: 'input[name=isDummyHeader]',
+    isFileChecker: 'input[name=isFileChecker]',
 };
 
 const eles = {
@@ -108,15 +109,9 @@ $(() => {
     $('#withImport').on('change', (evt) => {
         const isChecked = $(evt.target).is(':checked');
         if (isChecked) {
-            $('#btn-confirm-register').attr(
-                'data-with-import',
-                withImportConstants.YES,
-            );
+            $('#btn-confirm-register').attr('data-with-import', withImportConstants.YES);
         } else {
-            $('#btn-confirm-register').attr(
-                'data-with-import',
-                withImportConstants.NO,
-            );
+            $('#btn-confirm-register').attr('data-with-import', withImportConstants.NO);
         }
         // $("#withImport").is(":checked")
     });
@@ -210,9 +205,9 @@ const getDBItems = () => {
         const item = {};
         const dbID = v.id;
         item[dbID] = {
-            type: $(`#${dbID} select[name="type"]`).val(),
+            'type': $(`#${dbID} select[name="type"]`).val(),
             'master-name': $(`#${dbID} input[name="master-name"]`).val(),
-            comment: $(`#${dbID} textarea[name="comment"]`).val(),
+            'comment': $(`#${dbID} textarea[name="comment"]`).val(),
         };
         Object.assign(dtItems, item);
     });
@@ -233,7 +228,7 @@ const UpdatePollingFreq = (pf, withImport = 'NO') => {
     fetch('api/setting/update_polling_freq', {
         method: 'POST',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
@@ -248,10 +243,7 @@ const UpdatePollingFreq = (pf, withImport = 'NO') => {
 };
 
 // display message after press test connection buttons
-const displayTestDBConnectionMessage = (
-    alertID,
-    flaskMessage = { message: '', connected: false },
-) => {
+const displayTestDBConnectionMessage = (alertID, flaskMessage = { message: '', connected: false }) => {
     if (alertID === null || alertID === undefined) return;
     const alert = $(`#${alertID}`);
     // reset text
@@ -281,6 +273,8 @@ const warningI18n = {
     startRestore: $('#i18nStartRestore').text(),
     endBackup: $('#i18nEndBackup').text(),
     endRestore: $('#i18nEndRestore').text(),
+    importAppSettingDone: $('#i18nImportAppSettingDone').text(),
+    importAppSettingFailed: $('#i18nImportAppSettingFailed').text(),
 };
 
 const showToastr = () => {
@@ -297,6 +291,14 @@ const showToastr = () => {
 const showJobAsToastr = () => {
     const { jobList } = warningI18n;
     const msgContent = `<p>${warningI18n.startImport}
+    <br>${warningI18n.checkProgress}
+    <br><a style="float:right;" href="/ap/config/job" target="_blank">${jobList}</a></p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
+};
+
+const showImportAppSettingDone = () => {
+    const { jobList } = warningI18n;
+    const msgContent = `<p>${warningI18n.importAppSettingDone}
     <br>${warningI18n.checkProgress}
     <br><a style="float:right;" href="/ap/config/job" target="_blank">${jobList}</a></p>`;
     showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
@@ -390,14 +392,8 @@ const handleSearchTraceList = () => {
             .filter(function (index) {
                 if (!index) return;
                 const val = $(this).text().toLowerCase();
-
-                $(this).show();
-                if (!regex.test(val)) {
-                    $(this).addClass('gray');
-                } else {
-                    $(this).removeClass('gray');
-                }
-
+                $(this).removeClass('gray');
+                $(this).toggle(regex.test(val));
                 return regex.test(val);
             });
 
@@ -406,11 +402,13 @@ const handleSearchTraceList = () => {
                 .find(`li`)
                 .filter(function f(index) {
                     if (index) {
-                        $(this).toggle(
-                            regex.test(
-                                $(this).find('label').text().toLowerCase(),
-                            ),
-                        );
+                        const val = $(this).text().toLowerCase();
+                        if (!regex.test(val)) {
+                            $(this).addClass('gray');
+                        } else {
+                            $(this).removeClass('gray');
+                        }
+                        $(this).show();
                     }
                 });
         }
@@ -418,21 +416,14 @@ const handleSearchTraceList = () => {
 
     // handle on click set selected items button
     $(`#setBtnSearch-searchTraceList`).on('click', function () {
-        selectedEls
-            .not('.has')
-            .find('input[name=process]')
-            .prop('checked', true)
-            .change();
+        selectedEls.not('.has').find('input[name=process]').prop('checked', true).change();
     });
 
     // handle on click reset selected items button
     $(`#resetBtnSearch-searchTraceList`).on('click', function () {
         if (selectedEls.length) {
             // reset only searched element
-            $(selectedEls)
-                .find('input[name=process]')
-                .prop('checked', false)
-                .change();
+            $(selectedEls).find('input[name=process]').prop('checked', false).change();
         }
     });
 };
@@ -460,5 +451,15 @@ const showBackupDataFinishedToastr = () => {
 
 const showRestoreDataFinishedToastr = () => {
     const msgContent = `<p>${warningI18n.endRestore}</p>`;
+    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
+};
+
+const showToastClearTransactionData = () => {
+    const i18nTexts = {
+        abnormalTransactionDataShow: $('#i18nClearTransactionData').text().split('BREAK_LINE').join('<br>'),
+    };
+
+    const msgContent = `<p>${i18nTexts.abnormalTransactionDataShow}</p>`;
+
     showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
 };

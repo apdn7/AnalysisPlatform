@@ -175,6 +175,7 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.pandas_helper import drop_dataframe_duplicated_columns
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.ana_inf_data import calculate_kde_trace_data, detect_abnormal_count_values
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -358,12 +359,9 @@ def gen_dic_data_cat_exp_from_df(
                 series = pd.Series(blank_vals, index=df.index)
                 temp_series: Series = df_sub[sql_label]
                 if col_id in datetime_cols:
-                    temp_series = pd.to_datetime(temp_series)
-                    temp_series.sort_values(inplace=True)
-                    temp_series = temp_series.diff().dt.total_seconds()
-                    temp_series.sort_index(inplace=True)
+                    temp_series = pd.to_datetime(temp_series).sort_values().diff().dt.total_seconds().sort_index()
 
-                nan_idxs = temp_series.isnull()
+                nan_idxs = temp_series.isna()
                 nan_series = temp_series[nan_idxs]
                 # for show empty facet group -> comment
                 # if len(temp_series) == len(nan_series):
@@ -430,8 +428,7 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
         group_df[col] = group_df[col].astype('Int64', errors='ignore')
 
     # convert np.nan to NA_STR for filter
-    group_df.replace({np.nan: NA_STR}, inplace=True)
-    group_df = group_df.astype(str)
+    group_df = group_df.astype(pd.StringDtype()).fillna(NA_STR)
     dic_filter = {}
     for col in sorted_filter_cols:
         other_cols = list(sorted_filter_cols)
@@ -707,7 +704,7 @@ def gen_dic_param(
     if TIME_COL in df.columns:
         times = df[TIME_COL]
         # prevent index error
-        times.reset_index(drop=True, inplace=True)
+        times = times.reset_index(drop=True)
         if len(times) and str(times[0])[-1].upper() != 'Z':
             times = [convert_time(tm) for tm in times if tm]
 
@@ -727,7 +724,7 @@ def gen_dic_param(
     ]
     dic_param[CATEGORY_DATA] = gen_category_data(graph_param, dic_cates or dic_data, dic_org_cates)
 
-    dic_param[CYCLE_IDS] = []
+    dic_param[CYCLE_IDS] = pd.Series()
     if ROWID in df.columns:
         dic_param[CYCLE_IDS] = df[ROWID]
 
@@ -750,7 +747,7 @@ def rank_str_cols(df: DataFrame, graph_param: DicParam):
 
         df[before_rank_label] = df[sql_label]
         df[sql_label] = pd.Series(
-            np.where(df[sql_label].isnull(), df[sql_label], df[sql_label].astype('category').cat.codes + 1),
+            np.where(df[sql_label].isna(), df[sql_label], df[sql_label].astype('category').cat.codes + 1),
             dtype=pd.Int32Dtype.name,
         )
 
@@ -881,12 +878,12 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
         plot[ARRAY_Y_MAX] = None
 
         category_distributed = {}
-        full_dat = dic_full_array_y[i] if dic_full_array_y else plot.get(ARRAY_Y)
+        full_dat: pd.Series = dic_full_array_y[i] if dic_full_array_y else plot.get(ARRAY_Y)
         none_idxs = plot.get(ORG_NONE_IDXS)
         total_counts = 0
 
-        dic_cat_counter = pd.value_counts(full_dat, dropna=False).to_dict()
-        dic_cat_counter = {key: dic_cat_counter[key] for key in list(dic_cat_counter.keys())[:MAX_CATEGORY_SHOW]}
+        dic_cat_counter = full_dat.value_counts(dropna=False).to_dict()
+        dic_cat_counter = dict(itertools.islice(dic_cat_counter.items(), MAX_CATEGORY_SHOW))
         ranks = []
         before_ranks = []
         for rank_val, cat_count in dic_cat_counter.items():
@@ -921,9 +918,9 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
         if none_idxs is None:
             pass
         elif none_idxs:
-            series = series[(series.notnull()) | (series.index.isin(none_idxs))]
+            series = series[(series.notna()) | (series.index.isin(none_idxs))]
         else:
-            series.dropna(inplace=True)
+            series = series.dropna()
 
         n_total = len(series)
         non_na_count = len(series.dropna())
@@ -992,7 +989,8 @@ def gen_blank_df_end_cols(procs: List[EndProc]):
     params.update({ID: [], TIME_COL: []})
 
     df = pd.DataFrame(params)
-    df = df.append(pd.Series(), ignore_index=True)
+    # FIXME: why do we concat here
+    df = pd.concat([df, pd.Series], ignore_index=True)
     return df.replace({np.nan: ''})
 
 
@@ -1505,14 +1503,13 @@ def cast_df_number(df: DataFrame, graph_param) -> DataFrame:
 
 
 @log_execution_time()
-def validate_abnormal_count(df, sensor_labels):
-    number_cols = df.select_dtypes(include=['integer', 'float']).columns.tolist()
-    for col in number_cols:
-        if col not in sensor_labels:
+def validate_abnormal_count(df, numeric_cols, sensor_labels):
+    for col in numeric_cols:
+        label = gen_sql_label(col.id, col.column_name)
+        if label not in sensor_labels:
             continue
-
-        abnormal_vals = detect_abnormal_count_values(df[col].dropna())
-        df[col] = df[col].replace(abnormal_vals, pd.NA).astype(df[col].dtypes)
+        abnormal_vals = detect_abnormal_count_values(df[label].dropna())
+        df.loc[df[label].isin(abnormal_vals), label] = pd.NA
 
     return df
 
@@ -1532,19 +1529,18 @@ def validate_data(df: DataFrame):
 @log_execution_time()
 def get_sample_df(df):
     sample_df = df.head(THIN_DATA_COUNT)
-    number_cols = df.select_dtypes(include=['integer', 'float']).columns.tolist()
+    number_cols = df.select_dtypes(include='number').columns
     for col in number_cols:
         if not check_validate_target_column(col):
             continue
-        try:
-            # TODO: remove Exception handler after pandas version up
-            # https://github.com/pandas-dev/pandas/issues/41696
-            # pandas 1.2 does not work with Float64, Int64
-            min_idx = df[col].idxmin()
-            max_idx = df[col].idxmax()
-            sample_df = pd.concat([sample_df, df[df.index.isin([min_idx, max_idx])]], ignore_index=True)
-        except Exception:
-            pass
+
+        if df[col].isna().all():
+            continue
+
+        min_idx = df[col].idxmin()
+        max_idx = df[col].idxmax()
+        min_and_max_rows = df.loc[[min_idx, max_idx]]
+        sample_df = pd.concat([sample_df, min_and_max_rows], ignore_index=True)
 
     return sample_df
 
@@ -1665,49 +1661,22 @@ def convert_chart_info_time_range(chart_config, start_proc_times, end_proc_times
         act_to = convert_time(act_to)
     converted_act_from = None
     converted_act_to = None
-    if act_from and act_to:
-        found_act_from = False
-        found_act_to = False
-        for idx, end_proc_time in enumerate(end_proc_times):
-            back_idx = last_idx - idx
-            if not found_act_from and act_from <= end_proc_time <= act_to:
-                found_act_from = True
-                # if idx == 0:  # if it's first point -> converted act_from = -inf
-                #     converted_act_from = None  # -inf
-                # else:
-                #     converted_act_from = start_proc_times[idx]
-                converted_act_from = start_proc_times[idx]
-                if idx == 0:
-                    converted_act_from = query_start_tm
-            if not found_act_to:
-                back_time = end_proc_times[back_idx]
-                if act_from <= back_time <= act_to:
-                    found_act_to = True
-                    # if back_idx == last_idx:
-                    #     converted_act_to = None  # if it's last point -> converted act_to = +inf
-                    # else:
-                    #     converted_act_to = start_proc_times[back_idx]
-                    converted_act_to = start_proc_times[back_idx]
-                    if back_idx == last_idx:
-                        converted_act_to = query_end_tm
-            if found_act_from and found_act_to:
-                break
-    else:
-        if act_from:
-            for idx, end_proc_time in enumerate(end_proc_times):
-                if act_from <= end_proc_time:
-                    converted_act_from = start_proc_times[idx]
-                    if idx == 0:
-                        converted_act_from = query_start_tm
-                    break
-        if act_to:
-            for idx in range(len(end_proc_times)):
-                back_idx = last_idx - idx
-                if end_proc_times[back_idx] <= act_to:
-                    converted_act_to = start_proc_times[back_idx]
-                    if back_idx == last_idx:
-                        converted_act_to = query_end_tm
-                    break
+
+    mask = pd.Series(True, index=end_proc_times.index)
+    if act_from:
+        mask &= act_from <= end_proc_times
+    if act_to:
+        mask &= end_proc_times <= act_to
+
+    index = end_proc_times[mask].index
+
+    if act_from and len(index):
+        # legacy code logic, need to confirm with DuyLSK why we need to compare with `0`
+        converted_act_from = query_start_tm if index[0] == 0 else start_proc_times[index[0]]
+
+    if act_to and len(index):
+        # legacy code logic, need to confirm with DuyLSK why we need to compare with `last_idx`
+        converted_act_to = query_end_tm if index[-1] == last_idx else start_proc_times[index[-1]]
 
     return converted_act_from, converted_act_to
 
@@ -2115,7 +2084,7 @@ def get_threshold_min_max_chartinfo(chart_infos):
 
 
 def calc_upper_lower_range(array_y: Series):
-    arr = array_y[array_y.notnull()]
+    arr = array_y[array_y.notna()]
     arr = arr[~arr.isin([float('inf'), float('-inf')])]
     # arr = [e for e in arr if e not in {None, float('inf'), float('-inf')} and not pd.isna(e)]
     if not len(arr):
@@ -2250,24 +2219,31 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     df = df_orig[all_cols]
     x_option = graph_param.common.x_option or 'TIME'
     if x_option.upper() == 'TIME':
-        df[group_col] = pd.to_datetime(df[TIME_COL]).values.astype(float)
+        # if we use the old methods with `astype`,
+        # it will convert `NaT` into `-9223372036854775808`
+        # So we use a recommended methods from pandas
+        # See more: <https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#from-timestamps-to-epoch>
+        df[group_col] = pd.to_datetime(df[TIME_COL])
+        df[group_col] = (df[group_col] - pd.Timestamp('1970-01-01', tzinfo=df[group_col].dt.tz)) // pd.Timedelta('1ns')
+
         min_epoc_time = df[group_col].min()
         max_epoc_time = df[group_col].max()
         count_per_group = calc_data_per_group(min_epoc_time, max_epoc_time)
         df[group_col] = (df[group_col] - min_epoc_time) // count_per_group
-        df[group_col] = df[group_col].astype(int)
     else:
         count_per_group = ceil(len(df) / THIN_DATA_CHUNK)
-        df[group_col] = df.index // count_per_group
+        df.loc[:, group_col] = df.index // count_per_group
 
     # count element in one group
+    # FIXME: tolist
     group_counts = df[group_col].value_counts().tolist()
 
     df[index_col] = df.index
-    df.set_index(group_col, inplace=True)
+    df = df.set_index(group_col)
     total_group = len(group_counts)
 
     # get category mode(most common)
+    # FIXME: total_group warning
     df_blank = pd.DataFrame(index=range(total_group))
     dfs = [df_blank]
     str_cols = list(set(list(dic_cate_names) + rank_cols))
@@ -2301,34 +2277,40 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
         df_temp = df[[TIME_COL, index_col, sql_label]].replace([None], np.nan)
 
         # get df remove -inf, inf and NA
-        df_drop = df_temp[df_not_na[sql_label]]
+        df_drop = df_temp.loc[df_not_na[sql_label]]
 
         # get remaining group has only inf, -inf, NA
-        remaining_df = df_temp[df_group_all_na[sql_label]]
+        remaining_df = df_temp.loc[df_group_all_na[sql_label]]
 
         # calc min med max of 2 df and merge to one
         agg_methods = ['min', 'median', 'max']
-        df_min_med_max_1 = pd.DataFrame(columns=agg_methods)
-        df_min_med_max_2 = pd.DataFrame(columns=agg_methods)
+
+        df_min_med_max_list = []
         if not df_drop.empty:
             df_min_med_max_1 = df_drop.groupby(group_col)[sql_label].agg(agg_methods)
+            df_min_med_max_list.append(df_min_med_max_1)
         if not remaining_df.empty:
             df_min_med_max_2 = remaining_df.groupby(group_col)[sql_label].agg(agg_methods)
-        df_min_med_max = pd.concat([df_min_med_max_1, df_min_med_max_2]).sort_index()
+            df_min_med_max_list.append(df_min_med_max_2)
+
+        if df_min_med_max_list:
+            df_min_med_max = pd.concat(df_min_med_max_list, copy=False).sort_index()
+        else:
+            df_min_med_max = pd.DataFrame(columns=agg_methods)
 
         # get idxs of each group
-        df_temp.drop(sql_label, axis=1, inplace=True)
-        df_temp = df_temp.groupby(group_col).agg('min')
-        df_temp = df_temp.rename(columns={index_col: sql_label})
+        # FIXME: this should be 'median' no?
+        df_temp = df_temp.drop(sql_label, axis=1).groupby(group_col).agg('min').rename(columns={index_col: sql_label})
         if len(df_temp) == 0:
-            blank_vals = [None] * total_group
-            df_temp[sql_label] = blank_vals
+            df_temp[sql_label] = pd.Series(index=range(total_group))
 
         dfs.append(df_temp)
         cols.append(sql_label)
         dic_min_med_max[sql_label] = df_min_med_max
 
-    df_box = pd.concat(dfs, axis=1)
+    df_box = pd.concat(dfs, axis=1, copy=False)
+    # pd.concat will create duplicated columns
+    df_box = drop_dataframe_duplicated_columns(df_box)
 
     # add time
     # start_tm = start_of_minute(graph_param.common.start_date, graph_param.common.start_time)
@@ -2339,7 +2321,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
 
     # remove blanks
     if x_option.upper() == 'TIME':
-        df_box.dropna(how='all', subset=cols + rank_cols, inplace=True)
+        df_box = df_box.dropna(how='all', subset=cols + rank_cols)
 
     # in case of select category sensors only, it should be add "time" into df
     if TIME_COL not in df_box.columns.tolist():
@@ -2356,9 +2338,9 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     return df_box, dic_cates, dic_org_cates, group_counts, df_from_to_count, dic_min_med_max
 
 
-def calc_data_per_group(min_val, max_val, box=THIN_DATA_CHUNK):
+def calc_data_per_group(min_val, max_val):
     dif_val = max_val - min_val + 1
-    ele_per_box = dif_val / box
+    ele_per_box = dif_val / THIN_DATA_CHUNK
     return ele_per_box
 
 
@@ -2387,7 +2369,7 @@ def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y, is_get_co
     max_common_y_scale_count = 0
     for plot in plots:
         s = pd.Series(plot[y_col])
-        s = s[s.notnull()]
+        s = s[s.notna()]
 
         if not len(s):
             min_max_list.append((None, None))
@@ -2450,10 +2432,10 @@ def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y, is_get_co
 def detect_abnormal_data(series_x, series_y, none_idxs=None):
     nones = none_idxs
     if none_idxs is None:
-        nones = series_y[series_y.isnull()].index.tolist()
+        nones = series_y[series_y.isna()].index.tolist()
 
     return {
-        UNLINKED_IDXS: series_x[series_x.isnull()].index.tolist(),
+        UNLINKED_IDXS: series_x[series_x.isna()].index.tolist(),
         NONE_IDXS: nones,
         INF_IDXS: series_y[series_y == float('inf')].index.tolist(),
         NEG_INF_IDXS: series_y[series_y == float('-inf')].index.tolist(),
@@ -2798,7 +2780,7 @@ def gen_thin_df_cat_exp(dic_param):
 
 def get_available_ratio(series: Series):
     n_total = series.size
-    # na_counts = series.isnull().sum().sum()
+    # na_counts = series.isna().sum().sum()
     non_na_counts = len(series.dropna())
     na_counts = n_total - non_na_counts
     na_percentage = (100 * na_counts / n_total) if n_total else 0
@@ -2845,7 +2827,7 @@ def get_serials_and_date_col(graph_param: DicParam):
 
 
 @log_execution_time()
-def gen_unique_data(df, dic_proc_cfgs: Dict[int, CfgProcess], col_ids, has_na=False):
+def gen_unique_data(df, dic_proc_cfgs: dict[int, CfgProcess], col_ids, has_na=False):
     if not col_ids:
         return {}
 
@@ -2889,7 +2871,7 @@ def gen_unique_data(df, dic_proc_cfgs: Dict[int, CfgProcess], col_ids, has_na=Fa
 
 
 @log_execution_time()
-def filter_df(dic_proc_cfgs: Dict[int, CfgProcess], df, dic_filter):
+def filter_df(dic_proc_cfgs: dict[int, CfgProcess], df, dic_filter):
     if not dic_filter:
         return df
 
@@ -2935,13 +2917,13 @@ def filter_df(dic_proc_cfgs: Dict[int, CfgProcess], df, dic_filter):
             pass
 
         if is_filter_nan:
-            vals += [np.nan, np.inf, -np.inf, 'nan', '<NA>', np.NAN, pd.NA]
+            vals += [np.nan, np.inf, -np.inf, 'nan', '<NA>', pd.NA]
 
         if sql_label in df.columns:
             df = df[df[sql_label].isin(vals)]
             df[sql_label] = df[sql_label].replace(['nan', '<NA>'], np.nan)
 
-    df.reset_index(drop=True, inplace=True)
+    df = df.reset_index(drop=True)
     return df
 
 
@@ -3065,13 +3047,21 @@ def remove_outlier(df: DataFrame, sensor_labels, graph_param):
 
     # limits to a (float), b (int) and e (timedelta)
     if is_real_only:
-        numeric_cols = df.loc[:, valid_cols].select_dtypes('float').columns
+        numeric_cols = df.loc[:, valid_cols].select_dtypes(include=['float32', 'float64']).columns
     else:
-        numeric_cols = df.loc[:, valid_cols].select_dtypes('number').columns
+        numeric_cols = df.loc[:, valid_cols].select_dtypes(include='number').columns
     df_sub = df.loc[:, numeric_cols]
     for target_col in numeric_cols:
-        series = df_sub[target_col].replace(dict.fromkeys([pd.NA], np.nan))
-        lower, upper, q1, q3 = series.quantile([lower_limit, upper_limit, 0.25, 0.75])
+        # FIXME: this might not work
+        # https://github.com/pandas-dev/pandas/issues/55127
+        # Pandas 2.0 failed to convert pd.NA to np.nan
+        # series = df_sub[target_col].replace({pd.NA: np.nan})
+        series = df_sub[target_col].replace({pd.NA: None})
+        quantile_result = series.quantile([lower_limit, upper_limit, 0.25, 0.75])
+        if quantile_result.isna().all():
+            continue
+        lower, upper, q1, q3 = quantile_result
+
         # do not apply outlier of q1 = q3
         if q1 == q3:
             continue
@@ -3321,7 +3311,7 @@ def gen_graph(graph_param, dic_param, max_graph=None, rank_value=False, use_expo
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
 
     export_df = df.copy()
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
     dic_data, is_graph_limited = gen_dic_data(dic_proc_cfgs, df, origin_graph_param, graph_param_with_cate, max_graph)
     dic_param = gen_dic_param(origin_graph_param, df, dic_param, dic_data)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
@@ -3348,7 +3338,6 @@ def update_draw_data_trace_log(dataset_id, exe_time):
 def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
     """
     Convert sensor that is datetime type to cycle time
-    :param dic_proc_cfgs:
     :param df:
     :param graph_param:
     :param target_vars:
@@ -3356,7 +3345,7 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
     """
 
     if df.empty:
-        return
+        return df
 
     if not target_vars:
         target_vars = graph_param.common.sensor_cols
@@ -3371,7 +3360,7 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
             dt_labels.add(gen_sql_label(target_var, general_col_info[END_COL_NAME]))
 
     if not dt_labels:
-        return
+        return df
 
     facet_cols = graph_param.common.cat_exp or []
     if graph_param.common.div_by_cat:
@@ -3403,10 +3392,11 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
     # assign cycle time to original df
     for dt_col, series_groups in dic_cycle_times.items():
         df[dt_col] = np.nan
+        df[dt_col] = df[dt_col].astype(pd.Float64Dtype())
         for series in series_groups:
-            df[dt_col].update(series.astype('Float64'))
+            df[dt_col] = df[dt_col].combine_first(series.astype(pd.Float64Dtype()))
 
-    return True
+    return df
 
 
 @log_execution_time()
@@ -3502,18 +3492,16 @@ def get_data_from_db(
                 col_name = sensor_labels[i]
                 categorized_col_name = sensor_labels[i] + CATEGORIZED_SUFFIX
                 df[categorized_col_name] = df[col_name]
-                df[categorized_col_name] = df[categorized_col_name].replace(
-                    dict.fromkeys([np.inf, -np.inf, float('nan')], np.nan),
-                )
+                df[categorized_col_name] = df[categorized_col_name].replace([np.inf, -np.inf, float('nan')], np.nan)
                 is_real_col = col.data_type == DataType.REAL.name
                 is_datetime_col = col.data_type == DataType.DATETIME.name
                 if is_real_col or (not col.is_int_category and not is_datetime_col):
-                    categorized_data = discretize_float_data_equally(
-                        df[categorized_col_name][df[categorized_col_name].notna()],
-                    )
                     # convert column to float
                     df[categorized_col_name] = df[categorized_col_name].astype(float)
-                    df[categorized_col_name][df[categorized_col_name].notna()] = categorized_data
+
+                    non_na_categorized = df[categorized_col_name].dropna()
+                    categorized_data = discretize_float_data_equally(non_na_categorized)
+                    df.loc[non_na_categorized.index, categorized_col_name] = categorized_data
 
                 if is_datetime_col:
                     df[col_name] = calc_cycle_time_of_list(df[col_name])
@@ -3527,7 +3515,8 @@ def get_data_from_db(
         df = filter_df(graph_param.dic_proc_cfgs, df, dic_filter)
 
     if graph_param.common.abnormal_count:
-        df = validate_abnormal_count(df, sensor_labels)
+        numeric_cols = [col for col in cfg_cols if not col.is_category]
+        df = validate_abnormal_count(df, numeric_cols, sensor_labels)
 
     if graph_param.common.is_remove_outlier:
         df = remove_outlier(df, sensor_labels, graph_param)
@@ -3616,7 +3605,7 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
     # sort by time
     df[TIME_COL] = df[gen_proc_time_label(graph_param.common.start_proc)]
     time_cols = sorted([col for col in df.columns if str(col).startswith(TIME_COL)])
-    df.sort_values(time_cols, inplace=True)
+    df = df.sort_values(time_cols)
 
     # check empty
     if df is None or not len(df):
@@ -3640,7 +3629,7 @@ def get_df_from_db(graph_param: DicParam, is_save_df_to_file=False, _use_expired
                 df[label] = None
 
     # reset index
-    df.reset_index(inplace=True, drop=True)
+    df = df.reset_index(drop=True)
 
     df = cast_df_number(df, graph_param)
 
@@ -3856,7 +3845,7 @@ def gen_trace_procs_df_detail(
     cond_procs: List[ConditionProc],
     duplicate_serial_show: DuplicateSerialShow,
     for_count: bool = False,
-) -> Tuple[DataFrame, int, int]:
+) -> DataFrame:
     df = None
 
     for sql_objs in list_sql_objs:
@@ -3868,7 +3857,7 @@ def gen_trace_procs_df_detail(
             keep = 'first'
 
         _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
-        _df.drop_duplicates(subset=_filter_subset, keep=keep, inplace=True)
+        _df = _df.drop_duplicates(subset=_filter_subset, keep=keep)
 
         if duplicate_serial_show is not DuplicateSerialShow.SHOW_BOTH and not for_count:
             # TODO: drop_duplicates_by_link_keys MUST delete per end proc
@@ -3888,7 +3877,7 @@ def gen_trace_procs_df_detail(
             df = df.merge(_df[[TransactionData.id_col_name] + _df_cols], on=TransactionData.id_col_name)
 
     if df is None:
-        return pd.DataFrame(), 0, 0
+        return pd.DataFrame()
 
     return df
 
@@ -3994,13 +3983,13 @@ class DropDuplicatesTraceProcs:
         link_cols = set()
         for sql_obj in sql_objs:
             link_cols.update(sql_obj.all_link_keys_labels)
-        link_cols = link_cols & set(df.columns)
+        link_cols &= set(df.columns)
 
         if not link_cols:
             return df
 
         keep = 'last' if duplicate_serial_show is DuplicateSerialShow.SHOW_LAST else 'first'
-        return df.sort_values(time_cols).drop_duplicates(subset=link_cols, keep=keep)
+        return df.sort_values(time_cols).drop_duplicates(subset=list(link_cols), keep=keep)
 
 
 @log_execution_time()
@@ -4064,7 +4053,7 @@ def get_equation_data(df, end_proc: EndProc):
 
     for col in df.columns:
         if '__SHOW_NAME__' in col:
-            df.drop(columns=col, inplace=True)
+            df = df.drop(columns=col)
 
     # cast equation function to string if its `data-type` is string
     for cfg_func_col in sorted_cfg_function_cols:
@@ -4087,29 +4076,56 @@ def judge_data_conversion(df, judge_columns, revert=False) -> DataFrame:
     """
     All data-type can be set as judge column
     But, only 1|0 will be converted into OK|NG, anything else will be converted into null (pd.NA)
-    eg: input[1,0,NG,A,None,2] -> output[OK,NG,NA,NA,NA,NA]
+    We can always sure that df[judge_columns] only contains `boolean` (TuanNH: confirmed)
     """
     if judge_columns:
         if revert:
-            df[judge_columns] = df[judge_columns].replace(
-                {JudgeDefinition.OK.name: JudgeDefinition.OK.value, JudgeDefinition.NG.name: JudgeDefinition.NG.value},
+            df[judge_columns] = (
+                df[judge_columns]
+                .astype(pd.StringDtype())  # make sure we convert to `string` before converting
+                .replace(
+                    {
+                        JudgeDefinition.OK.name: str(JudgeDefinition.OK.value),
+                        JudgeDefinition.NG.name: str(JudgeDefinition.NG.value),
+                    },
+                )
+                .astype(pd.Int8Dtype(), errors='ignore')  # try to convert to integer
             )
         else:
             df[judge_columns] = (
                 df[judge_columns]
-                .astype(pd.BooleanDtype())
-                .replace({True: JudgeDefinition.OK.name, False: JudgeDefinition.NG.name})
+                .astype(pd.BooleanDtype())  # make sure we have `True`, `False` values
+                .astype(pd.StringDtype())  # make sure all of them are `string` before replacing
+                .replace(
+                    {
+                        'True': JudgeDefinition.OK.name,
+                        'False': JudgeDefinition.NG.name,
+                    },
+                )
             )
     return df
 
 
 @log_execution_time()
 def boolean_data_conversion(df, boolean_columns) -> DataFrame:
-    """
-    All data-type can be set as judge column
-    But, only 1|0 will be converted into OK|NG, anything else will be converted into null (pd.NA)
-    eg: input[1,0,NG,A,None,2] -> output[true,false,NA,NA,NA,NA]
-    """
+    """We can always sure that df[boolean_columns] only contains `boolean` (TuanNH: confirmed)"""
     for col in boolean_columns:
         df[col] = df[col].astype(pd.BooleanDtype()).astype(pd.StringDtype()).str.lower()
     return df
+
+
+def find_inf_indexes(array_y: Series):
+    """
+
+    :param array_y:
+    :return:
+    inf_idx: List of infinity indexes
+    m_inf_idx: List of negative infinity indexes
+    cast_inf_vals: Whether infinite values are to be casted
+    """
+    if len(array_y) == 0:
+        return [], [], False
+    inf_idx = array_y.index[np.isposinf(array_y)].to_numpy()
+    m_inf_idx = array_y.index[np.isneginf(array_y)].to_numpy()
+    cast_inf_vals = len(inf_idx) > 0 or len(m_inf_idx) > 0
+    return inf_idx, m_inf_idx, cast_inf_vals

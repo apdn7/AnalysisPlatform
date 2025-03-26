@@ -90,9 +90,7 @@ const graphNavUtil = (() => {
         // }
 
         for (const cls of TARGET_ELE_CLASSES) {
-            let eles = Array.from(
-                $(cls).not($('.tab-pane:not(.active.show)').find(cls)),
-            );
+            let eles = Array.from($(cls).not($('.tab-pane:not(.active.show)').find(cls)));
 
             // eles.concat(Array.from($(document).find('*').not(tab).find(cls)));
             // eles = clearExclude(eles);
@@ -159,9 +157,7 @@ const graphNavUtil = (() => {
         if (!step) {
             // check page has no graph
             const beforeFooterItem = eles[eles.length - 2];
-            const showGraphIdx = eles
-                .map((ele) => $(ele).attr('class').includes(TARGET_TOP_DOWN))
-                .indexOf(true, 2);
+            const showGraphIdx = eles.map((ele) => $(ele).attr('class').includes(TARGET_TOP_DOWN)).indexOf(true, 2);
             const firstGraphIdx = showGraphIdx + 1;
             if (
                 $(beforeFooterItem).attr('class').includes(TARGET_TOP_DOWN) ||
@@ -177,17 +173,12 @@ const graphNavUtil = (() => {
             return eles[eles.length - 1];
         }
         // get first item which over offset from screen
-        const currentItemIdx = eles
-            .map((ele) => $(ele).offset().top >= topPosition)
-            .indexOf(true);
+        const currentItemIdx = eles.map((ele) => $(ele).offset().top >= topPosition).indexOf(true);
         const isDownOneStep = step === 1;
         const topPositionGraphNavi = $(eles[currentItemIdx]).offset().top;
-        const marginTopCurrentElem =
-            parseInt($(eles[currentItemIdx]).css('margin-top').slice(0, -2)) +
-            1;
+        const marginTopCurrentElem = parseInt($(eles[currentItemIdx]).css('margin-top').slice(0, -2)) + 1;
         const nextIDx =
-            topPositionGraphNavi > topPosition + marginTopCurrentElem &&
-            isDownOneStep
+            topPositionGraphNavi > topPosition + marginTopCurrentElem && isDownOneStep
                 ? currentItemIdx
                 : currentItemIdx + step;
         const nextItem = eles[nextIDx];

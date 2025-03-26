@@ -69,18 +69,18 @@ class Databases {
                 use_os_timezone: false,
             },
             CSV: {
-                type: 'csv',
-                directory: '',
-                delimiter: 'CSV',
+                'type': 'csv',
+                'directory': '',
+                'delimiter': 'CSV',
                 'polling-frequency': 1,
-                use_os_timezone: false,
+                'use_os_timezone': false,
             },
             V2: {
-                type: 'v2',
-                directory: '',
-                delimiter: 'CSV',
+                'type': 'v2',
+                'directory': '',
+                'delimiter': 'CSV',
                 'polling-frequency': 1,
-                use_os_timezone: false,
+                'use_os_timezone': false,
             },
         };
 
@@ -122,24 +122,13 @@ class Databases {
     validate(configurations = {}) {
         const item = Object.values(configurations);
         if (item.length > 0) {
-            const attrs = Object.keys(item[0]).filter((k) =>
-                this.REQUIRED_ATTRS.includes(k),
-            );
-            const missingAttrs = this.REQUIRED_ATTRS.filter(
-                (i) => attrs.indexOf(i) === -1,
-            );
-            const missingValues = Object.values(attrs).filter(
-                (k) => item[0][k] === '',
-            );
+            const attrs = Object.keys(item[0]).filter((k) => this.REQUIRED_ATTRS.includes(k));
+            const missingAttrs = this.REQUIRED_ATTRS.filter((i) => attrs.indexOf(i) === -1);
+            const missingValues = Object.values(attrs).filter((k) => item[0][k] === '');
             const message =
-                missingAttrs.length === 0
-                    ? 'MISSING_ATTRS'
-                    : missingValues.length === 0
-                      ? 'MISSING_VALUE'
-                      : null;
+                missingAttrs.length === 0 ? 'MISSING_ATTRS' : missingValues.length === 0 ? 'MISSING_VALUE' : null;
             return {
-                isValid:
-                    missingAttrs.length === 0 && missingValues.length === 0,
+                isValid: missingAttrs.length === 0 && missingValues.length === 0,
                 // isValid: missingAttrs.length === 0,
                 missingAttrs,
                 // missingValues,
@@ -164,22 +153,14 @@ class Databases {
     getDBCfg(id, type) {
         this.dbCfg = {};
         // At first, get from tmp instance
-        if (
-            Object.keys(this.tmpCfg).includes(id) &&
-            this.tmpCfg[id].type === type
-        ) {
+        if (Object.keys(this.tmpCfg).includes(id) && this.tmpCfg[id].type === type) {
             this.dbCfg = { ...this.instances.db[id], ...this.tmpCfg[id] };
-        } else if (
-            Object.keys(this.instances.db).includes(id) &&
-            type === this.instances.db[id].type
-        ) {
+        } else if (Object.keys(this.instances.db).includes(id) && type === this.instances.db[id].type) {
             // If current DB instance includes request ID && re-assign origin type
             // get origin data item
             this.dbCfg = this.instances.db[id];
         } else {
-            const key = Object.keys(this.DB_CONFIGS).filter(
-                (k) => this.DB_CONFIGS[k].type === type,
-            );
+            const key = Object.keys(this.DB_CONFIGS).filter((k) => this.DB_CONFIGS[k].type === type);
             this.dbCfg = this.DB_CONFIGS[key];
         }
         return this.dbCfg;

@@ -11,7 +11,7 @@
             {{ macros.data_finder_card() }}
             <!-- Date range -->
             <div class="card-body table-bordered graph-navi" id="varSrtPrc">
-                <div class="row">
+                <div class="row flex-nowrap" style="white-space: normal;">
                     <div class="col-xl-2 col-3">
                         <div class="d-flex justify-content-between">
                             {{ macros.label(_("Target period")) }}
@@ -27,9 +27,7 @@
             </div>
             {{ macros.cond_proc([],'', width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="d-flex align-items-center justify-content-center show-graph-div"
-            >
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -63,10 +61,7 @@
     </div>
 
     <div class="result-section" id="scaleOption" style="display: none;">
-        <div
-            class="y-scale-group tooltip-parent align-items-center mt-3 mb-2"
-            id="graph-settings-area"
-        >
+        <div class="y-scale-group tooltip-parent align-items-center mt-3 mb-2" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {queryDataAndShowAGP();}') }}
@@ -77,19 +72,13 @@
         </div>
     </div>
     <div class="plot-content">
-        <div
-            id="agpCard"
-            class="card ui-sortable"
-            style="padding: 5px; display: none"
-        ></div>
+        <div id="agpCard" class="card ui-sortable" style="padding: 5px; display: none"></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

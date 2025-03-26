@@ -29,7 +29,6 @@
  *    is_show: boolean,
  *    is_master_col: boolean,
  *    is_checked: boolean?,
- *    is_big_int: boolean?,
  *    old_name_jp: string?,
  *    old_system_name: string?,
  *    is_generated_datetime: boolean?,
@@ -169,10 +168,7 @@ class ProcessConfigSection {
          * Process identify number
          * @type {number} - process id
          */
-        this.processId = !(
-            sectionHTMLObject.dataset.processId == null ||
-            sectionHTMLObject.dataset.processId === ''
-        )
+        this.processId = !(sectionHTMLObject.dataset.processId == null || sectionHTMLObject.dataset.processId === '')
             ? parseInt(sectionHTMLObject.dataset.processId, 10)
             : null;
 
@@ -182,8 +178,7 @@ class ProcessConfigSection {
          * Note: for extend section process config, there is not datasource name
          * @type {HTMLInputElement}
          */
-        this.datasourceNameElement =
-            sectionHTMLObject.querySelector(`#databaseName`);
+        this.datasourceNameElement = sectionHTMLObject.querySelector(`#databaseName`);
 
         /**
          * Is Main Section
@@ -201,42 +196,33 @@ class ProcessConfigSection {
          * Table of process config
          * @type {HTMLTableElement}
          */
-        this.processConfigTableElement = sectionHTMLObject.querySelector(
-            `#processColumnsTable${this.idSuffix}`,
-        );
+        this.processConfigTableElement = sectionHTMLObject.querySelector(`#processColumnsTable${this.idSuffix}`);
 
         /**
          * Table of sample data process config
          * @type {HTMLTableElement}
          */
-        this.processConfigSampleDataTableElement =
-            sectionHTMLObject.querySelector(
-                `#processColumnsTableSampleData${this.idSuffix}`,
-            );
+        this.processConfigSampleDataTableElement = sectionHTMLObject.querySelector(
+            `#processColumnsTableSampleData${this.idSuffix}`,
+        );
 
         /**
          * Input HTML of process System Name
          * @type {HTMLInputElement}
          */
-        this.processSystemNameElement = sectionHTMLObject.querySelector(
-            `#processName${this.idSuffix}`,
-        );
+        this.processSystemNameElement = sectionHTMLObject.querySelector(`#processName${this.idSuffix}`);
 
         /**
          * Input HTML of process Japanese Name
          * @type {HTMLInputElement}
          */
-        this.processJapaneseNameElement = sectionHTMLObject.querySelector(
-            `#processJapaneseName${this.idSuffix}`,
-        );
+        this.processJapaneseNameElement = sectionHTMLObject.querySelector(`#processJapaneseName${this.idSuffix}`);
 
         /**
          * Input HTML of process Local Name
          * @type {HTMLInputElement}
          */
-        this.processLocalNameElement = sectionHTMLObject.querySelector(
-            `#processLocalName${this.idSuffix}`,
-        );
+        this.processLocalNameElement = sectionHTMLObject.querySelector(`#processLocalName${this.idSuffix}`);
 
         /**
          * Input HTML of process Origin Name
@@ -244,9 +230,7 @@ class ProcessConfigSection {
          * This hidden input field serve for V2 processes
          * @type {HTMLInputElement}
          */
-        this.processOriginNameElement = sectionHTMLObject.querySelector(
-            `#processOriginName${this.idSuffix}`,
-        );
+        this.processOriginNameElement = sectionHTMLObject.querySelector(`#processOriginName${this.idSuffix}`);
 
         /**
          * Get/Set process system name
@@ -258,8 +242,7 @@ class ProcessConfigSection {
          */
         this.processSystemName = {
             get: () => this.processSystemNameElement.value,
-            getOriginalValue: () =>
-                this.processSystemNameElement.dataset.originalValue,
+            getOriginalValue: () => this.processSystemNameElement.dataset.originalValue,
             set: (name, isAlsoSetOriginalData) => {
                 this.processSystemNameElement.value = name ?? '';
                 if (isAlsoSetOriginalData) {
@@ -278,13 +261,11 @@ class ProcessConfigSection {
          */
         this.processJapaneseName = {
             get: () => this.processJapaneseNameElement.value,
-            getOriginalValue: () =>
-                this.processJapaneseNameElement.dataset.originalValue,
+            getOriginalValue: () => this.processJapaneseNameElement.dataset.originalValue,
             set: (name, isAlsoSetOriginalData) => {
                 this.processJapaneseNameElement.value = name ?? '';
                 if (isAlsoSetOriginalData) {
-                    this.processJapaneseNameElement.dataset.originalValue =
-                        name;
+                    this.processJapaneseNameElement.dataset.originalValue = name;
                 }
             },
         };
@@ -299,8 +280,7 @@ class ProcessConfigSection {
          */
         this.processLocalName = {
             get: () => this.processLocalNameElement.value,
-            getOriginalValue: () =>
-                this.processLocalNameElement.dataset.originalValue,
+            getOriginalValue: () => this.processLocalNameElement.dataset.originalValue,
             set: (name, isAlsoSetOriginalData) => {
                 this.processLocalNameElement.value = name ?? '';
                 if (isAlsoSetOriginalData) {
@@ -331,8 +311,7 @@ class ProcessConfigSection {
          */
         this.datasourceName = {
             get: () => this.datasourceNameElement?.value,
-            getOriginalValue: () =>
-                this.datasourceNameElement.dataset.originalValue,
+            getOriginalValue: () => this.datasourceNameElement.dataset.originalValue,
             set: (name, isAlsoSetOriginalData) => {
                 if (this.datasourceNameElement) {
                     this.datasourceNameElement.value = name ?? '';
@@ -351,10 +330,7 @@ class ProcessConfigSection {
      * @return {RequestProcessConfig}
      */
     collectProcessConfig = () => {
-        const selector = getSelectedColumnsAsJson(
-            true,
-            this.processConfigTableElement.lastElementChild,
-        );
+        const selector = getSelectedColumnsAsJson(true, this.processConfigTableElement.lastElementChild);
         const result = {
             id: this.processId,
             name: this.processSystemName.get(),
@@ -388,12 +364,8 @@ class ProcessConfigSection {
         const usedProcessConfig = { ...processConfig };
         const unusedProcessConfig = { ...processConfig };
 
-        usedProcessConfig.columns = processConfig.columns.filter(
-            (columnConfig) => columnConfig.is_checked,
-        );
-        unusedProcessConfig.columns = processConfig.columns.filter(
-            (columnConfig) => !columnConfig.is_checked,
-        );
+        usedProcessConfig.columns = processConfig.columns.filter((columnConfig) => columnConfig.is_checked);
+        unusedProcessConfig.columns = processConfig.columns.filter((columnConfig) => !columnConfig.is_checked);
 
         return {
             proc_config: usedProcessConfig,
@@ -406,8 +378,7 @@ class ProcessConfigSection {
      */
     render() {
         const procSettingModal = document.getElementById('procSettingModal');
-        const wrapperDiv =
-            procSettingModal.closest('div.section').parentElement;
+        const wrapperDiv = procSettingModal.closest('div.section').parentElement;
         wrapperDiv.append(this.sectionHTMLObject);
     }
 
@@ -416,34 +387,16 @@ class ProcessConfigSection {
      */
     injectEvents() {
         // Add events for data type dropdown list
-        const dataTypeDropdownElement = this.sectionHTMLObject.querySelectorAll(
-            'div.config-data-type-dropdown',
-        );
+        const dataTypeDropdownElement = this.sectionHTMLObject.querySelectorAll('div.config-data-type-dropdown');
         DataTypeDropdown_Controller.injectEvent(dataTypeDropdownElement);
 
         // Add events for scroll buttons
         handleScrollSampleDataTableCore(
             $(this.processConfigSampleDataTableElement.lastElementChild),
-            $(
-                this.sectionHTMLObject.querySelector(
-                    `#sampleDataScrollToLeft${this.idSuffix}`,
-                ),
-            ),
-            $(
-                this.sectionHTMLObject.querySelector(
-                    `#sampleDataScrollToLeftOneStep${this.idSuffix}`,
-                ),
-            ),
-            $(
-                this.sectionHTMLObject.querySelector(
-                    `#sampleDataScrollToRight${this.idSuffix}`,
-                ),
-            ),
-            $(
-                this.sectionHTMLObject.querySelector(
-                    `#sampleDataScrollToRightOneStep${this.idSuffix}`,
-                ),
-            ),
+            $(this.sectionHTMLObject.querySelector(`#sampleDataScrollToLeft${this.idSuffix}`)),
+            $(this.sectionHTMLObject.querySelector(`#sampleDataScrollToLeftOneStep${this.idSuffix}`)),
+            $(this.sectionHTMLObject.querySelector(`#sampleDataScrollToRight${this.idSuffix}`)),
+            $(this.sectionHTMLObject.querySelector(`#sampleDataScrollToRightOneStep${this.idSuffix}`)),
             $(this.sectionHTMLObject.querySelector('.proc-config-content')),
         );
 
@@ -455,21 +408,11 @@ class ProcessConfigSection {
 
         // Add event to convert Half-width to Full-width inputs
         convertTextH2Z(this.processConfigTableElement); // column system|japanese|local|format inputs
-        convertTextH2Z(
-            this.sectionHTMLObject.querySelector(
-                'div[id^="processGeneralInfo"]',
-            ),
-        );
+        convertTextH2Z(this.sectionHTMLObject.querySelector('div[id^="processGeneralInfo"]'));
 
         // Add event to remove Not alphabet characters for system name inputs
         handleEnglishNameChange($(this.processSystemNameElement));
-        handleEnglishNameChange(
-            $(
-                this.processConfigTableElement.querySelectorAll(
-                    'input[name="systemName"]',
-                ),
-            ),
-        );
+        handleEnglishNameChange($(this.processConfigTableElement.querySelectorAll('input[name="systemName"]')));
     }
 
     /**
@@ -479,16 +422,10 @@ class ProcessConfigSection {
      * @return ProcessConfigSection - a process config section object
      */
     static createProcessConfigSectionForExtend(processConfig, sampleDataRows) {
-        const extendSectionDivHTML =
-            this.#generateProcessConfigHeaderHTML(processConfig);
+        const extendSectionDivHTML = this.#generateProcessConfigHeaderHTML(processConfig);
         /** @type {HTMLDivForSectionElement} */
         const sectionHTMLObject = htmlToElement(extendSectionDivHTML);
-        return this.#createProcessConfigSection(
-            processConfig,
-            sampleDataRows,
-            sectionHTMLObject,
-            false,
-        );
+        return this.#createProcessConfigSection(processConfig, sampleDataRows, sectionHTMLObject, false);
     }
 
     /**
@@ -507,21 +444,10 @@ class ProcessConfigSection {
             true,
         );
 
-        processConfigSectionObject.processSystemName.set(
-            processConfig.name_en,
-            true,
-        );
-        processConfigSectionObject.processJapaneseName.set(
-            processConfig.name_jp,
-            true,
-        );
-        processConfigSectionObject.processLocalName.set(
-            processConfig.name_local,
-            true,
-        );
-        processConfigSectionObject.processOriginName.set(
-            processConfig.origin_name,
-        );
+        processConfigSectionObject.processSystemName.set(processConfig.name_en, true);
+        processConfigSectionObject.processJapaneseName.set(processConfig.name_jp, true);
+        processConfigSectionObject.processLocalName.set(processConfig.name_local, true);
+        processConfigSectionObject.processOriginName.set(processConfig.origin_name);
 
         return processConfigSectionObject;
     }
@@ -535,35 +461,22 @@ class ProcessConfigSection {
      * @param {boolean} isMainSection - true: this is for main section, otherwise: for extend section
      * @return ProcessConfigSection - a process config section object
      */
-    static #createProcessConfigSection(
-        processConfig,
-        sampleDataRows,
-        sectionHTMLObject,
-        isMainSection,
-    ) {
+    static #createProcessConfigSection(processConfig, sampleDataRows, sectionHTMLObject, isMainSection) {
         this.#determineSerialColumns(processConfig.columns);
-        const [rowProcessColumnConfigHTMLs, rowSampleDataHTMLs] =
-            this.generateProcessConfigBodyHTML(
-                processConfig.columns,
-                sampleDataRows,
-            );
+        const [rowProcessColumnConfigHTMLs, rowSampleDataHTMLs] = this.generateProcessConfigBodyHTML(
+            processConfig.columns,
+            sampleDataRows,
+        );
 
         const idSuffix = isMainSection ? '' : `_${processConfig.id}`;
-        const processColumnTableObject = sectionHTMLObject.querySelector(
-            '#processColumnsTable' + idSuffix,
+        const processColumnTableObject = sectionHTMLObject.querySelector('#processColumnsTable' + idSuffix);
+        const processColumnsTableSampleDataObject = sectionHTMLObject.querySelector(
+            '#processColumnsTableSampleData' + idSuffix,
         );
-        const processColumnsTableSampleDataObject =
-            sectionHTMLObject.querySelector(
-                '#processColumnsTableSampleData' + idSuffix,
-            );
 
-        processColumnTableObject.lastElementChild.innerHTML =
-            rowProcessColumnConfigHTMLs.join('');
-        processColumnsTableSampleDataObject.lastElementChild.innerHTML =
-            rowSampleDataHTMLs.join('');
-        sectionHTMLObject.__object__ = new ProcessConfigSection(
-            sectionHTMLObject,
-        );
+        processColumnTableObject.lastElementChild.innerHTML = rowProcessColumnConfigHTMLs.join('');
+        processColumnsTableSampleDataObject.lastElementChild.innerHTML = rowSampleDataHTMLs.join('');
+        sectionHTMLObject.__object__ = new ProcessConfigSection(sectionHTMLObject);
 
         return sectionHTMLObject.__object__;
     }
@@ -746,12 +659,8 @@ class ProcessConfigSection {
         processColumnConfigs.forEach((processColumnConfig) => {
             // if v2 col_name is シリアルNo -> auto check
             const isSerial =
-                /^.*シリアル|serial.*$/.test(
-                    processColumnConfig.column_name.toString().toLowerCase(),
-                ) &&
-                [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(
-                    processColumnConfig.data_type,
-                );
+                /^.*シリアル|serial.*$/.test(processColumnConfig.column_name.toString().toLowerCase()) &&
+                [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(processColumnConfig.data_type);
             if (isSerial) {
                 if (hasMainSerialCol) {
                     processColumnConfig.is_serial_no = true;
@@ -778,18 +687,8 @@ class ProcessConfigSection {
                 processColumnConfig.id = -index - 1;
             }
 
-            rowSampleDataHTMLs.push(
-                this.#generateOneRowOfSampleDataHTML(
-                    sampleDataRows,
-                    processColumnConfig,
-                ),
-            );
-            rowProcessColumnConfigHTMLs.push(
-                this.#generateOneRowOfProcessColumnConfigHTML(
-                    processColumnConfig,
-                    index,
-                ),
-            );
+            rowSampleDataHTMLs.push(this.#generateOneRowOfSampleDataHTML(sampleDataRows, processColumnConfig));
+            rowProcessColumnConfigHTMLs.push(this.#generateOneRowOfProcessColumnConfigHTML(processColumnConfig, index));
         });
 
         return [rowProcessColumnConfigHTMLs, rowSampleDataHTMLs];
@@ -803,16 +702,8 @@ class ProcessConfigSection {
      * @param {?string} extendClass
      * @return {string} - an HTML string
      */
-    static generateOneRowOfSampleDataHTML(
-        sampleDataRows,
-        processColumnConfig,
-        extendClass = '',
-    ) {
-        return this.#generateOneRowOfSampleDataHTML(
-            sampleDataRows,
-            processColumnConfig,
-            extendClass,
-        );
+    static generateOneRowOfSampleDataHTML(sampleDataRows, processColumnConfig, extendClass = '') {
+        return this.#generateOneRowOfSampleDataHTML(sampleDataRows, processColumnConfig, extendClass);
     }
 
     /**
@@ -823,14 +714,9 @@ class ProcessConfigSection {
      * @param {?string} extendClass
      * @return {string} - an HTML string
      */
-    static #generateOneRowOfSampleDataHTML(
-        sampleDataRows,
-        processColumnConfig,
-        extendClass = '',
-    ) {
+    static #generateOneRowOfSampleDataHTML(sampleDataRows, processColumnConfig, extendClass = '') {
         const tdHTMLs = [];
-        const $checkboxDatetimeFormat =
-            procModalElements.procDateTimeFormatCheckbox;
+        const $checkboxDatetimeFormat = procModalElements.procDateTimeFormatCheckbox;
         const formatIsChecked =
             $checkboxDatetimeFormat.length > 0
                 ? // In case of Process config modal in Config page, base on status of checkbox
@@ -867,14 +753,7 @@ class ProcessConfigSection {
                 value = row[key];
             }
 
-            tdHTMLs.push(
-                this.#generateOneColumnOfSampleDataHTML(
-                    processColumnConfig,
-                    value,
-                    originValue,
-                    extendClass,
-                ),
-            );
+            tdHTMLs.push(this.#generateOneColumnOfSampleDataHTML(processColumnConfig, value, originValue, extendClass));
         });
 
         return (
@@ -893,23 +772,12 @@ class ProcessConfigSection {
      * @param {?string} extendClass
      * @return {string} - an HTML string of row
      */
-    static #generateOneColumnOfSampleDataHTML(
-        processColumnConfig,
-        value,
-        originValue,
-        extendClass = '',
-    ) {
-        const isKSep = [
-            DataTypes.REAL_SEP.name,
-            DataTypes.EU_REAL_SEP.name,
-        ].includes(processColumnConfig.data_type);
-        const checkedAtr = processColumnConfig.is_checked
-            ? 'checked=checked'
-            : '';
+    static #generateOneColumnOfSampleDataHTML(processColumnConfig, value, originValue, extendClass = '') {
+        const isKSep = [DataTypes.REAL_SEP.name, DataTypes.EU_REAL_SEP.name].includes(processColumnConfig.data_type);
+        const checkedAtr = processColumnConfig.is_checked ? 'checked=checked' : '';
         return (
             '<td' +
             ` style="${isKSep ? 'color: "orange"' : ''}"` +
-            ` is-big-int="${processColumnConfig.is_big_int ? 1 : 0}"` +
             ` data-original="${originValue}"` +
             ` class="sample-data row-item show-raw-text ${extendClass ?? ''}"` +
             ` ${checkedAtr}` +
@@ -926,17 +794,12 @@ class ProcessConfigSection {
      * @param {number} index - a number index of row
      * @return {string} - an HTML string
      */
-    static #generateOneRowOfProcessColumnConfigHTML(
-        processColumnConfig,
-        index,
-    ) {
+    static #generateOneRowOfProcessColumnConfigHTML(processColumnConfig, index) {
         // convert column_type to attr key
         /** @type {ProcessColumnConfig & ColumnTypeInfo} */
         const col = {
             ...processColumnConfig,
-            ...DataTypeDropdown_Controller.convertColumnTypeToAttrKey(
-                processColumnConfig.column_type,
-            ),
+            ...DataTypeDropdown_Controller.convertColumnTypeToAttrKey(processColumnConfig.column_type),
         };
         col.is_show = true;
         const checkedAttr = col.is_checked ? 'checked=checked' : '';
@@ -991,14 +854,13 @@ class ProcessConfigSection {
         const isFixedName = fixedNameAttrs.includes(getKey);
         const isRegisteredMainDatetimeColumn =
             // ONLY FOR EDGE SERVER
-            (col.column_type ===
-                DataTypeDropdown_Controller.DataGroupType.MAIN_DATE ||
-                col.column_type ===
-                    DataTypeDropdown_Controller.DataGroupType.MAIN_TIME ||
+            (col.column_type === DataTypeDropdown_Controller.DataGroupType.MAIN_DATE ||
+                col.column_type === DataTypeDropdown_Controller.DataGroupType.MAIN_TIME ||
                 col.is_get_date) &&
             isRegisteredProcess;
+        const isRegisteredFilenameColumn = col.is_file_name && isRegisteredProcess;
         return `
-<tr class="${!col.is_show ? 'd-none' : ''} ${col.is_generated_datetime === true ? 'is-generated-datetime' : ''}"
+<tr class="${!col.is_show ? 'd-none' : ''} ${col.is_generated_datetime === true ? 'is-generated-datetime' : ''}  ${col.is_dummy_datetime === true ? 'is-dummy-datetime' : ''}"
     is-master-col="${col.is_master_col ?? ''}"
 >
     <td class="text-center show-raw-text row-item column-number" 
@@ -1009,7 +871,7 @@ class ProcessConfigSection {
     >
         ${index + 1}
     </td>
-    <td class="show-raw-text column-raw-name" title="is_checked">
+    <td class="show-raw-text column-raw-name" title="${col.column_raw_name || col.column_name}">
         <div class="custom-control custom-checkbox">
             <input type="checkbox"
                    class="check-item custom-control-input col-checkbox"
@@ -1036,14 +898,14 @@ class ProcessConfigSection {
                    data-is_file_name="${col.is_file_name ?? false}"
                    data-master_type="${col.master_type ?? ''}"
                    data-isnull="${col.check_same_value ? col.check_same_value.is_null : false}"
+                   data-observer="${col.is_checked}"
                    ${checkedAttr}
-                   ${col.is_master_col || isRegisteredMainDatetimeColumn ? 'disabled' : ''}
+                   ${col.is_master_col || isRegisteredMainDatetimeColumn || isRegisteredFilenameColumn ? 'disabled' : ''}
             >
             <label class="custom-control-label row-item for-search" 
                    for="checkbox-${col.column_name}_${index}${idSuffix}" 
                    ${checkedAttr}
-            >
-                ${col.column_raw_name || col.column_name}
+            ><span style="display: inline-block; text-overflow: ellipsis; overflow: hidden; max-width: 300px">${col.column_raw_name || col.column_name}</span>
             </label>
             <input id="isDummyDatetime${col.column_name}${idSuffix}" 
                    type="hidden" 
@@ -1059,7 +921,7 @@ class ProcessConfigSection {
         </div>
     </td>
     <td class="column-date-type" title="raw_data_type">
-        ${DataTypeDropdown_Controller.generateHtml(index, dataTypeObject, getKey, isRegisteredMainDatetimeColumn)}
+        ${DataTypeDropdown_Controller.generateHtml(index, dataTypeObject, getKey, isRegisteredFilenameColumn || isRegisteredMainDatetimeColumn)}
     </td>
     <td class="column-system-name" title="name_en">
         <input type="text" 
@@ -1067,8 +929,10 @@ class ProcessConfigSection {
                class="form-control row-item" 
                old-value="${isFixedName ? col.old_system_name || col.name_en || col.column_name : ''}" 
                value="${col.name_en ?? ''}" 
+               data-observer="${col.name_en ?? ''}" 
+               data-original-value="${col.name_en || col.column_name}"
                ${checkedAttr} 
-               ${isFixedName || isRegisteredMainDatetimeColumn ? 'disabled' : ''}
+               ${isFixedName || isRegisteredMainDatetimeColumn || isRegisteredFilenameColumn ? 'disabled' : ''}
         >
     </td>
     <td class="column-japanese-name" title="name_jp">
@@ -1077,9 +941,11 @@ class ProcessConfigSection {
                class="form-control row-item" 
                onchange="handleEmptySystemNameJP(this, procModalElements.systemName)" 
                old-value="${isFixedName ? col.old_name_jp || col.name_jp || '' : ''}" 
-               value="${col.name_jp ?? ''}" 
+               value="${col.name_jp || (isFixedName ? fixedName[getKey].japanese : '')}" 
+               data-observer="${col.name_jp ?? ''}" 
+               data-original-value="${col.name_jp}"
                ${checkedAttr} 
-               ${isFixedName || isRegisteredMainDatetimeColumn ? 'disabled' : ''}
+               ${isFixedName || isRegisteredMainDatetimeColumn || isRegisteredFilenameColumn ? 'disabled' : ''}
         >
     </td>
     <td class="column-local-name" title="name_local">
@@ -1087,8 +953,11 @@ class ProcessConfigSection {
                name="${procModalElements.localName}" 
                class="form-control row-item" 
                onchange="handleEmptySystemName(this, procModalElements.systemName)" 
-               value="${col.name_local || ''}" 
+               value="${col.name_local || (isFixedName ? col.name_en : '')}" 
+               data-observer="${col.name_local || ''}" 
+               data-original-value="${col.name_local || ''}"
                ${checkedAttr}
+               ${isFixedName ? 'disabled' : ''}
         >
     </td>
     <td class="column-unit" title="unit">
@@ -1096,6 +965,7 @@ class ProcessConfigSection {
                name="${procModalElements.unit}" 
                class="form-control row-item" 
                value="${col.unit || ''}" 
+               data-observer="${col.unit || ''}"
                ${checkedAttr}
         >
     </td>
@@ -1110,21 +980,11 @@ class ProcessConfigSection {
      * @param {?jQuery<HTMLTableSectionElement>} $processColumnsSampleDataTableBody
      * @return {string[]} - a list that contains sample data
      */
-    static collectSampleData(
-        columnId,
-        $processColumnsTableBody = null,
-        $processColumnsSampleDataTableBody = null,
-    ) {
-        const colIdx = (
-            $processColumnsTableBody ??
-            procModalElements.processColumnsTableBody
-        )
+    static collectSampleData(columnId, $processColumnsTableBody = null, $processColumnsSampleDataTableBody = null) {
+        const colIdx = ($processColumnsTableBody ?? procModalElements.processColumnsTableBody)
             .find(`td[title="index"][data-column-id="${columnId}"]`)
             .attr('data-col-idx');
-        return this.#collectSampleData(
-            colIdx,
-            $processColumnsSampleDataTableBody,
-        );
+        return this.#collectSampleData(colIdx, $processColumnsSampleDataTableBody);
     }
 
     /**
@@ -1135,22 +995,11 @@ class ProcessConfigSection {
      * @return {string[]} - a list that contains sample data
      * @private
      */
-    static #collectSampleData(
-        colIdx,
-        $processColumnsSampleDataTableBody = null,
-        isGetOriginal = false,
-    ) {
-        return (
-            $processColumnsSampleDataTableBody ??
-            procModalElements.processColumnsSampleDataTableBody
-        )
+    static #collectSampleData(colIdx, $processColumnsSampleDataTableBody = null, isGetOriginal = false) {
+        return ($processColumnsSampleDataTableBody ?? procModalElements.processColumnsSampleDataTableBody)
             .find(`tr:eq(${colIdx}) .sample-data`)
             .toArray()
-            .map((el) =>
-                isGetOriginal
-                    ? el.dataset.original.trim()
-                    : el.textContent.trim(),
-            );
+            .map((el) => (isGetOriginal ? el.dataset.original.trim() : el.textContent.trim()));
     }
 
     /**
@@ -1169,21 +1018,13 @@ class ProcessConfigSection {
             .find('span[name=dataType][checked][is_main_date=true]')
             .closest('tr')
             .index();
-        const mainDateSampleDatas = this.#collectSampleData(
-            mainDateColId,
-            $processColumnsSampleDataTableBody,
-            true,
-        );
+        const mainDateSampleDatas = this.#collectSampleData(mainDateColId, $processColumnsSampleDataTableBody, true);
 
         const mainTimeColId = $processColumnsTableBody
             .find('span[name=dataType][checked][is_main_time=true]')
             .closest('tr')
             .index();
-        const mainTimeSampleDatas = this.#collectSampleData(
-            mainTimeColId,
-            $processColumnsSampleDataTableBody,
-            true,
-        );
+        const mainTimeSampleDatas = this.#collectSampleData(mainTimeColId, $processColumnsSampleDataTableBody, true);
 
         const result = [];
         mainDateSampleDatas.forEach((dateData, index) => {
@@ -1226,9 +1067,7 @@ class ProcessConfigSection {
         // Add event for data type dropdown control
         $rowHtmlObject
             .find('div.config-data-type-dropdown')
-            .each((idx, dataTypeDropdownElement) =>
-                DataTypeDropdown_Controller.addEvents(dataTypeDropdownElement),
-            );
+            .each((idx, dataTypeDropdownElement) => DataTypeDropdown_Controller.addEvents(dataTypeDropdownElement));
 
         // Generate a new row in sample data table
         const sampleDatas = this.collectGeneratedDatetimeSampleData(
@@ -1237,11 +1076,7 @@ class ProcessConfigSection {
             col.column_name,
         );
         const columnColorClass = 'dummy_datetime_col';
-        const sampleRowHTML = this.generateOneRowOfSampleDataHTML(
-            sampleDatas,
-            col,
-            columnColorClass,
-        );
+        const sampleRowHTML = this.generateOneRowOfSampleDataHTML(sampleDatas, col, columnColorClass);
         $processColumnsSampleDataTableBody.append(sampleRowHTML);
     }
 
@@ -1251,21 +1086,31 @@ class ProcessConfigSection {
      * @param {jQuery<HTMLTableSectionElement>} $processColumnsSampleDataTableBody
      * @private
      */
-    static #removeGeneratedMainDatetimeColumn(
-        $processColumnsTableBody,
-        $processColumnsSampleDataTableBody,
-    ) {
+    static #removeGeneratedMainDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody) {
         // remove generated datetime column
-        const generatedDatetimeColRow = $processColumnsTableBody.find(
-            `.is-generated-datetime`,
-        );
+        const generatedDatetimeColRow = $processColumnsTableBody.find(`.is-generated-datetime`);
         if (generatedDatetimeColRow.length === 0) return;
 
         const generatedDatetimeColIndex = generatedDatetimeColRow.index();
         generatedDatetimeColRow.remove();
-        $processColumnsSampleDataTableBody
-            .find(`tr:eq(${generatedDatetimeColIndex})`)
-            .remove();
+        $processColumnsSampleDataTableBody.find(`tr:eq(${generatedDatetimeColIndex})`).remove();
+        reCalculateCheckedColumn(-1);
+    }
+
+    /**
+     * Remove generated main::Datetime column
+     * @param {jQuery<HTMLTableSectionElement>} $processColumnsTableBody
+     * @param {jQuery<HTMLTableSectionElement>} $processColumnsSampleDataTableBody
+     * @private
+     */
+    static #removeDummyDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody) {
+        // remove dummy datetime column
+        const dummyDatetimeRow = $processColumnsTableBody.find(`.is-dummy-datetime`);
+        if (dummyDatetimeRow.length === 0) return;
+
+        const dummyDatetimeColIndex = dummyDatetimeRow.index();
+        dummyDatetimeRow.remove();
+        $processColumnsSampleDataTableBody.find(`tr:eq(${dummyDatetimeColIndex})`).remove();
         reCalculateCheckedColumn(-1);
     }
 
@@ -1275,44 +1120,33 @@ class ProcessConfigSection {
      * @param {string} attrKey
      * @param {string} beforeAttrKey
      */
-    static handleMainDateAndMainTime(
-        dataTypeDropdownElement,
-        attrKey,
-        beforeAttrKey = '',
-    ) {
+    static handleMainDateAndMainTime(dataTypeDropdownElement, attrKey, beforeAttrKey = '') {
         if (this.handleMainDateAndMainTime.disable) return;
 
-        const $processColumnsTableBody = $(
-            dataTypeDropdownElement.closest('tbody'),
-        );
+        const $processColumnsTableBody = $(dataTypeDropdownElement.closest('tbody'));
         const $processColumnsSampleDataTableBody = $processColumnsTableBody
             .closest('div.proc-config-content')
             .find('table[name="processColumnsTableSampleData"] tbody');
-        const isGeneratedMainDateTimeColumnExist =
-            $processColumnsTableBody.find('.is-generated-datetime').length > 0;
+        const isGeneratedMainDateTimeColumnExist = $processColumnsTableBody.find('.is-generated-datetime').length > 0;
 
-        const $spanMainTime = $processColumnsTableBody.find(
-            'span[name=dataType][checked][is_main_time=true]',
-        );
+        const $spanMainTime = $processColumnsTableBody.find('span[name=dataType][checked][is_main_time=true]');
+        const isDummyDateTimeColumnExist = $processColumnsTableBody.find('.is-dummy-datetime').length > 0;
         const isMainTimeColumnChecked = $spanMainTime.length > 0;
-        const $spanMainDate = $processColumnsTableBody.find(
-            'span[name=dataType][checked][is_main_date=true]',
-        );
+        const $spanMainDate = $processColumnsTableBody.find('span[name=dataType][checked][is_main_date=true]');
         const isMainDateColumnChecked = $spanMainDate.length > 0;
 
         if (
             ['is_get_date'].includes(attrKey) &&
             isMainTimeColumnChecked &&
             isMainDateColumnChecked &&
-            isGeneratedMainDateTimeColumnExist
+            (isGeneratedMainDateTimeColumnExist || isDummyDateTimeColumnExist)
         ) {
             // In case there are generated main::Datetime, main::Date, main::Time columns and another column is
             // selected as main::Datetime -> change main::Date, main::Time column to normal type and remove generated
             // main::Datetime column
-            this.#removeGeneratedMainDatetimeColumn(
-                $processColumnsTableBody,
-                $processColumnsSampleDataTableBody,
-            );
+            this.#removeGeneratedMainDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
+
+            this.#removeDummyDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
 
             try {
                 this.handleMainDateAndMainTime.disable = true; // lock to avoid running this function
@@ -1329,49 +1163,32 @@ class ProcessConfigSection {
             // In case there is only main::Date or main::Time column
             // when there is datetime column already generated, remove it
             if (isGeneratedMainDateTimeColumnExist) {
-                this.#removeGeneratedMainDatetimeColumn(
-                    $processColumnsTableBody,
-                    $processColumnsSampleDataTableBody,
-                );
+                this.#removeGeneratedMainDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
             }
-            if (
-                beforeAttrKey.length ||
-                ['is_main_date', 'is_main_time'].includes(attrKey)
-            ) {
-                $(procModalElements.msgContent).text(
-                    $(procModalElements.msgSelectDateAndTime).text(),
-                );
+            // also remove dummy datetime
+            this.#removeDummyDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
+            if (beforeAttrKey.length || ['is_main_date', 'is_main_time'].includes(attrKey)) {
+                $(procModalElements.msgContent).text($(procModalElements.msgSelectDateAndTime).text());
                 $(procModalElements.msgModal).modal('show');
             }
 
             // Change main::Datetime to normal Datetime data type
-            const mainDatetimeCol =
-                /** @type HTMLSpanElement */ $processColumnsTableBody.find(
-                    'span[name=dataType][checked][is_get_date=true]',
-                );
+            const mainDatetimeCol = /** @type HTMLSpanElement */ $processColumnsTableBody.find(
+                'span[name=dataType][checked][is_get_date=true]',
+            );
             if (mainDatetimeCol.length > 0) {
-                DataTypeDropdown_Controller.changeToNormalDataType(
-                    mainDatetimeCol[0],
-                );
+                DataTypeDropdown_Controller.changeToNormalDataType(mainDatetimeCol[0]);
             }
         } else if (isMainTimeColumnChecked && isMainDateColumnChecked) {
             if (!isGeneratedMainDateTimeColumnExist) {
-                $(procModalElements.msgContent).text(
-                    $(procModalElements.msgGenDateTime).text(),
-                );
+                $(procModalElements.msgContent).text($(procModalElements.msgGenDateTime).text());
                 $(procModalElements.msgModal).modal('show');
             } else {
-                this.#removeGeneratedMainDatetimeColumn(
-                    $processColumnsTableBody,
-                    $processColumnsSampleDataTableBody,
-                );
+                this.#removeGeneratedMainDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
             }
             const generatedId = -100;
-            const defaultGeneratedDateTimeColName =
-                procModalElements.generatedDateTimeColumnName;
-            const generatedDateTimeColName = addSuffixDatetimeGenerated(
-                defaultGeneratedDateTimeColName,
-            );
+            const defaultGeneratedDateTimeColName = procModalElements.generatedDateTimeColumnName;
+            const generatedDateTimeColName = addSuffixDatetimeGenerated(defaultGeneratedDateTimeColName);
             const generatedDateTimeCol = {
                 is_linking_column: false,
                 is_int_category: false,
@@ -1400,7 +1217,6 @@ class ProcessConfigSection {
                 bridge_column_name: null,
                 master_type: null,
                 is_checked: true,
-                is_big_int: false,
                 id: generatedId,
             };
             const dataTypeObject = {
@@ -1420,6 +1236,21 @@ class ProcessConfigSection {
             );
             reCalculateCheckedColumn(1);
             showProcDatetimeFormatSampleData();
+        } else if (
+            ['is_get_date'].includes(attrKey) &&
+            (isGeneratedMainDateTimeColumnExist || isDummyDateTimeColumnExist)
+        ) {
+            this.#removeGeneratedMainDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
+
+            this.#removeDummyDatetimeColumn($processColumnsTableBody, $processColumnsSampleDataTableBody);
+
+            // Re-index order number
+            $processColumnsTableBody
+                .find('td.column-number')
+                .toArray()
+                .forEach((ele, index) => {
+                    ele.textContent = index + 1;
+                });
         }
     }
 
@@ -1435,10 +1266,7 @@ class ProcessConfigSection {
      * @param {jQuery<HTMLTableSectionElement>} $processConfigTableBody
      * @param {jQuery<HTMLTableSectionElement>} $processColumnsSampleDataTableBody
      */
-    static sortProcessColumns(
-        $processConfigTableBody,
-        $processColumnsSampleDataTableBody,
-    ) {
+    static sortProcessColumns($processConfigTableBody, $processColumnsSampleDataTableBody) {
         const ColumnTypeAttribute = {
             MainDatetime: 'is_get_date',
             MainDate: 'is_main_date',
@@ -1446,15 +1274,10 @@ class ProcessConfigSection {
         };
         const inner = function (columnTypeAttribute) {
             const targetRow = $processConfigTableBody
-                .find(
-                    `td.column-date-type div.config-data-type-dropdown button span[${columnTypeAttribute}="true"]`,
-                )
+                .find(`td.column-date-type div.config-data-type-dropdown button span[${columnTypeAttribute}="true"]`)
                 .closest('tr');
             if (targetRow.length > 0) {
-                const targetSampleDataRow =
-                    $processColumnsSampleDataTableBody.find(
-                        `tr:eq(${targetRow.index()})`,
-                    );
+                const targetSampleDataRow = $processColumnsSampleDataTableBody.find(`tr:eq(${targetRow.index()})`);
 
                 // Move row to top of table
                 $processConfigTableBody.prepend(targetRow);
@@ -1481,27 +1304,17 @@ const addSuffixDatetimeGenerated = () => {
     let suffix = '';
     const searchName = datetimeGenerated;
     const sameColumnNames = [
-        ...document
-            .getElementById('processColumnsTable')
-            .lastElementChild.querySelectorAll(`td.column-raw-name label`),
+        ...document.getElementById('processColumnsTable').lastElementChild.querySelectorAll(`td.column-raw-name label`),
     ]
         .filter((input) => input.textContent.trim().includes(searchName))
         .map((input) => input.textContent.trim());
     const prefix = `${searchName}_`;
     const validSameColumnNames = sameColumnNames
-        .filter(
-            (name) =>
-                name.includes(prefix) &&
-                name.replace(prefix, '').match(/^\d{2}$/) != null,
-        )
+        .filter((name) => name.includes(prefix) && name.replace(prefix, '').match(/^\d{2}$/) != null)
         .sort((a, b) => a.localeCompare(b));
     if (validSameColumnNames.length > 0) {
         const lastName = validSameColumnNames[validSameColumnNames.length - 1];
-        suffix =
-            parseInt(
-                lastName.substring(lastName.length - 2, lastName.length),
-                10,
-            ) + 1;
+        suffix = parseInt(lastName.substring(lastName.length - 2, lastName.length), 10) + 1;
         suffix = `_${String(suffix).padStart(2, '0')}`;
     } else if (sameColumnNames.length > 0) {
         suffix = `_01`;

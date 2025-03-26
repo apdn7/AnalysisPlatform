@@ -91,13 +91,13 @@ const HistogramWithDensityCurve = ($, paramObj) => {
             categoryLabels[catId - 1] = beforeRankValues[1][idx];
         });
         categoryLabels.reverse();
-        categoryIds.sort().reverse(); // 4321
+        categoryIds.sort((a, b) => b - a); // 4321
         categoryLabels.forEach((catName) => {
-            const categoryCount =
-                plotData.category_distributed[catName].counts_org;
+            const categoryCount = plotData.category_distributed[catName].counts_org;
             stepChartDat.push(categoryCount);
         });
     }
+
     const xData = genFullCategoryData(categoryIds, stepChartDat, allGroupNames);
     const barChart = {
         y: !isCatLimited ? allGroupNames.id : [],
@@ -313,10 +313,7 @@ const drawEmptyHistogram = ($, paramObj) => {
             orientation: 'h',
         },
     ];
-    const catLimitMsgs = $('#i18nCatLimitedMsg')
-        .text()
-        .split('BREAK_LINE')
-        .join('<br>');
+    const catLimitMsgs = $('#i18nCatLimitedMsg').text().split('BREAK_LINE').join('<br>');
     const layout = {
         showlegend: false,
         xaxis: {

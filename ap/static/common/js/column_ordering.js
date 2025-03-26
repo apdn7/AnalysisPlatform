@@ -4,8 +4,7 @@ let showOrderModalClick = 0;
 let showOrderModalGraphAreaClick = 0;
 let removeColIds = [];
 let latestSortColIdsJumpPage = [];
-const isScpOrHmpPage =
-    getCurrentPage() === PAGE_NAME.scp || getCurrentPage() === PAGE_NAME.hmp;
+const isScpOrHmpPage = getCurrentPage() === PAGE_NAME.scp || getCurrentPage() === PAGE_NAME.hmp;
 
 const orderingEls = {
     endColOrderTable: '#endColOrderTable',
@@ -46,9 +45,7 @@ const sortGraphs = (array, ColKey, sortedColIds) => {
     });
     endCols = endCols.map((id) => Number(id));
     sortedColIds = sortedColIds.map((col) => Number(col.split('-')[1]));
-    const notOrderCols = [...array].filter(
-        (colDat) => !sortedColIds.includes(colDat[ColKey]),
-    );
+    const notOrderCols = [...array].filter((colDat) => !sortedColIds.includes(colDat[ColKey]));
     const graph_sort_key = 'graph_sort_value';
     const removeIndexes = [];
     for (let i = 0; i < array.length; i++) {
@@ -72,9 +69,7 @@ const sortGraphs = (array, ColKey, sortedColIds) => {
 const getSelectedEndColIds = () => {
     const colIds = [];
     $('#end-proc-row .end-proc').each((_, endProc) => {
-        const procId = $(endProc)
-            .find('[name*="end_proc"] option:selected')
-            .val();
+        const procId = $(endProc).find('[name*="end_proc"] option:selected').val();
         const cols = $(endProc).find('li [name*=GET02_VALS_SELECT]:checked');
         cols.each((_, element) => {
             if (element.value && element.value !== 'All') {
@@ -88,9 +83,7 @@ const getSelectedEndColIds = () => {
 const getSelectedEndProcIds = () => {
     const procIds = [];
     $('#end-proc-row .end-proc').each((_, endProc) => {
-        const procId = $(endProc)
-            .find('[name*="end_proc"] option:selected')
-            .val();
+        const procId = $(endProc).find('[name*="end_proc"] option:selected').val();
         procIds.push(procId);
     });
     return procIds;
@@ -146,10 +139,7 @@ const generateSortOrderColumn = (sortList, graphArea) => {
 
 const isDropDownChanged = () => {
     const originalSelected = getSelectedEndColIds().sort();
-    return (
-        JSON.stringify(originalSelected) !==
-        JSON.stringify([...sortedColIds].sort())
-    );
+    return JSON.stringify(originalSelected) !== JSON.stringify([...sortedColIds].sort());
 };
 //
 const getSensorOrderFromGUI = (sortedIds = []) => {
@@ -157,14 +147,8 @@ const getSensorOrderFromGUI = (sortedIds = []) => {
     return sortedIds.filter((id) => selectedSensors.includes(id));
 };
 
-const loadDataSortColumnsToModal = (
-    graphAreaSuffix = '',
-    force = false,
-    callback = null,
-) => {
-    sortedColIds = isDropDownChanged()
-        ? getSensorOrderFromGUI(latestSortColIds)
-        : sortedColIds;
+const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callback = null) => {
+    sortedColIds = isDropDownChanged() ? getSensorOrderFromGUI(latestSortColIds) : sortedColIds;
     if (force) {
         const sortedCols = localStorage.getItem(sortedColumnsKey);
         if (sortedCols) {
@@ -178,9 +162,7 @@ const loadDataSortColumnsToModal = (
         $(orderingEls.endColOrderModalOkBtn).on('click', (e) => {
             // remove checked cols
             for (const colId of removeColIds) {
-                $(`input[name^=GET02_VALS_SELECT][value=${colId}]`)
-                    .prop('checked', false)
-                    .trigger('change');
+                $(`input[name^=GET02_VALS_SELECT][value=${colId}]`).prop('checked', false).trigger('change');
             }
             removeColIds = [];
             sortedColIds = [];
@@ -202,31 +184,25 @@ const loadDataSortColumnsToModal = (
     }
 
     if (!showOrderModalGraphAreaClick) {
-        $(orderingEls.endColOrderModalOkBtn + graphAreaSuffix).on(
-            'click',
-            (e) => {
-                latestSortColIds = [];
-                $(orderingEls.endColOrderTable + graphAreaSuffix)
-                    .find('tr')
-                    .each((_, element) => {
-                        const colId = $(element).attr('data-colId');
-                        const procId = $(element).attr('data-procId');
-                        if (colId) {
-                            latestSortColIds.push(`${procId}-${colId}`);
-                        }
-                    });
-                if (callback) {
-                    callback();
-                }
-            },
-        );
+        $(orderingEls.endColOrderModalOkBtn + graphAreaSuffix).on('click', (e) => {
+            latestSortColIds = [];
+            $(orderingEls.endColOrderTable + graphAreaSuffix)
+                .find('tr')
+                .each((_, element) => {
+                    const colId = $(element).attr('data-colId');
+                    const procId = $(element).attr('data-procId');
+                    if (colId) {
+                        latestSortColIds.push(`${procId}-${colId}`);
+                    }
+                });
+            if (callback) {
+                callback();
+            }
+        });
 
-        $(orderingEls.endColOrderModalCancelBtn + graphAreaSuffix).on(
-            'click',
-            (e) => {
-                generateSortOrderColumn(latestSortColIds, graphAreaSuffix);
-            },
-        );
+        $(orderingEls.endColOrderModalCancelBtn + graphAreaSuffix).on('click', (e) => {
+            generateSortOrderColumn(latestSortColIds, graphAreaSuffix);
+        });
     }
 
     if (graphAreaSuffix) {
@@ -377,17 +353,11 @@ const createOrUpdateSensorOrdering = (event, checkAll = false) => {
     if (procID) {
         const orderingID = `${procID}-${columnID}`;
         const isAdd = $(event.target).is(':checked');
-        if (
-            isAdd &&
-            !latestSortColIds.includes(orderingID) &&
-            selectedEndCols.includes(orderingID)
-        ) {
+        if (isAdd && !latestSortColIds.includes(orderingID) && selectedEndCols.includes(orderingID)) {
             latestSortColIds.push(orderingID);
         }
         if (!isAdd) {
-            latestSortColIds = latestSortColIds.filter(
-                (col) => col !== orderingID,
-            );
+            latestSortColIds = latestSortColIds.filter((col) => col !== orderingID);
         }
     }
 };

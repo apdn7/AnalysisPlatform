@@ -127,7 +127,7 @@ def filter_and(df_col: Series, condition_str):
         idxs = filter_contains(df_temp, cond)
         df_temp = df_temp[idxs]
 
-    vals = idxs[idxs].index.values
+    vals = idxs[idxs].index.to_numpy()
     idxs = df_col.index.isin(vals)
 
     return idxs

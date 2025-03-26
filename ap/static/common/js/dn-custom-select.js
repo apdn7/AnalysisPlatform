@@ -44,44 +44,26 @@ const initCustomSelect = () => {
         });
         customSelect.find('.dn-custom-select--select').off('click');
         customSelect.find('.dn-custom-select--select').on('click', (e) => {
-            if (
-                customSelect
-                    .find('.dn-custom-select--select--list')
-                    .hasClass('select-hide')
-            ) {
-                customSelect
-                    .find('.dn-custom-select--select--list')
-                    .removeClass('select-hide');
+            if (customSelect.find('.dn-custom-select--select--list').hasClass('select-hide')) {
+                customSelect.find('.dn-custom-select--select--list').removeClass('select-hide');
             } else {
-                customSelect
-                    .find('.dn-custom-select--select--list')
-                    .addClass('select-hide');
+                customSelect.find('.dn-custom-select--select--list').addClass('select-hide');
             }
         });
         customSelect.find('.dn-custom-select--select--list').off('click');
-        customSelect
-            .find('.dn-custom-select--select--list')
-            .on('click', (e) => {
-                let item = e.target.closest(
-                    '.dn-custom-select--select--list--item',
-                );
-                $('.dn-custom-select--select--list--item').removeClass(
-                    'selected-item',
-                );
-                if (!item) return;
-                item = $(item);
-                const value = item.attr('data-value');
-                select.val(value).trigger('change');
-                item.addClass('selected-item');
-                customSelect
-                    .find('.dn-custom-select--select')
-                    .text(item.text());
+        customSelect.find('.dn-custom-select--select--list').on('click', (e) => {
+            let item = e.target.closest('.dn-custom-select--select--list--item');
+            $('.dn-custom-select--select--list--item').removeClass('selected-item');
+            if (!item) return;
+            item = $(item);
+            const value = item.attr('data-value');
+            select.val(value).trigger('change');
+            item.addClass('selected-item');
+            customSelect.find('.dn-custom-select--select').text(item.text());
 
-                // hide
-                customSelect
-                    .find('.dn-custom-select--select--list')
-                    .addClass('select-hide');
-            });
+            // hide
+            customSelect.find('.dn-custom-select--select--list').addClass('select-hide');
+        });
 
         select.off('change');
         select.on('change', (e) => {
@@ -94,9 +76,7 @@ const resetCustomSelect = (selectEL) => {
     const customSelect = selectEL.parent();
     const value = selectEL.val();
     const selectedOption = selectEL.find('option:selected');
-    customSelect
-        .find('.dn-custom-select--select--list--item')
-        .removeClass('selected-item');
+    customSelect.find('.dn-custom-select--select--list--item').removeClass('selected-item');
     customSelect.find('.dn-custom-select--select--list--item').each((i, el) => {
         if ($(el).attr('data-value') === value) {
             $(el).addClass('selected-item');

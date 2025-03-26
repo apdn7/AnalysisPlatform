@@ -1,3 +1,5 @@
+from typing import Union
+
 from flask import Blueprint, render_template, request
 from flask_babel import get_locale
 
@@ -14,6 +16,7 @@ from ap.common.constants import (
     UN_AVAILABLE,
     CSVExtTypes,
 )
+from ap.common.jobs.utils import is_update_transaction_data_job_completed
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
@@ -122,3 +125,14 @@ def get_jump_cfg(source_page):
     master_info = get_tile_master_with_lang(tile_master, current_lang)
     out_dict = orjson_dumps({'all': all, 'recommended': recommended, 'unavailable': unavailable, 'master': master_info})
     return out_dict, 200
+
+
+@api_common_blueprint.route('/is_update_transaction_data_job_completed/<process_id>', methods=['GET'])
+def is_update_transaction_data_job_completed_api(process_id: Union[int, str]):
+    """
+    Check UPDATE_TRANSACTION_DATA job of process_id is executed completely or not
+    :param process_id:
+    :return: True: the job is executed completely, otherwise False
+    """
+    is_completed = is_update_transaction_data_job_completed(process_id)
+    return orjson_dumps(is_completed), 200

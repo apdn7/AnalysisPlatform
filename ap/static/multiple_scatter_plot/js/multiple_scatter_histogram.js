@@ -161,10 +161,7 @@ const addHistogramThresholds = (layout, maxHistNum, histLabels, xThreshold) => {
     const ref = { xaxis: 'x', yaxis: 'y' };
 
     if (histLabels.length > 0) {
-        layout.shapes = genThresholds(xThreshold, {}, ref, null, [
-            0,
-            maxHistNum,
-        ]);
+        layout.shapes = genThresholds(xThreshold, {}, ref, null, [0, maxHistNum]);
     }
 
     return layout;

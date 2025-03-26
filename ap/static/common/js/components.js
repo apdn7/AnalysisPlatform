@@ -1,5 +1,6 @@
 let i18nCommon = {};
 const MAX_DYNAMIC_CARD = 50;
+let isExtendSysName = false;
 
 // use this config for select2
 const select2ConfigI18n = {
@@ -27,8 +28,7 @@ const select2ConfigI18n = {
         },
     },
 };
-const countUp = (cnt, minNumber = 1, maxNumber = MAX_DYNAMIC_CARD) =>
-    cnt >= maxNumber ? minNumber : cnt + 1;
+const countUp = (cnt, minNumber = 1, maxNumber = MAX_DYNAMIC_CARD) => (cnt >= maxNumber ? minNumber : cnt + 1);
 const extractNumberAtTheEnd = (inputStr) => {
     const matches = inputStr.match(/\d+$/);
 
@@ -39,12 +39,7 @@ const extractNumberAtTheEnd = (inputStr) => {
     return null;
 };
 
-const checkExistDataGenBtn = (
-    btnId,
-    count,
-    parentFormId = '',
-    maxNumber = MAX_DYNAMIC_CARD,
-) => {
+const checkExistDataGenBtn = (btnId, count, parentFormId = '', maxNumber = MAX_DYNAMIC_CARD) => {
     const DYNAMIC_ELE_ATTR = 'data-gen-btn';
     if (parentFormId && parentFormId[0] !== '#') {
         parentFormId = `#${parentFormId}`;
@@ -141,27 +136,19 @@ const updateI18nCommon = async () => {
         agPColorExplanation: $('#i18nAgPColorExplanation').text(),
         changedToMaxValue: $('#i18nChangedDivisionNumberToMax').text(),
         limitDisplayedGraphs: $('#i18nLimitDisplayedGraphs').text(),
-        limitDisplayedGraphsInOneTab: $(
-            '#i18nLimitDisplayedGraphsInOneTab',
-        ).text(),
-        availableSelectMinMaxSensor: $(
-            '#i18nAvailableSelectMinMaxSensor',
-        ).text(),
+        limitDisplayedGraphsInOneTab: $('#i18nLimitDisplayedGraphsInOneTab').text(),
+        availableSelectMinMaxSensor: $('#i18nAvailableSelectMinMaxSensor').text(),
         availableSelectMaxSensor: $('#i18nAvailableSelectMaxSensor').text(),
         saveSetting: $('#i18nSaveSetting').text(),
         notApplicable: $('#i18nNotApplicable').text(),
         copyClipboardSuccessful: $('#i18nCopyClipboardSuccessful').text(),
         copyClipboardFailed: $('#i18nCopyClipboardFailed').text(),
-        pasteFromClipboardSuccessful: $(
-            '#i18nPasteFromClipboardSuccessful',
-        ).text(),
+        pasteFromClipboardSuccessful: $('#i18nPasteFromClipboardSuccessful').text(),
         pasteFromClipboardFailed: $('#i18nPasteFromClipboardFailed').text(),
         saveUserSettingConfirm: $('#i18nSaveUserSettingConfirm').text(),
         editUserSettingConfirm: $('#i18nEditUserSettingConfirm').text(),
         changeDivConfirmText: $('#i18nChangeDivConfirmText').text(),
-        changeDivideOptionConfirmText: $(
-            '#i18nChangeDivideOptionConfirm',
-        ).text(),
+        changeDivideOptionConfirmText: $('#i18nChangeDivideOptionConfirm').text(),
         first: $('#i18nFirst').text(),
         last: $('#i18nLast').text(),
         all: $('#i18nAll2').text(),
@@ -182,18 +169,11 @@ const endProcSortable = () => {
     $('.grouplist-checkbox-with-search').sortable({
         update: function (event, ui) {
             const targetItem = $(ui.item);
-            const isChecked = targetItem
-                .find('input[name^=GET02_VALS_SELECT]')
-                .prop('checked');
+            const isChecked = targetItem.find('input[name^=GET02_VALS_SELECT]').prop('checked');
             if (!isChecked) return;
             // add order number
-            targetItem
-                .parent()
-                .find('input[name^=GET02_VALS_SELECT]')
-                .removeAttr('order');
-            const checked = targetItem
-                .parent()
-                .find('input[name^=GET02_VALS_SELECT]:checked');
+            targetItem.parent().find('input[name^=GET02_VALS_SELECT]').removeAttr('order');
+            const checked = targetItem.parent().find('input[name^=GET02_VALS_SELECT]:checked');
             checked.each((i, el) => {
                 $(el).attr('order', i);
             });
@@ -204,17 +184,28 @@ const objectiveInputEventHandle = () => {
     $('input[name="objectiveVar"]').on('change', (e) => {
         const isChecked = e.currentTarget.checked;
         const parentRow = $(e.target).closest('li.list-group-item.form-check');
-        isChecked &&
-            parentRow
-                .find('input[type=checkbox][name^=GET02_VALS_SELECT]')
-                .prop('checked', true);
+        isChecked && parentRow.find('input[type=checkbox][name^=GET02_VALS_SELECT]').prop('checked', true);
     });
 };
 
 const inputCheckInlineEvents = (parentId) => {
-    $(`#${parentId} li.list-group-item`).on('click', (e) => {
-        const firstInputIsChecked = $(e.currentTarget).find('input:eq(0)')[0]
-            .checked;
+    $(`#${parentId} li.list-group-item`).on('click', function (e) {
+        // prevent event click on border of li_tag START
+        const boxWidth = $(this).outerWidth();
+        const boxHeight = $(this).outerHeight();
+        const borderWidth = parseInt($(this).css('border-width')) + parseInt($(this).css('padding-top'));
+
+        if (
+            e.offsetX < borderWidth ||
+            e.offsetX > boxWidth - borderWidth ||
+            e.offsetY < borderWidth ||
+            e.offsetY > boxHeight - borderWidth
+        ) {
+            return;
+        }
+        // prevent event click on border of li_tag END
+
+        const firstInputIsChecked = $(e.currentTarget).find('input:eq(0)')[0].checked;
         const childInputElems = $(e.target).find('input');
 
         const isLabelInput = $(e.target)
@@ -224,21 +215,15 @@ const inputCheckInlineEvents = (parentId) => {
         if (isLabelInput) {
             return;
         }
-        if (
-            $(e.target).is('select') ||
-            $(e.target).hasClass('select2-selection__rendered')
-        ) {
+        if ($(e.target).is('select') || $(e.target).is('[class^="select2-selection__"]')) {
             return;
         }
 
-        const [childInput] = childInputElems.length
-            ? childInputElems
-            : $(e.target).parent().find('input');
+        const [childInput] = childInputElems.length ? childInputElems : $(e.target).parent().find('input');
         // check if this input is CL
         const isSecondaryCheckbox =
-            ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(
-                childInput?.name,
-            ) || childInput.name.includes('GET02_CATE_SELECT');
+            ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(childInput?.name) ||
+            (childInput && childInput?.name?.includes('GET02_CATE_SELECT'));
 
         if (isSecondaryCheckbox) {
             $(e.target)
@@ -261,16 +246,10 @@ const inputCheckInlineEvents = (parentId) => {
                         return;
                     }
                     // fpp label column
-                    if (
-                        $(item).attr('data-autoselect') === 'false' ||
-                        $(item).prop('disabled')
-                    ) {
+                    if ($(item).attr('data-autoselect') === 'false' || $(item).prop('disabled')) {
                         return;
                     }
-                    if (
-                        item.type === 'radio' &&
-                        !['colorVar', 'judgeVar'].includes(item.name)
-                    ) {
+                    if (item.type === 'radio' && !['colorVar', 'judgeVar'].includes(item.name)) {
                         item.checked = true;
                     } else if (item.type === 'checkbox') {
                         item.checked = !firstInputIsChecked;
@@ -294,7 +273,7 @@ const inputCheckInlineEvents = (parentId) => {
     });
 };
 
-const genColDOM = (
+const genColDOM = ({
     isShow,
     label,
     description,
@@ -302,23 +281,23 @@ const genColDOM = (
     withCheckBox = false,
     id = '',
     className = '',
-) => {
+}) => {
     // todo: check nofilter option
     const filterClasses =
         id !== ''
             ? 'col custom-control custom-checkbox fit-item text-center pr-1 d-flex '
-            : 'col px-1 fit-item title-col';
+            : `col px-1 fit-item title-col`;
     if (isShow) {
         if (withCheckBox) {
             return `<div class="${filterClasses} ${className}">
                 <input type="checkbox" class="custom-control-input checkbox-all-labels" id="checkbox-all-label${id}">
                     <label class="custom-control-label checkbox-all-label" for="checkbox-all-label${id}">
-                        <h6 title="${description}" class="${textCenter ? 'text-center' : ''}" style="text-decoration: underline">${label}</h6>
+                        <h6 title="${description}" style="text-decoration: underline">${label}</h6>
                     </label>
             </div>`;
         }
         return `<div class="${filterClasses} ${className}">
-            <h6 title="${description}" class="${textCenter ? 'text-center' : ''}" style="text-decoration: underline">${label}</h6>
+            <h6 title="${description}" style="text-decoration: underline">${label}</h6>
         </div>`;
     }
     return '';
@@ -326,14 +305,7 @@ const genColDOM = (
 
 let limitedCheckedList = [];
 
-const addGroupListCheckboxWithSearch = (
-    parentId,
-    id,
-    label,
-    itemIds,
-    itemVals,
-    props,
-) => {
+const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, props) => {
     const mainChkBoxClass = 'main-checkbox';
     const requiredInputClass = 'required-input';
     const indexDic = {
@@ -345,9 +317,7 @@ const addGroupListCheckboxWithSearch = (
         judge: 7,
         filter: 8,
     };
-    const isShowColorCheckBox = props
-        ? props.showColor && !props.colorAsDropdown
-        : false;
+    const isShowColorCheckBox = props ? props.showColor && !props.colorAsDropdown : false;
     const genDetailItem = (
         isHeader = false,
         chkBox,
@@ -377,17 +347,6 @@ const addGroupListCheckboxWithSearch = (
 
         const col = thresholdBox ? '10' : '12';
 
-        const rowClass =
-            [
-                props.showLabel,
-                props.showColor,
-                props.showCatExp,
-                props.showObjectiveInput,
-                props.judge,
-            ].filter((col) => col).length > 1
-                ? ''
-                : 'less-col';
-
         let html = `<div class="col-md-${col} search-col col-xs-${col} ${commonClass}">
                    ${chkBox}
                  </div>`;
@@ -397,8 +356,7 @@ const addGroupListCheckboxWithSearch = (
         }
 
         if (shownName) {
-            const isStrCol =
-                dataType === DataTypes.STRING.name ? ' is-string-col' : '';
+            const isStrCol = dataType === DataTypes.STRING.name ? ' is-string-col' : '';
             const originalTotalCol = [
                 chkBox,
                 shownName,
@@ -410,17 +368,12 @@ const addGroupListCheckboxWithSearch = (
                 props.judge,
                 props.showFilter,
             ];
-            const shownNameByDateTime =
-                dataType === DataTypes.DATETIME.name
-                    ? isGetDate
-                        ? ''
-                        : shownName
-                    : shownName;
+            const shownNameByDateTime = dataType === DataTypes.DATETIME.name ? (isGetDate ? '' : shownName) : shownName;
             html = `
-                <div class="col-sm-3 col-xs-3 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol}" title="${shownName}" data-for-sort="${itemVal}">
+                <div class="col-sm-3 col-xs-3 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol} sys-name" title="${shownName}" data-for-sort="${itemVal}">
                     ${chkBox}
                 </div>
-                <div class="col-sm-3 col-xs-3 show-name-col ${masterNameClass} shorten-name pr-1 search-col" title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
+                <div class="col-sm-3 col-xs-3 show-name-col ${masterNameClass} shorten-name pr-1 search-col col-without-checkbox jp-name"  title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
                     ${shownNameByDateTime}
                 </div>
             `;
@@ -430,8 +383,7 @@ const addGroupListCheckboxWithSearch = (
                         // data type;
                         const title = $(`#${DataTypes[dataType].exp}`).text();
                         const hiddenValue =
-                            DataTypes[dataType].short ===
-                            DataTypes.DATETIME.short
+                            DataTypes[dataType].short === DataTypes.DATETIME.short
                                 ? DataTypes.STRING.short
                                 : DataTypes[dataType].short;
                         const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${hiddenValue}" hidden disabled>`;
@@ -441,20 +393,21 @@ const addGroupListCheckboxWithSearch = (
                     }
                     if (i === indexDic.label) {
                         // label or Filter
-                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="Label">
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col center-checkbox-label-filter" title="Label">
                                     ${categoryLabelDOM || ''}
                                  </div>`;
                     }
                     if (i === indexDic.filter) {
                         // label or Filter
-                        html += `<div class="col ${checkboxClass} fit-item text-center small-col pr-1 d-flex pl-5" title="Filter">
+                        html += `<div class="col ${checkboxClass} fit-item text-center small-col center-checkbox-label-filter" title="Filter"">
                                     ${categoryFilterDOM || ''}
                                  </div>`;
                     }
                     if (i === indexDic.color) {
                         // color
+                        const largeCol = props.isSelectColorBySelect2 ? 'large-col' : 'small-col';
                         html += `
-                            <div class="col fit-item text-center px-1 flex-row-center" title="">
+                            <div class="col fit-item text-center px-1 flex-row-center ${largeCol}" title="">
                                   ${colorDOM}
                              </div>
                         `;
@@ -468,7 +421,7 @@ const addGroupListCheckboxWithSearch = (
                     }
                     if (i === indexDic.objective) {
                         // objective
-                        html += `<div class="col-sm-2 col-xs-2 fit-item objective-item">
+                        html += `<div class="col-sm-2 col-xs-2 fit-item objective-item text-center">
                                     <div class="custom-control custom-radio">${objectiveSelectionDOM}</div>
                                 </div>`;
                     }
@@ -492,7 +445,7 @@ const addGroupListCheckboxWithSearch = (
         const headerClass = isHeader ? 'keep-header' : '';
 
         const output = `<li class="list-group-item form-check ${headerClass}">
-                            <div class="row ${rowClass}" style="padding-left: 5px">
+                            <div class="row style="padding-left: 5px">
                                ${html}
                             </div>
                         </li> `;
@@ -514,12 +467,12 @@ const addGroupListCheckboxWithSearch = (
         catExp: $('#i18nCatExpExplain').text(),
         catExpLabel: $('#i18nCatExp').text(),
         objectiveLabel: $('#i18nObjective').text(),
-        objectiveExpl:
-            props.objectiveHoverMsg || $('#i18nObjectiveExplain').text(),
+        objectiveExpl: props.objectiveHoverMsg || $('#i18nObjectiveExplain').text(),
         labelExplain: $('#i18nLabelVariableDescription').text(),
         filterLabelExplain: $('#i18nFilterLabelExplain').text(),
         judgeHoverMsg: $('#i18nJudgeHoverMsg').text(),
         judgeLabel: $('#i18nJudgeLabel').text() || 'Judge',
+        extendSysName: $('#i18nExtentSysNameLonger').text(),
     };
 
     // items
@@ -557,11 +510,7 @@ const addGroupListCheckboxWithSearch = (
             catExpChkBoxId = `catExp-${chkBoxId}`;
             if (
                 props.showCatExp &&
-                [
-                    DataTypes.INTEGER.name,
-                    DataTypes.STRING.name,
-                    DataTypes.TEXT.name,
-                ].includes(colDataType)
+                [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)
             ) {
                 catExpBox = `<select name="catExpBox" id="catExpItem-${itemId}" onchange="changeFacetLevel(this);"
                                 data-load-level="2" class="form-control level-select">
@@ -575,23 +524,15 @@ const addGroupListCheckboxWithSearch = (
 
         const isRequiredInput = props.isRequired ? requiredInputClass : '';
         let objectiveSelectionDOM = '';
-        const isCategoryVar = [
-            DataTypes.STRING.name,
-            DataTypes.TEXT.name,
-        ].includes(colDataType);
+        const isCategoryVar = [DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType);
         const showObjInput =
             !props.allowObjectiveForRealOnly ||
             (props.allowObjectiveForRealOnly &&
                 !isCategoryVar &&
-                !(
-                    props.disableSerialAsObjective &&
-                    colDataTypeShowName === DataTypes.SERIAL.short
-                ));
+                !(props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short));
         if (props.showObjectiveInput && showObjInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
-            const uncheckRadio = props.optionalObjective
-                ? ' uncheck-when-click'
-                : '';
+            const uncheckRadio = props.optionalObjective ? ' uncheck-when-click' : '';
             objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="changeObjectiveVarEvent()"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
                 id="${objectiveChkBoxId}" data-autoselect="false" 
@@ -603,11 +544,7 @@ const addGroupListCheckboxWithSearch = (
             let clSelection = '';
             let checked = '';
             // todo: check category item
-            if (
-                props.catLabels &&
-                props.catLabels.length &&
-                props.catLabels.includes(itemId)
-            ) {
+            if (props.catLabels && props.catLabels.length && props.catLabels.includes(itemId)) {
                 clSelection = 'selected="selected"';
             }
             // Auto check label or filter for data type Filter (System)
@@ -615,13 +552,7 @@ const addGroupListCheckboxWithSearch = (
                 checked = 'checked';
             }
             const categoryGroupId = props.groupIDx || 1;
-            if (
-                [
-                    DataTypes.INTEGER.name,
-                    DataTypes.STRING.name,
-                    DataTypes.TEXT.name,
-                ].includes(colDataType)
-            ) {
+            if ([DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)) {
                 return `<input title="" onchange="onChangeFilterCheckBox(this)" type="checkbox" name="GET02_CATE_SELECT${categoryGroupId}"
                     class="custom-control-input not-autocheck as-label-input" value="${itemId}"
                     id="${clChkBoxId}"${clSelection} data-autoselect="false" ${checked}>
@@ -645,17 +576,19 @@ const addGroupListCheckboxWithSearch = (
         if (props.showColor) {
             if (props.colorAsDropdown) {
                 const dropdownColorId = `agp-color-${itemId}`;
+                const colorValSelected = props.colorValsSelected.find((val) => val.id === dropdownColorId);
                 colorDOM = `<select name="colorVar" id="${dropdownColorId}" onchange="" 
                     data-load-level="2" class="form-control level-select select2-selection--single select-n-columns"
                     data-target-var-id="${itemId}">
                     <option value="">---</option>`;
                 if (
                     props.availableColorVars &&
-                    props.availableColorVars.length
+                    props.availableColorVars.length &&
+                    colorValSelected &&
+                    colorValSelected.value
                 ) {
-                    props.availableColorVars.forEach((col) => {
-                        colorDOM += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
-                    });
+                    const col = props.availableColorVars.find((col) => col.id === parseInt(colorValSelected.value));
+                    colorDOM += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
                 }
                 colorDOM += `</select>`;
             } else {
@@ -680,24 +613,18 @@ const addGroupListCheckboxWithSearch = (
                             </div>`;
         }
 
-        isChecked =
-            props.checkedIds && props.checkedIds.includes(itemId)
-                ? 'checked'
-                : '';
+        isChecked = props.checkedIds && props.checkedIds.includes(itemId) ? 'checked' : '';
+        const dataIsGetDate = colDataTypeShowName === DataTypes.DATETIME.short ? 'data-is_get_date=true' : '';
         const isHideCheckInput =
             (props.hideStrVariable && colDataType === DataTypes.STRING.name) ||
-            (props.disableSerialAsObjective &&
-                colDataTypeShowName === DataTypes.SERIAL.short) ||
-            (props.hideRealVariable &&
-                [DataTypes.REAL.short, DataTypes.DATETIME.short].includes(
-                    colDataTypeShowName,
-                ));
+            (props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short) ||
+            (props.hideRealVariable && [DataTypes.REAL.short, DataTypes.DATETIME.short].includes(colDataTypeShowName));
         const hideClass = isHideCheckInput ? ' hidden-input' : '';
 
         const inputEl = !isHideCheckInput
             ? `<input type="${inputType}" name="${props.name}" ${isShowColorCheckBox ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
-            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-type-shown-name="${colDataTypeShowName}">`
+            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-type-shown-name="${colDataTypeShowName}" ${dataIsGetDate}>`
             : '';
 
         const option = `
@@ -730,75 +657,59 @@ const addGroupListCheckboxWithSearch = (
     let allOption = null;
     const isShowThreshold = props.noFilter ? false : props.thresholdBoxes;
 
-    const thresholdBoxDOM = genColDOM(
-        isShowThreshold,
-        'CL',
-        i18nHoverText.threshold,
-    );
-    const typeColDOM = genColDOM(
-        props.itemDataTypes,
-        'Type',
-        i18nHoverText.sensorExp,
-        false,
-        false,
-        '',
-        'type-item',
-    );
-    const objColDOM = genColDOM(
-        props.showObjectiveInput,
-        i18nHoverText.objectiveLabel,
-        i18nHoverText.objectiveExpl,
-        false,
-        false,
-        '',
-        'objective-item',
-    );
-    const judgeTitle = genColDOM(
-        props.judge,
-        i18nHoverText.judgeLabel,
-        i18nHoverText.judgeHoverMsg,
-    );
+    const thresholdBoxDOM = genColDOM({
+        isShow: isShowThreshold,
+        label: 'CL',
+        description: i18nHoverText.threshold,
+    });
+    const typeColDOM = genColDOM({
+        isShow: props.itemDataTypes,
+        label: 'Type',
+        description: i18nHoverText.sensorExp,
+        className: 'type-item',
+    });
+    const objColDOM = genColDOM({
+        isShow: props.showObjectiveInput,
+        label: i18nHoverText.objectiveLabel,
+        description: i18nHoverText.objectiveExpl,
+        className: 'objective-item',
+    });
+    const judgeTitle = genColDOM({
+        isShow: props.judge,
+        label: i18nHoverText.judgeLabel,
+        description: i18nHoverText.judgeHoverMsg,
+    });
     // change Title on On-demand filter
     $('#categoriesBoxTitle').text(props.showLabel ? 'Label' : 'Filter');
-    const categoryLabelColDOM = genColDOM(
-        props.showLabel,
-        'Label',
-        i18nHoverText.labelExplain,
-        true,
-        false,
-        '',
-        'small-col',
-    );
-    const filterColDOM = genColDOM(
-        props.showFilter,
-        'Filter',
-        i18nHoverText.filterLabelExplain,
-        true,
-        false,
-        '',
-        'small-col',
-    );
-    const catExpDOM = genColDOM(
-        props.showCatExp,
-        i18nHoverText.catExpLabel,
-        i18nHoverText.catExp,
-    );
-    const colorTile = genColDOM(
-        props.showColor,
-        'Color',
-        props.colorAsDropdown
-            ? i18nCommon.agPColorExplanation
-            : i18nCommon.colorExplanation,
-        false,
-    );
+    const categoryLabelColDOM = genColDOM({
+        isShow: props.showLabel,
+        label: 'Label',
+        description: i18nHoverText.labelExplain,
+        textCenter: true,
+        className: 'small-col',
+    });
+    const filterColDOM = genColDOM({
+        isShow: props.showFilter,
+        label: 'Filter',
+        description: i18nHoverText.filterLabelExplain,
+        textCenter: true,
+        className: 'small-col',
+    });
+    const catExpDOM = genColDOM({
+        isShow: props.showCatExp,
+        label: i18nHoverText.catExpLabel,
+        description: i18nHoverText.catExp,
+    });
+    const colorTile = genColDOM({
+        isShow: props.showColor,
+        label: 'Color',
+        description: props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation,
+        className: props.isSelectColorBySelect2 ? 'large-col' : 'small-col',
+    });
     // const defaultColSize = '';
     if (!props.isRadio) {
         if (props.noFilter) {
-            isChecked =
-                props.checkedIds &&
-                itemIds.some((e) => props.checkedIds.includes(e))
-                    ? ''
-                    : 'checked';
+            isChecked = props.checkedIds && itemIds.some((e) => props.checkedIds.includes(e)) ? '' : 'checked';
             noFilterOption = `
                 <div class="col-sm-10 custom-control custom-checkbox shorten-name pr-1">
                     <input type="${inputType}" name="${props.name}"
@@ -809,12 +720,10 @@ const addGroupListCheckboxWithSearch = (
                         ${i18nCommon.noFilter}</label>
                 </div>
                 <div class="col-sm-1 pl-1"><h6 title="${i18nHoverText.threshold}"
-                    style="text-decoration: underline; min-width: 35px">CL</h6></div>`;
+                    style="text-decoration: underline; min-width: 35px; text-align: center">CL</h6></div>`;
         } else {
             isChecked =
-                props.checkedIds &&
-                !isEmpty(itemIds) &&
-                itemIds.every((e) => props.checkedIds.includes(e))
+                props.checkedIds && !isEmpty(itemIds) && itemIds.every((e) => props.checkedIds.includes(e))
                     ? 'checked'
                     : '';
         }
@@ -823,13 +732,13 @@ const addGroupListCheckboxWithSearch = (
 
         // for sort in filter => hide sort button by css: #cndPrc .sortCol
         const createSortButton = (index) => `
-            <span idx=${index} class="sortCol" title="Sort">
+            <span idx=${index} class="sortCol w-50" title="Sort">
                 <i class="fa fa-sm fa-play asc"></i>
                 <i class="fa fa-sm fa-play desc"></i>
             </span>
         `;
         allOption = `
-            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name">
+            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name col-has-checkbox sys-name">
                 <div>
                     <input type="${inputType}" name="${props.name}"
                         class="custom-control-input checkbox-all ${requiredClass}"
@@ -840,7 +749,10 @@ const addGroupListCheckboxWithSearch = (
                 ${createSortButton(0)}
           
             </div>
-            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name">
+            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name col-without-checkbox jp-name">
+                <span id="btn-extend-toggle-container" onclick="toggleWidth(event)" title="${i18nHoverText.extendSysName}">
+                    <span id="btn-extend-toggle" class="btn text-end"  >${isExtendSysName ? '&#x27FD;' : '&#x27FE;'}</span>
+                </span>
                 ${createSortButton(1)}
             </div>
             ${typeColDOM}
@@ -856,9 +768,7 @@ const addGroupListCheckboxWithSearch = (
     const labelClass = label ? 'flex-grow-1 border-gray-curve' : '';
     const groupLabelClass = label ? '' : 'border-gray-curve';
     const expandClass = isExpand ? 'expand-arrow' : '';
-    const expandArrow = isExpand
-        ? `<span class="arrow ${sensorListId}"></span>`
-        : '';
+    const expandArrow = isExpand ? `<span class="arrow ${sensorListId}"></span>` : '';
     const labelContent = label
         ? `<div class="d-flex">
         <div class="p-2" style="flex-basis:80px;">${label}</div>`
@@ -869,7 +779,7 @@ const addGroupListCheckboxWithSearch = (
             <div class="floating-dropdown-parent ${labelClass}${expandClass}">
                 ${expandArrow}
                 ${searchItems(id)}
-                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true">
+                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true" data-is-extend="false">
                     ${genDetailItem(true, noFilterOption)}
                     ${genDetailItem(true, allOption)}
                     ${itemList.join(' ')}
@@ -885,19 +795,11 @@ const addGroupListCheckboxWithSearch = (
     // ADD EVENTS
     // check all event
     $(`#checkbox-all-${id + parentId}`).change(function f(e) {
-        $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop(
-            'checked',
-            !$(this).prop('checked'),
-        );
-        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop(
-            'checked',
-            $(this).prop('checked'),
-        );
+        $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
+        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', $(this).prop('checked'));
         if ($(this).is(':checked') === false) {
             // reset objective
-            const objectiveEle = $(this.closest('ul.list-group')).find(
-                'input[name=objectiveVar]:checked',
-            );
+            const objectiveEle = $(this.closest('ul.list-group')).find('input[name=objectiveVar]:checked');
             if (objectiveEle.data('is-target')) {
                 objectiveEle.prop('checked', false);
             }
@@ -915,65 +817,51 @@ const addGroupListCheckboxWithSearch = (
     });
     // check all labels and filters
     $(`.checkbox-all-labels`).change(function f() {
-        $(`#${this.closest('.list-group').id} .as-label-input`).prop(
-            'checked',
-            $(this).prop('checked'),
-        );
+        $(`#${this.closest('.list-group').id} .as-label-input`).prop('checked', $(this).prop('checked'));
         return;
     });
     // check to mark no filter
     $(`#checkbox-no-filter-${id + parentId}`).change(function f() {
-        $(`#${this.closest('.list-group').id} .checkbox-all`).prop(
-            'checked',
-            !$(this).prop('checked'),
-        );
-        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop(
-            'checked',
-            !$(this).prop('checked'),
-        );
+        $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', !$(this).prop('checked'));
+        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', !$(this).prop('checked'));
         compareSettingChange();
     });
 
     // check event
     $(`#${id} .check-item`).on('change', function f(e) {
-        const checkboxNoFilter = $(
-            `#${this.closest('.list-group').id} .checkbox-no-filter`,
-        );
-        const thresholdBox = $(`#threshold-${this.id}`);
-        const isCheckLimit =
-            MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
+        const checkboxNoFilter = $(`#${this.closest('.list-group').id} .checkbox-no-filter`);
+        let thresholdBox = undefined;
+        try {
+            thresholdBox = $(`#threshold-${this.id}`);
+        } catch (e) {
+            console.log(e);
+        }
+
+        const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
 
         if ($(this).is(':checked') === false) {
-            $(`#${this.closest('.list-group').id} .checkbox-all`).prop(
-                'checked',
-                $(this).prop('checked'),
-            );
+            $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', $(this).prop('checked'));
             const parentRow = $(this.closest('li.list-group-item.form-check'));
             parentRow.find('[name=objectiveVar]').prop('checked', false);
-            thresholdBox.prop('checked', false);
+            if (thresholdBox) {
+                thresholdBox.prop('checked', false);
+            }
             if (isCheckLimit) {
-                limitedCheckedList = limitedCheckedList.filter(
-                    (el) => $(el).attr('id') !== $(this).attr('id'),
-                );
+                limitedCheckedList = limitedCheckedList.filter((el) => $(el).attr('id') !== $(this).attr('id'));
                 if (isShowColorCheckBox) {
                     $(this).removeAttr('data-sensor');
-                    $(this.closest('.list-group-item'))
-                        .find('[name=catExpBox]')
-                        .prop('disabled', false);
+                    $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
                 }
             }
         } else {
-            thresholdBox.prop('checked', true);
+            if (thresholdBox) {
+                thresholdBox.prop('checked', true);
+            }
             if (isCheckLimit) {
                 limitedCheckedList.push($(this));
                 if (isShowColorCheckBox) {
-                    $(this.closest('.list-group-item'))
-                        .find('[name=catExpBox]')
-                        .val('')
-                        .trigger('change');
-                    $(this.closest('.list-group-item'))
-                        .find('[name=catExpBox]')
-                        .prop('disabled', true);
+                    $(this.closest('.list-group-item')).find('[name=catExpBox]').val('').trigger('change');
+                    $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', true);
                 }
             }
         }
@@ -983,55 +871,32 @@ const addGroupListCheckboxWithSearch = (
 
         // Modify checkbox of ALL when all checkbox is checked
         // apply for card != filter condition
-        if (
-            $(`#${id} .${mainChkBoxClass}:not([name="thresholdBox"]):checked`)
-                .length === itemIds.length
-        ) {
+        if ($(`#${id} .${mainChkBoxClass}:not([name="thresholdBox"]):checked`).length === itemIds.length) {
             if (!this.closest('.filter-condition-card')) {
-                $(`#${this.closest('.list-group').id} .checkbox-all`).prop(
-                    'checked',
-                    true,
-                );
+                $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', true);
             }
         } else {
-            $(`#${this.closest('.list-group').id} .checkbox-all`).prop(
-                'checked',
-                false,
-            );
+            $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', false);
         }
 
         // check no filter when uncheck all items
-        if (
-            $(`#${id} .check-item:not([name="thresholdBox"]):not(:checked)`)
-                .length === itemIds.length
-        ) {
-            $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop(
-                'checked',
-                true,
-            );
+        if ($(`#${id} .check-item:not([name="thresholdBox"]):not(:checked)`).length === itemIds.length) {
+            $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', true);
         }
 
         // only allow selected 2 items in list
-        if (
-            isCheckLimit &&
-            limitedCheckedList.length > MAX_NUMBER_OF_SENSOR &&
-            $(this).is(':checked')
-        ) {
+        if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR && $(this).is(':checked')) {
             // shift first item from list if $(this) is checked
             // to avoid shift/uncheck 2 items at same time
             // we should also remove count total variables from process which had a checkbox removed
             const idStart = 'end-proc-val-div-';
-            let removedItemParentId = limitedCheckedList[0]
-                .closest(`div[id^=${idStart}`)
-                .attr('id');
+            let removedItemParentId = limitedCheckedList[0].closest(`div[id^=${idStart}`).attr('id');
             let removedItemGroupIdx = removedItemParentId.replace(idStart, '');
             $(limitedCheckedList[0]).prop('checked', false);
             countVariables(removedItemParentId, removedItemGroupIdx);
 
             if (isShowColorCheckBox) {
-                $(limitedCheckedList[0].closest('.list-group-item'))
-                    .find('[name=catExpBox]')
-                    .prop('disabled', false);
+                $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
                 // remove data-sensor attr
                 limitedCheckedList[0].removeAttr('data-sensor');
             }
@@ -1041,13 +906,9 @@ const addGroupListCheckboxWithSearch = (
         // in case of either x or y data type is string, color variable will be changed belong with string sensor.
         if (isShowColorCheckBox && limitedCheckedList.length > 0) {
             const xSensor = limitedCheckedList[0];
-            const xSensorType = xSensor
-                ? $(`#dataType-${xSensor.val()}`).val()
-                : '';
+            const xSensorType = xSensor ? $(`#dataType-${xSensor.val()}`).val() : '';
             const ySensor = limitedCheckedList[1];
-            const ySensorType = ySensor
-                ? $(`#dataType-${ySensor.val()}`).val()
-                : '';
+            const ySensorType = ySensor ? $(`#dataType-${ySensor.val()}`).val() : '';
             if (xSensor && xSensorType === DataTypes.STRING.short) {
                 $(`#scp-color-${xSensor.val()}`).prop('checked', true);
             } else if (ySensor && ySensorType === DataTypes.STRING.short) {
@@ -1055,10 +916,8 @@ const addGroupListCheckboxWithSearch = (
             }
 
             // set x, y flag
-            limitedCheckedList[0] &&
-                limitedCheckedList[0].attr('data-sensor', 'x');
-            limitedCheckedList[1] &&
-                limitedCheckedList[1].attr('data-sensor', 'y');
+            limitedCheckedList[0] && limitedCheckedList[0].attr('data-sensor', 'x');
+            limitedCheckedList[1] && limitedCheckedList[1].attr('data-sensor', 'y');
 
             compareSettingChange();
         }
@@ -1081,26 +940,22 @@ const addGroupListCheckboxWithSearch = (
     handleSearchItems(id);
 
     // objectiveVar only choose one
-    $(`#${parentId} input:checkbox[name=objectiveVar]`).on(
-        'change',
-        function () {
-            // in the handler, 'this' refers to the box clicked on
-            const $box = $(this);
-            if ($box.is(':checked')) {
-                // the name of the box is retrieved using the .attr() method
-                // as it is assumed and expected to be immutable
-                const group = `input:checkbox[name='${$box.attr('name')}']`;
-                // the checked state of the group/box on the other hand will change
-                // and the current value is retrieved using .prop() method
-                $(group).prop('checked', false);
-                $box.prop('checked', true);
-            } else {
-                $box.prop('checked', false);
-            }
-        },
-    );
-
-    addAttributeToElement();
+    $(`#${parentId} input:checkbox[name=objectiveVar]`).on('change', function () {
+        // in the handler, 'this' refers to the box clicked on
+        const $box = $(this);
+        if ($box.is(':checked')) {
+            // the name of the box is retrieved using the .attr() method
+            // as it is assumed and expected to be immutable
+            const group = `input:checkbox[name='${$box.attr('name')}']`;
+            // the checked state of the group/box on the other hand will change
+            // and the current value is retrieved using .prop() method
+            $(group).prop('checked', false);
+            $box.prop('checked', true);
+        } else {
+            $box.prop('checked', false);
+        }
+    });
+    addAttributeToElement(`#${parentId}`, {}, props);
     if (parentId.includes('cond-proc-others')) {
         // in case of other filters, use another box id
         inputCheckInlineEvents(id);
@@ -1121,9 +976,7 @@ const countVariables = (parentId, groupId) => {
 };
 
 const countTotalVariables = () => {
-    let selectedVars = $('span[id^=count-variables-]').map((idx, ele) =>
-        parseInt($(ele).text()),
-    );
+    let selectedVars = $('span[id^=count-variables-]').map((idx, ele) => parseInt($(ele).text()));
     selectedVars = Array.from(selectedVars);
     let countVars = 0;
     if (selectedVars.length) {
@@ -1136,9 +989,7 @@ const countTotalVariables = () => {
     // check validate
     if (
         countVars > MAX_NUMBER_OF_SENSOR ||
-        (MIN_NUMBER_OF_SENSOR > 0 &&
-            countVars > 0 &&
-            countVars < MIN_NUMBER_OF_SENSOR)
+        (MIN_NUMBER_OF_SENSOR > 0 && countVars > 0 && countVars < MIN_NUMBER_OF_SENSOR)
     ) {
         $('#variables-count').css({
             color: 'red',
@@ -1157,9 +1008,7 @@ const getEndProcVariableSelected = (cardElem) => {
 };
 
 const removeLimitedCheckedList = (listDataRemove) => {
-    limitedCheckedList = limitedCheckedList.filter(
-        (el) => !listDataRemove.includes($(el).attr('id')),
-    );
+    limitedCheckedList = limitedCheckedList.filter((el) => !listDataRemove.includes($(el).attr('id')));
 };
 
 const onChangeFilterCheckBox = (e) => {
@@ -1254,20 +1103,18 @@ const handleSearchItems = (id) => {
         value = makeRegexForSearchCondition(value);
 
         const regex = new RegExp(value, 'i');
-        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(
-            function f(index) {
-                const searchEls = $(this).find('.search-col');
-                searchEls.removeClass('gray');
-                const val = searchEls.text().toLowerCase();
-                // keep to show first (header) row as index = 0
-                if (index) {
-                    $(this).toggle(regex.test(val));
+        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(function f(index) {
+            const searchEls = $(this).find('.search-col');
+            searchEls.removeClass('gray');
+            const val = searchEls.text().toLowerCase();
+            // keep to show first (header) row as index = 0
+            if (index) {
+                $(this).toggle(regex.test(val));
 
-                    return regex.test(val);
-                }
-                return false;
-            },
-        );
+                return regex.test(val);
+            }
+            return false;
+        });
 
         if (event.keyCode === KEY_CODE.ENTER) {
             $(`#${searchEle.closest('.form-group').id} li`).filter(function () {
@@ -1290,46 +1137,26 @@ const handleSearchItems = (id) => {
 
     // handle on click set selected items button
     $(`#setBtnSearch-${id}`).on('click', function () {
-        selectedEls
-            .find('input.main-checkbox')
-            .prop('checked', true)
-            .trigger('change');
+        selectedEls.find('input.main-checkbox').prop('checked', true).trigger('change');
         sortCheckItems();
     });
 
     // handle on click reset selected items button
     $(`#resetBtnSearch-${id}`).on('click', function () {
-        const checkBoxNoFilter = originalCheckBoxs.find(
-            'input.checkbox-no-filter',
-        );
+        const checkBoxNoFilter = originalCheckBoxs.find('input.checkbox-no-filter');
         if (checkBoxNoFilter.length && !selectedEls.length) {
             // reset in filter component
-            originalCheckBoxs
-                .parent()
-                .find('input[name=thresholdBox]')
-                .prop('checked', false)
-                .trigger('change');
+            originalCheckBoxs.parent().find('input[name=thresholdBox]').prop('checked', false).trigger('change');
             checkBoxNoFilter.prop('checked', true).trigger('change');
         }
         if (selectedEls.length) {
             // reset only searched element
-            selectedEls
-                .find('input.main-checkbox')
-                .prop('checked', false)
-                .trigger('change');
+            selectedEls.find('input.main-checkbox').prop('checked', false).trigger('change');
         }
         if (!selectedEls.length && !checkBoxNoFilter.length) {
             // reset all input, select
-            originalCheckBoxs
-                .parent()
-                .find('input[type=checkbox]')
-                .prop('checked', false)
-                .trigger('change');
-            originalCheckBoxs
-                .parent()
-                .find('input[type=radio]')
-                .prop('checked', false)
-                .trigger('change');
+            originalCheckBoxs.parent().find('input[type=checkbox]').prop('checked', false).trigger('change');
+            originalCheckBoxs.parent().find('input[type=radio]').prop('checked', false).trigger('change');
             originalCheckBoxs.parent().find('select').val('').trigger('change');
         }
 
@@ -1348,6 +1175,7 @@ const showSensorAsFloatingList = (sensorListId) => {
     let timerOpen;
     const dropDown = $(`#${sensorListId}`);
     const arrow = $(`.expand-arrow .arrow.${sensorListId}`);
+    const expandArrow = '.floating-dropdown-parent.expand-arrow';
     let isExpand = false;
     arrow.click(() => {
         const parent = dropDown.parent();
@@ -1359,20 +1187,15 @@ const showSensorAsFloatingList = (sensorListId) => {
             $(that).addClass('disable-max-height');
 
             // find max width of column
-            const dropDownWidthMin =
-                $(window).width() - $(that).offset().left - 40;
+            const dropDownWidthMin = $(window).width() - $(that).offset().left - 40;
             const colWidths = $(that)
                 .find('li label')
                 .map((i, item) => $(item).width());
             const maxWidth = Math.max(...colWidths) * 2 + 380 || 0;
             const selectBoxWidth = $(that).parent().width();
-            const dropDownWidth =
-                maxWidth > selectBoxWidth ? maxWidth : selectBoxWidth;
+            const dropDownWidth = maxWidth > selectBoxWidth ? maxWidth : selectBoxWidth;
             const dropDownHeight = dropDownFullHeight + 2;
-            const leftHeightFromCurrentPosition =
-                $(window).height() -
-                $(that).get(0).getBoundingClientRect().top -
-                12;
+            const leftHeightFromCurrentPosition = $(window).height() - $(that).get(0).getBoundingClientRect().top - 12;
             const windowWidth = $(window).width() - 100;
 
             if (dropDownWidth > dropDownWidthMin) {
@@ -1394,35 +1217,34 @@ const showSensorAsFloatingList = (sensorListId) => {
     });
     // dropDown.mouseleave(e => sortHtmlElements(e.target));
     dropDown
-        .closest('.floating-dropdown-parent.expand-arrow')
-        .off('mouseleave');
-    dropDown
-        .closest('.floating-dropdown-parent.expand-arrow')
-        .on('mouseleave', (e) => {
-            if (!isExpand) {
-                // move selected options to top
-                const isChanged = sortHtmlElements(dropDown);
-                if (isChanged) {
-                    $(dropDown).scrollTop(0);
-                }
-
-                return;
-            }
-
-            timerOpen = setTimeout(() => {
-                collapseFloatingList(dropDown);
-                isExpand = false;
-            }, 2000);
+        .closest(expandArrow)
+        .off('mouseenter')
+        .on('mouseenter', (e) => {
+            if (currentFormID && !currentHoverFromData) currentHoverFromData = new FormData($(currentFormID)[0]);
         });
+    dropDown.closest(expandArrow).off('mouseleave');
+    dropDown.closest(expandArrow).on('mouseleave', (e) => {
+        if (!isExpand) {
+            // move selected options to top
+            const isChanged = sortHtmlElements(dropDown, null, true);
+            if (isChanged) {
+                $(dropDown).scrollTop(0);
+            }
+            return;
+        }
+
+        timerOpen = setTimeout(() => {
+            collapseFloatingList(dropDown);
+            isExpand = false;
+        }, 2000);
+    });
 
     dropDown.mouseout(() => {
         clearTimeout(timerOpen);
     });
 
     const checkAndCollapseFloatingList = (e) => {
-        const clickedInList = $(e.target).closest(
-            '.floating-dropdown-parent',
-        ).length;
+        const clickedInList = $(e.target).closest('.floating-dropdown-parent').length;
         if (!clickedInList) {
             collapseFloatingLists();
             clearTimeout(timerOpen);
@@ -1433,10 +1255,7 @@ const showSensorAsFloatingList = (sensorListId) => {
     $(document).on('click', checkAndCollapseFloatingList);
 };
 
-const updateSelectedItems = (
-    isCategoryItem = false,
-    selectParent = $(formElements.endProcSelectedItem),
-) => {
+const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
     let selectedItems = [];
     let allSelected;
     if (isCategoryItem) {
@@ -1453,10 +1272,7 @@ const updateSelectedItems = (
         if (!['catExpBox', 'colorVar'].includes($(selected).attr('name'))) {
             $.each($(selected).find('option'), (key, option) => {
                 const optionVal = $(option).val();
-                if (
-                    selectedItems.includes(optionVal) &&
-                    currentCardSelector !== optionVal
-                ) {
+                if (selectedItems.includes(optionVal) && currentCardSelector !== optionVal) {
                     $(option).attr('disabled', 'disabled');
                 } else if (!selectedItems.includes(optionVal)) {
                     $(option).removeAttr('disabled');
@@ -1466,11 +1282,7 @@ const updateSelectedItems = (
     });
 };
 
-const cardRemovalByClick = (
-    parentId = '',
-    callbackFunc = null,
-    dicParams = null,
-) => {
+const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null) => {
     $(`${parentId} .close-icon`)
         .last()
         .on('click', (e) => {
@@ -1482,19 +1294,16 @@ const cardRemovalByClick = (
                 if (card && card.parent().parent().find('.card').length > 1) {
                     card.fadeOut();
                     setTimeout(() => {
-                        const variableSelected =
-                            getEndProcVariableSelected(card);
+                        const variableSelected = getEndProcVariableSelected(card);
                         removeLimitedCheckedList(variableSelected);
+                        card.find('*').off().empty();
                         card.parent().remove();
                         countTotalVariables();
                         updateSelectedItems();
                         checkIfProcessesAreLinked();
                     }, 100);
                 }
-            } else if (
-                cardId.endsWith('end-proc-cate-row') ||
-                cardId.endsWith('category-cond-proc-row')
-            ) {
+            } else if (cardId.endsWith('end-proc-cate-row') || cardId.endsWith('category-cond-proc-row')) {
                 if (card && card.parent().parent().find('.card').length > 1) {
                     card.fadeOut();
                     setTimeout(() => {
@@ -1502,19 +1311,12 @@ const cardRemovalByClick = (
                         updateSelectedItems((isCategoryItem = true));
                     }, 100);
                 }
-            } else if (
-                card &&
-                (cardId.endsWith('cond-proc-row') ||
-                    cardId.startsWith('end-proc-paracords'))
-            ) {
+            } else if (card && (cardId.endsWith('cond-proc-row') || cardId.startsWith('end-proc-paracords'))) {
                 if (card && card.parent().parent().find('.card').length > 0) {
                     card.fadeOut();
                     setTimeout(() => {
                         card.parent().remove();
-                        updateSelectedItems(
-                            false,
-                            $(formElements.condProcSelectedItem),
-                        );
+                        updateSelectedItems(false, $(formElements.condProcSelectedItem));
                     }, 100);
                 }
             }
@@ -1556,12 +1358,7 @@ const getFilterByTypes = (process, filterType) => {
 };
 
 // Condition Line change event
-const condLineOnChange = async (
-    selectedLines,
-    count,
-    prefix = '',
-    isNew = false,
-) => {
+const condLineOnChange = async (selectedLines, count, prefix = '', isNew = false) => {
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (selectedLines.length === 0) {
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'none');
@@ -1579,9 +1376,7 @@ const condLineOnChange = async (
 
         if (!isEmpty(procInfo)) {
             await procInfo.updateFilters();
-            const machineFilter = procInfo.getOneFilterByType(
-                filterTypes.MACHINE,
-            );
+            const machineFilter = procInfo.getOneFilterByType(filterTypes.MACHINE);
             if (machineFilter) {
                 const filterDetails = machineFilter.filter_details || [];
                 if (
@@ -1595,9 +1390,7 @@ const condLineOnChange = async (
                 } else {
                     filterDetails.forEach((filterDetail) => {
                         selectedLines.forEach((line, i) => {
-                            if (
-                                `${line}` === `${filterDetail.parent_detail_id}`
-                            ) {
+                            if (`${line}` === `${filterDetail.parent_detail_id}`) {
                                 machineIds.push(filterDetail.id);
                                 machineVals.push(filterDetail.name);
                             }
@@ -1616,39 +1409,24 @@ const condLineOnChange = async (
             if (machineIds) {
                 const machineLabel = i18nCommon.mach || '';
                 const thresholdBoxes = [];
-                machineIds.forEach((e) =>
-                    thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)),
-                );
-                addGroupListCheckboxWithSearch(
-                    parentId,
-                    elId,
-                    machineLabel,
-                    machineIds,
-                    machineVals,
-                    {
-                        checkedIds,
-                        name: elName,
-                        noFilter: true,
-                        thresholdBoxes,
-                    },
-                );
+                machineIds.forEach((e) => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
+                addGroupListCheckboxWithSearch(parentId, elId, machineLabel, machineIds, machineVals, {
+                    checkedIds,
+                    name: elName,
+                    noFilter: true,
+                    thresholdBoxes,
+                });
             }
         } else {
             // hide and disabled show filter, not generate from scratch
             if (machineIds) {
                 // hide all machine elements
-                const allInput = $(`input[name=${elName}]`).not(
-                    `[value=${CONST.NO_FILTER}],[value=All]`,
-                );
+                const allInput = $(`input[name=${elName}]`).not(`[value=${CONST.NO_FILTER}],[value=All]`);
                 allInput.attr('disabled', true);
                 allInput.closest('li').hide();
                 for (const machineId of machineIds) {
-                    $(`input[name=${elName}][value=${machineId}]`).removeAttr(
-                        'disabled',
-                    );
-                    $(`input[name=${elName}][value=${machineId}]`)
-                        .closest('li')
-                        .show();
+                    $(`input[name=${elName}][value=${machineId}]`).removeAttr('disabled');
+                    $(`input[name=${elName}][value=${machineId}]`).closest('li').show();
                 }
             }
         }
@@ -1656,12 +1434,7 @@ const condLineOnChange = async (
 };
 
 // add condition Process children components ( line, machine , partno)
-const condProcOnChange = async (
-    count,
-    prefix = '',
-    parentFormId = '',
-    is_pca_filter = false,
-) => {
+const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_filter = false) => {
     // remove old elements
     // TODO: make re-use function
     $(`#${prefix}cond-proc-line-${count}`).remove();
@@ -1689,9 +1462,7 @@ const condProcOnChange = async (
 
     if (lineIds) {
         const thresholdBoxes = [];
-        lineIds.forEach((e) =>
-            thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)),
-        );
+        lineIds.forEach((e) => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
         addGroupListCheckboxWithSearch(
             `${prefix}cond-proc-line-div-${count}`,
             condProcMachineLineId,
@@ -1706,16 +1477,13 @@ const condProcOnChange = async (
         );
 
         const lineInputs = $(
-            document.getElementsByName(
-                `${is_pca_filter ? prefix : ''}filter-line-machine-id${count}`,
-            ),
+            document.getElementsByName(`${is_pca_filter ? prefix : ''}filter-line-machine-id${count}`),
         );
         let selectedLines = [];
         lineInputs.change(() => {
             selectedLines = [];
             for (let i = 0; i < lineInputs.length; i++) {
-                if (lineInputs[i].checked)
-                    selectedLines.push(lineInputs[i].value.toLowerCase());
+                if (lineInputs[i].checked) selectedLines.push(lineInputs[i].value.toLowerCase());
             }
             condLineOnChange(selectedLines, count, prefix);
         });
@@ -1724,17 +1492,12 @@ const condProcOnChange = async (
         condLineOnChange(['all'], count, prefix, true);
     }
 
-    const [partnoIds, partnoVals] = getFilterByTypes(
-        procInfo,
-        filterTypes.PART_NO,
-    );
+    const [partnoIds, partnoVals] = getFilterByTypes(procInfo, filterTypes.PART_NO);
     let parentId = `${prefix}cond-proc-partno-div-${count}`;
 
     if (partnoIds) {
         const thresholdBoxes = [];
-        partnoIds.forEach((e) =>
-            thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)),
-        );
+        partnoIds.forEach((e) => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
 
         // load partno multi checkbox to Condition Proc.
         addGroupListCheckboxWithSearch(
@@ -1757,9 +1520,7 @@ const condProcOnChange = async (
         filterOthers.forEach((filter, k) => {
             if (filter.title) {
                 const thresholdBoxes = [];
-                filter.ids.forEach((e) =>
-                    thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)),
-                );
+                filter.ids.forEach((e) => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
                 addGroupListCheckboxWithSearch(
                     parentId,
                     `${prefix}cond-proc-filterother-${filter.id}-${count}`,
@@ -1797,9 +1558,7 @@ const addCondProc = (
             const itemId = procIds[i];
             const itemVal = procVals[i].shown_name;
             const itemEnVal = procVals[i].name_en;
-            itemList.push(
-                `<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`,
-            );
+            itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
         }
 
         while (checkExistDataGenBtn(dataGenBtn, count, parentFormId)) {
@@ -1836,10 +1595,7 @@ const addCondProc = (
                    </div>`;
         $(`#${prefix}cond-proc-row div`).last().before(proc);
         bindFilterRemoveEvents(`#${prefix}cond-proc-row div`);
-        cardRemovalByClick(
-            `#${prefix}cond-proc-row div`,
-            bindRemoveFilterCondByCards,
-        );
+        cardRemovalByClick(`#${prefix}cond-proc-row div`, bindRemoveFilterCondByCards);
         addAttributeToElement();
         updateSelectedItems(false, $(formElements.condProcSelectedItem));
     };
@@ -1861,10 +1617,7 @@ const onChangeForDateTimeGroup = (parentEle = null) => {
             .not('input:radio')
             .on('change', (event) => {
                 const ele = event.currentTarget;
-                $(ele)
-                    .parents('.datetime-group-with-radio-btn')
-                    .find('input:radio')
-                    .prop('checked', true);
+                $(ele).parents('.datetime-group-with-radio-btn').find('input:radio').prop('checked', true);
             });
     });
 };
@@ -1897,16 +1650,12 @@ const changeFacetLevel = (e) => {
     const currentTabID = '';
     const judgeEl = $(e).parents('li').find('[name=judgeVar]:checked');
 
-    const findSameLevelSet = $(
-        `#${currentTabID}end-proc-row select[name=catExpBox][id!=${currentSelectedID}]`,
-    );
+    const findSameLevelSet = $(`#${currentTabID}end-proc-row select[name=catExpBox][id!=${currentSelectedID}]`);
     if (currentLevelSet === facetLevels.LV_1) {
         $(findSameLevelSet).each((_, sel) => {
             if ($(sel).val() === facetLevels.LV_1) {
                 // find level 2
-                const level2Selected = findSameLevelSet.find(
-                    `option:selected[value=${facetLevels.LV_2}]`,
-                );
+                const level2Selected = findSameLevelSet.find(`option:selected[value=${facetLevels.LV_2}]`);
                 if (level2Selected.length) {
                     $(sel).val(facetLevels.UNSET);
                 } else {
@@ -1918,9 +1667,7 @@ const changeFacetLevel = (e) => {
         $(findSameLevelSet).each((_, sel) => {
             if ($(sel).val() === facetLevels.LV_2) {
                 // find level 1
-                const level1Selected = findSameLevelSet.find(
-                    `option:selected[value=${facetLevels.LV_1}]`,
-                );
+                const level1Selected = findSameLevelSet.find(`option:selected[value=${facetLevels.LV_1}]`);
                 if (level1Selected.length) {
                     $(sel).val(facetLevels.UNSET);
                 } else {
@@ -1938,9 +1685,7 @@ const changeFacetLevel = (e) => {
 
     // uncheck target variable for STP
     if (formID.endsWith('categoricalPlotForm')) {
-        const targetVarDOM = $(e)
-            .closest('.row')
-            .find('input[name^=GET02_VALS_SELECT]');
+        const targetVarDOM = $(e).closest('.row').find('input[name^=GET02_VALS_SELECT]');
         const targetVarSelected = targetVarDOM.is(':checked');
         if (currentLevelSet && targetVarSelected) {
             targetVarDOM.prop('checked', false);
@@ -1955,13 +1700,7 @@ const changeFacetLevel = (e) => {
     updateStyleButtonByCheckingValid();
 };
 
-const dateTimeRangePickerHTML = (
-    dtName,
-    dtId,
-    prefix,
-    isSetDefaultValue = 'False',
-    props = '',
-) =>
+const dateTimeRangePickerHTML = (dtName, dtId, prefix, isSetDefaultValue = 'False', props = '') =>
     `<input id="${dtId}" name="${dtName}" type="text" class="datetimepicker form-control to-update-time-range"
                 is-show-time-picker="True" is-set-default-value="${isSetDefaultValue}" ${props}
                 is-show-recent-dates="True" autocomplete="off">
@@ -1974,38 +1713,55 @@ const dateTimeRangePickerHTML = (
 
 /**
  *
- * @param parentID
+ * @param select2El select2 element.
+ * @param isDisplay30Options The maximum number of options that PO wants to display in the dropdown of DS&Table on the Process Config page (S.253_#06).
+ * @param maxSelectContainerHeight Maximum height of select2El_container
  * @description Resize select2 max height to bottom
  */
-const resizeListOptionSelect2 = (select2El) => {
-    const selects = $(
-        '.select2-container.select2-container--default.select2-container--open',
-    );
+const resizeListOptionSelect2 = ({
+    select2El = null,
+    isDisplay30Options = false,
+    maxDropdownHeight = SELECT_OPTION_HEIGHT_IN_PX * MAX_OPTION_COUNT_DS_TABLE,
+} = {}) => {
+    const selects = $('.select2-container.select2-container--default.select2-container--open');
     const targetSelect = $(selects[selects.length - 1]);
     const top = targetSelect.css('top');
     const left = targetSelect.css('left');
     const ul = targetSelect.find('.select2-results__options');
     const selectDropdown = $('.select2-dropdown');
     selectDropdown.css({
-        maxWidth: `calc(80vw - ${left} - 38px)`, // changed 100vw -> 80vw to make sense when open 2 select process
+        maxWidth: `calc(100vw - ${left} - 38px)`,
     });
-    ul.css({
-        maxHeight: `calc(100vh - ${top} + ${window.scrollY - 48}px)`,
-    });
+
+    if (isDisplay30Options) {
+        ul.css({ maxHeight: `${maxDropdownHeight}px` });
+
+        // prevent default behavior of select2: closing + selecting
+        select2El.on('select2:closing', function (e) {
+            e.preventDefault();
+        });
+        select2El.on('select2:selecting', function (e) {
+            e.preventDefault();
+        });
+        // remove: prevent automatically select, closing option by select2
+        setTimeout(() => {
+            $(select2El).off('select2:selecting');
+            $(select2El).off('select2:closing');
+        }, 300);
+    } else {
+        ul.css({
+            maxHeight: `calc(100vh - ${top} + ${window.scrollY - 48}px)`,
+        });
+    }
 };
 
 const resetSummaryOption = (name) => {
-    $(`input[name=${name}][value='none']`)
-        .prop('checked', true)
-        .trigger('change');
+    $(`input[name=${name}][value='none']`).prop('checked', true).trigger('change');
     $(`input[name=${name}]`).removeAttr('data-checked');
 };
 
 const checkSummaryOption = (name) => {
-    $(`input[name=${name}]:checked`)
-        .prop('checked', false)
-        .prop('checked', true)
-        .trigger('change');
+    $(`input[name=${name}]:checked`).prop('checked', false).prop('checked', true).trigger('change');
 };
 
 const buildSummaryChartTitle = (
@@ -2016,11 +1772,8 @@ const buildSummaryChartTitle = (
     timeCond,
     isShowFilterModal = false,
 ) => {
-    const facets = checkTrue(catExpValue)
-        ? catExpValue.toString().split(' | ')
-        : [];
-    const hasFacet =
-        catExpBoxCols.length > 0 && facetName.length > 0 && facets.length > 0; // fpp co NA
+    const facets = checkTrue(catExpValue) ? catExpValue.toString().split(' | ') : [];
+    const hasFacet = catExpBoxCols.length > 0 && facetName.length > 0 && facets.length > 0; // fpp co NA
     const hasLevel2 = hasFacet && facets.length === 2;
     const isShowTitle = hasFacet || isShowDate;
     const hasLevel12OnRightBox = isShowDate && hasLevel2;
@@ -2032,7 +1785,7 @@ const buildSummaryChartTitle = (
     const endDate = endLocalDt.format(DATE_FORMAT);
     const endTime = endLocalDt.format(TIME_FORMAT);
 
-    const showFitlerClass = isShowFilterModal ? 'show-detail cat-exp-box' : '';
+    const showFilterClass = isShowFilterModal ? 'show-detail cat-exp-box' : '';
 
     const timeText = `<span title="${startDate} ${startTime} - ${endDate} ${endTime}">
         ${startDate} ${startTime} -<br>${endDate} ${endTime}
@@ -2040,17 +1793,16 @@ const buildSummaryChartTitle = (
     const facetLevel1Text = hasFacet
         ? `<span class="${hasLevel12OnRightBox ? 'mr-2' : ''}">
         <span title="${facetName[0]}">${facetName[0]}</span>
-        <span class="${showFitlerClass}"  title="${facets[0]}">${facets[0]}</span>
+        <span class="${showFilterClass}"  title="${facets[0]}">${facets[0]}</span>
     </span>`
         : '';
     const facetLevel2Text = hasLevel2
         ? `<span>
         <span title="${facetName[1]}">${facetName[1]}</span>
-        <span class="${showFitlerClass}" title="${facets[1]}">${facets[1]}</span>
+        <span class="${showFilterClass}" title="${facets[1]}">${facets[1]}</span>
     </span>`
         : '';
-    const isShowBoxRight =
-        (isShowDate && hasFacet) || (!isShowDate && hasLevel2);
+    const isShowBoxRight = (isShowDate && hasFacet) || (!isShowDate && hasLevel2);
 
     let rightBoxDOM = '';
     if (isShowBoxRight) {
@@ -2093,14 +1845,8 @@ const getAllGroupOfSensor = (sensorData) => {
     const ranks = {};
     let rankIDs = [];
     sensorData.forEach((sensorDat, i) => {
-        if (
-            sensorDat.before_rank_values &&
-            sensorDat.before_rank_values.length
-        ) {
-            if (
-                sensorDat.before_rank_values[0].length &&
-                sensorDat.before_rank_values[1].length
-            ) {
+        if (sensorDat.before_rank_values && sensorDat.before_rank_values.length) {
+            if (sensorDat.before_rank_values[0].length && sensorDat.before_rank_values[1].length) {
                 sensorDat.before_rank_values[0].forEach((rank, k) => {
                     if (!rankIDs.includes(rank)) {
                         ranks[rank] = sensorDat.before_rank_values[1][k];
@@ -2203,13 +1949,8 @@ const checkIfProcessesAreLinked = async () => {
             if ($(el).val() === startProcId || !$(el).val()) {
                 continue;
             }
-            const warningSign = $(el).siblings(
-                'svg[id^=no-link-with-start-proc]',
-            );
-            const hasLink = await isLinkedWithStartProcess(
-                $(el).val(),
-                startProcId,
-            );
+            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]');
+            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcId);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
@@ -2231,13 +1972,8 @@ const checkIfProcessesAreLinked = async () => {
             if (!$(el).val()) {
                 continue;
             }
-            const warningSign = $(el).siblings(
-                'svg[id^=no-link-with-start-proc]',
-            );
-            const hasLink = await isLinkedWithStartProcess(
-                $(el).val(),
-                startProcVal,
-            );
+            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]');
+            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcVal);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
@@ -2273,4 +2009,58 @@ const getLabelAndFilterValues = () => {
         })
         .get();
     return [categoriesLabel, categoriesFilter];
+};
+
+const toggleWidth = (event) => {
+    event.stopPropagation();
+
+    const ulEl = $('[id^=list-end-proc-val-]');
+    const JPNameElWidth = calculateWidthForJPNameEl(ulEl);
+    if (!isExtendSysName) {
+        ulEl.find('.sys-name')
+            .removeClass('default-width-sys-name')
+            .addClass('col-sm-3 col-xs-3 show-name-col')
+            .css('max-width', '')
+            .css('width', '');
+        ulEl.find('.jp-name').addClass('col-sm-3 col-xs-3 show-name-col');
+        ulEl.find('#btn-extend-toggle').html('&#x27FD;').attr('title', $('#i18nExtentVariableNameLonger').text());
+        ulEl.find('span[idx="0"]').show();
+        isExtendSysName = true;
+    } else {
+        ulEl.find('.sys-name').removeClass('col-sm-3 col-xs-3 show-name-col').addClass('default-width-sys-name');
+        ulEl.find('.jp-name')
+            .removeClass('col-sm-3 col-xs-3 show-name-col')
+            .css('max-width', JPNameElWidth)
+            .css('width', JPNameElWidth);
+        ulEl.find('#btn-extend-toggle').html('&#x27FE;').attr('title', $('#i18nExtentSysNameLonger').text());
+        ulEl.find('span[idx="0"]').hide();
+        isExtendSysName = false;
+    }
+};
+
+const reSizeElementForDateTime = (count) => {
+    const targetUlEle = $('#list-end-proc-val-' + count);
+    const JPNameElWidth = calculateWidthForJPNameEl(targetUlEle);
+    if (!isExtendSysName) {
+        targetUlEle.find('.sys-name').removeClass('col-sm-3 col-xs-3 show-name-col').addClass('default-width-sys-name');
+        targetUlEle
+            .find('.jp-name')
+            .removeClass('col-sm-3 col-xs-3 show-name-col')
+            .css('max-width', JPNameElWidth)
+            .css('width', JPNameElWidth);
+        targetUlEle.find('span[idx="0"]').hide();
+    }
+};
+
+const calculateWidthForJPNameEl = (targetUlEle) => {
+    // get first row => to calculate width of 1 col of grid system
+    const firstRowEl = $(targetUlEle).find('.row').first();
+    let widthOfNameCols = 0;
+    $(firstRowEl)
+        .find('.shorten-name')
+        .each(function () {
+            widthOfNameCols += $(this).innerWidth();
+        });
+
+    return widthOfNameCols - 84; // 84 is width of default-width-sys-name
 };

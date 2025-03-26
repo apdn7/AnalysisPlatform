@@ -8,21 +8,35 @@ const colorPalettes = [
     ['1', '#6dc3fd'],
 ];
 
-const genColorScale = (
-    data,
-    colorOption,
-    isDiscreteColor,
-    hmpData,
-    commonRange = null,
-) => {
+const genColorScale = (data, colorOption, isDiscreteColor, hmpData, commonRange = null, judgeColorScale = null) => {
     if (commonRange) {
         data = [commonRange.zmin, commonRange.zmax];
     }
+
     const minVal = Math.min(...data.filter((i) => i !== null));
     const maxVal = Math.max(...data.filter((i) => i !== null));
-    const maxAbsVal = Math.max(
-        ...data.filter((i) => i !== null).map((i) => Math.abs(i)),
-    );
+    const maxAbsVal = Math.max(...data.filter((i) => i !== null).map((i) => Math.abs(i)));
+    let zmin = -maxAbsVal;
+    let zmax = maxAbsVal;
+
+    // custom color scale for judge
+    if (judgeColorScale) {
+        const isOnlyOneColor = judgeColorScale.length === 3;
+        // in case: judge only 1 value => zmin: null, zmax: null
+        // in case: data has 1 value and judge includes ok, ng => zmin: 0, zmax; 1 || max value
+        if (minVal >= 0) {
+            zmin = 0;
+            zmax = maxVal === minVal && !isOnlyOneColor ? 1 : maxVal;
+        } else if (maxVal < 0) {
+            zmin = -maxAbsVal;
+            zmax = 0;
+        }
+        return {
+            scale: judgeColorScale,
+            zmin: isOnlyOneColor ? null : zmin,
+            zmax: isOnlyOneColor ? null : zmax,
+        };
+    }
 
     let colorScale = colorPallets[colorOption].scale;
     const uniqueColorData = getUniqueColorData(isDiscreteColor, hmpData, data);
@@ -32,9 +46,6 @@ const genColorScale = (
     if (colorScale && isString) {
         return { scale: colorScale, zmin: null, zmax: null };
     }
-
-    let zmin = -maxAbsVal;
-    let zmax = maxAbsVal;
 
     if (colorScale) {
         if (minVal >= 0) {
@@ -47,9 +58,7 @@ const genColorScale = (
         return { scale: colorScale, zmin: zmin, zmax: zmax };
     }
 
-    colorScale = colorPallets[colorOption].isRev
-        ? reverseScale(dnJETColorScale)
-        : dnJETColorScale;
+    colorScale = colorPallets[colorOption].isRev ? reverseScale(dnJETColorScale) : dnJETColorScale;
 
     // Calculate zmin, zmax, and colorScale if needed
     if (minVal >= 0) {
@@ -92,13 +101,8 @@ const getUniqueColorData = (isDiscreteColor, hmpData, data) => {
 
 const getHalfOfScale = (colorScale, firstHalf = false) => {
     const centerIdx = colorScale.length / 2;
-    colorScale = colorScale.filter((color, idx) =>
-        firstHalf ? idx < centerIdx : idx >= centerIdx - 1,
-    );
-    return colorScale.map((color, idx) => [
-        String(idx / (colorScale.length - 1)),
-        color[1],
-    ]);
+    colorScale = colorScale.filter((color, idx) => (firstHalf ? idx < centerIdx : idx >= centerIdx - 1));
+    return colorScale.map((color, idx) => [String(idx / (colorScale.length - 1)), color[1]]);
 };
 
 const generateHeatmapPlot = (prop, option, zoomRange) => {
@@ -120,12 +124,8 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     }
 
     // add prefix to change int to str type
-    const isXIntType =
-        option.xDataType === DataTypes.INTEGER.name ||
-        !isEmpty(Number(prop.array_x[0]));
-    const isYIntType =
-        option.yDataType === DataTypes.INTEGER.name ||
-        !isEmpty(Number(prop.array_y[0]));
+    const isXIntType = option.xDataType === DataTypes.INTEGER.name || !isEmpty(Number(prop.array_x[0]));
+    const isYIntType = option.yDataType === DataTypes.INTEGER.name || !isEmpty(Number(prop.array_y[0]));
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
 
@@ -239,15 +239,7 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     Plotly.react(prop.canvasId, data, layout, config);
 };
 
-const makeHeatmapHoverInfoBox = (
-    prop,
-    xVal,
-    yVal,
-    option,
-    x,
-    y,
-    pointIndex,
-) => {
+const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y, pointIndex) => {
     if (!prop) return;
     const [i, j] = pointIndex;
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
@@ -280,12 +272,9 @@ const makeHeatmapHoverInfoBox = (
     hoverData.xName = option.x_name || '';
     hoverData.yName = option.y_name || '';
     hoverData.yVal = prop.array_y[i];
-    hoverData.agg_value = !isEmpty(prop.array_z[i][j])
-        ? prop.array_z[i][j]
-        : COMMON_CONSTANT.NA;
+    hoverData.agg_value = !isEmpty(prop.array_z[i][j]) ? prop.array_z[i][j] : COMMON_CONSTANT.NA;
     if (prop.colors_encode) {
-        hoverData.agg_value =
-            prop.colors_encode[prop.array_z[i][j]] || hoverData.agg_value;
+        hoverData.agg_value = prop.colors_encode[prop.array_z[i][j]] || hoverData.agg_value;
     }
     hoverData.agg_func = option.color_bar_title || option.colorName;
     showSCPDataTable(

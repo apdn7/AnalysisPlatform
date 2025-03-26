@@ -21,6 +21,7 @@ from ap.common.constants import (
     DATAPOINT_INFO,
     DIC_SENSOR_HEADER,
     FILTER_ON_DEMAND,
+    NULL_PERCENT,
     PLOTLY_JSON,
     REMOVED_OUTLIER_NAN_TEST,
     REMOVED_OUTLIER_NAN_TRAIN,
@@ -31,6 +32,7 @@ from ap.common.constants import (
     UNIQUE_SERIAL,
     UNIQUE_SERIAL_TEST,
     UNIQUE_SERIAL_TRAIN,
+    ZERO_VARIANCE,
     CacheType,
     DataType,
 )
@@ -125,10 +127,11 @@ def gen_base_object(root_graph_param, dic_param):
     if not errors:
         # call pca function
         dic_sensor_headers = dict_train_data[DIC_SENSOR_HEADER]
-        x_train = dict_train_data['df'][dic_sensor_headers].rename(columns=dic_sensor_headers)
-        x_test = dict_data['df'][dic_sensor_headers].rename(columns=dic_sensor_headers)
+        sensor_headers = list(dic_sensor_headers.keys())
+        x_train = dict_train_data['df'][sensor_headers].rename(columns=dic_sensor_headers)
+        x_test = dict_data['df'][sensor_headers].rename(columns=dic_sensor_headers)
         dic_selected_vars = dic_output[SELECTED_VARS]
-        var_names = x_train.columns.values
+        var_names = x_train.columns.to_numpy()
         dic_biplot, dic_t2q_lrn, dic_t2q_tst = run_pca_and_calc_t2q(x_train, x_test, var_names, dic_selected_vars)
 
     return dic_output, dic_biplot, dic_t2q_lrn, dic_t2q_tst, errors
@@ -228,22 +231,22 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
 
     # get data from database
     df, actual_record_number, unique_serial = get_trace_data(graph_param, dic_cat_filters, use_expired_cache)
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     dic_var_name = {}
     for col_alias, id in ids.items():
         dic_var_name[id] = dic_sensor_headers[col_alias]
 
     if not actual_record_number:
-        return {'errors': {'error': True, SELECTED_VARS: dic_var_name, 'null_percent': {}, 'zero_variance': []}}
+        return {'errors': {'error': True, SELECTED_VARS: dic_var_name, NULL_PERCENT: {}, ZERO_VARIANCE: []}}
     # sensor headers
     cols = list(dic_sensor_headers)
 
     # replace inf -inf to NaN , so we can dropNA later
-    df.loc[:, cols] = df[cols].replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan))
+    df.loc[:, cols] = df[cols].replace([np.inf, -np.inf], np.nan)
 
     # sensors
-    df_sensors: DataFrame = df[dic_sensor_headers]
+    df_sensors: DataFrame = df[cols]
 
     _, _, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
 
@@ -256,7 +259,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     error = bool(len(errors))
 
     # remove NaN row
-    df.dropna(subset=cols, inplace=True)
+    df = df.dropna(subset=cols)
 
     # if there is no data
     if not df.size:
@@ -265,21 +268,21 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
                 'error': True,
                 'errors': errors,
                 SELECTED_VARS: dic_var_name,
-                'null_percent': dic_null_percent,
-                'zero_variance': err_cols,
+                NULL_PERCENT: dic_null_percent,
+                ZERO_VARIANCE: err_cols,
             },
         }
 
     return {
         'df': df,
-        'dic_sensor_headers': dic_sensor_headers,
+        DIC_SENSOR_HEADER: dic_sensor_headers,
         SELECTED_VARS: dic_var_name,
         'errors': {
             'error': error,
             'errors': errors,
             SELECTED_VARS: dic_var_name,
-            'null_percent': dic_null_percent,
-            'zero_variance': err_cols,
+            NULL_PERCENT: dic_null_percent,
+            ZERO_VARIANCE: err_cols,
         },
         UNIQUE_SERIAL: unique_serial,
         ACTUAL_RECORD_NUMBER: actual_record_number,
@@ -796,9 +799,9 @@ def _convert_df_circles_to_dict(df_circles) -> dict:
     dic_circles = {}
     for label in df_circles['border'].unique():
         dic_circles[label] = {'x': [], 'y': []}
-        idx = np.where(df_circles['border'].values == label)[0]
-        dic_circles[label]['x'] = df_circles['pc1.x'].values[idx]
-        dic_circles[label]['y'] = df_circles['pc2.y'].values[idx]
+        idx = np.where(df_circles['border'].to_numpy() == label)[0]
+        dic_circles[label]['x'] = df_circles['pc1.x'].to_numpy()[idx]
+        dic_circles[label]['y'] = df_circles['pc2.y'].to_numpy()[idx]
     return dic_circles
 
 

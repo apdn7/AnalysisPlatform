@@ -575,11 +575,7 @@ const generateTickAsDatetime = (tickText) => {
     if (!isNaN(Number(tickText[0])) || !moment(tickText[0]).isValid()) {
         return tickText;
     }
-    const format = getDateTimeFormat(
-        tickText[0],
-        tickText[tickText.length - 1],
-        tickText.length,
-    );
+    const format = getDateTimeFormat(tickText[0], tickText[tickText.length - 1], tickText.length);
     return tickText.map((tick) => moment(tick).format(format));
 };
 

@@ -2,6 +2,7 @@ const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_NUMBER_OF_SENSOR = 20;
 const MIN_NUMBER_OF_SENSOR = 0;
+const MIN_DATA_POINTS_ON_RIDGE = 8;
 let valueInfo = null;
 const graphStore = new GraphStore();
 const dicTabs = {
@@ -218,17 +219,14 @@ const reformatFormData = (eleIdPrefix, formData) => {
 
 const ngRateToColor = (ngRateArray, yScaleFixed = false) => {
     if (ngRateArray) {
-        let maxValue = yScaleFixed
-            ? 100
-            : Math.max(...ngRateArray.map((i) => Math.abs(i)));
+        let maxValue = yScaleFixed ? 100 : Math.max(...ngRateArray.map((i) => Math.abs(i)));
         let minValue = yScaleFixed ? 0 : Math.min(...ngRateArray);
         if (maxValue === minValue) {
             maxValue = 100;
             minValue = 0;
         }
         return ngRateArray.map((ngRateValue) => {
-            hValue =
-                120 * (1 - (ngRateValue - minValue) / (maxValue - minValue));
+            hValue = 120 * (1 - (ngRateValue - minValue) / (maxValue - minValue));
             const hsv = {
                 h: hValue,
                 s: 1,
@@ -278,32 +276,27 @@ const createEMDTrace = (emdGroup, emdData, emdColors) => ({
     showlegend: false,
 });
 
-const createEMDByLine = (
-    emdGroup,
-    emdData,
-    emdColors,
-    nTotalList,
-    labelList,
-) => {
-    const fmt = getFmtValueOfArrayTrim5Percent(emdData);
+const createEMDByLine = (params) => {
+    const { x, y, color, nTotal, groupLabels } = params;
+    const fmt = getFmtValueOfArrayTrim5Percent(y);
     const res = {
         line: { width: 1, color: '#444444' },
         marker: {
-            color: emdColors,
+            color,
         },
         mode: 'lines+markers',
         showlegend: false,
         type: 'scatter',
-        y: emdData,
-        x: emdGroup,
+        y,
+        x,
         xaxis: 'x2',
         yaxis: 'y2',
-        text: labelList,
+        text: groupLabels,
         name: '', // hoverstring: yvalue + name
         hoverinfo: 'none',
         customdata: {
             isridgline: false,
-            count: nTotalList,
+            count: nTotal,
             fmt: fmt,
         },
     };
@@ -392,26 +385,16 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
     });
 };
 
-const renderJudgeChart = (
-    eleIdPrefix,
-    rlpCard,
-    idx,
-    judgeData,
-    startProcId,
-    emdType,
-    rlpItemHeight,
-    showXAxis,
-) => {
+const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emdType, rlpItemHeight, showXAxis) => {
     const colId = judgeData.end_col_id;
     const ngCondition = `${judgeData.NGCondition} ${judgeData.NGConditionValue}`;
-    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] =
-        genCommonTitleChartInfo(
-            colId,
-            startProcId,
-            judgeData.end_proc_id,
-            judgeData.catExpBox,
-            emdType,
-        );
+    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
+        colId,
+        startProcId,
+        judgeData.end_proc_id,
+        judgeData.catExpBox,
+        emdType,
+    );
     const cardId = `judgeChart${colId}-${idx}`;
     const cardGroupID = `judgeChartGroup${colId}-${idx}`;
     const showName = `${judgeData.sensor_name}${CTTile} ${ngCondition}`;
@@ -433,30 +416,23 @@ const renderJudgeChart = (
         </div>
     `);
 
-    const noneIdxs = judgeData.y
-        .map((rateVal, idx) => (rateVal == null ? idx : null))
-        .filter((i) => i);
-    judgeData.x = judgeData.x.filter((x, idx) => !noneIdxs.includes(idx));
-    judgeData.y = judgeData.y.filter((y, idx) => !noneIdxs.includes(idx));
-    judgeData.count = judgeData.count.filter(
-        (c, idx) => !noneIdxs.includes(idx),
-    );
+    const noneIdxs = [...judgeData.y].map((rateVal, idx) => (rateVal == null ? idx : null)).filter((i) => i != null);
+    const judgeDataX = [...judgeData.x].filter((x, idx) => !noneIdxs.includes(idx));
+    const judgeDataY = [...judgeData.y].filter((y, idx) => !noneIdxs.includes(idx));
+    const judgeDataCount = [...judgeData.count].filter((c, idx) => !noneIdxs.includes(idx));
     // judgeData.categories = judgeData.categories.filter((cat, idx) => !noneIdxs.includes(idx));
-    let [groupName, categories, datetimeCategory, tickTexts, tickVals] =
-        genTickTextAndTickValue(
-            eleIdPrefix,
-            resData.categories,
-            [],
-            resData.rlp_xaxis,
-            9,
-        );
-    categories = categories.filter((y, idx) => !noneIdxs.includes(idx));
-    datetimeCategory = datetimeCategory.filter(
-        (y, idx) => !noneIdxs.includes(idx),
+    let [groupName, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(
+        eleIdPrefix,
+        resData.categories,
+        [],
+        resData.rlp_xaxis,
+        9,
     );
+    categories = categories.filter((y, idx) => !noneIdxs.includes(idx));
+    datetimeCategory = datetimeCategory.filter((y, idx) => !noneIdxs.includes(idx));
     judgeXAxis[eleIdPrefix].push(tickVals);
 
-    const markerColor = ngRateToColor(judgeData.y);
+    const markerColor = ngRateToColor(judgeDataY);
     const data = [
         {
             marker: {
@@ -466,9 +442,9 @@ const renderJudgeChart = (
             },
             mode: 'lines+markers',
             type: 'scatter',
-            y: judgeData.y,
-            x: judgeData.x,
-            text: judgeData.count,
+            y: judgeDataY,
+            x: judgeDataX,
+            text: judgeDataCount,
             hoverinfo: 'none',
             line: { width: 1, color: '#444444' },
         },
@@ -550,9 +526,7 @@ const renderJudgeChart = (
         const position = { x: data.event.pageX - 120, y: data.event.pageY };
         const pointIndex = dataPoint.pointIndex;
         const catName = datetimeCategory.length ? 'Category' : 'Div';
-        const catVal = datetimeCategory.length
-            ? datetimeCategory[pointIndex]
-            : categories[pointIndex];
+        const catVal = datetimeCategory.length ? datetimeCategory[pointIndex] : categories[pointIndex];
         const hoverInfo = [
             [judgeData.sensor_name, ngCondition],
             ['NG rate', applySignificantDigit(y) + ' %'],
@@ -569,36 +543,21 @@ const renderJudgeChart = (
             }
         }
         hoverInfo.push(['N', count]);
-        genDataPointHoverTable(
-            genHoverDataTable(hoverInfo),
-            position,
-            120,
-            true,
-            cardId,
-        );
+        genDataPointHoverTable(genHoverDataTable(hoverInfo), position, 120, true, cardId);
     });
 
     unHoverHandler(judgePlot);
 };
 
-const genCommonTitleChartInfo = (
-    colId,
-    startProcId,
-    endProcId,
-    catExpBox,
-    emdType,
-) => {
-    const cfgProcess =
-        procConfigs[parseInt(endProcId)] || procConfigs[endProcId];
+const genCommonTitleChartInfo = (colId, startProcId, endProcId, catExpBox, emdType) => {
+    const cfgProcess = procConfigs[parseInt(endProcId)] || procConfigs[endProcId];
     const column = cfgProcess.getColumnById(colId);
     const isColCT = column.data_type === DataTypes.DATETIME.name;
     const CTTile = isColCT ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
 
-    catExpBox =
-        catExpBox && _.isArray(catExpBox) ? catExpBox.join(' | ') : catExpBox;
+    catExpBox = catExpBox && _.isArray(catExpBox) ? catExpBox.join(' | ') : catExpBox;
 
-    const fromStartProcClass =
-        String(startProcId) === String(endProcId) ? ' card-active' : '';
+    const fromStartProcClass = String(startProcId) === String(endProcId) ? ' card-active' : '';
     const facetLabel = catExpBox && catExpBox !== 'None' ? catExpBox : '';
     const facetDetailHTML = facetLabel
         ? `<span class="show-detail cat-exp-box" title="${catExpBox}">${facetLabel}</span>`
@@ -649,19 +608,15 @@ const renderRidgeLine = (
     };
     const emdColors = emdToColor(emdData);
     const rlpColors = [...emdColors];
-    const transRLPColors = transEMDFromRidgeline(
-        rlpColors,
-        sensorData.ridgelines,
-    );
+    const transRLPColors = transEMDFromRidgeline(rlpColors, sensorData.ridgelines);
 
-    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] =
-        genCommonTitleChartInfo(
-            sensorData.sensor_id,
-            startProc,
-            end_proc_id,
-            sensorData.catExpBox,
-            emdType,
-        );
+    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
+        sensorData.sensor_id,
+        startProc,
+        end_proc_id,
+        sensorData.catExpBox,
+        emdType,
+    );
 
     rlpCard.append(`<div class="ridgeLineItem ridgeLineChart graph-navi${fromStartProcClass}" id="${rlpCardGroupID}">
              <div class="tschart-title-parent" style="${titleStyle}">
@@ -685,19 +640,15 @@ const renderRidgeLine = (
     };
 
     const { yMin, yMax } = getYSaleOption(sensorData);
-    const yRange =
-        checkTrue(yMax) && checkTrue(yMax)
-            ? [yMin, yMax]
-            : sensorData.rlp_yaxis;
+    const yRange = checkTrue(yMax) && checkTrue(yMax) ? [yMin, yMax] : sensorData.rlp_yaxis;
 
-    const [groupName, categories, datetimeCategory, tickTexts, tickVals] =
-        genTickTextAndTickValue(
-            eleIdPrefix,
-            resData.categories,
-            sensorData.ridgelines,
-            sensorData.rlp_xaxis,
-            9,
-        );
+    const [, categories, datetimeCategory, tickTexts, tickVals] = genTickTextAndTickValue(
+        eleIdPrefix,
+        resData.categories,
+        sensorData.ridgelines,
+        sensorData.rlp_xaxis,
+        9,
+    );
 
     // rlp new layout
     const rlpLayout = rlpByLineTemplate(
@@ -712,73 +663,24 @@ const renderRidgeLine = (
     );
 
     // rlp new data
-    const rlpData = [];
-    const exceptIdx = [];
-    const rlpLengh = sensorData.ridgelines.length - 1;
-    let nTotalList = [];
-    let labelList = [];
-    for (let k = 0; k <= rlpLengh; k++) {
-        if (sensorData.ridgelines[k].trans_kde.length > -1) {
-            const histLabels = sensorData.ridgelines[k].kde_data.hist_labels;
-            const ntotal = sensorData.ridgelines[k].data_counts;
-            const transKDE = sensorData.ridgelines[k].trans_kde;
-            const lineColor =
-                sensorData.ridgelines[k].data_counts >= 8
-                    ? transRLPColors[k]
-                    : '#808080';
-            const rlpLabel = datetimeCategory.length
-                ? datetimeCategory[k]
-                : categories[k];
-            nTotalList.push(ntotal);
-            labelList.push(rlpLabel);
-            const rlpInst = rlpSingleLine(
-                histLabels,
-                transKDE,
-                lineColor,
-                rlpLabel,
-                ntotal,
-            );
-            rlpData.push(rlpInst);
+    const rlpData = sensorData.ridgelines.map((ridgeLine, k) => {
+        const histLabels = ridgeLine.kde_data.hist_labels;
+        const transKDE = ridgeLine.trans_kde;
+        const lineColor = ridgeLine.data_counts >= MIN_DATA_POINTS_ON_RIDGE ? transRLPColors[k] : '#808080';
+        ridgeLine.groupLabels = datetimeCategory.length ? datetimeCategory[k] : categories[k];
+        return rlpSingleLine(histLabels, transKDE, lineColor, ridgeLine.groupLabels, ridgeLine.data_counts);
+    });
 
-            if (sensorData.ridgelines[k].data_counts < 8) {
-                exceptIdx.push(k);
-            }
-        }
-    }
-    // get all ridgelines which has trans_kde but data_counts < 8
-    const inValidEMDIdx = sensorData.ridgelines
-        .filter((i) => i.trans_kde.length)
-        .map((v, i) => {
-            if (v.data_counts > 0 && v.data_counts < 8) {
-                return i;
-            }
-            return null;
-        })
-        .filter((i) => i);
-    // EMD and color will be excluding the ridgeline which data counts < 8
-    const validEMDDat = emdData.filter((v, i) => !inValidEMDIdx.includes(i));
-    nTotalList = nTotalList.filter((v, i) => !exceptIdx.includes(i));
-    labelList = labelList.filter((v, i) => !exceptIdx.includes(i));
-    const validRLPXAxis = sensorData.rlp_xaxis.filter(
-        (v, i) =>
-            !exceptIdx.includes(i) && sensorData.ridgelines[i].trans_kde.length,
-    );
-    const validEMDColor = emdColors.filter(
-        (v, i) => !inValidEMDIdx.includes(i),
-    );
-
-    // remove emdData in case of data point less than 8
-    if (validEMDDat) {
-        const [rlpEMD, fmt] = createEMDByLine(
-            validRLPXAxis,
-            validEMDDat,
-            validEMDColor,
-            nTotalList,
-            labelList,
-        );
-        rlpLayout.template.layout.yaxis2.tickformat = fmt.includes('e')
-            ? '.1e'
-            : '';
+    if (emdData) {
+        const params = {
+            emd: emdData,
+            ridgelines: sensorData.ridgelines,
+            colors: emdColors,
+            ridgeAxis: sensorData.rlp_xaxis,
+        };
+        const validEMD = genEMDFromOptions(params);
+        const [rlpEMD, fmt] = createEMDByLine(validEMD);
+        rlpLayout.template.layout.yaxis2.tickformat = fmt.includes('e') ? '.1e' : '';
         // push emd to data list
         rlpData.push(rlpEMD);
     }
@@ -792,10 +694,7 @@ const renderRidgeLine = (
     const hdPlot = document.getElementById(ridgelineCardID);
     const rlpDataTable = (data) => {
         const isRLP = data.points[0].data.customdata.isridgline;
-        const dpIndex =
-            'pointIndex' in data.points[0]
-                ? data.points[0].pointIndex
-                : data.points[0].pointIndices[0];
+        const dpIndex = 'pointIndex' in data.points[0] ? data.points[0].pointIndex : data.points[0].pointIndices[0];
 
         // "2022-03-15 07:00 – 2022-03-17 07:00"
         let textValue = '';
@@ -852,19 +751,10 @@ const renderRidgeLine = (
 
     unHoverHandler(hdPlot);
     // report progress
-    loadingUpdate(
-        loadingProgressBackend +
-            emdIdx * ((100 - loadingProgressBackend) / (numGraphs || 1)),
-    );
+    loadingUpdate(loadingProgressBackend + emdIdx * ((100 - loadingProgressBackend) / (numGraphs || 1)));
 };
 
-const genTickTextAndTickValue = (
-    eleIdPrefix,
-    categories,
-    ridgelines,
-    xAxisVals,
-    nticks = 9,
-) => {
+const genTickTextAndTickValue = (eleIdPrefix, categories, ridgelines, xAxisVals, nticks = 9) => {
     // tmp groups for EMD zero case
     let groupName = [];
     if (categories.length === 1 && categories.length < ridgelines.length) {
@@ -907,13 +797,9 @@ const genTickTextAndTickValue = (
     let tickTexts = [...categories];
     if (nticks > 0) {
         const step = Math.ceil(tickTexts.length / nticks); // nticks = 20, groups = 100 -> step = 5
-        const tickIndexs = groupName
-            .map((v, i) => (i % step === 0 ? i : null))
-            .filter((i) => i !== null);
+        const tickIndexs = groupName.map((v, i) => (i % step === 0 ? i : null)).filter((i) => i !== null);
         tickTexts = categories.filter((v, i) => tickIndexs.includes(i));
-        tickTexts = tickTexts.map((tick) =>
-            _.isString(tick) ? tick.replace('|', '<br>~') : tick,
-        );
+        tickTexts = tickTexts.map((tick) => (_.isString(tick) ? tick.replace('|', '<br>~') : tick));
         tickVals = tickVals.filter((v, i) => tickIndexs.includes(i));
     }
 
@@ -932,11 +818,7 @@ const isRLPHasFewDataPoint = (res) => {
     return result;
 };
 
-const collectRLPFormData = (
-    clearOnFlyFilter,
-    eleIdPrefix,
-    autoUpdate = false,
-) => {
+const collectRLPFormData = (clearOnFlyFilter, eleIdPrefix, autoUpdate = false) => {
     if (autoUpdate) {
         return genDatetimeRange(lastUsedFormData);
     }
@@ -985,11 +867,7 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         resetCheckedCats();
     }
 
-    let formData = collectRLPFormData(
-        clearOnFlyFilter,
-        eleIdPrefix,
-        autoUpdate,
-    );
+    let formData = collectRLPFormData(clearOnFlyFilter, eleIdPrefix, autoUpdate);
 
     // validate form
     const validateFlg = isFormDataValid(eleIdPrefix, formData);
@@ -1009,61 +887,51 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         resetGraphSetting();
     }
 
-    showGraphCallApi(
-        '/ap/api/rlp/index',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            res = sortResponseData(res);
-            resData = res;
-            graphStore.setTraceData(_.cloneDeep(res));
-            // Sprint73_#18.1 : array_xのlengthをチェックする
-            if (isRLPHasFewDataPoint(res)) {
-                showToastrMsg(i18n.FewDataPointInRLP);
-            }
+    showGraphCallApi('/ap/api/rlp/index', formData, REQUEST_TIMEOUT, async (res) => {
+        res = sortResponseData(res);
+        resData = res;
+        graphStore.setTraceData(_.cloneDeep(res));
+        // Sprint73_#18.1 : array_xのlengthをチェックする
+        if (isRLPHasFewDataPoint(res)) {
+            showToastrMsg(i18n.FewDataPointInRLP);
+        }
 
-            // show limit graphs displayed message
-            if (res.isGraphLimited) {
-                showToastrMsg(
-                    i18nCommon.limitDisplayedGraphs.replace(
-                        'NUMBER',
-                        MAX_NUMBER_OF_GRAPH,
-                    ),
-                );
-            }
+        // show limit graphs displayed message
+        if (res.isGraphLimited) {
+            showToastrMsg(i18nCommon.limitDisplayedGraphs.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
+        }
 
-            // show result section
-            $(`#${eles.categoryPlotCards}`).css('display', 'block');
+        // show result section
+        $(`#${eles.categoryPlotCards}`).css('display', 'block');
 
-            // disable emd type in chart
-            const isDisabledEMD = res.emdType !== EMDType.BOTH;
-            $('select[name=filterEmd]').val(res.emdType);
-            $('select[name=filterEmd]').prop('disabled', isDisabledEMD);
+        // disable emd type in chart
+        const isDisabledEMD = res.emdType !== EMDType.BOTH;
+        $('select[name=filterEmd]').val(res.emdType);
+        $('select[name=filterEmd]').prop('disabled', isDisabledEMD);
 
-            // show graphs
-            showRidgeLine(res, eleIdPrefix);
-            isGraphShown = true;
+        // show graphs
+        showRidgeLine(res, eleIdPrefix);
+        isGraphShown = true;
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            if (!autoUpdate) {
-                $('html, body').animate(
-                    {
-                        scrollTop: getOffsetTopDisplayGraph('#CatePlotCards'),
-                    },
-                    1000,
-                );
-            }
+        if (!autoUpdate) {
+            $('html, body').animate(
+                {
+                    scrollTop: getOffsetTopDisplayGraph('#CatePlotCards'),
+                },
+                1000,
+            );
+        }
 
-            // render cat, category label filer modal
-            fillDataToFilterModal(res.filter_on_demand, () => {
-                showGraph(false);
-            });
+        // render cat, category label filer modal
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            showGraph(false);
+        });
 
-            setPollingData(formData, showGraph, [false, true]);
-        },
-    );
+        setPollingData(formData, showGraph, [false, true]);
+    });
 };
 
 const sortResponseData = (res) => {
@@ -1082,11 +950,7 @@ const sortResponseData = (res) => {
         }
     }
 
-    res.array_plotdata = sortGraphs(
-        res.array_plotdata,
-        'sensor_id',
-        latestSortColIds,
-    );
+    res.array_plotdata = sortGraphs(res.array_plotdata, 'sensor_id', latestSortColIds);
     res.emd = [];
     for (let i = 0; i < res.array_plotdata.length; i += 1) {
         res.emd.push(...res.array_plotdata[i].emd);
@@ -1126,17 +990,11 @@ const scrollRLPChart = (() => {
         const stickiesParentCard = $stickies.closest('.card')[0].id;
         const currentTerm = stickiesParentCard.split('RLPCard')[0];
 
-        const pinnedCardHeight = $(
-            $(`#${stickiesParentCard} .ridgeLineItem`)[0],
-        ).height();
+        const pinnedCardHeight = $($(`#${stickiesParentCard} .ridgeLineItem`)[0]).height();
         const anchorPosition = $('#showXAxis').parent().parent().offset().top;
-        const isScrollOverCategoryTabl =
-            $(window).scrollTop() + pinnedCardHeight < anchorPosition;
+        const isScrollOverCategoryTabl = $(window).scrollTop() + pinnedCardHeight < anchorPosition;
         if (isScrollOverCategoryTabl) {
-            if (
-                $stickies.find('.btn-anchor').hasClass('pin') &&
-                $stickies.hasClass('pinChart')
-            ) {
+            if ($stickies.find('.btn-anchor').hasClass('pin') && $stickies.hasClass('pinChart')) {
                 $stickies.removeClass('pinChart');
             }
         } else if ($stickies.find('.btn-anchor').hasClass('pin')) {
@@ -1229,9 +1087,7 @@ const showXAxisLabel = (element) => {
         .find('.ridgeLineCard-full')
         .each((i, card) => {
             const layout = judgeLayout[i];
-            layout.xaxis.tickvals = isShowAxis
-                ? judgeXAxis[comparetype][i]
-                : [];
+            layout.xaxis.tickvals = isShowAxis ? judgeXAxis[comparetype][i] : [];
             layout.margin.b = isShowAxis ? 23 : 15;
             Plotly.relayout(card.id, layout);
         });
@@ -1265,9 +1121,7 @@ const changeRLPScale = () => {
                     b: isShowAxis ? 23 : 15,
                 },
             };
-            const { yMin, yMax } = getYSaleOption(
-                resData.array_plotdata[variableIDx],
-            );
+            const { yMin, yMax } = getYSaleOption(resData.array_plotdata[variableIDx]);
             if (yMin !== undefined && yMax !== undefined) {
                 layout.yaxis = {
                     range: [yMin, yMax],
@@ -1277,9 +1131,7 @@ const changeRLPScale = () => {
             let emdArr = resData.emd[i];
             if (scaleOptionConst.COMMON === graphScaleSelected) {
                 let allEMDValue = [];
-                resData.emd.forEach(
-                    (e) => (allEMDValue = [...allEMDValue, ...e]),
-                );
+                resData.emd.forEach((e) => (allEMDValue = [...allEMDValue, ...e]));
                 if (allEMDValue.length) {
                     emdArr = allEMDValue;
                 }
@@ -1349,4 +1201,33 @@ const handleExportData = (type) => {
     }
 
     showGraphAndDumpData(type, dumpData);
+};
+
+const genEMDFromOptions = (params) => {
+    const { emd, ridgelines, colors, ridgeAxis } = params;
+    // combine ridge-lines and it's group (xaxis)
+    ridgelines.map((ridge, i) => {
+        ridge.emdX = ridgeAxis[i];
+        return ridge;
+    });
+
+    // filter valid ridge-lines
+    const validRidges = ridgelines
+        .filter((ridge) => ridge.data_counts && ridge.trans_kde.length)
+        .map((ridge, i) => {
+            ridge.emdY = emd[i];
+            ridge.color = colors[i];
+            return ridge;
+        });
+    // get EMD from valid ridge-lines to show EMD chart
+    const validEMD = validRidges.filter((ridge, i) => ridge.data_counts >= MIN_DATA_POINTS_ON_RIDGE || !i);
+
+    // return valid EMD
+    return {
+        x: validEMD.map((ridge) => ridge.emdX),
+        y: validEMD.map((ridge) => ridge.emdY),
+        color: validEMD.map((ridge) => ridge.color),
+        nTotal: validEMD.map((ridge) => ridge.data_counts),
+        groupLabels: validEMD.map((ridge) => ridge.groupLabels),
+    };
 };

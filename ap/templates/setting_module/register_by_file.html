@@ -32,14 +32,8 @@
         <div class="config-section">
             <div class="d-flex">
                 <div class="data-source-config">
-                    <div
-                        id="fileFolderBrowser"
-                        class="file-folder-browser d-flex border-dash-gray d-flex mb-3"
-                    >
-                        <div
-                            class="section-title mr-3"
-                            style="padding-top: 6px;"
-                        >
+                    <div id="fileFolderBrowser" class="file-folder-browser d-flex border-dash-gray d-flex mb-3">
+                        <div class="section-title mr-3" style="padding-top: 6px;">
                             <h5>{{ _('RegisterDataSource') }}</h5>
                         </div>
                         <div class="directory-form">
@@ -48,7 +42,6 @@
                                     <input
                                         type="text"
                                         name="folderUrl"
-                                        onchange="handleOnChangeFolderAndFileUrl(true)"
                                         class="form-control already-convert-hankaku"
                                         id="folderUrl"
                                         placeholder="{{ _('SourceFileBrowsePlaceholder') }}"
@@ -59,18 +52,13 @@
                                     class="d-flex flex-row"
                                     style="display: none !important;"
                                 >
-                                    <label
-                                        class="align-content-center mb-0 pl-0 mr-2"
-                                        for="refFileUrl"
+                                    <label class="align-content-center mb-0 pl-0 mr-2" for="refFileUrl"
                                         >{{ _('ReferenceFileLabel') }}</label
                                     >
-                                    <div
-                                        class="px-0 flex-shrink-1 flex-grow-1 position-relative"
-                                    >
+                                    <div class="px-0 flex-shrink-1 flex-grow-1 position-relative">
                                         <input
                                             type="text"
                                             name="fileName"
-                                            onchange="handleOnChangeFolderAndFileUrl(false)"
                                             class="form-control already-convert-hankaku"
                                             id="refFileUrl"
                                             placeholder="{{ _('RefFilePlaceholder') }}"
@@ -84,9 +72,7 @@
                     <div class="d-flex flex-column mb-1">
                         <span class="mb-3">
                             {% for p in _('SourceExplanation').split('\n') %}
-                                <p class="mb-0" style="line-height: 1.5">
-                                    {{ p }}
-                                </p>
+                                <p class="mb-0" style="line-height: 1.5">{{ p }}</p>
                             {% endfor %}
                         </span>
                         <div class="d-flex justify-content-center mb-3">
@@ -100,10 +86,7 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    id="progressDisplay"
-                    class="progress-display border-dash-gray"
-                ></div>
+                <div id="progressDisplay" class="progress-display border-dash-gray"></div>
             </div>
 
             <div class="col-xl-10 col-md-12 pl-0">
@@ -123,50 +106,29 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="form-group row">
-                                        <label
-                                            for="processName"
-                                            class="col-sm-2 col-form-label label-right"
-                                        >
+                                        <label for="processName" class="col-sm-2 col-form-label label-right">
                                             <h5>{{ _("Process Name") }}</h5>
                                         </label>
-                                        <div
-                                            class="col-sm-10 process-name-group"
-                                        >
-                                            <div
-                                                class="form-group d-flex align-items-center"
-                                            >
+                                        <div class="col-sm-10 process-name-group">
+                                            <div class="form-group d-flex align-items-center">
                                                 <label
                                                     class="mr-2 mb-0"
                                                     for="processName"
                                                     title="{{ _('SystemNameHoverMsg') }}"
-                                                    ><span class="hint-text"
-                                                        >System</span
-                                                    ><span
-                                                        style="color: yellow;"
-                                                        >*</span
-                                                    ></label
+                                                    ><span class="hint-text">System</span
+                                                    ><span style="color: yellow;">*</span></label
                                                 >
                                                 <input
                                                     type="text"
                                                     name="processName"
                                                     class="form-control"
                                                     style="flex: 1"
-                                                    value=""
                                                     id="processName"
                                                 />
-                                                <input
-                                                    type="hidden"
-                                                    name="processOriginName"
-                                                    value=""
-                                                    id="processOriginName"
-                                                />
+                                                <input type="hidden" name="processOriginName" id="processOriginName" />
                                             </div>
-                                            <div
-                                                class="form-group d-flex align-items-center"
-                                            >
-                                                <label
-                                                    class="mr-2 mb-0"
-                                                    for="processJapaneseName"
+                                            <div class="form-group d-flex align-items-center">
+                                                <label class="mr-2 mb-0" for="processJapaneseName"
                                                     >{{ _('Japanese Name') }}</label
                                                 >
                                                 <input
@@ -175,16 +137,11 @@
                                                     onchange="handleEmptySystemNameJP(this, procModalElements.procsMasterName)"
                                                     class="form-control"
                                                     style="flex: 1"
-                                                    value=""
                                                     id="processJapaneseName"
                                                 />
                                             </div>
-                                            <div
-                                                class="form-group d-flex align-items-center"
-                                            >
-                                                <label
-                                                    class="mr-2 mb-0"
-                                                    for="processLocalName"
+                                            <div class="form-group d-flex align-items-center">
+                                                <label class="mr-2 mb-0" for="processLocalName"
                                                     >{{ _('Local Name') }}</label
                                                 >
                                                 <input
@@ -193,7 +150,6 @@
                                                     onchange="handleEmptySystemName(this, procModalElements.procsMasterName)"
                                                     class="form-control"
                                                     style="flex: 1"
-                                                    value=""
                                                     id="processLocalName"
                                                 />
                                             </div>
@@ -215,32 +171,17 @@
                 </div>
             </div>
         </div>
-        <div
-            class="preview-section position-relative"
-            id="procPreviewSection"
-            style="display: none"
-        >
+        <div class="preview-section position-relative" id="procPreviewSection" style="display: none">
             <div class="scroll-content">
-                <span id="sampleDataScrollToLeft"
-                    ><i class="fa fa-angle-double-left"></i
-                ></span>
-                <span id="sampleDataScrollToLeftOneStep"
-                    ><i class="fa fa-angle-left"></i
-                ></span>
-                <span id="sampleDataScrollToRightOneStep"
-                    ><i class="fa fa-angle-right"></i
-                ></span>
-                <span id="sampleDataScrollToRight"
-                    ><i class="fa fa-angle-double-right"></i
-                ></span>
+                <span id="sampleDataScrollToLeft"><i class="fa fa-angle-double-left"></i></span>
+                <span id="sampleDataScrollToLeftOneStep"><i class="fa fa-angle-left"></i></span>
+                <span id="sampleDataScrollToRightOneStep"><i class="fa fa-angle-right"></i></span>
+                <span id="sampleDataScrollToRight"><i class="fa fa-angle-double-right"></i></span>
             </div>
             <!-- new GUI process config-->
             <div class="mt-2" id="procSettingContent">
                 {{ macros.alert_message("alertMsgProcessColumnsTable", True) }}
-                <div
-                    class="table-responsive proc-config-content"
-                    style="max-height: calc(100vh - 370px);"
-                >
+                <div class="table-responsive proc-config-content" style="max-height: calc(100vh - 370px);">
                     <table
                         class="table table-hover table-bordered table-fixed table-hover-light"
                         name="processColumnsTable"
@@ -249,23 +190,14 @@
                         <thead>
                             <tr>
                                 <th class="column-order">*</th>
-                                <th class="column-raw-name">
-                                    {{ _('Column Raw Name') }}
-                                </th>
+                                <th class="column-raw-name">{{ _('Column Raw Name') }}</th>
                                 <th class="data-type">{{ _('Data Type') }}</th>
-                                <th
-                                    class="system"
-                                    title="{{ _('SystemNameHoverMsg') }}"
-                                >
+                                <th class="system" title="{{ _('SystemNameHoverMsg') }}">
                                     <span class="hint-text">System</span>
                                     <span style="color: yellow;">*</span>
                                 </th>
-                                <th class="japanese-name">
-                                    {{ _('Japanese Name') }}
-                                </th>
-                                <th class="local-name">
-                                    {{ _('Local Name') }}
-                                </th>
+                                <th class="japanese-name">{{ _('Japanese Name') }}</th>
+                                <th class="local-name">{{ _('Local Name') }}</th>
                                 <th class="column-unit">{{ _('Unit') }}</th>
                             </tr>
                         </thead>
@@ -278,10 +210,7 @@
                     >
                         <thead>
                             <tr>
-                                <th
-                                    class="sample-data-column position-relative"
-                                    colspan="10"
-                                >
+                                <th class="sample-data-column position-relative" colspan="10">
                                     {{ _('Sample Data') }}
                                 </th>
                             </tr>
@@ -294,47 +223,22 @@
     </div>
 
     {# Start - HTML confirmation modal #}
-    <div
-        id="msgModal"
-        class="modal fade in"
-        data-backdrop="static"
-        data-keyboard="false"
-    >
+    <div id="msgModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-confirm">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{{ _("Warning") }}</h4>
-                    <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-hidden="true"
-                    >
-                        ×
-                    </button>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
-                    <p
-                        id="msgContent"
-                        class="modal-inform"
-                        style="white-space: pre-line"
-                    ></p>
+                    <p id="msgContent" class="modal-inform" style="white-space: pre-line"></p>
                 </div>
                 <div class="modal-footer">
                     <div>
-                        <button
-                            id="msgConfirmBtn"
-                            class="btn btn-primary confirm-btn"
-                            data-item-id=""
-                        >
+                        <button id="msgConfirmBtn" class="btn btn-primary confirm-btn" data-item-id="">
                             {{ _("OK") }}
                         </button>
-                        <button
-                            class="btn btn-secondary confirm-btn"
-                            data-dismiss="modal"
-                        >
-                            {{ _("Cancel") }}
-                        </button>
+                        <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
                     </div>
                 </div>
             </div>

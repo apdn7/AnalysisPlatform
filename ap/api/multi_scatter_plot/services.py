@@ -217,7 +217,7 @@ def gen_scatter_n_contour_data_pair(dic_param, array_y1, array_y2, use_contour, 
         data[CYCLE_IDS] = dic_param[CYCLE_IDS]
 
     df = pd.DataFrame(data)
-    df = df.replace(dict.fromkeys([np.inf, -np.inf, np.nan], np.nan)).dropna()
+    df = df.replace([np.inf, -np.inf], np.nan).dropna()
     array_y1 = df['array_y1'].to_numpy(dtype=float)
     array_y2 = df['array_y2'].to_numpy(dtype=float)
     datetime = df[DATETIME].to_numpy()
@@ -312,8 +312,9 @@ def fit_2d_kde(x, y, max_num_points_kde=10000):
 
     idx_sample = np.arange(len(x))
     if len(x) > max_num_points_kde:
-        np.random.seed(610)
-        idx_sample = np.random.choice(np.arange(len(x)), size=max_num_points_kde)
+        # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
+        np.random.seed(610)  # noqa: NPY002
+        idx_sample = np.random.choice(np.arange(len(x)), size=max_num_points_kde)  # noqa: NPY002
     x = x[idx_sample].copy()
     y = y[idx_sample].copy()
 
@@ -344,6 +345,7 @@ def add_jitter_for_kde(x, y):
     x_, y_: array
         Added jitter if necessary
     """
+    rng = np.random.default_rng()
 
     xrng = np.nanmax(x) - np.nanmin(x)
     yrng = np.nanmax(y) - np.nanmin(y)
@@ -359,8 +361,8 @@ def add_jitter_for_kde(x, y):
         y_offset = yrng / 50
         x_offset = x_offset if xrng > min_val else 0.01
         y_offset = y_offset if yrng > min_val else 0.01
-        x_ = x + np.random.uniform(-x_offset, x_offset, len(x))
-        y_ = y + np.random.uniform(-y_offset, y_offset, len(y))
+        x_ = x + rng.uniform(-x_offset, x_offset, len(x))
+        y_ = y + rng.uniform(-y_offset, y_offset, len(y))
         return x_, y_
 
     return x, y

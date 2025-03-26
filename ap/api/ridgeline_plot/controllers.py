@@ -103,7 +103,7 @@ def trace_data():
             )
         else:
             rlp_dat = single_dic_param
-
+        rlp_dat = get_filter_on_demand_data(rlp_dat)
         org_dic_param = update_data_from_multiple_dic_params(org_dic_param, rlp_dat)
         org_dic_param = update_rlp_data_from_multiple_dic_params(org_dic_param, rlp_dat)
 
@@ -119,7 +119,6 @@ def trace_data():
 
     org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.RLP))
 
-    org_dic_param = get_filter_on_demand_data(org_dic_param)
     out_dict = orjson_dumps(org_dic_param)
     df, dic_param, new_dic_proc_cfgs = convert_emd_data_to_df(org_dic_param, root_graph_param)
     if df is not None:

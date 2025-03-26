@@ -91,13 +91,7 @@ $(() => {
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -137,17 +131,11 @@ $(() => {
             resultData.array_plotdata = newCols;
             resultData.ARRAY_FORMVAL = newPlots;
             // with show heatmap
-            const showHeatmap = formElements.showHeatmapInput.is(':checked')
-                ? 1
-                : 0;
+            const showHeatmap = formElements.showHeatmapInput.is(':checked') ? 1 : 0;
             resultData.show_heatmap = showHeatmap;
-            const isCurrentShowContour =
-                formElements.switchContour.is(':checked');
+            const isCurrentShowContour = formElements.switchContour.is(':checked');
             if (isCurrentShowContour) {
-                lastUsedFormData.set(
-                    'order_array_formval',
-                    JSON.stringify(newPlots),
-                );
+                lastUsedFormData.set('order_array_formval', JSON.stringify(newPlots));
                 scatterTraceData(lastUsedFormData);
             } else {
                 lastUsedFormData.delete('order_array_formval');
@@ -207,9 +195,7 @@ const mspTracing = () => {
         const formData = collectFormDataMSP(true, false);
 
         // set default remove_outliers
-        formElements.selectRemoveOutlierInChart.val(
-            formData.get('remove_outlier'),
-        );
+        formElements.selectRemoveOutlierInChart.val(formData.get('remove_outlier'));
 
         scatterTraceData(formData, true);
     }
@@ -339,37 +325,19 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
         const plotData = sensors.filter((val) => val.end_col_id === ypd)[0];
         const scaleInfo = getScaleInfo(plotData, xScaleOption);
         const xrange = [scaleInfo['y-min'], scaleInfo['y-max']];
-        const { xThreshold } = getThresholdData(
-            cId,
-            data,
-            xScaleOption,
-            yScaleOption,
-        );
+        const { xThreshold } = getThresholdData(cId, data, xScaleOption, yScaleOption);
         const chartLabel = $(his).parent().attr('data-x-title');
         const labelFontSize = 10.5;
         const [histTrace, fmt] = genHistogramTrace(plotData, xScaleOption);
 
-        const customChartLabel = isLargeOfSensors
-            ? chartLabel.split('|')[1]
-            : chartLabel;
+        const customChartLabel = isLargeOfSensors ? chartLabel.split('|')[1] : chartLabel;
         const chartWidth = $('.plot-content').width() / sensors.length;
 
         // 70, 10 is number get by UI Testing by plotlyLayout margin (l, r, x)
         const labelSpace = isLargeOfSensors ? 50 : 80;
-        const truncateLabel = truncateTextByWidth(
-            customChartLabel,
-            chartWidth - labelSpace,
-            labelFontSize,
-        );
+        const truncateLabel = truncateTextByWidth(customChartLabel, chartWidth - labelSpace, labelFontSize);
 
-        const histLayout = genHistogramLayout(
-            xrange,
-            false,
-            fmt,
-            isLargeOfSensors,
-            truncateLabel,
-            labelFontSize,
-        );
+        const histLayout = genHistogramLayout(xrange, false, fmt, isLargeOfSensors, truncateLabel, labelFontSize);
 
         const maxHistNum = Math.max(...scaleInfo.kde_data.hist_counts);
         const layoutWithThresholds = addHistogramThresholds(
@@ -433,12 +401,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
 
         const sctData = getScatterContourData(cId, scatterContourData);
 
-        const { xThreshold, yThreshold, yRange, xRange } = getThresholdData(
-            cId,
-            data,
-            xScaleOption,
-            yScaleOption,
-        );
+        const { xThreshold, yThreshold, yRange, xRange } = getThresholdData(cId, data, xScaleOption, yScaleOption);
         const cycleIDs = sctData.scatter_data.cycle_ids || [];
         const serials = sctData.scatter_data.serials || [];
         const datetime = sctData.scatter_data.datetime || [];
@@ -452,13 +415,7 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
                 y: yThreshold,
             },
         };
-        const scatterTrace = genScatterOutlierTrace(
-            sctData,
-            showContourOption,
-            data.proc_name,
-            cycleIDs,
-            options,
-        );
+        const scatterTrace = genScatterOutlierTrace(sctData, showContourOption, data.proc_name, cycleIDs, options);
         let sctTraces = [scatterTrace];
         if (showContourOption) {
             const contourTrace = genContourTrace(sctData, options);
@@ -467,19 +424,8 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
 
         const scatterData = sctData.scatter_data;
         const { x_fmt, y_fmt } = scatterData;
-        let sctLayout = genScatterContourLayout(
-            showColor,
-            x_fmt || '',
-            y_fmt || '',
-            isLargeOfSensors,
-        );
-        sctLayout.shapes = genThresholds(
-            xThreshold,
-            yThreshold,
-            { xaxis: 'x', yaxis: 'y' },
-            xRange,
-            yRange,
-        );
+        let sctLayout = genScatterContourLayout(showColor, x_fmt || '', y_fmt || '', isLargeOfSensors);
+        sctLayout.shapes = genThresholds(xThreshold, yThreshold, { xaxis: 'x', yaxis: 'y' }, xRange, yRange);
         sctLayout = addAxisRange(sctLayout, xRange, yRange);
         sctLayout.xaxis.ticklen = 0;
         sctLayout.yaxis.ticklen = 0;
@@ -490,15 +436,9 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
             const dataPoint = data.points[0];
             const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
             const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
-            const zValue =
-                'z' in dataPoint.data
-                    ? applySignificantDigit(dataPoint.data.z[dpIndex])
-                    : null;
+            const zValue = 'z' in dataPoint.data ? applySignificantDigit(dataPoint.data.z[dpIndex]) : null;
             const datetime = dataPoint.data.customdata.datetime[dpIndex];
-            const serials =
-                dataPoint.data.customdata.serials.map(
-                    (serial) => serial[dpIndex],
-                ) || [];
+            const serials = dataPoint.data.customdata.serials.map((serial) => serial[dpIndex]) || [];
             const suffixLabel = dataPoint.data.customdata.suffix_label || '';
             const thresholds = dataPoint.data.customdata.thresholds;
             showMSPDataTable(
@@ -540,13 +480,12 @@ const resetGraphSetting = () => {
     formElements.xScale.val(scaleOptionConst.SETTING);
     formElements.yScale.val(scaleOptionConst.SETTING);
     formElements.showHeatmapInput.prop('checked', true);
+    // Enable dropdowns [X axis] and [Y axis]
+    formElements.xScale.prop('disabled', false);
+    formElements.yScale.prop('disabled', false);
 };
 
-const scatterTraceData = (
-    formData,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!checkDisableScatterBtn()) {
         loadingHide();
         return;
@@ -556,76 +495,70 @@ const scatterTraceData = (
         formData = collectFormDataMSP(clearOnFlyFilter, autoUpdate);
     }
 
-    showGraphCallApi(
-        '/ap/api/msp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            resultData = res;
-            // save global
-            graphStore.setTraceData(_.cloneDeep(res));
+    showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        resultData = res;
+        // save global
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
-            // Hide loading screen
-            loading.addClass('hide');
-            $('#plot-cards').empty();
-            $('#showContour').show();
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
+        // Hide loading screen
+        loading.addClass('hide');
+        $('#plot-cards').empty();
+        $('#showContour').show();
 
-            // check result and show toastr msg
-            if (isEmpty(res.array_plotdata)) {
-                showToastrAnomalGraph();
-            }
+        // check result and show toastr msg
+        if (isEmpty(res.array_plotdata)) {
+            showToastrAnomalGraph();
+        }
 
-            if (res.actual_record_number > SQL_LIMIT) {
-                showToastrMsg(i18n.SQLLimit);
-            }
+        if (res.actual_record_number > SQL_LIMIT) {
+            showToastrMsg(i18n.SQLLimit);
+        }
 
-            // show toastr to inform result was truncated upto 5000
-            if (res.is_res_limited) {
-                showToastrMsg(
-                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
-                );
-            }
+        // show toastr to inform result was truncated upto 5000
+        if (res.is_res_limited) {
+            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
+        }
 
-            if (res.as_heatmap_matrix) {
-                showHeatmap(res.heatmap_matrix);
-                $(formElements.plotCardId).addClass('align-items-center');
-                $(window).off('resize', handleResizeWindow);
-                $(window).on('resize', handleResizeWindow);
-            } else {
-                $(window).off('resize', handleResizeWindow);
-                multipleScatterPlot(res, clearOnFlyFilter);
-                $(formElements.plotCardId).removeClass('align-items-center');
-            }
+        if (res.as_heatmap_matrix) {
+            // Disable dropdowns [X axis] and [Y axis]
+            formElements.xScale.prop('disabled', true);
+            formElements.yScale.prop('disabled', true);
+            showHeatmap(res.heatmap_matrix);
+            $(formElements.plotCardId).addClass('align-items-center');
+            $(window).off('resize', handleResizeWindow);
+            $(window).on('resize', handleResizeWindow);
+        } else {
+            $(window).off('resize', handleResizeWindow);
+            multipleScatterPlot(res, clearOnFlyFilter);
+            $(formElements.plotCardId).removeClass('align-items-center');
+        }
 
-            if (clearOnFlyFilter) {
-                $('html, body').animate(
-                    {
-                        scrollTop: getOffsetTopDisplayGraph(
-                            '#graph-settings-area',
-                        ),
-                    },
-                    1500,
-                );
-            }
+        if (clearOnFlyFilter) {
+            $('html, body').animate(
+                {
+                    scrollTop: getOffsetTopDisplayGraph('#graph-settings-area'),
+                },
+                1500,
+            );
+        }
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            // render cat, category label filer modal
-            fillDataToFilterModal(res.filter_on_demand, () => {
-                scatterTraceData(null, false, false);
-            });
+        // render cat, category label filer modal
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            scatterTraceData(null, false, false);
+        });
 
-            setPollingData(formData, scatterTraceData, [formData, false, true]);
+        setPollingData(formData, scatterTraceData, [formData, false, true]);
 
-            if (res.is_show_contour_only) {
-                showToastrMsg(i18n.hideContourMsg);
-            }
-        },
-    );
+        if (res.is_show_contour_only) {
+            showToastrMsg(i18n.hideContourMsg);
+        }
+    });
 
     $('#plot-cards').empty();
 };
@@ -657,25 +590,15 @@ const getThresholdData = (cId, data, xScale, yScale) => {
     const rowId = Number(cId[2]);
     const colId = Number(cId[1]);
 
-    const rowData = data.array_plotdata.filter(
-        (val) => val.end_col_id === rowId,
-    )[0];
-    const colData = data.array_plotdata.filter(
-        (val) => val.end_col_id === colId,
-    )[0];
+    const rowData = data.array_plotdata.filter((val) => val.end_col_id === rowId)[0];
+    const colData = data.array_plotdata.filter((val) => val.end_col_id === colId)[0];
 
     const iChartInfos = rowData.chart_infos || [];
     const iChartInfosOrg = rowData.chart_infos_org || [];
     const kChartInfos = colData.chart_infos || [];
     const kChartInfosOrg = colData.chart_infos_org || [];
-    const [iChartInfo, _1] = chooseLatestThresholds(
-        iChartInfos,
-        iChartInfosOrg,
-    );
-    const [kChartInfo, _2] = chooseLatestThresholds(
-        kChartInfos,
-        kChartInfosOrg,
-    );
+    const [iChartInfo, _1] = chooseLatestThresholds(iChartInfos, iChartInfosOrg);
+    const [kChartInfo, _2] = chooseLatestThresholds(kChartInfos, kChartInfosOrg);
     const xScaleInfo = getScaleInfo(rowData, xScale);
     const yScaleInfo = getScaleInfo(colData, yScale);
 
@@ -739,8 +662,7 @@ const showMSPHeatmap = () => {
             const sctChartID = $(sct).attr('id');
             if (sctChartID) {
                 const sctPlot = document.getElementById(sctChartID);
-                const bgrColor =
-                    $(sct).attr(CONST.BGR_COLOR_ATTR) || CONST.BGR_COLOR;
+                const bgrColor = $(sct).attr(CONST.BGR_COLOR_ATTR) || CONST.BGR_COLOR;
                 const paperBgr = !showHeatmap ? CONST.BGR_COLOR : bgrColor;
                 Plotly.relayout(sctPlot, {
                     paper_bgcolor: paperBgr,
@@ -749,8 +671,7 @@ const showMSPHeatmap = () => {
         });
         // update correlation background
         $('.coef-item').each((_k, corrDom) => {
-            const bgrColor =
-                $(corrDom).attr(CONST.BGR_COLOR_ATTR) || CONST.BGR_COLOR;
+            const bgrColor = $(corrDom).attr(CONST.BGR_COLOR_ATTR) || CONST.BGR_COLOR;
             const paperBgr = !showHeatmap ? CONST.BGR_COLOR : bgrColor;
             $(corrDom).css(CONST.BGR_COLOR_KEY, paperBgr);
         });
@@ -779,12 +700,12 @@ const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
 };
 
-const showChartTitle = (chartDOM) => {
+const showChartTitle = (chartDOM, title = null) => {
     // reset title
     clearOldChartTitles();
 
-    let xTitle = $(chartDOM).attr('data-x-title') || null;
-    let yTitle = $(chartDOM).attr('data-y-title') || null;
+    let xTitle = !title ? $(chartDOM).attr('data-x-title') || null : title.x || null;
+    let yTitle = !title ? $(chartDOM).attr('data-y-title') || null : title.y || null;
     const isScatter = xTitle && yTitle;
 
     if (xTitle) {
@@ -795,10 +716,4 @@ const showChartTitle = (chartDOM) => {
         yTitle = isScatter ? `Y: ${yTitle}` : yTitle;
         $('#y-title').text(yTitle);
     }
-};
-
-const clearOldChartTitles = () => {
-    // reset title
-    $('#x-title').text('');
-    $('#y-title').text('');
 };

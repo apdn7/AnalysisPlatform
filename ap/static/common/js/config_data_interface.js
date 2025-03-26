@@ -76,7 +76,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'DATE',
         operator: [''],
-        selectionBoxDisplay: 'Datetime',
+        selectionBoxDisplay: 'Date',
     },
     TIME: {
         name: 'TIME',
@@ -87,7 +87,7 @@ const DataTypes = Object.freeze({
         exp: 'i18nCTTypeExplain',
         org_type: 'TIME',
         operator: [''],
-        selectionBoxDisplay: 'Datetime',
+        selectionBoxDisplay: 'Time',
     },
     TEXT: {
         name: 'TEXT',
@@ -206,11 +206,7 @@ const filterOptions = {
 };
 
 const CfgProcess_CONST = {
-    REAL_TYPES: [
-        DataTypes.REAL.name,
-        DataTypes.EU_REAL_SEP.name,
-        DataTypes.REAL_SEP.name,
-    ],
+    REAL_TYPES: [DataTypes.REAL.name, DataTypes.EU_REAL_SEP.name, DataTypes.REAL_SEP.name],
     NUMERIC_TYPES: [
         DataTypes.REAL.name,
         DataTypes.INTEGER.name,
@@ -418,9 +414,7 @@ class CfgProcess {
     };
 
     getOneFilterByType = (filterType) => {
-        const relevantFilters = this.filters.filter(
-            (filter) => filter.filter_type === filterType,
-        );
+        const relevantFilters = this.filters.filter((filter) => filter.filter_type === filterType);
         if (relevantFilters.length) {
             return relevantFilters[0];
         }
@@ -428,9 +422,7 @@ class CfgProcess {
     };
 
     getFilterByColumnId = (columnId) => {
-        const relevantFilters = this.filters.filter(
-            (filter) => `${filter.column_id}` === `${columnId}`,
-        );
+        const relevantFilters = this.filters.filter((filter) => `${filter.column_id}` === `${columnId}`);
         if (relevantFilters.length) {
             return relevantFilters[0];
         }
@@ -438,31 +430,19 @@ class CfgProcess {
     };
 
     getCategoryColumns() {
-        return this.columns.filter((col) =>
-            CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type),
-        );
+        return this.columns.filter((col) => CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type));
     }
 
     getNumericColumns() {
-        return this.columns.filter((col) =>
-            CfgProcess_CONST.NUMERIC_TYPES.includes(col.data_type),
-        );
+        return this.columns.filter((col) => CfgProcess_CONST.NUMERIC_TYPES.includes(col.data_type));
     }
 
     getCTColumn() {
-        return this.columns.filter(
-            (col) =>
-                CfgProcess_CONST.CT_TYPES.includes(col.data_type) &&
-                col.is_get_date,
-        );
+        return this.columns.filter((col) => CfgProcess_CONST.CT_TYPES.includes(col.data_type) && col.is_get_date);
     }
 
     getDatetimeColumns() {
-        return this.columns.filter(
-            (col) =>
-                CfgProcess_CONST.CT_TYPES.includes(col.data_type) &&
-                !col.is_get_date,
-        );
+        return this.columns.filter((col) => CfgProcess_CONST.CT_TYPES.includes(col.data_type) && !col.is_get_date);
     }
 
     updateColumns = async () => {
@@ -516,10 +496,7 @@ class CfgProcess {
     };
 
     updateColDataFromUDB = async (columnId) => {
-        if (
-            this.dicColumnData[columnId] &&
-            this.dicColumnData[columnId].length
-        ) {
+        if (this.dicColumnData[columnId] && this.dicColumnData[columnId].length) {
             return;
         } else {
             await this.getColumnDataFromUDB(columnId);

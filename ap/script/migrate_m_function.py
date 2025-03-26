@@ -2,10 +2,10 @@ import os
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
-from ap.common.common_utils import get_dummy_data_path
+from ap.common.common_utils import get_dummy_data_path, create_sa_engine_for_migration
 from ap.common.pydn.dblib import sqlite
 
 
@@ -91,13 +91,13 @@ def migrate_m_function_data(app_db_src):
     # migrate columns in existing table
     migrate_existing_m_funcions(app_db_src)
 
-    engine = create_engine('sqlite:///' + app_db_src)
+    engine = create_sa_engine_for_migration('sqlite:///' + app_db_src)
 
     with engine.connect() as conn:
-        m_function_count = conn.execute('select count(*) from m_function').fetchone()[0]
+        m_function_count = conn.execute(text('select count(*) from m_function')).fetchone()[0]
         if m_function_count > 0:
             # delete old m_function data to update from dataset
-            conn.execute('delete from m_function where 1=1')
+            conn.execute(text('delete from m_function where 1=1'))
             conn.close()
 
     with engine.connect() as conn:
@@ -120,8 +120,8 @@ def migrate_m_function_data(app_db_src):
             .replace({pd.NA: None, np.nan: None})
             .to_dict('records')
         )
-        # add new records
-        session.add_all([MFunction(**r) for r in records])
+        for r in records:
+            session.merge(MFunction(**r))
         session.commit()
         session.close()
 

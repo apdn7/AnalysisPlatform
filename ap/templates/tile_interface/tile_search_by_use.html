@@ -10,18 +10,10 @@
 {% block midbody %}
     <div class="tile-head">
         <div class="col">
-            <button
-                class="btn btn-collapse-gray collapsed-btn"
-                type="button"
-                onclick="collapsingTiles(false);"
-            >
+            <button class="btn btn-collapse-gray collapsed-btn" type="button" onclick="collapsingTiles(false);">
                 <i class="fa-solid fa-sm fa-angles-down"></i> Expand All
             </button>
-            <button
-                class="btn btn-collapse-gray collapsed-btn"
-                type="button"
-                onclick="collapsingTiles();"
-            >
+            <button class="btn btn-collapse-gray collapsed-btn" type="button" onclick="collapsingTiles();">
                 <i class="fa-solid fa-sm fa-angles-up"></i> Collapse All
             </button>
         </div>
@@ -30,12 +22,7 @@
         {% for section in sections %}
             <div class="tile-interface tile-usage active graph-navi">
                 <div class="section-title">
-                    <div
-                        class="row"
-                        href="#section_{{ loop.index }}"
-                        data-toggle="collapse"
-                        aria-expanded="true"
-                    >
+                    <div class="row" href="#section_{{ loop.index }}" data-toggle="collapse" aria-expanded="true">
                         <div class="col section-name">
                             <div class="icon-col mr-3">
                                 <a
@@ -46,8 +33,7 @@
                                 ></a>
                             </div>
                             <h3 class="header-left">
-                                <span class="mr-1"
-                                    ><img src="{{ section.icon_path }}" /></span
+                                <span class="mr-1"><img src="{{ section.icon_path }}" /></span
                                 >{{ _(section.title|safe) }}
                             </h3>
                         </div>
@@ -58,10 +44,7 @@
                         </div>
                     </div>
                 </div>
-                <div
-                    class="section-content collapse"
-                    id="section_{{ loop.index }}"
-                >
+                <div class="section-content collapse" id="section_{{ loop.index }}">
                     {% for row in section.tiles %}
                         <div class="tile-usage-wrap" style="margin-left: 0;">
                             {% for tile in row %}
@@ -73,24 +56,17 @@
                                 >
                                     {% if tile != None %}
                                         <div class="tile-content-wrap">
-                                            <div
-                                                class="tile-content"
-                                                onclick="return redirectPage(this);"
-                                            >
+                                            <div class="tile-content" onclick="return redirectPage(this);">
                                                 <i
                                                     class="fa fa-external-link-alt ghost-button"
                                                     onclick="setOpenTab();"
                                                 ></i>
                                                 <div class="tile-thumb">
-                                                    <img
-                                                        src="{{ tile.png_path }}"
-                                                    />
+                                                    <img src="{{ tile.png_path }}" />
                                                 </div>
                                                 <div class="tile-title">
                                                     <h5>
-                                                        <a
-                                                            class="link-address"
-                                                            href="{{ tile.link_address }}"
+                                                        <a class="link-address" href="{{ tile.link_address }}"
                                                             >{{ tile.title|safe }}</a
                                                         >
                                                     </h5>

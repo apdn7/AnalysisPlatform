@@ -35,9 +35,9 @@ def calc_summary_elements(plot):
     if none_ids is None:
         pass
     elif none_ids:
-        df = df[(df[ARRAY_Y].notnull()) | (df.index.isin(none_ids))]
+        df = df[(df[ARRAY_Y].notna()) | (df.index.isin(none_ids))]
     else:
-        df.dropna(subset=[ARRAY_Y], inplace=True)
+        df = df.dropna(subset=[ARRAY_Y])
 
     # chart_infos = plot.get(CHART_INFOS_ORG) or [{}]
     chart_infos = plot.get(CHART_INFOS) or [{}]
@@ -64,7 +64,7 @@ def calc_summary_elements(plot):
         num_over_upper = array_y_num[array_y_num > overflow_upper].size
         num_over_lower = array_y_num[array_y_num < overflow_lower].size
 
-    x_not_none = df.loc[df[ARRAY_X].notnull(), ARRAY_X]
+    x_not_none = df.loc[df[ARRAY_X].notna(), ARRAY_X]
     min_x = x_not_none.min()
     max_x = x_not_none.max()
     for chart_info in chart_infos:
@@ -93,7 +93,7 @@ def calc_summary_elements(plot):
         else:
             df_threshold = df[(df[ARRAY_X] >= act_from_formatted) & (df[ARRAY_X] < act_to_formatted)]
 
-        count_unlinked = len(df_threshold[df_threshold[ARRAY_X].isnull()])
+        count_unlinked = len(df_threshold[df_threshold[ARRAY_X].isna()])
 
         array_y_th = df_threshold.loc[np.isfinite(df_threshold[ARRAY_Y]), ARRAY_Y]
         mode = get_mode(array_y_th)
@@ -131,7 +131,7 @@ def calc_summary_elements(plot):
             p_proc_plus = (pn_proc_plus / ntotal) * 100
 
         # noneを事前に分ける必要あり
-        null_idxs = df_threshold[ARRAY_Y].isnull()
+        null_idxs = df_threshold[ARRAY_Y].isna()
         array_y_null = df_threshold.loc[null_idxs, ARRAY_Y]
         array_y_not_null = df_threshold.loc[~null_idxs, ARRAY_Y]
         pn_na = len(array_y_null) - count_unlinked
@@ -364,7 +364,8 @@ def get_mode(series: Series):
         return None
 
 
-def convert_series_to_number(s):
+@log_execution_time()
+def convert_series_to_number(s) -> pd.Series:
     if not pd.api.types.is_numeric_dtype(s):
         try:
             s = s.astype(np.float64)

@@ -1,10 +1,6 @@
 // generate HTML for tabs
 const generateTabHTML = (endProcName, sensors, showViewer = false) => {
-    const genNavItemHTML = (
-        tabId,
-        sensorMasterName,
-        status = '',
-    ) => `<li class="nav-item ${status}">
+    const genNavItemHTML = (tabId, sensorMasterName, status = '') => `<li class="nav-item ${status}">
             <a href="#${tabId}" class="nav-link ${status} tab-name" role="tab" data-toggle="tab" data-original-title="${sensorMasterName}"
                 >${sensorMasterName}</a>
         </li>`;
@@ -22,11 +18,7 @@ const generateTabHTML = (endProcName, sensors, showViewer = false) => {
     for (let sensorIdx = 0; sensorIdx < sensors.length; sensorIdx++) {
         const sensorName = sensors[sensorIdx];
         const sensorMasterName =
-            getNode(
-                valueInfo,
-                [endProcName, 'value_master', sensorName],
-                sensorName,
-            ) || sensorName;
+            getNode(valueInfo, [endProcName, 'value_master', sensorName], sensorName) || sensorName;
         let status = '';
         if (sensorIdx === 0) {
             status = 'active';
@@ -42,14 +34,8 @@ const generateTabHTML = (endProcName, sensors, showViewer = false) => {
     let viewerNavHTML = '';
     let viewerContentHTML = '';
     if (showViewer) {
-        viewerNavHTML = genNavItemHTML(
-            (tabId = 'scattersTab'),
-            (sensorMasterName = i18n.viewerTabName),
-        );
-        viewerContentHTML = genTabContentHTML(
-            (tabId = 'scattersTab'),
-            (plotCardId = 'varScatterPlotCards'),
-        );
+        viewerNavHTML = genNavItemHTML((tabId = 'scattersTab'), (sensorMasterName = i18n.viewerTabName));
+        viewerContentHTML = genTabContentHTML((tabId = 'scattersTab'), (plotCardId = 'varScatterPlotCards'));
     }
 
     const stratifiedVarTabHTML = `<ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">

@@ -5,6 +5,9 @@ from collections import defaultdict
 from copy import deepcopy
 from typing import Dict
 
+import pandas as pd
+from pandas import Series
+
 from ap.api.common.services.utils import TraceGraph
 from ap.common.common_utils import as_list
 from ap.common.constants import (
@@ -139,6 +142,7 @@ from ap.common.constants import (
     PCAFilterCondition,
     RemoveOutlierType,
 )
+from ap.common.pandas_helper import append_series
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
@@ -670,6 +674,7 @@ def get_end_procs_param(dic_param, dic_proc_cfgs):
     dic_common = dic_param[COMMON]
     start_proc = int(dic_common[START_PROC]) if dic_common[START_PROC] else None
     cond_procs = dic_param[COMMON][COND_PROCS]
+    cate_procs = dic_param[COMMON][CATE_PROCS]
     dic_cat_filters = dic_param[COMMON].get(DIC_CAT_FILTERS, [])
     temp_cat_exp = dic_param[COMMON].get(TEMP_CAT_EXP, [])
     dic_params = []
@@ -718,6 +723,11 @@ def get_end_procs_param(dic_param, dic_proc_cfgs):
                 ]
             # TODO: TEMP_CAT_PROCS
 
+            # remove judge var key when judge var does not belong to the process
+            judge_var = single_param[COMMON].get(JUDGE_VAR, None)
+            if judge_var is not None and int(judge_var) not in dic_proc_cfg_columns:
+                single_param[COMMON].pop(JUDGE_VAR)
+
             for key, cat_exp_box in cat_exp_boxs.items():
                 if cat_exp_box.process_id == int(end_proc):
                     single_param[COMMON][key] = cat_exp_box.id
@@ -726,6 +736,10 @@ def get_end_procs_param(dic_param, dic_proc_cfgs):
             # Update filter condition procs for no link data
             if not single_param[COMMON][IS_PROC_LINKED]:
                 single_param[COMMON][COND_PROCS] = single_param[COMMON][COND_PROC]
+                single_param[COMMON][CATE_PROCS] = [
+                    cate_proc for cate_proc in cate_procs if cate_proc and cate_proc[CATE_PROC] == end_proc
+                ]
+
             dic_params.append(single_param)
     else:
         dic_param[COMMON][IS_PROC_LINKED] = is_proc_linked
@@ -776,10 +790,12 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
             continue
         if key is FILTER_DATA:
             orig_dic_param[key] = dic_param[key]
-        elif type(dic_param[key]) in [int, float, list]:
+        elif type(dic_param[key]) in [int, float, list, Series]:
             if key not in orig_dic_param:
                 if isinstance(dic_param[key], list):
                     orig_dic_param[key] = []
+                elif isinstance(dic_param[key], Series):
+                    orig_dic_param[key] = pd.Series([])
                 else:
                     orig_dic_param[key] = 0
             # reset term conditions
@@ -787,7 +803,10 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
                 orig_dic_param[key] = []
             # in case of one is None, error
             if orig_dic_param[key] is not None and dic_param[key] is not None:
-                orig_dic_param[key] += dic_param[key]
+                if isinstance(orig_dic_param[key], Series):
+                    orig_dic_param[key] = append_series(orig_dic_param[key], dic_param[key])
+                else:
+                    orig_dic_param[key] += dic_param[key]
             else:
                 orig_dic_param[key] = None
         elif type(dic_param[key]) in [dict, defaultdict]:

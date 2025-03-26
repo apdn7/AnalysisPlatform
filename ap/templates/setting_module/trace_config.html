@@ -1,26 +1,15 @@
 <div class="card graph-navi" id="data_link">
     <div class="card-body">
         <form id="trace-config-form" class="position-relative">
-            <div
-                class="form-header d-flex justify-content-between align-items-center"
-            >
+            <div class="form-header d-flex justify-content-between align-items-center">
                 <div class="mr-4">
-                    <h3
-                        class="header-left hint-text"
-                        title="{{ _('Right drag & drop: data link setting') }}"
-                    >
+                    <h3 class="header-left hint-text" title="{{ _('Right drag & drop: data link setting') }}">
                         {{ _("Data Link Config") }}
                     </h3>
                 </div>
-                <div
-                    class="d-flex align-items-center justify-content-end"
-                    style="flex: 1"
-                >
+                <div class="d-flex align-items-center justify-content-end" style="flex: 1">
                     <!--       Alert msg         -->
-                    <div
-                        class="alert-wrapper mr-4"
-                        style="max-width: calc(100% - 324px);"
-                    >
+                    <div class="alert-wrapper mr-4" style="max-width: calc(100% - 324px);">
                         <div
                             id="alert-register-proc-link"
                             class="alert alert-dismissible fade mb-0"
@@ -82,19 +71,11 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title">{{ _("Edit Edge") }}</h4>
-                            <button
-                                type="button"
-                                class="close"
-                                data-dismiss="modal"
-                                aria-label="Close"
-                            >
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div
-                            class="modal-body"
-                            name="modal-body-input form-inline"
-                        >
+                        <div class="modal-body" name="modal-body-input form-inline">
                             <div class="form-group row">
                                 <div class="col-sm-12">
                                     <div
@@ -103,13 +84,27 @@
                                         style="display: none;"
                                         role="alert"
                                     >
-                                        <strong
-                                            id="alertMsgCheckSubStr-content"
-                                        ></strong>
+                                        <strong id="alertMsgCheckSubStr-content"></strong>
                                         <button
                                             type="button"
                                             class="close"
                                             onclick="$('#alertMsgCheckSubStr').css('display','none');"
+                                            aria-label="Close"
+                                        >
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                    </div>
+                                    <div
+                                        id="alertMsgCheckUpdateTransactionDataJobTraceConfig"
+                                        class="alert alert-dismissible fade"
+                                        style="display: none;"
+                                        role="alert"
+                                    >
+                                        <strong id="alertMsgCheckUpdateTransactionDataJobTraceConfig-content"></strong>
+                                        <button
+                                            type="button"
+                                            class="close"
+                                            onclick="$('#alertMsgCheckUpdateTransactionDataJobTraceConfig').css('display','none');"
                                             aria-label="Close"
                                         >
                                             <span aria-hidden="true">×</span>
@@ -125,10 +120,7 @@
                                     <h5>{{ _("Post Process") }}</h5>
                                 </div>
                             </div>
-                            <div
-                                id="trace_link_procs"
-                                class="form-row align-items-center position-relative"
-                            >
+                            <div id="trace_link_procs" class="form-row align-items-center position-relative">
                                 <div class="col-sm-6 pr-4">
                                     {{ macros.single_selectbox('edgeBackProc', '', procs) }}
                                     <span
@@ -158,27 +150,18 @@
                             </div>
                             <div class="form-row col-title">
                                 <div class="col-sm-6 pr-4">
-                                    <label
-                                        for="edgeBackCol"
-                                        class="col-form-label"
-                                    >
+                                    <label for="edgeBackCol" class="col-form-label">
                                         <h5>{{ _("Prev Column") }}:</h5>
                                     </label>
                                 </div>
                                 <div class="col-sm-6 pl-4">
-                                    <label
-                                        for="edgeBackCol"
-                                        class="col-form-label"
-                                    >
+                                    <label for="edgeBackCol" class="col-form-label">
                                         <h5>{{ _("Post Column") }}:</h5>
                                     </label>
                                 </div>
                             </div>
                             <div id="traceInfoModal"></div>
-                            <button
-                                id="btnAddNewTraceKey"
-                                class="btn btn-success icon-btn"
-                            >
+                            <button id="btnAddNewTraceKey" class="btn btn-success icon-btn">
                                 <i class="fas fa-plus-circle"></i>
                             </button>
                         </div>
@@ -221,16 +204,8 @@
                     </div>
                     <div id="traceListContainer" class="trace-menu-content">
                         <div class="d-flex">
-                            <input
-                                class="form-control"
-                                id="searchTraceList"
-                                placeholder="{{ _('Search') }}"
-                            />
-                            <button
-                                type="button"
-                                id="setBtnSearch-searchTraceList"
-                                class="btn simple-btn btn-setting"
-                            >
+                            <input class="form-control" id="searchTraceList" placeholder="{{ _('Search') }}" />
+                            <button type="button" id="setBtnSearch-searchTraceList" class="btn simple-btn btn-setting">
                                 Set
                             </button>
                             <button
@@ -243,9 +218,7 @@
                         </div>
                         <!--            Dropdown check box list            -->
                         <ul class="tree" id="tree-checkbox-list"></ul>
-                        <div
-                            class="d-flex align-items-center justify-content-end mt-2 mb-2 pr-2"
-                        >
+                        <div class="d-flex align-items-center justify-content-end mt-2 mb-2 pr-2">
                             <button
                                 id="btnAutoLinkGroups"
                                 onclick="handleAutolinkGroups()"
@@ -262,11 +235,7 @@
                             >
                                 Reset
                             </button>
-                            <button
-                                type="button"
-                                class="btn btn-success btn-sm"
-                                onclick="handleAddCheckedEdge()"
-                            >
+                            <button type="button" class="btn btn-success btn-sm" onclick="handleAddCheckedEdge()">
                                 Add Edge
                             </button>
                         </div>
@@ -274,12 +243,8 @@
                 </div>
                 <div class="trace-network-wrapper">
                     <div class="trace-layout-wrapper">
-                        <select
-                            id="traceNetworkLayout"
-                            class="form-control"
-                            name="traceNetworkLayout"
-                        >
-                            <option value="Star">Normal</option>
+                        <select id="traceNetworkLayout" class="form-control" name="traceNetworkLayout">
+                            <option value="Star">Auto</option>
                             <option value="UD">Up-Down</option>
                             <option value="DU">Down-Up</option>
                             <option value="LR">Left-Right</option>
@@ -294,24 +259,12 @@
             </div>
         </form>
 
-        <div
-            id="regenerate-confirm-modal"
-            class="modal fade in"
-            data-backdrop="static"
-            data-keyboard="false"
-        >
+        <div id="regenerate-confirm-modal" class="modal fade in" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-confirm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ _("Warning") }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            aria-hidden="true"
-                        >
-                            ×
-                        </button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body" style="word-break: keep-all;">
                         <p class="modal-inform">
@@ -325,43 +278,21 @@
                         </p>
                     </div>
                     <div class="modal-footer">
-                        <button
-                            id="btn-proceed"
-                            class="btn btn-primary"
-                            data-dismiss="modal"
-                        >
+                        <button id="btn-proceed" class="btn btn-primary" data-dismiss="modal">
                             {{ _("Proceed") }}
                         </button>
-                        <button
-                            id="btn-abort"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
-                            {{ _("Abort") }}
-                        </button>
+                        <button id="btn-abort" class="btn btn-secondary" data-dismiss="modal">{{ _("Abort") }}</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div
-            id="confirmReloadModal"
-            class="modal fade in"
-            data-backdrop="static"
-            data-keyboard="false"
-        >
+        <div id="confirmReloadModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-confirm">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            aria-hidden="true"
-                        >
-                            ×
-                        </button>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
                         <p class="modal-inform modal-msg">
@@ -370,16 +301,8 @@
                     </div>
                     <div class="modal-footer">
                         <div>
-                            <button
-                                id="confirmReloadBtn"
-                                class="btn btn-primary confirm-btn"
-                            >
-                                {{ _("OK") }}
-                            </button>
-                            <button
-                                class="btn btn-secondary confirm-btn"
-                                data-dismiss="modal"
-                            >
+                            <button id="confirmReloadBtn" class="btn btn-primary confirm-btn">{{ _("OK") }}</button>
+                            <button class="btn btn-secondary confirm-btn" data-dismiss="modal">
                                 {{ _("Cancel") }}
                             </button>
                         </div>
@@ -390,29 +313,10 @@
     </div>
 </div>
 <div>
-    <ul
-        id="contextMenuTraceCfg"
-        name="contextMenu"
-        class="context-menu"
-        style="display:none;"
-    >
-        <li class="menu-item" onclick="addEdgesFromNode(this)" data-node-id>
-            {{ _('Add Edge') }}
-        </li>
-        <li
-            class="menu-item edge-item"
-            onclick="editSelectedEdge(this)"
-            data-node-id
-        >
-            {{ _('Edit Edge') }}
-        </li>
-        <li
-            class="menu-item edge-item"
-            onclick="removeSelectedEdge(this)"
-            data-node-id
-        >
-            {{ _('Delete') }}
-        </li>
+    <ul id="contextMenuTraceCfg" name="contextMenu" class="context-menu" style="display:none;">
+        <li class="menu-item" onclick="addEdgesFromNode(this)" data-node-id>{{ _('Add Edge') }}</li>
+        <li class="menu-item edge-item" onclick="editSelectedEdge(this)" data-node-id>{{ _('Edit Edge') }}</li>
+        <li class="menu-item edge-item" onclick="removeSelectedEdge(this)" data-node-id>{{ _('Delete') }}</li>
     </ul>
 </div>
 <script type="text/javascript" language="javascript">

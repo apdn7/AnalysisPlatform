@@ -44,49 +44,32 @@ const collectCheckedProcessesForAutoLink = () => {
                 selectedV2Processes[path] = [proc];
             }
         } else {
-            const datetimeCols = proc.columns.filter(
-                (col) => col.is_get_date && !col.is_dummy_datetime,
-            );
+            const datetimeCols = proc.columns.filter((col) => col.is_get_date && !col.is_dummy_datetime);
             const serialCols = proc.columns.filter((col) => col.is_serial_no);
             if (datetimeCols.length && serialCols.length) {
                 if (dbsType === DB_CONFIGS.CSV.configs.type) {
                     // CSV
                     selectedProcesses.push({
                         path: proc.data_source.csv_detail.directory,
-                        process_name: proc.name,
                         process_id: proc.id,
-                        date_col: datetimeCols[0].column_name,
-                        serial_col: serialCols[0].column_name,
                         dbtype: dbsType,
-                        delimiter: proc.data_source.csv_detail.delimiter,
                     });
                 } else {
                     // Factory DB
                     selectedProcesses.push({
-                        data_source_id: dbsId,
-                        table_name: proc.table_name,
-                        process_name: proc.name,
                         process_id: proc.id,
                         dbtype: dbsType,
-                        date_col: datetimeCols[0].column_name,
-                        serial_col: serialCols[0].column_name,
                     });
                 }
             }
         }
     }
     for (const path of Object.keys(selectedV2Processes)) {
-        const v2ProcNames = selectedV2Processes[path].map(
-            (proc) => proc.data_source.csv_detail.process_name,
-        );
         const v2ProcIds = selectedV2Processes[path].map((proc) => proc.id);
         selectedProcesses.push({
             path,
-            process_names: v2ProcNames,
             process_ids: v2ProcIds,
             dbtype: 'V2',
-            date_col: null,
-            serial_col: null,
         });
 
         hasV2 = true;
@@ -122,7 +105,7 @@ const linkProcesses = (processList) => {
     // filter serial and remove edge of this proc
     for (const id of processList) {
         const proc = processes[id];
-        const serialCols = proc.columns.filter((col) => col.is_serial_no);
+        const serialCols = proc.columns.filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL);
         if (!serialCols.length) continue;
 
         removeLinkedEdge(proc.id);
@@ -135,10 +118,10 @@ const linkProcesses = (processList) => {
         const fromProc = linkProcs[i];
         const toProc = linkProcs[i + 1];
         const selfSerial = fromProc.columns
-            .filter((col) => col.is_serial_no)
+            .filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL)
             .map((col) => col.id);
         const targetSerial = toProc.columns
-            .filter((col) => col.is_serial_no)
+            .filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL)
             .map((col) => col.id);
 
         const edgeData = {
@@ -179,9 +162,7 @@ const handleAutolinkGroups = async () => {
     orderProcessInTreeCheckBox(groupsOrderedProcesses);
 
     // link process
-    const goodGroups = groupsOrderedProcesses.filter(
-        (group) => group.length >= 1,
-    );
+    const goodGroups = groupsOrderedProcesses.filter((group) => group.length >= 1);
     for (const group of goodGroups) {
         linkProcesses(group);
     }
@@ -201,16 +182,8 @@ const treeCheckboxJs = () => {
     $(document).off('click', '.tree-plus', handleToggleTreeCheckbox);
     $(document).on('click', '.tree-plus', handleToggleTreeCheckbox);
 
-    $(document).off(
-        'change',
-        '.tree input[type=checkbox]',
-        handleCheckTreeCheckbox,
-    );
-    $(document).on(
-        'change',
-        '.tree input[type=checkbox]',
-        handleCheckTreeCheckbox,
-    );
+    $(document).off('change', '.tree input[type=checkbox]', handleCheckTreeCheckbox);
+    $(document).on('change', '.tree input[type=checkbox]', handleCheckTreeCheckbox);
 
     processesTree = groupProcessesByPath(Object.values(processes));
     generateTreeCheckBoxs(processesTree);
@@ -226,14 +199,8 @@ const handleToggleTreeCheckbox = (e) => {
 const handleCheckTreeCheckbox = (e) => {
     const _this = $(e.currentTarget);
     const checked = _this.prop('checked');
-    _this
-        .siblings('ul')
-        .find("input[type='checkbox']")
-        .prop('checked', checked);
-    _this
-        .parentsUntil('.tree')
-        .children("input[type='checkbox']")
-        .prop('checked', checked);
+    _this.siblings('ul').find("input[type='checkbox']").prop('checked', checked);
+    _this.parentsUntil('.tree').children("input[type='checkbox']").prop('checked', checked);
     e.stopPropagation();
 };
 
@@ -292,14 +259,8 @@ const generateTreeCheckBoxs = (processObj) => {
 
     $('#tree-checkbox-list').html(groupHtml);
     // bind uncheck and checked node to show and hide nodes
-    $('#tree-checkbox-list input[type=checkbox]').off(
-        'change',
-        handleOnChangeProcess,
-    );
-    $('#tree-checkbox-list input[type=checkbox]').on(
-        'change',
-        handleOnChangeProcess,
-    );
+    $('#tree-checkbox-list input[type=checkbox]').off('change', handleOnChangeProcess);
+    $('#tree-checkbox-list input[type=checkbox]').on('change', handleOnChangeProcess);
     $('#tree-checkbox-list input[name=process]').change();
     $('#tree-checkbox-list').sortable({
         containment: 'parent',
@@ -381,10 +342,7 @@ const groupProcessesByPath = (processes) => {
             key = proc.data_source.id;
         }
         const processName = proc.name;
-        proc.isChecked =
-            processState[processName] !== undefined
-                ? processState[processName]
-                : true;
+        proc.isChecked = processState[processName] !== undefined ? processState[processName] : true;
         proc.treeOder = 0;
         if (key in processObj) {
             processObj[key].push(proc);
@@ -439,9 +397,7 @@ const handleHideNodes = () => {
 };
 
 const collectCheckedProcess = () => {
-    return [...$('.tree input[name=process]:checked')].map((el) =>
-        Number($(el).val()),
-    );
+    return [...$('.tree input[name=process]:checked')].map((el) => Number($(el).val()));
 };
 
 const handleResetCheckedEdge = () => {
@@ -457,18 +413,13 @@ const handleAddCheckedEdge = () => {
 };
 
 const handleSelectAllNodes = (checkAllInput) => {
-    const allNodes = $('#tree-checkbox-list')
-        .find('input[type=checkbox]')
-        .not('#checkAll');
+    const allNodes = $('#tree-checkbox-list').find('input[type=checkbox]').not('#checkAll');
     const currentStatus = $(checkAllInput).is(':checked');
     allNodes.prop('checked', currentStatus);
 };
 
 const handleAllCheckInput = (input) => {
-    const allNodes = $('#tree-checkbox-list')
-        .find('input[type=checkbox]')
-        .not('#checkAll')
-        .not('.group-input');
+    const allNodes = $('#tree-checkbox-list').find('input[type=checkbox]').not('#checkAll').not('.group-input');
     const checkAllInput = $('#tree-checkbox-list input#checkAll');
     const currentStatus = input.is(':checked');
     if (!currentStatus) {

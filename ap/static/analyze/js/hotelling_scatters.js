@@ -87,12 +87,7 @@ const drawXTrainScatter = (json, chartConfig = {}, sizeOfData = null) => {
     });
 };
 
-const drawXTestScatter = (
-    json,
-    chartConfig = {},
-    sizeOfData = null,
-    arrayPlotdata = null,
-) => {
+const drawXTestScatter = (json, chartConfig = {}, sizeOfData = null, arrayPlotdata = null) => {
     if (!json) return;
 
     const startTime = performance.now();
@@ -164,11 +159,7 @@ const drawXTestScatter = (
             dataPoint.points[0].clickedDataIndex = pointIndex;
 
             // to broadcast click event to other charts
-            broadcastClickEvent(
-                dataPoint,
-                (startingChart = 'xTest'),
-                (jsonPCAScoreTest = json),
-            );
+            broadcastClickEvent(dataPoint, (startingChart = 'xTest'), (jsonPCAScoreTest = json));
         })
         .on('plotly_hover', (data) => {
             const dataPoint = data.points[0];

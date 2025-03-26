@@ -85,8 +85,7 @@ def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, po
     if df.empty:
         df = gen_blank_df_end_cols(graph_param.array_formval)
         add_cols = list(set(temp.columns) - set(df.columns))
-        for add_col in add_cols:
-            df[add_col] = None
+        df[add_cols] = np.nan
         df[df.columns] = df[df.columns].to_numpy()
 
     # timezone

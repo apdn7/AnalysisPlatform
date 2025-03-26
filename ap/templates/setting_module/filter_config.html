@@ -4,14 +4,8 @@
     <!-- Common CSS -->
     <script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
     <script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename = 'common/css/jexcel.css') }}"
-    />
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename = 'common/css/jsuites.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}" />
 
     <!-- Visualization CSS -->
     <link
@@ -45,12 +39,7 @@
                     >
                         <option value="" selected>---</option>
                         {% for proc in procs %}
-                            <option
-                                value="{{ proc.id }}"
-                                title="{{ proc.name_en }}"
-                            >
-                                {{ proc.shown_name }}
-                            </option>
+                            <option value="{{ proc.id }}" title="{{ proc.name_en }}">{{ proc.shown_name }}</option>
                         {% endfor %}
                     </select>
                 </div>

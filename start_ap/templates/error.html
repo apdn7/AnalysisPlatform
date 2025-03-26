@@ -54,27 +54,19 @@
     <body>
         <div class="center-screen">
             <h1 class="title">
-                <img
-                    src="{{ url_for('static', filename='img/logo.png') }}"
-                    style="height: 0.8em;"
-                />
+                <img src="{{ url_for('static', filename='img/logo.png') }}" style="height: 0.8em;" />
                 <span id="header1"></span>
             </h1>
             <h2 id="header2"></h2>
             <h2>Error Code: <span id="error_code"></span></h2>
             <p id="warning"></p>
             <p></p>
-            <a
-                href="https://github.com/apdn7/AnalysisPlatform?tab=readme-ov-file#getting-started"
+            <a href="https://github.com/apdn7/AnalysisPlatform?tab=readme-ov-file#getting-started"
                 >See Analysis Platform documentation on GitHub</a
             >
             <div class="links">
-                <a
-                    href="https://sites.google.com/view/analysisplatform-dn7/fixit"
-                    >Fix it (in Jp)</a
-                >
-                <a
-                    href="https://sites.google.com/view/analysisplatform-dn7/start#h.ab616dox4xxa"
+                <a href="https://sites.google.com/view/analysisplatform-dn7/fixit">Fix it (in Jp)</a>
+                <a href="https://sites.google.com/view/analysisplatform-dn7/start#h.ab616dox4xxa"
                     >About startup.ini (in Jp)</a
                 >
             </div>
@@ -135,12 +127,9 @@
             if (errorID && !Object.keys(errorConfig).includes(errorID)) {
                 errorID = '999';
             }
-            document.getElementById('header1').innerText =
-                errorConfig[errorID].title;
-            document.getElementById('header2').innerText =
-                errorConfig[errorID].header;
-            document.getElementById('warning').innerText =
-                errorConfig[errorID].message;
+            document.getElementById('header1').innerText = errorConfig[errorID].title;
+            document.getElementById('header2').innerText = errorConfig[errorID].header;
+            document.getElementById('warning').innerText = errorConfig[errorID].message;
             document.getElementById('error_code').innerText = errorID;
         </script>
     </body>

@@ -10,8 +10,11 @@ import simplejson
 from numpy import float32, float64, int8, int16, int32, int64, ndarray
 from orjson import OPT_NON_STR_KEYS, OPT_PASSTHROUGH_DATETIME, OPT_SERIALIZE_NUMPY, OPT_SORT_KEYS, orjson
 from pandas import DataFrame, Series
+from pandas.core.arrays import ExtensionArray
 
 from ap.common.constants import DataType
+
+encoder = json.JSONEncoder()
 
 
 @singledispatch
@@ -60,10 +63,11 @@ def _(obj):
 
 
 @json_serial.register(Series)
+@json_serial.register(ExtensionArray)
 def _(obj):
-    if hasattr(obj, 'to_list'):
-        return obj.to_list()
-    return json.JSONEncoder.default(obj)
+    if hasattr(obj, 'tolist'):
+        return obj.tolist()
+    return encoder.default(obj)
 
 
 @json_serial.register(set)
@@ -75,14 +79,14 @@ def _(obj):
 def _(obj):
     if hasattr(obj, 'tolist'):
         return obj.tolist()
-    return json.JSONEncoder.default(obj)
+    return encoder.default(obj)
 
 
 @json_serial.register(DataFrame)
 def _(obj):
     if hasattr(obj, 'to_dict'):
         return obj.to_dict('list')
-    return json.JSONEncoder.default(obj)
+    return encoder.default(obj)
 
 
 @json_serial.register(type(pd.NA))

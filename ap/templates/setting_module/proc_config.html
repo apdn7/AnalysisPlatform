@@ -1,19 +1,11 @@
 <div class="card graph-navi" id="process">
     <div class="card-body">
-        <div
-            class="panel-group"
-            id="accordionPC"
-            role="tablist"
-            aria-multiselectable="true"
-        >
+        <div class="panel-group" id="accordionPC" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
                 <form id="proc-config-form">
                     <div class="panel-heading" role="tab" id="headingPC">
                         <div class="form-header">
-                            <div
-                                class="row"
-                                style="padding-top: 5px; padding-bottom: 5px;"
-                            >
+                            <div class="row" style="padding-top: 5px; padding-bottom: 5px;">
                                 <div class="col-7">
                                     <div class="collapse-box header-left">
                                         <a
@@ -27,9 +19,7 @@
                                         >
                                         </a>
                                     </div>
-                                    <h3 class="header-left">
-                                        {{ _("Process Config") }}
-                                    </h3>
+                                    <h3 class="header-left">{{ _("Process Config") }}</h3>
                                 </div>
                                 <div class="col-5 d-flex justify-content-end">
                                     <input
@@ -49,50 +39,17 @@
                     >
                         {{ macros.alert_message("alert-msg-db") }}
                         <div class="table-responsive">
-                            <table
-                                id="tblProcConfig"
-                                class="table table-bordered table-main table-hover-light"
-                            >
+                            <table id="tblProcConfig" class="table table-bordered table-main table-hover-light">
                                 <thead>
                                     <tr>
-                                        <th class="col-number">
-                                            {{ _("No.") }}
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            class="text-center th-md"
-                                        >
-                                            {{ _("Process Name") }}
-                                        </th>
-                                        <th
-                                            scope="col"
-                                            class="text-center th-md"
-                                        >
-                                            {{ _("Data Source Name") }}
-                                        </th>
-                                        <th
-                                            class="text-center th-md"
-                                            scope="col"
-                                        >
-                                            {{ _("Table Name") }}
-                                        </th>
-                                        <th
-                                            class="text-center button-column"
-                                            scope="col"
-                                        ></th>
-                                        <th class="text-center" scope="col">
-                                            {{ _("Comment") }}
-                                        </th>
-                                        <th
-                                            class="text-center w-auto"
-                                            scope="col"
-                                        >
-                                            {{ _("Status") }}
-                                        </th>
-                                        <th
-                                            class="text-center col-btn button-column"
-                                            scope="col"
-                                        >
+                                        <th class="col-number">{{ _("No.") }}</th>
+                                        <th scope="col" class="text-center th-md">{{ _("Process Name") }}</th>
+                                        <th scope="col" class="text-center th-md">{{ _("Data Source Name") }}</th>
+                                        <th class="text-center th-md" scope="col">{{ _("Table Name") }}</th>
+                                        <th class="text-center button-column" scope="col"></th>
+                                        <th class="text-center" scope="col">{{ _("Comment") }}</th>
+                                        <th class="text-center w-auto" scope="col">{{ _("Status") }}</th>
+                                        <th class="text-center col-btn button-column" scope="col">
                                             <!-- <i class="fas fa-filter icon-secondary"
                                         style="color:#449fff;cursor:pointer;"
                                         onclick="showFilter('tblProcConfig', true)"></i> -->
@@ -109,9 +66,7 @@
                                             data-proc-parent-id="{{ proc_info.parent_id or "" }}"
                                             data-test-id="{{ proc_info.shown_name }}"
                                         >
-                                            <td class="col-number">
-                                                {{ loop.index }}
-                                            </td>
+                                            <td class="col-number">{{ loop.index }}</td>
                                             <td>
                                                 <input
                                                     data-name-en="{{ proc_info.name_en }}"
@@ -152,9 +107,7 @@
                                                     onclick="showProcSettingModal(this);"
                                                     title=""
                                                 >
-                                                    <i
-                                                        class="fas fa-edit icon-secondary"
-                                                    ></i>
+                                                    <i class="fas fa-edit icon-secondary"></i>
                                                 </button>
                                             </td>
                                             <td>
@@ -168,19 +121,14 @@
 {{ proc_info.comment or '' }}</textarea
                                                 >
                                             </td>
-                                            <td
-                                                class="process-status"
-                                                id="jobStatus-{{ proc_info.id }}"
-                                            ></td>
+                                            <td class="process-status" id="jobStatus-{{ proc_info.id }}"></td>
                                             <td class="text-center">
                                                 <button
                                                     onclick="deleteProcess(this);"
                                                     type="button"
                                                     class="btn btn-secondary icon-btn"
                                                 >
-                                                    <i
-                                                        class="fas fa-trash-alt icon-secondary"
-                                                    ></i>
+                                                    <i class="fas fa-trash-alt icon-secondary"></i>
                                                 </button>
                                             </td>
                                         </tr>
@@ -190,11 +138,7 @@
                         </div>
                         <div class="row" style="padding-top: 5px;">
                             <div class="col-2">
-                                <button
-                                    class="btn btn-success icon-btn"
-                                    onclick="addProcToTable();"
-                                    type="button"
-                                >
+                                <button class="btn btn-success icon-btn" onclick="addProcToTable();" type="button">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
                             </div>
@@ -216,6 +160,7 @@
     <script src="{{ url_for('setting_module.static', filename = 'js/parse_data_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_date_time_format.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/function_config_modals.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/main_serial_function_column.js') }}"></script>
     <!-- prettier-ignore-start -->
     <script>
         let cfgDS = {{ all_datasource|safe }};

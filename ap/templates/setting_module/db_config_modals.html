@@ -12,15 +12,8 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="CSVSelectedLabel">
-                    {{ _("CSV Import Config") }}
-                </h4>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <h4 class="modal-title" id="CSVSelectedLabel">{{ _("CSV Import Config") }}</h4>
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDBConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -42,26 +35,18 @@
                             name="csvDBSourceName"
                             class="form-control"
                             id="csvDBSourceName"
+                            data-observer
                         />
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="csvComment" class="col-sm-3 col-form-label"
-                        ><h5>{{ _("Comment") }}</h5></label
-                    >
+                    <label for="csvComment" class="col-sm-3 col-form-label"><h5>{{ _("Comment") }}</h5></label>
                     <div class="col-sm-6">
-                        <input
-                            type="text"
-                            name="csvComment"
-                            class="form-control"
-                            id="csvComment"
-                        />
+                        <input type="text" name="csvComment" class="form-control" id="csvComment" data-observer />
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="folderUrl" class="col-sm-3 col-form-label"
-                        ><h5>{{ _("Source") }}</h5></label
-                    >
+                    <label for="folderUrl" class="col-sm-3 col-form-label"><h5>{{ _("Source") }}</h5></label>
                     <div class="col-sm-6">
                         <input
                             type="text"
@@ -69,24 +54,16 @@
                             class="form-control already-convert-hankaku"
                             id="folderUrl"
                             placeholder="Z:\path\to\directory"
+                            data-observer
                         />
-                        <input type="hidden" id="isFilePath" />
+                        <input type="hidden" id="isFilePath" data-observer />
                     </div>
                     <div class="col-sm-3 text-left">
-                        <button class="btn btn-primary" id="connectResourceBtn">
-                            {{ _("Connect") }}
-                        </button>
+                        <button class="btn btn-primary" id="connectResourceBtn">{{ _("Connect") }}</button>
                     </div>
                 </div>
-                <div
-                    class="form-group row"
-                    id="v2ProcessDiv"
-                    style="display: none;"
-                >
-                    <label
-                        for="v2ProcessSelection"
-                        class="col-sm-3 col-form-label"
-                    >
+                <div class="form-group row" id="v2ProcessDiv" style="display: none;">
+                    <label for="v2ProcessSelection" class="col-sm-3 col-form-label">
                         <h5 title="{{ _('Select V2 Process') }}">
                             <span class="hint-text">{{ _("V2 Process") }}</span>
                         </h5>
@@ -94,14 +71,9 @@
                     <div class="col-sm-6" id="v2ProcessSelection"></div>
                 </div>
                 <div class="form-group row">
-                    <label
-                        for="optionalFunction"
-                        class="col-sm-3 col-form-label"
-                    >
+                    <label for="optionalFunction" class="col-sm-3 col-form-label">
                         <h5 title="{{ _('Optional function Hover') }}">
-                            <span class="hint-text"
-                                >{{ _("Optional function") }}</span
-                            >
+                            <span class="hint-text">{{ _("Optional function") }}</span>
                         </h5>
                     </label>
                     <div class="col-sm-6">
@@ -110,86 +82,63 @@
                             name="optionalFunction"
                             class="form-control select2-selection--single"
                             id="optionalFunction"
+                            data-observer
                         >
                             <option value="">{{ _("---") }}</option>
                             {% for script in etl_scripts %}
-                                <option value="{{ script }}">
-                                    {{ script }}
-                                </option>
+                                <option value="{{ script }}">{{ script }}</option>
                             {% endfor %}
                         </select>
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="" class="col-sm-3 col-form-label"
-                        ><h5>{{ _("File type") }}</h5></label
-                    >
+                    <label for="" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
                     <div class="col-sm-6 file-type-area">
                         <div class="row" style="padding: 0 15px">
                             <div class="mb-2">
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         class="custom-control-input"
                                         id="fileTypeAuto"
                                         name="fileType"
                                         value="Auto"
+                                        data-observer
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="fileTypeAuto"
-                                        >Auto</label
-                                    >
+                                    <label class="custom-control-label" for="fileTypeAuto">Auto</label>
                                 </div>
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         class="custom-control-input"
                                         id="fileTypeCSV"
                                         name="fileType"
                                         value="CSV"
+                                        data-observer
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="fileTypeCSV"
-                                        >CSV</label
-                                    >
+                                    <label class="custom-control-label" for="fileTypeCSV">CSV</label>
                                 </div>
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         class="custom-control-input"
                                         id="fileTypeTSV"
                                         name="fileType"
                                         value="TSV"
+                                        data-observer
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="fileTypeTSV"
-                                        >TSV</label
-                                    >
+                                    <label class="custom-control-label" for="fileTypeTSV">TSV</label>
                                 </div>
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         class="custom-control-input"
                                         id="fileTypeSMC"
                                         name="fileType"
                                         value="SMC"
+                                        data-observer
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="fileTypeSMC"
-                                        >Semicolon(;)SV</label
-                                    >
+                                    <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
                                 </div>
                             </div>
                             <div class="flex-grow-1 import-config-file-row">
@@ -201,6 +150,7 @@
                                         class="custom-control-input already-convert-hankaku"
                                         id="csvIsTranspose"
                                         name="csvIsTranspose"
+                                        data-observer
                                     />
                                     <label
                                         class="custom-control-label"
@@ -209,9 +159,7 @@
                                         >{{ _('Transpose') }}</label
                                     >
                                 </div>
-                                <div
-                                    class="custom-control custom-control-inline float-right line-skip-group nrows-div"
-                                >
+                                <div class="custom-control custom-control-inline float-right line-skip-group nrows-div">
                                     <label
                                         class="line-skip mr-2 mb-0"
                                         title="{{ _('Num rows hover msg') }}"
@@ -225,11 +173,10 @@
                                         name="csvNRows"
                                         class="form-control csvNRows"
                                         min="0"
+                                        data-observer=""
                                     />
                                 </div>
-                                <div
-                                    class="custom-control custom-control-inline float-right line-skip-group skip-div"
-                                >
+                                <div class="custom-control custom-control-inline float-right line-skip-group skip-div">
                                     <label
                                         class="line-skip mr-2 mb-0"
                                         title="{{ _('Skip line hover msg') }}"
@@ -244,12 +191,10 @@
                                         class="form-control"
                                         min="0"
                                         max="99"
+                                        data-observer=""
                                     />
-                                    <input
-                                        type="hidden"
-                                        name="isDummyHeader"
-                                        value=""
-                                    />
+                                    <input type="hidden" name="isDummyHeader" value="" />
+                                    <input type="hidden" name="isFileChecker" value="" />
                                 </div>
                             </div>
                         </div>
@@ -257,12 +202,8 @@
                 </div>
                 <div class="form-group row mg-minus-1">
                     <label class="col-sm-3 col-form-label"
-                        ><h5
-                            title="{{ _('Specify datatype of columns Hover') }}"
-                        >
-                            <span class="hint-text"
-                                >{{ _("Specify datatype of columns") }}</span
-                            >
+                        ><h5 title="{{ _('Specify datatype of columns Hover') }}">
+                            <span class="hint-text">{{ _("Specify datatype of columns") }}</span>
                         </h5></label
                     >
                     <div class="col-sm-6">
@@ -271,37 +212,20 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-3">
-                        <button class="btn btn-primary" id="showResources">
-                            {{ _("Show") }}
-                        </button>
+                        <button class="btn btn-primary" id="showResources">{{ _("Show") }}</button>
                     </div>
                     <div class="col-sm-6 text-wrap">
-                        <div
-                            id="resourceLoading"
-                            class="spinner-border text-primary hide"
-                            role="status"
-                        >
+                        <div id="resourceLoading" class="spinner-border text-primary hide" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <span
-                            id="fileName"
-                            style="word-break: break-all; display: none;"
-                        ></span>
+                        <span id="fileName" style="word-break: break-all; display: none;"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-12">
-                        <div
-                            id="csvDataTable"
-                            class="table-responsive"
-                            style="display: none;"
-                        >
+                        <div id="csvDataTable" class="table-responsive" style="display: none;">
                             <input id="skipTail" value="" hidden />
-                            <table
-                                class="table bg-secondary table-striped table-hover table-hover-light"
-                                name=""
-                                id=""
-                            >
+                            <table class="table bg-secondary table-striped table-hover table-hover-light" name="" id="">
                                 <thead class="thead-dark">
                                     <tr></tr>
                                 </thead>
@@ -321,55 +245,27 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDBConfigModal((this))">
                     {{ _("Cancel") }}
                 </button>
             </div>
         </div>
     </div>
 </div>
-<div
-    id="CSVConfirmModal"
-    class="modal fade"
-    data-backdrop="static"
-    data-keyboard="false"
->
+<div id="CSVConfirmModal" class="modal fade" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-hidden="true"
-                >
-                    ×
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <p
-                    id="csvConfirmModalMsg"
-                    class="modal-inform"
-                    style="white-space: pre-line"
-                ></p>
+                <p id="csvConfirmModalMsg" class="modal-inform" style="white-space: pre-line"></p>
             </div>
             <br />
             <div class="modal-footer">
-                <button
-                    id="csvConfirmRegister"
-                    class="btn btn-primary"
-                    data-item-id=""
-                >
-                    {{ _("OK") }}
-                </button>
-                <button class="btn btn-secondary" data-dismiss="modal">
-                    {{ _("Cancel") }}
-                </button>
+                <button id="csvConfirmRegister" class="btn btn-primary" data-item-id="">{{ _("OK") }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
             </div>
         </div>
     </div>
@@ -401,12 +297,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -415,9 +306,7 @@
                     {{ macros.alert_message("alert-sqlite-validation") }}
                     <form id="sqliteCfgForm">
                         <div class="form-group row">
-                            <label
-                                for="sqlite_dbsourcename"
-                                class="col-sm-3 col-form-label"
+                            <label for="sqlite_dbsourcename" class="col-sm-3 col-form-label"
                                 ><h5>{{ _("Data Source Name") }}</h5></label
                             >
                             <div class="col-sm-9">
@@ -430,24 +319,15 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label
-                                for="sqlite_comment"
-                                class="col-sm-3 col-form-label"
+                            <label for="sqlite_comment" class="col-sm-3 col-form-label"
                                 ><h5>{{ _("Comment") }}</h5></label
                             >
                             <div class="col-sm-9">
-                                <input
-                                    type="text"
-                                    name="sqlite_comment"
-                                    class="form-control"
-                                    id="sqlite_comment"
-                                />
+                                <input type="text" name="sqlite_comment" class="form-control" id="sqlite_comment" />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label
-                                for="sqlite_dbname"
-                                class="col-sm-3 col-form-label"
+                            <label for="sqlite_dbname" class="col-sm-3 col-form-label"
                                 ><h5>{{ _("File name") }}</h5></label
                             >
                             <div class="col-sm-9">
@@ -472,14 +352,11 @@
                     onclick="saveDBInfo(this);"
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -501,9 +378,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="col-md">
-                    <h4 class="modal-title" id="MSSQLSelectedLabel">
-                        {{ _("Config") }}: MSSQL Server
-                    </h4>
+                    <h4 class="modal-title" id="MSSQLSelectedLabel">{{ _("Config") }}: MSSQL Server</h4>
                 </div>
                 <button
                     type="button"
@@ -513,12 +388,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -552,14 +422,11 @@
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
                     onclick="saveDBInfo(this);"
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -589,12 +456,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -630,14 +492,11 @@
                     onclick="saveDBInfo(this);"
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -660,9 +519,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="col-md">
-                    <h4 class="modal-title" id="OracleSelectedLabel">
-                        {{ _("Config") }}: Oracle
-                    </h4>
+                    <h4 class="modal-title" id="OracleSelectedLabel">{{ _("Config") }}: Oracle</h4>
                 </div>
                 <button
                     type="button"
@@ -672,12 +529,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -709,14 +561,11 @@
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
                     onclick="saveDBInfo(this);"
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -738,9 +587,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="col-md">
-                    <h4 class="modal-title" id="MySQLSelectedLabel">
-                        {{ _("Config") }}: MySQL
-                    </h4>
+                    <h4 class="modal-title" id="MySQLSelectedLabel">{{ _("Config") }}: MySQL</h4>
                 </div>
                 <button
                     type="button"
@@ -750,12 +597,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -787,14 +629,11 @@
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
                     onclick="saveDBInfo(this);"
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -815,9 +654,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="col-md">
-                    <h4 class="modal-title">
-                        {{ _("Config") }}: {{ _("Software Workshop Postgres") }}
-                    </h4>
+                    <h4 class="modal-title">{{ _("Config") }}: {{ _("Software Workshop Postgres") }}</h4>
                 </div>
                 <button
                     type="button"
@@ -827,12 +664,7 @@
                 >
                     Advanced
                 </button>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -868,14 +700,11 @@
                     onclick="saveDBInfo(this);"
                     class="btn btn-primary saveDBInfoBtn"
                     data-item-id=""
+                    data-submit-btn="true"
                 >
                     {{ _("OK") }}
                 </button>
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -883,29 +712,15 @@
     </div>
 </div>
 
-<div
-    id="deleteDSModal"
-    class="modal fade in"
-    data-backdrop="static"
-    data-keyboard="false"
->
+<div id="deleteDSModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _("Confirmation") }}</h4>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-hidden="true"
-                >
-                    ×
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform">
-                    {{ _('Do you want to delete this record?') }}
-                </p>
+                <p class="modal-inform">{{ _('Do you want to delete this record?') }}</p>
             </div>
             <div class="modal-footer">
                 <button
@@ -917,40 +732,21 @@
                 >
                     {{ _('Delete') }}
                 </button>
-                <button class="btn btn-secondary" data-dismiss="modal">
-                    {{ _('Cancel') }}
-                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
             </div>
         </div>
     </div>
 </div>
-<div
-    id="advancedDSModal"
-    class="modal fade in"
-    data-backdrop="static"
-    data-keyboard="false"
->
+<div id="advancedDSModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{{ _('Advanced Setting') }}</h4>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-hidden="true"
-                >
-                    ×
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="custom-control custom-checkbox">
-                    <input
-                        type="checkbox"
-                        class="custom-control-input"
-                        id="useOSTZOption"
-                        checked
-                    />
+                    <input type="checkbox" class="custom-control-input" id="useOSTZOption" checked />
                     <label class="custom-control-label" for="useOSTZOption"
                         >{{ _('Force to OS locale time zone.') }}</label
                     >
@@ -966,10 +762,7 @@
                 >
                     {{ _('OK') }}
                 </button>
-                <button
-                    class="btn btn-secondary"
-                    onclick="revertOSTimezone('advancedDSModal');"
-                >
+                <button class="btn btn-secondary" onclick="revertOSTimezone('advancedDSModal');">
                     {{ _('Cancel') }}
                 </button>
             </div>

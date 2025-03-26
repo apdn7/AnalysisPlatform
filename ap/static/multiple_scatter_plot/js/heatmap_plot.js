@@ -89,6 +89,12 @@ const generateHeatmapPlot = (prop, tickLen) => {
             ['Y', y],
             [formElements.i18nMSPCorr, corr],
         ]);
+        const pipe = ' | ';
+        const xLastPipeIndex = x.lastIndexOf(pipe);
+        const yLastPipeIndex = y.lastIndexOf(pipe);
+        const xTitle = `${x.substring(xLastPipeIndex + pipe.length)} | ${x.substring(0, xLastPipeIndex)}`;
+        const yTitle = `${y.substring(yLastPipeIndex + pipe.length)} | ${y.substring(0, yLastPipeIndex)}`;
+        showChartTitle(null, { x: xTitle, y: yTitle });
         genDataPointHoverTable(
             dataTable,
             { x: data.event.pageX - 120, y: data.event.pageY },
@@ -111,15 +117,10 @@ const showHeatmap = (data) => {
     const expectedHeight = Math.min(windowHeight, width);
     const expectedTickLen = Math.max(width - expectedHeight - offset, 100);
 
-    const yTickText = data.y.map((text) =>
-        trimTextLengthByPixel(text, expectedTickLen),
-    );
+    const yTickText = data.y.map((text) => trimTextLengthByPixel(text, expectedTickLen));
     const actualMaxTickLen = getTickPixelSize(yTickText);
 
-    const actualWidth = Math.min(
-        expectedHeight + actualMaxTickLen + offset,
-        width,
-    );
+    const actualWidth = Math.min(expectedHeight + actualMaxTickLen + offset, width);
     const actualHeight = actualWidth - (actualMaxTickLen + offset);
 
     $('#heatmap-card').css({

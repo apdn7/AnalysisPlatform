@@ -705,6 +705,7 @@ msgid "At least one datetime column is required."
 msgstr "日付の変数を指定してください。"
 
 #: ap/templates/setting_module/db_config_modals.html
+#, python-brace-format
 msgid "'{col}' is used for x-axis on charts."
 msgstr "可視化の際は'{col}'をx軸に使用します。"
 
@@ -2842,6 +2843,13 @@ msgstr "同意しない"
 msgid "Download New Version"
 msgstr "新しいバージョンをDL"
 
+#: ap/templates/i18n.html
+msgid "Extend SysName longer in variable selection list"
+msgstr "ここをクリックすると、システム名を長めに表示します"
+
+msgid "Extend variable name longer in variable selection list"
+msgstr "ここをクリックすると、より長い変数名を表示します"
+
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "Backwards"
 msgstr "前向き"
@@ -3629,11 +3637,11 @@ msgstr "関係性"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot relationship positive"
-msgstr "正の相関"
+msgstr "正の関係"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot relationship negative"
-msgstr "負の相関"
+msgstr "負の関係"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot hover coefficient"
@@ -3726,7 +3734,7 @@ msgstr "リンク"
 msgid "Link copy hover msg"
 msgstr "保存した設定でグラフ描画するURLをコピーします。"
 
-#: ap/templates/sidebar.html
+#: ap/templates/modals.html ap/templates/sidebar.html
 msgid "New tab"
 msgstr "新しいタブ"
 
@@ -3876,16 +3884,9 @@ msgstr "最小値"
 msgid "Data Name"
 msgstr "変数名"
 
-msgid "InvalidBrowserTitle"
-msgstr "お使いのブラウザーはサポートされていません。"
-
-msgid "InvalidBrowserContent"
-msgstr ""
-"現在のバージョンでサポートしているブラウザは、Chrome、Microsoft "
-"Edge、Safari(>=15.4)になります。BREAK_LINE現在お使いのブラウザを確認していただき、再度、アプリにアクセスしてください。"
-
-msgid "InvalidBrowserVersion"
-msgstr "アプリを使うためには、バージョン15.4かそれ以降のSafariが必要です。BREAK_LINE現在お使いのブラウザを確認していただき、再度、アプリにアクセスしてください。"
+#: ap/templates/modal.html
+msgid "InvalidBrowser"
+msgstr "Microsoft Edge または Google Chrome 以外のブラウザでは、一部機能が正常に動作しない場合があります。"
 
 #: ap/templates/macros.html
 msgid "Applies outlier removal to the objective variable."
@@ -4029,6 +4030,18 @@ msgstr "フィルタ選択項目にコピー"
 #: ap/templates/i18n.html
 msgid "Column Raw Name"
 msgstr "元の列名"
+
+#: ap/templates/i18n.html
+msgid "All imported data will be permanently deleted. Do you want to continue?"
+msgstr "All imported data will be permanently deleted. Do you want to continue?"
+
+#: ap/templates/i18n.html
+msgid ""
+"All log data in the following folder will be permanently deleted. Do you "
+"want to continue?"
+msgstr ""
+"All log data in the following folder will be permanently deleted. Do you "
+"want to continue?"
 
 #: ap/templates/i18n.html
 msgid "Sample Data"
@@ -4426,6 +4439,7 @@ msgid "warnDeleteMergedProc"
 msgstr "このデータセットはマージされたデータセットです。こちらを消去すると、親のデータセットや他にマージされたデータセットも同時に消去されます。まとめて消去してよろしいですか？"
 
 #: ap/templates/i18n.html
+#, python-brace-format
 msgid ""
 "Cast error: There are some columns that cannot be cast to another data "
 "type. Please check the real data of the columns listed below: You can "
@@ -4605,7 +4619,7 @@ msgstr "V2 CSV"
 
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshop"
-msgstr "V2 ソフトウェア工房インターフェース"
+msgstr "V2 ソフトウェア工房ETL"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "ProcDatetimeFormatHoverMsg"
@@ -4618,4 +4632,98 @@ msgstr ""
 "%%m/%%d/%%y %%H:%%M:%%S\t     02/21/24  15:30:51\n"
 "%%b %%d, %%Y %%H:%%M:%%S\t      Feb 21, 2024  15:30:51\n"
 "%%Y%%m%%d%%H%%M\t\t       202409251400\n"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "checkIsMainSerialMsg"
+msgstr "main::Serialは複数選択ができないため、プロセス設定で選択されているmain::シリアル:Int/main::シリアル:Strをシリアル:Int/シリアル:Strにします。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "fill.na processing will be skipped"
+msgstr "fill.naの処理はスキップします。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid ""
+"Functions and columns created from fill.na or me function processing will"
+" be skipped."
+msgstr "fill.na や me 関数による処理で作成された関数や列はスキップします。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "Please uncheck main::Serial before making any changes."
+msgstr "main::Serialをアンチェックしてから変更してください。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "mainSerialCheckboxHover"
+msgstr "プロセス間のデータ紐付に使用するデータ型がInt/Strの列。(複数選択不可)"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "WarningUpdateTransactionDataJobNotCompleteInChangingLinkKeyMsg"
+msgstr "本プロセスにおいて、main::Serialが更新されており、トランザクションデータの更新が未完了であるため、紐付する変数にmain::Serialが含まれるカラムの変更は、正確な結果に反映されない可能性があります。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "WarningUpdateTransactionDataJobNotCompleteInShowGraphMsg"
+msgstr "本プロセスにおいて、main::Serialが更新されており、トランザクションデータの更新が未完了であるため、グラフ表示結果は正確性を欠く可能性があります。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "changeMainSerialFunctionColumnMsg"
+msgstr "main::Serialは複数選択ができないため、Function設定で選択されているmain::シリアルのチェックを外します。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "uncheckMainSerialFunctionColumnMsg"
+msgstr "main::Serialは複数選択ができないため、すでにmain::シリアルに選択されている変数のチェックを外します。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "anyChangeDefinitionMainSerialFunctionColumnMsg"
+msgstr "main::Serialに設定したFunctionの定義を変更すると、処理時間がかかります。変更しますか?"
+
+#: ap/templates/modal.html
+msgid "DiscardChangesMessage"
+msgstr "プロセス設定の変更内容は保存されていません．保存しますか？"
+
+#: ap/templates/modal.html
+msgid "Discard Changes"
+msgstr "Confirm to save all changes"
+
+#: ap/templates/i18n.html ap/templates/system.html
+msgid "confirmExportZipMsg"
+msgstr "Do you want to export config data to a file?"
+
+#: ap/templates/system.html
+msgid "confirmImportZipFileMsg"
+msgstr "読み込みを実行した際に，現在の設定ファイルが削除されます．この操作を続けますか?"
+
+#: ap/templates/system.html
+msgid "dragDropZipFilePromptMsg"
+msgstr "ファイルをここにドロップしてください (ファイル名: AP_config_yyyymmddHHMMSS)."
+
+#: ap/templates/system.html
+msgid "configBackupMigrationLabel"
+msgstr "Config Backup & Migration"
+
+#: ap/templates/system.html
+msgid "Import Config"
+msgstr "設定読み込み"
+
+#: ap/templates/i18n.html
+msgid "ImportAppSettingDone"
+msgstr "アプリ設定の読み込みが成功しました．"
+
+#: ap/templates/i18n.html
+msgid "ImportAppSettingFailed"
+msgstr "アプリ設定の読み込みが失敗しました．"
+
+#: ap/templates/i18n.html
+msgid "invalidFilePathMsg"
+msgstr "入力されたファイルパスからファイルを参照できません。ファイルパスを確認してください。"
+
+#~ msgid "Import Condition"
+#~ msgstr "データ読込条件"
+
+#~ msgid ""
+#~ "Set conditions to narrow down the "
+#~ "records to be imported. You can "
+#~ "set up to three target columns to"
+#~ " specify conditions for."
+#~ msgstr ""
+#~ "データを読み込む対象レコードを絞り込む条件を設定します。\n"
+#~ "条件を指定する対象列を3つまで設定できます。"
 

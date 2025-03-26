@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from typing import Dict, List, Optional
 
@@ -24,6 +26,7 @@ from ap.common.constants import (
     RemoveOutlierType,
 )
 from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
+from ap.setting_module.schemas import ProcessColumnSchema
 
 
 class EndProc:
@@ -549,24 +552,22 @@ class DicParam:
     def get_col_cfgs(self, col_ids):
         return [col for col in self.get_all_col_cfgs() if col.id in col_ids]
 
-    def get_cfg_cols_(self, col_ids) -> list[CfgProcessColumn]:
-        """This is a temporary method to get configuration columns like sqlalchemy,
-        need to replace `get_col_cfgs` later
-        """
-        return [CfgProcessColumn.from_dict(col.__dict__) for col in self.get_all_col_cfgs() if col.id in col_ids]
-
-    def get_col_cfg(self, col_id) -> Optional[CfgProcessColumn]:
+    def get_col_cfg(self, col_id) -> CfgProcessColumn | None:
+        # FIXME: this searching is inefficient
         for col in self.get_all_col_cfgs():
             if col.id == col_id:
-                return CfgProcessColumn.from_dict(col.__dict__)
+                # nested case should be resolved separately because we are parsing `DictToClass`
+                output_col = col.__dict__.copy()
+                output_col['function_details'] = [func.__dict__ for func in col.function_details]
+                return ProcessColumnSchema().load(output_col)
 
         return None
 
-    def gen_label_from_col_id(self, col_id):
+    def gen_label_from_col_id(self, col_id) -> str | None:
         col = self.get_col_cfg(col_id)
         if not col:
             return None
-        return gen_sql_label(col.id, col.column_name)
+        return col.gen_sql_label()
 
     def add_ng_condition_to_array_formval(self, as_target_sensor=False):
         if self.common.judge_var:
@@ -607,7 +608,7 @@ class DicParam:
         query_variables = self.get_col_cfgs(query_variables)
         return query_variables
 
-    def get_judge_variables(self) -> list[CfgProcessColumn]:
+    def get_judge_variables(self) -> list[str]:
         # get all target variables
         query_variables = self.get_query_variables()
         judge_labels = [
@@ -617,7 +618,7 @@ class DicParam:
         ]
         return judge_labels
 
-    def get_boolean_variables(self) -> list[CfgProcessColumn]:
+    def get_boolean_variables(self) -> list[str]:
         # get all target variables
         query_variables = self.get_query_variables()
         boolean_labels = [

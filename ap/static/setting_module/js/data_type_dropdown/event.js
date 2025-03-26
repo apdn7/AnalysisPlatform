@@ -108,17 +108,14 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
             .on(
                 'click',
                 DataTypeDropdown_Controller.eventWrapper(function (e) {
-                    const dataTypeDropdownElement =
-                        /** @type HTMLDivElement */ e.currentTarget.closest(
-                            'div.config-data-type-dropdown',
-                        );
+                    const dataTypeDropdownElement = /** @type HTMLDivElement */ e.currentTarget.closest(
+                        'div.config-data-type-dropdown',
+                    );
                     DataTypeDropdown_Controller.init(dataTypeDropdownElement);
                     DataTypeDropdown_Controller.hideAllDropdownMenu();
 
                     // Calculate position to show dropdown menu
-                    const dropdown = $(e.currentTarget).siblings(
-                        '.data-type-selection',
-                    );
+                    const dropdown = $(e.currentTarget).siblings('.data-type-selection');
                     const dropdownHeight = dropdown.height() / 2;
                     const windowHeight = $(window).height() - 50;
                     const left = e.clientX;
@@ -147,18 +144,8 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
             dataTypeDropdownElement.querySelectorAll('li.dropdown-submenu');
         $(liElements)
             .off()
-            .on(
-                'mouseenter',
-                DataTypeDropdown_Controller.eventWrapper(
-                    DataTypeDropdown_Controller.toggleSubMenu,
-                ),
-            )
-            .on(
-                'mouseleave',
-                DataTypeDropdown_Controller.eventWrapper(
-                    DataTypeDropdown_Controller.toggleSubMenu,
-                ),
-            );
+            .on('mouseenter', DataTypeDropdown_Controller.eventWrapper(DataTypeDropdown_Controller.toggleSubMenu))
+            .on('mouseleave', DataTypeDropdown_Controller.eventWrapper(DataTypeDropdown_Controller.toggleSubMenu));
     }
 
     /**
@@ -185,12 +172,7 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
 
         this.enableDisableFormatText(dataTypeDropdownElement, selectValue);
         this.parseDataType(dataTypeDropdownElement, event.currentTarget);
-        this.setValueToShowValueElement(
-            dataTypeDropdownElement,
-            selectValue,
-            selectText,
-            '',
-        );
+        this.setValueToShowValueElement(dataTypeDropdownElement, selectValue, selectText, '');
         this.hideAllDropdownMenu();
     }
 }

@@ -91,8 +91,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         categoryLabels.reverse();
         categoryIds.sort().reverse(); // 4321
         categoryLabels.forEach((catName) => {
-            const categoryCount =
-                plotdata.category_distributed[catName].counts_org;
+            const categoryCount = plotdata.category_distributed[catName].counts_org;
             stepChartDat.push(categoryCount);
         });
     }
@@ -102,9 +101,7 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         id: sortedCat,
         value: categoryLabels,
     };
-    const xData = !isCatLimited
-        ? genFullCategoryData(sortedCat, stepChartDat, sortedGroups)
-        : [];
+    const xData = !isCatLimited ? genFullCategoryData(sortedCat, stepChartDat, sortedGroups) : [];
     const barChart = {
         y: !isCatLimited ? sortedCat : [],
         x: xData,

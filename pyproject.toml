@@ -43,6 +43,8 @@ select = [
     "N814",
     "N999",
     "T201",
+    "PD",
+    "NPY",
 ]
 ignore = [
     "E711", # MUST IGNORE , because == vs None in numpy, sqlalquemy
@@ -59,6 +61,8 @@ ignore = [
     "SIM112",
     "PIE804",
     "PLW0603",
+    "PD901",
+    "PD010", # we don't want this since it tells us to replace `pivot` to `pivot_table` which is wrong ...
 ]
 #ignore = [
 #    "C416",
