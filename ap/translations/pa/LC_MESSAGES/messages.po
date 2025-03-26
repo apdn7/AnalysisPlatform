@@ -707,6 +707,7 @@ msgid "At least one datetime column is required."
 msgstr "ਘੱਟੋ ਘੱਟ ਇਕ ਤਾਰੀਖ ਦਾ ਕਾਲਮ ਲੋੜੀਂਦਾ ਹੈ."
 
 #: ap/templates/setting_module/db_config_modals.html
+#, python-brace-format
 msgid "'{col}' is used for x-axis on charts."
 msgstr "ਵਿਜ਼ੂਅਲਾਈਜ਼ੇਸ਼ਨ ਲਈ, x- ਧੁਰੇ ਲਈ '{col}'."
 
@@ -3061,6 +3062,13 @@ msgstr "ਗਿਰਾਵਟ"
 msgid "Download New Version"
 msgstr "Download New Version"
 
+#: ap/templates/i18n.html
+msgid "Extend SysName longer in variable selection list"
+msgstr "Click here to see longer system names"
+
+msgid "Extend variable name longer in variable selection list"
+msgstr "Click here to see longer variable names"
+
 #: ap/templates/scatter_plot/scatter_plot.html
 msgid "Backwards"
 msgstr "ਪਿੱਛੇ ਵੱਲ"
@@ -4011,11 +4019,11 @@ msgstr "Relationship"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot relationship positive"
-msgstr "Positive correlation"
+msgstr "Positive relationship"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot relationship negative"
-msgstr "Negative correlation"
+msgstr "Negative relationship"
 
 #: ap/templates/templates/macros.html
 msgid "SkD hover plot hover coefficient"
@@ -4106,7 +4114,7 @@ msgstr "Link"
 msgid "Link copy hover msg"
 msgstr "Copy the URL to draw the graph with the saved settings."
 
-#: ap/templates/sidebar.html
+#: ap/templates/modals.html ap/templates/sidebar.html
 msgid "New tab"
 msgstr "New tab"
 
@@ -4268,20 +4276,11 @@ msgstr "Min"
 msgid "Data Name"
 msgstr "DataName"
 
-msgid "InvalidBrowserTitle"
-msgstr "Your browser does not support"
-
-msgid "InvalidBrowserContent"
+#: ap/templates/modal.html
+msgid "InvalidBrowser"
 msgstr ""
-"The current version only supports Chrome, Microsoft Edge and Safari (>= "
-"15.4) browsers.BREAK_LINEPlease check your browser and try to accessing "
-"the application again."
-
-msgid "InvalidBrowserVersion"
-msgstr ""
-"Safari version 15.4 or higher is required to run some features of the "
-"application.BREAK_LINEPlease check your browser version and try accessing"
-" the application again."
+"Some features may not work properly in browsers other than Microsoft Edge"
+" or Google Chrome."
 
 #: ap/templates/macros.html
 msgid "Applies outlier removal to the objective variable."
@@ -4441,6 +4440,18 @@ msgstr "Copy to filtered"
 #: ap/templates/i18n.html
 msgid "Column Raw Name"
 msgstr "Column Raw Name"
+
+#: ap/templates/i18n.html
+msgid "All imported data will be permanently deleted. Do you want to continue?"
+msgstr "All imported data will be permanently deleted. Do you want to continue?"
+
+#: ap/templates/i18n.html
+msgid ""
+"All log data in the following folder will be permanently deleted. Do you "
+"want to continue?"
+msgstr ""
+"All log data in the following folder will be permanently deleted. Do you "
+"want to continue?"
 
 #: ap/templates/i18n.html
 msgid "Sample Data"
@@ -4904,6 +4915,7 @@ msgstr ""
 "Are you sure you want to delete them all?"
 
 #: ap/templates/i18n.html
+#, python-brace-format
 msgid ""
 "Cast error: There are some columns that cannot be cast to another data "
 "type. Please check the real data of the columns listed below: You can "
@@ -5133,7 +5145,7 @@ msgstr "V2 CSV"
 
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshop"
-msgstr "Software Workshop Interface"
+msgstr "Software Workshop ETL"
 
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "ProcDatetimeFormatHoverMsg"
@@ -5146,4 +5158,111 @@ msgstr ""
 "%%m/%%d/%%y\t\t\t\t 02/21/2024\n"
 "%%b %%d, %%Y\t\t\t\t Feb 21, 2024\n"
 "%%Y%%m%%d%%H%%M\t\t\t 202409251400\n"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "checkIsMainSerialMsg"
+msgstr ""
+"Since \"main::Serial\" cannot be selected multiple times, the "
+"\"main::Serial:Int\"/\"main::Serial:Str\" selected in Process Config will"
+" be changed to \"Serial:Int\"/\"Serial:Str\"."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "fill.na processing will be skipped"
+msgstr "fill.na processing will be skipped"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid ""
+"Functions and columns created from fill.na or me function processing will"
+" be skipped."
+msgstr ""
+"Functions and columns created from fill.na or me function processing will"
+" be skipped."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "Please uncheck main::Serial before making any changes."
+msgstr "Please uncheck main::Serial before making any changes."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "mainSerialCheckboxHover"
+msgstr ""
+"A column whose data type is a Int/Str used to link data between "
+"processes. (Multiple selections are not possible)"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "WarningUpdateTransactionDataJobNotCompleteInChangingLinkKeyMsg"
+msgstr ""
+"In this process, due to the ongoing update of transaction data following "
+"a modification to main::Serial, changes to columns linked to variables "
+"containing main::Serial may not be accurately reflected in the results."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "WarningUpdateTransactionDataJobNotCompleteInShowGraphMsg"
+msgstr ""
+"In this process, due to the ongoing update of transaction data following "
+"a modification to main::Serial, the graph display results may not be "
+"accurate."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "changeMainSerialFunctionColumnMsg"
+msgstr ""
+"Since \"main::Serial\" cannot be selected multiple times, uncheck the "
+"variable that has already been selected in main::Serial."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "uncheckMainSerialFunctionColumnMsg"
+msgstr ""
+"Since \"main::Serial\" cannot be selected multiple times, uncheck the "
+"variable that has already been selected in main::Serial."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "anyChangeDefinitionMainSerialFunctionColumnMsg"
+msgstr ""
+"Changing the definition of the Function set in \"main::Serial\" will take"
+" processing time. Do you want to change it?"
+
+#: ap/templates/modal.html
+msgid "DiscardChangesMessage"
+msgstr "You've made changes that haven't been saved yet. Do you want to save them?"
+
+#: ap/templates/modal.html
+msgid "Discard Changes"
+msgstr "Confirm to save all changes"
+
+#: ap/templates/i18n.html ap/templates/system.html
+msgid "confirmExportZipMsg"
+msgstr "Do you want to export config data to a file?"
+
+#: ap/templates/system.html
+msgid "confirmImportZipFileMsg"
+msgstr ""
+"Importing the config data of backup file deletes the current config. Is "
+"it OK to continue processing?"
+
+#: ap/templates/system.html
+msgid "dragDropZipFilePromptMsg"
+msgstr ""
+"Please drag and drop the previously exported configuration file (file "
+"name: AP_config_yyyymmddHHMMSS)."
+
+#: ap/templates/system.html
+msgid "configBackupMigrationLabel"
+msgstr "Config Backup & Migration"
+
+#: ap/templates/system.html
+msgid "Import Config"
+msgstr "Import Config"
+
+#: ap/templates/i18n.html
+msgid "ImportAppSettingDone"
+msgstr "Importing application database is finished."
+
+#: ap/templates/i18n.html
+msgid "ImportAppSettingFailed"
+msgstr "Importing application database failed."
+
+#: ap/templates/i18n.html
+msgid "invalidFilePathMsg"
+msgstr ""
+"The file cannot be referenced from the file path you entered. Please "
+"check the file path."
 

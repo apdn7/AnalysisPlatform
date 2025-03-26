@@ -10,21 +10,13 @@ const showToastr = (errors) => {
     } else if (errors instanceof Object) {
         const trainDataErr = {
             is_err: errors.train_data.error,
-            is_all_na:
-                errors.train_data.errors &&
-                errors.train_data.errors.includes('E_ALL_NA'),
-            is_zero_var:
-                errors.train_data.errors &&
-                errors.train_data.errors.includes('E_ZERO_VARIANCE'),
+            is_all_na: errors.train_data.errors && errors.train_data.errors.includes('E_ALL_NA'),
+            is_zero_var: errors.train_data.errors && errors.train_data.errors.includes('E_ZERO_VARIANCE'),
         };
         const targetDataErr = {
             is_err: errors.target_data.error,
-            is_all_na:
-                errors.target_data.errors &&
-                errors.target_data.errors.includes('E_ALL_NA'),
-            is_zero_var:
-                errors.target_data.errors &&
-                errors.target_data.errors.includes('E_ZERO_VARIANCE'),
+            is_all_na: errors.target_data.errors && errors.target_data.errors.includes('E_ALL_NA'),
+            is_zero_var: errors.target_data.errors && errors.target_data.errors.includes('E_ZERO_VARIANCE'),
         };
         let msgContent = '';
         if (trainDataErr.is_all_na || targetDataErr.is_all_na) {
@@ -67,10 +59,6 @@ const showAllDeleteNAToastrMsgs = (res, formData) => {
         );
     }
     if (res.removed_outlier_nan_test) {
-        showToastrDeleteNA(
-            i18n.testingData,
-            numSensors * res.actual_record_number_test,
-            res.removed_outlier_nan_test,
-        );
+        showToastrDeleteNA(i18n.testingData, numSensors * res.actual_record_number_test, res.removed_outlier_nan_test);
     }
 };

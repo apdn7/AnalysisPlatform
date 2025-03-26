@@ -80,7 +80,8 @@ def preprocess_skdpage(
     idx: 1d NumpyArray
         Index of rows used for training the model
     """
-    np.random.seed(1)
+    # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
+    np.random.seed(1)  # noqa: NPY002
 
     # prepare group information
     uniq_grps, idx_grps = np.unique(groups, return_inverse=True)
@@ -110,9 +111,20 @@ def preprocess_skdpage(
     idx = np.arange(X.shape[0])
     if X.shape[0] > max_datapoints:
         if is_binary:
-            _, _, _, _, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, stratify=y, shuffle=True)
+            _, _, _, _, _, idx = train_test_split(
+                X.copy(),
+                y,
+                idx,
+                test_size=max_datapoints,
+                stratify=y,
+            )
         else:
-            _, _, _, _, _, idx = train_test_split(X.copy(), y, idx, test_size=max_datapoints, shuffle=True)
+            _, _, _, _, _, idx = train_test_split(
+                X.copy(),
+                y,
+                idx,
+                test_size=max_datapoints,
+            )
         idx = np.sort(idx.flatten())
         X = X.iloc[idx, :].reset_index(drop=True)
         y = y[idx]
@@ -186,19 +198,19 @@ def calc_coef_and_group_order(
     y_scaler = StandardScaler()
 
     # preprocessing
-    for col in X.columns.values:
+    for col in X.columns:
         if col in dic_groups['cat_cols']:
             is_nominal_scale = col in nominal_variables
-            X.loc[:, col] = labelencode_by_stat(
-                X[col].astype(str).values.flatten(),
+            X[col] = labelencode_by_stat(
+                X[col].astype('string').to_numpy().flatten(),
                 y.flatten(),
                 is_nominal_scale=is_nominal_scale,
             )
-        X.loc[:, col] = StandardScaler().fit_transform(X[col].values.astype(float).reshape(-1, 1))
+        X.loc[:, col] = StandardScaler().fit_transform(X[col].to_numpy().astype(float).reshape(-1, 1))
 
     if is_binary is False:
         y = y_scaler.fit_transform(y)
-    X = X.values
+    X = X.to_numpy()
 
     # groups lasso (if 2 or more groups are given)
     idx_for_ridge = np.arange(X.shape[1])
@@ -233,7 +245,7 @@ Coef: {coef}
         )
 
     if is_binary is False:
-        fitted_values = y_scaler.inverse_transform(fitted_values)
+        fitted_values = y_scaler.inverse_transform(fitted_values.reshape(1, -1))[0]
     return coef, group_order, fitted_values, fitted_probs, r2
 
 
@@ -250,11 +262,11 @@ def labelencode_by_stat(x, y, how='mean', is_nominal_scale=True):
         logger.warning('Invalid value for argument "how". mean is used.')
         vals = df.groupby(by='x').mean().reset_index()
 
-    factor_orders = vals['x'].values
+    factor_orders = vals['x'].to_numpy()
     if is_nominal_scale:
-        factor_orders = vals.sort_values(by='y', ascending=True)['x'].values
+        factor_orders = vals.sort_values(by='y', ascending=True)['x'].to_numpy()
     x_encoded = df['x'].replace(factor_orders, np.arange(0, len(factor_orders)) + 1)
-    return x_encoded.values
+    return x_encoded.to_numpy()
 
 
 def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_binary=False, verbose=False):
@@ -458,7 +470,11 @@ def calc_regression_stats(y_true, y_pred, r2, coef) -> dict:
     """Calculate statistics for the regression"""
     num_vars = np.count_nonzero(coef)
     mae = np.round(np.mean(np.abs(y_true.flatten() - y_pred)), 2)
-    adjusted_r2 = np.round(calc_adjusted_r2(r2, len(y_true), num_vars), 2)
+
+    adjusted_r2 = r2
+    # skip to compute adjust_r2 in case of small dataset
+    if len(y_true) - num_vars != 1:
+        adjusted_r2 = np.round(calc_adjusted_r2(r2, len(y_true), num_vars), 2)
     dic_stats = {'mae': mae, 'adjusted_r2': adjusted_r2}
     return dic_stats
 

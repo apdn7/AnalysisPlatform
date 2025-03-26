@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import functools
 import json
@@ -28,12 +30,15 @@ from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
 from pandas import DataFrame, Series
-from pandas.core.arrays.integer import INT_STR_TO_DTYPE
+from pandas.core.arrays.integer import NUMPY_INT_TO_DTYPE
 from pandas.io import parquet
 from pyarrow import feather
+from sqlalchemy import NullPool, create_engine
 
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
+    CONFIG_DB,
+    EMPTY_STRING,
     ENCODING_ASCII,
     ENCODING_SHIFT_JIS,
     ENCODING_UTF_8,
@@ -41,10 +46,13 @@ from ap.common.constants import (
     INT64_MAX,
     INT64_MIN,
     LANGUAGES,
+    PREVIEW_DATA_FOLDER,
     SAFARI_SUPPORT_VER,
+    SCHEDULER_DB,
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
     SQL_COL_PREFIX,
+    TRANSACTION_FOLDER,
     UNIVERSAL_DB_FILE,
     ZERO_FILL_PATTERN,
     ZERO_FILL_PATTERN_2,
@@ -56,9 +64,10 @@ from ap.common.constants import (
     FileExtension,
     FilterFunc,
     FlaskGKey,
+    JobType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.services.normalization import NORMALIZE_FORM_NFKD, normalize_str, unicode_normalize
+from ap.common.services.normalization import unicode_normalize
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +102,7 @@ class PostgresFormatStrings(Enum):
 
 class SQLiteFormatStrings(Enum):
     DATE = '%Y-%m-%d'
-    TIME = '%H:%M:%S'
+    TIME = '%H:%M:%S'  # time not support milliseconds
     DATETIME = '%Y-%m-%d %H:%M:%S.%f'
 
 
@@ -596,6 +605,16 @@ def get_data_path(abs=True, is_log=False):
     return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
 
 
+def get_log_path(abs=True):
+    """get data folder path
+
+    Returns:
+        [type] -- [description]
+    """
+    folder_name = 'log'
+    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
+
+
 def get_instance_path(abs=True):
     """get data folder path
 
@@ -664,6 +683,11 @@ def get_terms_of_use_md_file(current_locale):
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
 
 
+def get_user_scripts_path():
+    folder_names = ['ap', 'script', 'user_scripts']
+    return resource_path(*folder_names, level=AbsPath.SHOW)
+
+
 def get_wrapr_path():
     """get wrap r folder path
 
@@ -682,7 +706,12 @@ def get_temp_path():
     """
     folder_name = 'temp'
     data_folder = get_data_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
+    temp_dir = resource_path(data_folder, folder_name, level=AbsPath.SHOW)
+
+    # check if temp dir exists, if not, create it
+    os.makedirs(temp_dir, exist_ok=True)
+
+    return temp_dir
 
 
 def get_cache_path():
@@ -1100,7 +1129,8 @@ def write_feather_file(df: DataFrame, file):
         logger.error(e)
         for col in df.columns:
             if df[col].dtype.name in ('object', 'category'):
-                df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
+                # FIXME: use pd?
+                df[col] = np.where(df[col].isna(), None, df[col].astype(pd.StringDtype()))
                 # df[col] = df[col].astype('category') # error in some cases
         feather.write_feather(df.reset_index(drop=True), file, compression='lz4')
 
@@ -1118,7 +1148,8 @@ def write_parquet_file(df: DataFrame, file):
         logger.error(e)
         for col in df.columns:
             if df[col].dtype.name in ('object', 'category'):
-                df[col] = np.where(pd.isnull(df[col]), None, df[col].astype(str))
+                # FIXME: use pd?
+                df[col] = np.where(df[col].isna(), None, df[col].astype(pd.StringDtype()))
                 # df[col] = df[col].astype('category') # error in some cases
         parquet.to_parquet(df.reset_index(drop=True), file, compression='gzip')
 
@@ -1152,6 +1183,12 @@ def zero_variance(df: DataFrame):
     for col in df.columns:
         if pd.api.types.is_numeric_dtype(df[col]):
             variance = df[col].replace([np.inf, -np.inf], np.nan).var()
+            if pd.isna(variance) or variance == 0:
+                is_zero_var = True
+                err_cols.append(col)
+        if pd.api.types.is_categorical_dtype(df[col]) or pd.api.types.is_string_dtype(df[col]):
+            df_category = pd.Series(df[col].astype('category').cat.codes)
+            variance = df_category.replace([np.inf, -np.inf], np.nan).var()
             if pd.isna(variance) or variance == 0:
                 is_zero_var = True
                 err_cols.append(col)
@@ -1344,32 +1381,6 @@ def gen_sqlite3_file_name(proc_id=None):
     return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
 
 
-def remove_non_ascii_chars(string, convert_irregular_chars=True):
-    from ap.common.services.jp_to_romaji_utils import replace_special_symbols
-
-    # special case for vietnamese: đ letter
-    normalized_input = re.sub(r'[đĐ]', 'd', string)
-
-    # pascal case
-    normalized_input = normalized_input.title()
-
-    # `[μµ]` in `English Name` should be replaced in to `u`.
-    # convert u before kakasi applied to keep u instead of M
-    normalized_input = re.sub(r'[μµ]', 'uu', normalized_input)
-
-    # normalize with NFKD
-    normalized_input = normalize_str(
-        normalized_input,
-        convert_irregular_chars=convert_irregular_chars,
-        normalize_form=NORMALIZE_FORM_NFKD,
-    )
-
-    normalized_input = replace_special_symbols(normalized_input)
-
-    normalized_string = normalized_input.encode(ENCODING_ASCII, 'ignore').decode()
-    return normalized_string
-
-
 def get_dummy_data_path():
     """Get dummy data folder path
 
@@ -1464,8 +1475,8 @@ def is_only_type(series: Series, data_type: Type) -> bool:
 
 
 def is_only_integer(series: Series) -> bool:
-    pandas_integer_types = [type(dtype) for dtype in INT_STR_TO_DTYPE.values()]
-    numpy_integer_types = [dtype.type for dtype in INT_STR_TO_DTYPE.values()]
+    pandas_integer_types = [type(dtype) for dtype in NUMPY_INT_TO_DTYPE.values()]
+    numpy_integer_types = [dtype.type for dtype in NUMPY_INT_TO_DTYPE.values()]
     integer_types = [int, *pandas_integer_types, *numpy_integer_types]
     return any(is_only_type(series, int_type) for int_type in integer_types)
 
@@ -1491,15 +1502,30 @@ def is_int_64(data: Series):
     return (data >= INT64_MIN) & (data <= INT64_MAX)
 
 
-def convert_numeric_by_type(data: Series, provided_data_type):
-    s = data[data.notnull()]
+@log_execution_time()
+def convert_numeric_by_type(original_data: pd.Series, provided_data_type) -> tuple[pd.Series, pd.Series]:
+    """Try to convert data to numeric
+    return converted series (without dropping) and unconverted series
+    """
+
+    # try to convert to numeric first
+    numeric_data = pd.to_numeric(original_data, errors='coerce')
+
     if provided_data_type == DataType.BOOLEAN.name:
-        s = s[((np.mod(s, 1) == 0) & is_boolean(s))]
-        data = data.where(data.isin(s), np.nan)
+        maybe_bool = numeric_data.notna() & (numeric_data % 1 == 0) & is_boolean(numeric_data)
+        # if the numeric_data maybe bool, keep the original one, otherwise, replace to nan
+        numeric_data = numeric_data.where(maybe_bool, np.nan)
     elif provided_data_type in DataType.INTEGER.name:
-        s = s[((np.mod(s, 1) == 0) & is_int_64(s))]
-        data = data.where(data.isin(s), np.nan)
-    return data
+        maybe_int = numeric_data.notna() & (numeric_data % 1 == 0) & is_int_64(numeric_data)
+        # if the numeric_data maybe int, keep the original one, otherwise, replace to nan
+        numeric_data = numeric_data.where(maybe_int, np.nan)
+
+    # get all non-numeric values
+    # these are originally not na, but are converted to na after `to_numeric`
+    is_non_numeric = original_data.notna() & numeric_data.isna()
+    non_numeric_data = original_data[is_non_numeric]
+
+    return numeric_data, non_numeric_data
 
 
 def find_duplicate_values(key_value_dict: dict[Any, str]) -> dict[str, Any]:
@@ -1563,6 +1589,42 @@ def get_preview_data_file_folder(data_source_id):
 
 
 def get_preview_data_path():
-    folder_name = 'preview_data'
     data_folder = get_instance_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
+    return resource_path(data_folder, PREVIEW_DATA_FOLDER, level=AbsPath.SHOW)
+
+
+def is_none_or_empty(value: Union[str, int, None]) -> bool:
+    return value is None or value == EMPTY_STRING
+
+
+def generate_job_id(job_type: Union[JobType, str], process_id: int | None = None) -> str:
+    job = job_type.name if isinstance(job_type, JobType) else job_type
+    return f'{job}_{process_id}' if process_id is not None else f'{job}'
+
+
+def get_transaction_folder_path():
+    return resource_path(get_instance_path(), TRANSACTION_FOLDER, level=AbsPath.SHOW)
+
+
+def get_config_db_path():
+    return resource_path(get_instance_path(), CONFIG_DB, level=AbsPath.SHOW)
+
+
+def get_scheduler_db_path():
+    return resource_path(get_instance_path(), SCHEDULER_DB, level=AbsPath.SHOW)
+
+
+def get_export_setting_path():
+    """get cache folder path
+
+    Returns:
+        [type] -- [description]
+    """
+    folder_name = 'export_setting'
+    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
+
+
+def create_sa_engine_for_migration(uri):
+    # using NullPool until we know how to handle QueuePool
+    engine = create_engine(uri, poolclass=NullPool)
+    return engine

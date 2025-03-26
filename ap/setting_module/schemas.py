@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import marshmallow
 from marshmallow import fields, post_load
 from marshmallow_sqlalchemy.fields import Nested
 
 from ap import ma
+from ap.common.constants import DataType
+from ap.common.cryptography_utils import encrypt
+from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import (
     CfgCsvColumn,
     CfgDataSource,
@@ -14,7 +19,6 @@ from ap.setting_module.models import (
     CfgProcess,
     CfgProcessColumn,
     CfgProcessFunctionColumn,
-    CfgRequest,
     CfgTrace,
     CfgTraceKey,
     CfgUserSetting,
@@ -24,211 +28,207 @@ from ap.setting_module.models import (
 EXCLUDE_COLS = ('updated_at', 'created_at')
 
 
-class CsvColumnSchema(ma.SQLAlchemyAutoSchema):
+class BaseSchema(ma.SQLAlchemyAutoSchema):
+    """Base schema with shared definition"""
+
     class Meta:
-        model = CfgCsvColumn
+        """Base meta with shared definition"""
+
+        # allow to include relationships from children models
+        include_relationships = True
+
+        # allow to show foreign keys
         include_fk = True
-        unknown = True
+
+        # load into sqlalchemy models
+        load_instance = True
+
+        # allow objects non-existed in database
+        transient = True
+
+        # allow missing fields to be parsed as None
         partial = True
+
+        # exclude every unknown fields
+        unknown = marshmallow.EXCLUDE
         exclude = EXCLUDE_COLS
 
-    id = fields.Integer(required=False)
-    data_source_id = fields.Integer(required=False)
 
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgCsvColumn(**data)
+class CsvColumnSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        model = CfgCsvColumn
+
+    id = fields.Integer(allow_none=True)
+    data_source_id = fields.Integer(allow_none=True)
 
 
-class DataSourceDbSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class DataSourceDbSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgDataSourceDB
-        include_fk = True
-        unknown = True
-        exclude = EXCLUDE_COLS
 
-    id = fields.Integer(required=False)
+    id = fields.Integer(allow_none=True)
 
     @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgDataSourceDB(**data)
+    def make_instance(self, data, **kwargs):
+        """Change some data after validation
+        See more: <https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/502#issuecomment-1484628041>
+        """
+        model = super().make_instance(data)
+
+        # encrypt password
+        model.password = encrypt(model.password)
+        model.hashed = True
+        # avoid blank string
+        model.port = model.port or None
+        model.schema = model.schema or None
+
+        return model
 
 
-class DataSourceCsvSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class DataSourceCsvSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgDataSourceCSV
-        include_fk = True
-        unknown = True
-        required = False
-        exclude = EXCLUDE_COLS
 
-    id = fields.Integer(required=False)
-    csv_columns = Nested(CsvColumnSchema, many=True)
+    id = fields.Integer(allow_none=True)
 
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgDataSourceCSV(**data)
+    csv_columns = fields.Nested('CsvColumnSchema', many=True)
 
 
-class DataSourceSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class DataSourceSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgDataSource
-        unknown = True
-        exclude = EXCLUDE_COLS
+        exclude = BaseSchema.Meta.exclude + ('order',)
 
-    id = fields.Integer(required=False, allow_none=True)
-    csv_detail = Nested(DataSourceCsvSchema)
-    db_detail = Nested(DataSourceDbSchema)
+    id = fields.Integer(allow_none=True)
 
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgDataSource(**data)
+    csv_detail = fields.Nested('DataSourceCsvSchema', allow_none=True)
+    db_detail = fields.Nested('DataSourceDbSchema', allow_none=True)
 
 
-class FilterDetailSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class FilterDetailSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgFilterDetail
-        include_fk = True
-        exclude = EXCLUDE_COLS
 
 
-class ProcessFunctionColumnSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessFunctionColumnSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcessFunctionColumn
-        include_fk = True
-        exclude = EXCLUDE_COLS
-        unknown = marshmallow.EXCLUDE
 
-    id = fields.Integer(required=False, allow_none=True)
-    function_id = fields.Integer(required=False, allow_none=True)
-
-    var_x = fields.Integer(required=False, allow_none=True)
-    var_y = fields.Integer(required=False, allow_none=True)
-
-    a = fields.String(required=False, allow_none=True)
-    b = fields.String(required=False, allow_none=True)
-    c = fields.String(required=False, allow_none=True)
-    n = fields.String(required=False, allow_none=True)
-    k = fields.String(required=False, allow_none=True)
-    s = fields.String(required=False, allow_none=True)
-    t = fields.String(required=False, allow_none=True)
-
-    return_type = fields.String(required=False, allow_none=True)
-    note = fields.String(required=False, allow_none=True)
-    process_column_id = fields.Integer(required=False, allow_none=True)
-
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgProcessFunctionColumn(**data)
+    id = fields.Integer(allow_none=True)
+    # hybrid properties go here
+    is_me_function = fields.Boolean(dump_only=True)
 
 
-class ProcessColumnSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessColumnSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcessColumn
-        include_fk = True
-        exclude = EXCLUDE_COLS
-        unknown = marshmallow.EXCLUDE
 
-    id = fields.Integer(required=False, allow_none=True)
+    id = fields.Integer(allow_none=True)
 
-    name_jp = fields.String(required=False, allow_none=True)
-    name_local = fields.String(required=False, allow_none=True)
-    name_en = fields.String(required=False, allow_none=False)
-    shown_name = fields.String(required=False, allow_none=True)
-    name = fields.String(required=False, allow_none=True)
-    is_category = fields.Boolean(required=False, allow_none=True)
-    is_int_category = fields.Boolean(required=False, allow_none=True)
-    is_judge = fields.Boolean(required=False, allow_none=True)
-    is_linking_column = fields.Boolean(required=False, allow_none=True)
-    is_file_name = fields.Boolean(required=False, allow_none=True)
-    unit = fields.String(required=False, allow_none=True)
-
-    parent_column = Nested('ProcessColumnSchema', many=False, required=False)
+    parent_column = fields.Nested('ProcessColumnSchema', allow_none=True)
     # This field to sever store function config of this column
-    function_details = Nested(ProcessFunctionColumnSchema, many=True, required=False)
+    function_details = fields.Nested('ProcessFunctionColumnSchema', many=True, required=False)
 
     # This field to sever store previous data type and show it on modal fail convert data
-    origin_raw_data_type = fields.String(required=False, allow_none=True)
+    origin_raw_data_type = fields.String(allow_none=True)
+
+    # if new process
+    process_id = fields.Integer(allow_none=True)
+
+    # hybrid properties go here
+    is_main_serial = fields.Boolean(dump_only=True)
+    is_function_column = fields.Boolean(dump_only=True)
+    is_normal_column = fields.Boolean(dump_only=True)
+    is_main_serial_function_column = fields.Boolean(dump_only=True)
+    is_transaction_column = fields.Boolean(dump_only=True)
+    shown_name = fields.String(dump_only=True)
+    is_linking_column = fields.Boolean(dump_only=True)
+    bridge_column_name = fields.String(dump_only=True)
+    is_category = fields.Boolean(dump_only=True)
+    is_int_category = fields.Boolean(dump_only=True)
+    is_judge = fields.Boolean(dump_only=True)
+    is_me_function_column = fields.Boolean(dump_only=True)
+    is_chain_of_me_functions = fields.Boolean(dump_only=True)
 
     @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgProcessColumn(**data)
+    def make_instance(self, data, **kwargs):
+        """Change some data after validation
+        See more: <https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/502#issuecomment-1484628041>
+        """
+        model = super().make_instance(data)
+
+        # transform english name
+        if not model.name_en:
+            model.name_en = to_romaji(model.column_name)
+
+        # transform data type
+        if model.data_type in (DataType.EU_REAL_SEP.name, DataType.REAL_SEP.name):
+            model.data_type = DataType.REAL.name
+        elif model.data_type in (DataType.EU_INTEGER_SEP.name, DataType.INTEGER_SEP.name):
+            model.data_type = DataType.INTEGER.name
+
+        return model
 
 
-class FilterSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class FilterSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgFilter
-        include_fk = True
-        exclude = EXCLUDE_COLS
 
-    filter_details = Nested(FilterDetailSchema, many=True)
-    column = Nested(ProcessColumnSchema, many=False)
+    filter_details = fields.Nested('FilterDetailSchema', many=True)
+    column = fields.Nested('ProcessColumnSchema')
 
 
-class VisualizationSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class VisualizationSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgVisualization
-        include_fk = True
-        exclude = EXCLUDE_COLS
 
-    id = fields.Integer(required=False, allow_none=True)
-    filter_detail_id = fields.Integer(required=False, allow_none=True)
-    control_column = Nested(ProcessColumnSchema, many=False)
-    filter_column = Nested(ProcessColumnSchema, many=False)
-    filter_detail = Nested(FilterDetailSchema, many=False)
+    id = fields.Integer(allow_none=True)
 
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgVisualization(**data)
+    control_column = fields.Nested('ProcessColumnSchema')
+    filter_column = fields.Nested('ProcessColumnSchema')
+    filter_detail = fields.Nested('FilterDetailSchema')
 
 
-class TraceKeySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class TraceKeySchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgTraceKey
-        include_fk = True
-        exclude = EXCLUDE_COLS
 
-    self_column = Nested(ProcessColumnSchema)
-    target_column = Nested(ProcessColumnSchema)
+    self_column = fields.Nested('ProcessColumnSchema')
+    target_column = fields.Nested('ProcessColumnSchema')
 
 
-class TraceSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class TraceSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgTrace
-        include_fk = True
-        exclude = EXCLUDE_COLS
 
-    trace_keys = Nested(TraceKeySchema, many=True)
+    trace_keys = fields.Nested('TraceKeySchema', many=True)
 
 
-class ProcessSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcess
-        include_fk = True
-        include_relationships = True
         exclude = ('visualizations',) + EXCLUDE_COLS  # re-open the params if used
 
-    id = fields.Integer(required=False, allow_none=True)
-    columns = Nested(ProcessColumnSchema, many=True)
-    traces = Nested(TraceSchema, many=True)
-    filters = Nested(FilterSchema, many=True)
-    data_source = Nested(lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail')))
-    name_en = fields.String(required=False, allow_none=False)
-    name_jp = fields.String(required=False, allow_none=True)
-    name_local = fields.String(required=False, allow_none=True)
-    shown_name = fields.String(required=False, allow_none=True)
-    is_show_file_name = fields.Boolean(required=False, allow_none=True)
-    process_factid = fields.String(required=False, allow_none=True)
-    master_type = fields.String(required=False, allow_none=True)
-    datetime_format = fields.String(required=False, allow_none=True)
+    # allow to create new process
+    id = fields.Integer(allow_none=True)
+
+    columns = fields.Nested('ProcessColumnSchema', many=True)
+    traces = fields.Nested('TraceSchema', many=True)
+    filters = fields.Nested('FilterSchema', many=True)
+    # TODO(khanhdq): can we omit the lambda here? it is ugly
+    data_source = fields.Nested(lambda: DataSourceSchema(only=('id', 'name', 'type', 'csv_detail', 'db_detail')))
+
+    # `order` field will be calculated after loading, need to mark it here
+    order = fields.Integer(required=False, allow_none=True)
+
+    # hybrid properties go here
+    shown_name = fields.String(dump_only=True)
+    is_check_datetime_format = fields.Boolean(dump_only=True)
 
 
-class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessFullSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcess
-        include_fk = True
-        include_relationships = True
-        exclude = EXCLUDE_COLS
 
     id = fields.Integer(required=False, allow_none=True)
     columns = Nested(ProcessColumnSchema, many=True)
@@ -236,51 +236,42 @@ class ProcessFullSchema(ma.SQLAlchemyAutoSchema):
     filters = Nested(FilterSchema, many=True)
     data_source = Nested(DataSourceSchema)
     visualizations = Nested(VisualizationSchema, many=True)
-
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgProcess(**data)
+    # hybrid properties go here
+    shown_name = fields.String(dump_only=True)
 
 
-class ProcessVisualizationSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessVisualizationSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcess
-        include_fk = True
-        include_relationships = True
-        exclude = ('data_source', 'traces') + EXCLUDE_COLS
+        exclude = ('data_source', 'traces') + BaseSchema.Meta.exclude
 
-    columns = Nested(ProcessColumnSchema, many=True)
-    visualizations = Nested(VisualizationSchema, many=True)
-    filters = Nested(FilterSchema, many=True)
+    columns = fields.Nested('ProcessColumnSchema', many=True)
+    visualizations = fields.Nested('VisualizationSchema', many=True)
+    filters = fields.Nested('FilterSchema', many=True)
 
 
-class ProcessOnlySchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ProcessOnlySchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcess
         exclude = ('visualizations', 'columns', 'traces', 'filters') + EXCLUDE_COLS  # re-open the params if used
 
     shown_name = fields.String(required=False, allow_none=False)
 
 
-class CfgUserSettingSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class CfgUserSettingSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgUserSetting
         exclude = ['created_at']
 
     id = fields.Integer(required=False, allow_none=True)
     function = fields.String(required=False, allow_none=True)
 
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgUserSetting(**data)
 
-
-class ShowGraphSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class ShowGraphSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgProcess
         include_fk = True
         include_relationships = True
-        # exclude = ('data_source', 'traces') + EXCLUDE_COLS
         exclude = ('traces', 'comment', 'order') + EXCLUDE_COLS
 
     id = fields.Integer(required=False, allow_none=True)
@@ -293,19 +284,22 @@ class ShowGraphSchema(ma.SQLAlchemyAutoSchema):
     shown_name = fields.String(required=True, allow_none=False)
 
 
-class CfgRequestSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CfgRequest
-
-    @post_load
-    def make_obj(self, data, **kwargs):
-        return CfgRequest(**data)
-
-
-class CfgOptionSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
+class CfgOptionSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
         model = CfgOption
+        # TODO: why we don't use default exclude here?
+        exclude = []
 
     @post_load
     def make_obj(self, data, **kwargs):
         return CfgOption(**data)
+
+
+class ProcessColumnExternalAPISchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        load_instance = False
+        exclude = []
+
+    id = fields.Integer(required=True)
+    shown_name = fields.String(required=True, data_key='name')
+    data_type = fields.String(required=True)

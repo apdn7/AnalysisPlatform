@@ -11,7 +11,9 @@
 
 echo Start Main AP Sequence...
 echo:
-
+set startupDate=%date: =0%
+set startupTime=%time: =0%
+set startupTimeLogFile=startup_time_ap
 : Wait Setting for Network Check in [sec]
 set wait_netcheck_inst=10
 set wait_netcheck_appl=1
@@ -33,6 +35,7 @@ if exist %file_prod% (
 )
 echo:
 
+set startAppTime=%time: =0%
 : Run start program
 : Close old start_ap.exe before run
 call :stopLoadingApp
@@ -45,9 +48,12 @@ if %startup_mode% == 8 (
   echo Direct Startup Mode === Force to bypass Installation ===
   set network_nck=True
   call :saveStartUpSetting
+  call :logTimeDiff %startAppTime% %startupTimeLogFile% "Call start_ap.exe"
   goto START_APP
 ) else (
   echo Normal Startup Mode === Check Network and Proxy ===
+  call :logTimeDiff %startAppTime% %startupTimeLogFile% "Call start_ap.exe"
+  set checkNetworkStartTime=%time: =0%
 )
 
 : _____________________________________________________________________________
@@ -106,6 +112,8 @@ if errorlevel 1 (
 ) else (
   set network_nck=False
 )
+call :logTimeDiff %checkNetworkStartTime% %startupTimeLogFile% "Check Network"
+set checkFolderStartTime=%time: =0%
 
 : _____________________________________________________________________________
 : Check changed (folder + version updated)
@@ -132,6 +140,8 @@ echo:
 call :saveStartUpSetting
 title %app_title%
 
+call :logTimeDiff %checkFolderStartTime% %startupTimeLogFile% "Check folder changes"
+set checkInstallationStartTime=%time: =0%
 : _____________________________________________________________________________
 : Check Installation Status
 rem for Debug
@@ -147,6 +157,7 @@ if exist %path_python% if exist %path_getpip% if exist %path_oracle% (
   echo:
   goto START_APP
 )
+call :logTimeDiff %checkInstallationStartTime% %startupTimeLogFile% "Check installation status"
 
 : _____________________________________________________________________________
 : Download Components & Libraries
@@ -173,6 +184,7 @@ if exist %path_oracle% (echo Detect oracle) else goto :ORACLE_INSTANCE
 
 : -----------------------------------------------------------------------------
 :ACTIVE_PYTHON_ENVIRONMENT
+set setupEnvStartTime=%time: =0%
 :: Active virtual environment
 IF NOT EXIST %env_path% (
   ECHO Installing Virtualenv
@@ -213,6 +225,8 @@ if exist %ca_cert% call :REMOVE_CA_CERT
 echo:
 echo Download components, libraries and installation is completed.
 echo:
+call :logTimeDiff %setupEnvStartTime% %startupTimeLogFile% "Installing packages"
+set step6StartTime=%time: =0%
 
 : -----------------------------------------------------------------------------
 : Remove Oracle and python_embedded after install application
@@ -227,6 +241,7 @@ echo:
 : Run App: Analysis Platform
 :START_APP
 : log application status : Installation Completed
+set startPythonAppTime=%time: =0%
 IF exist %file_temp% del %file_temp%
 call :getAppStatus %file_status%
 
@@ -243,6 +258,7 @@ IF %is_venv_activated% == 0 (
   ECHO Activate virtual environment
   CALL %env_path%\Scripts\activate & GOTO SET_PATH
 )
+call :logTimeDiff %startPythonAppTime% %startupTimeLogFile% "Start AP"
 : -----------------------------------------------------------------------------
 :SET_PATH
 :: Set default python & components path to PATH environment
@@ -268,8 +284,10 @@ if errorlevel 0 (
 
 : ensure to assign the app title
 title %app_title%
+call :logTimeDiff %step6StartTime% %startupTimeLogFile% "Set Path"
 
 REM run application
+call :logTimeDiff %startupTime% %startupTimeLogFile% "Total"
 ECHO Starting Up Analysis Platform ...
 python.exe main.py
 set /a error=%error%+%ErrorLevel%
@@ -412,6 +430,8 @@ GOTO CHECK_EXIST
   set path_R=%cd%\..\R-Portable
   set ca_cert=%cd%\..\cacert.pem
   set path_python=%cd%\..\python_embedded_39
+  :: Override PYTHONPATH with empty for cmd session only
+  set PYTHONPATH=
   set env_path=%cd%\..\env
   set sqlite_dll=%cd%\init\sqlite3.dll
   set path_getpip=%cd%\..\get-pip.py
@@ -612,3 +632,30 @@ for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "imagename eq start_ap
 )
 exit /b
 :end
+
+:logTimeDiff
+rem Calculate elapsed time and log into file
+rem params: startTime, logFileName, logMsg
+setlocal EnableDelayedExpansion
+set startTime=%1
+set logFileName=%2
+set logMsg=%3
+set "endTime=%time: =0%"
+rem Get elapsed time:
+set "end=!endTime:%time:~8,1%=%%100)*100+1!" & set "start=!startTime:%time:~8,1%=%%100)*100+1!"
+set /A "elap=((((10!end:%time:~2,1%=%%100)*60+1!%%100)-((((10!start:%time:~2,1%=%%100)*60+1!%%100), elap-=(elap>>31)*24*60*60*100"
+
+rem Convert elapsed time to HH:MM:SS:CC format:
+set /A "cc=elap%%100+100,elap/=100,ss=elap%%60+100,elap/=60,mm=elap%%60+100,hh=elap/60+100"
+
+For /f "tokens=1-3 delims=/ " %%a in ("%startupDate%") do (set startupdatelabel=%%a%%b%%c)
+rem Get the current time with hours, minutes, seconds
+for /f "tokens=1-3 delims=:. " %%a in ("%startupTime%") do (
+set hour=%%a
+set min=%%b
+set sec=%%c
+)
+set startuptimelabel=%hour%%min%%sec%
+rem Write startup time into log file
+echo %logMsg%:  %hh:~1%%time:~2,1%%mm:~1%%time:~2,1%%ss:~1%%time:~8,1%%cc:~1% >> log/%logFileName%_%startupdatelabel%_%startuptimelabel%.log
+endlocal

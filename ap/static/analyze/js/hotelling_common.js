@@ -59,9 +59,7 @@ const hideLoading = (divElement = null) => {
 const clickedPointTemplate = (xVal, yVal) => ({
     x: [xVal],
     y: [yVal],
-    text: [
-        `xvar: ${applySignificantDigit(xVal)}<br />yvar: ${applySignificantDigit(yVal)}`,
-    ],
+    text: [`xvar: ${applySignificantDigit(xVal)}<br />yvar: ${applySignificantDigit(yVal)}`],
     type: 'scatter',
     mode: 'markers',
     marker: {
@@ -89,11 +87,7 @@ const addDataPointFromXY = (elementId, orginalDataLen, x, y) => {
         if (dataLength > orginalDataLen) {
             Plotly.deleteTraces(elementId, dataLength - 1);
         }
-        Plotly.addTraces(
-            elementId,
-            clickedPointTrace,
-            chartElement.data.length,
-        );
+        Plotly.addTraces(elementId, clickedPointTrace, chartElement.data.length);
     }
 };
 
@@ -104,11 +98,7 @@ const addDataPointFromXY = (elementId, orginalDataLen, x, y) => {
         dataPoint: data of clicked point got from click event
         isStartingChart: to identify if chart in the elementId is origin of the click
 */
-const updateTimeSeries = (
-    elementId = null,
-    dataPoint = {},
-    isStartingChart = true,
-) => {
+const updateTimeSeries = (elementId = null, dataPoint = {}, isStartingChart = true) => {
     // update Chart
     const tsElement = document.getElementById(elementId);
     const tsOriginalDataLength = 2;
@@ -127,12 +117,7 @@ const updateTimeSeries = (
                 // clicked point is in test data
                 const dataX = trace.x[clickedDataIndex];
                 const dataY = trace.y[clickedDataIndex];
-                addDataPointFromXY(
-                    elementId,
-                    tsOriginalDataLength,
-                    dataX,
-                    dataY,
-                );
+                addDataPointFromXY(elementId, tsOriginalDataLength, dataX, dataY);
                 break;
             }
         }
@@ -146,12 +131,7 @@ const updateTimeSeries = (
         dataPoint: data of clicked point got from click event
         isStartingChart: to identify if chart in the elementId is origin of the click
 */
-const updateScatter = (
-    elementId = null,
-    dataPoint = {},
-    isStartingChart = true,
-    jsonDtTest = {},
-) => {
+const updateScatter = (elementId = null, dataPoint = {}, isStartingChart = true, jsonDtTest = {}) => {
     // update Chart
     const scatterElement = document.getElementById(elementId);
     const scatterOrginalDataLength = 6;
@@ -170,12 +150,7 @@ const updateScatter = (
             if (trace.name === 'clickedPoint') {
                 const dataX = jsonDtTest.data[0].x[clickedDataIndex];
                 const dataY = jsonDtTest.data[0].y[clickedDataIndex];
-                addDataPointFromXY(
-                    elementId,
-                    scatterOrginalDataLength,
-                    dataX,
-                    dataY,
-                );
+                addDataPointFromXY(elementId, scatterOrginalDataLength, dataX, dataY);
                 isReplaced = true;
                 break;
             }
@@ -183,12 +158,7 @@ const updateScatter = (
         if (!isReplaced) {
             const dataX = jsonDtTest.data[0].x[clickedDataIndex];
             const dataY = jsonDtTest.data[0].y[clickedDataIndex];
-            addDataPointFromXY(
-                elementId,
-                scatterOrginalDataLength,
-                dataX,
-                dataY,
-            );
+            addDataPointFromXY(elementId, scatterOrginalDataLength, dataX, dataY);
         }
     }
 };
@@ -235,30 +205,13 @@ const updateRecordInfo = (dataInfos = {}, sampleNo = 0) => {
     dataPoint: data which is got from the click event
     startingChart: id of chart which originates the click event
 */
-const broadcastClickEvent = (
-    dataPoint,
-    startingChart,
-    jsonPCAScoreTest = {},
-) => {
+const broadcastClickEvent = (dataPoint, startingChart, jsonPCAScoreTest = {}) => {
     // Update time series
-    updateTimeSeries(
-        (elementId = 'timeSeriesT2'),
-        dataPoint,
-        startingChart === 'timeSeriesT2',
-    );
-    updateTimeSeries(
-        (elementId = 'timeSeriesQ'),
-        dataPoint,
-        startingChart === 'timeSeriesQ',
-    );
+    updateTimeSeries((elementId = 'timeSeriesT2'), dataPoint, startingChart === 'timeSeriesT2');
+    updateTimeSeries((elementId = 'timeSeriesQ'), dataPoint, startingChart === 'timeSeriesQ');
 
     // Update Xtest scatter
-    updateScatter(
-        (elementId = 'xTest'),
-        dataPoint,
-        startingChart === 'xTest',
-        (jsonDtTest = jsonPCAScoreTest),
-    );
+    updateScatter((elementId = 'xTest'), dataPoint, startingChart === 'xTest', (jsonDtTest = jsonPCAScoreTest));
 
     // Call backend to get jsons for Qcont + T2cont + BiPlot + record info
     const formData = collectInputAsFormData();
@@ -302,10 +255,7 @@ const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
             automargin: true,
             type: 'linear',
             autorange: false,
-            range: [
-                0,
-                1.05 * Math.max(...objData.Ratio.map((x) => Math.abs(x))),
-            ],
+            range: [0, 1.05 * Math.max(...objData.Ratio.map((x) => Math.abs(x)))],
             tickmode: 'array',
             categoryorder: 'array',
             nticks: null,
@@ -515,9 +465,7 @@ const genContributionChartData = (objData, type = 't2', dpInfo = null) => {
         let procName = '';
         let colName = '';
         if (dpInfo) {
-            const rowInfo = dpInfo.filter(
-                (row) => varName.toLowerCase() === row[1],
-            );
+            const rowInfo = dpInfo.filter((row) => varName.toLowerCase() === row[1]);
             if (rowInfo.length) {
                 [[procName, colName]] = rowInfo;
                 distributionName = `${procName}-${colName}<br />`;

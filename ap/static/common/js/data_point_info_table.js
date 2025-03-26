@@ -51,16 +51,9 @@ const genTRItems = (firstCol, secondCol, thirdCol = null) => {
 
 let hoverInfoTimeOut = null;
 
-const genDataPointHoverTable = (
-    dataTable,
-    offset,
-    width,
-    autoHide = true,
-    chartID = null,
-) => {
+const genDataPointHoverTable = (dataTable, offset, width, autoHide = true, chartID = null) => {
     // get tooltips setting to show in charts
-    const tooltipsEnabled =
-        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    const tooltipsEnabled = JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
     if (!tooltipsEnabled) return;
 
     initHoverInfoHandler(() => {
@@ -94,13 +87,11 @@ const genLabels = (source = null) => {
 // use showname for Japan locale only
 const filterNameByLocale = (threholdInfo) => {
     const labels = genLabels();
-    const currentLocale = docCookies.getItem('locale');
+    const currentLocale = docCookies.getItem(keyPort('locale'));
     if (!threholdInfo.type) {
         return labels.default;
     }
-    return currentLocale === localeConst.JP
-        ? threholdInfo.type
-        : threholdInfo.eng_name || '';
+    return currentLocale === localeConst.JP ? threholdInfo.type : threholdInfo.eng_name || '';
 };
 
 const showMSPDataTable = (data, offset, chartID) => {
@@ -140,16 +131,8 @@ const showMSPDataTable = (data, offset, chartID) => {
         // if (data.thresholds) {
         // filter
         tblContent += genTRItems('', '');
-        tblContent += genTRItems(
-            Xlabels.attribute,
-            Xfilters.filterCol,
-            Xfilters.filterDetail,
-        );
-        tblContent += genTRItems(
-            Ylabels.attribute,
-            Yfilters.filterCol,
-            Yfilters.filterDetail,
-        );
+        tblContent += genTRItems(Xlabels.attribute, Xfilters.filterCol, Xfilters.filterDetail);
+        tblContent += genTRItems(Ylabels.attribute, Yfilters.filterCol, Yfilters.filterDetail);
         // threshold table
         tblContent += genTRItems('', '');
         tblContent += genTRItems('', Xlabels.limit, Xlabels.procLimit);
@@ -164,14 +147,8 @@ const showMSPDataTable = (data, offset, chartID) => {
             data.thresholds.x['prc-min'] || '',
         );
         tblContent += genTRItems(Xlabels.valid, '');
-        tblContent += genTRItems(
-            Xlabels.validFrom,
-            data.thresholds.x['act-from'] || '',
-        );
-        tblContent += genTRItems(
-            Xlabels.validTo,
-            data.thresholds.x['act-to'] || '',
-        );
+        tblContent += genTRItems(Xlabels.validFrom, data.thresholds.x['act-from'] || '');
+        tblContent += genTRItems(Xlabels.validTo, data.thresholds.x['act-to'] || '');
         tblContent += genTRItems('', '');
         tblContent += genTRItems('', Ylabels.limit, Ylabels.procLimit);
         tblContent += genTRItems(
@@ -185,14 +162,8 @@ const showMSPDataTable = (data, offset, chartID) => {
             data.thresholds.y['prc-min'] || '',
         );
         tblContent += genTRItems(Ylabels.valid, '');
-        tblContent += genTRItems(
-            Ylabels.validFrom,
-            data.thresholds.y['act-from'] || '',
-        );
-        tblContent += genTRItems(
-            Ylabels.validTo,
-            data.thresholds.y['act-to'] || '',
-        );
+        tblContent += genTRItems(Ylabels.validFrom, data.thresholds.y['act-from'] || '');
+        tblContent += genTRItems(Ylabels.validTo, data.thresholds.y['act-to'] || '');
         // }
         tblContent += '</tr>';
         return tblContent;
@@ -231,25 +202,15 @@ const showInforTbl = (data, horizontal = true, chartID) => {
     if (data.points) {
         const dpIndex = getDataPointIndex(data);
         const dataPoint = data.points[0];
-        let countValue = horizontal
-            ? dataPoint.data.x[dpIndex]
-            : dataPoint.data.y[dpIndex];
-        if (
-            dpInfoCons.customdata in dataPoint.data &&
-            dpInfoCons.count in dataPoint.data.customdata
-        ) {
+        let countValue = horizontal ? dataPoint.data.x[dpIndex] : dataPoint.data.y[dpIndex];
+        if (dpInfoCons.customdata in dataPoint.data && dpInfoCons.count in dataPoint.data.customdata) {
             countValue = dataPoint.data.customdata.count[dpIndex] || 0;
         }
-        let yValue = horizontal
-            ? dataPoint.data.y[dpIndex]
-            : dataPoint.data.x[dpIndex];
+        let yValue = horizontal ? dataPoint.data.y[dpIndex] : dataPoint.data.x[dpIndex];
 
         yValue = applySignificantDigit(yValue);
 
-        if (
-            dpInfoCons.customdata in dataPoint.data &&
-            dpInfoCons.isBarChart in dataPoint.data.customdata
-        ) {
+        if (dpInfoCons.customdata in dataPoint.data && dpInfoCons.isBarChart in dataPoint.data.customdata) {
             if (dataPoint.data.customdata.isbarchart) {
                 yValue = dataPoint.data.customdata.groupname.value[dpIndex];
             }
@@ -294,9 +255,7 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             tblContent += genTRItems('Mode', data.mode);
             tblContent += genTRItems('Average', data.avg);
             tblContent += genTRItems('N', data.n);
-        } else if (
-            [dpInfoCons.heatmap, dpInfoCons.heatmapByInt].includes(type)
-        ) {
+        } else if ([dpInfoCons.heatmap, dpInfoCons.heatmapByInt].includes(type)) {
             tblContent += genTRItems(data.xName, data.xVal);
             tblContent += genTRItems(data.yName, data.yVal);
             // tblContent += genTRItems(data.colorName, data.color);
@@ -304,10 +263,7 @@ const showSCPDataTable = (data, offset, chartID, type = dpInfoCons.scatter) => {
             if (data.agg_func.includes('[%]')) {
                 [aggFunc, aggUnit] = ['Ratio', '[%]'];
             }
-            tblContent += genTRItems(
-                aggFunc,
-                applySignificantDigit(data.agg_value) + aggUnit,
-            );
+            tblContent += genTRItems(aggFunc, applySignificantDigit(data.agg_value) + aggUnit);
         } else {
             tblContent += genTRItems('X', data.x);
             tblContent += genTRItems('Y', data.y);
@@ -365,7 +321,10 @@ const initHoverInfoHandler = (callback) => {
 };
 
 const unHoverHandler = (plot) => {
-    plot.on('plotly_unhover', clearHoverTimeOut);
+    plot.on('plotly_unhover', () => {
+        clearHoverTimeOut();
+        clearOldChartTitles();
+    });
 };
 $(() => {
     $(`#${dpInfoCons.domID}`).on('mouseleave', function () {
@@ -376,10 +335,7 @@ $(() => {
         isInHoverInfo = true;
     });
     $(window).on('click', function (e) {
-        if (
-            !e.target.closest(`#${dpInfoCons.domID}`) &&
-            $(`#${dpInfoCons.domID}`).css('display') === 'block'
-        ) {
+        if (!e.target.closest(`#${dpInfoCons.domID}`) && $(`#${dpInfoCons.domID}`).css('display') === 'block') {
             $(`#${dpInfoCons.domID}`).hide();
             isInHoverInfo = false;
         }

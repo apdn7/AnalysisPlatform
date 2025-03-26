@@ -1,13 +1,20 @@
+from __future__ import annotations
+
+import itertools
 import json
 import logging
 import os
+from datetime import datetime
+from typing import Optional
 
 import flask
 import pandas as pd
+from apscheduler.triggers.date import DateTrigger
 from flask import Blueprint, Response, jsonify, request
 from flask_babel import gettext as _
+from pytz import utc
 
-from ap import background_jobs, dic_config
+from ap import background_jobs, close_sessions, dic_config, max_graph_config, scheduler
 from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
 from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
@@ -19,24 +26,26 @@ from ap.api.setting_module.services.common import (
     is_title_exist,
     save_user_settings,
 )
-from ap.api.setting_module.services.csv_import import convert_datetime_format
 from ap.api.setting_module.services.data_import import (
     check_db_con,
     update_or_create_constant_by_type,
 )
 from ap.api.setting_module.services.equations import (
     EquationSampleData,
-    is_all_new_functions,
-    remove_all_function_columns,
     validate_functions,
 )
 from ap.api.setting_module.services.filter_settings import (
     delete_cfg_filter_from_db,
     save_filter_config,
 )
+from ap.api.setting_module.services.import_function_column import (
+    add_new_columns_to_transaction_table,
+    add_required_jobs_after_update_transaction_table,
+    update_transaction_table,
+    update_transaction_table_job,
+)
 from ap.api.setting_module.services.polling_frequency import (
-    add_import_job,
-    add_import_job_params,
+    add_idle_monitoring_job,
     change_polling_all_interval_jobs,
 )
 from ap.api.setting_module.services.process_delete import (
@@ -51,30 +60,41 @@ from ap.api.setting_module.services.show_latest_record import (
     get_latest_record_from_preview_file,
     get_latest_records,
     get_preview_data_files,
+    get_sample_from_preview_data,
     preview_csv_data,
     preview_v2_data,
     save_master_vis_config,
     save_preview_data_file,
 )
 from ap.api.setting_module.services.shutdown_app import shut_down_app
-from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, add_restructure_indexes_job, show_proc_link_info
+from ap.api.trace_data.services.proc_link import (
+    add_gen_proc_link_job,
+    add_restructure_indexes_job,
+    proc_link_count_job,
+    show_proc_link_info,
+)
 from ap.api.trace_data.services.proc_link_simulation import sim_gen_global_id
 from ap.common.backup_db import backup_config_db
+from ap.common.clean_expired_request import add_job_delete_expired_request
 from ap.common.common_utils import (
-    add_seconds,
+    SQLiteFormatStrings,
+    get_export_setting_path,
     get_files,
     get_hostname,
-    is_empty,
+    get_log_path,
+    is_none_or_empty,
+    make_dir,
     parse_int_value,
-    remove_non_ascii_chars,
 )
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
+    DATA_CACHE_FOLDER,
     FILE_NAME,
     FISCAL_YEAR_START_MONTH,
     OSERR,
     SHUTDOWN,
     UI_ORDER_DB,
+    UNIVERSAL_DB_FILE,
     WITH_IMPORT_OPTIONS,
     Action,
     AnnounceEvent,
@@ -82,45 +102,56 @@ from ap.common.constants import (
     CfgConstantType,
     CSVExtTypes,
     DataColumnType,
-    DataType,
     JobStatus,
     JobType,
     MasterDBType,
-    ProcessCfgConst,
-    RawDataTypeDB,
-    RelationShip,
-    dict_dtype,
 )
-from ap.common.cryptography_utils import encrypt
+from ap.common.datetime_format_utils import convert_datetime_format
 from ap.common.memoize import clear_cache
-from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRemoveJobs
-from ap.common.scheduler import lock
+from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
+from ap.common.multiprocess_sharing.events import EventKillJobs
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.http_content import json_dumps, orjson_dumps
+from ap.common.services.import_export_config import (
+    backup_instance_folder,
+    cleanup_backup_data,
+    clear_event_queue,
+    export_data,
+    import_config,
+    pause_event_queue,
+    pause_job_running,
+    resume_event_queue,
+    revert_instance_folder,
+    run_migrations,
+    wait_done_jobs,
+)
+from ap.common.services.import_export_config_data import (
+    clear_db_n_data,
+)
+from ap.common.services.import_export_config_n_data import delete_file_and_folder_by_path, delete_folder_data
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.sse import background_announcer
+from ap.common.services.normalization import remove_non_ascii_chars
+from ap.common.services.sse import MessageAnnouncer
 from ap.setting_module.models import (
     AppLog,
-    CfgCsvColumn,
+    CfgConstant,
     CfgDataSource,
-    CfgDataSourceCSV,
     CfgProcess,
     CfgProcessColumn,
     CfgProcessFunctionColumn,
     MFunction,
-    crud_config,
-    insert_or_update_config,
     make_session,
 )
 from ap.setting_module.schemas import (
     CfgUserSettingSchema,
     DataSourceSchema,
     ProcessSchema,
+    ProcessVisualizationSchema,
 )
 from ap.setting_module.services.background_process import get_background_jobs_service, get_job_detail_service
 from ap.setting_module.services.backup_and_restore.jobs import add_backup_data_job, add_restore_data_job
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
-    gen_function_column,
     get_ct_range,
     get_process_cfg,
     get_process_columns,
@@ -138,6 +169,7 @@ from ap.setting_module.services.trace_config import (
     get_all_processes_traces_info,
     trace_config_crud,
 )
+from ap.trace_data.transaction_model import TransactionData
 
 logger = logging.getLogger(__name__)
 api_setting_module_blueprint = Blueprint('api_setting_module', __name__, url_prefix='/ap/api/setting')
@@ -169,66 +201,21 @@ def save_datasource_cfg():
     """
     try:
         data_src: CfgDataSource = DataSourceSchema().load(request.json)
-
         with make_session() as meta_session:
-            # data source
-            data_src_rec = insert_or_update_config(meta_session, data_src, exclude_columns=[CfgDataSource.order.key])
+            data_src = meta_session.merge(data_src)
 
-            # csv detail
-            csv_detail = data_src.csv_detail
-            if csv_detail:
-                # csv_detail.dummy_header = csv_detail.dummy_header == 'true' if csv_detail.dummy_header else None
-                csv_columns = data_src.csv_detail.csv_columns
-                csv_columns = [col for col in csv_columns if not is_empty(col.column_name)]
-                data_src.csv_detail.csv_columns = csv_columns
-                csv_detail_rec = insert_or_update_config(
-                    meta_session,
-                    csv_detail,
-                    parent_obj=data_src_rec,
-                    parent_relation_key=CfgDataSource.csv_detail.key,
-                    parent_relation_type=RelationShip.ONE,
-                )
-
-                # CRUD
-                csv_columns = csv_detail.csv_columns
-                crud_config(
-                    meta_session,
-                    csv_columns,
-                    CfgCsvColumn.data_source_id.key,
-                    CfgCsvColumn.column_name.key,
-                    parent_obj=csv_detail_rec,
-                    parent_relation_key=CfgDataSourceCSV.csv_columns.key,
-                    parent_relation_type=RelationShip.MANY,
-                )
-
-            # db detail
-            db_detail = data_src.db_detail
-            if db_detail:
-                # encrypt password
-                db_detail.password = encrypt(db_detail.password)
-                db_detail.hashed = True
-                # avoid blank string
-                db_detail.port = db_detail.port or None
-                db_detail.schema = db_detail.schema or None
-                insert_or_update_config(
-                    meta_session,
-                    db_detail,
-                    parent_obj=data_src_rec,
-                    parent_relation_key=CfgDataSource.db_detail.key,
-                    parent_relation_type=RelationShip.ONE,
-                )
     except Exception as e:
         logger.exception(e)
         message = {'message': _('Database Setting failed to save'), 'is_error': True}
         return jsonify(flask_message=message), 500
 
     message = {'message': _('Database Setting saved.'), 'is_error': False}
+
     ds = None
-    if data_src_rec and data_src_rec.id:
-        ds_schema = DataSourceSchema()
-        ds = CfgDataSource.get_ds(data_src_rec.id)
-        ds = ds_schema.dumps(ds)
-    return jsonify(id=data_src_rec.id, data_source=ds, flask_message=message), 200
+    if data_src and data_src.id:
+        ds = DataSourceSchema().dumps(data_src)
+
+    return jsonify(id=data_src.id, data_source=ds, flask_message=message), 200
 
 
 @api_setting_module_blueprint.route('/v2_data_source_save', methods=['POST'])
@@ -249,37 +236,7 @@ def save_v2_datasource_cfg():
 
             with make_session() as meta_session:
                 # data source
-                data_src_rec = insert_or_update_config(
-                    meta_session,
-                    data_src,
-                    exclude_columns=[CfgDataSource.order.key],
-                )
-
-                # csv detail
-                csv_detail = data_src.csv_detail
-                if csv_detail:
-                    csv_columns = data_src.csv_detail.csv_columns
-                    csv_columns = [col for col in csv_columns if not is_empty(col.column_name)]
-                    data_src.csv_detail.csv_columns = csv_columns
-                    csv_detail_rec = insert_or_update_config(
-                        meta_session,
-                        csv_detail,
-                        parent_obj=data_src_rec,
-                        parent_relation_key=CfgDataSource.csv_detail.key,
-                        parent_relation_type=RelationShip.ONE,
-                    )
-
-                    # CRUD
-                    csv_columns = csv_detail.csv_columns
-                    crud_config(
-                        meta_session,
-                        csv_columns,
-                        CfgCsvColumn.data_source_id.key,
-                        CfgCsvColumn.column_name.key,
-                        parent_obj=csv_detail_rec,
-                        parent_relation_key=CfgDataSourceCSV.csv_columns.key,
-                        parent_relation_type=RelationShip.MANY,
-                    )
+                data_src_rec = meta_session.merge(data_src)
 
             if data_src_rec and data_src_rec.id:
                 ds_schema = DataSourceSchema()
@@ -464,8 +421,15 @@ def get_csv_resources():
     is_transpose = request.json.get('is_transpose')
     is_file = request.json.get('is_file')
 
+    # todo: is_show_raw_data to handle raw data for datasource preview, but datetime is wrong <- check it again
     if is_v2:
-        dic_output = preview_v2_data(folder_url, csv_delimiter, 5, file_name=folder_url if is_file else None)
+        dic_output = preview_v2_data(
+            folder_url,
+            csv_delimiter,
+            5,
+            file_name=folder_url if is_file else None,
+            is_show_raw_data=False,
+        )
     else:
         dic_output = preview_csv_data(
             folder_url,
@@ -477,6 +441,7 @@ def get_csv_resources():
             limit=5,
             file_name=folder_url if is_file else None,
             is_convert_datetime=False,
+            is_show_raw_data=False,
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -491,33 +456,14 @@ def get_background_jobs():
     return jsonify(background_jobs), 200
 
 
-@api_setting_module_blueprint.route('/listen_background_job/<is_force>/<uuid>/<main_tab_uuid>', methods=['GET'])
-def listen_background_job(is_force: str, uuid: str, main_tab_uuid: str):
-    is_reject = False
-    is_force = int(is_force)
-    compare_time = add_seconds(seconds=-background_announcer.FORCE_SECOND)
-    with lock:
-        start_time = None
-        if background_announcer.is_exist(uuid):
-            if is_force:
-                start_time = background_announcer.get_start_date(uuid)
-                if start_time >= compare_time:
-                    is_reject = True
-            elif not background_announcer.is_exist(uuid, main_tab_uuid=main_tab_uuid):
-                is_reject = True
-
-        logger.debug(
-            f'[SSE] {"Rejected" if is_reject else "Accepted"}: UUID = {uuid}; main_tab_uuid = {main_tab_uuid};'
-            f' is_force = {is_force}; compare_time = {compare_time}; start_time = {start_time};',
-        )
-
-        if is_reject:
-            return Response('SSE Rejected', status=202)
-
-        return Response(
-            background_announcer.init_stream_sse(uuid, main_tab_uuid),
-            mimetype='text/event-stream',
-        )
+@api_setting_module_blueprint.route('/listen_background_job/<uuid>', methods=['GET'])
+def listen_background_job(uuid: str):
+    """Create a streamer for communicating with front-end.
+    We don't need to check if this streamer is duplicated or not,
+    because only one-client (one target browser) can communicate with this at a time.
+    """
+    streamer = MessageAnnouncer.create_streamer(uuid)
+    return Response(streamer.stream(), mimetype='text/event-stream')
 
 
 @api_setting_module_blueprint.route('/check_folder', methods=['POST'])
@@ -644,6 +590,19 @@ def stop_jobs():
         if not is_local_client(request):
             return jsonify({}), 403
 
+        # Interrupt import/update jobs before shutdown app
+        target_job_types = [
+            JobType.CSV_IMPORT,
+            JobType.FACTORY_IMPORT,
+            JobType.FACTORY_PAST_IMPORT,
+            JobType.RESTRUCTURE_INDEXES,
+            JobType.USER_BACKUP_DATABASE,
+            JobType.USER_RESTORE_DATABASE,
+            JobType.UPDATE_TRANSACTION_TABLE,
+        ]
+        for proc in CfgProcess.query.all():  # type: CfgProcess
+            EventQueue.put(EventKillJobs(job_types=target_job_types, process_id=proc.id))
+
         # save log to db
         with make_session() as meta_session:
             t_app_log = AppLog()
@@ -669,191 +628,94 @@ def stop_jobs():
 def shutdown():
     dic_config[SHUTDOWN] = True
     response = flask.make_response(jsonify({}))
-    response.set_cookie('locale', '', 0)
     return response, 200
-
-
-@api_setting_module_blueprint.route('/function_config', methods=['POST'])
-def post_function_config():
-    data = request.json
-    functions = data.get('functions')
-    proc_id = data.get('process_id')
-    dict_rename_col_id = {}
-    sorted_functions = sorted(functions, key=lambda x: x.get(CfgProcessFunctionColumn.order.key))
-    process_cols = CfgProcessColumn.get_by_process_id(str(proc_id))
-    validate_functions(process_cols, sorted_functions)
-
-    with make_session() as meta_session:
-        df_function_column = CfgProcessFunctionColumn.get_by_process_id(proc_id, session=meta_session)
-        func_col_ids = [_id.item() for _id in df_function_column['process_function_column_id'].tolist()]
-        exist_func_col_ids = []
-
-        # In case of paste all, exist function columns will be deleted, request function columns will be newly inserted
-        if sorted_functions and is_all_new_functions(sorted_functions):
-            remove_all_function_columns(meta_session, proc_id)
-
-        for dic_func in sorted_functions:
-            is_me_func = dic_func.pop('is_me_function')
-            dic_proc_col = dic_func.pop('process_column')
-            is_new_col = False
-            if not is_me_func and dic_proc_col['id'] < 0:
-                old_col_id = dic_proc_col['id']
-                dic_proc_col['id'] = None
-                is_new_col = True
-
-            cfg_func = CfgProcessFunctionColumn(**{key: val if val != '' else None for key, val in dic_func.items()})
-            cfg_func.return_type = dict_dtype.get(cfg_func.return_type, cfg_func.return_type)
-
-            if cfg_func.id < 0:
-                cfg_func.id = None
-
-            if cfg_func.var_x and cfg_func.var_x < 0:
-                cfg_func.var_x = dict_rename_col_id.get(cfg_func.var_x)
-
-            if cfg_func.var_y and cfg_func.var_y < 0:
-                cfg_func.var_y = dict_rename_col_id.get(cfg_func.var_y)
-
-            if is_me_func:
-                if cfg_func.process_column_id and cfg_func.process_column_id < 0:
-                    cfg_func.process_column_id = dict_rename_col_id.get(cfg_func.process_column_id)
-                exist_func_col_ids.append(cfg_func.id)
-                meta_session.merge(cfg_func)
-            else:
-                cfg_col = CfgProcessColumn(**{key: val if val != '' else None for key, val in dic_proc_col.items()})
-                cfg_col.predict_type = cfg_col.data_type
-                if cfg_col.data_type in [RawDataTypeDB.CATEGORY.value]:
-                    cfg_col.data_type = DataType.INTEGER.name
-                if is_new_col:
-                    cfg_col: CfgProcess = insert_or_update_config(
-                        meta_session=meta_session,
-                        data=cfg_col,
-                        key_names=CfgProcessColumn.id.key,
-                        model=CfgProcessColumn,
-                    )
-                    dict_rename_col_id[old_col_id] = cfg_col.id
-                else:
-                    exist_func_col_ids.append(cfg_func.id)
-
-                if cfg_func.process_column_id < 0:
-                    cfg_func.process_column_id = dict_rename_col_id[cfg_func.process_column_id]
-
-                cfg_col.function_details = [cfg_func]
-                meta_session.merge(cfg_col)
-
-        # remove function column not exist in request function columns
-        not_exits_func_col_ids = set(func_col_ids) - set(exist_func_col_ids)
-        for func_col_id in not_exits_func_col_ids:
-            func_col: CfgProcessFunctionColumn = CfgProcessFunctionColumn.get_by_id(func_col_id)
-            if not func_col:
-                # In case this function already was deleted by cascade
-                continue
-            elif func_col.is_me_function:
-                CfgProcessFunctionColumn.delete_by_ids([func_col_id], session=meta_session)
-            else:
-                CfgProcessColumn.delete_by_ids([func_col.process_column_id], session=meta_session)
-
-    cfg_col_ids = CfgProcessFunctionColumn.get_all_cfg_col_ids()
-
-    return jsonify({'cfg_col_ids': cfg_col_ids, 'dict_rename_col_id': dict_rename_col_id}), 200
 
 
 @api_setting_module_blueprint.route('/proc_config', methods=['POST'])
 def post_proc_config():
     process_schema = ProcessSchema()
-    proc_data = process_schema.load(request.json.get('proc_config'))
+    request_process: CfgProcess = process_schema.load(request.json.get('proc_config'))
     unused_columns = request.json.get('unused_columns', [])
     # validate function column
-    function_columns = []
-    columns = proc_data.get('columns')
-    for col in columns:
-        function_columns.extend(col.function_details)
-
+    function_columns = itertools.chain.from_iterable(col.function_details for col in request_process.columns)
     sorted_functions = sorted(function_columns, key=lambda x: x.order)
-    validate_functions(columns, sorted_functions)
-    should_import_data = request.json.get('import_data')
+    validate_functions(request_process.columns, sorted_functions)
 
     try:
         # get exists process from id
-        proc_id = proc_data.get(ProcessCfgConst.PROC_ID.value)
-        if proc_id:
-            process = get_process_cfg(int(proc_id))
-            # process = CfgProcess.get_proc_by_id(proc_id)
-            if not process:
+        old_main_serial_cfg_process_column: Optional[CfgProcessColumn] = None
+        is_new_proc = is_none_or_empty(request_process.id)
+        if not is_new_proc:
+            # Getting process from `CfgProcess` again is necessary.
+            # In case if user A delete process `proc_id`, and user B update process `proc_id`,
+            # we need to prevent user B performing that action.
+            exist_process = CfgProcess.get_proc_by_id(request_process.id)
+            if not exist_process:
                 return (
                     jsonify(
                         {
                             'status': 404,
-                            'message': 'Not found {}'.format(proc_id),
+                            'message': 'Not found {}'.format(request_process.id),
                         },
                     ),
                     200,
                 )
-            # TODO: Uncomment after release
-            # with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
-            #     transaction_data_obj = TransactionData(proc_id)
-            #     is_success, failed_change_columns = transaction_data_obj.cast_data_type_for_columns(
-            #         db_instance,
-            #         transaction_data_obj,
-            #         process,
-            #         proc_data,
-            #     )
-            #     if not is_success:
-            #         # Collect data to send to front-end and show it on modal
-            #         # failed_column_data = transaction_data_obj.get_failed_cast_data(db_instance,
-            #         failed_change_columns)
-            #
-            #         # Export data that cannot convert to new data type to csv file
-            #         # file_full_path = write_error_cast_data_types(process, failed_column_data)
-            #
-            #         return (
-            #             json_dumps(
-            #                 {
-            #                     'status': 500,
-            #                     'message': _(
-            #                         'Cast error: There are some columns that cannot be cast to another'
-            #                         ' data type. Please check the real data of the columns listed below.'
-            #                         ' You can also see the data that will be exported and stored in file'
-            #                         ' path {0}',
-            #                     ),
-            #                     'errorType': 'CastError',
-            #                     'data': {
-            #                         # Convert failed_column_data to truly dictionary
-            #                         column.id: {'detail': ProcessColumnSchema().dump(column), 'data': []}
-            #                         for column in failed_change_columns
-            #                     },
-            #                 },
-            #             ),
-            #             200,
-            #         )
 
-        target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
-        # remove job of re-registered process => then import job again
-        if proc_id:
-            EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
+            old_main_serial_cfg_process_column = exist_process.get_main_serial_column(is_isolation_object=True)
 
-        process = create_or_update_process_cfg(proc_data, unused_columns)
+            # Remove import jobs before running update transaction table job
+            target_jobs = [
+                JobType.CSV_IMPORT,
+                JobType.FACTORY_IMPORT,
+                JobType.FACTORY_PAST_IMPORT,
+                JobType.RESTRUCTURE_INDEXES,
+                JobType.USER_BACKUP_DATABASE,
+                JobType.USER_RESTORE_DATABASE,
+                JobType.UPDATE_TRANSACTION_TABLE,
+            ]
+            EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=exist_process.id))
 
-        # create process json
-        process_schema = ProcessSchema()
-        process_json = process_schema.dump(process) or {}
+        # Do update cfg_process, cfg_process_column, cfg_process_unused_column
+        with make_session() as session:
+            process = create_or_update_process_cfg(request_process, unused_columns, meta_session=session)
+            process = process.clone()
+            output_data = process_schema.dump(process)
 
-        # import data
-        if should_import_data:
-            import_params = add_import_job_params(process)
-            add_import_job(
-                process_id=import_params.process_id,
-                process_name=import_params.process_name,
-                data_source_id=import_params.data_source_id,
-                data_source_type=import_params.data_source_type,
-                run_now=True,
-                is_user_request=True,
-            )
+            if is_new_proc:
+                # In case new process, do update transaction table immediately
+                list(update_transaction_table(process, old_main_serial_cfg_process_column, meta_session=session))
+            else:
+                # If there are new function columns, add the columns into transaction table first to make show graph
+                # feature work normally
+                add_new_columns_to_transaction_table(process, meta_session=session)
+
+                # Add UPDATE_TRANSACTION_TABLE job
+                next_run_time = datetime.now().astimezone(utc)
+                EventQueue.put(
+                    EventAddJob(
+                        fn=update_transaction_table_job,
+                        kwargs={
+                            'process_id': process.id,
+                            'old_main_serial_cfg_process_column': old_main_serial_cfg_process_column,
+                        },
+                        job_type=JobType.UPDATE_TRANSACTION_TABLE,
+                        process_id=process.id,
+                        replace_existing=True,
+                        trigger=DateTrigger(next_run_time, timezone=utc),
+                        next_run_time=next_run_time,
+                        max_instances=1,
+                    ),
+                )
+
+        # After commit all changes, add jobs
+        if is_new_proc:
+            add_required_jobs_after_update_transaction_table(process, is_new_process=is_new_proc)
 
         return (
             jsonify(
                 {
                     'status': 200,
-                    'data': process_json,
+                    'data': output_data,
                 },
             ),
             200,
@@ -1144,9 +1006,9 @@ def delete_filter_config(filter_id):
         delete_cfg_filter_from_db(filter_id)
     except Exception as e:
         logger.exception(e)
-        return jsonify({}), 500
+        return jsonify({'filter_id': filter_id}), 500
 
-    return jsonify({}), 200
+    return jsonify({'filter_id': filter_id}), 200
 
 
 @api_setting_module_blueprint.route('/distinct_sensor_values/<cfg_col_id>', methods=['GET'])
@@ -1167,29 +1029,13 @@ def get_sensor_distinct_values(cfg_col_id):
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>/visualizations', methods=['POST'])
 def post_master_visualizations_config(proc_id):
-    try:
-        save_master_vis_config(proc_id, request.json)
-        proc_with_visual_settings = get_process_visualizations(proc_id)
-        return (
-            jsonify(
-                {
-                    'status': 200,
-                    'data': proc_with_visual_settings,
-                },
-            ),
-            200,
-        )
-    except Exception as e:
-        logger.exception(e)
-        return (
-            jsonify(
-                {
-                    'status': 500,
-                    'message': str(e),
-                },
-            ),
-            500,
-        )
+    proc = save_master_vis_config(proc_id, request.json)
+    if proc is not None:
+        data = ProcessVisualizationSchema().dump(proc)
+        return jsonify({'status': 200, 'data': data}), 200
+
+    # there is no such proc, this is a bad request
+    return jsonify({'status': 404, 'message': f'Non exist process id {proc_id}'}), 404
 
 
 @api_setting_module_blueprint.route('/simulate_proc_link', methods=['POST'])
@@ -1260,8 +1106,10 @@ def save_user_setting():
     Returns: 200/500
     """
     try:
-        params = json.loads(request.data)
-        setting = save_user_settings(params)
+        data = json.loads(request.data)
+        params = data.get('data')
+        exclude_columns = data.get('exclude_columns')
+        setting = save_user_settings(params, exclude_columns)
 
         setting = CfgUserSettingSchema().dump(setting)
     except Exception as ex:
@@ -1470,6 +1318,17 @@ def redirect_to_page():
     return jsonify(url=target_url), 200
 
 
+@api_setting_module_blueprint.route('/zip_export_database', methods=['GET'])
+def zip_export_database():
+    """zip export
+
+    Returns:
+        [type] -- [description]
+    """
+    response = export_data()
+    return response
+
+
 @api_setting_module_blueprint.route('/function_config/sample_data', methods=['POST'])
 def equations_sample_data():
     # convert json to EquationSampleData
@@ -1541,6 +1400,7 @@ def get_function_infos():
         function_info = {
             'functionName': m_function.function_type,
             'output': function_detail.return_type,
+            'isMainSerialNo': process_col.is_serial_no,
             'systemName': process_col.name_en,
             'japaneseName': process_col.name_jp,
             'localName': process_col.name_local,
@@ -1573,15 +1433,6 @@ def get_function_infos():
 
     result = sorted(result, key=lambda k: k['index'])
     return orjson_dumps({'functionData': result})
-
-
-@api_setting_module_blueprint.route('/function_register', methods=['POST'])
-def function_register():
-    functions = json.loads(request.data).get('functions', None)
-    with make_session() as meta_session:
-        gen_function_column(functions, session=meta_session)
-
-    return json_dumps({'status': 200}), 200
 
 
 @api_setting_module_blueprint.route('/function_config/delete_function_columns', methods=['POST'])
@@ -1635,6 +1486,19 @@ def restore_data():
     return json_dumps({}), 200
 
 
+@api_setting_module_blueprint.route('/delete_log_data', methods=['DELETE'])
+def delete_log_data():
+    log_path = get_log_path()
+    delete_file_and_folder_by_path(log_path)
+    return {}, 200
+
+
+@api_setting_module_blueprint.route('/delete_folder_data', methods=['DELETE'])
+def delete_folder_data_api():
+    delete_folder_data(ignore_folder=DATA_CACHE_FOLDER)
+    return {}, 200
+
+
 @api_setting_module_blueprint.route('/clear_cache', methods=['POST'])
 def clear_cache_api():
     """[Summary] delete cache in backend, only used for test"""
@@ -1648,11 +1512,142 @@ def format_datetime_data():
     data = json.loads(request.data)
     format_values = data.get('data', [])
     data_type = data.get('dataType', '')
+    is_generated_datetime_col = data.get('isGeneratedDatetime', None)
     datetime_format = data.get('format', '')
-    tzinfo = data.get('tzinfo', '')
+    if is_generated_datetime_col:
+        datetime_format = f'{SQLiteFormatStrings.DATE.value} {SQLiteFormatStrings.TIME.value}'
+    client_timezone = data.get('clientTimezone', '')
     dic_data_type = {
         format_col: data_type,
     }
     df = pd.DataFrame(columns=[format_col], data=format_values)
-    df = convert_datetime_format(df, dic_data_type, datetime_format, tzinfo)
-    return orjson_dumps(df[format_col].to_list())
+    df = convert_datetime_format(df, dic_data_type, datetime_format, client_timezone)
+    return orjson_dumps(df[format_col].tolist())
+
+
+@api_setting_module_blueprint.route('/proc_link_preview', methods=['POST'])
+def proc_link_preview():
+    data = json.loads(request.data)
+    process_id = data.get('process_id', None)
+
+    try:
+        samples = []
+        if process_id:
+            # get_sample_transaction
+            trans_data = TransactionData(process_id)
+            with DbProxy(
+                gen_data_source_of_universal_db(process_id),
+                True,
+                immediate_isolation_level=False,
+            ) as db_instance:
+                link_cols = trans_data.cfg_process.get_linking_columns()
+                samples = trans_data.get_sample_data(db_instance, columns=link_cols)
+                # drop NA
+                samples = samples.dropna(how='any')
+                if samples.empty:
+                    # get data from preview_data of process
+                    file_name = get_preview_data_files(trans_data.cfg_process.data_source_id)
+                    if file_name:
+                        with open(file_name, 'r') as file:
+                            samples = get_latest_record_from_preview_file(file, process_id)
+                            samples = (
+                                get_sample_from_preview_data(samples, link_cols).replace('', pd.NA).dropna(how='any')
+                            )
+
+                samples = samples.iloc[:1].to_dict(orient='records')[0]
+        return orjson_dumps({'process_id': process_id, 'data': samples})
+    except ValueError:
+        pass
+
+
+@api_setting_module_blueprint.route('/zip_import_database', methods=['POST'])
+def zip_import_database():
+    """zip import
+
+    Returns:
+        [type] -- [description]
+    """
+    # clear running jobs, events and pause scheduler
+    pause_job_running()
+    wait_done_jobs()
+    pause_event_queue()
+    close_sessions()
+    clear_cache()
+    try:
+        # Backup current config before importing data from upload file
+        backup_instance_folder()
+        # ↓--- Save uploaded file to export_setting folder ---↓
+        file = request.files['file']
+        file_path = os.path.join(get_export_setting_path(), file.filename)
+        dirname = get_export_setting_path()
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        file.save(file_path)
+        # ↑--- Save uploaded file to export_setting folder ---↑
+
+        # ↓--- import data from upload file ---↓
+        import_config(file_path)
+        # ↑--- import data from upload file ---↑
+
+        # ↓--- Resume scheduler, migrate and clean up ---↓
+        run_migrations()
+        scheduler.resume()
+        clear_event_queue()
+        resume_event_queue()
+        make_dir(dic_config[UNIVERSAL_DB_FILE])
+
+        CfgConstant.initialize_disk_usage_limit()
+        CfgConstant.initialize_max_graph_constants()
+
+        for key, value in max_graph_config.items():
+            max_graph_config[key] = CfgConstant.get_value_by_type_first(key, int)
+
+        add_idle_monitoring_job()
+        add_restructure_indexes_job()
+
+        interval_sec = CfgConstant.get_value_by_type_first(CfgConstantType.POLLING_FREQUENCY.name, int)
+        if interval_sec:
+            change_polling_all_interval_jobs(interval_sec, run_now=True)
+
+        proc_link_count_job(is_user_request=True)
+        add_job_delete_expired_request()
+
+        cleanup_backup_data()
+        response = {'status': 200, 'page': 'config?#data_source'}
+        return json_dumps(response), 200
+        # ↑--- Resume scheduler and clean up ---↑
+
+    except Exception as e:
+        logger.exception(e)
+        revert_instance_folder()
+        scheduler.resume()
+        resume_event_queue()
+
+        return json_dumps({'status': 500, 'page': 'config?#data_source'}), 500
+
+
+@api_setting_module_blueprint.route('/reset_transaction_data', methods=['DELETE'])
+def reset_transaction_data():
+    pause_job_running(remove_scheduler_jobs=False)
+    wait_done_jobs()
+    pause_event_queue()
+
+    http_status = 200
+    data = {}
+    try:
+        # reset transaction
+        clear_db_n_data()
+        # reset_is_show_file_name()
+        clear_cache()
+        logger.debug('Done "TRANSACTION_CLEAN"')
+
+        data = {'message': _('Transaction data is deleted.'), 'is_error': False}
+    except Exception as e:
+        logger.exception(e)
+        data = {'message': _('Transaction data is deleted.'), 'is_error': True}
+        http_status = 500
+    finally:
+        scheduler.resume()
+        resume_event_queue()
+        EventQueue.put(EventBackgroundAnnounce(data=data, event=AnnounceEvent.CLEAR_TRANSACTION_DATA))
+        return {}, http_status

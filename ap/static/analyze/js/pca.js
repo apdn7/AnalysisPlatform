@@ -45,11 +45,7 @@ const drawPCAPlotJSON = (res, clickOnChart) => {
     // draw graphs
     if (!clickOnChart) {
         if (jsonPCAScoreTrain) {
-            drawXTrainScatter(
-                jsonPCAScoreTrain,
-                chartConfig,
-                (sizeOfData = res.dtsize_pca_score_train),
-            );
+            drawXTrainScatter(jsonPCAScoreTrain, chartConfig, (sizeOfData = res.dtsize_pca_score_train));
         }
         if (jsonPCAScoreTest) {
             drawXTestScatter(
@@ -79,25 +75,13 @@ const drawPCAPlotJSON = (res, clickOnChart) => {
         }
     }
     if (jsonQContribution) {
-        drawQContributionChart(
-            jsonQContribution,
-            chartConfig,
-            (sizeOfData = res.dtsize_q_contribution),
-        );
+        drawQContributionChart(jsonQContribution, chartConfig, (sizeOfData = res.dtsize_q_contribution));
     }
     if (jsonT2Contribution) {
-        drawT2ContributionChart(
-            jsonT2Contribution,
-            chartConfig,
-            (sizeOfData = res.dtsize_t2_contribution),
-        );
+        drawT2ContributionChart(jsonT2Contribution, chartConfig, (sizeOfData = res.dtsize_t2_contribution));
     }
     if (jsonPCABiplot) {
-        drawPCABiplotChart(
-            jsonPCABiplot,
-            chartConfig,
-            (sizeOfData = res.dtsize_pca_biplot),
-        );
+        drawPCABiplotChart(jsonPCABiplot, chartConfig, (sizeOfData = res.dtsize_pca_biplot));
     }
 };
 
@@ -108,37 +92,17 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
 
     const jsonPCAScoreTrain = generateXTrainScatter(res.json_pca_score_train);
     if (jsonPCAScoreTrain && !clickOnChart) {
-        drawXTrainScatter(
-            jsonPCAScoreTrain,
-            chartConfig,
-            (sizeOfData = res.dtsize_pca_score_train),
-        );
+        drawXTrainScatter(jsonPCAScoreTrain, chartConfig, (sizeOfData = res.dtsize_pca_score_train));
     }
 
-    const jsonPCAScoreTest = generateXTestScatter(
-        res.json_pca_score_test,
-        res.json_pca_score_train,
-    );
+    const jsonPCAScoreTest = generateXTestScatter(res.json_pca_score_test, res.json_pca_score_train);
     if (jsonPCAScoreTest && !clickOnChart) {
-        drawXTestScatter(
-            jsonPCAScoreTest,
-            chartConfig,
-            (sizeOfData = res.dtsize_pca_score_test),
-            res.array_plotdata,
-        );
+        drawXTestScatter(jsonPCAScoreTest, chartConfig, (sizeOfData = res.dtsize_pca_score_test), res.array_plotdata);
     }
 
-    const jsonPCABiplot = generateBiplot(
-        res.json_pca_biplot,
-        res.json_pca_score_train,
-        sampleNo,
-    );
+    const jsonPCABiplot = generateBiplot(res.json_pca_biplot, res.json_pca_score_train, sampleNo);
     if (jsonPCABiplot) {
-        drawPCABiplotChart(
-            jsonPCABiplot,
-            chartConfig,
-            (sizeOfData = res.dtsize_pca_biplot),
-        );
+        drawPCABiplotChart(jsonPCABiplot, chartConfig, (sizeOfData = res.dtsize_pca_biplot));
     }
 
     const jsonT2TimeSeries = res.json_t2_time_series;
@@ -191,9 +155,7 @@ const reselectPCAData = (fromShowGraphBtn = false, reselectBtn = true) => {
 
     // warning about integer column has_integer_col
     if (formData.get('has_integer_col') === 'true') {
-        $(eles.msgContent).text(
-            `${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`,
-        );
+        $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
         $(eles.msgModal).modal('show');
     } else {
         beforeShowGraphCommon();
@@ -278,27 +240,19 @@ const getPCAPlotsFromBackend = (
                 showGAToastr(true);
             }
 
-            if (
-                res.actual_record_number_train > SQL_LIMIT ||
-                res.actual_record_number_test > SQL_LIMIT
-            ) {
+            if (res.actual_record_number_train > SQL_LIMIT || res.actual_record_number_test > SQL_LIMIT) {
                 showToastrMsg(i18n.SQLLimit);
             }
 
             // show toastr to inform result was truncated upto 5000
             if (res.is_res_limited_train || res.is_res_limited_test) {
-                showToastrMsg(
-                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
-                );
+                showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
             }
 
             // update record table info
             const jsonDataPointInfo = res.data_point_info;
             if (jsonDataPointInfo) {
-                updateRecordInfo(
-                    (dataInfos = jsonDataPointInfo),
-                    (sampleNo = formData.get('sample_no')),
-                );
+                updateRecordInfo((dataInfos = jsonDataPointInfo), (sampleNo = formData.get('sample_no')));
             }
 
             // if (checkResultExist(res)) {
@@ -310,9 +264,7 @@ const getPCAPlotsFromBackend = (
             if (!autoUpdate) {
                 $('html, body').animate(
                     {
-                        scrollTop: getOffsetTopDisplayGraph(
-                            '#plot-card-container',
-                        ),
+                        scrollTop: getOffsetTopDisplayGraph('#plot-card-container'),
                     },
                     1000,
                 );
@@ -429,9 +381,7 @@ const getPCAPlots = () => {
 
         // warning about integer column has_integer_col
         if (formData.get('has_integer_col') === 'true') {
-            $(eles.msgContent).text(
-                `${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`,
-            );
+            $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
             $(eles.msgModal).modal('show');
         } else {
             beforeShowGraphCommon();
@@ -495,11 +445,7 @@ const loadUserInputAgain = (parent) => {
     setTimeout(() => {
         inputForms.each((i, form) => {
             try {
-                const userInput = saveLoadUserInput(
-                    `#${form.id}`,
-                    window.location.pathname,
-                    parent,
-                );
+                const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname, parent);
                 userInput();
             } catch (e) {
                 console.log(e);
@@ -514,9 +460,7 @@ const addClickEventAllRows = () => {
         const that = $(element);
         that.click((e) => {
             const currentRow = $(e.currentTarget);
-            const currentCheckbox = $(
-                currentRow.find('input[type="checkbox"]'),
-            );
+            const currentCheckbox = $(currentRow.find('input[type="checkbox"]'));
             currentCheckbox.prop('checked', !currentCheckbox.is(':checked'));
         });
     });
@@ -640,15 +584,9 @@ const extractAndConvertDT = (datetimeStr) => {
 
 const dumpData = (type) => {
     const formData = collectInputAsFormData();
-    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map((el) =>
-        formData.delete(el),
-    );
-    const trainDateTime = $('#for-default-train')
-        .find('[name=DATETIME_RANGE_PICKER]')
-        .val();
-    const testDateTime = $('#for-default-test')
-        .find('[name=DATETIME_RANGE_PICKER]')
-        .val();
+    [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME].map((el) => formData.delete(el));
+    const trainDateTime = $('#for-default-train').find('[name=DATETIME_RANGE_PICKER]').val();
+    const testDateTime = $('#for-default-test').find('[name=DATETIME_RANGE_PICKER]').val();
     const trainDT = extractAndConvertDT(trainDateTime);
     const testDT = extractAndConvertDT(testDateTime);
     formData.set(CONST.STARTDATE, trainDT.start.date);

@@ -8,6 +8,7 @@ header {
     border: none;
     border-radius: 0;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    height: 65px;
 }
 header.green-header {
     background-color: rgb(55, 127, 64) !important;
@@ -81,20 +82,18 @@ a:focus {
     width: 50px;
 }
 
-#sidebar .sidebar-header {
-    /* padding: 20px; */
-    margin: 18px 9px;
-    /* background: #316060; */
-}
-
+#sidebar .sidebar-header,
 #sidebar.active .sidebar-header {
-    /* padding: 20px; */
-    margin: 20px 9px;
-    /* background: #316060; */
+    padding: 20px 9px;
+    height: 65px;
 }
 
 #sidebar ul.components {
     padding: 5px 0;
+    border-top: none;
+}
+
+#sidebar.active ul.components {
     border-top: 1px solid #444444;
 }
 
@@ -435,6 +434,36 @@ ul#visnMn li a {
     padding-left: 45px !important;
 }
 
+/*side bar search | START*/
+#sidebar.active .sidebar-search {
+    display: none;
+}
+
+.sidebar-searchbox {
+    padding: 4px;
+}
+
+.sidebar-search {
+    width: 100%;
+    padding: 6px 6px 4px 10px;
+    border-top: 1px solid #444444;
+}
+.sidebar-search .deleteicon,
+.sidebar-search input {
+    width: 100%;
+}
+
+ul#pageSubmenu li a.sidebar-is-searching,
+ul#analyzeSubmenu li a.sidebar-is-searching,
+ul#traceDataSubmenu li a.sidebar-is-searching {
+    padding-left: 15px !important;
+}
+
+.sidebar-is-searching .nav-text:first-child {
+    margin-left: 0 !important;
+}
+/*side bar search | END */
+
 @media (max-width: 1100px) {
     .card-xl {
         width: 100% !important;
@@ -591,9 +620,7 @@ ul#visnMn li a {
 /*    background-color: #2299ff !important;*/
 /*}*/
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+.select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #fff !important;
 }
 
@@ -602,14 +629,11 @@ ul#visnMn li a {
     border: 1px solid #222 !important;
 }
 
-.select2-container--default.select2-container--focus
-    .select2-selection--multiple {
+.select2-container--default.select2-container--focus .select2-selection--multiple {
     border: 1px solid #222 !important;
 }
 
-.select2-container--default
-    .select2-selection--multiple
-    .select2-selection__choice {
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
     background-color: #222 !important;
 }
 
@@ -659,28 +683,18 @@ textarea {
     border: 1px solid #222222;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+.select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #ffffff;
     line-height: 34px;
     padding-right: 20px;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow {
+.select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 32px;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow
-    b,
-.select2-container--default.select2-container--open
-    .select2-selection--single
-    .select2-selection__arrow
-    b {
+.select2-container--default .select2-selection--single .select2-selection__arrow b,
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
     border-width: 6px 3px 0 3px;
     margin-left: -1px;
     border-color: #ffffff transparent transparent transparent;
@@ -725,9 +739,7 @@ form[name='otherFilter'] td,
     position: static;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__clear {
+.select2-container--default .select2-selection--single .select2-selection__clear {
     color: white;
     height: 34px;
 }
@@ -778,6 +790,7 @@ input.select2-search__field:focus-visible {
     padding: 0px 5px;
     user-select: none;
     -webkit-user-select: none;
+    height: 24px;
 }
 
 div.list-item {
@@ -2234,10 +2247,7 @@ table.table-hover-light {
 .custom-checkbox .custom-control-label::before,
 .custom-checkbox .custom-control-label::after,
 .custom-control-input:checked ~ .custom-checkbox .custom-control-label::before,
-.custom-checkbox
-    .custom-control-input:checked
-    ~ .custom-checkbox
-    .custom-control-label::after {
+.custom-checkbox .custom-control-input:checked ~ .custom-checkbox .custom-control-label::after {
     margin-top: -2px;
 }
 
@@ -2330,16 +2340,9 @@ label.checkbox-all-label h6 {
     margin-left: -4px;
 }
 
-.less-col .type-item {
-    width: unset;
-    min-width: unset;
-    flex-basis: 0;
-    flex-grow: 1;
-}
-
 .type-item {
-    width: 55px;
-    min-width: 55px;
+    width: 46px;
+    min-width: 46px;
     flex-basis: unset !important;
     flex-grow: unset;
 }
@@ -2355,28 +2358,16 @@ label.checkbox-all-label h6 {
 }
 .col.fit-item > span.select2.select2-container.select2-container--default,
 .col.fit-item > .select2-container .select2-selection--single,
-.col.fit-item
-    > .select2-container--default
-    .select2-selection--single
-    .select2-selection__clear {
+.col.fit-item > .select2-container--default .select2-selection--single .select2-selection__clear {
     height: 26px !important;
 }
-.col.fit-item
-    > .select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+.col.fit-item > .select2-container--default .select2-selection--single .select2-selection__rendered {
     line-height: 26px !important;
 }
-.col.fit-item
-    > .select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow {
+.col.fit-item > .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 28px !important;
 }
-.col.fit-item
-    > .select2-container--default
-    .select2-selection--single
-    .select2-selection__placeholder {
+.col.fit-item > .select2-container--default .select2-selection--single .select2-selection__placeholder {
     margin-left: -10px;
     font-size: 12px;
 }
@@ -2542,3 +2533,59 @@ svg.svg-inline--fa.fa-circle-right {
     text-overflow: ellipsis;
     width: 100%;
 }
+
+/* Start - CSS for multiple alert messages */
+.multi-alert-message-area {
+    z-index: 9999;
+    position: fixed;
+    left: calc(50% + 25px);
+    transform: translateX(-50%);
+    width: calc(100% - 50px);
+    top: 0;
+}
+
+.multi-alert-message-area > div {
+    z-index: unset !important;
+    position: unset !important;
+    left: unset !important;
+    transform: unset !important;
+    width: unset !important;
+    top: unset !important;
+    margin-bottom: unset !important;
+}
+
+.multi-alert-message-area > div > button {
+    top: unset !important;
+    margin-top: -12px;
+}
+
+@media (min-width: 960px) {
+    .flex-cyclic-term-fpp {
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+    }
+    .dn-custom-select {
+        width: 200px;
+    }
+    .flex-datetime-range {
+        display: flex;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        gap: 5px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .flex-datetime-range {
+        display: flex;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+        gap: 5px;
+    }
+}
+
+.dn-custom-select {
+    min-width: 200px;
+}
+
+/* End - CSS for multiple alert messages */

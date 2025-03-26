@@ -47,10 +47,7 @@ const predictDatatypes = (csvData) => {
 
                 // compare datatypes and decide
                 const currentDatatype = columnDatatype[fieldIndex];
-                if (
-                    !isEmpty(predictiveDatatype) &&
-                    predictiveDatatype > currentDatatype
-                ) {
+                if (!isEmpty(predictiveDatatype) && predictiveDatatype > currentDatatype) {
                     columnDatatype[fieldIndex] = predictiveDatatype;
                 }
             });

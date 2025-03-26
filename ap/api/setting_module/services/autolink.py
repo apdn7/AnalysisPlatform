@@ -3,33 +3,38 @@ from __future__ import annotations
 import contextlib
 import csv
 import logging
-from collections import defaultdict
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, Optional
 
 import numpy as np
 import pandas as pd
 import pydantic
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from pandas.errors import ParserError
 from pydantic import BaseModel, BeforeValidator
 
 from ap.api.efa.services.etl import detect_file_path_delimiter
-from ap.api.setting_module.services.csv_import import convert_datetime_format, merge_is_get_date_from_date_and_time
-from ap.api.setting_module.services.data_import import NA_VALUES
+from ap.api.setting_module.services.csv_import import (
+    convert_csv_timezone,
+    convert_datetime_format,
+    merge_is_get_date_from_date_and_time,
+)
+from ap.api.setting_module.services.data_import import NA_VALUES, convert_df_col_to_utc, convert_df_datetime_to_str
+from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
+from ap.api.setting_module.services.factory_import import handle_time_zone
+from ap.api.setting_module.services.import_function_column import calculate_data_for_main_serial_function_column
 from ap.api.setting_module.services.show_latest_record import get_info_from_db
 from ap.api.setting_module.services.v2_etl_services import (
-    build_read_csv_for_v2,
-    get_reversed_column_value_from_v2,
+    get_df_v2_process_single_file,
     get_v2_datasource_type_from_file,
+    get_vertical_df_v2_process_single_file,
 )
-from ap.common.common_utils import DATE_FORMAT_SIMPLE, detect_encoding, get_latest_files
+from ap.common.common_utils import detect_encoding, get_latest_files
 from ap.common.constants import (
     DF_CHUNK_SIZE,
-    DUMMY_V2_PROCESS_NAME,
+    EMPTY_STRING,
     MAXIMUM_PROCESSES_ORDER_FILES,
     DataColumnType,
-    DataGroupType,
     DBType,
     MasterDBType,
 )
@@ -84,6 +89,8 @@ class Autolink:
         return (
             df.sort_values(DATE)
             .drop_duplicates(subset=[SERIAL, AUTO_LINK_ID], keep='last')
+            # sometimes, datetime can be an empty string
+            .replace(EMPTY_STRING, pd.NA)
             # sometimes, serial can be NA
             # See: https://trello.com/c/o1BXSEO0/52-4e-bugfix-auto-link-does-not-work-properly
             # we carefully drop all (SERIAL, AUTO_LINK_ID, DATE) if any of them is NA
@@ -184,11 +191,12 @@ class AutolinkDataProcess:
         self.df = pd.DataFrame(columns=[SERIAL, DATE, AUTO_LINK_ID]).astype(
             self.filter_dict_key_type([SERIAL, DATE, AUTO_LINK_ID]),
         )
-        self.cfg_process: CfgProcess = CfgProcess.query.get(self.process_id)
-
+        self.cfg_process = CfgProcess.get_proc_by_id(self.process_id)
         self.main_date_col: Optional[CfgProcessColumn] = None
         self.main_time_col: Optional[CfgProcessColumn] = None
         self.generated_datetime_col: Optional[CfgProcessColumn] = None
+        self.main_datetime_col: Optional[CfgProcessColumn] = None
+        self.main_serial_col: Optional[CfgProcessColumn] = None
         for column in self.cfg_process.columns if self.cfg_process is not None else []:  # type: CfgProcessColumn
             if column.column_type == DataColumnType.MAIN_DATE.value:
                 self.main_date_col = column
@@ -196,6 +204,9 @@ class AutolinkDataProcess:
                 self.main_time_col = column
             elif column.is_get_date and column.column_type == DataColumnType.DATETIME.value:
                 self.generated_datetime_col = column
+                self.main_datetime_col = column
+            elif column.is_serial_no:
+                self.main_serial_col = column
 
     def is_generated_datetime(self) -> bool:
         return self.main_date_col is not None and self.main_time_col is not None
@@ -203,65 +214,78 @@ class AutolinkDataProcess:
     def has_enough_data(self) -> bool:
         return len(self.df) >= AUTOLINK_TOTAL_RECORDS_PER_SOURCE
 
-    def update(self, df: pd.DataFrame, date_col: str, serial_col):
-        if (
-            self.is_generated_datetime()
-            and self.generated_datetime_col is not None
-            and date_col == self.generated_datetime_col.column_raw_name
-        ):
-            convert_datetime_format(
+    def calculate_main_serial_function_column(self, df):
+        df = calculate_data_for_main_serial_function_column(
+            df,
+            self.cfg_process,
+            self.main_serial_col,
+        )
+        return df
+
+    def update(self, df: pd.DataFrame):
+        if not self.main_datetime_col:
+            raise ValueError('No auto link date time')
+
+        if not self.main_serial_col:
+            raise ValueError('No auto link date time')
+
+        main_datetime_col = self.main_datetime_col.column_raw_name
+        main_serial_col = self.main_serial_col.column_raw_name
+        dict_datatype = {
+            self.main_datetime_col.column_raw_name: self.main_datetime_col.data_type,
+        }
+        if self.main_date_col and self.main_time_col:
+            dict_datatype[self.main_date_col.column_raw_name] = self.main_date_col.data_type
+            dict_datatype[self.main_time_col.column_raw_name] = self.main_time_col.data_type
+
+        df = convert_datetime_format(
+            df,
+            dict_datatype,
+            self.cfg_process.datetime_format,
+        )
+        if self.is_generated_datetime() and self.generated_datetime_col is not None:
+            df = merge_is_get_date_from_date_and_time(
                 df,
-                {
-                    self.main_date_col.column_raw_name: self.main_date_col.data_type,
-                    self.main_time_col.column_raw_name: self.main_time_col.data_type,
-                },
-                self.cfg_process.datetime_format,
-            )
-            merge_is_get_date_from_date_and_time(
-                df,
-                date_col,
+                main_datetime_col,
                 self.main_date_col.column_raw_name,
                 self.main_time_col.column_raw_name,
             )
-        if date_col not in df:
+        if main_datetime_col not in df:
             raise ValueError('No auto link date time')
-        if serial_col not in df:
+        if main_serial_col not in df:
             raise ValueError('No auto link serial')
-        df = df[[date_col, serial_col]]
-        df = df.rename(columns={date_col: DATE, serial_col: SERIAL})
+        df = df[[main_datetime_col, main_serial_col]]
+        df = df.rename(columns={main_datetime_col: DATE, main_serial_col: SERIAL})
 
         df[AUTO_LINK_ID] = self.process_id
 
         # convert datetime and datetype, make sure df is cleaned before updating
-        df = self.convert_datetime(df)
+        df = self.convert_timezone(df)
         df = df.astype(self.filter_dict_key_type([SERIAL, DATE]))
 
         # We just concat here, will drop duplicates later
         self.df = pd.concat([self.df, df])
 
-    @staticmethod
-    def convert_datetime(df: DataFrame) -> DataFrame:
+    def convert_timezone(self, df: DataFrame) -> DataFrame:
         """
-        TODO: remove this, use already defined `convert_datetime_format`, this need to wait another MR from TuanLM18
-        Convert datetime column to format `%Y-%m-%d %H:%M:%S`
+        Convert datetime column timezone
         Args:
             df: [DataFrame] - a dataframe containing datetime column
 
         Returns: [DataFrame] - a dataframe containing converted datetime column
         """
-        from ap.api.setting_module.services.csv_import import datetime_transform
+        if self.cfg_process.data_source.type.lower() in [DBType.CSV.value.lower(), DBType.V2.value.lower()]:
+            df = convert_csv_timezone(df, DATE)
+        else:
+            is_timezone_inside, db_time_zone, utc_offset = handle_time_zone(
+                self.cfg_process,
+                self.main_datetime_col.column_raw_name,
+            )
+            df[DATE] = convert_df_col_to_utc(df, DATE, is_timezone_inside, db_time_zone, utc_offset)
+            df[DATE] = convert_df_datetime_to_str(df, DATE)
 
-        converted_df = df.copy()
-
-        datetime_series: Series = converted_df[DATE]
-        converted_datetime_series: Series = pd.to_datetime(datetime_series, errors='coerce').dt.strftime(
-            DATE_FORMAT_SIMPLE,
-        )
-        non_datetime_series: Series = datetime_series[converted_datetime_series.isna()]
-        converted_datetime_series.update(datetime_transform(non_datetime_series.astype(str)))
-
-        converted_df[DATE] = converted_datetime_series
-        return converted_df
+        df[DATE] = df[DATE].fillna(EMPTY_STRING)  # after convert timezone DATE has NA
+        return df
 
     @classmethod
     def filter_dict_key_type(cls, columns: list[str] | pd.Index) -> dict[str, pd.ExtensionDtype]:
@@ -281,34 +305,56 @@ class AutolinkCSV(BaseModel):
         BeforeValidator(validator_dbtype),
     ]
     process_id: int
-    process_name: str
-    date_col: str
-    serial_col: str
     path: str
-    delimiter: str = 'Auto'
 
     def read(self) -> list[AutolinkDataProcess]:
         autolink_data = AutolinkDataProcess(self.process_id)
+        # Check self.date_col is generated datetime or not
+        cfg_proc: CfgProcess = autolink_data.cfg_process
+        main_datetime_col = autolink_data.main_datetime_col
+        main_serial_col = autolink_data.main_serial_col
+        if not main_datetime_col or not main_serial_col:
+            return [autolink_data]
         files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
 
-        def _read_file(filename: str, read_params: dict[str, Any]):
+        def _read_file(
+            filename: str,
+            read_params: dict[str, Any],
+        ):
             with pd.read_csv(filename, **read_params) as reader:
                 for df in reader:
                     if autolink_data.has_enough_data():
                         break
-                    autolink_data.update(df, self.date_col, self.serial_col)
+                    df_auto_link = df
+                    if main_serial_col.is_main_serial_function_column:
+                        df_auto_link = autolink_data.calculate_main_serial_function_column(df)
+                        df_auto_link = df_auto_link[
+                            [main_datetime_col.column_raw_name, main_serial_col.column_raw_name]
+                        ]
 
-        # Check self.date_col is generated datetime or not
-        using_cols = [self.serial_col]
+                    autolink_data.update(df_auto_link)
+
+        if main_serial_col.is_main_serial_function_column:
+            # Get component columns that necessary for calculating value
+            relation_column_ids = get_all_normal_columns_for_functions([main_serial_col.id], cfg_proc.columns)
+            relation_columns: [CfgProcessColumn] = CfgProcessColumn.get_by_ids(relation_column_ids)
+            using_cols = [
+                relation_column.column_raw_name
+                for relation_column in relation_columns
+                if not relation_column.is_function_column
+            ]
+        else:
+            using_cols = [main_serial_col.column_raw_name]
+
         if autolink_data.is_generated_datetime():
             using_cols.extend(
                 [autolink_data.main_date_col.column_raw_name, autolink_data.main_time_col.column_raw_name],
             )
         else:
-            using_cols.insert(0, self.date_col)
+            using_cols.append(main_datetime_col.column_raw_name)
 
         for file in files:
-            delimiter = detect_file_path_delimiter(file, self.delimiter)
+            delimiter = detect_file_path_delimiter(file, cfg_proc.data_source.csv_detail.delimiter)
             encoding = detect_encoding(file)
             params = {
                 'chunksize': DF_CHUNK_SIZE,
@@ -317,7 +363,7 @@ class AutolinkCSV(BaseModel):
                 'nrows': AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
                 'encoding': encoding,
                 'na_values': NA_VALUES,
-                'error_bad_lines': False,
+                'on_bad_lines': 'skip',
                 'skip_blank_lines': True,
                 'index_col': False,
             }
@@ -343,24 +389,27 @@ class AutolinkDB(BaseModel):
         BeforeValidator(validator_dbtype),
     ]
     process_id: int
-    process_name: str
-    date_col: str
-    serial_col: str
-    data_source_id: int
-    table_name: str
 
     def read(self) -> list[AutolinkDataProcess]:
-        cfg_data_source = CfgDataSource.query.get(self.data_source_id)
-        cfg_process = CfgProcess.query.get(self.process_id)
+        autolink_data = AutolinkDataProcess(self.process_id)
+        cfg_process: CfgProcess = autolink_data.cfg_process
+        cfg_data_source: CfgDataSource = cfg_process.data_source
+        main_datetime_col = autolink_data.main_datetime_col
+        main_serial_col = autolink_data.main_serial_col
+        if not main_datetime_col or not main_serial_col:
+            return [autolink_data]
+
         cols, df, _ = get_info_from_db(
             cfg_data_source,
-            self.table_name,
+            cfg_process.table_name,
             sql_limit=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
             process_factid=cfg_process.process_factid,
             master_type=MasterDBType[cfg_process.master_type] if cfg_process.master_type else None,
         )
-        autolink_data = AutolinkDataProcess(self.process_id)
-        autolink_data.update(df, self.date_col, self.serial_col)
+        if main_serial_col.is_main_serial_function_column:
+            df = autolink_data.calculate_main_serial_function_column(df)
+
+        autolink_data.update(df)
         # we do not try to loop until getting enough data from factory database ...
         if not autolink_data.has_enough_data():
             logger.warning(
@@ -380,20 +429,17 @@ class AutolinkV2(BaseModel):
         BeforeValidator(validator_dbtype),
     ]
     process_ids: list[int]
-    process_names: list[str]
     path: str
 
     def read(self) -> list[AutolinkDataProcess]:
         # there's case where a single process have multiple ids, we need to handle that as well
-        mapping_process_ids = defaultdict(list)
         autolink_data_dictionary = {}
-        for process, idx in zip(self.process_names, self.process_ids):
-            mapping_process_ids[process].append(idx)
+        for idx in self.process_ids:
             autolink_data_dictionary[idx] = AutolinkDataProcess(idx)
 
         files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
         for file in files:
-            self.read_v2_file(file, mapping_process_ids, autolink_data_dictionary)
+            self.read_v2_file(file, self.process_ids, autolink_data_dictionary)
 
         return list(autolink_data_dictionary.values())
 
@@ -407,52 +453,34 @@ class AutolinkV2(BaseModel):
         if datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
             return
 
-        process_col = get_reversed_column_value_from_v2(
-            datasource_type.name,
-            DataGroupType.PROCESS_NAME.value,
-            is_abnormal_v2,
-            is_en_cols,
-        )
-        serial_col = get_reversed_column_value_from_v2(
-            datasource_type.name,
-            DataGroupType.DATA_SERIAL.value,
-            is_abnormal_v2,
-        )
-        date_col = get_reversed_column_value_from_v2(
-            datasource_type.name,
-            DataGroupType.DATA_TIME.value,
-            is_abnormal_v2,
-        )
-        cols = [process_col, serial_col, date_col]
+        def _read_v2_file(cfg_process: CfgProcess, transformed_file, main_serial_col):
+            data_src = cfg_process.data_source.csv_detail
+            if datasource_type == DBType.V2_HISTORY:
+                df_one_file = get_df_v2_process_single_file(
+                    transformed_file,
+                    process_name=data_src.process_name,
+                    datasource_type=datasource_type,
+                    is_abnormal_v2=is_abnormal_v2,
+                )
+            elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
+                df_one_file = get_vertical_df_v2_process_single_file(
+                    transformed_file,
+                    process_name=data_src.process_name,
+                    datasource_type=datasource_type,
+                    is_abnormal_v2=is_abnormal_v2,
+                    is_en_cols=is_en_cols,
+                )
+            if main_serial_column.is_main_serial_function_column:
+                df_one_file = autolink_data_dictionary[cfg_process.id].calculate_main_serial_function_column(
+                    df_one_file,
+                )
+            return df_one_file
 
-        def _read_v2_file(pandas_params: dict[str, Any]):
-            with pd.read_csv(
-                file,
-                chunksize=DF_CHUNK_SIZE,
-                nrows=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
-                **pandas_params,
-            ) as reader:
-                for df_chunk in reader:
-                    if DUMMY_V2_PROCESS_NAME in mapping_process_ids:
-                        df_chunk[process_col] = df_chunk[process_col].fillna(DUMMY_V2_PROCESS_NAME)
-                    # filter process which we don't want to autolink
-                    df_processes = df_chunk[df_chunk[process_col].isin(mapping_process_ids)]
-                    for process_name, df_process in df_processes.groupby(process_col):
-                        # We duplicate processes where a single process name have multiple ids
-                        for process_id in mapping_process_ids[process_name]:
-                            if autolink_data_dictionary[process_id].has_enough_data():
-                                continue
-                            autolink_data_dictionary[process_id].update(
-                                df_process,
-                                date_col=date_col,
-                                serial_col=serial_col,
-                            )
+        for mapping_process_id in mapping_process_ids:
+            cfg_process: CfgProcess = autolink_data_dictionary[mapping_process_id].cfg_process
+            main_serial_column = autolink_data_dictionary[mapping_process_id].main_serial_col
+            if autolink_data_dictionary[mapping_process_id].has_enough_data() or not cfg_process:
+                continue
 
-        params = build_read_csv_for_v2(str(file), datasource_type, is_abnormal_v2)
-        params.update(usecols=cols)
-
-        try:
-            _read_v2_file(params)
-        except ParserError:
-            params.update({'quoting': csv.QUOTE_NONE})
-            _read_v2_file(params)
+            df = _read_v2_file(cfg_process, str(file), main_serial_column)
+            autolink_data_dictionary[mapping_process_id].update(df)

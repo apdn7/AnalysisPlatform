@@ -11,6 +11,16 @@ const MAX_PLOT = 49;
 const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
 const STR_PREFIX = '*_/&＠*_$%#';
+const JUDGE_COLOR_SCALE = 'JUDGE_COLOR_SCALE';
+
+const colorScaleName = {
+    BLUE: 'BLUE',
+    BLUE_REV: 'BLUE_REV',
+    JET: 'JET',
+    JET_REV: 'JET_REV',
+    JET_ABS: 'JET_ABS',
+    JET_ABS_REV: 'JET_ABS_REV',
+};
 
 const formElements = {
     formID: '#traceDataForm',
@@ -25,6 +35,7 @@ const formElements = {
     condProcSelectedItem: '#cond-proc-row select',
     condProcReg: /cond_proc/g,
     NO_FILTER: 'NO_FILTER',
+    functionCate: '#function_cate',
 };
 
 const scpChartType = {
@@ -139,9 +150,7 @@ const genGraph1DMatrix = (inputGraphs, asc = false, sort_key = 'sort_key') => {
     const matrix = Array(rowCount)
         .fill()
         .map(() => Array(currentMatrix).fill(null));
-    const graphs = inputGraphs.sort((a, b) =>
-        sortMatrixFunc(a, b, asc, sort_key),
-    );
+    const graphs = inputGraphs.sort((a, b) => sortMatrixFunc(a, b, asc, sort_key));
     for (let i = 0; i < graphs.length; i++) {
         const itemIdx = Math.floor(i / currentMatrix);
         if (itemIdx >= matrix.length) continue;
@@ -197,12 +206,7 @@ const genGraph2DMatrix = (inputGraphs, asc = false) => {
     return [matrix, rows, cols];
 };
 
-const genGraphMatrix = (
-    inputGraphs,
-    isShowVLabel,
-    asc = false,
-    sort_key = 'sort_key',
-) => {
+const genGraphMatrix = (inputGraphs, isShowVLabel, asc = false, sort_key = 'sort_key') => {
     if (isShowVLabel) {
         return genGraph2DMatrix(inputGraphs, asc);
     }
@@ -284,13 +288,7 @@ $(() => {
     });
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -343,20 +341,14 @@ const loading = $('.loading');
 const validateDTypesForHMp = () => {
     const selectedVariables = [...$('input[name^=GET02_VALS_SELECT]:checked')];
 
-    const targetVariableTypes = selectedVariables.map((el) =>
-        $(`#dataType-${$(el).val()}`).val(),
-    );
+    const targetVariableTypes = selectedVariables.map((el) => $(`#dataType-${$(el).val()}`).val());
     const selectedTypes = new Set(targetVariableTypes).size;
 
     // add case "Cat" and "Str" to show in HMp
     const catStrType = ['Cat', 'Str'];
-    const targetVariableShownType = selectedVariables.map((el) =>
-        $(el).attr('data-type-shown-name'),
-    );
+    const targetVariableShownType = selectedVariables.map((el) => $(el).attr('data-type-shown-name'));
 
-    const isAllowedCatStrType =
-        JSON.stringify(catStrType.sort()) ===
-        JSON.stringify(targetVariableShownType.sort());
+    const isAllowedCatStrType = JSON.stringify(catStrType.sort()) === JSON.stringify(targetVariableShownType.sort());
 
     if (selectedTypes > 1 && !isAllowedCatStrType) {
         // show error msg
@@ -467,18 +459,8 @@ const genDiscreteColorBar = (customScaleSets, discreteColors, zrange) => {
         },
     ];
 };
-const genColorScaleBar = (
-    colorData,
-    zmin,
-    zmax,
-    title,
-    customScaleSets = null,
-    discreteColors = false,
-    height,
-) => {
-    const uniqueColorData = !discreteColors
-        ? colorData.filter(onlyUniqueFilter)
-        : discreteColors;
+const genColorScaleBar = (colorData, zmin, zmax, title, customScaleSets = null, discreteColors = false, height) => {
+    const uniqueColorData = !discreteColors ? colorData.filter(onlyUniqueFilter) : discreteColors;
     const isString = _.isString(uniqueColorData[0]);
     const scale = customScaleSets || defaultScaleSets;
     let data = [
@@ -554,15 +536,11 @@ const genColorScaleBar = (
 
 // generate scatter hover information
 const removeEmptyFromMatrix = (matrix) => {
-    const validRows = matrix.filter(
-        (row) => row.filter((col) => col !== null).length > 0,
-    );
+    const validRows = matrix.filter((row) => row.filter((col) => col !== null).length > 0);
     const invalidCols = [];
     // loop cols
     for (let i = 0; i < validRows[0].length; i++) {
-        const colValues = validRows
-            .map((row) => row[i])
-            .filter((col) => col !== null);
+        const colValues = validRows.map((row) => row[i]).filter((col) => col !== null);
         if (!colValues.length) {
             invalidCols.push(i);
         }
@@ -587,15 +565,9 @@ const rearrangeHeatmap = async () => {
     const heatmapData = JSON.parse(JSON.stringify(graphStore.getTraceData()));
     if (heatmapData.full_div && arrangeMode) {
         // gen blank item
-        let blankPlotDat = JSON.parse(
-            JSON.stringify(heatmapData.array_plotdata[0]),
-        );
-        const alreadyDivPlot = heatmapData.array_plotdata.map(
-            (plotDat) => plotDat.h_label,
-        );
-        blankPlotDat.array_z = blankPlotDat.array_z.map((z) =>
-            [...z].fill(null),
-        );
+        let blankPlotDat = JSON.parse(JSON.stringify(heatmapData.array_plotdata[0]));
+        const alreadyDivPlot = heatmapData.array_plotdata.map((plotDat) => plotDat.h_label);
+        blankPlotDat.array_z = blankPlotDat.array_z.map((z) => [...z].fill(null));
         blankPlotDat.orig_array_z = blankPlotDat.array_z;
         blankPlotDat.as_dummy_div = true;
         blankPlotDat.colors.fill(-1);
@@ -612,12 +584,7 @@ const rearrangeHeatmap = async () => {
     await showSCP(heatmapData, settings);
 };
 
-const showSCP = async (
-    res,
-    settings = undefined,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!res.array_plotdata) {
         loadingHide();
         return;
@@ -652,9 +619,7 @@ const showSCP = async (
 
         // reverse array to show latest first
         let zoomRange = null;
-        const isShowDate =
-            res.COMMON.compareType === els.cyclicTerm ||
-            res.COMMON.compareType === els.directTerm;
+        const isShowDate = res.COMMON.compareType === els.cyclicTerm || res.COMMON.compareType === els.directTerm;
 
         const cloneScpPlotData = () => {
             const isShowArrangeDiv = $(`#${els.hmpArrangeDiv}`).is(':checked');
@@ -670,24 +635,14 @@ const showSCP = async (
             let sortKey = 'sort_key';
             scpCloneData.sort((a, b) => b.h_label - a.h_label);
             sortKey = 'h_label';
-            const [matrix] = genGraphMatrix(
-                scpCloneData,
-                res.is_show_v_label,
-                !!settings.isShowForward,
-                sortKey,
-            );
+            const [matrix] = genGraphMatrix(scpCloneData, res.is_show_v_label, !!settings.isShowForward, sortKey);
             // todo: reverse v + hlabel + matrix
             const scpMatrix = removeEmptyFromMatrix(matrix);
             // scatter for category and real color
             $('#navigation-bar').removeAttr('style');
             $(window).off('resize');
-            const divNumber =
-                res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if (
-                [scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(
-                    chartType,
-                )
-            ) {
+            const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
+            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
                 const contentDomHeight = genHTMLContentMatrix(
                     scpMatrix,
                     'sctr-card',
@@ -700,8 +655,7 @@ const showSCP = async (
                 // get color agg function
                 const aggColorFunc = res.COMMON.agg_color_function;
                 const option = {
-                    isShowNumberOfData:
-                        res.COMMON.compareType === els.dataNumberTerm,
+                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
                     isShowFacet: res.is_show_v_label,
                     isShowDiv: res.div_name !== null,
                     hasLv2: res.level_names && res.level_names.length >= 2,
@@ -711,104 +665,108 @@ const showSCP = async (
                     colorName: res.color_name,
                     color_bar_title: res.color_bar_title,
                     divDataType: res.div_data_type,
-                    hmpColor: settings.hmpColor || 'BLUE',
-                    isDiscreteColor:
-                        Object.values(discreteColorType).includes(aggColorFunc),
+                    hmpColor: settings.hmpColor || colorScaleName.BLUE,
+                    isDiscreteColor: Object.values(discreteColorType).includes(aggColorFunc),
                     x_name: xName,
                     y_name: yName,
                     colorBarHeight: contentDomHeight,
+                    judgeColorScale: settings[JUDGE_COLOR_SCALE] || null,
                 };
                 heatmapData = { scpMatrix, option, zoomRange };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
                     zoomRange = event;
-                    const sets = getCurrentSettings();
+                    const sets = updateSetting({
+                        res,
+                        currentSetting: getCurrentSettings(),
+                    });
                     showGraph(sets);
                 });
             }
 
-            // hide loadding icon
+            // hide loading icon
             loadingHide();
 
             if (!autoUpdate) {
                 // scroll to chart
-                const scpCardPosition =
-                    getOffsetTopDisplayGraph('#colorSettingGrp');
+                const scpCardPosition = getOffsetTopDisplayGraph('#colorSettingGrp');
                 $('html,body').animate({ scrollTop: scpCardPosition }, 1000);
             }
             initFilterModal(res, clearOnFlyFilter);
         };
 
         if (settings) {
-            showGraph(settings);
+            const updateSeting = updateSetting({
+                res,
+                currentSetting: settings,
+            });
+            showGraph(updateSeting);
         } else {
             showGraph();
         }
 
+        const handleSelectChange = ({ selector, isSetChartScale = false, callback, timeout }) => {
+            $(selector)
+                .off('change')
+                .on('change', () => {
+                    if (isSetChartScale) return;
+                    loadingShow();
+                    setTimeout(() => {
+                        const graphSetting = updateSetting({
+                            res,
+                            currentSetting: getCurrentSettings(),
+                        });
+                        callback(graphSetting);
+                    }, timeout);
+                });
+        };
+
         const onChangeChartScale = () => {
-            $(`select[name=${els.scpChartScale}]`).off('change');
-            $(`select[name=${els.scpChartScale}]`).on('change', (e) => {
-                if (chartType === scpChartType.HEATMAP) return;
-                loadingShow();
-                setTimeout(() => {
-                    const graphsettings = getCurrentSettings();
-                    showGraph(graphsettings);
-                }, 1000);
+            handleSelectChange({
+                selector: `select[name=${els.scpChartScale}`,
+                isSetChartScale: chartType === scpChartType.HEATMAP,
+                callback: (graphSetting) => {
+                    showGraph(graphSetting);
+                },
+                timeout: 1000,
             });
+            //
         };
         const onChangeColorScale = () => {
-            $(`select[name=${els.scpColorScale}]`).off('change');
-            $(`select[name=${els.scpColorScale}]`).on('change', (e) => {
-                loadingShow();
-                setTimeout(() => {
-                    const graphsettings = getCurrentSettings();
-                    showGraph(graphsettings);
-                }, 500);
+            handleSelectChange({
+                selector: `select[name=${els.scpColorScale}`,
+                callback: showGraph,
+                timeout: 500,
             });
         };
         const onShowBackward = () => {
-            $(`select[name=${els.showBackward}]`).off('change');
-            $(`select[name=${els.showBackward}]`).on('change', () => {
-                loadingShow();
-                setTimeout(() => {
-                    const graphsettings = getCurrentSettings();
-                    showGraph(graphsettings);
-                }, 1000);
+            handleSelectChange({
+                selector: `select[name=${els.showBackward}`,
+                callback: showGraph,
+                timeout: 1000,
             });
         };
         const onChangeColNumber = () => {
-            $(`select[name=${els.colNumber}]`)
-                .off('change')
-                .on('change', (e) => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        callToBackEndAPI(graphsettings);
-                    }, 500);
-                });
+            handleSelectChange({
+                selector: `select[name=${els.colNumber}`,
+                callback: callToBackEndAPI,
+                timeout: 500,
+            });
         };
 
         const onChangeHmColor = () => {
-            $(`select[name=${els.hmColorSelect}]`)
-                .off('change')
-                .on('change', (e) => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphsettings = getCurrentSettings();
-                        showGraph(graphsettings);
-                    }, 1000);
-                });
+            handleSelectChange({
+                selector: `select[name=${els.hmColorSelect}`,
+                callback: showGraph,
+                timeout: 1000,
+            });
         };
 
         const onChangeArrangeDiv = () => {
-            $(`#${els.hmpArrangeDiv}`)
-                .off('change')
-                .on('change', (event) => {
-                    loadingShow();
-                    setTimeout(() => {
-                        const graphSettings = getCurrentSettings();
-                        showGraph(graphSettings);
-                    }, 1000);
-                });
+            handleSelectChange({
+                selector: `select[name=${els.hmpArrangeDiv}`,
+                callback: showGraph,
+                timeout: 1000,
+            });
         };
 
         onChangeHmColor();
@@ -821,6 +779,41 @@ const showSCP = async (
 
     loadingHide();
 };
+
+const setInitScaleForJudge = ({ res, setting }) => {
+    if (res?.is_judge_color) {
+        // // set hmpColor to JET_REV if having judge color and other color is last or first
+        const isSetHmpColorToJET_REV = checkIsSetHmpColorToJET_REV(res.COMMON.function_cate);
+
+        if (isSetHmpColorToJET_REV) {
+            $(`select[name=${els.hmColorSelect}]`).val(colorScaleName.JET_REV);
+            setting.hmpColor = colorScaleName.JET_REV;
+            // create scale color for judge:
+            const uniqueColor = res.filter_on_demand.color[0].unique_categories;
+            setting[JUDGE_COLOR_SCALE] = genColorScaleForJudge(uniqueColor);
+        }
+    }
+    return setting;
+};
+
+const checkIsSetHmpColorToJET_REV = (funcCate) => {
+    return funcCate === discreteColorType.LAST || funcCate === discreteColorType.FIRST;
+};
+
+const updateSetting = ({ res, currentSetting }) => {
+    // set scale for Judge
+    if (res?.is_judge_color) {
+        // set hmpColor to JET_REV if having judge color and other color is last or first
+        const isSetHmpColorToJET_REV = checkIsSetHmpColorToJET_REV(res.COMMON.function_cate);
+
+        if (isSetHmpColorToJET_REV && currentSetting.hmpColor === colorScaleName.JET_REV) {
+            const uniqueColor = res.filter_on_demand.color[0].unique_categories;
+            currentSetting[JUDGE_COLOR_SCALE] = genColorScaleForJudge(uniqueColor);
+        }
+    }
+    return currentSetting;
+};
+
 const resetGraphSetting = () => {
     // Reset chart scale
     $(`select[name=${els.scpChartScale}]`).val('1');
@@ -842,11 +835,7 @@ const resetGraphSetting = () => {
     currentMatrix = MAX_MATRIX;
 
     // Reset Arrange Div switch button to OFF
-    $(`.${els.arrangeDivSwitch}`)[0].style.setProperty(
-        'display',
-        'none',
-        'important',
-    );
+    $(`.${els.arrangeDivSwitch}`)[0]?.style?.setProperty('display', 'none', 'important');
     $(`input#${els.hmpArrangeDiv}`).prop('checked', false);
 };
 
@@ -925,11 +914,7 @@ const genHTMLContentMatrix = (
                 if (isShowFirstLabelH) {
                     labelH = i === 0 ? firstLabelH[j] : '';
                 } else {
-                    labelH = item
-                        ? item.h_label === null
-                            ? ''
-                            : item.h_label
-                        : '';
+                    labelH = item ? (item.h_label === null ? '' : item.h_label) : '';
                 }
 
                 if (isShowDate) {
@@ -938,13 +923,9 @@ const genHTMLContentMatrix = (
                         labelH
                             .split(COMMON_CONSTANT.EN_DASH)
                             .map((vl) =>
-                                formatDateTime(
-                                    vl.trim(),
-                                    DATE_FORMAT_WITHOUT_TZ,
-                                    {
-                                        withMillisecs: false,
-                                    },
-                                ),
+                                formatDateTime(vl.trim(), DATE_FORMAT_WITHOUT_TZ, {
+                                    withMillisecs: false,
+                                }),
                             )
                             .join(` ${COMMON_CONSTANT.EN_DASH} `);
                 } else if (labelH && isDivNumber) {
@@ -963,13 +944,16 @@ const genHTMLContentMatrix = (
 
             contentDOM += `
             <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
-                <div class="matrix-level cat-exp-box"><span class="show-detail">${vLabel}</span></div>
+                <div class="matrix-level cat-exp-box" style="left: calc(${(oneRowHeight / 2) * -1 - 20}px); top: calc(100% / 2 - 2px); height: fit-content; width: ${oneRowHeight}px;">
+                    <span class="show-detail">${vLabel}</span>
+                </div>
                 ${column}
             </div>
         `;
         }
+        const chartHeight = oneRowHeight * totalRow + 80;
         return `
-                    <div class="position-absolute vertical-text" id="scpchart-ytitle">
+                    <div class="position-absolute vertical-text" id="scpchart-ytitle" style="left: calc(${(chartHeight / 2) * -1 - 10}px); top: calc(100% / 2 - 44px); height: fit-content; width: ${chartHeight}px;">
                         <span class="${showDetailClass('y')}" data-id="${stringCol ? 'color' : 'y'}"
                         title="${yName}">${yName}</span>
                     </div>
@@ -1003,12 +987,7 @@ const genHTMLContentMatrix = (
     return contentDomHeight;
 };
 
-const genHeatMapPlots = (
-    scpData,
-    option,
-    zoomRange = null,
-    callback = null,
-) => {
+const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
     let allColorValSets = [];
     const allYValues = [];
     const allXValues = [];
@@ -1021,10 +1000,7 @@ const genHeatMapPlots = (
                 allYValue = [...allYValue, ...item.array_y];
                 if (item.array_z) {
                     item.array_z.forEach((z) => {
-                        allColorValSets = [
-                            ...allColorValSets,
-                            ...z.map((y) => y),
-                        ];
+                        allColorValSets = [...allColorValSets, ...z.map((y) => y)];
                     });
                 } else {
                     allColorValSets = item.colors;
@@ -1041,6 +1017,8 @@ const genHeatMapPlots = (
         option.hmpColor,
         option.isDiscreteColor,
         scpData,
+        null, //common scale
+        option.judgeColorScale,
     );
     // get common X of each column
     const totalRow = scpData.length;
@@ -1062,26 +1040,17 @@ const genHeatMapPlots = (
             const graphDiv = document.getElementById(canvasID);
             const heatmapGraph = {};
             heatmapGraph.array_y =
-                item && !item.as_dummy_div
-                    ? item.array_y.map((val) => val.toString())
-                    : allYValues[i];
+                item && !item.as_dummy_div ? item.array_y.map((val) => val.toString()) : allYValues[i];
             heatmapGraph.array_x =
-                item && !item.as_dummy_div
-                    ? item.array_x.map((val) => val.toString())
-                    : allXValues[j];
+                item && !item.as_dummy_div ? item.array_x.map((val) => val.toString()) : allXValues[j];
             heatmapGraph.array_z =
                 item && !item.as_dummy_div
                     ? item.array_z
-                    : Array(allYValues[i].length).fill(
-                          Array(allXValues[j].length).fill(-1),
-                      );
+                    : Array(allYValues[i].length).fill(Array(allXValues[j].length).fill(-1));
             heatmapGraph.colorScale =
                 item && !item.as_dummy_div
                     ? colorScale.scale
-                    : [...colorScale.scale].map((color) => [
-                          color[0],
-                          '#222222',
-                      ]);
+                    : [...colorScale.scale].map((color) => [color[0], '#222222']);
             heatmapGraph.zmax = colorScale.zmax;
             heatmapGraph.zmin = colorScale.zmin;
             heatmapGraph.isShowY = j === 0;
@@ -1106,15 +1075,7 @@ const genHeatMapPlots = (
                     }
                     const { x, y, pointIndex } = data.points[0];
                     const { pageX, pageY } = data.event;
-                    makeHeatmapHoverInfoBox(
-                        dataScp,
-                        x,
-                        y,
-                        option,
-                        pageX,
-                        pageY,
-                        pointIndex,
-                    );
+                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY, pointIndex);
                 }, 200);
             });
 
@@ -1131,9 +1092,7 @@ const genHeatMapPlots = (
     } else {
         $('#arrangeGraph').removeClass('show');
     }
-    const colorBarTitle = option.color_bar_title
-        ? option.color_bar_title
-        : 'Count';
+    const colorBarTitle = option.color_bar_title ? option.color_bar_title : 'Count';
 
     let discreteColors = false;
     if (option.isDiscreteColor) {
@@ -1166,11 +1125,7 @@ const genHeatMapPlots = (
     );
 };
 
-const callToBackEndAPI = (
-    settings = undefined,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {
     const formData = transformFormdata(clearOnFlyFilter, autoUpdate);
     if (settings) {
         formData.set('colNumber', settings.colNumber);
@@ -1178,20 +1133,15 @@ const callToBackEndAPI = (
     // clear old html elements
     $('.scp-hover-info').remove();
 
-    showGraphCallApi(
-        '/ap/api/hmp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
+    showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
 
-            await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
+        await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-            setPollingData(formData, handleSetPollingData, []);
-        },
-    );
+        setPollingData(formData, handleSetPollingData, []);
+    });
 };
 
 const handleSetPollingData = () => {
@@ -1272,56 +1222,47 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi(
-        '/ap/api/hmp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
+    showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
 
-            $('#sctr-card').empty();
+        $('#sctr-card').empty();
 
-            // check result and show toastr msg
-            if (
-                isEmpty(res.array_plotdata) ||
-                isEmpty(res.array_plotdata[0].array_y)
-            ) {
-                showToastrAnomalGraph();
-            }
+        // check result and show toastr msg
+        if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata[0].array_y)) {
+            showToastrAnomalGraph();
+        }
 
-            await showSCP(res, setting, clearOnFlyFilter);
+        setting = setInitScaleForJudge({ res, setting });
+        await showSCP(res, setting, clearOnFlyFilter);
 
-            // show toastr to inform result was truncated upto 5000
-            if (res.is_res_limited) {
-                showToastrMsg(
-                    i18n.traceResulLimited.split('BREAK_LINE').join('<br>'),
-                );
-            }
+        // show toastr to inform result was truncated upto 5000
+        if (res.is_res_limited) {
+            showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
+        }
 
-            // show reduced violin message
-            if (res.is_reduce_violin_number) {
-                showToastrMsg(i18n.reduceViolinNumberMessage);
-            }
+        // show reduced violin message
+        if (res.is_reduce_violin_number) {
+            showToastrMsg(i18n.reduceViolinNumberMessage);
+        }
 
-            // show reduced data per graph
-            // only for scatter plot
-            if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
-                showToastrMsg(i18n.limitPerGraphMessage);
-            }
+        // show reduced data per graph
+        // only for scatter plot
+        if (res.isDataLimited && res.chartType === scpChartType.SCATTER) {
+            showToastrMsg(i18n.limitPerGraphMessage);
+        }
 
-            // show violin resampling msg
-            if (res.is_resampling) {
-                showToastrMsg(i18n.isResampleMsg);
-            }
+        // show violin resampling msg
+        if (res.is_resampling) {
+            showToastrMsg(i18n.isResampleMsg);
+        }
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            setPollingData(formData, handleSetPollingData, []);
-        },
-    );
+        setPollingData(formData, handleSetPollingData, []);
+    });
 
     $('#plot-cards').empty();
 };
@@ -1346,10 +1287,7 @@ const fillColorScaleHtml = (color_type, is_cat_color) => {
         <option value="AUTO">${i18n.colorScaleAuto}</option>`;
     if (is_cat_color || !color_type) {
         scpColorScaleSelect.append(htmlCatNon);
-    } else if (
-        !is_cat_color &&
-        [dataTypes.INT, dataTypes.REAL].includes(color_type)
-    ) {
+    } else if (!is_cat_color && [dataTypes.INT, dataTypes.REAL].includes(color_type)) {
         scpColorScaleSelect.append(htmlIntReal);
     } else {
         scpColorScaleSelect.append(htmlIntReal);
@@ -1396,9 +1334,7 @@ const downloadPlot = () => {
         document.getElementById('screenshot').appendChild(canvas);
         // generate filename
         const filename = 'screenshot.png';
-        const screenshot = document
-            .getElementById('screenshot')
-            .querySelectorAll('canvas')[0];
+        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             targetLink.setAttribute('download', filename);

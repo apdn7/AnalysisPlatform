@@ -89,18 +89,14 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
     // change background color
     changeBackgroundColor(ele);
 
-    const vals = [
-        ...procModalElements.processColumnsSampleDataTableBody.find(
-            `tr:eq(${idx}) .sample-data`,
-        ),
-    ].map((el) => $(el));
+    const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${idx}) .sample-data`)].map((el) =>
+        $(el),
+    );
     const getParamsForFormatDatetime = () => {
         return {
             dataType: ele.getAttribute('value'),
             colIdx: idx,
-            dataTypeDropdownElement:
-                dataTypeDropdownElement ??
-                ele.closest('.config-data-type-dropdown'),
+            dataTypeDropdownElement: dataTypeDropdownElement ?? ele.closest('.config-data-type-dropdown'),
         };
     };
     const attrName = 'data-original';
@@ -214,23 +210,22 @@ const parseProcDatetimeFormatSampleData = async (dataType, values) => {
     }
 };
 
-const parseProcDatetimeInputFormat = async (dataType, values) => {
+const parseProcDatetimeInputFormat = async (dataType, values, isGeneratedMainDatetimeColumn = false) => {
     const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const clientTimezone = detectLocalTimezone();
     const formattedData = await fetch('/ap/api/setting/datetime_format', {
         method: 'POST',
         body: JSON.stringify({
             data: values,
             format: inputFormat,
             dataType: dataType,
-            tzinfo: timeZone,
+            clientTimezone: clientTimezone,
+            isGeneratedDatetime: isGeneratedMainDatetimeColumn,
         }),
     })
         .then((response) => response.json())
         .catch((res) => {
             console.log('Can not apply format');
         });
-    return formattedData.map((data) => {
-        return data;
-    });
+    return formattedData;
 };

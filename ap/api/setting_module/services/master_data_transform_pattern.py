@@ -4,7 +4,7 @@ from typing import Union
 import pandas as pd
 from pandas._libs.missing import NAType
 
-from ap.common.constants import EMPTY_STRING, HALF_WIDTH_SPACE
+from ap.common.constants import EMPTY_STRING, HALF_WIDTH_SPACE, MEASUREMENTS_DEFINED
 
 REMOVE_CHARACTERS_PATTERN = r'\\+[nrt]'
 
@@ -27,7 +27,7 @@ class RegexRule:
 
     @classmethod
     def is_not_data(cls, data: str) -> bool:
-        return pd.isnull(data) or data is None
+        return pd.isna(data) or data is None
 
 
 class ColumnRawNameRule(RegexRule):
@@ -77,26 +77,25 @@ class ColumnRawNameRule(RegexRule):
         if len(suffix_data_name) != 0:
             column_name += f'{HALF_WIDTH_SPACE}{suffix_data_name}'
 
-        # 4. Replace any bracket.
-        # 4-1. Replace "\s?[(\[]\s?" to "("
-        column_name = re.sub(r'\s?[(\[【「『〖〚〘｟〔]\s?', '(', column_name)
-        # 4-2. Replace "\s?[)\]" to ")"
-        column_name = re.sub(r'\s?[)\]】」』〗〛〙｠〕]\s?', ')', column_name)
+        if unit:
+            # 4. Replace any bracket.
+            # 4-1. Replace "\s?[(\[]\s?" to "("
+            column_name = re.sub(r'\s?[(\[【「『〖〚〘｟〔]\s?', '(', column_name)
+            # 4-2. Replace "\s?[)\]" to ")"
+            column_name = re.sub(r'\s?[)\]】」』〗〛〙｠〕]\s?', ')', column_name)
 
-        # handle case 'μm' and 'µm'
-        unit = unit.replace('μ', 'µ').replace('KPa', 'kPa').replace('cm^3/min', 'cm3/min').strip()
+            # handle case 'μm' and 'µm'
+            unit = unit.replace('μ', 'µ').replace('KPa', 'kPa').replace('cm^3/min', 'cm3/min').strip()
 
-        # 4-3. Remove "()"
-        column_name = re.sub(r'[()]', HALF_WIDTH_SPACE, column_name)
+            # 4-3. Remove "()"
+            column_name = re.sub(r'[()]', HALF_WIDTH_SPACE, column_name)
         column_name = re.sub(r'\s+', HALF_WIDTH_SPACE, column_name)
 
         # 5. Replace `No.`=> `No` by removing `.`
         column_name = column_name.replace('No.', 'No')
         column_name = column_name.replace(';', ':')  # Cover case 管理マスタ値1;指示値 & 管理マスタ値1:指示値
 
-        # Remove 計測値:|measurement.
-        measurement_removes = ['計測値:', '加工値:', '加工条件:', '加工条件値:', 'その他:', 'measurement.']
-        column_name = re.sub('|'.join(map(re.escape, measurement_removes)), EMPTY_STRING, column_name)
+        column_name = re.sub('|'.join(map(re.escape, MEASUREMENTS_DEFINED)), EMPTY_STRING, column_name)
 
         # 6. Strip
         column_name = column_name.strip()

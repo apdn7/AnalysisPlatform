@@ -10,6 +10,13 @@ update_master_type_and_table_name = """UPDATE cfg_process
 SET master_type = 'SOFTWARE_WORKSHOP_MEASUREMENT',
     table_name = CONCAT('measurement_', table_name)
 WHERE master_type IS NULL AND process_factid IS NOT NULL AND process_factid != '';"""
+update_suffix_table_name = """UPDATE cfg_process
+SET table_name = CASE
+    WHEN table_name LIKE 'measurement_%' THEN REPLACE(table_name, 'measurement_', '') || '_measurement'
+    WHEN table_name LIKE 'history_%' THEN REPLACE(table_name, 'history_', '') || '_history'
+    ELSE table_name END
+WHERE master_type IS NOT NULL AND process_factid IS NOT NULL AND process_factid != '';
+"""
 
 
 def migrate_cfg_process(app_db_src):
@@ -46,3 +53,5 @@ def migrate_cfg_process_add_master_type(app_db):
     if not is_col_master_type:
         app_db.execute_sql(create_master_type)
         app_db.execute_sql(update_master_type_and_table_name)
+
+    app_db.execute_sql(update_suffix_table_name)

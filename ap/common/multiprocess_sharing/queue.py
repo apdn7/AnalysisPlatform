@@ -5,9 +5,7 @@ import logging
 import multiprocessing
 import queue
 import threading
-from typing import Any, Callable, Optional
-
-from pydantic import BaseModel, ConfigDict
+from typing import Any, Callable
 
 from ap.common.multiprocess_sharing.events import Event
 from ap.common.multiprocess_sharing.manager import CustomManager
@@ -23,6 +21,8 @@ class EventQueue:
     # callback to run on Event
     # we don't need to lock this because all callbacks should be added only in main thread
     callbacks: list[Callable[[Event], Any]] = []
+
+    is_listening: bool = False
 
     @classmethod
     def put(cls, event: Event):
@@ -41,9 +41,22 @@ class EventQueue:
         return cls._get()
 
     @classmethod
+    def clear(cls):
+        return cls._clear()
+
+    @classmethod
+    def pause(cls):
+        return cls._pause()
+
+    @classmethod
+    def resume(cls):
+        return cls._resume()
+
+    @classmethod
     def start_listening(cls) -> None:
         # start running thread to process event queue
         # daemon=True, when the main process exit, the thread will stop as well
+        cls.is_listening = True
         threading.Thread(target=cls._listen, daemon=True).start()
 
     @classmethod
@@ -61,6 +74,10 @@ class EventQueue:
             # even though we waited, we cannot get any message, hence we stop the loop
             if event is None:
                 break
+
+            # callbacks are not executed when not listening
+            if not cls.is_listening:
+                continue
 
             # if Exception occurs in some callbacks, we can still listen to other events, so we add try catch here
             try:
@@ -98,6 +115,19 @@ class EventQueue:
         return None
 
     @classmethod
+    def _pause(cls):
+        cls.is_listening = False
+
+    @classmethod
+    def _resume(cls):
+        cls.is_listening = True
+
+    @classmethod
+    def _clear(cls):
+        while not cls.inner.empty():
+            cls.inner.get_nowait()
+
+    @classmethod
     def is_connected(cls) -> bool:
         """Run an O(1) test if we are still connect to the server."""
         # If this raises error, this means we are disconnected from the server.
@@ -119,69 +149,6 @@ class EventQueue:
         should_run_init = (
             # Inner is not set, we are definitely not connecting to a server.
             cls.inner is None
-            # Inner is set, but we might check if we are still connecting to the sever.
-            # If we are not, we need to try to reconnect again.
-            or not cls.is_connected()
-        )
-
-        if should_run_init:
-            cls._init()
-
-        # Return whether we are connected
-        return cls.is_connected()
-
-
-class RunningJob(BaseModel):
-    id: str = ConfigDict(coerce_numbers_to_str=True)
-    name: str = ConfigDict(coerce_numbers_to_str=True)
-    proc_id: Optional[int] = ConfigDict(coerce_numbers_to_str=True)
-
-
-class RunningJobs:
-    """Dictionary contains jobs running inside our applications, we use this to check jobs conflict"""
-
-    _running_jobs: dict[str, RunningJob] | None = None
-
-    @classmethod
-    def get(cls) -> dict[str, RunningJob] | None:
-        return cls._get()
-
-    @classmethod
-    def _get(cls) -> dict[str, RunningJob] | None:
-        # Cannot connect to the server to get shared object
-        if not cls.try_init():
-            return None
-
-        # Still need to suppress exception here
-        # To avoid TOCTOU issue: <https://en.wikipedia.org/wiki/Time-of-check_to_time-of-use>
-        with contextlib.suppress(BrokenPipeError, FileNotFoundError, AssertionError):
-            # We want to wait for message from the queue, so just block here
-            return cls._running_jobs
-
-        return None
-
-    @classmethod
-    def is_connected(cls) -> bool:
-        """Run an O(1) test if we are still connect to the server."""
-        # If this raises error, this means we are disconnected from the server.
-        with contextlib.suppress(BrokenPipeError, FileNotFoundError, AssertionError):
-            len(cls._running_jobs)
-            return True
-
-        return False
-
-    @classmethod
-    def _init(cls):
-        with contextlib.suppress(BrokenPipeError, FileNotFoundError, AssertionError):
-            cls._running_jobs = CustomManager.get_running_jobs()
-
-    @classmethod
-    def try_init(cls) -> bool:
-        """Try to initialize object from server, return True if success, otherwise return False"""
-
-        should_run_init = (
-            # Running jobs is not set, we are definitely not connecting to a server.
-            cls._running_jobs is None
             # Inner is set, but we might check if we are still connecting to the sever.
             # If we are not, we need to try to reconnect again.
             or not cls.is_connected()

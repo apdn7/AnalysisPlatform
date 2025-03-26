@@ -2,13 +2,14 @@
 - all:
   - fpp
   - stp
+  - rlp
   - chm
+  - agp
   - msp
   - scp
   - pcp
   - skd
   - pca
-  - agp
   - gl
 - tiles:
     fpp:
@@ -91,12 +92,5 @@
     pca:
       recommends:
         - fpp
-      unavailable:
-        - pca
-    hmp:
-      recommends:
-        - fpp
-        - chm
-        - agp
       unavailable:
         - pca

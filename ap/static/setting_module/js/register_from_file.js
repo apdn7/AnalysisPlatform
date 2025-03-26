@@ -40,13 +40,11 @@ const i18n = {
     noCTColProc: $('#i18nNoCTColPrc').text(),
     processName: document.getElementById('i18nProcessName_').textContent,
     dataType: document.getElementById('i18ni18nDataType').textContent,
-    systemNameHoverMsg: document.getElementById('i18nSystemNameHoverMsg')
-        .textContent,
+    systemNameHoverMsg: document.getElementById('i18nSystemNameHoverMsg').textContent,
     japaneseName: document.getElementById('i18nJapaneseName').textContent,
     localName: document.getElementById('i18nLocalName').textContent,
     unit: $('#i18nUnit').text(),
-    alreadyRegistered: document.getElementById('i18nAlreadyRegistered')
-        .textContent,
+    alreadyRegistered: document.getElementById('i18nAlreadyRegistered').textContent,
     columnRawName: document.getElementById('i18nColumnRawName').textContent,
     format: document.getElementById('i18nFormat').textContent,
     sampleData: document.getElementById('i18nSampleData').textContent,
@@ -60,12 +58,8 @@ const registerI18n = {
     i18nFileIsSelected: $('#i18nFileIsSelected').text(),
     i18nProgressSourceSelected: $('#i18nProgressSourceSelected').text(),
     i18nDbSourceExist: $('#i18nDbSourceExist').text(),
-    i18nProcessNameIsAlreadyRegistered: $(
-        '#i18nProcessNameIsAlreadyRegistered',
-    ).text(),
-    i18nDataSourceNameIsAlreadyRegistered: $(
-        '#i18nDataSourceNameIsAlreadyRegistered',
-    ).text(),
+    i18nProcessNameIsAlreadyRegistered: $('#i18nProcessNameIsAlreadyRegistered').text(),
+    i18nDataSourceNameIsAlreadyRegistered: $('#i18nDataSourceNameIsAlreadyRegistered').text(),
     i18nProcessRegisterStart: $('#i18nProcessRegisterStart').text(),
     i18nProgressFolderCheck: $('#i18nProgressFolderCheck').text(),
     i18nProgressImportingData: $('#i18nProgressImportingData').text(),
@@ -119,11 +113,9 @@ $(registerFromFileEles.directoryRadios).on('change', (e) => {
  */
 async function validateInputUrlAndFile() {
     // remove add red border
-    [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach(
-        (el) => {
-            removeBorderFromInvalidInput(el);
-        },
-    );
+    [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach((el) => {
+        removeBorderFromInvalidInput(el);
+    });
 
     const urlInfo = await getUrlInfo();
 
@@ -136,10 +128,7 @@ async function validateInputUrlAndFile() {
         return false;
     }
 
-    const checkResult = await checkFolder(
-        urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url,
-        urlInfo.isFile,
-    );
+    const checkResult = await checkFolder(urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url, urlInfo.isFile);
 
     if (!checkResult.is_valid || !checkResult.is_valid_file) {
         // show error msg to the right side
@@ -156,10 +145,7 @@ async function validateInputUrlAndFile() {
 
         if (!checkFileName.is_valid || !checkFileName.is_valid_file) {
             // show error msg to the right side
-            addMessengerToProgressBar(
-                checkFileName.err_msg,
-                ICON_STATUS.WARNING,
-            );
+            addMessengerToProgressBar(checkFileName.err_msg, ICON_STATUS.WARNING);
             addBorderToInvalidInput($(registerFromFileEles.refFileUrl));
             disableRegisterDataFileBtn();
             resetPreviewTableContent();
@@ -177,20 +163,18 @@ async function validateInputUrlAndFile() {
  */
 const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
     // remove add red border
-    [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach(
-        (el) => {
-            trimQuotesSpacesAndUpdate(el);
-            removeLastBackslashFromInputAndUpdate(el);
-        },
-    );
+    [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach((el) => {
+        filePathProcessing(el);
+    });
     hiddenPreviewContentData();
     removeExtendSections();
 
     if (isVerifyUrl) {
         const url = $(registerFromFileEles.folderUrl).val().trim();
         const folderOrFileInfo = await checkFolderOrFile(url);
+        const isLoadGUIFromUrl = !!getParamFromUrl('load_gui_from_url');
         // Show modal confirm import one data file of all files in the same folder
-        if (folderOrFileInfo.isFile) {
+        if (!isLoadGUIFromUrl && folderOrFileInfo.isFile) {
             $(registerFromFileEles.registerAllFilesButton).data('url', url);
             $(registerFromFileEles.confirmRegisterByFile).modal('show');
             return;
@@ -220,12 +204,7 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
         await handleResponseData(request);
         enableRegisterDataFileBtn();
     } catch (e) {
-        addMessengerToProgressBar(
-            registerI18n.i18nScanning,
-            ICON_STATUS.WARNING,
-            registerSteps.SCANNING,
-            true,
-        );
+        addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.WARNING, registerSteps.SCANNING, true);
     }
 };
 
@@ -238,8 +217,7 @@ const fillDatasourceName = (url, isFile) => {
         // fill datasource and proc name fields if not provided
         if (!params.dataSourceName) {
             registerFromFileEles.databaseName.val(folderName);
-            registerFromFileEles.databaseName[0].dataset.originalValue =
-                folderName;
+            registerFromFileEles.databaseName[0].dataset.originalValue = folderName;
         }
         return;
     }
@@ -260,31 +238,21 @@ const fillProcessName = (url, isFile) => {
     if (params.loadGUIFromUrl) {
         // fill proc name fields if not provided
         if (isJPLocale && !params.procesNameJp) {
-            registerFromFileEles.processJapaneseName[0].dataset.originalValue =
-                folderName;
-            registerFromFileEles.processJapaneseName
-                .val(folderName)
-                .trigger('change');
+            registerFromFileEles.processJapaneseName[0].dataset.originalValue = folderName;
+            registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
         } else if (!isJPLocale && !params.processNameLocal) {
-            registerFromFileEles.processLocalName[0].dataset.originalValue =
-                folderName;
-            registerFromFileEles.processLocalName
-                .val(folderName)
-                .trigger('change');
+            registerFromFileEles.processLocalName[0].dataset.originalValue = folderName;
+            registerFromFileEles.processLocalName.val(folderName).trigger('change');
         }
         return;
     }
 
     // fill data source name
     if (isJPLocale) {
-        registerFromFileEles.processJapaneseName[0].dataset.originalValue =
-            folderName;
-        registerFromFileEles.processJapaneseName
-            .val(folderName)
-            .trigger('change');
+        registerFromFileEles.processJapaneseName[0].dataset.originalValue = folderName;
+        registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
     } else {
-        registerFromFileEles.processLocalName[0].dataset.originalValue =
-            folderName;
+        registerFromFileEles.processLocalName[0].dataset.originalValue = folderName;
         registerFromFileEles.processLocalName.val(folderName).trigger('change');
     }
 };
@@ -297,10 +265,7 @@ function isDataSourceNameEmpty() {
     removeBorderFromInvalidInput(registerFromFileEles.databaseName);
     const isEmpty = registerFromFileEles.databaseName.val().trim() === '';
     if (isEmpty) {
-        addMessengerToProgressBar(
-            registerI18n.i18nDataSourceNameIsEmpty,
-            ICON_STATUS.WARNING,
-        );
+        addMessengerToProgressBar(registerI18n.i18nDataSourceNameIsEmpty, ICON_STATUS.WARNING);
         addBorderToInvalidInput(registerFromFileEles.databaseName);
     }
 
@@ -314,9 +279,7 @@ function isDataSourceNameEmpty() {
 function isProcessNameEmpty() {
     let isEmpty = false;
     document
-        .querySelectorAll(
-            'div[id^="procSettingModal"] form[id^="procCfgForm"] input[name="processName"]',
-        )
+        .querySelectorAll('div[id^="procSettingModal"] form[id^="procCfgForm"] input[name="processName"]')
         .forEach((processNameElement) => {
             const $processNameElement = $(processNameElement);
             removeBorderFromInvalidInput($processNameElement);
@@ -327,10 +290,7 @@ function isProcessNameEmpty() {
         });
 
     if (isEmpty) {
-        addMessengerToProgressBar(
-            registerI18n.i18nProcessNameIsEmpty,
-            ICON_STATUS.WARNING,
-        );
+        addMessengerToProgressBar(registerI18n.i18nProcessNameIsEmpty, ICON_STATUS.WARNING);
     }
 
     return isEmpty;
@@ -349,10 +309,7 @@ async function isDataSourceNameDuplicate() {
     if (isDuplicatedDbsName) {
         isDuplicate = true;
         // show duplicated dbs msg
-        addMessengerToProgressBar(
-            registerI18n.i18nDataSourceNameIsAlreadyRegistered,
-            ICON_STATUS.WARNING,
-        );
+        addMessengerToProgressBar(registerI18n.i18nDataSourceNameIsAlreadyRegistered, ICON_STATUS.WARNING);
         addBorderToInvalidInput(registerFromFileEles.databaseName);
     }
 
@@ -364,21 +321,11 @@ async function isDataSourceNameDuplicate() {
  * @return {Promise<boolean>} - true: duplicate, false: not duplicate
  */
 async function isProcessNameDuplicate() {
-    const processSystemNameElements = document.querySelectorAll(
-        'input[name="processName"]',
-    );
-    const processJapaneseNameElements = document.querySelectorAll(
-        'input[name="processJapaneseName"]',
-    );
-    const processLocalNameElements = document.querySelectorAll(
-        'input[name="processLocalName"]',
-    );
+    const processSystemNameElements = document.querySelectorAll('input[name="processName"]');
+    const processJapaneseNameElements = document.querySelectorAll('input[name="processJapaneseName"]');
+    const processLocalNameElements = document.querySelectorAll('input[name="processLocalName"]');
 
-    [
-        ...processSystemNameElements,
-        ...processJapaneseNameElements,
-        ...processLocalNameElements,
-    ].forEach((el) => {
+    [...processSystemNameElements, ...processJapaneseNameElements, ...processLocalNameElements].forEach((el) => {
         removeBorderFromInvalidInput($(el));
     });
 
@@ -388,20 +335,13 @@ async function isProcessNameDuplicate() {
         const processSystemNameElement = processSystemNameElements[i];
         const processJapaneseNameElement = processJapaneseNameElements[i];
         const processLocalNameElement = processLocalNameElements[i];
-        const [
-            isDuplicatedNameSystem,
-            isDuplicatedNameJapanese,
-            isDuplicatedNameLocal,
-        ] = await checkDuplicatedProcessName(
-            processSystemNameElement.value,
-            processJapaneseNameElement.value,
-            processLocalNameElement.value,
-        );
-        if (
-            isDuplicatedNameSystem ||
-            isDuplicatedNameJapanese ||
-            isDuplicatedNameLocal
-        ) {
+        const [isDuplicatedNameSystem, isDuplicatedNameJapanese, isDuplicatedNameLocal] =
+            await checkDuplicatedProcessName(
+                processSystemNameElement.value,
+                processJapaneseNameElement.value,
+                processLocalNameElement.value,
+            );
+        if (isDuplicatedNameSystem || isDuplicatedNameJapanese || isDuplicatedNameLocal) {
             isDuplicate = true;
             if (isDuplicatedNameSystem) {
                 addBorderToInvalidInput($(processSystemNameElement));
@@ -416,11 +356,7 @@ async function isProcessNameDuplicate() {
     }
 
     // Check duplicate each others
-    [
-        processSystemNameElements,
-        processJapaneseNameElements,
-        processLocalNameElements,
-    ].forEach((nameElements) => {
+    [processSystemNameElements, processJapaneseNameElements, processLocalNameElements].forEach((nameElements) => {
         const existNames = [];
         nameElements.forEach((nameElement) => {
             if (nameElement.value === '' || nameElement.value == null) {
@@ -441,10 +377,7 @@ async function isProcessNameDuplicate() {
 
     if (isDuplicate) {
         // show duplicated process msg
-        addMessengerToProgressBar(
-            registerI18n.i18nProcessNameIsAlreadyRegistered,
-            ICON_STATUS.WARNING,
-        );
+        addMessengerToProgressBar(registerI18n.i18nProcessNameIsAlreadyRegistered, ICON_STATUS.WARNING);
     }
 
     return isDuplicate;
@@ -486,11 +419,7 @@ const checkFolder = async (folderUrl, isFile) => {
         url: folderUrl,
         isFile: isFile,
     };
-    return await fetchData(
-        '/ap/api/setting/check_folder',
-        JSON.stringify(data),
-        'POST',
-    );
+    return await fetchData('/ap/api/setting/check_folder', JSON.stringify(data), 'POST');
 };
 
 /**
@@ -538,10 +467,7 @@ const getLatestRecord = (data) =>
  */
 async function renderDatasourceConfig(data) {
     const urlInfo = await getUrlInfo();
-    fillDatasourceName(
-        urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url,
-        urlInfo.isFile,
-    );
+    fillDatasourceName(urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url, urlInfo.isFile);
 
     const datasourceNameElement = document.getElementById('databaseName');
     data.datasourceConfig.name = datasourceNameElement.value.trim();
@@ -563,11 +489,7 @@ function clearCacheDatasourceConfig() {
  * @return {Promise<void>}
  */
 async function handleResponseData(request) {
-    addMessengerToProgressBar(
-        registerI18n.i18nScanning,
-        ICON_STATUS.PROCESSING,
-        registerSteps.SCANNING,
-    );
+    addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.PROCESSING, registerSteps.SCANNING);
 
     const data = await request;
 
@@ -576,18 +498,11 @@ async function handleResponseData(request) {
 
     const processConfigs =
         /** @type {ProcessData[]} */
-        data.datasourceConfig.master_type !== 'V2'
-            ? await convertStructureData(data)
-            : convertStructureDataV2(data);
+        data.datasourceConfig.master_type !== 'V2' ? await convertStructureData(data) : convertStructureDataV2(data);
     displayPreviewContentData();
     renderProcessConfig(processConfigs);
 
-    addMessengerToProgressBar(
-        registerI18n.i18nScanning,
-        ICON_STATUS.SUCCESS,
-        registerSteps.SCANNING,
-        true,
-    );
+    addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.SUCCESS, registerSteps.SCANNING, true);
 }
 
 /**
@@ -615,9 +530,7 @@ async function convertStructureData(data) {
     if (isJPLocale) {
         procData.name_jp = dataSourceAndProcessName;
         // TODO: Should this be returned from backend?
-        const romaji_names = await convertEnglishRomaji([
-            dataSourceAndProcessName,
-        ]);
+        const romaji_names = await convertEnglishRomaji([dataSourceAndProcessName]);
         procData.name_en = romaji_names[0];
     } else {
         procData.name_local = dataSourceAndProcessName;
@@ -637,7 +550,7 @@ async function convertStructureData(data) {
  * @return {[{data: {name_local: null, columns: {}[], name: *, name_jp: *, is_csv: boolean, name_en: *, shown_name: *}, rows: {}[]}]}
  */
 function convertStructureDataV2(data) {
-    const isShowJapaneseName = docCookies.getItem('locale') === 'ja';
+    const isShowJapaneseName = docCookies.getItem(keyPort('locale')) === 'ja';
     return data.processConfigs.map((processConfig) => {
         return {
             data: {
@@ -647,9 +560,7 @@ function convertStructureDataV2(data) {
                 name_en: processConfig.name_en,
                 name_jp: processConfig.name_jp,
                 name_local: processConfig.name_local,
-                shown_name: isShowJapaneseName
-                    ? processConfig.name_jp
-                    : processConfig.name_en,
+                shown_name: isShowJapaneseName ? processConfig.name_jp : processConfig.name_en,
                 origin_name: processConfig.origin_name,
                 dummy_datetime_idx: processConfig.dummy_datetime_idx,
             },
@@ -665,30 +576,25 @@ function convertStructureDataV2(data) {
 function renderProcessConfig(data) {
     data.forEach((processData, index) => {
         // TODO: is_checked attribute must be include in response data.
-        processData.data.columns.forEach(
-            (processColumnConfig) => (processColumnConfig.is_checked = true),
-        );
+        processData.data.columns.forEach((processColumnConfig) => (processColumnConfig.is_checked = true));
 
         // This set id logic ONLY APPLY for EDGE SERVER
-        processData.data.id =
-            processData.data.id == null ? index : processData.data.id;
+        processData.data.id = processData.data.id == null ? index : processData.data.id;
 
         /** @type ProcessConfigSection */
         let processConfigSectionObj;
         if (index === 0) {
             // In case of main section, no need to render
-            processConfigSectionObj =
-                ProcessConfigSection.createProcessConfigSectionForMain(
-                    processData.data,
-                    processData.rows,
-                );
+            processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForMain(
+                processData.data,
+                processData.rows,
+            );
         } else {
             // In case of extend section, need to render
-            processConfigSectionObj =
-                ProcessConfigSection.createProcessConfigSectionForExtend(
-                    processData.data,
-                    processData.rows,
-                );
+            processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForExtend(
+                processData.data,
+                processData.rows,
+            );
 
             processConfigSectionObj.render();
         }
@@ -774,11 +680,7 @@ const checkDuplicatedDataSourceName = async (datasourceName = '') => {
     const data = {
         name: datasourceName,
     };
-    const response = await fetchData(
-        '/ap/api/setting/check_duplicated_db_source',
-        JSON.stringify(data),
-        'POST',
-    );
+    const response = await fetchData('/ap/api/setting/check_duplicated_db_source', JSON.stringify(data), 'POST');
     return response.is_duplicated;
 };
 
@@ -792,22 +694,14 @@ const checkDuplicatedDataSourceName = async (datasourceName = '') => {
  *    - true: is duplicate | false: not duplicate,  <--Japanese-->
  *    - true: is duplicate | false: not duplicate,  <--Local-->
  */
-const checkDuplicatedProcessName = async (
-    nameEn = '',
-    nameJp = '',
-    nameLocal = '',
-) => {
+const checkDuplicatedProcessName = async (nameEn = '', nameJp = '', nameLocal = '') => {
     const data = {
         name_en: nameEn,
         name_jp: nameJp,
         name_local: nameLocal,
     };
     /** @type {{is_duplicated: boolean[3]}} */
-    const response = await fetchData(
-        '/ap/api/setting/check_duplicated_process_name',
-        JSON.stringify(data),
-        'POST',
-    );
+    const response = await fetchData('/ap/api/setting/check_duplicated_process_name', JSON.stringify(data), 'POST');
     return response.is_duplicated;
 };
 
@@ -835,10 +729,7 @@ function getUrlInfo() {
                 fileUrl = url;
                 url = getFolderPathFromFilePath(url);
             } else {
-                isFile =
-                    fileUrl !== '' &&
-                    $(registerFromFileEles.containerReferenceFile)[0].style
-                        .display !== 'none';
+                isFile = fileUrl !== '' && $(registerFromFileEles.containerReferenceFile)[0].style.display !== 'none';
             }
 
             resolve({
@@ -856,13 +747,9 @@ function getUrlInfo() {
  */
 const isMainDatetimeColumnSelected = () => {
     let isSelected = true;
-    const tableBodyElements = document.querySelectorAll(
-        'table[name=processColumnsTable] tbody',
-    );
+    const tableBodyElements = document.querySelectorAll('table[name=processColumnsTable] tbody');
     tableBodyElements.forEach((tableBodyElement) => {
-        const $mainDatetime = $(tableBodyElement).find(
-            'td.column-date-type button>span[data-attr-key="is_get_date"]',
-        );
+        const $mainDatetime = $(tableBodyElement).find('td.column-date-type button>span[data-attr-key="is_get_date"]');
 
         const isExistMainDatetimeColumn = $mainDatetime.length > 0;
         const isMainDatetimeColumnChecked = $mainDatetime
@@ -875,10 +762,7 @@ const isMainDatetimeColumnSelected = () => {
     });
 
     if (!isSelected) {
-        addMessengerToProgressBar(
-            registerI18n.i18nErrorNoGetdate,
-            ICON_STATUS.WARNING,
-        );
+        addMessengerToProgressBar(registerI18n.i18nErrorNoGetdate, ICON_STATUS.WARNING);
     }
 
     return isSelected;
@@ -890,20 +774,14 @@ const isMainDatetimeColumnSelected = () => {
  */
 function collectProcessConfigInfos() {
     const processConfigs = [];
-    const sectionHTMLObjects = document.querySelectorAll(
-        '[id^="procSettingModal"]',
-    );
+    const sectionHTMLObjects = document.querySelectorAll('[id^="procSettingModal"]');
     sectionHTMLObjects.forEach((sectionHTMLObject) => {
         const processConfigSection =
             sectionHTMLObject.__object__ != null
                 ? sectionHTMLObject.__object__
                 : new ProcessConfigSection(sectionHTMLObject);
-        const requestProcessConfig =
-            processConfigSection.collectProcessConfig();
-        const processConfig =
-            ProcessConfigSection.splitUsedColumnAndUnusedColumn(
-                requestProcessConfig,
-            );
+        const requestProcessConfig = processConfigSection.collectProcessConfig();
+        const processConfig = ProcessConfigSection.splitUsedColumnAndUnusedColumn(requestProcessConfig);
         processConfigs.push(processConfig);
     });
 
@@ -983,10 +861,7 @@ const saveDataSourceAndProc = async () => {
             JSON.stringify(data),
             'POST',
         ).catch((err) => {
-            addMessengerToProgressBar(
-                err.responseJSON.message,
-                ICON_STATUS.WARNING,
-            );
+            addMessengerToProgressBar(err.responseJSON.message, ICON_STATUS.WARNING);
             console.error(`[Backend Error] ${err.responseJSON.detail}`);
         });
 
@@ -1008,11 +883,7 @@ const saveDataSourceAndProc = async () => {
 const redirectToCHMPage = async (processId) => {
     // go to chm after import data
     // const processId = processInfo.id;
-    const res = await fetchData(
-        `/ap/api/setting/redirect_to_chm_page/${processId}`,
-        '',
-        'GET',
-    );
+    const res = await fetchData(`/ap/api/setting/redirect_to_chm_page/${processId}`, '', 'GET');
     goToOtherPage(res.url, true);
 };
 
@@ -1021,11 +892,7 @@ const redirectToPage = async (processIds, page) => {
         page: page,
         processIds: processIds,
     };
-    const res = await fetchData(
-        `/ap/api/setting/redirect_to_page`,
-        JSON.stringify(data),
-        'POST',
-    );
+    const res = await fetchData(`/ap/api/setting/redirect_to_page`, JSON.stringify(data), 'POST');
     goToOtherPage(res.url, true);
 };
 
@@ -1043,8 +910,7 @@ const redirectToPage = async (processIds, page) => {
  * }} postDat - a dictionary contains SSE message from Backend
  */
 const updateDataRegisterStatus = (postDat) => {
-    if (postDat.data.RegisterByFileRequestID !== window.RegisterByFileRequestID)
-        return;
+    if (postDat.data.RegisterByFileRequestID !== window.RegisterByFileRequestID) return;
 
     // switch (postDat.data.step) {
     //     case registerSteps.GEN_DATA_TABLE:
@@ -1164,10 +1030,7 @@ const updateDataRegisterStatus = (postDat) => {
             window.sseProcessIds.push(postDat.data.process_id);
         }
 
-        if (
-            window.newProcessIds &&
-            window.newProcessIds.length !== window.sseProcessIds.length
-        ) {
+        if (window.newProcessIds && window.newProcessIds.length !== window.sseProcessIds.length) {
             // in case there are some process that not have data yet, wait to import data
             return;
         }
@@ -1175,9 +1038,7 @@ const updateDataRegisterStatus = (postDat) => {
         console.log('Ready to show graph...');
         // in case all processes have data, redirect to show graph page
         setTimeout(async () => {
-            const pageRedirect = postDat.data.use_dummy_datetime
-                ? 'ap/fpp'
-                : 'ap/chm';
+            const pageRedirect = postDat.data.use_dummy_datetime ? 'ap/fpp' : 'ap/chm';
             await redirectToPage(window.newProcessIds, pageRedirect);
         }, 3000);
     }
@@ -1185,16 +1046,14 @@ const updateDataRegisterStatus = (postDat) => {
 
 const getRequestParams = () => {
     const loadGUIFromUrl = !!getParamFromUrl('load_gui_from_url');
-    const sourceFolder = getParamFromUrl('source_folder');
-    const sourceFile = getParamFromUrl('source_file');
+    const sourcePath = getParamFromUrl('source_path');
     const estimationFile = getParamFromUrl('estimation_file');
     const dataSourceName = getParamFromUrl('data_source_name');
     const procesNameJp = getParamFromUrl('process_name_jp');
     const processNameLocal = getParamFromUrl('process_name_local');
     return {
         loadGUIFromUrl,
-        sourceFolder,
-        sourceFile,
+        sourcePath,
         estimationFile,
         dataSourceName,
         procesNameJp,
@@ -1203,33 +1062,18 @@ const getRequestParams = () => {
 };
 
 const handleLoadGUiFromExternalAPIRequest = () => {
-    const {
-        loadGUIFromUrl,
-        sourceFolder,
-        sourceFile,
-        estimationFile,
-        dataSourceName,
-        procesNameJp,
-        processNameLocal,
-    } = getRequestParams();
-
-    if (!loadGUIFromUrl) return;
+    const { loadGUIFromUrl, sourcePath, estimationFile, dataSourceName, procesNameJp, processNameLocal } =
+        getRequestParams();
+    if (!loadGUIFromUrl || !sourcePath) return;
     // If both source_folder and source_file is given, use source_folder
     // If source_file and estimation_file is given, ignore estimation_file
 
-    const isFile = sourceFile && !sourceFolder;
+    registerFromFileEles.folderUrl.val(sourcePath);
 
-    if (isFile) {
-        $(registerFromFileEles.directoryRadios).val('file').trigger('change');
-    } else {
-        if (sourceFolder) {
-            registerFromFileEles.folderUrl.val(sourceFolder).trigger('change');
-        }
-
-        if (estimationFile) {
-            registerFromFileEles.refFileUrl.val(estimationFile);
-        }
+    if (estimationFile) {
+        registerFromFileEles.refFileUrl.val(estimationFile);
     }
+    handleOnChangeFolderAndFileUrl(true).then(() => {});
 
     setTimeout(() => {
         // set data source name
@@ -1237,9 +1081,7 @@ const handleLoadGUiFromExternalAPIRequest = () => {
             registerFromFileEles.databaseName.val(dataSourceName);
         }
         if (procesNameJp) {
-            registerFromFileEles.processJapaneseName
-                .val(procesNameJp)
-                .trigger('change');
+            registerFromFileEles.processJapaneseName.val(procesNameJp).trigger('change');
         }
         if (processNameLocal) {
             registerFromFileEles.processLocalName.val(processNameLocal);
@@ -1256,10 +1098,7 @@ const handleLoadGUiFromExternalAPIRequest = () => {
 function clickRegisterButtonWhenEnabled() {
     // poll until all values are filled and button is enabled
     if (
-        Object.prototype.hasOwnProperty.call(
-            $(registerFromFileEles.registerButton),
-            'disabled',
-        ) ||
+        Object.prototype.hasOwnProperty.call($(registerFromFileEles.registerButton), 'disabled') ||
         !$(registerFromFileEles.processEnName).val()
     ) {
         setTimeout(clickRegisterButtonWhenEnabled, 500);
@@ -1270,27 +1109,11 @@ function clickRegisterButtonWhenEnabled() {
 }
 
 const disableRegisterDataFileBtn = () => {
-    $(registerFromFileEles.registerButton)
-        .prop('disabled', true)
-        .removeClass('btn-primary')
-        .addClass('btn-secondary');
+    $(registerFromFileEles.registerButton).prop('disabled', true).removeClass('btn-primary').addClass('btn-secondary');
 };
 
 const enableRegisterDataFileBtn = () => {
-    $(registerFromFileEles.registerButton)
-        .prop('disabled', false)
-        .removeClass('btn-secondary')
-        .addClass('btn-primary');
-};
-
-const trimQuotesSpacesAndUpdate = (inputEl) => {
-    const url = $(inputEl).val().replace(/"/g, '').trim();
-    $(inputEl).val(url);
-};
-
-const removeLastBackslashFromInputAndUpdate = (inputEl) => {
-    const url = $(inputEl).val().replace(/\\$/g, '');
-    $(inputEl).val(url);
+    $(registerFromFileEles.registerButton).prop('disabled', false).removeClass('btn-secondary').addClass('btn-primary');
 };
 
 const displayPreviewContentData = () => {
@@ -1303,11 +1126,7 @@ const hiddenPreviewContentData = () => {
 
 const showHideRefFile = (isShow) => {
     const display = isShow ? '' : 'none';
-    $(registerFromFileEles.containerReferenceFile)[0].style.setProperty(
-        'display',
-        display,
-        'important',
-    );
+    $(registerFromFileEles.containerReferenceFile)[0].style.setProperty('display', display, 'important');
     if (!isShow) {
         $(registerFromFileEles.refFileUrl).val('');
     }
@@ -1340,9 +1159,7 @@ const switchToRegisterByFolder = (event) => {
  * Remove all process configs in extend section html
  */
 function removeExtendSections() {
-    document
-        .querySelectorAll('div.section.extend-section')
-        .forEach((extendSection) => $(extendSection).remove());
+    document.querySelectorAll('div.section.extend-section').forEach((extendSection) => $(extendSection).remove());
 }
 
 jQuery(function () {
@@ -1352,10 +1169,7 @@ jQuery(function () {
         $('.btn-browse').css('display', 'none');
     }
 
-    $(registerFromFileEles.registerAllFilesButton).on(
-        'click',
-        switchToRegisterByFolder,
-    );
+    $(registerFromFileEles.registerAllFilesButton).on('click', switchToRegisterByFolder);
     $(registerFromFileEles.registerOneFileButton).on('click', () => {
         showHideRefFile(false);
         handleOnChangeFolderAndFileUrl(false).then(() => {});
@@ -1371,4 +1185,21 @@ jQuery(function () {
             checkDuplicateProcessName('data-name-en');
         });
     }, 200);
+
+    let debounceTimer;
+    registerFromFileEles.folderUrl.on('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            // handle show data when enter a path to the input in Register by file
+            handleOnChangeFolderAndFileUrl(true).then(() => {});
+        }, 300); // Delay input 300ms
+    });
+
+    registerFromFileEles.refFileUrl.on('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            // handle show data when enter a path to the input in Register by file
+            handleOnChangeFolderAndFileUrl(false).then(() => {});
+        }, 300); // Delay input 300ms
+    });
 });

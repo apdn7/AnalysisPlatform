@@ -27,12 +27,8 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     }
 
     // add prefix to change int to str type
-    const isXIntType =
-        option.xDataType === DataTypes.INTEGER.name ||
-        !isNaN(Number(prop.array_x[0]));
-    const isYIntType =
-        option.yDataType === DataTypes.INTEGER.name ||
-        !isNaN(Number(prop.array_y[0]));
+    const isXIntType = option.xDataType === DataTypes.INTEGER.name || !isNaN(Number(prop.array_x[0]));
+    const isYIntType = option.yDataType === DataTypes.INTEGER.name || !isNaN(Number(prop.array_y[0]));
     option.isXIntType = isXIntType;
     option.isYIntType = isYIntType;
 

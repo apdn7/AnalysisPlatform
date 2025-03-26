@@ -4,9 +4,7 @@ let checkShownGraphInterval = null;
 const colorScalePages = ['CHM', 'ScP', 'PCP', 'PCA', 'MSP'];
 
 const clearOldScreenShot = () => {
-    const oldCanvas = document
-        .getElementById('screenshot')
-        .querySelectorAll('canvas')[0];
+    const oldCanvas = document.getElementById('screenshot').querySelectorAll('canvas')[0];
     if (oldCanvas) {
         const context = oldCanvas.getContext('2d');
         context.clearRect(0, 0, oldCanvas.width, oldCanvas.height);
@@ -148,9 +146,7 @@ const defaultCapture = () => {
         hideInfoContent();
     };
     const download = () => {
-        const screenshot = document
-            .getElementById('screenshot')
-            .querySelectorAll('canvas')[0];
+        const screenshot = document.getElementById('screenshot').querySelectorAll('canvas')[0];
         const targetLink = document.createElement('a');
         if (screenshot) {
             const filename = $('#screenshotFilename').val();
@@ -187,9 +183,7 @@ const modernScreenShotCapture = () => {
     const generator = (mainContent) => {
         $('.select2-selection__rendered').css('margin-right', '50px');
         modernScreenshot.domToPng(mainContent).then((dataUrl) => {
-            document
-                .getElementById('screenshot')
-                .setAttribute('data-url', dataUrl);
+            document.getElementById('screenshot').setAttribute('data-url', dataUrl);
             // generate filename
             const filename = `${generateDefaultNameExport()}.png`;
             $('#screenshotFilename').val(filename);
@@ -200,9 +194,7 @@ const modernScreenShotCapture = () => {
         });
     };
     const download = () => {
-        const screenshot = document
-            .getElementById('screenshot')
-            .getAttribute('data-url');
+        const screenshot = document.getElementById('screenshot').getAttribute('data-url');
         const targetLink = document.createElement('a');
         if (screenshot) {
             const filename = $('#screenshotFilename').val();

@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 from flask import Blueprint, Response, redirect, request
@@ -7,10 +8,10 @@ from ap.api.external_api.services import (
     ExternalErrorMessage,
     Validation,
     cast_datetime_from_query_string,
+    get_end_procs_by_cols,
     get_from_request_data_with_id,
     get_selected_columns_from_trace_data_form,
     get_values_by_parameter_name,
-    save_request_option,
 )
 from ap.api.setting_module.services.common import save_user_settings
 from ap.common.common_utils import API_DATETIME_FORMAT
@@ -37,6 +38,7 @@ from ap.common.constants import (
     FUNCTION,
     GET02_CATE_SELECT,
     LATEST,
+    OBJ_VAR,
     OBJECTIVE,
     OD_FILTER,
     OPTION_ID,
@@ -67,13 +69,16 @@ from ap.setting_module.models import (
     CfgProcessColumn,
     CfgRequest,
     CfgUserSetting,
+    make_session,
 )
 from ap.setting_module.schemas import (
     CfgOptionSchema,
     CfgUserSettingSchema,
-    ProcessColumnSchema,
+    ProcessColumnExternalAPISchema,
     ProcessSchema,
 )
+
+logger = logging.getLogger(__name__)
 
 external_api_v1_blueprint = Blueprint('external_api', __name__, url_prefix='/ap/api/v1')
 
@@ -133,9 +138,8 @@ def get_list_columns_of_processes():
     if process_ids_str:
         process_ids = process_ids_str.split(',')
         for proc_id in process_ids:
-            columns = CfgProcessColumn.get_columns_by_process_id(proc_id)
-            column_schema = ProcessColumnSchema(many=True)
-            columns = column_schema.dump(columns)
+            columns = CfgProcessColumn.get_all_columns(proc_id)
+            columns = ProcessColumnExternalAPISchema(many=True).dump(columns)
             processes.append({'id': proc_id, COLUMNS: columns})
 
     return Response(json_dumps({PROCESSES: processes}), mimetype='application/json')
@@ -242,22 +246,19 @@ def send_a_list_options():
     req_id = data.get('req_id')
 
     Validation(request).send_a_list_options().validate()
-    # save odf_filter and return
-    cfg_option = CfgOption(
-        **{
-            'option': request.data,
-            'req_id': req_id,
-        },
-    )
 
-    option = save_request_option(cfg_option)
-    if option:
+    try:
+        # save odf_filter and return
+        cfg_option = CfgOption(option=request.data, req_id=req_id)
+        with make_session() as meta_session:
+            cfg_option = meta_session.merge(cfg_option)
         return Response(
-            json_dumps({'req_id': req_id, 'option_id': option.id}),
+            json_dumps({'req_id': req_id, 'option_id': cfg_option.id}),
             mimetype='application/json',
         )
-
-    return Response(json_dumps({}), mimetype='application/json')
+    except Exception as e:
+        logger.exception(e)
+        return Response(json_dumps({}), mimetype='application/json')
 
 
 @external_api_v1_blueprint.route('/option', methods=['GET'])
@@ -317,15 +318,7 @@ def open_a_page():
     columns = columns + facet + div + filter_cols
 
     # get end procs from columns
-    end_procs = []
-    if columns:
-        for col_id in columns:
-            col_cfg = CfgProcessColumn.get_by_id(col_id)
-            if not col_cfg:
-                continue
-            proc_id = col_cfg.process_id
-            if proc_id not in end_procs:
-                end_procs.append(proc_id)
+    end_procs = get_end_procs_by_cols(columns)
 
     request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
     # get target page from bookmark
@@ -336,6 +329,7 @@ def open_a_page():
 
 @external_api_v1_blueprint.route('/register/datafile', methods=['GET'])
 def register_datafile():
+    Validation(request).register_by_file().validate()
     page = PagePath.REGISTER_DATA_FILE.value
     host_url = request.host_url
     request_string = request.query_string.decode('utf-8')
@@ -374,6 +368,10 @@ def get_param_by_req_id():
                         filters.append(int(col))
                 elif proc.get(GET02_CATE_SELECT) and not isinstance(proc.get(GET02_CATE_SELECT), list):
                     filters.append(int(proc.get(GET02_CATE_SELECT)))
+        obj_var = cfg_request_params.get(OBJ_VAR, [])
+        objective = None
+        if len(obj_var):
+            objective = int(obj_var[0])
         res = {
             REQ_ID: req_id,
             FUNCTION: setting_params.get(FUNCTION),
@@ -385,7 +383,7 @@ def get_param_by_req_id():
             START_DATETIME: start_datetime,
             END_DATETIME: end_datetime,
             LATEST: cfg_request_params.get(RECENT_TIME_INTERVAL),
-            OBJECTIVE: cfg_request_params.get(OBJECTIVE),
+            OBJECTIVE: objective,
             OPTION_ID: option_ids,
         }
     else:
@@ -399,3 +397,242 @@ def get_param_by_req_id():
         }
     res = {k: v for k, v in res.items() if v}
     return res
+
+
+@external_api_v1_blueprint.route('/fpp', methods=['GET'])
+def open_fpp():
+    """
+    Open FPP
+    """
+
+    Validation(request).fpp().validate()
+
+    host_url = request.host_url
+
+    columns = request.args.get(COLUMNS, '').split(',')
+    facet = request.args.get(FACET, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.FPP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/skd', methods=['GET'])
+def open_skd():
+    """
+    Open SkD
+    """
+
+    Validation(request).skd().validate()
+
+    host_url = request.host_url
+
+    columns = request.args.get(COLUMNS, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.SKD.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/rlp', methods=['GET'])
+def open_rlp():
+    """
+    Open RLP
+    """
+
+    Validation(request).rlp().validate()
+
+    columns = request.args.get(COLUMNS, '').split(',')
+
+    host_url = request.host_url
+
+    facet = request.args.get(FACET, '').split(',')
+    div = request.args.get(DIV, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + div + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.RLP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/chm', methods=['GET'])
+def open_chm():
+    """
+    Open CHM
+    """
+
+    Validation(request).chm().validate()
+
+    columns = request.args.get(COLUMNS, '').split(',')
+
+    host_url = request.host_url
+
+    facet = request.args.get(FACET, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.CHM.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/msp', methods=['GET'])
+def open_msp():
+    """
+    Open msp
+    """
+
+    Validation(request).msp().validate()
+
+    columns = request.args.get(COLUMNS, '').split(',')
+
+    host_url = request.host_url
+
+    facet = request.args.get(FACET, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.MSP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/pcp', methods=['GET'])
+def open_pcp():
+    """
+    Open pcp
+    """
+
+    Validation(request).pcp().validate()
+
+    host_url = request.host_url
+
+    columns = request.args.get(COLUMNS, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.PCP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/scp', methods=['GET'])
+def open_scp():
+    """
+    Open scp
+    """
+
+    Validation(request).scp().validate()
+
+    host_url = request.host_url
+
+    columns = request.args.get(COLUMNS, '').split(',')
+    facet = request.args.get(FACET, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.SCP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/agp', methods=['GET'])
+def open_agp():
+    """
+    Open AgP
+    """
+
+    Validation(request).agp().validate()
+
+    columns = request.args.get(COLUMNS, '').split(',')
+
+    host_url = request.host_url
+
+    facet = request.args.get(FACET, '').split(',')
+    div = request.args.get(DIV, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + div + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.AGP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)
+
+
+@external_api_v1_blueprint.route('/stp', methods=['GET'])
+def open_stp():
+    """
+    Open StP
+    """
+
+    Validation(request).stp().validate()
+
+    columns = request.args.get(COLUMNS, '').split(',')
+
+    host_url = request.host_url
+
+    facet = request.args.get(FACET, '').split(',')
+    filter_cols = request.args.get(FILTER, '').split(',')
+
+    columns = columns + facet + filter_cols
+
+    # get end procs from columns
+    end_procs = get_end_procs_by_cols(columns)
+
+    request_string = cast_datetime_from_query_string(request.query_string.decode('utf-8'))
+    # get target page from bookmark
+    target_url = f'{host_url}{PagePath.STP.value}?{request_string}&end_procs={end_procs}&load_gui_from_url=1'
+
+    return redirect(target_url)

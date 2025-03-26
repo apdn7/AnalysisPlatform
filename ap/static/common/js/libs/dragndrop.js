@@ -8,6 +8,7 @@ const prepareFileSetting = (file, dragAreaCls) => {
         }
         // eslint-disable-next-line no-undef
         settingFile = file;
+        // TODO: Use filename instead of settingFile for all cases
         // $('input#fileUrl').val(file.name);
         $(`${dragAreaCls} .box__input`).hide();
         $(`${dragAreaCls} .box__success span`).text(file.name);

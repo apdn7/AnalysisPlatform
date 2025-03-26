@@ -56,6 +56,13 @@
     hover_en: 'You can draw a scatter plot of the relationships between quantitative variables such as measurements. In addition, it can be decomposed by category, period, and number of data, and changes in relationships can be confirmed. For example, it is effective for changing the process window.\n Also, the relationship between categorical variables such as equipment names and quantitative variables can be drawn with a violin plot, and the relationships between categorical variables can be drawn with a heat map. The relationships between variables that do not depend on the data type and their changes can be confirmed. '
     hover_ja: '測定値などの量的変数同士の関係性を散布図で描画します。さらに、カテゴリや期間、データ数で分解でき、関係性の変化を確認することができます。例えばプロセスウィンドウの変化に有効です。\nまた、設備名などのカテゴリ変数と量的変数の関係はバイオリンプロットで、カテゴリ変数同士の関係性はヒートマップで描画でき、データの型に寄らない変数同士の関係性およびその変化を確認することができます。'
     link_address: '/ap/scp'
+- hmp:
+      title_en: 'HMp Heat Map'
+      title_ja: 'HMp ヒートマップ'
+      png_path: 'HMp.png'
+      hover_en: 'The relationship between variables can be visualized with a heat map. Both data type can be applied to category or integer, and by visualizing the trend of each coordinate with a heat map, you can understand the coordinates (combinations) that have specific different trends. This is effective for wafer maps.'
+      hover_ja: '変数間の関係をヒートマップで可視化できます。両方ともカテゴリ、あるいは整数の場合に適用でき、各座標の傾向をヒートマップで可視化することで特異的に傾向が違う座標(組み合わせ)を把握することができます。ウェハマップに有効的です。'
+      link_address: '/ap/hmp'
 - pcp:
     title_en: 'PCP Parallel Coordinates Plot'
     title_ja: 'PCP 平行座標プロット'

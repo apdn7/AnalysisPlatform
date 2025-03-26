@@ -112,44 +112,31 @@ const visualModule = (() => {
             // set selected filter column id
             $(`#filterColumnId_${rowIdx}`).val(filterColumnId);
 
-            // show fitler value options
+            // show filter value options
             const filterValueColElement = $(`#filterValue_${rowIdx}`);
             filterValueColElement.empty().append(createDefaultOption(true));
 
-            const filterType = $(`#${rowIdx}`)
-                .find(eles.checkedFilterType)
-                .val();
+            const filterType = $(`#${rowIdx}`).find(eles.checkedFilterType).val();
             if (filterType === eles.showAll) {
                 if (filterColumnId === eles.defaultVal) {
                     return;
                 }
                 await cfgProcess.updateColDataFromUDB(filterColumnId);
                 const sensorValues = cfgProcess.getColumnData(filterColumnId);
-                const filterValueOptions =
-                    buildFilterValueOptionsFromDB(sensorValues);
-                filterValueColElement
-                    .empty()
-                    .append(filterValueOptions.join(''));
+                const filterValueOptions = buildFilterValueOptionsFromDB(sensorValues);
+                filterValueColElement.empty().append(filterValueOptions.join(''));
             } else {
                 // build filter detail options
-                const [filterValueOptions, _] =
-                    buildFilterValueOptionsFromFilter(filterColumnId);
-                filterValueColElement
-                    .empty()
-                    .append(filterValueOptions.join(''));
+                const [filterValueOptions, _] = buildFilterValueOptionsFromFilter(filterColumnId);
+                filterValueColElement.empty().append(filterValueOptions.join(''));
             }
 
             // auto update Act From
             autoUpdateActFrom(rowIdx);
 
             // update span label
-            const filterTypeName = $(
-                `#mcs-${eles.filterType}_${rowIdx}`,
-            ).text();
-            $(e.currentTarget)
-                .closest('td')
-                .find('.msc-label')
-                .text(filterTypeName);
+            const filterTypeName = $(`#mcs-${eles.filterType}_${rowIdx}`).text();
+            $(e.currentTarget).closest('td').find('.msc-label').text(filterTypeName);
         });
     };
 
@@ -164,9 +151,7 @@ const visualModule = (() => {
                 $(`#filterTypeFromConfig_${rowIdx}`).attr('hidden', true);
                 $(`#filterTypeShowAll_${rowIdx}`).attr('hidden', false);
             }
-            $(`#filterValue_${rowIdx}`)
-                .empty()
-                .append(createDefaultOption(true));
+            $(`#filterValue_${rowIdx}`).empty().append(createDefaultOption(true));
 
             // auto update Act From
             autoUpdateActFrom(rowIdx);
@@ -198,9 +183,7 @@ const visualModule = (() => {
                 currentFilterColId === currentSetings[eles.filterColumn][idx] &&
                 currentFilterValue === currentSetings[eles.filterValue][idx]
             ) {
-                datetimeCandidates.push(
-                    `${currentSetings[eles.actToDate][idx]}`,
-                );
+                datetimeCandidates.push(`${currentSetings[eles.actToDate][idx]}`);
             }
         });
         datetimeCandidates = datetimeCandidates
@@ -212,9 +195,7 @@ const visualModule = (() => {
         }
 
         // set auto act from datetime
-        const cfgVisualizationDbId = $(
-            `#${eles.cfgVisualizationId}_${rowIdx}`,
-        ).val();
+        const cfgVisualizationDbId = $(`#${eles.cfgVisualizationId}_${rowIdx}`).val();
         if (!cfgVisualizationDbId) {
             // it's new row. auto set for new row only
             $(`#${eles.actFromDate}_${rowIdx}`).val(actFromDate);
@@ -224,13 +205,8 @@ const visualModule = (() => {
     const onChangeControlColumn = (rowIdx) => {
         $(`#${eles.controlColumn}_${rowIdx}`).on('change', (evt) => {
             autoUpdateActFrom(rowIdx);
-            const controlColumnName = $(evt.currentTarget)
-                .find('option:selected')
-                .text();
-            $(evt.currentTarget)
-                .closest('td')
-                .find('.msc-label')
-                .text(controlColumnName);
+            const controlColumnName = $(evt.currentTarget).find('option:selected').text();
+            $(evt.currentTarget).closest('td').find('.msc-label').text(controlColumnName);
         });
     };
 
@@ -239,13 +215,8 @@ const visualModule = (() => {
             autoUpdateActFrom(rowIdx);
 
             // update span label
-            const filterName = $(evt.currentTarget)
-                .find('option:selected')
-                .text();
-            $(evt.currentTarget)
-                .closest('td')
-                .find('.msc-label')
-                .text(filterName);
+            const filterName = $(evt.currentTarget).find('option:selected').text();
+            $(evt.currentTarget).closest('td').find('.msc-label').text(filterName);
         });
     };
 
@@ -257,33 +228,24 @@ const visualModule = (() => {
 
                 // get selected filter column id
                 const filterColumnId = $(`#filterColumnId_${rowIdx}`).val();
-                const filterType = $(`#${rowIdx}`)
-                    .find(eles.checkedFilterType)
-                    .val();
+                const filterType = $(`#${rowIdx}`).find(eles.checkedFilterType).val();
                 // if show all
                 if (filterType === eles.showAll) {
                     if (filterColumnId === eles.defaultVal) {
                         return;
                     }
                     await cfgProcess.updateColDataFromUDB(filterColumnId);
-                    const sensorValues =
-                        cfgProcess.getColumnData(filterColumnId);
+                    const sensorValues = cfgProcess.getColumnData(filterColumnId);
 
                     // get current selected option
                     const filterValueColElement = $(`#filterValue_${rowIdx}`);
                     const selectedFilterValue = filterValueColElement.val();
 
                     // build dropdown list
-                    const filterValueOptions = buildFilterValueOptionsFromDB(
-                        sensorValues,
-                        selectedFilterValue,
-                    );
+                    const filterValueOptions = buildFilterValueOptionsFromDB(sensorValues, selectedFilterValue);
 
-                    // show fitler value options
-                    filterValueColElement
-                        .empty()
-                        .append(filterValueOptions.join(''));
-
+                    // show filter value options
+                    filterValueColElement.empty().append(filterValueOptions.join(''));
                     filterValueColElement.val(selectedFilterValue);
                     filterValueColElement.trigger('change');
                 } else {
@@ -293,28 +255,17 @@ const visualModule = (() => {
         });
     };
 
-    const buildFilterValueOptionsFromFilter = (
-        selectedFilterColumnId,
-        selectedFilterValue = '',
-    ) => {
+    const buildFilterValueOptionsFromFilter = (selectedFilterColumnId, selectedFilterValue = '') => {
         const filterValueOptions = [];
         let filterValueName;
-        const selectedFilter =
-            cfgProcess.getFilterByColumnId(selectedFilterColumnId) ||
-            new CfgFilter({});
+        const selectedFilter = cfgProcess.getFilterByColumnId(selectedFilterColumnId) || new CfgFilter({});
 
         // build filter detail options
-        const filterDetails =
-            Object.assign([], selectedFilter.filter_details) || [];
+        const filterDetails = Object.assign([], selectedFilter.filter_details) || [];
         filterValueOptions.push(createDefaultOption());
         for (const filterDetail of filterDetails) {
-            const selected =
-                selectedFilterValue === filterDetail.id
-                    ? eles.selectedOptStr
-                    : '';
-            filterValueOptions.push(
-                `<option value="${filterDetail.id}" ${selected}>${filterDetail.name}</option>`,
-            );
+            const selected = selectedFilterValue === filterDetail.id ? eles.selectedOptStr : '';
+            filterValueOptions.push(`<option value="${filterDetail.id}" ${selected}>${filterDetail.name}</option>`);
             if (selected) {
                 filterValueName = filterDetail.name;
             }
@@ -323,10 +274,7 @@ const visualModule = (() => {
         return [filterValueOptions, filterValueName];
     };
 
-    const buildFilterValueOptionsFromDB = (
-        sensorValues = [],
-        selectedFilterValue = '',
-    ) => {
+    const buildFilterValueOptionsFromDB = (sensorValues = [], selectedFilterValue = '') => {
         const filterValueOptions = [];
         if (selectedFilterValue === eles.defaultVal) {
             filterValueOptions.push(createDefaultOption(true));
@@ -335,11 +283,8 @@ const visualModule = (() => {
         }
 
         for (const val of sensorValues) {
-            const selected =
-                selectedFilterValue === val ? eles.selectedOptStr : '';
-            filterValueOptions.push(
-                `<option value="${val}" ${selected}>${val}</option>`,
-            );
+            const selected = selectedFilterValue === val ? eles.selectedOptStr : '';
+            filterValueOptions.push(`<option value="${val}" ${selected}>${val}</option>`);
         }
         return filterValueOptions;
     };
@@ -354,9 +299,7 @@ const visualModule = (() => {
         $(`#${rowIdx} .search-column`).on('keyup search', (e) => {
             const searchText = $(e.currentTarget).val();
             const dataRowID = $(e.currentTarget).data('row-id');
-            const filterType = $(
-                `input[name=${eles.filterTypeOption}_${dataRowID}]:checked`,
-            ).val();
+            const filterType = $(`input[name=${eles.filterTypeOption}_${dataRowID}]:checked`).val();
             let ulActived;
             if (filterType === eles.filterTypeFromCfg.key) {
                 ulActived = eles.filterTypeFromCfg.value;
@@ -364,20 +307,13 @@ const visualModule = (() => {
                 ulActived = eles.filterTypeShowAll.value;
             }
             $(`#${ulActived}_${dataRowID} li`).filter(function f() {
-                $(this).toggle(
-                    $(this).text().toLowerCase().indexOf(searchText) > -1,
-                );
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchText) > -1);
             });
         });
     };
 
     // add new row
-    const addConfigRow = (
-        cfgVisualization,
-        isAddNewRow = false,
-        fromSpread = false,
-        index = null,
-    ) => {
+    const addConfigRow = (cfgVisualization, isAddNewRow = false, fromSpread = false, index = null) => {
         const rowIdx = `${moment().format('YYMMDDHHmmssSSS')}${generateRandomString(3)}`;
 
         const dicColumns = cfgProcess.dicColumns || {};
@@ -393,8 +329,7 @@ const visualModule = (() => {
         let selectedFilterItemName;
         let selectedFilterItemId;
         if (selectedFilterColumnId && selectedFilterColumnId !== 'default') {
-            selectedFilterItemName =
-                dicColumns[selectedFilterColumnId].shown_name;
+            selectedFilterItemName = dicColumns[selectedFilterColumnId].shown_name;
             selectedFilterItemId = dicColumns[selectedFilterColumnId].id;
         } else {
             // set default if null
@@ -407,28 +342,20 @@ const visualModule = (() => {
         const controlCols = cfgProcess.getNumericColumns() || [];
         let controlColName = '';
         const controlColOptions = controlCols.map((col) => {
-            const selected =
-                col.id === selectedControlCol ? eles.selectedOptStr : '';
+            const selected = col.id === selectedControlCol ? eles.selectedOptStr : '';
             if (col.id === selectedControlCol) {
                 controlColName = col.shown_name;
             }
             return `<option value="${col.id}" title="${col.name_en}" ${selected}>${col.shown_name}</option>`;
         });
 
-        const defaultOption =
-            '<option id="mcs-filterValue-io-result-no_${rowIdx}">---</option>';
+        const defaultOption = '<option id="mcs-filterValue-io-result-no_${rowIdx}">---</option>';
         const fromFilterConfigItemOptions = [defaultOption];
         cfgProcess.getFilters().forEach((filter) => {
-            const isSelected =
-                Number(selectedFilterItemId) === Number(filter.column_id)
-                    ? 'selected'
-                    : '';
+            const isSelected = Number(selectedFilterItemId) === Number(filter.column_id) ? 'selected' : '';
             if (!isEmpty(filter.column_id)) {
                 // to prevent the case N/A column in LINE filter
-                const filterItemName =
-                    filter.name ||
-                    dicColumns[filter.column_id].shown_name ||
-                    filter.column_id;
+                const filterItemName = filter.name || dicColumns[filter.column_id].shown_name || filter.column_id;
                 fromFilterConfigItemOptions.push(
                     `<option value="${filter.column_id}" ${isSelected}>${filterItemName}</option>`,
                 );
@@ -437,13 +364,8 @@ const visualModule = (() => {
 
         const showAllItemOptions = [defaultOption];
         cfgProcess.getCategoryColumns().forEach((col) => {
-            const isSelected =
-                Number(selectedFilterItemId) === Number(col.id)
-                    ? 'selected'
-                    : '';
-            showAllItemOptions.push(
-                `<option value="${col.id}" ${isSelected}>${col.shown_name}</option>`,
-            );
+            const isSelected = Number(selectedFilterItemId) === Number(col.id) ? 'selected' : '';
+            showAllItemOptions.push(`<option value="${col.id}" ${isSelected}>${col.shown_name}</option>`);
         });
 
         // filter value (name column)
@@ -451,22 +373,17 @@ const visualModule = (() => {
         let filterValueName = '---';
         if (isFromConfig) {
             // build options from filter details
-            const selectedFilterValue =
-                cfgVisualization.filter_detail_id || eles.defaultVal;
+            const selectedFilterValue = cfgVisualization.filter_detail_id || eles.defaultVal;
             if (selectedFilterValue) {
-                [filterValueOptions, filterValueName] =
-                    buildFilterValueOptionsFromFilter(
-                        selectedFilterColumnId,
-                        selectedFilterValue,
-                    );
+                [filterValueOptions, filterValueName] = buildFilterValueOptionsFromFilter(
+                    selectedFilterColumnId,
+                    selectedFilterValue,
+                );
             }
         } else {
             // build options + show selected options
             const selectedFilterValue = cfgVisualization.filter_value;
-            if (
-                selectedFilterValue !== null &&
-                selectedFilterValue !== undefined
-            ) {
+            if (selectedFilterValue !== null && selectedFilterValue !== undefined) {
                 filterValueName = selectedFilterValue;
                 filterValueOptions.push(
                     createDefaultOption(),
@@ -478,24 +395,12 @@ const visualModule = (() => {
         }
 
         // thresholds
-        const threshLow = isEmpty(cfgVisualization.lcl)
-            ? ''
-            : cfgVisualization.lcl;
-        const threshHigh = isEmpty(cfgVisualization.ucl)
-            ? ''
-            : cfgVisualization.ucl;
-        const prcMin = isEmpty(cfgVisualization.lpcl)
-            ? ''
-            : cfgVisualization.lpcl;
-        const prcMax = isEmpty(cfgVisualization.upcl)
-            ? ''
-            : cfgVisualization.upcl;
-        const yMin = isEmpty(cfgVisualization.ymin)
-            ? ''
-            : cfgVisualization.ymin;
-        const yMax = isEmpty(cfgVisualization.ymax)
-            ? ''
-            : cfgVisualization.ymax;
+        const threshLow = isEmpty(cfgVisualization.lcl) ? '' : cfgVisualization.lcl;
+        const threshHigh = isEmpty(cfgVisualization.ucl) ? '' : cfgVisualization.ucl;
+        const prcMin = isEmpty(cfgVisualization.lpcl) ? '' : cfgVisualization.lpcl;
+        const prcMax = isEmpty(cfgVisualization.upcl) ? '' : cfgVisualization.upcl;
+        const yMin = isEmpty(cfgVisualization.ymin) ? '' : cfgVisualization.ymin;
+        const yMax = isEmpty(cfgVisualization.ymax) ? '' : cfgVisualization.ymax;
 
         // act from/to
         let actFromDate = '';
@@ -521,10 +426,7 @@ const visualModule = (() => {
             inputInRows.show = 'show';
             inputInRows.hide = 'hide';
         }
-        const rowNumber =
-            index != null
-                ? index
-                : $(`#${eles.tblVisualConfig} tbody tr`).length;
+        const rowNumber = index != null ? index : $(`#${eles.tblVisualConfig} tbody tr`).length;
         const rowDOM = `
             <tr name="visualInfo" id="${rowIdx}">
                 <input type="hidden"  name="${eles.cfgVisualizationId}" id="${eles.cfgVisualizationId}_${rowIdx}"
@@ -674,12 +576,7 @@ const visualModule = (() => {
         const visualizations = cfgProcess.getVisualizations();
         let tblConfigDOM = '';
         _.sortBy(visualizations, 'order').forEach((cfgVisualization, index) => {
-            const [_, rowDOM] = addConfigRow(
-                cfgVisualization,
-                undefined,
-                undefined,
-                index,
-            );
+            const [_, rowDOM] = addConfigRow(cfgVisualization, undefined, undefined, index);
             tblConfigDOM += rowDOM;
         });
         eles.tblConfigBody.html(tblConfigDOM);
@@ -698,9 +595,7 @@ const visualModule = (() => {
         const genJson = genJsonfromHTML(eles.tblConfigBody, ROOT, true);
         genJson(eles.cfgVisualizationId);
         genJson(eles.controlColumn);
-        genJson(eles.filterType, (e) =>
-            $(e).find(eles.checkedFilterType).val(),
-        );
+        genJson(eles.filterType, (e) => $(e).find(eles.checkedFilterType).val());
         genJson(eles.filterColumn);
         genJson(eles.filterValue);
         genJson(eles.ucl);
@@ -720,12 +615,8 @@ const visualModule = (() => {
             }
             return e;
         });
-        const filterColumns = (data[eles.filterColumn] || []).map(
-            convertDefaultToNull,
-        );
-        const filterValues = (data[eles.filterValue] || []).map(
-            convertDefaultToNull,
-        );
+        const filterColumns = (data[eles.filterColumn] || []).map(convertDefaultToNull);
+        const filterValues = (data[eles.filterValue] || []).map(convertDefaultToNull);
         const ucls = data[eles.ucl] || [];
         const lcls = data[eles.lcl] || [];
         const prcMaxs = data[eles.prcMax] || [];
@@ -755,26 +646,14 @@ const visualModule = (() => {
     // get duplicate time range from 2 actTimes
     const getDuplicateTimeRange = (orgTimeRange, compareTimeRange) => {
         const dupTimeRange = [];
-        if (
-            compareTimeRange[0] >= orgTimeRange[0] &&
-            compareTimeRange[0] <= orgTimeRange[1]
-        ) {
+        if (compareTimeRange[0] >= orgTimeRange[0] && compareTimeRange[0] <= orgTimeRange[1]) {
             dupTimeRange.push(compareTimeRange[0]);
-        } else if (
-            compareTimeRange[0] < orgTimeRange[0] &&
-            orgTimeRange[0] <= compareTimeRange[1]
-        ) {
+        } else if (compareTimeRange[0] < orgTimeRange[0] && orgTimeRange[0] <= compareTimeRange[1]) {
             dupTimeRange.push(orgTimeRange[0]);
         }
-        if (
-            compareTimeRange[1] <= orgTimeRange[1] &&
-            compareTimeRange[1] >= orgTimeRange[0]
-        ) {
+        if (compareTimeRange[1] <= orgTimeRange[1] && compareTimeRange[1] >= orgTimeRange[0]) {
             dupTimeRange.push(compareTimeRange[1]);
-        } else if (
-            compareTimeRange[1] > orgTimeRange[1] &&
-            orgTimeRange[1] >= compareTimeRange[0]
-        ) {
+        } else if (compareTimeRange[1] > orgTimeRange[1] && orgTimeRange[1] >= compareTimeRange[0]) {
             dupTimeRange.push(orgTimeRange[1]);
         }
 
@@ -808,19 +687,13 @@ const visualModule = (() => {
 
             if (!controlColumn) {
                 errorFlg = true;
-                displayMessage(
-                    eles.alertMsg,
-                    (message = { content: msg.requireValue, is_error: true }),
-                );
+                displayMessage(eles.alertMsg, (message = { content: msg.requireValue, is_error: true }));
                 break;
             }
 
             errorFlg = [ucl, lcl, prcMax, prcMin, ymax, ymin].every(isEmpty);
             if (errorFlg) {
-                displayMessage(
-                    eles.alertMsg,
-                    (message = { content: msg.requireSetting, is_error: true }),
-                );
+                displayMessage(eles.alertMsg, (message = { content: msg.requireSetting, is_error: true }));
                 break;
             }
 
@@ -828,30 +701,21 @@ const visualModule = (() => {
             if (ucl !== '' && lcl !== '') {
                 errorFlg = Number(ucl) < Number(lcl);
                 if (errorFlg) {
-                    displayMessage(
-                        eles.alertMsg,
-                        (message = { content: msg.uclLt, is_error: true }),
-                    );
+                    displayMessage(eles.alertMsg, (message = { content: msg.uclLt, is_error: true }));
                     break;
                 }
             }
             if (ymax !== '' && ymin !== '') {
                 errorFlg = Number(ymax) < Number(ymin);
                 if (errorFlg) {
-                    displayMessage(
-                        eles.alertMsg,
-                        (message = { content: msg.ymaxLt, is_error: true }),
-                    );
+                    displayMessage(eles.alertMsg, (message = { content: msg.ymaxLt, is_error: true }));
                     break;
                 }
             }
             if (prcMax !== '' && prcMin !== '') {
                 errorFlg = Number(prcMax) < Number(prcMin);
                 if (errorFlg) {
-                    displayMessage(
-                        eles.alertMsg,
-                        (message = { content: msg.prcUCLLt, is_error: true }),
-                    );
+                    displayMessage(eles.alertMsg, (message = { content: msg.prcUCLLt, is_error: true }));
                     break;
                 }
             }
@@ -860,43 +724,26 @@ const visualModule = (() => {
             const trimActTo = actToDate.trim();
             if (trimActFrom === '' && trimActTo === '') {
                 errorFlg = true;
-                displayMessage(
-                    eles.alertMsg,
-                    (message = { content: msg.actTimeEmpty, is_error: true }),
-                );
+                displayMessage(eles.alertMsg, (message = { content: msg.actTimeEmpty, is_error: true }));
                 break;
             }
 
-            if (
-                !isEmpty(trimActFrom) &&
-                !isEmpty(trimActTo) &&
-                trimActFrom > trimActTo
-            ) {
+            if (!isEmpty(trimActFrom) && !isEmpty(trimActTo) && trimActFrom > trimActTo) {
                 errorFlg = true;
-                displayMessage(
-                    eles.alertMsg,
-                    (message = { content: msg.actFromGreater, is_error: true }),
-                );
+                displayMessage(eles.alertMsg, (message = { content: msg.actFromGreater, is_error: true }));
                 break;
             }
 
             // action time to timestamp
-            const actDateFrom = trimActFrom
-                ? new Date(trimActFrom).getTime()
-                : 0;
-            const actDateTo = trimActTo
-                ? new Date(trimActTo).getTime()
-                : Number.MAX_SAFE_INTEGER;
+            const actDateFrom = trimActFrom ? new Date(trimActFrom).getTime() : 0;
+            const actDateTo = trimActTo ? new Date(trimActTo).getTime() : Number.MAX_SAFE_INTEGER;
             const configSetName = `${controlColumn}|${filterColumn}|${filterValue}`;
 
             if (actTimeObj[configSetName]) {
                 const actRanges = actTimeObj[configSetName];
 
                 actRanges.forEach((actRange) => {
-                    const dupRange = getDuplicateTimeRange(
-                        [actDateFrom, actDateTo],
-                        actRange,
-                    );
+                    const dupRange = getDuplicateTimeRange([actDateFrom, actDateTo], actRange);
                     if (dupRange.length) {
                         errorFlg = true;
                     }
@@ -974,7 +821,7 @@ const visualModule = (() => {
         fetch(`/ap/api/setting/proc_config/${cfgProcess.id}/visualizations`, {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
@@ -991,10 +838,7 @@ const visualModule = (() => {
                 cfgProcess = new CfgProcess(json.data);
                 showSettings(cfgProcess);
                 // show message
-                displayMessage(
-                    eles.alertMsg,
-                    (message = { content: msg.saveOK.text(), is_error: false }),
-                );
+                displayMessage(eles.alertMsg, (message = { content: msg.saveOK.text(), is_error: false }));
             })
             .catch((err) => {
                 // show messg
@@ -1058,11 +902,9 @@ const visualModule = (() => {
 
     const getValueFromFilterOption = (filterColId, filterVal) => {
         let filterValueName;
-        const selectedFilter =
-            cfgProcess.getFilterByColumnId(filterColId) || new CfgFilter({});
+        const selectedFilter = cfgProcess.getFilterByColumnId(filterColId) || new CfgFilter({});
         // build filter detail options
-        const filterDetails =
-            Object.assign([], selectedFilter.filter_details) || [];
+        const filterDetails = Object.assign([], selectedFilter.filter_details) || [];
         for (const filterDetail of filterDetails) {
             if (filterVal === filterDetail.id) {
                 filterValueName = filterDetail.name;
@@ -1077,16 +919,10 @@ const visualModule = (() => {
             if (e === filterElements.defaultVal || e === 'null') return null;
             return e;
         };
-        const formJsonCollecter = genJsonfromHTML(
-            filterElements.tblConfigBody,
-            'root',
-            true,
-        );
+        const formJsonCollecter = genJsonfromHTML(filterElements.tblConfigBody, 'root', true);
         formJsonCollecter(filterElements.cfgVisualizationId);
         formJsonCollecter(filterElements.controlColumn);
-        formJsonCollecter(filterElements.filterType, (e) =>
-            $(e).find(filterElements.checkedFilterType).val(),
-        );
+        formJsonCollecter(filterElements.filterType, (e) => $(e).find(filterElements.checkedFilterType).val());
         formJsonCollecter(filterElements.filterColumn);
         formJsonCollecter(filterElements.filterValue);
         formJsonCollecter(filterElements.ucl);
@@ -1104,12 +940,8 @@ const visualModule = (() => {
         // const filterTypeOptions = (data[filterElements.filterType] || []).map((e) => {
         //     if (isEmpty(e)) { return filterElements.showAll; } return e;
         // });
-        const filterColumns = (data[filterElements.filterColumn] || []).map(
-            convertDefaultToNull,
-        );
-        const filterValues = (data[filterElements.filterValue] || []).map(
-            convertDefaultToNull,
-        );
+        const filterColumns = (data[filterElements.filterColumn] || []).map(convertDefaultToNull);
+        const filterValues = (data[filterElements.filterValue] || []).map(convertDefaultToNull);
         const ucls = data[filterElements.ucl] || [];
         const lcls = data[filterElements.lcl] || [];
         const prcMaxs = data[filterElements.prcMax] || [];
@@ -1122,18 +954,12 @@ const visualModule = (() => {
         const dicCols = cfgProcess.dicColumns;
         // const filteroptVal = getValueFromFilterOption(filterColumns[i], filterValues[i]);
         const getFilterName = (filterOption, filterColId = false) => {
-            if (
-                filterOption === defaultFilter.DEFAULT.name ||
-                filterColId === defaultFilter.DEFAULT.name
-            ) {
+            if (filterOption === defaultFilter.DEFAULT.name || filterColId === defaultFilter.DEFAULT.name) {
                 return '';
             }
 
             if (filterColId) {
-                return getValueFromFilterOption(
-                    Number(filterColId),
-                    Number(filterOption),
-                );
+                return getValueFromFilterOption(Number(filterColId), Number(filterOption));
             }
 
             if (dicCols[filterOption]) {
@@ -1148,10 +974,7 @@ const visualModule = (() => {
                 controlColName = controlCol.shown_name;
             }
             const filterColName = getFilterName(filterColumns[i]);
-            const filterColVal = getFilterName(
-                filterValues[i],
-                filterColumns[i],
-            );
+            const filterColVal = getFilterName(filterValues[i], filterColumns[i]);
             return [
                 controlColName,
                 filterColName,
@@ -1181,10 +1004,7 @@ const visualModule = (() => {
         } else {
             $(`${eles.changeModeBtn} span`).text(` ${i18nNames.editMode}`);
         }
-        $(eles.visualConfigRegister).attr(
-            'disabled',
-            isEmpty($(eles.visualConfigRegister).attr('disabled')),
-        );
+        $(eles.visualConfigRegister).attr('disabled', isEmpty($(eles.visualConfigRegister).attr('disabled')));
     };
 
     const buildReferences = () => {
@@ -1193,9 +1013,7 @@ const visualModule = (() => {
         if (procFilters.length) {
             procFilters.forEach((filter, i) => {
                 filterValues[filter.column_id] = {};
-                filterValues[filter.column_id][
-                    i18nNames.partNoDefaultName.trim()
-                ] = '';
+                filterValues[filter.column_id][i18nNames.partNoDefaultName.trim()] = '';
                 filter.filter_details.forEach((f, _) => {
                     filterValues[filter.column_id][`${f.name}`] = f.id;
                 });
@@ -1224,19 +1042,10 @@ const visualModule = (() => {
         return inputStr;
     };
     const isValidDatetime = (actTime) => {
-        const mom = moment(
-            actTime,
-            ['YYYY-MM-DD HH:mm', 'YYYY/MM/DD HH:mm', 'MM/DD/YYYY HH:mm'],
-            false,
-        );
+        const mom = moment(actTime, ['YYYY-MM-DD HH:mm', 'YYYY/MM/DD HH:mm', 'MM/DD/YYYY HH:mm'], false);
         return mom.isValid();
     };
-    const mergeData = (
-        editData,
-        settingData,
-        colNames = masterHeaderName,
-        mapKey = 'controlColumn',
-    ) => {
+    const mergeData = (editData, settingData, colNames = masterHeaderName, mapKey = 'controlColumn') => {
         const settingDataRoot = eles.tblVisualConfig;
         const settingDataRows = getNode(settingData, [settingDataRoot]) || [];
         // const settingDataRows = settingData[settingDataRoot] || [];
@@ -1254,16 +1063,9 @@ const visualModule = (() => {
                 let cellValue = spaceNormalize(row[colIdx]);
                 if (colName in selectReferences) {
                     if (outputRow.filterColumnId) {
-                        cellValue =
-                            getNode(selectReferences, [
-                                colName,
-                                outputRow.filterColumnId,
-                                cellValue,
-                            ]) || null;
+                        cellValue = getNode(selectReferences, [colName, outputRow.filterColumnId, cellValue]) || null;
                     } else {
-                        cellValue =
-                            getNode(selectReferences, [colName, cellValue]) ||
-                            null;
+                        cellValue = getNode(selectReferences, [colName, cellValue]) || null;
                     }
                 }
                 outputRow[colName] = spaceNormalize(cellValue);
@@ -1278,30 +1080,18 @@ const visualModule = (() => {
                 filter_value: null, // todo: assign filter value in case of loading config from DB
                 filter_column_id: outputRow.filterColumnId,
                 filter_detail_id: outputRow.filterValue,
-                lcl: !isNaN(Number(outputRow.lcl))
-                    ? outputRow.lcl
-                    : convertNumberByThousandSep(outputRow.lcl),
-                ucl: !isNaN(Number(outputRow.ucl))
-                    ? outputRow.ucl
-                    : convertNumberByThousandSep(outputRow.ucl),
+                lcl: !isNaN(Number(outputRow.lcl)) ? outputRow.lcl : convertNumberByThousandSep(outputRow.lcl),
+                ucl: !isNaN(Number(outputRow.ucl)) ? outputRow.ucl : convertNumberByThousandSep(outputRow.ucl),
                 lpcl: !isNaN(Number(outputRow.prcMin))
                     ? outputRow.prcMin
                     : convertNumberByThousandSep(outputRow.prcMin),
                 upcl: !isNaN(Number(outputRow.prcMax))
                     ? outputRow.prcMax
                     : convertNumberByThousandSep(outputRow.prcMax),
-                ymax: !isNaN(Number(outputRow.ymax))
-                    ? outputRow.ymax
-                    : convertNumberByThousandSep(outputRow.ymax),
-                ymin: !isNaN(Number(outputRow.ymin))
-                    ? outputRow.ymin
-                    : convertNumberByThousandSep(outputRow.ymin),
-                act_from: isValidDatetime(outputRow.actFromDateTime)
-                    ? `${outputRow.actFromDateTime}`.trim()
-                    : '',
-                act_to: isValidDatetime(outputRow.actToDateTime)
-                    ? `${outputRow.actToDateTime}`.trim()
-                    : '',
+                ymax: !isNaN(Number(outputRow.ymax)) ? outputRow.ymax : convertNumberByThousandSep(outputRow.ymax),
+                ymin: !isNaN(Number(outputRow.ymin)) ? outputRow.ymin : convertNumberByThousandSep(outputRow.ymin),
+                act_from: isValidDatetime(outputRow.actFromDateTime) ? `${outputRow.actFromDateTime}`.trim() : '',
+                act_to: isValidDatetime(outputRow.actToDateTime) ? `${outputRow.actToDateTime}`.trim() : '',
             });
         }
         return outputRows;
@@ -1323,8 +1113,7 @@ const visualModule = (() => {
             const orgTableWidth = $('table#tblVisualConfig').width();
             const minWidth = orgTableWidth - spreadWidth - 35;
             // increase end column
-            colWidths[colWidths.length - 1] =
-                minWidth >= 100 ? minWidth : colWidths[colWidths.length - 2];
+            colWidths[colWidths.length - 1] = minWidth >= 100 ? minWidth : colWidths[colWidths.length - 2];
             return { headerLabels, colWidths };
         };
         const tableHeadInfor = getCols();
@@ -1332,17 +1121,12 @@ const visualModule = (() => {
         let configDat = getConfigItems(filterName);
 
         if (!configDat.length) {
-            configDat = [
-                [...Array(tableHeadInfor.headerLabels.length).keys()].map(
-                    (x) => '',
-                ),
-            ];
+            configDat = [[...Array(tableHeadInfor.headerLabels.length).keys()].map((x) => '')];
         }
 
         const numCols = tableHeadInfor.headerLabels.length;
         const firstColWidth = tableHeadInfor.colWidths[0];
-        tableHeadInfor.colWidths[1] =
-            tableHeadInfor.colWidths[1] + firstColWidth;
+        tableHeadInfor.colWidths[1] = tableHeadInfor.colWidths[1] + firstColWidth;
         jspreadsheet(document.getElementById(`${eles.spreadsheetID}`), {
             data: configDat,
             autoIncrement: false,
@@ -1376,10 +1160,8 @@ const visualModule = (() => {
             },
         };
         $(tableIdWithSharp).each((k, tr) => {
-            const controlItem = $(tr).find('select[name="controlColumn"]')[0]
-                .value;
-            const filterItem = $(tr).find('input[name="filterColumnId"]')[0]
-                .value;
+            const controlItem = $(tr).find('select[name="controlColumn"]')[0].value;
+            const filterItem = $(tr).find('input[name="filterColumnId"]')[0].value;
             tblVisualConfig.tblVisualConfig.controlColumn.push(controlItem);
             tblVisualConfig.tblVisualConfig.filterValue.push(filterItem);
         });
@@ -1423,19 +1205,10 @@ const visualModule = (() => {
 
                 if (validationColNames.includes(validationCol)) {
                     if (!parentId[rowIdx]) {
-                        validator = getNode(settingRef, [
-                            validationCol,
-                            cellValue,
-                        ]);
+                        validator = getNode(settingRef, [validationCol, cellValue]);
                     } else {
-                        validator = getNode(settingRef, [
-                            validationCol,
-                            parentId[rowIdx],
-                            cellValue,
-                        ]);
-                        if (
-                            cellValue === settingRef.filterValue.default.trim()
-                        ) {
+                        validator = getNode(settingRef, [validationCol, parentId[rowIdx], cellValue]);
+                        if (cellValue === settingRef.filterValue.default.trim()) {
                             validator = true;
                         }
                     }
@@ -1467,30 +1240,16 @@ const visualModule = (() => {
         }
 
         if (errorCells.length) {
-            const originalStyleParams = errorCells.reduce(
-                (a, b) => ({ ...a, [b]: 'color:white;' }),
-                {},
-            );
-            const styleParams = errorCells.reduce(
-                (a, b) => ({ ...a, [b]: 'color:red;' }),
-                {},
-            );
-            document
-                .getElementById(eles.spreadsheetID)
-                .jspreadsheet.setStyle(originalStyleParams);
-            document
-                .getElementById(eles.spreadsheetID)
-                .jspreadsheet.setStyle(styleParams);
+            const originalStyleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'color:white;' }), {});
+            const styleParams = errorCells.reduce((a, b) => ({ ...a, [b]: 'color:red;' }), {});
+            document.getElementById(eles.spreadsheetID).jspreadsheet.setStyle(originalStyleParams);
+            document.getElementById(eles.spreadsheetID).jspreadsheet.setStyle(styleParams);
             return false;
         }
         return true;
     };
     const validateData = (editData) =>
-        checkExcelDataValid(editData, masterHeaderName, [
-            'controlColumn',
-            'filterColumnId',
-            'filterValue',
-        ]); // TODO validate line name too
+        checkExcelDataValid(editData, masterHeaderName, ['controlColumn', 'filterColumnId', 'filterValue']); // TODO validate line name too
     const clearConfigTable = () => {
         $(eles.tblConfigBody).empty();
     };
@@ -1510,9 +1269,7 @@ const visualModule = (() => {
     const showSpreadMode = (force = false) => {
         console.time('swithMode');
         const filterName = 'visualization';
-        const isEditMode = isEmpty(
-            $(eles.visualConfigRegister).attr('disabled'),
-        );
+        const isEditMode = isEmpty($(eles.visualConfigRegister).attr('disabled'));
         if (isEditMode) {
             // go to excel mode
             // clear spreads content before get items
@@ -1529,11 +1286,7 @@ const visualModule = (() => {
                 const validData = validateData(editData);
                 // const validData = true;
                 if (validData) {
-                    sendSpreadSheetDataToSetting(
-                        tableId,
-                        settingData,
-                        editData,
-                    );
+                    sendSpreadSheetDataToSetting(tableId, settingData, editData);
                 } else {
                     // show confirm modal
                     $(eles.filterConfirmSwitchModal).modal('show');
@@ -1561,11 +1314,7 @@ const visualModule = (() => {
     };
 })();
 
-const displayMessage = (
-    alertID,
-    message = { content: '', is_error: false },
-    card = '',
-) => {
+const displayMessage = (alertID, message = { content: '', is_error: false }, card = '') => {
     if (isEmpty(alertID)) return;
     const alertIdWithCard = card === '' ? `#${alertID}` : `${card} #${alertID}`;
     $(`${alertIdWithCard}-content`).html(message.content);
@@ -1584,10 +1333,7 @@ const displayMessage = (
 $(() => {
     // add new row
     visualModule.eles.addVisualConfig.click(() => {
-        const [rowId, rowDOM] = visualModule.addConfigRow(
-            new CfgVisualization(),
-            true,
-        );
+        const [rowId, rowDOM] = visualModule.addConfigRow(new CfgVisualization(), true);
         visualModule.eles.tblConfigBody.append(rowDOM);
         visualModule.initRowEvents($(`#${rowId}`));
         // updateTableRowNumber(visualModule.eles.tblVisualConfig);
@@ -1610,22 +1356,13 @@ $(() => {
     });
 
     // download all setting graph config
-    $(visualModule.eles.graphConfigDownloadAllBtn)
-        .off('click')
-        .click(downloadAllMasterConfigInfo);
+    $(visualModule.eles.graphConfigDownloadAllBtn).off('click').click(downloadAllMasterConfigInfo);
     // copy all setting graph config
-    $(visualModule.eles.graphConfigCopyAllBtn)
-        .off('click')
-        .click(copyAllGraphConfig);
+    $(visualModule.eles.graphConfigCopyAllBtn).off('click').click(copyAllGraphConfig);
     // paste all setting graph config
-    $(visualModule.eles.graphConfigPasteAllBtn)
-        .off('click')
-        .click(pasteAllGraphConfigInfo);
+    $(visualModule.eles.graphConfigPasteAllBtn).off('click').click(pasteAllGraphConfigInfo);
 
-    // showHideCopyPasteButtons([
-    //     visualModule.eles.graphConfigCopyAllBtn,
-    //     visualModule.eles.graphConfigPasteAllBtn,
-    // ]);
+    // showHideCopyPasteButtons([visualModule.eles.graphConfigCopyAllBtn, visualModule.eles.graphConfigPasteAllBtn]);
 
     $(visualModule.eles.confirmSwitchButton)
         .off('click')

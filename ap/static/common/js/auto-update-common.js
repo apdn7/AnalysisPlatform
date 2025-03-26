@@ -31,9 +31,7 @@ const shouldChartBeRefreshed = (formData) => {
 };
 
 const handleSourceListener = () => {
-    const isAutoUpdate = shouldChartBeRefreshed(
-        longPollingData.formData || new FormData(),
-    );
+    const isAutoUpdate = shouldChartBeRefreshed(longPollingData.formData || new FormData());
     if (isAutoUpdate) {
         showDateTimeRangeValue();
     }

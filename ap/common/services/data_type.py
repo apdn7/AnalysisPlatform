@@ -11,7 +11,7 @@ from pandas import Series
 from ap.common.constants import COL_NAME, INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
 from ap.common.logger import log_execution_time
 
-na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf, np.NAN]
+na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf]
 
 
 @log_execution_time()
@@ -70,9 +70,6 @@ def gen_data_types(series: Series, is_v2=False):
 
     if DataType.EU_REAL_SEP in data_types:
         return DataType.EU_REAL_SEP.value
-
-    if DataType.BIG_INT in data_types:
-        return DataType.BIG_INT.value
 
     return DataType.TEXT.value
 
@@ -197,7 +194,7 @@ def predict_k_sep(data):
 
 def check_large_int_type(val):
     if int(val) > MAX_SAFE_INTEGER:
-        return DataType.BIG_INT
+        return DataType.TEXT
     return DataType.INTEGER
 
 
@@ -206,18 +203,29 @@ def check_data_type_series(orig_series: Series):
 
     series: Series = convert_df_str_to_others(orig_series)
 
+    try:
+        non_inf_series = series.replace([float('inf'), float('-inf')], None)
+        if non_inf_series[non_inf_series > MAX_SAFE_INTEGER].size:
+            return DataType.TEXT.value
+    except TypeError:
+        # continue for string or datetime column
+        pass
+
     # all items in series are NA
-    if pd.isnull(series).all():
+    if series.isna().all():
         return DataType.TEXT.value
 
     # series = series.convert_dtypes()
     series_type = str(series.dtypes.name).lower()
 
     # series is Decimal number
-    is_decimal = [type(value) == decimal.Decimal for value in orig_series]
+    is_decimal = False not in [type(value) == decimal.Decimal for value in orig_series]
+    # issue raised in s255b6
+    # because of MSSQL return Decimal number, it should be detected as REAL instead of INT
+    if is_decimal:
+        return check_decimal_type(orig_series)
+
     if 'float' in series_type:
-        if False not in is_decimal:
-            return DataType.REAL.value
         return check_float_type(orig_series, series)
 
     if 'int' in series_type:
@@ -226,10 +234,7 @@ def check_data_type_series(orig_series: Series):
 
         # BIG INT
         if series.max() > MAX_SAFE_INTEGER:
-            return DataType.BIG_INT.value
-
-        if False not in is_decimal:
-            return DataType.INTEGER.value
+            return DataType.TEXT.value
 
         # STRING START WITH ZERO
         if not series.astype(str).equals(orig_series.astype(str)):
@@ -240,7 +245,7 @@ def check_data_type_series(orig_series: Series):
     if 'time' in series_type:
         return DataType.DATETIME.value
 
-    if (series_type in [pd.StringDtype.name, np.object.__name__]) and is_boolean_dtype(series):
+    if (series_type in [pd.StringDtype.name, object]) and is_boolean_dtype(series):
         return DataType.BOOLEAN.value
 
     return None
@@ -306,3 +311,9 @@ def check_float_type(string_series: Series, float_series: Series = None):
             return DataType.TEXT.value
         else:
             return DataType.REAL.value
+
+
+def check_decimal_type(series: Series):
+    if all(value == value.to_integral_value() for value in series):
+        return DataType.INTEGER.value
+    return DataType.REAL.value

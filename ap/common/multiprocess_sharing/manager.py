@@ -1,14 +1,43 @@
+from __future__ import annotations
+
 import atexit
+import logging
 import multiprocessing
 import os
+import threading
 import uuid
-from multiprocessing.managers import BaseManager, DictProxy
+from multiprocessing.managers import BaseProxy, DictProxy, SyncManager
 from queue import Queue
 from typing import Any
 
 import filelock
 
 from ap.common.common_utils import get_data_path
+
+logger = logging.getLogger(__name__)
+
+
+class AcquirerProxy(BaseProxy):
+    """Define a proxy for RLock <https://docs.python.org/3/library/multiprocessing.html#examples>
+    This proxy is copied from
+    <https://github.com/python/cpython/blob/2041a95e68ebf6d13f867e214ada28affa830669/Lib/multiprocessing/managers.py#L1061C1-L1071C43>
+    """
+
+    _exposed_ = ('acquire', 'release')
+
+    def acquire(self, blocking=True, timeout=None):
+        args = (blocking,) if timeout is None else (blocking, timeout)
+        return self._callmethod('acquire', args)
+
+    def release(self):
+        return self._callmethod('release')
+
+    def __enter__(self):
+        return self._callmethod('acquire')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return self._callmethod('release')
+
 
 # placeholder for sharing event queue between processes
 # can store maximum 1_000_000 event at the moment
@@ -27,7 +56,15 @@ def _get_running_jobs():
     return _dict_running_jobs
 
 
-class CustomManager(BaseManager):
+# lock for managing access to _dict_running_jobs parameter
+_running_jobs_lock = threading.RLock()
+
+
+def _get_running_jobs_lock():
+    return _running_jobs_lock
+
+
+class CustomManager(SyncManager):
     """Store sharing instances between children processes and parent process
     - For parent process:
         - Start a unique process at `AF_PIPE` address
@@ -46,7 +83,7 @@ class CustomManager(BaseManager):
 
     # instance to keep server run forever without garbage collected
     # we need to free this at the end to avoid memory leaked
-    __instance = None
+    __instance: SyncManager | None = None
 
     # before starting application, we need to set an address to let our children process know where to connect
     # however, since our application is multiple processes, we need to lock the file beforehand
@@ -87,8 +124,11 @@ class CustomManager(BaseManager):
             # add some method
             cls.register('_get_event_queue', callable=_get_event_queue)
             cls.register('_get_running_jobs', callable=_get_running_jobs, proxytype=DictProxy)
+            cls.register('_get_running_jobs_lock', callable=_get_running_jobs_lock, proxytype=AcquirerProxy)
 
-            cls.__instance = cls(address=cls._generate_new_address())
+            address = cls._generate_new_address()
+            logger.info(f'[Multiprocess pipe file] {address}')
+            cls.__instance = cls(address=address)
             cls.__instance.start()
 
             # make sure to stop server after shutdown
@@ -98,8 +138,9 @@ class CustomManager(BaseManager):
     def _connect_server(cls):
         """This method is only called on child process"""
         if cls.__instance is None:
-            cls.register('_get_event_queue')
-            cls.register('_get_running_jobs')
+            cls.register('_get_event_queue', callable=_get_event_queue)
+            cls.register('_get_running_jobs', callable=_get_running_jobs, proxytype=DictProxy)
+            cls.register('_get_running_jobs_lock', callable=_get_running_jobs_lock, proxytype=AcquirerProxy)
             cls.__instance = cls(address=cls._get_address())
             cls.__instance.connect()
 
@@ -121,7 +162,13 @@ class CustomManager(BaseManager):
         return cls.__instance._get_event_queue()
 
     @classmethod
-    def get_running_jobs(cls) -> dict[Any, Any]:
+    def get_running_jobs(cls) -> DictProxy[Any, Any]:
         """This method should be called on child process, needed to get running jobs"""
         cls._connect_server()
         return cls.__instance._get_running_jobs()
+
+    @classmethod
+    def get_running_jobs_lock(cls) -> AcquirerProxy[threading.RLock]:
+        """This method should be called on child process, needed to get running jobs"""
+        cls._connect_server()
+        return cls.__instance._get_running_jobs_lock()

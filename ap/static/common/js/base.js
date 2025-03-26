@@ -2,16 +2,11 @@
 // term of use
 validateTerms();
 const GA_TRACKING_ID = 'G-9DJ9TV72B5';
-const HEART_BEAT_MILLI = 2500;
-const RE_HEART_BEAT_MILLI = HEART_BEAT_MILLI * 4;
 let scpSelectedPoint = null;
 let scpCustomData = null;
-/** @type {EventSource} */
-let serverSentEventCon = null;
 let loadingProgressBackend = 0;
 let formDataQueried = null;
 let clearOnFlyFilter = false;
-const serverSentEventUrl = '/ap/api/setting/listen_background_job';
 
 let problematicData = null;
 let problematicPCAData = null;
@@ -19,34 +14,17 @@ let problematicPCAData = null;
 let originalUserSettingInfo;
 let isGraphShown = false;
 let requestStartedAt;
-let handleHeartbeat;
 let isDirectFromJumpFunction = false;
 let isLoadingUserSetting = false;
 let isAdmin = false;
-
-const serverSentEventType = {
-    ping: 'ping',
-    timeout: 'timeout',
-    closeOldSSE: 'close_old_sse',
-    jobRun: 'JOB_RUN',
-    procLink: 'PROC_LINK',
-    shutDown: 'SHUT_DOWN',
-    dataTypeErr: 'DATA_TYPE_ERR',
-    emptyFile: 'EMPTY_FILE',
-    pcaSensor: 'PCA_SENSOR',
-    showGraph: 'SHOW_GRAPH',
-    diskUsage: 'DISK_USAGE',
-    reloadTraceConfig: 'RELOAD_TRACE_CONFIG',
-    dataRegister: 'DATA_REGISTER',
-    backupDataFinished: 'BACKUP_DATA_FINISHED',
-    restoreDataFinished: 'RESTORE_DATA_FINISHED',
-};
-
 const KEY_CODE = {
     ENTER: 13,
 };
 
 let isShutdownListening = false;
+const SELECT_OPTION_HEIGHT_IN_PX = 24; // set height of option in select2
+const MAX_OPTION_COUNT_DS_TABLE = 30; // maximum option display in dropdown of DS&Table selection
+const SELECT2_SCROLL_TO_TOP_OFFSET = 50; // offset from select2 to top when scrolling in list and table on proc_config page
 
 const baseEles = {
     shutdownApp: '#shutdownApp',
@@ -176,233 +154,33 @@ const colorPallets = {
         scale: null,
     },
 };
-
-const channelType = {
-    heartBeat: 'heart-beat',
-    sseMsg: 'sse-msg',
-    sseErr: 'sse-error',
+const JudgeColorPallets = {
+    OK: [
+        ['0.0', 'rgb(0,0,255)'],
+        ['0.5', 'rgb(0,0,255)'],
+        ['1.0', 'rgb(0,0,255)'],
+    ],
+    NG: [
+        ['0.0', 'rgb(255,0,0)'],
+        ['0.5', 'rgb(255,0,0)'],
+        ['1.0', 'rgb(255,0,0)'],
+    ],
+    OK_NG: colorPallets.JET_REV.scale,
 };
 
-// Broadcast channel for SSE
-let bc = {
-    onmessage: () => {},
-    postMessage: () => {},
-};
-
-try {
-    bc = new BroadcastChannel('sse');
-} catch (e) {
-    // Broadcast is not support safari version less than 15.4
-    console.log(e);
-}
-
-function postHeartbeat() {
-    // send heart beat
-    if (
-        serverSentEventCon &&
-        serverSentEventCon.readyState === serverSentEventCon.OPEN
-    ) {
-        // console.log(toLocalTime(), 'post heart beat');
-        bc.postMessage({ type: channelType.heartBeat });
-        consoleLogDebug(`[SSE][Main] Broadcast: ${channelType.heartBeat}`);
-    } else {
-        consoleLogDebug(
-            `[SSE] Status code: ${(serverSentEventCon ?? {}).readyState}`,
-        );
-        // make new SSE connection
-        openServerSentEvent(true);
-        // console.log(toLocalTime(), 'force request');
-    }
-}
-
-// Handle SSE messages and errors
-const handleSSEMessage = (event) => {
-    // console.log(toLocalTime(), event.data);
-    const { type, data } = event.data;
-    if (type === channelType.heartBeat) {
-        consoleLogDebug(`[SSE][Sub] ${type}`);
-        delayPostHeartBeat(RE_HEART_BEAT_MILLI);
-        if (serverSentEventCon) {
-            serverSentEventCon.close();
-        }
-    } else {
-        consoleLogDebug(`[SSE][Sub] ${type}\n${JSON.stringify(data)}`);
-        // data type error
-        if (type === serverSentEventType.dataTypeErr) {
-            handleError(data);
-        }
-
-        // import empty file
-        if (type === serverSentEventType.emptyFile) {
-            handleEmptyFile(data);
-        }
-
-        // fetch pca data
-        if (type === serverSentEventType.pcaSensor) {
-            if (typeof appendSensors !== 'undefined') {
-                appendSensors(data);
-            }
-        }
-
-        // fetch show graph progress
-        if (type === serverSentEventType.showGraph) {
-            if (typeof showGraphProgress !== 'undefined') {
-                showGraphProgress(data);
-            }
-        }
-
-        // show warning/error message about disk usage
-        if (type === serverSentEventType.diskUsage) {
-            if (typeof checkDiskCapacity !== 'undefined') {
-                checkDiskCapacity(data);
-            }
-        }
-
-        if (type === serverSentEventType.jobRun) {
-            if (typeof updateBackgroundJobs !== 'undefined') {
-                updateBackgroundJobs(data);
-            }
-        }
-
-        if (type === serverSentEventType.shutDown) {
-            if (typeof shutdownApp !== 'undefined') {
-                shutdownApp();
-            }
-        }
-
-        if (type === serverSentEventType.procLink) {
-            // calculate proc link count
-            if (typeof realProcLink !== 'undefined') {
-                realProcLink(false);
-                setTimeout(hideAlertMessages, 3000);
-            }
-
-            if (typeof handleSourceListener !== 'undefined') {
-                handleSourceListener();
-            }
-        }
-
-        if (type === serverSentEventType.reloadTraceConfig) {
-            if (typeof doReloadTraceConfig !== 'undefined') {
-                const { procs: procs, isUpdatePosition: isUpdatePosition } =
-                    data;
-                doReloadTraceConfig(procs, isUpdatePosition);
-            }
-        }
-
-        // for data register page
-        if (type === serverSentEventType.dataRegister) {
-            if (typeof updateDataRegisterStatus !== 'undefined') {
-                updateDataRegisterStatus({ type, data });
-            }
-        }
-
-        if (type === serverSentEventType.backupDataFinished) {
-            if (typeof showBackupDataFinishedToastr !== 'undefined') {
-                showBackupDataFinishedToastr();
-            }
-        }
-
-        if (type === serverSentEventType.restoreDataFinished) {
-            if (typeof showRestoreDataFinishedToastr !== 'undefined') {
-                showRestoreDataFinishedToastr();
-            }
-        }
-    }
-};
-
-const delayPostHeartBeat = (
-    () =>
-    (ms = 0, ...args) => {
-        if (this.__heartBeatIntervalID__)
-            clearInterval(this.__heartBeatIntervalID__);
-        this.__heartBeatIntervalID__ = setInterval(
-            postHeartbeat,
-            ms || 0,
-            ...args,
-        );
-    }
-)();
 const isDebugMode = localStorage.getItem('DEBUG')
     ? localStorage.getItem('DEBUG').trim().toLowerCase() === 'true'
     : false;
 
-const consoleLogDebug = (msg = '') => {
+const consoleLogDebug = (msg = '', data = null) => {
     // If you want to show log, you must set DEBUG=true on localStorage first !!!
     if (!isDebugMode) return;
-    console.debug(msg);
-};
-
-const openServerSentEvent = (isForce = false) => {
-    if (isForce || serverSentEventCon == null) {
-        consoleLogDebug(`[SSE] Make new SSE connection...`);
-
-        let uuid = localStorage.getItem('uuid');
-        if (uuid == null) {
-            uuid = create_UUID();
-            localStorage.setItem('uuid', uuid);
-        }
-
-        let mainTabUUID = window.name;
-        if (mainTabUUID == null || mainTabUUID === '') {
-            mainTabUUID = create_UUID();
-            window.name = mainTabUUID;
-        }
-
-        const force = isForce ? 1 : 0;
-        serverSentEventCon = new EventSource(
-            `${serverSentEventUrl}/${force}/${uuid}/${mainTabUUID}`,
-        );
-
-        serverSentEventCon.onerror = (err) => {
-            delayPostHeartBeat(RE_HEART_BEAT_MILLI);
-
-            if (!bc.onmessage) {
-                bc.onmessage = handleSSEMessage;
-            }
-            if (serverSentEventCon) {
-                serverSentEventCon.close();
-                consoleLogDebug(`[SSE] SSE connection closed`);
-            }
-        };
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.ping,
-            (event) => {
-                bc.postMessage({ type: channelType.heartBeat });
-                consoleLogDebug(
-                    `[SSE][Main] Broadcast: ${channelType.heartBeat}`,
-                );
-
-                delayPostHeartBeat(HEART_BEAT_MILLI);
-
-                if (!bc.onmessage) {
-                    bc.onmessage = handleSSEMessage;
-                }
-                // listenSSE();
-                notifyStatusSSE();
-            },
-            false,
-        );
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.timeout,
-            (event) => {
-                consoleLogDebug(`[SSE][Main] Server feedback: timeout`);
-            },
-            false,
-        );
-
-        serverSentEventCon.addEventListener(
-            serverSentEventType.closeOldSSE,
-            (event) => {
-                consoleLogDebug(`[SSE][Main] Server feedback: closeOldSSE`);
-                serverSentEventCon.close();
-                consoleLogDebug(`[SSE] SSE connection closed`);
-            },
-            false,
-        );
+    if (data != null) {
+        const dataStr = '\n' + JSON.stringify(data);
+        console.debug(msg, dataStr);
+        return;
     }
+    console.debug(msg);
 };
 
 const divideOptions = {
@@ -437,13 +215,14 @@ function handleEmptyFile(data) {
 function shutdownApp() {
     // show toastr to notify user
     showToastrMsg($(baseEles.i18nJobsStopped).text(), MESSAGE_LEVEL.INFO);
+    docCookies.setItem(keyPort('locale'), '', 0);
 
     // call API to shutdown app
     setTimeout(() => {
         fetch('/ap/api/setting/shutdown', {
             method: 'POST',
             headers: {
-                Accept: 'application/json',
+                'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({}),
@@ -465,224 +244,13 @@ function showGraphProgress(data) {
     }
 }
 
-// import job data type error notification
-const notifyStatusSSE = () => {
-    if (!serverSentEventCon) {
-        return;
-    }
-
-    // data type error
-    serverSentEventCon.addEventListener(
-        serverSentEventType.dataTypeErr,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.dataTypeErr}\n${event.data}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.dataTypeErr,
-                data: data,
-            });
-            handleError(data);
-        },
-        false,
-    );
-
-    // import empty file
-    serverSentEventCon.addEventListener(
-        serverSentEventType.emptyFile,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.emptyFile}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.emptyFile, data: data });
-            handleEmptyFile(data);
-        },
-        false,
-    );
-
-    // fetch pca data
-    serverSentEventCon.addEventListener(
-        serverSentEventType.pcaSensor,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.pcaSensor}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.pcaSensor, data: data });
-            if (typeof appendSensors !== 'undefined') {
-                appendSensors(data);
-            }
-        },
-        false,
-    );
-
-    // fetch show graph progress
-    serverSentEventCon.addEventListener(
-        serverSentEventType.showGraph,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.showGraph}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.showGraph, data: data });
-            if (typeof showGraphProgress !== 'undefined') {
-                showGraphProgress(data);
-            }
-        },
-        false,
-    );
-
-    // show warning/error message about disk usage
-    serverSentEventCon.addEventListener(
-        serverSentEventType.diskUsage,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.diskUsage}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.diskUsage, data: data });
-            if (typeof checkDiskCapacity !== 'undefined') {
-                checkDiskCapacity(data);
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.jobRun,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.jobRun}\n${event.data}`,
-            );
-            bc.postMessage({ type: serverSentEventType.jobRun, data: data });
-            if (typeof updateBackgroundJobs !== 'undefined') {
-                updateBackgroundJobs(data);
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.shutDown,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.shutDown}\n${true}`,
-            );
-            bc.postMessage({ type: serverSentEventType.shutDown, data: true });
-            if (typeof shutdownApp !== 'undefined') {
-                shutdownApp();
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.procLink,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.procLink}\n${true}`,
-            );
-            bc.postMessage({ type: serverSentEventType.procLink, data: true });
-            // calculate proc link count
-            if (typeof realProcLink !== 'undefined') {
-                realProcLink(false);
-                setTimeout(hideAlertMessages, 3000);
-            }
-
-            if (typeof handleSourceListener !== 'undefined') {
-                handleSourceListener();
-            }
-        },
-        false,
-    );
-
-    // for data register page
-    serverSentEventCon.addEventListener(
-        serverSentEventType.dataRegister,
-        (event) => {
-            const data = JSON.parse(event.data);
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`,
-            );
-            const postDat = {
-                type: serverSentEventType.dataRegister,
-                data: data,
-            };
-            bc.postMessage(postDat);
-            if (typeof updateDataRegisterStatus !== 'undefined') {
-                updateDataRegisterStatus(postDat);
-            }
-        },
-        false,
-    );
-    // serverSentEventCon.addEventListener(serverSentEventType.dataRegister, (event) => {
-    //     const data = JSON.parse(event.data);
-    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegister}\n${true}`);
-    //     const postDat = {type: serverSentEventType.dataRegister, data: data};
-    //     bc.postMessage(postDat);
-    //     if (typeof updateDataRegisterStatus !== 'undefined') {
-    //         updateDataRegisterStatus(postDat);
-    //     }
-    // }, false);
-    // serverSentEventCon.addEventListener(serverSentEventType.dataRegisterFinished, (event) => {
-    //     const data = JSON.parse(event.data);
-    //     consoleLogDebug(`[SSE][Main] Broadcast: ${serverSentEventType.dataRegisterFinished}\n${true}`);
-    //     const postDat = {type: serverSentEventType.dataRegisterFinished, data: data};
-    //     bc.postMessage(postDat);
-    //     if (typeof updateDataRegisterStatus !== 'undefined') {
-    //         updateDataRegisterStatus(postDat);
-    //     }
-    // }, false);
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.backupDataFinished,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.backupDataFinished}\n${true}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.backupDataFinished,
-                data: true,
-            });
-            // calculate proc link count
-            if (typeof showBackupDataFinishedToastr !== 'undefined') {
-                showBackupDataFinishedToastr();
-            }
-        },
-        false,
-    );
-
-    serverSentEventCon.addEventListener(
-        serverSentEventType.restoreDataFinished,
-        (event) => {
-            consoleLogDebug(
-                `[SSE][Main] Broadcast: ${serverSentEventType.restoreDataFinished}\n${true}`,
-            );
-            bc.postMessage({
-                type: serverSentEventType.restoreDataFinished,
-                data: true,
-            });
-            // calculate proc link count
-            if (typeof showRestoreDataFinishedToastr !== 'undefined') {
-                showRestoreDataFinishedToastr();
-            }
-        },
-        false,
-    );
-};
-
 const checkDiskCapacity = (data) => {
     const edgeServerType = 'EdgeServer';
 
     const isMarqueeMessageDisplay = () => {
         const serverTypeList = [edgeServerType];
         for (let i = 0; i < serverTypeList.length; i++) {
-            const marqueMsgElm = $(
-                `#marquee-msg-${serverTypeList[i].toLowerCase()}`,
-            );
+            const marqueMsgElm = $(`#marquee-msg-${serverTypeList[i].toLowerCase()}`);
             if (marqueMsgElm.text() !== '') return true;
         }
 
@@ -710,9 +278,7 @@ const checkDiskCapacity = (data) => {
             show_flag = 'hidden';
         }
 
-        const marqueMsgElm = $(
-            `#marquee-msg-${data.server_type.toLowerCase()}`,
-        );
+        const marqueMsgElm = $(`#marquee-msg-${data.server_type.toLowerCase()}`);
         const sidebarElm = marqueMsgElm.parents('.sidebar-marquee');
         const marqueeElm = marqueMsgElm.parents('.marquee');
 
@@ -739,9 +305,9 @@ const checkDiskCapacity = (data) => {
     }
 };
 
-const addAttributeToElement = (parent = null, additionalOption = {}) => {
+const addAttributeToElement = (parent = null, additionalOption = {}, optionsLoadLast = []) => {
     // single select2
-    setSelect2Selection(parent, additionalOption);
+    setSelect2Selection(parent, additionalOption, optionsLoadLast);
 
     // normalization
     convertTextH2Z(parent);
@@ -769,19 +335,13 @@ const collapseConfig = () => {
 };
 
 const toggleToMinIcon = (collapseId) => {
-    const ele = $(`#${collapseId}`)
-        .parents('.card')
-        .find('.collapse-box')
-        .find('.more-less');
+    const ele = $(`#${collapseId}`).parents('.card').find('.collapse-box').find('.more-less');
     ele.removeClass('fa-window-maximize');
     ele.addClass('fa-window-minimize');
 };
 
 const toggleToMaxIcon = (collapseId) => {
-    const ele = $(`#${collapseId}`)
-        .parents('.card')
-        .find('.collapse-box')
-        .find('.more-less');
+    const ele = $(`#${collapseId}`).parents('.card').find('.collapse-box').find('.more-less');
     ele.removeClass('fa-window-minimize');
     ele.addClass('fa-window-maximize');
 };
@@ -831,7 +391,7 @@ const baseRightClickHandler = (e) => {
 };
 
 const setUserRule = () => {
-    isAdmin = docCookies.getItem(CONST.IS_ADMIN);
+    isAdmin = docCookies.getItem(keyPort(CONST.IS_ADMIN));
     isAdmin = isAdmin ? parseInt(isAdmin) : false;
 };
 
@@ -880,7 +440,7 @@ const sidebarCollapseHandle = () => {
     // close sidebar after 2 secs
     $(sidebarEles.sid).on('mouseleave', () => {
         resetTimeoutEvent();
-        menuCollapse();
+        // menuCollapse();
         toutEnter = setTimeout(() => {
             clearTimeout(toutClick);
             if (isSidebarOpen()) closeSidebar();
@@ -898,6 +458,29 @@ const sidebarCollapseHandle = () => {
         // TODO when submenu is already expanded, mouse enter should not trigger toggle ....
     });
 };
+
+// Trigger sidebar search menu when pressing Ctrl + "/"
+$(document).on('keydown', function (event) {
+    if (event.ctrlKey && event.key === '/') {
+        // if modal overlaps sidebar
+        const modalZIdx = parseInt($('.modal:visible').css('z-index'));
+        const sidebarZIdx = parseInt($('#sidebar').css('z-index'));
+        if ($('.modal:visible').length && modalZIdx > sidebarZIdx) {
+            return;
+        }
+
+        if (!isSidebarOpen()) {
+            // open sidebar
+            sidebarCollapse();
+        } else if ($(sidebarEles.searchBox).is(':focus')) {
+            // if search box is focusing => collapse sidebar
+            sidebarCollapse();
+        } else {
+            // focus to searchBox
+            $(sidebarEles.searchBox).focus();
+        }
+    }
+});
 
 // mark as call page from tile interface, do not apply user setting
 const useTileInterface = (storageKey = 'isLoadingFromTitleInterface') => {
@@ -930,10 +513,7 @@ const isLoadingFromTitleInterface = useTileInterface().get();
 const isUseLatestSetting = useTileInterface('useLatestSetting').get();
 
 $(async () => {
-    isDirectFromJumpFunction = !!(
-        getParamFromUrl(goToFromJumpFunction) &&
-        localStorage.getItem(sortedColumnsKey)
-    );
+    isDirectFromJumpFunction = !!(getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey));
     isLoadingUserSetting = !!localStorage.getItem('loadingSetting');
     // hide userBookmarkBar
     $('#userBookmarkBar').hide();
@@ -947,9 +527,6 @@ $(async () => {
     SetAppEnv();
     getFiscalYearStartMonth();
 
-    // heart beat
-    // notifyStatusSSE();
-    openServerSentEvent();
     // click shutdown event
     $('body').click((e) => {
         if ($(e.target).closest(baseEles.shutdownApp).length) {
@@ -971,7 +548,7 @@ $(async () => {
             fetch('/ap/api/setting/stop_job', {
                 method: 'POST',
                 headers: {
-                    Accept: 'application/json',
+                    'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({}),
@@ -1044,9 +621,7 @@ $(async () => {
         const divTarget = e.currentTarget.closest('.card-body');
         // console.log(divTarget);
 
-        const sharedSetting = JSON.parse(
-            localStorage.getItem(SHARED_USER_SETTING),
-        );
+        const sharedSetting = JSON.parse(localStorage.getItem(SHARED_USER_SETTING));
         useUserSetting(null, sharedSetting, divTarget, false, true);
 
         setTimeout(() => {
@@ -1055,12 +630,9 @@ $(async () => {
     });
 
     $('[name=pastePage]').click((e) => {
-        const key = e?.isDirectFromJumpFunction
-            ? JUMP_SHARED_USER_SETTING
-            : SHARED_USER_SETTING;
+        const key = e?.isDirectFromJumpFunction ? JUMP_SHARED_USER_SETTING : SHARED_USER_SETTING;
         const localShareSetting = getLocalStorageShareUserSetting(key);
-        const sharedSetting =
-            localShareSetting?.settings?.traceDataForm || null;
+        const sharedSetting = localShareSetting?.settings?.traceDataForm || null;
         useUserSetting(null, sharedSetting, null, false, true);
 
         setTimeout(() => {
@@ -1081,9 +653,7 @@ $(async () => {
                 isJump: isCopyFromJumpModel,
             }),
         );
-        const keyName = isCopyFromJumpModel
-            ? JUMP_SHARED_USER_SETTING
-            : SHARED_USER_SETTING;
+        const keyName = isCopyFromJumpModel ? JUMP_SHARED_USER_SETTING : SHARED_USER_SETTING;
         const loadFunc = saveLoadUserInput(`#${formId}`, '', '', keyName);
         loadFunc(false);
         setTooltip($(this), $(baseEles.i18nCopied).text());
@@ -1115,15 +685,12 @@ $(async () => {
         }
     });
 
-    showBrowserSupportMsg();
-
     initCustomSelect();
 
     // update tooltips status
     // default is show tooltips on graph
     // true || null: show, false: hide
-    const tooltipsStatus =
-        JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
+    const tooltipsStatus = JSON.parse(localStorage.getItem('tooltipsEnabled')) !== false;
     $(baseEles.tooltipsEnableBtn).prop('checked', tooltipsStatus).change();
 });
 
@@ -1180,22 +747,10 @@ const initTargetPeriod = () => {
     showDateTimeRangeValue();
 
     // validate and change to default and max value cyclic term
-    validateInputByNameWithOnchange(
-        CYCLIC_TERM.WINDOW_LENGTH,
-        CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX,
-    );
-    validateInputByNameWithOnchange(
-        CYCLIC_TERM.INTERVAL,
-        CYCLIC_TERM.INTERVAL_MIN_MAX,
-    );
-    validateInputByNameWithOnchange(
-        CYCLIC_TERM.DIV_OFFSET,
-        CYCLIC_TERM.DIV_OFFSET_MIN_MAX,
-    );
-    validateInputByNameWithOnchange(
-        CYCLIC_TERM.RECENT_INTERVAL,
-        CYCLIC_TERM.TIME_UNIT,
-    );
+    validateInputByNameWithOnchange(CYCLIC_TERM.WINDOW_LENGTH, CYCLIC_TERM.WINDOW_LENGTH_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.INTERVAL, CYCLIC_TERM.INTERVAL_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.DIV_OFFSET, CYCLIC_TERM.DIV_OFFSET_MIN_MAX);
+    validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, CYCLIC_TERM.TIME_UNIT);
 
     setTimeout(() => {
         $('input[type=text]').trigger('change');
@@ -1247,12 +802,7 @@ const searchTableContent = (tbID, value, isFilter = true) => {
                     text += searchClass.text();
                 }
 
-                if (
-                    textArea.length === 0 &&
-                    input.length === 0 &&
-                    selects.length === 0 &&
-                    searchClass.length === 0
-                ) {
+                if (textArea.length === 0 && input.length === 0 && selects.length === 0 && searchClass.length === 0) {
                     text += $(td).text();
                 }
             });
@@ -1288,16 +838,12 @@ const handleChangeInterval = (e, to) => {
             currentShower = $('#for-fromTo');
         }
         if (e.value === 'default') {
-            $('.for-recent-cyclicCalender')
-                .find('input')
-                .prop('disabled', true);
+            $('.for-recent-cyclicCalender').find('input').prop('disabled', true);
             $('.for-recent-cyclicCalender').addClass('hide');
             $('.for-recent-cyclicCalender').hide();
         }
         if (e.value === 'recent') {
-            $('.for-recent-cyclicCalender')
-                .find('input')
-                .prop('disabled', false);
+            $('.for-recent-cyclicCalender').find('input').prop('disabled', false);
             $('.for-recent-cyclicCalender').removeClass('hide');
             $('.for-recent-cyclicCalender').show();
         }
@@ -1372,44 +918,27 @@ const handleOnfocusEmptyDatetimeRange = (e) => {
     const _this = $(e);
     const value = _this.val();
     if (value) return;
-    const aboveSiblingValue = _this
-        .parent()
-        .prev()
-        .find('input[name=DATETIME_RANGE_PICKER]')
-        .val();
+    const aboveSiblingValue = _this.parent().prev().find('input[name=DATETIME_RANGE_PICKER]').val();
     _this.attr('old-value', aboveSiblingValue);
     _this.val(aboveSiblingValue).trigger('change');
 };
 
 const removeUnusedDate = () => {
     // remove extra date
-    const dateGroups = $('.datetimerange-group').find(
-        '[name=DATETIME_RANGE_PICKER]',
-    );
+    const dateGroups = $('.datetimerange-group').find('[name=DATETIME_RANGE_PICKER]');
     dateGroups.each((i, el) => {
         const val = el.value;
         if (!val) {
-            $(el)
-                .closest('.datetimerange-group')
-                .find('.remove-date')
-                .trigger('click');
+            $(el).closest('.datetimerange-group').find('.remove-date').trigger('click');
         }
     });
 };
 
-const getDateTimeRangeValue = (
-    tab = null,
-    traceTimeName = 'varTraceTime',
-    forDivision = true,
-) => {
+const getDateTimeRangeValue = (tab = null, traceTimeName = 'varTraceTime', forDivision = true) => {
     const currentTab = tab || $('select[name=compareType]').val();
     let result = '';
 
-    if (
-        ['var', 'category', 'dataNumberTerm', 'cyclicCalender'].includes(
-            currentTab,
-        )
-    ) {
+    if (['var', 'category', 'dataNumberTerm', 'cyclicCalender'].includes(currentTab)) {
         result = calDateTimeRangeForVar(currentTab, traceTimeName, forDivision);
         if (result.trim() === DATETIME_PICKER_SEPARATOR.trim()) {
             result = `${DEFAULT_START_DATETIME}${DATETIME_PICKER_SEPARATOR}${DEFAULT_END_DATETIME}`;
@@ -1421,16 +950,10 @@ const getDateTimeRangeValue = (
     }
 
     if (currentTab === 'cyclicCalender') {
-        const currentTargetDiv = forDivision
-            ? $(`#for-${currentTab}`)
-            : $('#target-period-wrapper');
+        const currentTargetDiv = forDivision ? $(`#for-${currentTab}`) : $('#target-period-wrapper');
         // format by divide format
-        const isLatest =
-            currentTargetDiv.find(`[name*=${traceTimeName}]:checked`).val() ===
-            TRACE_TIME_CONST.RECENT;
-        const currentDivFormat = $(
-            `input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`,
-        ).val();
+        const isLatest = currentTargetDiv.find(`[name*=${traceTimeName}]:checked`).val() === TRACE_TIME_CONST.RECENT;
+        const currentDivFormat = $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`).val();
         if (currentDivFormat) {
             const offset = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).val();
             const { from, to, div } = dividedByCalendar(
@@ -1448,9 +971,7 @@ const getDateTimeRangeValue = (
     }
     $('#datetimeRangeShowValue').text(result);
     $(`#${currentTab}-daterange`).text(result);
-    changeFormatAndExample(
-        $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`),
-    );
+    changeFormatAndExample($(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`));
     return result;
 };
 
@@ -1465,24 +986,12 @@ const handleChangeUpdateTimeRange = () => {
     compareSettingChange();
 };
 
-const calDateTimeRangeForVar = (
-    currentTab,
-    traceTimeName = 'varTraceTime',
-    forDivision = true,
-) => {
-    const currentTargetDiv = forDivision
-        ? $(`#for-${currentTab}`)
-        : $('#target-period-wrapper');
-    const traceOption = currentTargetDiv
-        .find(`[name*=${traceTimeName}]:checked`)
-        .val();
-    const dateTimeRange = currentTargetDiv
-        .find('[name=DATETIME_RANGE_PICKER]')
-        .val();
-    const { startDate, startTime, endDate, endTime } =
-        splitDateTimeRange(dateTimeRange);
-    const recentTimeInterval =
-        currentTargetDiv.find('[name=recentTimeInterval]').val() || 24;
+const calDateTimeRangeForVar = (currentTab, traceTimeName = 'varTraceTime', forDivision = true) => {
+    const currentTargetDiv = forDivision ? $(`#for-${currentTab}`) : $('#target-period-wrapper');
+    const traceOption = currentTargetDiv.find(`[name*=${traceTimeName}]:checked`).val();
+    const dateTimeRange = currentTargetDiv.find('[name=DATETIME_RANGE_PICKER]').val();
+    const { startDate, startTime, endDate, endTime } = splitDateTimeRange(dateTimeRange);
+    const recentTimeInterval = currentTargetDiv.find('[name=recentTimeInterval]').val() || 24;
     const timeUnit = currentTargetDiv.find('[name=timeUnit]').val() || 60;
 
     if (traceOption === TRACE_TIME_CONST.RECENT) {
@@ -1494,101 +1003,45 @@ const calDateTimeRangeForVar = (
 const calDateTimeRangeForCyclic = (currentTab) => {
     const currentTargetDiv = $(`#for-${currentTab}`);
 
-    const traceTimeOption = currentTargetDiv
-        .find('[name=cyclicTermTraceTime1]:checked')
-        .val();
+    const traceTimeOption = currentTargetDiv.find('[name=cyclicTermTraceTime1]:checked').val();
     const divisionNum = currentTargetDiv.find('[name=cyclicTermDivNum]').val();
-    const intervalNum = currentTargetDiv
-        .find('[name=cyclicTermInterval]')
-        .val();
-    const windowsLengthNum = currentTargetDiv
-        .find('[name=cyclicTermWindowLength]')
-        .val();
+    const intervalNum = currentTargetDiv.find('[name=cyclicTermInterval]').val();
+    const windowsLengthNum = currentTargetDiv.find('[name=cyclicTermWindowLength]').val();
     const datetime = currentTargetDiv.find('[name=DATETIME_PICKER]').val();
     const { date, time } = splitDateTime(datetime);
 
-    const targetDate =
-        traceTimeOption === TRACE_TIME_CONST.RECENT
-            ? moment().format('YYYY-MM-DD')
-            : date;
-    const targetTime =
-        traceTimeOption === TRACE_TIME_CONST.RECENT
-            ? moment().format('HH:mm')
-            : time;
+    const targetDate = traceTimeOption === TRACE_TIME_CONST.RECENT ? moment().format('YYYY-MM-DD') : date;
+    const targetTime = traceTimeOption === TRACE_TIME_CONST.RECENT ? moment().format('HH:mm') : time;
 
     const [startTimeRange, endTimeRange] =
         traceTimeOption === TRACE_TIME_CONST.FROM
-            ? getEndTimeRange(
-                  targetDate,
-                  targetTime,
-                  divisionNum,
-                  intervalNum,
-                  windowsLengthNum,
-              )
-            : getStartTimeRange(
-                  traceTimeOption,
-                  targetDate,
-                  targetTime,
-                  divisionNum,
-                  intervalNum,
-                  windowsLengthNum,
-              );
+            ? getEndTimeRange(targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum)
+            : getStartTimeRange(traceTimeOption, targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum);
 
     return `${startTimeRange[0]} ${startTimeRange[1]}${DATETIME_PICKER_SEPARATOR}${endTimeRange[0]} ${endTimeRange[1]}`;
 };
 
-const getEndTimeRange = (
-    targetDate,
-    targetTime,
-    divisionNum,
-    intervalNum,
-    windowsLengthNum,
-) => {
+const getEndTimeRange = (targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum) => {
     const MILSEC = 60 * 60 * 1000;
     const startDateTimeMil = moment(`${targetDate} ${targetTime}`).valueOf();
-    const endDateTimeMil =
-        startDateTimeMil +
-        (divisionNum - 1) * intervalNum * MILSEC +
-        windowsLengthNum * MILSEC;
+    const endDateTimeMil = startDateTimeMil + (divisionNum - 1) * intervalNum * MILSEC + windowsLengthNum * MILSEC;
 
     return [
         [targetDate, targetTime],
-        [
-            moment(endDateTimeMil).format(DATE_FORMAT),
-            moment(endDateTimeMil).format(TIME_FORMAT),
-        ],
+        [moment(endDateTimeMil).format(DATE_FORMAT), moment(endDateTimeMil).format(TIME_FORMAT)],
     ];
 };
-const getStartTimeRange = (
-    traceTimeOpt,
-    targetDate,
-    targetTime,
-    divisionNum,
-    intervalNum,
-    windowsLengthNum,
-) => {
+const getStartTimeRange = (traceTimeOpt, targetDate, targetTime, divisionNum, intervalNum, windowsLengthNum) => {
     const MILSEC = 60 * 60 * 1000;
     const endDateTimeMil = moment(`${targetDate} ${targetTime}`).valueOf();
-    const startDateTimeMil =
-        endDateTimeMil -
-        (divisionNum - 1) * intervalNum * MILSEC -
-        windowsLengthNum * MILSEC;
+    const startDateTimeMil = endDateTimeMil - (divisionNum - 1) * intervalNum * MILSEC - windowsLengthNum * MILSEC;
 
     // default as RECENT type
-    let endTimeRange = [
-        moment().format(DATE_FORMAT),
-        moment().format(TIME_FORMAT),
-    ];
+    let endTimeRange = [moment().format(DATE_FORMAT), moment().format(TIME_FORMAT)];
     if (traceTimeOpt === TRACE_TIME_CONST.TO) {
         endTimeRange = [targetDate, targetTime];
     }
-    return [
-        [
-            moment(startDateTimeMil).format(DATE_FORMAT),
-            moment(startDateTimeMil).format(TIME_FORMAT),
-        ],
-        endTimeRange,
-    ];
+    return [[moment(startDateTimeMil).format(DATE_FORMAT), moment(startDateTimeMil).format(TIME_FORMAT)], endTimeRange];
 };
 
 const calDateTimeRangeForDirectTerm = (currentTab) => {
@@ -1607,12 +1060,8 @@ const calDateTimeRangeForDirectTerm = (currentTab) => {
 
     const [minOfStart] = findMinMax(starts);
     const [, maxOfEnd] = findMinMax(ends);
-    const minDate = minOfStart
-        ? moment(Math.min(...starts)).format(DATETIME_PICKER_FORMAT)
-        : '';
-    const maxDate = maxOfEnd
-        ? moment(Math.max(...ends)).format(DATETIME_PICKER_FORMAT)
-        : '';
+    const minDate = minOfStart ? moment(Math.min(...starts)).format(DATETIME_PICKER_FORMAT) : '';
+    const maxDate = maxOfEnd ? moment(Math.max(...ends)).format(DATETIME_PICKER_FORMAT) : '';
 
     return `${minDate}${DATETIME_PICKER_SEPARATOR}${maxDate}`;
 };
@@ -1658,12 +1107,7 @@ const showCustomContextMenu = (plotDOM, positivePointOnly = false) => {
         setTimeout(() => {
             var pts = '';
             for (var i = 0; i < plotViewData.points.length; i++) {
-                pts =
-                    'x = ' +
-                    plotViewData.points[i].x +
-                    '\ny = ' +
-                    plotViewData.points[i].y.toPrecision(4) +
-                    '\n\n';
+                pts = 'x = ' + plotViewData.points[i].x + '\ny = ' + plotViewData.points[i].y.toPrecision(4) + '\n\n';
             }
             scpSelectedPoint = {
                 point_index: plotViewData.points[0].pointNumber,
@@ -1675,20 +1119,13 @@ const showCustomContextMenu = (plotDOM, positivePointOnly = false) => {
                     : scpCustomData.sensor_id_x,
             };
             // customdata
-            const hasCycleIds = Object.keys(
-                plotViewData.points[0].data,
-            ).includes('customdata')
-                ? Object.keys(plotViewData.points[0].data.customdata).includes(
-                      'cycle_ids',
-                  )
+            const hasCycleIds = Object.keys(plotViewData.points[0].data).includes('customdata')
+                ? Object.keys(plotViewData.points[0].data.customdata).includes('cycle_ids')
                 : false;
             if (hasCycleIds) {
-                scpSelectedPoint.cycle_ids =
-                    plotViewData.points[0].data.customdata.cycle_ids;
+                scpSelectedPoint.cycle_ids = plotViewData.points[0].data.customdata.cycle_ids;
             }
-            const isFromMarkers = plotViewData.points.length
-                ? plotViewData.points[0].data.type === 'scatter'
-                : false;
+            const isFromMarkers = plotViewData.points.length ? plotViewData.points[0].data.type === 'scatter' : false;
             if (isFromMarkers) {
                 rightClickHandler(plotViewData.event, '#contextMenuTimeSeries');
             }
@@ -1737,21 +1174,14 @@ const handleSelectedPlotView = () => {
             ? scpSelectedPoint.cycle_ids[scpSelectedPoint.point_index]
             : currentTraceData.cycle_ids[scpSelectedPoint.point_index];
         const sensorDat = currentTraceData.array_plotdata.filter(
-            (i) =>
-                i.end_col_id == scpSelectedPoint.sensor_id_x &&
-                i.end_proc_id == scpSelectedPoint.proc_id_x,
+            (i) => i.end_col_id == scpSelectedPoint.sensor_id_x && i.end_proc_id == scpSelectedPoint.proc_id_x,
         );
         if ('array_x' in sensorDat[0]) {
             xTime = sensorDat[0].array_x[scpSelectedPoint.point_index];
         } else {
             xTime = currentTraceData.datetime[scpSelectedPoint.point_index];
         }
-        const timeKeys = [
-            CONST.STARTDATE,
-            CONST.STARTTIME,
-            CONST.ENDDATE,
-            CONST.ENDTIME,
-        ];
+        const timeKeys = [CONST.STARTDATE, CONST.STARTTIME, CONST.ENDDATE, CONST.ENDTIME];
         // pca use testing time only
         timeKeys.forEach((timeKey) => {
             const values = formDataQueried.getAll(timeKey);
@@ -1780,9 +1210,7 @@ const initCommonSearchInput = (inputElement, className = '') => {
     // common-search-input
     if (inputElement.closest('.deleteicon').length) return;
 
-    inputElement
-        .wrap(`<span class="deleteicon ${className}"></span>`)
-        .after($('<span class="remove-search">x</span>'));
+    inputElement.wrap(`<span class="deleteicon ${className}"></span>`).after($('<span class="remove-search">x</span>'));
 
     $('.remove-search').off('click');
     $('.remove-search').on('click', function () {
@@ -1819,12 +1247,8 @@ const keepValueEachDivision = () => {
         // get value of oldDivision
         const oldParentEl = $(`#for-${oldDivision}`);
         dateRange = $(`#${oldDivision}-daterange`).text();
-        traceOption = oldParentEl
-            .find('input[name*=raceTime]:is(:checked)')
-            .val();
-        autoUpdate = oldParentEl
-            .find('input[name=autoUpdateInterval]')
-            .is(':checked');
+        traceOption = oldParentEl.find('input[name*=raceTime]:is(:checked)').val();
+        autoUpdate = oldParentEl.find('input[name=autoUpdateInterval]').is(':checked');
 
         // assign new value to current division
         const division = $(e.currentTarget).val();
@@ -1838,32 +1262,19 @@ const keepValueEachDivision = () => {
             }
 
             const startDate = dateRange.split(DATETIME_PICKER_SEPARATOR)[0];
-            parentEl
-                .find('input[name=DATETIME_PICKER]')
-                .val(startDate)
-                .trigger('change');
+            parentEl.find('input[name=DATETIME_PICKER]').val(startDate).trigger('change');
         } else if (isDirectTerm) {
             traceOption = TRACE_TIME_CONST.DEFAULT;
-            $(parentEl.find('input[name=DATETIME_RANGE_PICKER]')[0])
-                .val(dateRange)
-                .trigger('change');
+            $(parentEl.find('input[name=DATETIME_RANGE_PICKER]')[0]).val(dateRange).trigger('change');
         } else {
             if (traceOption !== TRACE_TIME_CONST.RECENT) {
                 traceOption = TRACE_TIME_CONST.DEFAULT;
-                parentEl
-                    .find('input[name=DATETIME_RANGE_PICKER]')
-                    .val(dateRange)
-                    .trigger('change');
+                parentEl.find('input[name=DATETIME_RANGE_PICKER]').val(dateRange).trigger('change');
             }
         }
 
-        parentEl
-            .find(`input[name*=raceTime][value=${traceOption}]`)
-            .prop('checked', true)
-            .trigger('change');
-        parentEl
-            .find('input[name=autoUpdateInterval]')
-            .prop('checked', autoUpdate);
+        parentEl.find(`input[name*=raceTime][value=${traceOption}]`).prop('checked', true).trigger('change');
+        parentEl.find('input[name=autoUpdateInterval]').prop('checked', autoUpdate);
 
         oldDivision = division;
     });
@@ -1872,11 +1283,7 @@ const keepValueEachDivision = () => {
 const updateCleansing = (inputEle) => {
     const selectedLabel = $('#cleansing-selected');
     const cleansingValues = uniq(
-        [
-            ...$('#cleansing-content').find(
-                'input[type=checkbox]:is(:checked)',
-            ),
-        ].map((el) => $(el).attr('show-value')),
+        [...$('#cleansing-content').find('input[type=checkbox]:is(:checked)')].map((el) => $(el).attr('show-value')),
     );
     let dupValue = $('#cleansing-content')
         .find('select option:selected')
@@ -1890,8 +1297,7 @@ const updateCleansing = (inputEle) => {
     if (dupValue) {
         cleansingValues.push(...dupValue);
     }
-    const selectedValues =
-        cleansingValues.length > 0 ? `[${cleansingValues.join('')}]` : '';
+    const selectedValues = cleansingValues.length > 0 ? `[${cleansingValues.join('')}]` : '';
     selectedLabel.text(selectedValues);
     $('input[name=cleansing]').val(selectedValues);
 };
@@ -1901,13 +1307,9 @@ const cleansingHandling = () => {
     $('.custom-selection')
         .off('click')
         .on('click', (e) => {
-            const contentDOM = $(e.target)
-                .closest('.custom-selection-section')
-                .find('.custom-selection-content');
+            const contentDOM = $(e.target).closest('.custom-selection-section').find('.custom-selection-content');
             const contentIsShowed = contentDOM.is(':visible');
-            const selectContent = document.getElementById(
-                'cyclicCalender-content',
-            );
+            const selectContent = document.getElementById('cyclicCalender-content');
             if (contentIsShowed) {
                 contentDOM.hide();
             } else {
@@ -1919,14 +1321,9 @@ const cleansingHandling = () => {
         });
     window.addEventListener('click', function (e) {
         const orderingContentDOM = document.getElementById('ordering-content');
-        const orderingSelectiontDOM =
-            document.getElementById('ordering-selection');
-        const inOrderingContent = orderingContentDOM
-            ? orderingContentDOM.contains(e.target)
-            : false;
-        const inOrderingSelection = orderingSelectiontDOM
-            ? orderingSelectiontDOM.contains(e.target)
-            : false;
+        const orderingSelectiontDOM = document.getElementById('ordering-selection');
+        const inOrderingContent = orderingContentDOM ? orderingContentDOM.contains(e.target) : false;
+        const inOrderingSelection = orderingSelectiontDOM ? orderingSelectiontDOM.contains(e.target) : false;
         if (!inOrderingContent && !inOrderingSelection) {
             $('#ordering-content').hide();
         }
@@ -1935,26 +1332,17 @@ const cleansingHandling = () => {
             $('.dn-custom-select--select--list').addClass('select-hide');
         }
 
-        if (
-            !e.target.closest('.custom-selection-content') &&
-            !e.target.closest('.custom-selection')
-        ) {
+        if (!e.target.closest('.custom-selection-content') && !e.target.closest('.custom-selection')) {
             $('.custom-selection-content').hide();
         }
 
         // hide single calendar
-        if (
-            !e.target.closest('.single-calendar') &&
-            !e.target.closest('.showSingleCalendar')
-        ) {
+        if (!e.target.closest('.single-calendar') && !e.target.closest('.showSingleCalendar')) {
             $('.single-calendar').hide();
         }
 
         // hide single calendar
-        if (
-            !e.target.closest('.config-data-type-dropdown') &&
-            !e.target.closest('.config-data-type-dropdown button')
-        ) {
+        if (!e.target.closest('.config-data-type-dropdown') && !e.target.closest('.config-data-type-dropdown button')) {
             $('.data-type-selection').hide();
         }
     });
@@ -1978,13 +1366,7 @@ const setOutlierCount = (outliers) => {
     }
 };
 
-const showGraphCallApi = async (
-    url,
-    formData,
-    timeOut,
-    callback,
-    additionalOption = {},
-) => {
+const showGraphCallApi = async (url, formData, timeOut, callback, additionalOption = {}) => {
     if (!requestStartedAt) {
         requestStartedAt = performance.now();
     }
@@ -1997,8 +1379,7 @@ const showGraphCallApi = async (
     }
 
     // set req_id and filter on-demand value if there is option_id in URL params
-    const { req_id, bookmark_id, option_id, loadGUIFromURL, func, latest } =
-        getRequestParamsForShowGraph();
+    const { req_id, bookmark_id, option_id, loadGUIFromURL, func, latest } = getRequestParamsForShowGraph();
 
     if (req_id) {
         formData.set('req_id', req_id);
@@ -2007,13 +1388,10 @@ const showGraphCallApi = async (
             // loadGUIFromURL mean the request from /dn7 external API. We will save info of page and setting to create a bookmark from API
             const settingData = getUserSettingData();
             if (latest) {
-                const position = settingData
-                    .map((object) => object.id)
-                    .indexOf('datetimeRangePicker');
+                const position = settingData.map((object) => object.id).indexOf('datetimeRangePicker');
                 const startDatetime = `${formatDateTime(`${formData.get(CONST.STARTDATE)} ${formData.get(CONST.STARTTIME)}`, DATE_TIME_FMT)}`;
                 const endDatetime = `${formatDateTime(`${formData.get(CONST.ENDDATE)} ${formData.get(CONST.ENDTIME)}`, DATE_TIME_FMT)}`;
-                settingData[position].value =
-                    `${startDatetime}${DATETIME_PICKER_SEPARATOR}${endDatetime}`;
+                settingData[position].value = `${startDatetime}${DATETIME_PICKER_SEPARATOR}${endDatetime}`;
             }
             const params = {
                 settings: {
@@ -2032,11 +1410,7 @@ const showGraphCallApi = async (
 
     if (option_id) {
         // get option from db
-        const option = await fetchData(
-            `/ap/api/v1/option?option_id=${option_id}`,
-            {},
-            'GET',
-        );
+        const option = await fetchData(`/ap/api/v1/option?option_id=${option_id}`, {}, 'GET');
         if (option) {
             const { od_filter } = JSON.parse(option.option);
             if (od_filter) {
@@ -2109,10 +1483,7 @@ const showGraphCallApi = async (
                 isGraphShown = true;
 
                 // hide loading inside ajax
-                setTimeout(
-                    loadingHide,
-                    loadingHideDelayTime(res.actual_record_number),
-                );
+                setTimeout(loadingHide, loadingHideDelayTime(res.actual_record_number));
 
                 // move invalid filter
                 setColorAndSortHtmlEle(
@@ -2168,41 +1539,24 @@ const showGraphCallApi = async (
                         // click show graph
                         problematicPCAData = {
                             train_data: {
-                                null_percent:
-                                    resJson.json_errors.train_data
-                                        .null_percent || {},
-                                zero_variance:
-                                    resJson.json_errors.train_data
-                                        .zero_variance || {},
-                                selected_vars:
-                                    resJson.json_errors.train_data
-                                        .selected_vars,
+                                null_percent: resJson.json_errors.train_data.null_percent || {},
+                                zero_variance: resJson.json_errors.train_data.zero_variance || {},
+                                selected_vars: resJson.json_errors.train_data.selected_vars,
                             },
                             target_data: {
-                                null_percent:
-                                    resJson.json_errors.target_data
-                                        .null_percent || {},
-                                zero_variance:
-                                    resJson.json_errors.target_data
-                                        .zero_variance || [],
-                                selected_vars:
-                                    resJson.json_errors.target_data
-                                        .selected_vars,
+                                null_percent: resJson.json_errors.target_data.null_percent || {},
+                                zero_variance: resJson.json_errors.target_data.zero_variance || [],
+                                selected_vars: resJson.json_errors.target_data.selected_vars,
                             },
                         };
                         reselectCallback = reselectPCAData;
                     }
 
-                    const trainDataErrors =
-                        resJson.json_errors.train_data.errors || [];
-                    const targetDataErrors =
-                        resJson.json_errors.target_data.errors || [];
+                    const trainDataErrors = resJson.json_errors.train_data.errors || [];
+                    const targetDataErrors = resJson.json_errors.target_data.errors || [];
 
                     showToastr(resJson.json_errors);
-                    if (
-                        problematicPCAData &&
-                        (trainDataErrors.length || targetDataErrors.length)
-                    ) {
+                    if (problematicPCAData && (trainDataErrors.length || targetDataErrors.length)) {
                         showRemoveProblematicColsMdl(problematicPCAData, true);
                     }
                     return;
@@ -2227,19 +1581,13 @@ const generateCalenderExample = () => {
     if (!calenderCyclicItems || !calenderCyclicItems.length) return;
     for (let i = 0; i < calenderCyclicItems.length; i += 1) {
         const calenderCyclicItem = $(calenderCyclicItems[i]);
-        let format = calenderCyclicItem
-            .find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`)
-            .val();
+        let format = calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).val();
         if (!format) continue;
 
         const example = getExampleFormatOfDate(targetDateTimeStr, format);
 
-        calenderCyclicItem
-            .find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`)
-            .attr('data-example', example);
-        calenderCyclicItem
-            .find('.cyclic-calender-option-example')
-            .text(example);
+        calenderCyclicItem.find(`input[name=${CYCLIC_TERM.DIV_CALENDER}]`).attr('data-example', example);
+        calenderCyclicItem.find('.cyclic-calender-option-example').text(example);
     }
 };
 
@@ -2276,9 +1624,7 @@ const changeFormatAndExample = (formatEl) => {
 
     // hide offset input when hour is selected
     const unit = currentTarget.attr('data-unit');
-    const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`)
-        .parent()
-        .hasClass('hide');
+    const offsetIsDisabled = $(`input[name=${CYCLIC_TERM.DIV_OFFSET}]`).parent().hasClass('hide');
     if (!offsetIsDisabled) {
         if (unit === DivideFormatUnit.Hour) {
             $('.for-recent-cyclicCalender').hide();
@@ -2290,9 +1636,7 @@ const changeFormatAndExample = (formatEl) => {
 
 const handleTimeUnitOnchange = (e) => {
     const _this = $(e);
-    const selectedOption = _this
-        .find(`option[value=${_this.val()}]`)
-        .attr('data-key');
+    const selectedOption = _this.find(`option[value=${_this.val()}]`).attr('data-key');
     // set default value of time unit by selected option
     const selectedTimeUnit = TIME_UNIT[selectedOption];
     const timeInput = $(`[name=${CYCLIC_TERM.RECENT_INTERVAL}]`);
@@ -2300,25 +1644,13 @@ const handleTimeUnitOnchange = (e) => {
         timeInput.val(selectedTimeUnit.DEFAULT).trigger('change');
     }
     CYCLIC_TERM.TIME_UNIT = selectedTimeUnit;
-    validateInputByNameWithOnchange(
-        CYCLIC_TERM.RECENT_INTERVAL,
-        selectedTimeUnit,
-    );
+    validateInputByNameWithOnchange(CYCLIC_TERM.RECENT_INTERVAL, selectedTimeUnit);
     showDateTimeRangeValue();
 };
 
 const collapsingTiles = (collapsing = true) => {
     const toggle = collapsing ? 'hide' : 'show';
     $('.section-content').collapse(toggle);
-};
-
-const showBrowserSupportMsg = () => {
-    if (isBrowserInvalidVersion && isBrowserInvalidVersion == '1') {
-        const msg = $('#i18nBrowserInvalidVersion')
-            .text()
-            .replace('BREAK_LINE', '<br>');
-        showToastrMsg(msg);
-    }
 };
 
 const getParamFromUrl = (paramKey) => {
@@ -2334,7 +1666,7 @@ const getRequestParamsForShowGraph = () => {
     const optionId = getParamFromUrl('option_id');
     let columns = getParamFromUrl('columns');
     const objective = getParamFromUrl('objective');
-    const func = getParamFromUrl('function');
+    const func = getParamFromUrl('function') || window.location.pathname.split('/').pop();
     let procs = getParamFromUrl('end_procs');
     const loadGUIFromURL = !!getParamFromUrl('load_gui_from_url');
     const latest = getParamFromUrl('latest');
@@ -2380,12 +1712,9 @@ const getRequestParamsForShowGraph = () => {
 };
 
 const modifyGUIInput = () => {
-    let { start_datetime, end_datetime, bookmark_id, datetimeRange, latest } =
-        getRequestParamsForShowGraph();
+    let { start_datetime, end_datetime, bookmark_id, datetimeRange, latest } = getRequestParamsForShowGraph();
     if (start_datetime && end_datetime && bookmark_id) {
-        const dateTimeRangeInput = $(
-            'input[name=DATETIME_RANGE_PICKER]:not(:disabled)',
-        );
+        const dateTimeRangeInput = $('input[name=DATETIME_RANGE_PICKER]:not(:disabled)');
         const dateTimeInput = $('input[name=DATETIME_PICKER]:not(:disabled)');
 
         if (dateTimeRangeInput.length) {
@@ -2396,18 +1725,10 @@ const modifyGUIInput = () => {
     }
 
     if (latest) {
-        $('input[name=traceTime][value=recent]')
-            .prop('checked', true)
-            .trigger('change');
-        $('input[name=cyclicTermTraceTime1][value=recent]')
-            .prop('checked', true)
-            .trigger('change');
-        $('input[name=varTraceTime1][value=recent]')
-            .prop('checked', true)
-            .trigger('change');
-        $('input[name=varTraceTime2][value=recent]')
-            .prop('checked', true)
-            .trigger('change');
+        $('input[name=traceTime][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=cyclicTermTraceTime1][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=varTraceTime1][value=recent]').prop('checked', true).trigger('change');
+        $('input[name=varTraceTime2][value=recent]').prop('checked', true).trigger('change');
         $('input[name=autoUpdateInterval]').prop('checked', true);
         $('select[name=timeUnit]').val('60').trigger('change');
         $('input[name=recentTimeInterval]').val(latest);
@@ -2415,17 +1736,8 @@ const modifyGUIInput = () => {
 };
 
 const makeUserSettingFromParams = async () => {
-    let {
-        datetimeRange,
-        objective,
-        columns,
-        endProcs,
-        start_datetime,
-        latest,
-        facet,
-        filter,
-        div,
-    } = getRequestParamsForShowGraph();
+    let { datetimeRange, objective, columns, endProcs, start_datetime, latest, facet, filter, div } =
+        getRequestParamsForShowGraph();
     const settings = [];
     const divideOption = $('select[name=compareType]');
     if (divideOption.length) {
@@ -2522,7 +1834,7 @@ const makeUserSettingFromParams = async () => {
                 settings.push({
                     id: `catExpItem-${div}`,
                     name: 'catExpBox',
-                    value: 3,
+                    value: String(3),
                     type: 'select',
                 });
             }
@@ -2533,7 +1845,7 @@ const makeUserSettingFromParams = async () => {
                 const column = cfgProcess.getColumnById(filterCol);
                 if (!column) continue;
                 settings.push({
-                    id: `categoryLabel-${filterCol}`,
+                    id: `categoryFilter-${filterCol}`,
                     checked: true,
                     name: `GET02_CATE_SELECT${index}`,
                     value: `${filterCol}`,
@@ -2644,20 +1956,14 @@ const onSearchNominalScale = () => {
     $('#setNominalScaleInput').on('click', (e) => {
         e.preventDefault();
         const matchedEls = $('#nominalScaleTable tbody tr:not(.gray)');
-        matchedEls
-            .find('input[name=graph_nominal_scale]')
-            .prop('checked', true)
-            .trigger('change');
+        matchedEls.find('input[name=graph_nominal_scale]').prop('checked', true).trigger('change');
     });
 
     $('#resetNominalScaleInput').off('click');
     $('#resetNominalScaleInput').on('click', (e) => {
         e.preventDefault();
         const matchedEls = $('#nominalScaleTable tbody tr:not(.gray)');
-        matchedEls
-            .find('input[name=graph_nominal_scale]')
-            .prop('checked', false)
-            .trigger('change');
+        matchedEls.find('input[name=graph_nominal_scale]').prop('checked', false).trigger('change');
     });
 };
 const checkAllAsNominalScale = (e) => {
@@ -2666,9 +1972,7 @@ const checkAllAsNominalScale = (e) => {
 };
 
 const checkAsNominalScale = () => {
-    const nomialScaleItems = $(
-        'input[name=graph_nominal_scale]:checked',
-    ).length;
+    const nomialScaleItems = $('input[name=graph_nominal_scale]:checked').length;
     const allItems = $('input[name=graph_nominal_scale]').length;
     const checkAll = nomialScaleItems == allItems;
     $('input[name=nominal_scale_all]').prop('checked', checkAll);
@@ -2679,12 +1983,15 @@ const showHideGraphSetting = (plotData) => {
     const divideByTerm = [divideOptions.cyclicTerm, divideOptions.directTerm];
     const isIntDivDataType = plotData.div_data_type === DataTypes.INTEGER.name;
     elmArrangeDivSwitch[0].style.setProperty('display', 'none', 'important');
-    if (
-        isIntDivDataType ||
-        divideByTerm.includes(plotData.COMMON.compareType)
-    ) {
+    if (isIntDivDataType || divideByTerm.includes(plotData.COMMON.compareType)) {
         elmArrangeDivSwitch.show();
     }
     $('#colorSettingGrp').show();
     $('#sctr-card-parent').show();
+};
+
+// create key for cookie by add PORT as a suffix
+const keyPort = (key) => {
+    const RUNNING_PORT = window.location.port;
+    return `${RUNNING_PORT}_${key}`;
 };

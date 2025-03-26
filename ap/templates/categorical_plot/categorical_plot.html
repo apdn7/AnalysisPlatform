@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 {% endblock %}
 
 {% block header %}
@@ -22,21 +19,12 @@
                             {{ macros.label(_("Show value"), title=_('Enter target item of data (quantitative variable like measurement value) to create data distributions. This data is plotted on the graph.')) }}
                             {{ macros.paste_btn(with_count=True) }}
                         </div>
-                        <div class="mt-auto pl-3 pt-3">
-                            {{ macros.start_proc_select(procs, no_link_data=true) }}
-                        </div>
+                        <div class="mt-auto pl-3 pt-3">{{ macros.start_proc_select(procs, no_link_data=true) }}</div>
                     </div>
                     <div class="col-xl-10 col-9">
                         <div class="row" id="end-proc-row">
-                            <div
-                                class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1"
-                            >
-                                <button
-                                    id="btn-add-end-proc"
-                                    name="btnAddEndProc"
-                                    type="button"
-                                    class="btn simple-btn"
-                                >
+                            <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+                                <button id="btn-add-end-proc" name="btnAddEndProc" type="button" class="btn simple-btn">
                                     <i class="fas fa-plus-circle"></i>
                                 </button>
                             </div>
@@ -64,9 +52,7 @@
 
             {{ macros.cond_proc([],'', prefix='var', title=_('Stratified Category Filter: Limits data to be displayed to a subset.'), pysm=3, is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="d-flex align-items-center justify-content-center show-graph-div"
-            >
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -107,20 +93,14 @@
             {{ macros.frequency_scale(name='frequencyScale', cl='ml-4') }}
             {{ macros.scale_option(name='HistScale', className='ml-4', defaultOption='1') }}
         </div>
-        <div
-            id="CatePlotCards"
-            class="stratifiedTabs mt-2"
-            data-str-by="var"
-        ></div>
+        <div id="CatePlotCards" class="stratifiedTabs mt-2" data-str-by="var"></div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
         </div>
     </div>
     <div class="loading"></div>
     <div style="display: none;">
-        <div style="display: none;" id="msgErrorDBConnection">
-            {{ _("Could not access") }}
-        </div>
+        <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
         <a
             style="display: none;"
             id="msgErrorDBConnectionAction"

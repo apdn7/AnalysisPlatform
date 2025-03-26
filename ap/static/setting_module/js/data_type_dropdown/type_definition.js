@@ -15,7 +15,6 @@
  *    is_main_serial_no: boolean,
  *    is_auto_increment: boolean,
  *    is_int_cat: boolean,
- *    is_big_int?: boolean,
  *    is_master_col?: boolean,
  *    checked?: boolean,
  *    isRegisteredCol?: boolean,

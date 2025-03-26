@@ -39,6 +39,9 @@ class Errors:
     def __len__(self) -> int:
         return len(self.errors)
 
+    def __str__(self) -> str:
+        return '\n'.join(map(str, self.errors))
+
     def clear(self):
         self.errors = []
 
@@ -58,6 +61,9 @@ class APIError(Exception):
         self.errors = Errors()
         self.errors.add_error_message(error_msg=error_msg)
         self.status_code = status_code
+
+    def __str__(self) -> str:
+        return str(self.errors)
 
     def with_status(self, status_code: int) -> 'APIError':
         self.status_code = status_code

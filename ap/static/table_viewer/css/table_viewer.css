@@ -150,27 +150,17 @@ table.dataTable thead td {
     border: 1px solid #222222;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__rendered {
+.select2-container--default .select2-selection--single .select2-selection__rendered {
     color: #ffffff;
     line-height: 30px;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow {
+.select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 30px;
 }
 
-.select2-container--default
-    .select2-selection--single
-    .select2-selection__arrow
-    b,
-.select2-container--default.select2-container--open
-    .select2-selection--single
-    .select2-selection__arrow
-    b {
+.select2-container--default .select2-selection--single .select2-selection__arrow b,
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
     border-width: 6px 3px 0 3px;
     margin-left: -1px;
     border-color: #ffffff transparent transparent transparent;
@@ -190,7 +180,7 @@ table.dataTable thead td {
     padding-left: 1rem !important;
 }
 select.col-md-5,
-span.select2.select2-container.select2-container--default {
+.table-responsive-xl span.select2.select2-container.select2-container--default {
     max-width: 40vw;
     min-width: 40vw;
 }

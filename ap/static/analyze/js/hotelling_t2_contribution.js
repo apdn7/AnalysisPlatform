@@ -59,13 +59,7 @@ const drawT2ContributionChartFromObj = (
     Plotly.newPlot(
         't2ContributionChart',
         genContributionChartData(objData, 't2', dpInfo),
-        contributionChartLayout(
-            objData,
-            't2',
-            sampleNo,
-            chartConfig,
-            shortName,
-        ),
+        contributionChartLayout(objData, 't2', sampleNo, chartConfig, shortName),
         {
             responsive: true,
             ...genPlotlyIconSettings(),

@@ -9,9 +9,7 @@ async function askWritePermission() {
     }
 }
 
-const NoPermissionMessage = Object.freeze(
-    'There is not have permissions to access clipboard.',
-);
+const NoPermissionMessage = Object.freeze('There is not have permissions to access clipboard.');
 
 // @params blob - The ClipboardItem takes an object with the MIME type as key, and the actual blob as the value.
 // @return Promise<void>
@@ -27,12 +25,7 @@ const writeClipboardBlob = (blob) => {
     }
 
     const data = [new ClipboardItem({ [blob.type]: blob })];
-    navigator.clipboard
-        .write(data)
-        .then(
-            showToastCopyToClipboardSuccessful,
-            showToastCopyToClipboardFailed,
-        );
+    navigator.clipboard.write(data).then(showToastCopyToClipboardSuccessful, showToastCopyToClipboardFailed);
 };
 
 const writeClipboardText = (text) => {
@@ -41,12 +34,7 @@ const writeClipboardText = (text) => {
         showToastCopyToClipboardFailed(NoPermissionMessage);
         return;
     }
-    navigator.clipboard
-        .writeText(text)
-        .then(
-            showToastCopyToClipboardSuccessful,
-            showToastCopyToClipboardFailed,
-        );
+    navigator.clipboard.writeText(text).then(showToastCopyToClipboardSuccessful, showToastCopyToClipboardFailed);
 };
 
 /**

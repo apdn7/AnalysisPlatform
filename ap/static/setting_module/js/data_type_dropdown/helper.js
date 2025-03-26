@@ -11,40 +11,28 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     /**
      * Initialize
      * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
+     * @param options - Option for dropdown initialization
+     * @param {boolean} options.resetDefaultInput - Whether to reset inputs (nameEn, nameJp, etc.) to theirs default values
      */
-    static init(dataTypeDropdownElement) {
+    static init(dataTypeDropdownElement, options = { resetDefaultInput: true }) {
         const $dataTypeDropdownElement = $(dataTypeDropdownElement);
         $dataTypeDropdownElement.find('ul li').removeClass('active');
 
-        const showValueOption = this.getShowValueElement(
-            dataTypeDropdownElement,
-        );
+        const showValueOption = this.getShowValueElement(dataTypeDropdownElement);
         const rawDataType = showValueOption.getAttribute('value');
         let attrKey = showValueOption.dataset.attrKey;
-        const isRegisteredCol =
-            showValueOption.getAttribute('is-registered-col') === 'true';
+        const isRegisteredCol = showValueOption.getAttribute('is-registered-col') === 'true';
         const isBigInt = showValueOption.getAttribute('is-big-int') === 'true';
-        const selectOption = this.getOptionByAttrKey(
-            dataTypeDropdownElement,
-            rawDataType,
-            attrKey,
-        );
+        const selectOption = this.getOptionByAttrKey(dataTypeDropdownElement, rawDataType, attrKey);
         selectOption.addClass('active');
 
-        this.setValueToShowValueElement(
-            dataTypeDropdownElement,
-            rawDataType,
-            selectOption.text(),
-            attrKey,
-        );
-        this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
+        this.setValueToShowValueElement(dataTypeDropdownElement, rawDataType, selectOption.text(), attrKey);
 
-        this.disableOtherDataType(
-            dataTypeDropdownElement,
-            isRegisteredCol || isBigInt,
-            rawDataType,
-            attrKey,
-        );
+        if (options.resetDefaultInput) {
+            this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
+        }
+
+        this.disableOtherDataType(dataTypeDropdownElement, isRegisteredCol || isBigInt, rawDataType, attrKey);
 
         // disable copy function if allow select one item
         this.disableCopyItem(dataTypeDropdownElement, attrKey);
@@ -61,7 +49,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      */
     static eventWrapper(func) {
         function inner(event) {
-            const htmlElement = /** @type HTMLElement */ event.currentTarget;
+            const htmlElement = /** @type HTMLElement */ event.currentTarget || event;
             if (htmlElement.getAttribute('disabled')) return;
             func.call(this, event);
         }
@@ -90,9 +78,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @return {HTMLElement}
      */
     static getShowValueElement(dataTypeDropdownElement) {
-        return dataTypeDropdownElement.querySelector(
-            `span[name="${this.ElementNames.dataType}"]`,
-        );
+        return dataTypeDropdownElement.querySelector(`span[name="${this.ElementNames.dataType}"]`);
     }
 
     /**
@@ -104,9 +90,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      */
     static getOptionByAttrKey(dataTypeDropdownElement, value, attrKey) {
         return $(dataTypeDropdownElement)
-            .find(
-                `ul li[value=${value}]${attrKey ? `[${attrKey}]` : '[only-datatype]'}`,
-            )
+            .find(`ul li[value=${value}]${attrKey ? `[${attrKey}]` : '[only-datatype]'}`)
             .first();
     }
 
@@ -117,12 +101,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {string} text - text want to set
      * @param {string} attrKey - attrKey of option
      */
-    static setValueToShowValueElement(
-        dataTypeDropdownElement,
-        value,
-        text,
-        attrKey,
-    ) {
+    static setValueToShowValueElement(dataTypeDropdownElement, value, text, attrKey) {
         const showValueEl = this.getShowValueElement(dataTypeDropdownElement);
 
         if (text) {
@@ -139,9 +118,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             showValueEl.setAttribute('data-attr-key', attrKey);
             showValueEl.setAttribute(
                 'column_type',
-                DataTypeDropdown_Controller.DataGroupType[
-                    mappingDataGroupType[attrKey]
-                ], // ONLY FOR EDGE SERVER
+                DataTypeDropdown_Controller.DataGroupType[mappingDataGroupType[attrKey]], // ONLY FOR EDGE SERVER
             );
         }
         showValueEl.setAttribute('value', value);
@@ -153,26 +130,15 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
      * @param {string} attrKey - attrKey of option
      */
-    static setDefaultNameAndDisableInput(
-        dataTypeDropdownElement,
-        attrKey = '',
-    ) {
+    static setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey = '') {
         const $tr = $(dataTypeDropdownElement.closest('tr'));
-        const $systemInput = /** @type jQuery */ $tr.find(
-            `input[name=${this.ElementNames.systemName}]`,
-        );
-        const $japaneseNameInput = /** @type jQuery */ $tr.find(
-            `input[name=${this.ElementNames.japaneseName}]`,
-        );
-        const $localNameInput = /** @type jQuery */ $tr.find(
-            `input[name=${this.ElementNames.localName}]`,
-        );
-        const $originalNameInput = /** @type jQuery */ $tr.find(
-            `input[name=${this.ElementNames.columnName}]`,
-        );
+        const $systemInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.systemName}]`);
+        const $japaneseNameInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.japaneseName}]`);
+        const $localNameInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.localName}]`);
         const oldValSystem = $systemInput.attr('old-value');
         const oldValJa = $japaneseNameInput.attr('old-value');
-        const originalName = $originalNameInput.val();
+        const originalSystem = $systemInput.data('original-value');
+        const originalLocalName = $localNameInput.data('original-value');
         if (fixedNameAttrs.includes(attrKey)) {
             // set default value to system and input
             if (!oldValSystem || !oldValJa) {
@@ -180,23 +146,19 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 $japaneseNameInput.attr('old-value', $japaneseNameInput.val());
             }
             $systemInput.val(fixedName[attrKey].system).prop('disabled', true);
-            $japaneseNameInput
-                .val(fixedName[attrKey].japanese)
-                .prop('disabled', true);
-            if (!$localNameInput.val()) {
-                // fill value of local name only blank, do not disabled.
-                $localNameInput.val(fixedName[attrKey].system);
-            }
+            $japaneseNameInput.val(fixedName[attrKey].japanese).prop('disabled', true);
+            $localNameInput.val(fixedName[attrKey].system).prop('disabled', true);
         } else {
             // revert to original name
             if (oldValSystem && oldValJa) {
-                $systemInput.val(originalName);
-                $japaneseNameInput.val(originalName);
-                $localNameInput.val('');
+                $systemInput.val(originalSystem);
+                $japaneseNameInput.val(originalSystem);
+                $localNameInput.val(originalLocalName);
             }
 
             $systemInput.prop('disabled', false);
             $japaneseNameInput.prop('disabled', false);
+            $localNameInput.prop('disabled', false);
         }
     }
 
@@ -207,18 +169,11 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {string} dataType - data type want to disable
      * @param {string} attrKey - attrKey of option
      */
-    static disableOtherDataType(
-        dataTypeDropdownElement,
-        isRegisteredCol = false,
-        dataType,
-        attrKey,
-    ) {
+    static disableOtherDataType(dataTypeDropdownElement, isRegisteredCol = false, dataType, attrKey) {
         if (!isRegisteredCol) return;
         if (this.UnableToReselectAttrs.includes(attrKey)) {
             // disable all option
-            $(dataTypeDropdownElement)
-                .find(`ul li.dataTypeSelection:not([${attrKey}])`)
-                .attr('disabled', true);
+            $(dataTypeDropdownElement).find(`ul li.dataTypeSelection:not([${attrKey}])`).attr('disabled', true);
         } else {
             // select all other data type option -> add disabled
             let dataTypeAllows = [dataType];
@@ -249,13 +204,9 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     static disableCopyItem(dataTypeDropdownElement, attrKey) {
         // disable copy function if allow select one item
         if (this.AllowSelectOneAttrs.includes(attrKey)) {
-            $(dataTypeDropdownElement)
-                .find(`ul li.copy-item`)
-                .attr('disabled', true);
+            $(dataTypeDropdownElement).find(`ul li.copy-item`).attr('disabled', true);
         } else {
-            $(dataTypeDropdownElement)
-                .find(`ul li.copy-item`)
-                .attr('disabled', false);
+            $(dataTypeDropdownElement).find(`ul li.copy-item`).attr('disabled', false);
         }
     }
 
@@ -265,11 +216,9 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      */
     static disableOrEnableJudge(ele) {
         const index = $(ele).closest('tr').index();
-        const vals = [
-            ...procModalElements.processColumnsSampleDataTableBody.find(
-                `tr:eq(${index}) .sample-data`,
-            ),
-        ].map((el) => $(el));
+        const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${index}) .sample-data`)].map(
+            (el) => $(el),
+        );
         const attrName = 'data-original';
         let countIllegal = 0;
         for (const e of vals) {
@@ -278,10 +227,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 countIllegal++;
             }
         }
-        const optionSelectJudge = $(ele)
-            .closest('tr')
-            .find('.data-type-selection')
-            .find(`li[is_judge]`);
+        const optionSelectJudge = $(ele).closest('tr').find('.data-type-selection').find(`li[is_judge]`);
         if (countIllegal > 0) {
             optionSelectJudge.attr('disabled', true);
         } else {
@@ -296,8 +242,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     static isBooleanValue(val) {
         return (
             typeof val === 'boolean' ||
-            (typeof val === 'string' &&
-                ['0', '1', 'true', 'false'].includes(val.toLowerCase())) ||
+            (typeof val === 'string' && ['0', '1', 'true', 'false'].includes(val.toLowerCase())) ||
             (typeof val === 'number' && [0, 1].includes(val))
         );
     }
@@ -308,15 +253,9 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      */
     static disableDatetimeMainItem(dataTypeDropdownElement) {
         // disable copy function if allow select one item
-        $(dataTypeDropdownElement)
-            .find(`ul li.dataTypeSelection[is_get_date]`)
-            .attr('disabled', true);
-        $(dataTypeDropdownElement)
-            .find(`ul li.dataTypeSelection[is_main_date]`)
-            .attr('disabled', true);
-        $(dataTypeDropdownElement)
-            .find(`ul li.dataTypeSelection[is_main_time]`)
-            .attr('disabled', true);
+        $(dataTypeDropdownElement).find(`ul li.dataTypeSelection[is_get_date]`).attr('disabled', true);
+        $(dataTypeDropdownElement).find(`ul li.dataTypeSelection[is_main_date]`).attr('disabled', true);
+        $(dataTypeDropdownElement).find(`ul li.dataTypeSelection[is_main_time]`).attr('disabled', true);
     }
 
     /**
@@ -324,16 +263,14 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {Event|HTMLLIElement} event
      */
     static onClickDataType(event) {
-        const currentTarget =
-            /** @type HTMLLIElement */ event.currentTarget || event;
-        const dataTypeDropdownElement =
-            /** @type HTMLDivElement */ currentTarget.closest(
-                'div.config-data-type-dropdown',
-            );
-        const attrKey = this.getAttrOfDataTypeItem(currentTarget);
+        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
+            'div.config-data-type-dropdown',
+        );
+        const attrKey = DataTypeDropdown_Helper.getAttrOfDataTypeItem(currentTarget);
         const value = currentTarget.getAttribute('value');
 
-        this.changeDataType(
+        DataTypeDropdown_Helper.changeDataType(
             dataTypeDropdownElement,
             value,
             currentTarget.textContent,
@@ -362,9 +299,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      */
     static getAttrOfDataTypeItem(event) {
         const target = /** @type HTMLElement */ event.currentTarget || event;
-        const attrs = target
-            .getAttributeNames()
-            .filter((v) => this.ColumnTypeAttrs.includes(v));
+        const attrs = target.getAttributeNames().filter((v) => this.ColumnTypeAttrs.includes(v));
         return attrs.length ? attrs[0] : '';
     }
 
@@ -376,35 +311,38 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {string} attrKey
      * @param {HTMLElement} el
      */
-    static changeDataType(
-        dataTypeDropdownElement,
-        value,
-        text,
-        attrKey,
-        el = null,
-    ) {
-        this.setValueToShowValueElement(
-            dataTypeDropdownElement,
-            value,
-            text,
-            attrKey,
-        );
+    static changeDataType(dataTypeDropdownElement, value, text, attrKey, el = null) {
+        if (attrKey === 'is_main_serial_no' && typeof FunctionInfo !== 'undefined') {
+            // check create or editing function column
+            const isMainSerialChecked = functionConfigElements.isMainSerialCheckboxElement.checked;
+            // check function column has column main serial.
+            const functionColumnInfos = FunctionInfo.collectAllFunctionRows();
+            const mainSerialFunctionCol = functionColumnInfos.find((functionCol) => functionCol.isMainSerialNo);
+            if (isMainSerialChecked || mainSerialFunctionCol) {
+                const columnIdx = dataTypeDropdownElement
+                    .closest('tr')
+                    .querySelector('td.column-number')
+                    .getAttribute('data-col-idx');
+                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-value', value);
+                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-text', text);
+                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute(
+                    'change-column-index',
+                    columnIdx,
+                );
+                $(functionConfigElements.confirmUncheckMainSerialFunctionColumnModal).modal('show');
+                return;
+            }
+        }
+        this.setValueToShowValueElement(dataTypeDropdownElement, value, text, attrKey);
         this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
 
         // get current datatype
-        const beforeDataTypeEle =
-            dataTypeDropdownElement.querySelector(`ul li.active`);
-        const beforeAttrKey = beforeDataTypeEle
-            ? this.getAttrOfDataTypeItem(beforeDataTypeEle)
-            : '';
+        const beforeDataTypeEle = dataTypeDropdownElement.querySelector(`ul li.active`);
+        const beforeAttrKey = beforeDataTypeEle ? this.getAttrOfDataTypeItem(beforeDataTypeEle) : '';
 
         $(dataTypeDropdownElement).find(`ul li`).removeClass('active');
 
-        this.getOptionByAttrKey(
-            dataTypeDropdownElement,
-            value,
-            attrKey,
-        ).addClass('active');
+        this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey).addClass('active');
 
         if (this.AllowSelectOneAttrs.includes(attrKey)) {
             // remove attr of others
@@ -423,11 +361,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
         this.setColumnTypeForMainDateMainTime(dataTypeDropdownElement, attrKey);
 
-        ProcessConfigSection.handleMainDateAndMainTime(
-            dataTypeDropdownElement,
-            attrKey,
-            beforeAttrKey,
-        );
+        ProcessConfigSection.handleMainDateAndMainTime(dataTypeDropdownElement, attrKey, beforeAttrKey);
     }
 
     /**
@@ -438,21 +372,14 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     static resetOtherMainAttrKey(dataTypeDropdownElement, attrKey) {
         // Find same data type element from another columns
         const sameDataTypeElements = /** @type HTMLSpanElement[] */ [];
-        [
-            ...dataTypeDropdownElement
-                .closest('tbody')
-                .querySelectorAll('div.config-data-type-dropdown'),
-        ].forEach((dropdownElement) => {
-            const sameDataTypeElement = dropdownElement.querySelector(
-                `[name=dataType][${attrKey}]`,
-            );
-            if (
-                dropdownElement !== dataTypeDropdownElement &&
-                sameDataTypeElement != null
-            ) {
-                sameDataTypeElements.push(sameDataTypeElement);
-            }
-        });
+        [...dataTypeDropdownElement.closest('tbody').querySelectorAll('div.config-data-type-dropdown')].forEach(
+            (dropdownElement) => {
+                const sameDataTypeElement = dropdownElement.querySelector(`[name=dataType][${attrKey}]`);
+                if (dropdownElement !== dataTypeDropdownElement && sameDataTypeElement != null) {
+                    sameDataTypeElements.push(sameDataTypeElement);
+                }
+            },
+        );
 
         if (!sameDataTypeElements.length) return;
 
@@ -465,9 +392,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {HTMLSpanElement} el
      */
     static changeToNormalDataType(el) {
-        const anotherDataTypeDropdownElement = el.closest(
-            'div.config-data-type-dropdown',
-        );
+        const anotherDataTypeDropdownElement = el.closest('div.config-data-type-dropdown');
         let dataType = el.getAttribute('value'); // EDGESERVER ONLY
         // add Boolean for judge
         if ([DataTypes.DATE.name, DataTypes.TIME.name].includes(dataType)) {
@@ -487,9 +412,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     static enableDisableFormatText(dataTypeDropdownElement, rawDataType = '') {
         const $tr = $(dataTypeDropdownElement).closest('tr');
         const isAllowFormat = this.isDataTypeAllowFormat(rawDataType);
-        const $inputFormat = $tr.find(
-            `input[name=${procModalElements.format}]`,
-        );
+        const $inputFormat = $tr.find(`input[name=${procModalElements.format}]`);
         const inputFormatValue = $inputFormat.val();
         if (isAllowFormat) {
             if (inputFormatValue == null || inputFormatValue === '') {
@@ -513,24 +436,17 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const isMainDate = 'is_main_date' === attrKey;
         const isMainTime = 'is_main_time' === attrKey;
         const targetRow = dataTypeDropdownElement.closest('tr');
-        const checkboxColumn = targetRow.querySelector(
-            'td.column-raw-name input[type="checkbox"]:first-child',
-        );
+        const checkboxColumn = targetRow.querySelector('td.column-raw-name input[type="checkbox"]:first-child');
 
         if (!isMainDate && !isMainTime) {
-            const originColumnType =
-                checkboxColumn.getAttribute('origin-column-type');
+            const originColumnType = checkboxColumn.getAttribute('origin-column-type');
             if (originColumnType != null && originColumnType !== '') {
-                checkboxColumn.dataset['column_type'] =
-                    checkboxColumn.getAttribute('origin-column-type');
+                checkboxColumn.dataset['column_type'] = checkboxColumn.getAttribute('origin-column-type');
             } else {
                 // do nothing
             }
         } else {
-            checkboxColumn.setAttribute(
-                'origin-column-type',
-                checkboxColumn.dataset['column_type'] ?? '',
-            );
+            checkboxColumn.setAttribute('origin-column-type', checkboxColumn.dataset['column_type'] ?? '');
             checkboxColumn.dataset['column_type'] = isMainDate
                 ? DataTypeDropdown_Controller.DataGroupType.MAIN_DATE // ONLY FOR EDGE SERVER
                 : DataTypeDropdown_Controller.DataGroupType.MAIN_TIME; // ONLY FOR EDGE SERVER
@@ -561,20 +477,12 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {Event} event
      */
     static handleCopyToAllBelow(event) {
-        const currentTarget =
-            /** @type HTMLLIElement */ event.currentTarget || event;
-        const dataTypeDropdownElement =
-            /** @type HTMLDivElement */ currentTarget.closest(
-                'div.config-data-type-dropdown',
-            );
-        const [value, attrKey, showValueEl] = this.getDataOfSelectedOption(
-            dataTypeDropdownElement,
+        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
+            'div.config-data-type-dropdown',
         );
-        const optionEl = this.getOptionByAttrKey(
-            dataTypeDropdownElement,
-            value,
-            attrKey,
-        );
+        const [value, attrKey, showValueEl] = this.getDataOfSelectedOption(dataTypeDropdownElement);
+        const optionEl = this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey);
         const nextRows = [...$(showValueEl.closest('tr')).nextAll()];
         nextRows.forEach((row) => {
             const isMasterCol = row.getAttribute('is-master-col') === 'true';
@@ -590,11 +498,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 value,
                 optionEl.text(),
                 attrKey,
-                this.getOptionByAttrKey(
-                    dataTypeDropdownElement,
-                    value,
-                    attrKey,
-                )[0],
+                this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey)[0],
             );
         });
     }
@@ -616,25 +520,13 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {Event} event
      */
     static handleCopyToFiltered(event) {
-        const currentTarget =
-            /** @type HTMLLIElement */ event.currentTarget || event;
-        const dataTypeDropdownElement =
-            /** @type HTMLDivElement */ currentTarget.closest(
-                'div.config-data-type-dropdown',
-            );
-        const [value, attrKey] = this.getDataOfSelectedOption(
-            dataTypeDropdownElement,
+        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
+            'div.config-data-type-dropdown',
         );
-        const optionEl = this.getOptionByAttrKey(
-            dataTypeDropdownElement,
-            value,
-            attrKey,
-        );
-        const filterRows = [
-            ...$(dataTypeDropdownElement)
-                .closest('table')
-                .find('tbody tr:not(.gray):visible'),
-        ];
+        const [value, attrKey] = this.getDataOfSelectedOption(dataTypeDropdownElement);
+        const optionEl = this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey);
+        const filterRows = [...$(dataTypeDropdownElement).closest('table').find('tbody tr:not(.gray):visible')];
         filterRows.forEach((row) => {
             const isMasterCol = row.getAttribute('is-master-col') === 'true';
             if (isMasterCol) {
@@ -648,11 +540,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 value,
                 optionEl.text(),
                 attrKey,
-                this.getOptionByAttrKey(
-                    dataTypeDropdownElement,
-                    value,
-                    attrKey,
-                )[0],
+                this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey)[0],
             );
         });
     }
@@ -677,10 +565,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {string} getKey
      * @return {string} - a name of data type
      */
-    static translateDatatypeName(
-        defaultValue = this.DataTypeDefaultObject,
-        getKey,
-    ) {
+    static translateDatatypeName(defaultValue = this.DataTypeDefaultObject, getKey) {
         let text = '';
         const englishDataTypes = [
             DataTypes.REAL.name,

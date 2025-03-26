@@ -18,6 +18,9 @@
       - row: 1
         column: 2
         page: chm
+      - row: 1
+        column: 3
+        page: hmp
   - title_en: 'Basic'
     title_ja: 'ベーシック'
     tiles:

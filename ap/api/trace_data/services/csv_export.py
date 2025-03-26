@@ -31,6 +31,7 @@ from ap.common.constants import (
     START_DATE,
     START_DT,
     START_TM,
+    TIME_COL,
 )
 from ap.common.logger import log_execution_time
 from ap.trace_data.schemas import DicParam
@@ -252,17 +253,17 @@ def export_preprocessing(
         dic_rename[SELECTED] = SELECTED
 
     # get only output columns
+    output_cols = None
     if emd_type:
         if EXPORT_TERM_FROM in df.columns:
-            # keep From, TO in term of RLP export
+            # keep From, To in terms of RLP export
             output_cols = df.columns.to_list()
         if div_col:
             output_cols = [div_col] + df.columns.to_list()
-        df_output = df[output_cols]
-    else:
-        df_output = df[dic_rename]
-    df_output.rename(columns=dic_rename, inplace=True)
-    df_output.replace({np.nan: None}, inplace=True)
+
+    if output_cols is None:
+        output_cols = dic_rename.keys()
+    df_output = df[output_cols].rename(columns=dic_rename).replace({np.nan: None})
 
     # timezone
     if client_timezone:
@@ -282,6 +283,11 @@ def export_preprocessing(
                     start_proc_term_to = gen_export_col_name(proc_cfg.shown_name, 'to')
 
         if start_proc_term_from:
+            # Add the time from the start process if it does not exist in the output DataFrame
+            # Handle the case where all target variables originate from end_process (start_point diff to end_point)
+            if start_ct_col not in df_output and TIME_COL in df:
+                df_output[start_ct_col] = df[TIME_COL]
+
             # add term datetime to df
             gen_term_cols(df_output, start_ct_col, start_proc_term_from, start_proc_term_to, terms)
             # extend datetime columns

@@ -200,85 +200,63 @@ const showScatterPlotImage = (fileNames) => {
     fileNames.forEach((e) => {
         imgs += `<img src="/ap/api/stp/image/${e}" style="max-width: 100%">`;
     });
-    scatterPlotCard.html(
-        `<div class="shadow-sm" style="text-align:center"> ${imgs} </div>`,
-    );
+    scatterPlotCard.html(`<div class="shadow-sm" style="text-align:center"> ${imgs} </div>`);
 };
 
 const onChangeHistSummaryEventHandler = (eleIdPrefix = '') => {
     $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).unbind('change');
-    $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).on(
-        'change',
-        function f() {
-            let summaryHeight = null;
-            const summaryClass = $(this).val();
-            const previousOption = $(
-                `input[name=${eleIdPrefix}${eles.summaryOption}][data-checked=true]`,
-            );
-            if (summaryClass === 'none') {
-                $(`.${eleIdPrefix}.hist-summary`).each(
-                    function showHideSummary() {
-                        $(this).css('display', 'none');
-                    },
-                );
-                // if (previousOption.val() && previousOption.val() !== 'none') {
-                //     // rescale histogram
-                //     $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
-                //         const histogramId = $(this).attr('id');
-                //         $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
-                //         Plotly.relayout(histogramId, {});
-                //     });
-                // }
-                $(`.${eleIdPrefix}.his .hd-plot`).each(
-                    function reScaleHistogram() {
-                        const histogramId = $(this).attr('id');
-                        $(`#${histogramId}`).css(
-                            'height',
-                            GRAPH_CONST.histHeight,
-                        );
-                        Plotly.relayout(histogramId, {});
-                    },
-                );
+    $(`input[name=${eleIdPrefix}${eles.summaryOption}]`).on('change', function f() {
+        let summaryHeight = null;
+        const summaryClass = $(this).val();
+        const previousOption = $(`input[name=${eleIdPrefix}${eles.summaryOption}][data-checked=true]`);
+        if (summaryClass === 'none') {
+            $(`.${eleIdPrefix}.hist-summary`).each(function showHideSummary() {
+                $(this).css('display', 'none');
+            });
+            // if (previousOption.val() && previousOption.val() !== 'none') {
+            //     // rescale histogram
+            //     $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
+            //         const histogramId = $(this).attr('id');
+            //         $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
+            //         Plotly.relayout(histogramId, {});
+            //     });
+            // }
+            $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
+                const histogramId = $(this).attr('id');
+                $(`#${histogramId}`).css('height', GRAPH_CONST.histHeight);
+                Plotly.relayout(histogramId, {});
+            });
 
-                // mark this option as checked and remove others
-                $(this).attr('data-checked', 'true');
-                $(
-                    `input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`,
-                ).removeAttr('data-checked');
-            } else {
-                $(`.${eleIdPrefix}.hist-summary`).each(
-                    function showHideSummary() {
-                        $(this).css('display', 'flex');
-                        $(this).css('justify-content', 'center'); // to unify with FPP
-                    },
-                );
+            // mark this option as checked and remove others
+            $(this).attr('data-checked', 'true');
+            $(`input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`).removeAttr('data-checked');
+        } else {
+            $(`.${eleIdPrefix}.hist-summary`).each(function showHideSummary() {
+                $(this).css('display', 'flex');
+                $(this).css('justify-content', 'center'); // to unify with FPP
+            });
 
-                $('.hist-summary-detail').each(function showUponOption() {
-                    $(this).css('display', 'none');
-                    if ($(this).hasClass(summaryClass)) {
-                        $(this).css('display', 'block');
-                        const h = $(this).height();
-                        summaryHeight = h < summaryHeight ? summaryHeight : h;
-                    }
-                });
+            $('.hist-summary-detail').each(function showUponOption() {
+                $(this).css('display', 'none');
+                if ($(this).hasClass(summaryClass)) {
+                    $(this).css('display', 'block');
+                    const h = $(this).height();
+                    summaryHeight = h < summaryHeight ? summaryHeight : h;
+                }
+            });
 
-                $(`.${eleIdPrefix}.his .hd-plot`).each(
-                    function reScaleHistogram() {
-                        const histogramId = $(this).attr('id');
-                        const chartHeight = `calc(${GRAPH_CONST.histHeight} - ${summaryHeight + 6}px)`;
-                        $(`#${histogramId}`).css('height', chartHeight);
-                        Plotly.relayout(histogramId, {});
-                    },
-                );
+            $(`.${eleIdPrefix}.his .hd-plot`).each(function reScaleHistogram() {
+                const histogramId = $(this).attr('id');
+                const chartHeight = `calc(${GRAPH_CONST.histHeight} - ${summaryHeight + 6}px)`;
+                $(`#${histogramId}`).css('height', chartHeight);
+                Plotly.relayout(histogramId, {});
+            });
 
-                // mark this option as checked and remove others
-                $(this).attr('data-checked', 'true');
-                $(
-                    `input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`,
-                ).removeAttr('data-checked');
-            }
-        },
-    );
+            // mark this option as checked and remove others
+            $(this).attr('data-checked', 'true');
+            $(`input[name=${eleIdPrefix}${eles.summaryOption}]:not(:checked)`).removeAttr('data-checked');
+        }
+    });
 };
 
 const onChangeHistScale = (prefix) => {
@@ -310,19 +288,11 @@ const rerenderHistogram = (prefix) => {
     showTabsAndCharts(prefix, data, false, null);
 };
 
-const showTabsAndCharts = (
-    eleIdPrefix,
-    data,
-    genTab = true,
-    onlySensorId = null,
-) => {
+const showTabsAndCharts = (eleIdPrefix, data, genTab = true, onlySensorId = null) => {
     if (data == null) return;
     let sensors = [];
     data.ARRAY_FORMVAL.forEach((arrayFormval) => {
-        sensors = [
-            ...sensors,
-            ...arrayFormval.GET02_VALS_SELECT.map((val) => Number(val)),
-        ];
+        sensors = [...sensors, ...arrayFormval.GET02_VALS_SELECT.map((val) => Number(val))];
     });
     if (typeof sensors === 'string') {
         sensors = [sensors];
@@ -345,10 +315,7 @@ const showTabsAndCharts = (
     // /////////////// each sensor ////////////////////
     const startProc = data.COMMON.start_proc;
     for (let sensorIdx = 0; sensorIdx < numSensors; sensorIdx++) {
-        if (
-            onlySensorId !== null &&
-            onlySensorId !== Number(sensors[sensorIdx])
-        ) {
+        if (onlySensorId !== null && onlySensorId !== Number(sensors[sensorIdx])) {
             continue;
         }
         const tabId = `#${eleIdPrefix}${eles.categoryPlotCards}-${sensorIdx}`;
@@ -360,9 +327,7 @@ const showTabsAndCharts = (
         const sensorPlotDatas =
             eleIdPrefix !== 'directTerm'
                 ? data.array_plotdata[sensor]
-                : data.array_plotdata.filter(
-                      (plot) => plot.end_col === Number(sensor),
-                  );
+                : data.array_plotdata.filter((plot) => plot.end_col === Number(sensor));
         if (!sensorPlotDatas) {
             continue;
         }
@@ -370,24 +335,15 @@ const showTabsAndCharts = (
         // カラム名を取得する。
         const displayColName = sensorPlotDatas[0].end_col_name;
         const endProcName = sensorPlotDatas[0].end_proc_name;
-        const isCategory = sensorPlotDatas[0]
-            ? sensorPlotDatas[0].is_category
-            : false;
-        const allGroupNames = isCategory
-            ? getAllGroupOfSensor(sensorPlotDatas)
-            : [];
+        const isCategory = sensorPlotDatas[0] ? sensorPlotDatas[0].is_category : false;
+        const allGroupNames = isCategory ? getAllGroupOfSensor(sensorPlotDatas) : [];
         const generalInfo = {
             startProc,
             endProcName: endProcName,
         };
-        const isCatLimited = sensorPlotDatas[0]
-            ? sensorPlotDatas[0].is_cat_limited
-            : false;
+        const isCatLimited = sensorPlotDatas[0] ? sensorPlotDatas[0].is_cat_limited : false;
         if (isCatLimited) {
-            tabElement
-                .closest('.tab-pane')
-                .find('.overlay-card')
-                .css('display', 'grid');
+            tabElement.closest('.tab-pane').find('.overlay-card').css('display', 'grid');
         }
         // /////////////// each histogram ////////////////////
         for (let i = 0; i < numGraphs; i++) {
@@ -395,52 +351,23 @@ const showTabsAndCharts = (
             const termIdx = sensorPlotDatas[i].term_id || 0;
             const beforeRankValues = sensorPlotDatas[i].before_rank_values;
             const stepChartSummary = sensorPlotDatas[i].cat_summary || null;
-            const catExpBoxCols = [
-                data.COMMON.catExpBox1,
-                data.COMMON.catExpBox2,
-            ].filter((c) => c);
-            const filterCond =
-                catExpBoxCols.length > 0
-                    ? catExpValue.toString().split(' | ')
-                    : null;
+            const catExpBoxCols = [data.COMMON.catExpBox1, data.COMMON.catExpBox2].filter((c) => c);
+            const filterCond = catExpBoxCols.length > 0 ? catExpValue.toString().split(' | ') : null;
             // get latest thresholds -> show thresholds in scatter, histogram, summary
-            const [chartInfos, chartInfosOrg] = getChartInfo(
-                sensorPlotDatas[i],
-                'TIME',
-                filterCond,
-            );
-            const [latestChartInfo, latestChartInfoIdx] =
-                chooseLatestThresholds(chartInfos, chartInfosOrg);
+            const [chartInfos, chartInfosOrg] = getChartInfo(sensorPlotDatas[i], 'TIME', filterCond);
+            const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(chartInfos, chartInfosOrg);
 
             const scaleInfo = getScaleInfo(sensorPlotDatas[i], scaleOption);
             // y_min/max are defined in backend -> get only
             const kdeData = scaleInfo.kde_data;
-            const [minY, maxY] = calMinMaxYScale(
-                scaleInfo['y-min'],
-                scaleInfo['y-max'],
-                scaleOption,
-            );
-            const maxX =
-                frequencyOption === frequencyOptions.COMMON
-                    ? scaleInfo['x-max']
-                    : null;
-            const minX =
-                frequencyOption === frequencyOptions.COMMON
-                    ? scaleInfo['x-min']
-                    : null;
+            const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption);
+            const maxX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-max'] : null;
+            const minX = frequencyOption === frequencyOptions.COMMON ? scaleInfo['x-min'] : null;
 
             // produce summary data
             const { summaries, end_col, end_proc_id } = sensorPlotDatas[i];
-            const isHideNonePoint = isHideNoneDataPoint(
-                end_proc_id,
-                end_col,
-                data.COMMON.remove_outlier,
-            );
-            const summaryData = calculateSummaryData(
-                summaries,
-                latestChartInfoIdx,
-                isHideNonePoint,
-            );
+            const isHideNonePoint = isHideNoneDataPoint(end_proc_id, end_col, data.COMMON.remove_outlier);
+            const summaryData = calculateSummaryData(summaries, latestChartInfoIdx, isHideNonePoint);
 
             const isShowDate = eleIdPrefix !== eles.varTabPrefix;
             const timeCond = data.time_conds[termIdx];
@@ -464,9 +391,7 @@ const showTabsAndCharts = (
             );
             const histogramId = `${eleIdPrefix}-${sensor}-${eles.histograms}${i + 1}`;
             const fromStartPrcClass =
-                String(sensorPlotDatas[i].end_proc_id) === String(startProc)
-                    ? ' card-active'
-                    : '';
+                String(sensorPlotDatas[i].end_proc_id) === String(startProc) ? ' card-active' : '';
             const cardHtml = `<div class="${eleIdPrefix} his graph-navi" id="${eles.histograms}${i + 1}">
                 <div class="his-content${fromStartPrcClass}">
                     ${chartTitle}
@@ -512,11 +437,7 @@ const showTabsAndCharts = (
         }
         // ////////////////////////////////////
         // report progress
-        loadingUpdate(
-            loadingProgressBackend +
-                sensorIdx *
-                    ((100 - loadingProgressBackend) / (numSensors || 1)),
-        );
+        loadingUpdate(loadingProgressBackend + sensorIdx * ((100 - loadingProgressBackend) / (numSensors || 1)));
     }
 
     checkSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
@@ -547,9 +468,7 @@ const setNameWithPrefix = (prefix) => {
 const resetSetting = (eleIdPrefix) => {
     resetSummaryOption(`${eleIdPrefix}${eles.summaryOption}`);
 
-    $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(
-        frequencyOptions.COMMON,
-    );
+    $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(frequencyOptions.COMMON);
 
     $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.COMMON);
 };
@@ -600,84 +519,67 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     }
 
     const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
-    showGraphCallApi(
-        '/ap/api/stp/index',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            // set summary bar for prefix
-            setNameWithPrefix(eleIdPrefix);
+    showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
+        // set summary bar for prefix
+        setNameWithPrefix(eleIdPrefix);
 
-            // show result section
-            $('#categoricalPlotArea').show();
+        // show result section
+        $('#categoricalPlotArea').show();
 
-            if (!_.isEmpty(res.array_plotdata)) {
-                graphStore.setTraceData(_.cloneDeep(res));
-                if (eleIdPrefix === eles.varTabPrefix) {
-                    currentTraceDataVar = res;
-                    showMessageIfFacetNotSelected(res);
-                } else if (eleIdPrefix === eles.termTabPrefix) {
-                    currentTraceDataTerm = res;
-                } else {
-                    currentTraceDataCyclicTerm = res;
-                }
+        if (!_.isEmpty(res.array_plotdata)) {
+            graphStore.setTraceData(_.cloneDeep(res));
+            if (eleIdPrefix === eles.varTabPrefix) {
+                currentTraceDataVar = res;
+                showMessageIfFacetNotSelected(res);
+            } else if (eleIdPrefix === eles.termTabPrefix) {
+                currentTraceDataTerm = res;
+            } else {
+                currentTraceDataCyclicTerm = res;
             }
+        }
 
-            setScaleOption(eleIdPrefix);
+        setScaleOption(eleIdPrefix);
 
-            // show graphs
-            // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
-            showTabsAndCharts(eleIdPrefix, res);
+        // show graphs
+        // if (eleIdPrefix === eles.varTabPrefix || eleIdPrefix === eles.cyclicTermTabPrefix) {
+        showTabsAndCharts(eleIdPrefix, res);
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            // Move screen to graph after pushing グラフ表示 button
-            if (!autoUpdate) {
-                $('html, body').animate(
-                    {
-                        scrollTop: getOffsetTopDisplayGraph(
-                            `#${eles.categoryPlotCards}`,
-                        ),
-                    },
-                    500,
-                );
-            }
+        // Move screen to graph after pushing グラフ表示 button
+        if (!autoUpdate) {
+            $('html, body').animate(
+                {
+                    scrollTop: getOffsetTopDisplayGraph(`#${eles.categoryPlotCards}`),
+                },
+                500,
+            );
+        }
 
-            // check result and show toastr msg
-            if (
-                isEmpty(res.array_plotdata) ||
-                isEmpty(Object.values(res.array_plotdata)[0])
-            ) {
-                showToastrAnomalGraph();
-            }
+        // check result and show toastr msg
+        if (isEmpty(res.array_plotdata) || isEmpty(Object.values(res.array_plotdata)[0])) {
+            showToastrAnomalGraph();
+        }
 
-            // show limit graphs displayed in one tab message
-            if (res.isGraphLimited) {
-                showToastrMsg(
-                    i18nCommon.limitDisplayedGraphsInOneTab.replace(
-                        'NUMBER',
-                        MAX_NUMBER_OF_GRAPH,
-                    ),
-                );
-            }
+        // show limit graphs displayed in one tab message
+        if (res.isGraphLimited) {
+            showToastrMsg(i18nCommon.limitDisplayedGraphsInOneTab.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
+        }
 
-            // show scatter plot tab
-            const imgFile = res.images;
-            if (imgFile) {
-                showScatterPlotImage(imgFile);
-            }
-            setPollingData(formData, showGraph, [false, true]);
+        // show scatter plot tab
+        const imgFile = res.images;
+        if (imgFile) {
+            showScatterPlotImage(imgFile);
+        }
+        setPollingData(formData, showGraph, [false, true]);
 
-            // drag & drop for tables
-            $('.ui-sortable').sortable();
-        },
-    );
+        // drag & drop for tables
+        $('.ui-sortable').sortable();
+    });
 };
 
 const setScaleOption = (prefix) => {
     stpScaleOption.yAxis = $(`select[name=${prefix}${eles.histScale}]`).val();
-    stpScaleOption.xAxis = $(
-        `select[name=${prefix}${eles.frequencyScale}]`,
-    ).val();
+    stpScaleOption.xAxis = $(`select[name=${prefix}${eles.frequencyScale}]`).val();
 };

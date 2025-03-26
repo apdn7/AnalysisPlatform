@@ -127,7 +127,10 @@ class DbProxy:
 
         # use custom port or default port
         if self.db_detail.port:
-            db_instance.port = self.db_detail.port
+            db_instance.port = int(self.db_detail.port)
+        # FIXME: cast port to integer, this is a really bad operation ... we should save integer in db instead
+        if db_instance.port is not None:
+            db_instance.port = int(db_instance.port)
 
         if self.db_detail.schema:
             db_instance.schema = self.db_detail.schema

@@ -5,47 +5,32 @@ const generateCircles = (json) => {
     const dataSigmaX = getNode(json, ['circles', 'Sigma', 'x']) || [];
     const dataSigmaY = getNode(json, ['circles', 'Sigma', 'y']) || [];
     const dataSigmaText =
-        dataSigmaX.map(
-            (ele, idx) =>
-                `border: Sigma<br />xvar: ${ele}<br />yvar: ${dataSigmaY[idx]}`,
-        ) || [];
+        dataSigmaX.map((ele, idx) => `border: Sigma<br />xvar: ${ele}<br />yvar: ${dataSigmaY[idx]}`) || [];
 
     // 2sigma
     const data2SigmaX = getNode(json, ['circles', '2Sigma', 'x']) || [];
     const data2SigmaY = getNode(json, ['circles', '2Sigma', 'y']) || [];
     const data2SigmaText =
-        data2SigmaX.map(
-            (ele, idx) =>
-                `border: 2Sigma<br />xvar: ${ele}<br />yvar: ${data2SigmaY[idx]}`,
-        ) || [];
+        data2SigmaX.map((ele, idx) => `border: 2Sigma<br />xvar: ${ele}<br />yvar: ${data2SigmaY[idx]}`) || [];
 
     // 3sigma
     const data3SigmaX = getNode(json, ['circles', '3Sigma', 'x']) || [];
     const data3SigmaY = getNode(json, ['circles', '3Sigma', 'y']) || [];
     const data3SigmaText =
-        data3SigmaX.map(
-            (ele, idx) =>
-                `border: 3Sigma<br />xvar: ${ele}<br />yvar: ${data3SigmaY[idx]}`,
-        ) || [];
+        data3SigmaX.map((ele, idx) => `border: 3Sigma<br />xvar: ${ele}<br />yvar: ${data3SigmaY[idx]}`) || [];
 
     // Range
     const dataRangeX = getNode(json, ['circles', 'Range', 'x']) || [];
     const dataRangeY = getNode(json, ['circles', 'Range', 'y']) || [];
     const dataRangeText =
-        dataRangeX.map(
-            (ele, idx) =>
-                `border: Range<br />xvar: ${ele}<br />yvar: ${dataRangeY[idx]}`,
-        ) || [];
+        dataRangeX.map((ele, idx) => `border: Range<br />xvar: ${ele}<br />yvar: ${dataRangeY[idx]}`) || [];
 
     // Parcentile 0.85
-    const dataParcentileX =
-        getNode(json, ['circles', 'Percentile85', 'x']) || [];
-    const dataParcentileY =
-        getNode(json, ['circles', 'Percentile85', 'y']) || [];
+    const dataParcentileX = getNode(json, ['circles', 'Percentile85', 'x']) || [];
+    const dataParcentileY = getNode(json, ['circles', 'Percentile85', 'y']) || [];
     const dataParcentileText =
         dataParcentileX.map(
-            (ele, idx) =>
-                `border: Percentile 0.85<br />xvar: ${ele}<br />yvar: ${dataParcentileY[idx]}`,
+            (ele, idx) => `border: Percentile 0.85<br />xvar: ${ele}<br />yvar: ${dataParcentileY[idx]}`,
         ) || [];
 
     // axis label
@@ -77,10 +62,7 @@ const generateXTrainScatter = (json) => {
     // scatter
     const dataScatterX = getNode(json, ['scatter', 'x']) || [];
     const dataScatterY = getNode(json, ['scatter', 'y']) || [];
-    const dataScatterText =
-        dataScatterX.map(
-            (ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`,
-        ) || [];
+    const dataScatterText = dataScatterX.map((ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`) || [];
 
     const {
         dataSigmaX,
@@ -429,9 +411,9 @@ const generateXTrainScatter = (json) => {
                 type: 'scatter',
             },
             '2f646ad6734': {
-                x: {},
-                y: {},
-                colour: {},
+                'x': {},
+                'y': {},
+                'colour': {},
                 'x.1': {},
                 'y.1': {},
             },
@@ -483,10 +465,7 @@ const generateXTestScatter = (json, jsonTrain) => {
     // scatter
     const dataScatterX = getNode(json, ['scatter', 'x']) || [];
     const dataScatterY = getNode(json, ['scatter', 'y']) || [];
-    const dataScatterText =
-        dataScatterX.map(
-            (ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`,
-        ) || [];
+    const dataScatterText = dataScatterX.map((ele, idx) => `'xvar: ${ele}<br />yvar: ${dataScatterY[idx]}'`) || [];
 
     const {
         dataSigmaX,
@@ -811,16 +790,16 @@ const generateXTestScatter = (json, jsonTrain) => {
                 type: 'scatter',
             },
             '2746e4841e1': {
-                x: {},
-                y: {},
-                colour: {},
+                'x': {},
+                'y': {},
+                'colour': {},
                 'x.1': {},
                 'y.1': {},
             },
-            27471696011: {
+            '27471696011': {
                 xintercept: {},
             },
-            27436716639: {
+            '27436716639': {
                 yintercept: {},
             },
         },
@@ -828,8 +807,8 @@ const generateXTestScatter = (json, jsonTrain) => {
         visdat: {
             '274714c1e60': ['function (y) ', 'x'],
             '2746e4841e1': ['function (y) ', 'x'],
-            27471696011: ['function (y) ', 'x'],
-            27436716639: ['function (y) ', 'x'],
+            '27471696011': ['function (y) ', 'x'],
+            '27436716639': ['function (y) ', 'x'],
         },
         highlight: {
             on: 'plotly_click',
@@ -892,12 +871,8 @@ const generateBiplot = (json, jsonTrain, sampleNo = null) => {
         }
         vectorY.push(0);
         vectorY.push(x);
-        vectorText.push(
-            `x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`,
-        );
-        vectorText.push(
-            `x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`,
-        );
+        vectorText.push(`x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`);
+        vectorText.push(`x: 0<br />y: 0<br />xvar: ${dataX[i]}<br />yvar:  ${dataY[i]}`);
     });
 
     // clickedPoint

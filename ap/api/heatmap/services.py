@@ -48,6 +48,7 @@ from ap.common.constants import (
     ELAPSED_TIME,
     END_COL_ID,
     END_DATE,
+    END_DT,
     END_PROC_ID,
     END_TM,
     H_LABEL,
@@ -73,6 +74,7 @@ from ap.common.constants import (
     SERIALS,
     SORT_KEY,
     START_DATE,
+    START_DT,
     START_PROC,
     START_TM,
     TIME_COL,
@@ -98,6 +100,7 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.pandas_helper import append_series
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -222,7 +225,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                     _use_expired_cache=use_expired_cache,
                 )
 
-                convert_datetime_to_ct(df_term, graph_param)
+                df_term = convert_datetime_to_ct(df_term, graph_param)
 
                 df = df_term.copy() if df is None else pd.concat([df, df_term])
 
@@ -293,7 +296,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         # outliers count
         dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
 
-        convert_datetime_to_ct(df, graph_param)
+        df = convert_datetime_to_ct(df, graph_param)
 
         chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
 
@@ -418,9 +421,8 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         array_z = array_z[sorted_cols]
 
         missing_data = [None] * len(missing_y)
-        df_missing = pd.DataFrame({col: missing_data for col in array_z.columns}, index=missing_y)
-        array_z = pd.concat([array_z, df_missing])
-        array_z.sort_index(inplace=True)
+        df_missing = pd.DataFrame({col: missing_data for col in array_z.columns}, index=pd.Series(list(missing_y)))
+        array_z = pd.concat([array_z, df_missing]).sort_index()
 
         # limit 10K cells
         if array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:
@@ -481,8 +483,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     dic_param['is_show_h_label'] = is_show_h_label
     dic_param['is_show_first_h_label'] = is_show_first_h_label
     dic_param['is_filtered'] = bool(dic_cat_filters)
-    dic_param['x_fmt'] = get_fmt_from_array(df[x_label].to_list())
-    dic_param['y_fmt'] = get_fmt_from_array(df[y_label].to_list())
+    dic_param['x_fmt'] = get_fmt_from_array(df[x_label])
+    dic_param['y_fmt'] = get_fmt_from_array(df[y_label])
+    dic_param['is_judge_color'] = dic_cols[color_id].is_judge if color_id else None
 
     # add proc name for x and y column
     dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].shown_name if x_id else None
@@ -737,8 +740,7 @@ def split_df_by_time_range(dic_df_chunks, max_group=None, max_record_per_group=N
 @log_execution_time()
 def drop_missing_data(df: DataFrame, cols):
     if df is not None and len(df):
-        df.dropna(subset=[col for col in cols if col], inplace=True)
-        df = df.convert_dtypes()
+        df = df.dropna(subset=[col for col in cols if col]).convert_dtypes()
     return df
 
 
@@ -849,9 +851,9 @@ def gen_scatter_data_count(
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
             if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+                dic_data[CYCLE_IDS] = df_data.rowid
             else:
-                dic_data[CYCLE_IDS] = []
+                dic_data[CYCLE_IDS] = pd.Series()
 
             output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
@@ -908,10 +910,10 @@ def gen_scatter_by_cyclic(
     df = drop_missing_data(df, [x, y, color] + levels)
 
     dic_df_chunks = {}
-    df.set_index(TIME_COL, inplace=True, drop=False)
+    df = df.set_index(TIME_COL, drop=False)
     for term_id, term in enumerate(terms):
-        start_dt = term['start_dt']
-        end_dt = term['end_dt']
+        start_dt = term[START_DT]
+        end_dt = term[END_DT]
         df_chunk = df[(df.index >= start_dt) & (df.index < end_dt)]
         dic_df_chunks[(start_dt, end_dt)] = df_chunk
 
@@ -957,9 +959,9 @@ def gen_scatter_by_cyclic(
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
             if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+                dic_data[CYCLE_IDS] = df_data.rowid
             else:
-                dic_data[CYCLE_IDS] = []
+                dic_data[CYCLE_IDS] = pd.Series()
 
             output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
@@ -1042,10 +1044,9 @@ def gen_scatter_cat_div(
         h_keys_str = h_key
         count_h_key = 0
 
-        for v_keys, df_data in dic_group.items():
-            for idx in list_na_indexes:
-                if idx in df_data.index:
-                    df_data.drop(idx, inplace=True)
+        for v_keys, df_data_ in dic_group.items():
+            df_data = df_data_.drop(index=list_na_indexes)
+
             if v_keys not in facet_keys:
                 count_h_key += 1
                 if count_h_key == len(dic_group) and all(val is not None for val in facet_keys):
@@ -1070,9 +1071,9 @@ def gen_scatter_cat_div(
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
             if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+                dic_data[CYCLE_IDS] = df_data.rowid
             else:
-                dic_data[CYCLE_IDS] = []
+                dic_data[CYCLE_IDS] = pd.Series()
 
             output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
@@ -1158,9 +1159,9 @@ def gen_scatter_by_direct_term(
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
             dic_data[Y_SERIAL] = get_proc_serials(df_data, y_serial_cols)
             if ROWID in df_data.columns and chart_type == ChartType.SCATTER.value:
-                dic_data[CYCLE_IDS] = df_data.rowid.tolist()
+                dic_data[CYCLE_IDS] = df_data.rowid
             else:
-                dic_data[CYCLE_IDS] = []
+                dic_data[CYCLE_IDS] = pd.Series()
 
             output_times.append((get_proc_times(df_data, x_proc_id), get_proc_times(df_data, y_proc_id)))
             output_graphs.append(dic_data)
@@ -1181,7 +1182,7 @@ def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_
         V_LABEL: v_keys_str,
         ARRAY_X: df_data[x].reset_index(drop=True),
         ARRAY_Y: df_data[y].reset_index(drop=True),
-        COLORS: df_data[color] if color else [],
+        COLORS: df_data[color] if color else pd.Series(),
         TIMES: times,
         TIME_MIN: time_min,
         TIME_MAX: time_max,
@@ -1205,9 +1206,9 @@ def gen_empty_dic_graphs(facet_keys, h_keys_str, v_keys_str, time_min, time_max,
         TIME_MAX: time_max,
         N_TOTAL: 0,
         SORT_KEY: h_keys_str if sort_key is None else sort_key,
-        X_SERIAL: [],
-        Y_SERIAL: [],
-        CYCLE_IDS: [],
+        X_SERIAL: pd.Series(),
+        Y_SERIAL: pd.Series(),
+        CYCLE_IDS: pd.Series(),
         IS_EMPTY_GRAPH: True,
     }
     output_time = ([], [])
@@ -1222,8 +1223,8 @@ def get_heatmap_distinct(graphs):
     array_x = pd.Series([])
     array_y = pd.Series([])
     for graph in graphs:
-        array_x = array_x.append(graph[ARRAY_X].drop_duplicates())
-        array_y = array_y.append(graph[ARRAY_Y].drop_duplicates())
+        array_x = append_series(array_x, graph[ARRAY_X].drop_duplicates())
+        array_y = append_series(array_y, graph[ARRAY_Y].drop_duplicates())
 
     return set(array_x), set(array_y)
 
@@ -1232,18 +1233,18 @@ def get_heatmap_distinct(graphs):
 def get_heatmap_range_with_steps(graphs, step=1):
     array_x, array_y, range_x, range_y = pd.Series([]), pd.Series([]), pd.Series([]), pd.Series([])
     for graph in graphs:
-        range_x = range_x.append(graph[ARRAY_X].drop_duplicates())
-        range_y = range_y.append(graph[ARRAY_Y].drop_duplicates())
+        range_x = append_series(range_x, graph[ARRAY_X].drop_duplicates())
+        range_y = append_series(range_y, graph[ARRAY_Y].drop_duplicates())
 
     for i, v in enumerate(range(range_x.min(), range_x.max())):
         if not i:
-            array_x = array_x.append(pd.Series([v]))
-        array_x = array_x.append(pd.Series([array_x.iloc[-1] + step]))
+            array_x = append_series(array_x, pd.Series([v]))
+        array_x = append_series(array_x, pd.Series([array_x.iloc[-1] + step]))
 
     for i, v in enumerate(range(range_y.min(), range_y.max())):
         if not i:
-            array_y = array_y.append(pd.Series([v]))
-        array_y = array_y.append(pd.Series([array_y.iloc[-1] + step]))
+            array_y = append_series(array_y, pd.Series([v]))
+        array_y = append_series(array_y, pd.Series([array_y.iloc[-1] + step]))
     return set(array_x), set(array_y)
 
 

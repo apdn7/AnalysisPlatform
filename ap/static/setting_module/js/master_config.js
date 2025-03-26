@@ -58,16 +58,13 @@ const defaultFilter = {
 
 const getProcessConfigFromDB = async (procId) => {
     if (!procId) return {};
-    const json = await fetch(
-        `/ap/api/setting/proc_config/${procId}/visualizations`,
-        {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
+    const json = await fetch(`/ap/api/setting/proc_config/${procId}/visualizations`, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
         },
-    )
+    })
         .then((response) => response.clone().json())
         .catch((err) => {
             // console.log(err);
@@ -147,17 +144,10 @@ const setDefaultGraphConfig = () => {
 
 const copyAllGraphConfig = (e) => {
     // change editing row to normal
-    let editingBtnElements = document.querySelectorAll(
-        '#tblVisualConfig td.text-inline button.btn-recent',
-    );
+    let editingBtnElements = document.querySelectorAll('#tblVisualConfig td.text-inline button.btn-recent');
     editingBtnElements.forEach((button) => visualModule.editRow(button));
     const text = collectAllGraphConfigInfo();
-    navigator.clipboard
-        .writeText(text)
-        .then(
-            showToastCopyToClipboardSuccessful,
-            showToastCopyToClipboardFailed,
-        );
+    navigator.clipboard.writeText(text).then(showToastCopyToClipboardSuccessful, showToastCopyToClipboardFailed);
 };
 
 const collectAllGraphConfigInfo = () => {
@@ -166,20 +156,14 @@ const collectAllGraphConfigInfo = () => {
     const headerCount = filterElements.tblConfigTable.find('thead tr').length;
     const colHeaderLen = headerTexts.length / headerCount;
     const mainHeaderText = headerTexts.slice(0, colHeaderLen).join(TAB_CHAR);
-    const subHeaderText = headerTexts
-        .slice(colHeaderLen, 2 * colHeaderLen)
-        .join(TAB_CHAR);
-    const searchHeaderText = headerTexts
-        .slice(2 * colHeaderLen, 3 * colHeaderLen)
-        .join(TAB_CHAR);
+    const subHeaderText = headerTexts.slice(colHeaderLen, 2 * colHeaderLen).join(TAB_CHAR);
+    const searchHeaderText = headerTexts.slice(2 * colHeaderLen, 3 * colHeaderLen).join(TAB_CHAR);
 
     const bodyText = _.zip([...filterElements.tblConfigBody.find('tr')])
         .map(([trColumn]) => [...getTRDataValues(trColumn)].join(TAB_CHAR))
         .join(NEW_LINE_CHAR);
 
-    return [mainHeaderText, subHeaderText, searchHeaderText, bodyText].join(
-        NEW_LINE_CHAR,
-    );
+    return [mainHeaderText, subHeaderText, searchHeaderText, bodyText].join(NEW_LINE_CHAR);
 };
 
 /**
@@ -189,10 +173,7 @@ const collectAllGraphConfigInfo = () => {
 const pasteAllGraphConfigInfo = (e) => {
     navigator.clipboard.readText().then(function (text) {
         const originalTable = transformCopiedTextToTable(text);
-        const tableData = transformCopiedGraphConfigTable(
-            originalTable,
-            filterElements.tblConfigTable,
-        );
+        const tableData = transformCopiedGraphConfigTable(originalTable, filterElements.tblConfigTable);
         if (tableData === null) {
             return;
         }
@@ -203,12 +184,7 @@ const pasteAllGraphConfigInfo = (e) => {
         let tblConfigDOM = '';
         let index = 0;
         for (const configRow of mergedConfigRows) {
-            const [_, rowDOM] = visualModule.addConfigRow(
-                configRow,
-                false,
-                true,
-                index++,
-            );
+            const [_, rowDOM] = visualModule.addConfigRow(configRow, false, true, index++);
             tblConfigDOM += rowDOM;
         }
         $(visualModule.eles.tblConfigBody).html(tblConfigDOM);
@@ -230,21 +206,14 @@ const transformCopiedGraphConfigTable = (table) => {
     let newTable = table;
     // user don't copy header rows
     let userHeaderRow = newTable[0];
-    const hasHeaderRow = _.isEqual(
-        userHeaderRow.slice(0, mainHeaderTexts.length),
-        mainHeaderTexts,
-    );
+    const hasHeaderRow = _.isEqual(userHeaderRow.slice(0, mainHeaderTexts.length), mainHeaderTexts);
     if (!hasHeaderRow) {
-        showToastrMsg(
-            'There is no header in copied text. Please also copy header!',
-            MESSAGE_LEVEL.WARN,
-        );
+        showToastrMsg('There is no header in copied text. Please also copy header!', MESSAGE_LEVEL.WARN);
         return null;
     }
 
     // should off by one if we have order column
-    const hasOrderColumn =
-        table[0].length && table[0][0] === mainHeaderTexts[0];
+    const hasOrderColumn = table[0].length && table[0][0] === mainHeaderTexts[0];
     if (hasOrderColumn) {
         newTable = table.map((row) => row.slice(1));
     }
@@ -254,14 +223,8 @@ const transformCopiedGraphConfigTable = (table) => {
 
 const downloadAllMasterConfigInfo = (e) => {
     const text = collectAllGraphConfigInfo();
-    const processName = filterElements.processList
-        .find(':selected')
-        .text()
-        .trim();
+    const processName = filterElements.processList.find(':selected').text().trim();
     const fileName = `${processName}_master_config.tsv`;
     downloadText(fileName, text);
-    showToastrMsg(
-        document.getElementById('i18nStartedTSVDownload').textContent,
-        MESSAGE_LEVEL.INFO,
-    );
+    showToastrMsg(document.getElementById('i18nStartedTSVDownload').textContent, MESSAGE_LEVEL.INFO);
 };

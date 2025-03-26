@@ -9,13 +9,10 @@
         <form id="traceDataForm" class="GUIForm">
             {{ macros.end_proc(procs, width=2, label_i18n_key='Show value', multiple_proc=true, showStartProc=true, title=_('Identify the explanatory variables that are correlated with the variable(s) specified here.'), nominalScale=True) }}
             {{ macros.data_finder_card() }}
-            {{ macros.start_proc(showAutoUpdate=false) }}
+            {{ macros.start_proc(showAutoUpdate=true) }}
             {{ macros.cond_proc(width=2, title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="show-graph-div d-flex justify-content-center align-items-center"
-                style="text-align: center;"
-            >
+            <div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -45,11 +42,7 @@
         {{ macros.jump_modal() }}
     </div>
 
-    <div
-        id="plot-card"
-        class="plot-content"
-        style="margin-top: 1rem; display: none;"
-    >
+    <div id="plot-card" class="plot-content" style="margin-top: 1rem; display: none;">
         <div class="mb-2 d-flex" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
@@ -85,20 +78,15 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('MAEInfo') }}"
-                                        class="hint-text blue-decoration"
-                                        >{{ _('Mean absolute error') }}
-                                        (MAE)</span
+                                    <span title="{{ _('MAEInfo') }}" class="hint-text blue-decoration"
+                                        >{{ _('Mean absolute error') }} (MAE)</span
                                     >
                                 </td>
                                 <td id="mae"></td>
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('R2Info') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('R2Info') }}" class="hint-text blue-decoration"
                                         >{{ _('Adjusted R2') }}</span
                                     >
                                 </td>
@@ -106,11 +94,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table
-                        id="classif-table"
-                        class="table table-bordered"
-                        style="display: none;"
-                    >
+                    <table id="classif-table" class="table table-bordered" style="display: none;">
                         <tbody>
                             <tr>
                                 <td>{{ _('Target variable') }}</td>
@@ -118,9 +102,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('Accuracy description') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('Accuracy description') }}" class="hint-text blue-decoration"
                                         >{{ _('Accuracy') }}</span
                                     >
                                 </td>
@@ -128,9 +110,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('Precision description') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('Precision description') }}" class="hint-text blue-decoration"
                                         >{{ _('Precision') }}</span
                                     >
                                 </td>
@@ -138,9 +118,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('Recall description') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('Recall description') }}" class="hint-text blue-decoration"
                                         >{{ _('Recall') }}</span
                                     >
                                 </td>
@@ -148,9 +126,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('ROC-AUC description') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('ROC-AUC description') }}" class="hint-text blue-decoration"
                                         >{{ _('ROC-AUC') }}</span
                                     >
                                 </td>
@@ -158,9 +134,7 @@
                             </tr>
                             <tr>
                                 <td>
-                                    <span
-                                        title="{{ _('PR-AUC description') }}"
-                                        class="hint-text blue-decoration"
+                                    <span title="{{ _('PR-AUC description') }}" class="hint-text blue-decoration"
                                         >{{ _('PR-AUC') }}</span
                                     >
                                 </td>
@@ -178,9 +152,7 @@
     {{ macros.data_point_info() }}
 
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

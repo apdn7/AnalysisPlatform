@@ -1,3 +1,4 @@
+from ap.common.jobs.jobs import RunningJob, RunningJobs
 from ap.common.multiprocess_sharing.events import (
     Event,
     EventAddJob,
@@ -9,7 +10,7 @@ from ap.common.multiprocess_sharing.events import (
     EventShutDown,
 )
 from ap.common.multiprocess_sharing.manager import CustomManager
-from ap.common.multiprocess_sharing.queue import EventQueue, RunningJob, RunningJobs
+from ap.common.multiprocess_sharing.queue import EventQueue
 
 
 def start_sharing_instance_server():

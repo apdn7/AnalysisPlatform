@@ -36,6 +36,7 @@ from ap.common.constants import (
     DATA_TYPE_ERROR_MSG,
     DATETIME,
     EFA_HEADER_FLAG,
+    EMPTY_STRING,
     WR_HEADER_NAMES,
     WR_VALUES,
     CacheType,
@@ -105,10 +106,10 @@ PANDAS_DEFAULT_NA = {
     'null',
     'na',
 }
-NA_VALUES = {'na', '-', '--', '---', '#NULL!', '#REF!', '#VALUE!', '#NUM!', '#NAME?', '0/0'}
+NA_VALUES = {'na', '-', '--', '---', '#NULL!', '#REF!', '#VALUE!', '#NUM!', '#NAME?', '0/0', '-0/0'}
 PREVIEW_ALLOWED_EXCEPTIONS = {'-', '--', '---'}
-INF_VALUES = {'Inf', 'Infinity', '1/0', '#DIV/0!', float('inf')}
-INF_NEG_VALUES = {'-Inf', '-Infinity', '-1/0', float('-inf')}
+INF_VALUES = {'Inf', 'Infinity', '1/0', '#DIV/0!', float('inf'), np.inf}
+INF_NEG_VALUES = {'-Inf', '-Infinity', '-1/0', '-#DIV/0!', float('-inf'), -np.inf}
 
 ALL_SYMBOLS = set(PANDAS_DEFAULT_NA | NA_VALUES | INF_VALUES | INF_NEG_VALUES)
 # let app can show preview and import all na column, as string
@@ -119,7 +120,7 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 
 
 @log_execution_time('[DATA IMPORT]')
-def import_data(df, proc_id, get_date_col, cfg_columns: List[CfgProcessColumn], job_info=None):
+def import_data(df, cfg_process: CfgProcess, get_date_col, job_info=None):
     cycles_len = len(df)
     if not cycles_len:
         return 0
@@ -131,27 +132,27 @@ def import_data(df, proc_id, get_date_col, cfg_columns: List[CfgProcessColumn], 
 
     # insert cycles
     # get cycle and sensor columns for insert sql
-    dic_cfg_cols = {cfg_col.column_name: cfg_col for cfg_col in cfg_columns}
-    table_name = gen_transaction_table_name(proc_id)
+    dic_cfg_cols = {cfg_col.column_name: cfg_col for cfg_col in cfg_process.get_transaction_process_columns()}
+    table_name = gen_transaction_table_name(cfg_process.id)
     dic_col_with_type = {dic_cfg_cols[col].bridge_column_name: dic_cfg_cols[col].data_type for col in df.columns}
     col_names = dic_col_with_type.keys()
 
-    # add new column name if not exits
-    add_new_not_exits_columns(proc_id, table_name, dic_col_with_type)
-
     sql_params = get_insert_params(col_names)
     sql_insert = gen_bulk_insert_sql(table_name, *sql_params)
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+    with DbProxy(gen_data_source_of_universal_db(cfg_process.id), True, immediate_isolation_level=True) as db_instance:
+        # add new column name if not exits
+        TransactionData.add_columns(db_instance, table_name, dic_col_with_type)
+
         # insert transaction data
         insert_data(db_instance, sql_insert, insert_vals)
 
         # insert data count
-        save_proc_data_count(db_instance, df, proc_id, get_date_col)
+        save_proc_data_count(db_instance, df, cfg_process.id, get_date_col)
 
     # update actual imported rows
     job_info.committed_count = df.shape[0]
     # insert import history
-    save_import_history(proc_id, job_info=job_info)
+    save_import_history(cfg_process.id, job_info=job_info)
 
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
@@ -267,10 +268,10 @@ def write_error_import(
     return df_error
 
 
-def get_latest_records(proc_id):
-    trans_data = TransactionData(proc_id)
+def get_latest_records(cfg_process: CfgProcess):
+    trans_data = TransactionData(cfg_process)
     dic_cols = {cfg_col.bridge_column_name: cfg_col.column_name for cfg_col in trans_data.cfg_process_columns}
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+    with DbProxy(gen_data_source_of_universal_db(cfg_process.id), True) as db_instance:
         cols, rows = trans_data.get_latest_records_by_process_id(db_instance)
 
     df = pd.DataFrame(rows, columns=[dic_cols[col_name] for col_name in cols])
@@ -298,7 +299,7 @@ def write_error_cast_data_types(process: CfgProcess, failed_column_data: dict[Cf
     df = pd.DataFrame()
     for column, data in failed_column_data.items():
         column_name = column.bridge_column_name
-        df[column_name] = pd.Series(data, dtype=np.object.__name__)
+        df[column_name] = pd.Series(data, dtype=object)
     df = gen_error_cast_output_df(process, df)
 
     # write data to file
@@ -307,6 +308,7 @@ def write_error_cast_data_types(process: CfgProcess, failed_column_data: dict[Cf
     return full_path
 
 
+@log_execution_time()
 def gen_error_cast_output_df(process: CfgProcess, df_error: DataFrame) -> DataFrame:
     """
     Generate a dataframe with title & error data
@@ -322,6 +324,8 @@ def gen_error_cast_output_df(process: CfgProcess, df_error: DataFrame) -> DataFr
         columns.append('')
         new_row.append('')
         df_output[''] = ''
+
+    df_output, _ = mark_error_records_in_df(df_output)
 
     df_output = add_row_to_df(df_output, columns, new_row)
 
@@ -351,69 +355,82 @@ def gen_error_cast_output_df(process: CfgProcess, df_error: DataFrame) -> DataFr
     return df_output
 
 
-def gen_error_output_df(csv_file_name, dic_cols, df_error, df_db, error_msgs=None):
+@log_execution_time()
+def gen_error_output_df(csv_file_name, dic_cols: dict[str, CfgProcessColumn], df_error, df_db, error_msgs=None):
     db_len = len(df_db)
-    df_db = df_db.append(df_error, ignore_index=True)
-    columns = df_db.columns.tolist()
+    df_output = pd.concat([df_db, df_error], ignore_index=True)
+    columns = df_output.columns.tolist()
+
+    # extract error
+    df_output, error_cols = mark_error_records_in_df(df_output)
 
     # error data
     new_row = columns
-    df_db = add_row_to_df(df_db, columns, new_row, db_len, rename_err_cols=True)
+    df_output = add_row_to_df(df_output, columns, new_row, db_len, error_cols=error_cols)
 
     new_row = ('column name/sample data (first 10 & last 10)',)
-    df_db = add_row_to_df(df_db, columns, new_row, db_len)
+    df_output = add_row_to_df(df_output, columns, new_row, db_len)
 
     new_row = ('Data File', csv_file_name)
-    df_db = add_row_to_df(df_db, columns, new_row, db_len)
+    df_output = add_row_to_df(df_output, columns, new_row, db_len)
 
     new_row = ('',)
-    df_db = add_row_to_df(df_db, columns, new_row, db_len)
+    df_output = add_row_to_df(df_output, columns, new_row, db_len)
 
     # data in db
     new_row = columns
     selected_columns = list(dic_cols.keys())
-    df_db = add_row_to_df(df_db, columns, new_row, selected_columns=selected_columns, mark_not_set_cols=True)
+    df_output = add_row_to_df(df_output, columns, new_row, selected_columns=selected_columns, mark_not_set_cols=True)
 
     new_row = ('column name/sample data (latest 5)',)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = [DataType[dic_cols[col_name].data_type].name for col_name in columns if col_name in dic_cols]
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = ('data type',)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = ('Database',)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = ('',)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = ('',)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     error_msg = '|'.join(error_msgs) if isinstance(error_msgs, (list, tuple)) else error_msgs
 
     error_type = error_msg or DATA_TYPE_ERROR_MSG
     error_type += '(!: Target column)'
     new_row = ('Error Type', error_type)
-    df_db = add_row_to_df(df_db, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
-    if ERR_COLS_NAME in df_db.columns:
-        df_db.drop(columns=ERR_COLS_NAME, inplace=True)
+    if ERR_COLS_NAME in df_output.columns:
+        df_output = df_output.drop(columns=ERR_COLS_NAME)
 
-    return df_db
+    return df_output
 
 
 @log_execution_time()
-def gen_duplicate_output_df(dic_use_cols, df_duplicate, csv_file_name=None, table_name=None, error_msgs=None):
+def gen_duplicate_output_df(
+    dic_use_cols: dict[str, CfgProcessColumn],
+    df_duplicate,
+    csv_file_name=None,
+    table_name=None,
+    error_msgs=None,
+):
     # db_name: if factory db -> db name
     #                           else if csv -> file name
     columns = df_duplicate.columns.tolist()
 
+    # mark error
+    df_output, _ = mark_error_records_in_df(df_duplicate)
+
     # duplicate data
     new_row = columns
-    df_output = add_row_to_df(df_duplicate, columns, new_row)
+    df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = (f'column name/duplicate data (total: {len(df_duplicate)} rows)',)
     df_output = add_row_to_df(df_output, columns, new_row)
@@ -452,30 +469,26 @@ def gen_duplicate_output_df(dic_use_cols, df_duplicate, csv_file_name=None, tabl
     return df_output
 
 
-def add_row_to_df(df, columns, new_row, pos=0, rename_err_cols=False, selected_columns=[], mark_not_set_cols=False):
+@log_execution_time()
+def add_row_to_df(
+    df,
+    columns,
+    new_row,
+    pos=0,  # position to put `new_row`
+    error_cols: dict[str, str] | None = None,
+    selected_columns=None,
+    mark_not_set_cols=False,
+):
+    """Add new rows to the top of dataframe"""
     df_temp = pd.DataFrame({columns[i]: new_row[i] for i in range(len(new_row))}, index=[pos])
 
-    error_cols = {}
-    if ERR_COLS_NAME in df.columns:
-        df = df.astype('string')
-        for i in range(len(df)):
-            for col_name in df.columns:
-                if (
-                    not pd.isna(df.iloc[i][ERR_COLS_NAME])
-                    and col_name in df.iloc[i][ERR_COLS_NAME]
-                    and col_name not in [ERR_COLS_NAME, IS_ERROR_COL]
-                ):
-                    df.loc[i, col_name] = '{}*****'.format(df.iloc[i][col_name])
-                    error_cols[col_name] = '!{}'.format(col_name)
-            df.loc[i, ERR_COLS_NAME] = None
-
     # add ! to head of error columns
-    if rename_err_cols:
+    if error_cols is not None:
         for col_val in error_cols:
             df_temp[col_val] = error_cols[col_val]
 
     # add bracket to unselected columns
-    if mark_not_set_cols and len(selected_columns):
+    if mark_not_set_cols and selected_columns is not None and len(selected_columns):
         for col_val in columns:
             if col_val not in selected_columns:
                 df_temp[col_val] = '({})'.format(col_val)
@@ -483,6 +496,28 @@ def add_row_to_df(df, columns, new_row, pos=0, rename_err_cols=False, selected_c
     df = pd.concat([df.iloc[0:pos], df_temp, df.iloc[pos:]]).reset_index(drop=True)
 
     return df
+
+
+def mark_error_records_in_df(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, str]]:
+    """Mark error items with ***** and extract error columns from dataframe"""
+
+    error_cols = {}
+    if ERR_COLS_NAME in df.columns:
+        df = df.astype(pd.StringDtype())
+        for col_name in df.columns:
+            if col_name in [ERR_COLS_NAME, IS_ERROR_COL]:
+                continue
+
+            is_error = df[ERR_COLS_NAME].str.contains(col_name, regex=False)
+            if is_error.any():
+                df.loc[is_error, col_name] = df.loc[is_error, col_name].fillna('') + '*****'
+                error_cols[col_name] = f'!{col_name}'
+
+        # not sure if this one is needed...
+        # remove all error columns
+        df[ERR_COLS_NAME] = None
+
+    return df, error_cols
 
 
 @log_execution_time()
@@ -611,7 +646,7 @@ def set_cycle_ids_to_df(df: DataFrame, start_cycle_id):
     :param start_cycle_id:
     :return:
     """
-    df.reset_index(drop=True, inplace=True)
+    df = df.reset_index(drop=True)
     df.index = df.index + start_cycle_id
     return df
 
@@ -697,7 +732,7 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
     """
     from ap.api.setting_module.services.csv_import import convert_eu_decimal
 
-    init_is_error_col(df)
+    df = init_is_error_col(df)
 
     if exclude_cols is None:
         exclude_cols = []
@@ -706,8 +741,8 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
     exclude_cols.append(ERR_COLS_NAME)
 
     # string + object + category
-    float_cols = df.select_dtypes(include=['float']).columns.tolist()
-    int_cols = df.select_dtypes(include=['integer']).columns.tolist()
+    float_cols = df.select_dtypes(include=['float32', 'float64']).columns.tolist()
+    int_cols = df.select_dtypes(include=['int32', 'int64']).columns.tolist()
     for col_name in df.columns:
         if col_name in exclude_cols:
             continue
@@ -723,135 +758,127 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
         user_data_type = dic_use_cols[col_name].data_type
         d_type = dic_use_cols[col_name].predict_type
 
-        # do nothing with float column
-        if col_name in float_cols and user_data_type != DataType.INTEGER.name:
+        if col_name in float_cols:
+            if user_data_type == DataType.INTEGER.name:
+                df[col_name] = df[col_name].replace([np.inf, -np.inf], np.nan).astype(pd.Int64Dtype())
+            # do nothing with float cols for now
             continue
 
         # convert inf , -inf to Nan
         nan, inf_neg_val, inf_val = return_inf_vals(user_data_type)
-        if col_name in float_cols and user_data_type == DataType.INTEGER.name:
-            df.loc[df[col_name].isin([float('inf'), float('-inf')]), col_name] = nan
-            non_na_vals = df[col_name].dropna()
-            if len(non_na_vals):
-                df.loc[non_na_vals.index, col_name] = df.loc[non_na_vals.index, col_name].astype('Int64')
+        to_replaces = [na_vals, INF_NEG_VALUES, INF_VALUES]
+        replace_values = [nan, inf_neg_val, inf_val]
+        # skip infinity for boolean dtype
+        # there is a caveat case, where our `numeric_data` is `Int64` but boolean's `inf_val` is `string`
+        if user_data_type == DataType.BOOLEAN.name:
+            to_replaces = [na_vals]
+            replace_values = [nan]
 
-            continue
-
-        # strip quotes and spaces
-        dtype_name = df[col_name].dtype.name
-        if dtype_name == 'boolean':
+        # change boolean to string column name
+        # handle case when importing boolean column as float
+        # ask tuannh3 for more information
+        if pd.api.types.is_bool_dtype(df[col_name]):
             df[col_name] = df[col_name].astype(pd.StringDtype()).str.lower()
 
         # convert K sep Int|Real data type
-        if dic_use_cols[col_name].predict_type and DataType[d_type] in [
+        if d_type and DataType[d_type] in [
             DataType.REAL_SEP,
             DataType.INTEGER_SEP,
             DataType.EU_REAL_SEP,
             DataType.EU_INTEGER_SEP,
         ]:
-            convert_eu_decimal(df, col_name, d_type)
+            df = convert_eu_decimal(df, col_name, d_type)
 
         if user_data_type in [DataType.INTEGER.name, DataType.REAL.name, DataType.BOOLEAN.name]:
-            vals = df[col_name].copy()
+            numeric_data, non_numeric_data = convert_numeric_by_type(df[col_name], user_data_type)
+            df[col_name] = numeric_data
 
-            # convert numeric values
-            numerics = pd.to_numeric(vals, errors='coerce')
-            numerics = convert_numeric_by_type(numerics, user_data_type)
-            df[col_name] = numerics
-            # strip quote space then convert non numeric values
-            non_num_idxs = numerics.isna()
-            non_numerics = vals.loc[non_num_idxs].dropna()
-            if len(non_numerics):
-                non_num_idxs = non_numerics.index
-                non_numerics = non_numerics.astype(str).str.strip("'").str.strip()
+            # try to convert the unconverted values
+            if len(non_numeric_data) > 0:
+                # convert to string before converting to number
+                non_numeric_data = non_numeric_data.astype(pd.StringDtype()).str.strip("'").str.strip()
 
+                # need to handle boolean dtype
                 if user_data_type == DataType.BOOLEAN.name:
-                    non_numerics = non_numerics.replace(['true', True], 1).replace(['false', False], 0)
+                    non_numeric_data = non_numeric_data.replace(['true', 'false'], ['1', '0'])
 
-                # convert non numeric again
-                numerics = pd.to_numeric(non_numerics, errors='coerce')
-                numerics = convert_numeric_by_type(numerics, user_data_type)
-                df.loc[non_num_idxs, col_name] = numerics
+                # try to convert to numeric again with those from string
+                numeric_data_from_str, non_numeric_data = convert_numeric_by_type(non_numeric_data, user_data_type)
 
-                # set error for non numeric values
-                non_num_idxs = numerics.isna()
-                for idx, is_true in non_num_idxs.items():
-                    if not is_true:
-                        continue
+                # set converted number to `col_name`
+                df.loc[numeric_data_from_str.index, col_name] = numeric_data_from_str
 
-                    if vals.at[idx] in na_vals:
-                        df.at[idx, col_name] = nan
-                    elif vals.at[idx] in INF_VALUES:
-                        df.at[idx, col_name] = inf_val
-                    elif vals.at[idx] in INF_NEG_VALUES:
-                        df.at[idx, col_name] = inf_neg_val
-                    else:
-                        df.at[idx, IS_ERROR_COL] = 1
-                        df.at[idx, ERR_COLS_NAME] = df[ERR_COLS_NAME].at[idx] + '{},'.format(col_name)
+            # There are still some `non_numeric_data`, we convert them into `NA`, `INF` and `INF_NEG`
+            # If this is True, it means `non_numeric_data` is now string
+            if len(non_numeric_data):
+                for to_replace, replace_value in zip(to_replaces, replace_values):
+                    replaceable = non_numeric_data.isin(to_replace)
+
+                    # set those replaceable with new replace_value
+                    df.loc[non_numeric_data[replaceable].index, col_name] = replace_value
+
+                    # remove them from `non_numeric_data`
+                    non_numeric_data = non_numeric_data[~replaceable]
+
+            if len(non_numeric_data):
+                # TODO: separate them using `set_error_col`
+                df.loc[non_numeric_data.index, IS_ERROR_COL] = 1
+                df.loc[non_numeric_data.index, ERR_COLS_NAME] += f'{col_name},'
 
                 try:
-                    if len(non_num_idxs):
-                        pd.to_numeric(df.loc[non_num_idxs.index, col_name], errors='raise')
-                except Exception as ex:
-                    logger.exception(ex)
+                    # report some here, we might not need this for better performance ...
+                    pd.to_numeric(non_numeric_data)
+                except Exception as e:
+                    logger.exception(e)
 
             # replace Inf --> None
             if user_data_type == DataType.INTEGER.name:
-                df.loc[df[col_name].isin([float('inf'), float('-inf')]), col_name] = nan
+                df[col_name] = df[col_name].replace([np.inf, -np.inf], np.nan).astype(pd.Int64Dtype())
 
         elif user_data_type == DataType.TEXT.name:
-            idxs = df[col_name].dropna().index
-            if dtype_name == 'object':
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str).str.strip("'").str.strip()
-            elif dtype_name == 'string':
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].str.strip("'").str.strip()
+            if pd.api.types.is_object_dtype(df[col_name]):
+                df[col_name] = df[col_name].astype(pd.StringDtype()).str.strip("'").str.strip()
+            elif pd.api.types.is_string_dtype(df[col_name]):
+                df[col_name] = df[col_name].str.strip("'").str.strip()
             else:
                 # convert to string before insert to database
-                df.loc[idxs, col_name] = df.loc[idxs, col_name].astype(str)
+                df[col_name] = df[col_name].astype(pd.StringDtype())
+                # previously this is not string.
+                # However, every value to be replaced are string (except inf values)
+                # so we can skip them here.
                 continue
 
-            if len(idxs):
-                conditions = [
-                    df[col_name].isin(na_vals),
-                    df[col_name].isin(INF_VALUES),
-                    df[col_name].isin(INF_NEG_VALUES),
-                ]
-                return_vals = [nan, inf_val, inf_neg_val]
+            # replace string to correct values
+            # refer to csv files in <https://trello.com/c/YtbtrFUk/213-13e-import-data-with-column-name-is-empty>
+            # we only replace if df has non-na, this is legacy code.
+            if df[col_name].notna().any():
+                for to_replace, replace_value in zip(to_replaces, replace_values):
+                    df.loc[df[col_name].isin(to_replace), col_name] = replace_value
 
-                df[col_name] = np.select(conditions, return_vals, df[col_name])
-    df.head()
-
-
-@log_execution_time()
-def add_new_col_to_df(df: DataFrame, col_name, value):
-    """
-    add new value as a new column in dataframe , but avoid duplicate column name.
-    :param df:
-    :param col_name:
-    :param value:
-    :return:
-    """
-    columns = list(df.columns)
-    # avoid duplicate column name
-    while col_name in columns:
-        col_name = '_' + col_name
-
-    df[col_name] = value
-
-    return col_name
+    return df
 
 
 def return_inf_vals(data_type):
     if data_type == DataType.REAL.name:
-        return np.nan, float('-inf'), float('inf')
+        return np.nan, -np.inf, np.inf
     elif data_type == DataType.INTEGER.name:
         return pd.NA, pd.NA, pd.NA
 
-    return None, '-inf', 'inf'
+    # pandas replace does not work with None, we must use pd.NA here
+    # <https://stackoverflow.com/questions/17097236/replace-invalid-values-with-none-in-pandas-dataframe>
+    return pd.NA, '-inf', 'inf'
 
 
 @log_execution_time()
-def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=None, get_date_col=None):
+def data_pre_processing(
+    df,
+    orig_df,
+    dic_use_cols,
+    na_values=None,
+    exclude_cols=None,
+    get_date_col=None,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Return non_error_df and error_df"""
     if exclude_cols is None:
         exclude_cols = []
     if na_values is None:
@@ -859,39 +886,36 @@ def data_pre_processing(df, orig_df, dic_use_cols, na_values=None, exclude_cols=
 
     # string parse
     cols = get_object_cols(df)
-    # keep None value in object column, instead of convert to "None"
-    df[cols] = df[cols].fillna(np.nan)
-    df[cols] = df[cols].astype(str)
+    df[cols] = df[cols].astype(pd.StringDtype())
     cols += get_string_cols(df)
-
     # normalization
     for col in cols:
         df[col] = normalize_df(df, col)
 
     # parse data type
-    validate_data(df, dic_use_cols, na_values, exclude_cols)
+    df = validate_data(df, dic_use_cols, na_values, exclude_cols)
+
+    columns = list(set(df.columns) - set(exclude_cols))
 
     # If there are all invalid values in one row, the row will be invalid and not be imported to database
     # Otherwise, invalid values will be set nan in the row and be imported normally
+    is_error_row_series = df[IS_ERROR_COL] == 1
     if get_date_col:
+        # FIXME: is this needed in new pandas?
         # datetime_col as string, but value is 'nan' -> could not filter by isnull
         datetime_series = pd.to_datetime(df[get_date_col])
-        is_error_row_series = df.eval(f'{IS_ERROR_COL} == 1') & (
-            datetime_series.isnull() | df[set(df.columns) - set(exclude_cols)].isnull().all(axis=1)
-        )
+        is_error_row_series &= datetime_series.isna() | df[columns].isna().all(axis=1)
     else:
-        is_error_row_series = df.eval(f'{IS_ERROR_COL} == 1') & df[set(df.columns) - set(exclude_cols)].isnull().all(
-            axis=1,
-        )
-    df_error = orig_df.loc[is_error_row_series]
-    df_error[ERR_COLS_NAME] = df.loc[is_error_row_series][ERR_COLS_NAME]
+        is_error_row_series &= df[columns].isna().all(axis=1)
+
+    df_error = orig_df
+    df_error[ERR_COLS_NAME] = df[ERR_COLS_NAME]
+    df_error = df_error[is_error_row_series]
 
     # remove status column ( no need anymore )
-    df.drop(df[is_error_row_series].index, inplace=True)
-    df.drop(IS_ERROR_COL, axis=1, inplace=True)
-    df.drop(ERR_COLS_NAME, axis=1, inplace=True)
+    df = df.drop(columns=[IS_ERROR_COL, ERR_COLS_NAME])[~is_error_row_series]
 
-    return df_error
+    return df, df_error
 
 
 # @log_execution_time()
@@ -966,7 +990,7 @@ def convert_df_col_to_utc(df, get_date_col, is_timezone_inside, db_time_zone, ut
     if not db_time_zone:
         db_time_zone = tz.tzlocal()
 
-    local_dt = df[df[get_date_col].notnull()][get_date_col]
+    local_dt = df[get_date_col]
     # return if there is utc
     if not utc_time_offset:
         # utc_offset = 0
@@ -981,7 +1005,7 @@ def convert_df_col_to_utc(df, get_date_col, is_timezone_inside, db_time_zone, ut
 
 @log_execution_time()
 def convert_df_datetime_to_str(df: DataFrame, get_date_col):
-    return df[df[get_date_col].notnull()][get_date_col].dt.strftime(DATE_FORMAT_STR).astype(pd.StringDtype())
+    return df[get_date_col].dt.strftime(DATE_FORMAT_STR).astype(pd.StringDtype())
 
 
 @log_execution_time()
@@ -990,50 +1014,40 @@ def validate_datetime(
     date_col,
     is_strip=True,
     add_is_error_col=True,
-    null_is_error=True,
+    empty_as_error=True,
     is_convert_datetime=True,
 ):
-    dtype_name = df[date_col].dtype.name
-    if dtype_name == 'object':
-        df[date_col] = df[date_col].astype(pd.StringDtype())
-    elif dtype_name != 'string':
-        return
+    # We validate based on string, so we must convert them into string first.
+    df[date_col] = df[date_col].astype(pd.StringDtype())
+
+    # Somehow, pandas does not allow to convert to `string`, we skip for now.
+    # But this is error, might need to address it.
+    if not pd.api.types.is_string_dtype(df[date_col]):
+        logger.error('validate_datetime: cannot convert `date_col` to `string`')
+        return df
 
     # for csv data
     if is_strip:
         df[date_col] = df[date_col].str.strip("'").str.strip()
 
-    na_value = [np.nan, np.inf, -np.inf, 'nan', '<NA>', np.NAN, pd.NA]
-    # convert to datetime value
-    if not null_is_error:
-        idxs = ~(df[date_col].isin(na_value))
+    # Need to check `is_empty` here, before converting them into datetime datetype.
+    is_empty = df[date_col].str.strip() == EMPTY_STRING
 
     if is_convert_datetime:
-        df[date_col] = pd.to_datetime(df[date_col], errors='coerce')  # failed records -> pd.NaT
+        try:
+            df[date_col] = pd.to_datetime(df[date_col], errors='coerce', format='mixed')
+        except TypeError:
+            df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
 
     # mark error records
     if add_is_error_col:
-        init_is_error_col(df)
+        df = init_is_error_col(df)
+        is_error = df[date_col].isna()
+        if empty_as_error:
+            is_error |= is_empty
+        df = set_error_col(df, is_error, date_col)
 
-        if null_is_error:
-            df[IS_ERROR_COL] = np.where(pd.isna(df[date_col]), 1, df[IS_ERROR_COL])
-            err_date_col_idxs = df[date_col].isna()
-            for idx, _ in err_date_col_idxs.items():
-                err_col_name = df[ERR_COLS_NAME].at[idx] + '{},'.format(date_col)
-                df.at[idx, ERR_COLS_NAME] = err_col_name if pd.isna(df[date_col].at[idx]) else df[ERR_COLS_NAME].at[idx]
-        else:
-            df_temp = df.loc[idxs, [date_col, IS_ERROR_COL, ERR_COLS_NAME]]
-            # df.loc[idxs, IS_ERROR_COL] = np.where(pd.isna(df.loc[idxs, date_col]), 1, df.loc[idxs, IS_ERROR_COL])
-            df_temp[IS_ERROR_COL] = np.where(pd.isna(df_temp[date_col]), 1, df_temp[IS_ERROR_COL])
-            df_temp[ERR_COLS_NAME] = np.where(
-                pd.isna(df_temp[date_col]),
-                df_temp[ERR_COLS_NAME] + date_col + ',',
-                df_temp[ERR_COLS_NAME],
-            )
-            df.loc[idxs, IS_ERROR_COL] = df_temp
-            df.loc[idxs, ERR_COLS_NAME] = df_temp
-
-        df.head()
+    return df
 
 
 def init_is_error_col(df: DataFrame):
@@ -1041,6 +1055,20 @@ def init_is_error_col(df: DataFrame):
         df[IS_ERROR_COL] = 0
     if ERR_COLS_NAME not in df.columns:
         df[ERR_COLS_NAME] = ''
+    return df
+
+
+def set_error_col(df: pd.DataFrame, is_error: pd.Series[bool], col_name: str) -> pd.DataFrame:
+    df = init_is_error_col(df)
+    if is_error.any():
+        # if `is_error` is False use old value, otherwise use 1
+        df[IS_ERROR_COL] = df[IS_ERROR_COL].where(~is_error, 1)
+
+        # if `is_error` is False use old value, otherwise use `err_col_name`
+        err_col_name = df[ERR_COLS_NAME] + f'{col_name},'
+        df[ERR_COLS_NAME] = df[ERR_COLS_NAME].where(~is_error, err_col_name)
+
+    return df
 
 
 # @log_execution_time()
@@ -1141,7 +1169,9 @@ def save_use_os_timezone_to_db(proc_id, yml_use_os_timezone):
 
 @log_execution_time()
 def gen_insert_cycle_values(df):
-    cycle_vals = df.replace({pd.NA: np.nan}).to_records(index=False).tolist()
+    # https://github.com/pandas-dev/pandas/issues/55127
+    # Pandas 2.0 failed to convert pd.NA to np.nan
+    cycle_vals = df.replace({pd.NA: None}).to_records(index=False).tolist()
     return cycle_vals
 
 
@@ -1200,25 +1230,10 @@ def insert_data_to_db(cycle_vals, sql_insert_cycle):
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
 
-@log_execution_time()
-def add_new_not_exits_columns(proc_id, table_name, dic_col_with_type):
-    sql = f'SELECT * FROM {table_name} WHERE 1=2;'
-    import_cols = dic_col_with_type.keys()
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
-        exist_columns, _ = db_instance.run_sql(sql)
-        new_columns = [import_col for import_col in import_cols if import_col not in exist_columns]
-        for new_column in new_columns:
-            add_sql = f'ALTER TABLE {table_name} ADD COLUMN {new_column} {dic_col_with_type[new_column]};'
-            db_instance.execute_sql(add_sql)
-
-        db_instance.connection.commit()
-
-
 def get_df_first_n_last(df: DataFrame, first_count=10, last_count=10):
     if len(df) <= first_count + last_count:
         return df
-
-    return df.loc[df.head(first_count).index.append(df.tail(last_count).index)]
+    return pd.concat([df.head(first_count), df.tail(last_count)])
 
 
 @log_execution_time()
@@ -1367,7 +1382,7 @@ def calculate_value_counts_per_hours(
     s = pd.to_datetime(df[get_date_col], errors='coerce')
     s: Series = (s.dt.year * 1_00_00_00 + s.dt.month * 1_00_00 + s.dt.day * 1_00 + s.dt.hour).value_counts()
     count_df = s.rename(count_column).reset_index(name=count_column)
-    count_df.rename(columns={'index': DataCountTable.datetime.name}, inplace=True)
+    count_df = count_df.rename(columns={get_date_col: DataCountTable.datetime.name})
     count_df[DataCountTable.datetime.name] = pd.to_datetime(
         count_df[DataCountTable.datetime.name],
         format='%Y%m%d%H',

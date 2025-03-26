@@ -1,19 +1,6 @@
 const JUMP_API = '/ap/api/common/jump_cfg';
 
-const PAGES = [
-    'fpp',
-    'stp',
-    'rlp',
-    'msp',
-    'chm',
-    'scp',
-    'agp',
-    'skd',
-    'pcp',
-    'gl',
-    'pca',
-    'hmp',
-];
+const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp'];
 
 const PAGE_NAME = {
     fpp: 'fpp',
@@ -46,8 +33,7 @@ const jumpEls = {
     jumpErrEle: '#jumpAlertMsg',
     jumpWithoutTargetPage: '#i18nJumpWithoutTargetPageMsg',
     jumpWithDfMode: '#i18nJumpWithDfModeMsg',
-    jumpObjectiveEls:
-        '#jumpSensorTbl tbody tr input[type=radio][name=objective_var]',
+    jumpObjectiveEls: '#jumpSensorTbl tbody tr input[type=radio][name=objective_var]',
     jumpVariableEls: '#jumpSensorTbl tbody tr input[type=checkbox]',
     jumpSelectAllCheckbox: '#jumpSelectAllSensor',
     autoSelectedColumn: '#jumpAutoSelectedItems',
@@ -98,13 +84,7 @@ const ALL_DIVISION = {
         default: 'category',
     },
     agp: {
-        all: [
-            'category',
-            'cyclicTerm',
-            'directTerm',
-            'dataNumberTerm',
-            'cyclicCalender',
-        ],
+        all: ['category', 'cyclicTerm', 'directTerm', 'dataNumberTerm', 'cyclicCalender'],
         default: 'cyclicCalender',
     },
     hmp: {
@@ -122,13 +102,8 @@ $(() => {
     initCommonSearchInput($(jumpEls.searchInput));
     // Handler set search input button
     $(jumpEls.searchSetBtn).on('click', function () {
-        const variableInput = $(jumpEls.jumpTblBody).find(
-            'tr:not(.gray) input[type=checkbox]:visible:not(:checked)',
-        );
-        updateLatestSortColByRowElems(
-            variableInput.closest('tr').toArray(),
-            [],
-        );
+        const variableInput = $(jumpEls.jumpTblBody).find('tr:not(.gray) input[type=checkbox]:visible:not(:checked)');
+        updateLatestSortColByRowElems(variableInput.closest('tr').toArray(), []);
         variableInput.prop('checked', true);
         handleSortVariableNameByCheckbox();
         updatePriority(jumpEls.jumpTblID);
@@ -136,16 +111,9 @@ $(() => {
         updateJumpStatus();
     });
     $(jumpEls.searchResetBtn).on('click', function () {
-        const variableInput = $(jumpEls.jumpTblBody).find(
-            'tr:not(.gray) input[type=checkbox]:visible',
-        );
-        const objectiveInput = $(jumpEls.jumpTblBody).find(
-            'tr:not(.gray) input[type=radio]:visible',
-        );
-        updateLatestSortColByRowElems(
-            [],
-            variableInput.closest('tr').toArray(),
-        );
+        const variableInput = $(jumpEls.jumpTblBody).find('tr:not(.gray) input[type=checkbox]:visible');
+        const objectiveInput = $(jumpEls.jumpTblBody).find('tr:not(.gray) input[type=radio]:visible');
+        updateLatestSortColByRowElems([], variableInput.closest('tr').toArray());
         variableInput.prop('checked', false);
         objectiveInput.prop('checked', false);
         validateJumpSkdObjective();
@@ -175,9 +143,7 @@ const showJumpModal = async () => {
 const showOptionalCheckbox = (page) => {
     $('.jump-check-box-option').find('input').prop('disabled', true);
     $('.jump-check-box-option').hide();
-    $(`.jump-check-box-option[data-for=${page}]`)
-        .find('input')
-        .prop('disabled', false);
+    $(`.jump-check-box-option[data-for=${page}]`).find('input').prop('disabled', false);
     $(`.jump-check-box-option[data-for=${page}]`).show();
 };
 
@@ -249,9 +215,7 @@ const loadJumpPages = (res) => {
 const handleOnClickPage = (e) => {
     e.preventDefault();
     const _this = $(e.currentTarget);
-    const objectiveIdVal = $(jumpEls.jumpTblBody)
-        .find('input[name=objective_var]:checked')
-        .attr('id');
+    const objectiveIdVal = $(jumpEls.jumpTblBody).find('input[name=objective_var]:checked').attr('id');
     $('.jump-page-list .tile-item').removeClass('active');
     _this.addClass('active');
     $(jumpEls.autoSelectedColumn).prop('checked', true);
@@ -273,10 +237,7 @@ const validateJumpSkdObjective = () => {
     } else {
         resetJumpErrMsg();
     }
-    $(jumpEls.jumpOkButton).prop(
-        'disabled',
-        targetPageHasObjective && !objectiveVal,
-    );
+    $(jumpEls.jumpOkButton).prop('disabled', targetPageHasObjective && !objectiveVal);
 };
 
 const addEventChangeVariableOrObjective = () => {
@@ -286,8 +247,7 @@ const addEventChangeVariableOrObjective = () => {
 };
 
 const updateOverItemsColor = (tableID) => {
-    const maxJumpSensorNumber =
-        MAX_SENSOR_NUMBER[getTargetPage()[0]] || MAX_JUMP_SENSOR_NUMBER;
+    const maxJumpSensorNumber = MAX_SENSOR_NUMBER[getTargetPage()[0]] || MAX_JUMP_SENSOR_NUMBER;
     $(`${tableID} tbody tr`).each((rowIdx, row) => {
         $(row).removeClass('over-lim-item');
         if (rowIdx + 1 > maxJumpSensorNumber) {
@@ -299,9 +259,7 @@ const updateOverItemsColor = (tableID) => {
 const updateObjectiveForTargetJumpPage = () => {
     const targetPage = getTargetPage()[0];
     const targetPageHasObjective = HAS_OBJECTIVE_PAGE.includes(targetPage);
-    const objectiveElem = $(
-        `${jumpEls.jumpTblBody} tr input[type=radio][name=objective_var]`,
-    );
+    const objectiveElem = $(`${jumpEls.jumpTblBody} tr input[type=radio][name=objective_var]`);
     if (targetPageHasObjective) {
         enableJumpObjective(objectiveElem);
     } else {
@@ -320,34 +278,21 @@ const enableJumpObjective = (objectiveElem) => {
     const objectiveVal = currentTraceDat.COMMON.objectiveVar
         ? Number(currentTraceDat.COMMON.objectiveVar[0])
         : undefined;
-    const currentPageObjectiveVal = $(
-        `${formElements.endProcItems} input[name=objectiveVar]:checked`,
-    );
-    const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(
-        getTargetPage()[0],
-    );
+    const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
+    const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(getTargetPage()[0]);
     const elemObjectiveVal = jumpEls.jumpObjectiveEls;
     if (isPageJumpToHasObjective && !noneObjective) {
         if (objectiveVal && currentPageObjectiveVal.length) {
-            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop(
-                'checked',
-                true,
-            );
+            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop('checked', true);
         }
     } else {
         if (objectiveVal && currentPageObjectiveVal.length) {
-            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop(
-                'checked',
-                true,
-            );
+            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop('checked', true);
         } else {
             if (!noneObjective) {
                 $(`${elemObjectiveVal}:first`).prop('checked', true);
             }
-            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop(
-                'checked',
-                true,
-            );
+            $(`${elemObjectiveVal}[value=${objectiveVal}]`).prop('checked', true);
         }
     }
 };
@@ -370,17 +315,11 @@ const genColTypeForJumpTbl = (variable) => {
 const buildJumpTbl = (varOrdering, dfMode = true) => {
     // update checkbox status
     if (varOrdering.ordering.length) {
-        $(jumpEls.jumpTblBody).html('');
+        $(jumpEls.jumpTblBody).find('*').off().empty().html('');
         let tblContent = '';
         varOrdering.ordering.forEach((variable, i) => {
-            const objectiveChecked = checkedDefaultJumpObjective(
-                i,
-                variable.id,
-            );
-            const variableChecked = checkedJumpVariableByLatestSortCol(
-                variable.id,
-                varOrdering.orderingID,
-            );
+            const variableChecked = checkedJumpVariableByLatestSortCol(variable.id, varOrdering.orderingID);
+            const objectiveChecked = false;
             tblContent += `<tr data-proc-id="${variable.proc_id}"
                 data-col-id="${variable.id}" data-type="${DataTypes[variable.type].short}"
                 data-org-col-id="${variable.org_id || variable.id}">
@@ -406,23 +345,18 @@ const buildJumpTbl = (varOrdering, dfMode = true) => {
             </tr>`;
         });
         $(jumpEls.jumpTblBody).html(tblContent);
+        checkedDefaultJumpObjective();
         updateEventChangeVariableNameJump(varOrdering);
         updateOverItemsColor(jumpEls.jumpTblID);
         validateJumpSkdObjective();
         addEventChangeVariableOrObjective();
         updateObjectiveForTargetJumpPage();
         updateJumpStatus();
-        $(jumpEls.jumpTblBody).sortable({
-            helper: dragDropRowInTable.fixHelper,
-            update: () => {
-                updatePriority(jumpEls.jumpTblID);
-                updateOverItemsColor(jumpEls.jumpTblID);
-            },
-        });
+        addEventSortTable();
     }
 };
 
-const checkedDefaultJumpObjective = (rowIndex, variableId) => {
+const checkedDefaultJumpObjective = () => {
     const currentPage = getCurrentPage();
     const targetPage = getTargetPage()[0];
     const isJumpToSkd = targetPage === PAGE_NAME.skd;
@@ -431,19 +365,16 @@ const checkedDefaultJumpObjective = (rowIndex, variableId) => {
         ? Number(currentTrace.COMMON.objectiveVar[0])
         : undefined;
     const currentPageHasObjective = HAS_OBJECTIVE_PAGE.includes(currentPage);
-    const currentPageObjectiveVal = $(
-        `${formElements.endProcItems} input[name=objectiveVar]:checked`,
-    );
-    if (
-        !isJumpToSkd &&
-        (!currentPageHasObjective || !currentPageObjectiveVal.length)
-    ) {
-        return !rowIndex ? ' checked=checked' : '';
+    const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
+    if (!isJumpToSkd && (!currentPageHasObjective || !currentPageObjectiveVal.length)) {
+        $(jumpEls.jumpTblBody).find('tr:first').find('input[type="radio"]').prop('checked', true);
     }
     if (objectiveVariable && currentPageObjectiveVal.length) {
-        return objectiveVariable === variableId ? ' checked=checked' : '';
+        $(jumpEls.jumpTblBody)
+            .find('tr')
+            .find(`input[id=objective_${objectiveVariable}][type="radio"]`)
+            .prop('checked', true);
     }
-    return '';
 };
 
 const checkedJumpVariableByLatestSortCol = (variableId, ordering) => {
@@ -456,9 +387,7 @@ const checkedJumpVariableByLatestSortCol = (variableId, ordering) => {
 const updateVariableStatusJumpPage = () => {
     const targetPage = getTargetPage()[0];
     const currentPage = getCurrentPage();
-    const elemsVariableCheckBox = $(
-        `${jumpEls.jumpTblBody} tr input[type=checkbox]`,
-    );
+    const elemsVariableCheckBox = $(`${jumpEls.jumpTblBody} tr input[type=checkbox]`);
     // Check all checkboxes by default when jumping to SkD
     if (targetPage === PAGE_NAME.skd) {
         elemsVariableCheckBox.prop('checked', true);
@@ -467,16 +396,12 @@ const updateVariableStatusJumpPage = () => {
         let ordering = getVariableOrderingFromPage(currentPage);
         elemsVariableCheckBox.prop('checked', false);
         ordering.orderingID.forEach(function (orderingId) {
-            $(
-                `${jumpEls.jumpTblBody} tr[data-col-id=${orderingId}] input[type=checkbox]`,
-            ).prop('checked', true);
+            $(`${jumpEls.jumpTblBody} tr[data-col-id=${orderingId}] input[type=checkbox]`).prop('checked', true);
         });
         latestSortColIdsJumpPage = [...latestSortColIds];
         buildJumpTbl(ordering);
     }
-    const elemTrVariableChecked = $(`${jumpEls.jumpVariableEls}:checked`)
-        .closest('tr')
-        .toArray();
+    const elemTrVariableChecked = $(`${jumpEls.jumpVariableEls}:checked`).closest('tr').toArray();
     latestSortColIdsJumpPage = elemTrVariableChecked.map(
         (el) => `${$(el).attr('data-proc-id')}-${$(el).attr('data-col-id')}`,
     );
@@ -488,11 +413,7 @@ const getVariableOrderingFromPage = (page) => {
     let orderings = {};
     switch (page) {
         case PAGE_NAME.skd:
-            orderings = graphStore.getVariableOrdering(
-                procConfigs,
-                isSkDPage && isSkDSelectChecked,
-                !isSkDPage,
-            );
+            orderings = graphStore.getVariableOrdering(procConfigs, isSkDPage && isSkDSelectChecked, !isSkDPage);
             break;
         case PAGE_NAME.rlp: {
             const targetVars = graphStore.getTargetVariables(true);
@@ -503,35 +424,20 @@ const getVariableOrderingFromPage = (page) => {
             break;
         }
         case PAGE_NAME.pca:
-            orderings = graphStore.getVariableOrdering(
-                procConfigs,
-                false,
-                false,
-                true,
-            );
+            orderings = graphStore.getVariableOrdering(procConfigs, false, false, true);
             break;
         default:
-            orderings = graphStore.getVariableOrdering(
-                procConfigs,
-                false,
-                !isSkDPage,
-            );
+            orderings = graphStore.getVariableOrdering(procConfigs, false, !isSkDPage);
     }
     return orderings;
 };
 
-const bindVariableOrderingToModal = (
-    useFeatureImportance = true,
-    loadByOrderIDs = false,
-) => {
+const bindVariableOrderingToModal = (useFeatureImportance = true, loadByOrderIDs = false) => {
     let currentTraceDat = graphStore.getTraceData();
     const endProc = {};
     const currenPage = getCurrentPage();
     let varOrdering = undefined;
-    if (
-        latestSortColIds ||
-        (currentTraceDat.ARRAY_FORMVAL.length && procConfigs)
-    ) {
+    if (latestSortColIds || (currentTraceDat.ARRAY_FORMVAL.length && procConfigs)) {
         latestSortColIdsJumpPage = [...latestSortColIds];
         if (latestSortColIds) {
             latestSortColIds.forEach(async (val) => {
@@ -546,19 +452,10 @@ const bindVariableOrderingToModal = (
             });
         }
         if (currenPage === 'pca') {
-            varOrdering = graphStore.getVariableOrdering(
-                procConfigs,
-                false,
-                false,
-                true,
-            );
+            varOrdering = graphStore.getVariableOrdering(procConfigs, false, false, true);
         }
         if (currenPage === 'skd') {
-            varOrdering = graphStore.getVariableOrdering(
-                procConfigs,
-                useFeatureImportance,
-                loadByOrderIDs,
-            );
+            varOrdering = graphStore.getVariableOrdering(procConfigs, useFeatureImportance, loadByOrderIDs);
         } else if (currenPage === 'rlp') {
             const ordering = graphStore.getTargetVariables(true);
             varOrdering = {
@@ -566,23 +463,12 @@ const bindVariableOrderingToModal = (
                 orderingID: ordering.map((col) => col.id),
             };
         } else {
-            varOrdering = graphStore.getVariableOrdering(
-                procConfigs,
-                false,
-                loadByOrderIDs,
-            );
+            varOrdering = graphStore.getVariableOrdering(procConfigs, false, loadByOrderIDs);
         }
         // Check all variable when jump target page is Skd
-        if (
-            currenPage === PAGE_NAME.skd &&
-            getTargetPage()[0] === PAGE_NAME.skd
-        ) {
+        if (currenPage === PAGE_NAME.skd && getTargetPage()[0] === PAGE_NAME.skd) {
             varOrdering.orderingID = varOrdering.ordering.map((col) => col.id);
-            latestSortColIdsJumpPage = [
-                ...varOrdering.ordering.map(
-                    (col) => `${col.proc_id}-${col.id}`,
-                ),
-            ];
+            latestSortColIdsJumpPage = [...varOrdering.ordering.map((col) => `${col.proc_id}-${col.id}`)];
         }
         if (varOrdering) {
             buildJumpTbl(varOrdering);
@@ -608,9 +494,7 @@ const showErrorMsg = (errMsg) => {
 const getColorVar = () => {
     const colorVar = $('input[name=colorVar]:checked');
     if (colorVar.length) {
-        let groupName = colorVar
-            .parents('ul')
-            .find('input[type=checkbox]')[0].name;
+        let groupName = colorVar.parents('ul').find('input[type=checkbox]')[0].name;
         if (groupName) {
             groupName = groupName.replace('VALS', 'CATE');
         }
@@ -631,9 +515,7 @@ const handleClickOKJumpButton = (e) => {
         return;
     }
 
-    const isJumpByEmd = $(`${jumpEls.jumpByEmdDf}:not(:disabled)`).prop(
-        'checked',
-    );
+    const isJumpByEmd = $(`${jumpEls.jumpByEmdDf}:not(:disabled)`).prop('checked');
 
     let jumpKeyParams = '';
     if (isJumpByEmd) {
@@ -652,8 +534,7 @@ const handleClickOKJumpButton = (e) => {
     const limitTargetSensor = MAX_SENSOR_NUMBER[targetPage];
     const targetPageHasObjective = HAS_OBJECTIVE_PAGE.includes(targetPage);
     const rootPageHasObjective = HAS_OBJECTIVE_PAGE.includes(page);
-    const targetPageHasDivideOption =
-        Object.keys(ALL_DIVISION).includes(targetPage);
+    const targetPageHasDivideOption = Object.keys(ALL_DIVISION).includes(targetPage);
     const rootPageHasDivideOption = Object.keys(ALL_DIVISION).includes(page);
 
     // objectiveVar-39
@@ -661,44 +542,28 @@ const handleClickOKJumpButton = (e) => {
 
     // const validTrEl = [...allColumnsTr].splice(0, limitTargetSensor);
     // const excludeTrEl = allColumnsTr.length > limitTargetSensor ? [...allColumnsTr].splice(limitTargetSensor - allColumnsTr.length) : [];
-    const validTrEl = $(
-        `${jumpEls.jumpTblBody} tr:not(.over-lim-item) input[type=checkbox]:checked`,
-    )
+    const validTrEl = $(`${jumpEls.jumpTblBody} tr:not(.over-lim-item) input[type=checkbox]:checked`)
         .closest('tr')
         .toArray();
     const excludeTrEl = $(`${jumpEls.jumpTblBody}`)
-        .find(
-            'tr.over-lim-item input[type=checkbox]:checked,tr input[type=checkbox]:not(:checked)',
-        )
+        .find('tr.over-lim-item input[type=checkbox]:checked,tr input[type=checkbox]:not(:checked)')
         .closest('tr')
         .toArray();
     excludeSensors = excludeTrEl.map((el) => $(el).attr('data-col-id'));
-    jumpCheckedAllSensors = [...validTrEl].map((el) =>
-        $(el).attr('data-col-id'),
-    );
+    jumpCheckedAllSensors = [...validTrEl].map((el) => $(el).attr('data-col-id'));
 
     // let originColID = $(allColumnsTr[0]).attr('data-org-col-id');
     // const originColDataType = $(allColumnsTr[0]).attr('data-type');
-    const rowObjective = $(
-        `${jumpEls.jumpTblBody} tr input[type=radio]:checked`,
-    ).closest('tr');
+    const rowObjective = $(`${jumpEls.jumpTblBody} tr input[type=radio]:checked`).closest('tr');
     let originColID = rowObjective.attr('data-org-col-id');
     const originColDataType = rowObjective.attr('data-type');
 
-    const canNotCheckObjectDataType = [
-        DataTypes.STRING.short,
-        DataTypes.DATETIME.short,
-    ];
+    const canNotCheckObjectDataType = [DataTypes.STRING.short, DataTypes.DATETIME.short];
 
     if (isJumpByEmd) {
         if (canNotCheckObjectDataType.includes(originColDataType)) {
             originColID = $(
-                [...allColumnsTr].filter(
-                    (el) =>
-                        !canNotCheckObjectDataType.includes(
-                            $(el).attr('data-type'),
-                        ),
-                )[0],
+                [...allColumnsTr].filter((el) => !canNotCheckObjectDataType.includes($(el).attr('data-type')))[0],
             ).attr('data-org-col-id');
         }
 
@@ -731,10 +596,8 @@ const handleClickOKJumpButton = (e) => {
     if (rootPageHasDivideOption && targetPageHasDivideOption) {
         // check current of root division has in target division all option
         const datetimeRange = $('#datetimeRangeShowValue').text();
-        const currentRootDivision =
-            graphStore.getTraceData().COMMON.compareType;
-        const isTargetPageHasCurrentRootDivision =
-            ALL_DIVISION[targetPage].all.includes(currentRootDivision);
+        const currentRootDivision = graphStore.getTraceData().COMMON.compareType;
+        const isTargetPageHasCurrentRootDivision = ALL_DIVISION[targetPage].all.includes(currentRootDivision);
         if (!isTargetPageHasCurrentRootDivision) {
             setDefaultDivision(targetPage);
 
@@ -793,15 +656,12 @@ const handleClickOKJumpButton = (e) => {
     }
 
     // get sorted columns
-    let sortedColumnIds = validTrEl.map(
-        (el) => `${$(el).attr('data-proc-id')}-${$(el).attr('data-col-id')}`,
-    );
+    let sortedColumnIds = validTrEl.map((el) => `${$(el).attr('data-proc-id')}-${$(el).attr('data-col-id')}`);
     let currentTraceDat = graphStore.getTraceData();
     const isUseDfMode = $(jumpEls.jumpByEmdDf).is(':checked');
     if (currentTraceDat.ng_rates && isUseDfMode) {
         let ngRateCols = currentTraceDat.ng_rates.map(
-            (ngRateCol) =>
-                `${ngRateCol.end_proc_id}-${Number(ngRateCol.end_col_id) * RLP_DUMMY_ID}`,
+            (ngRateCol) => `${ngRateCol.end_proc_id}-${Number(ngRateCol.end_col_id) * RLP_DUMMY_ID}`,
         );
         ngRateCols = ngRateCols.filter((col) => !sortedColumnIds.includes(col));
         sortedColumnIds = [...sortedColumnIds, ...ngRateCols];
@@ -857,78 +717,84 @@ const jumpWithEMDAndNGCols = (e) => {
     // Check all variable when jump target page is Skd
     if (getTargetPage()[0] === PAGE_NAME.skd) {
         ordering.orderingID = ordering.ordering.map((col) => col.id);
-        latestSortColIdsJumpPage = [
-            ...ordering.ordering.map((col) => `${col.proc_id}-${col.id}`),
-        ];
+        latestSortColIdsJumpPage = [...ordering.ordering.map((col) => `${col.proc_id}-${col.id}`)];
     }
     buildJumpTbl(ordering, isJumpWithEMDChecked);
     validateJumpSkdObjective();
 };
 
 const updateEventChangeVariableNameJump = (varOrdering) => {
-    if (varOrdering.ordering.length) {
-        varOrdering.ordering.forEach((variable, i) => {
-            const procId = variable.proc_id;
-            const procColId = variable.id;
-            $(jumpEls.jumpTblBody)
-                .find(
-                    `tr[data-proc-id="${procId}"][data-col-id="${procColId}"]`,
-                )
-                .find(`input[type="checkbox"]`)
-                .on('change', (e) => {
-                    const targetObjectiveId = $(e.target)
-                        .closest('tr')
-                        .find('input[type="radio"]')
-                        .attr('id');
-                    const objectiveIdVal = $(jumpEls.jumpTblBody)
-                        .find('input[name=objective_var]:checked')
-                        .attr('id');
-                    updateOrderingJumpPage(varOrdering, e);
-                    updateObjectiveForTargetPage(
-                        objectiveIdVal,
-                        targetObjectiveId,
-                    );
-                    handleSortVariableNameByCheckbox(e);
-                    validateJumpSkdObjective();
-                    updatePriority(jumpEls.jumpTblID);
-                    updateOverItemsColor(jumpEls.jumpTblID);
-                    updateJumpStatus();
-                });
-            $(jumpEls.jumpTblBody)
-                .find(
-                    `tr[data-proc-id="${procId}"][data-col-id="${procColId}"]`,
-                )
-                .find(`input[type="radio"]`)
-                .on('change', (e) => {
-                    noneObjective = false;
-                    validateJumpSkdObjective();
-                    sortVariableByObjective(varOrdering, e);
-                    updatePriority(jumpEls.jumpTblID);
-                    updateOverItemsColor(jumpEls.jumpTblID);
-                    updateJumpStatus();
-                });
+    $(jumpEls.jumpTblBody)
+        .find('tr')
+        .find(`input[type="checkbox"]`)
+        .on('change', (e) => {
+            const targetObjectiveId = $(e.target).closest('tr').find('input[type="radio"]').attr('id');
+            const objectiveIdVal = $(jumpEls.jumpTblBody).find('input[name=objective_var]:checked').attr('id');
+
+            updateOrderingJumpPage(varOrdering, e);
+            updateObjectiveForTargetPage(objectiveIdVal, targetObjectiveId);
+            handleSortVariableNameByCheckbox(e);
+            validateJumpSkdObjective();
+            updatePriority(jumpEls.jumpTblID);
+            updateOverItemsColor(jumpEls.jumpTblID);
+            updateJumpStatus();
         });
-    }
+    $(jumpEls.jumpTblBody)
+        .find('tr')
+        .find(`input[type="radio"]`)
+        .on('change', (e) => {
+            noneObjective = false;
+            validateJumpSkdObjective();
+            sortVariableByObjective(varOrdering, e);
+            updatePriority(jumpEls.jumpTblID);
+            updateOverItemsColor(jumpEls.jumpTblID);
+            updateJumpStatus();
+        });
     if (noneObjective) {
-        $(jumpEls.jumpTblBody)
-            .find('input[type="radio"]')
-            .each(function () {
-                $(this).prop('checked', false);
-            });
+        $(jumpEls.jumpTblBody).find('input[type="radio"]').prop('checked', false);
     }
+};
+
+const addEventSortTable = () => {
+    const sortable = $(jumpEls.jumpTblBody).sortable({
+        connectWith: jumpEls.jumpTblBody,
+        items: '.sorting-initialize',
+        helper: dragDropRowInTable.fixHelper,
+        update: () => {
+            updatePriority(jumpEls.jumpTblID);
+            updateOverItemsColor(jumpEls.jumpTblID);
+        },
+    });
+    sortable.find('tr').one('mouseenter', function () {
+        $(this).addClass('sorting-initialize');
+        sortable.sortable('refresh');
+    });
 };
 
 const handleSortVariableNameByCheckbox = (e) => {
     const rowVariableName = $(jumpEls.jumpTblBodyTr);
-    rowVariableName.sort(function (a, b) {
-        const aChecked = $(a).find('input[type="checkbox"]').is(':checked');
-        const bChecked = $(b).find('input[type="checkbox"]').is(':checked');
-        // Rows with checked checkboxes come bellow list checked
-        return aChecked === bChecked ? 0 : aChecked ? -1 : 1;
-    });
-    $.each(rowVariableName, function (index, row) {
-        $(jumpEls.jumpTblBody).append(row);
-    });
+
+    const checkedRows = [];
+    $(rowVariableName)
+        .find('input:checked')
+        .each(function () {
+            const checkedRow = $(this).closest('tr');
+            checkedRows.push($(checkedRow));
+        });
+
+    if (checkedRows.length > 0) {
+        let lastCheckedRow = checkedRows[checkedRows.length - 1];
+        // move checkbox to top of table
+        checkedRows.forEach(function (row) {
+            row.insertBefore(rowVariableName.first());
+        });
+
+        // move checkbox to the end of checked box list
+        checkedRows.forEach(function (row) {
+            row.insertAfter(lastCheckedRow);
+            lastCheckedRow = row;
+        });
+    }
 };
 
 const updateOrderingJumpPage = (varOrdering, e) => {
@@ -940,25 +806,17 @@ const updateOrderingJumpPage = (varOrdering, e) => {
             latestSortColIdsJumpPage.push(`${procId}-${colId}`);
         }
     } else {
-        const isObjective = elementRow
-            .find('input[name="objective_var"]')
-            .is(':checked');
+        const isObjective = elementRow.find('input[name="objective_var"]').is(':checked');
         if (isObjective) {
-            $(jumpEls.jumpTblBody)
-                .find(`input[name="objective_var"]:checked`)
-                .prop('checked', false);
+            $(jumpEls.jumpTblBody).find(`input[name="objective_var"]:checked`).prop('checked', false);
             noneObjective = true;
         }
-        latestSortColIdsJumpPage = latestSortColIdsJumpPage.filter(
-            (e) => e !== `${procId}-${colId}`,
-        );
+        latestSortColIdsJumpPage = latestSortColIdsJumpPage.filter((e) => e !== `${procId}-${colId}`);
     }
 
     const newVarOrdering = {
-        ordering: varOrdering.ordering,
-        orderingID: latestSortColIdsJumpPage.map((val) =>
-            Number(val.split('-')[1]),
-        ),
+        ordering: sortVarOrdering(varOrdering.ordering),
+        orderingID: latestSortColIdsJumpPage.map((val) => Number(val.split('-')[1])),
     };
     buildJumpTbl(newVarOrdering);
 };
@@ -969,9 +827,7 @@ const sortVariableByObjective = (varOrdering, e) => {
     const colId = elementRow.attr('data-col-id');
 
     if (e.target.checked) {
-        const checkboxIsChecked = elementRow
-            .find('input[type="checkbox"]')
-            .is(':checked');
+        const checkboxIsChecked = elementRow.find('input[type="checkbox"]').is(':checked');
         if (!checkboxIsChecked) {
             elementRow.find('input[type="checkbox"]').prop('checked', true);
         }
@@ -981,33 +837,21 @@ const sortVariableByObjective = (varOrdering, e) => {
         $(jumpEls.jumpTblBody).prepend(elementRow);
     } else {
         elementRow.find('input[type="checkbox"]').prop('checked', false);
-        latestSortColIdsJumpPage = latestSortColIdsJumpPage.filter(
-            (e) => e !== `${procId}-${colId}`,
-        );
+        latestSortColIdsJumpPage = latestSortColIdsJumpPage.filter((e) => e !== `${procId}-${colId}`);
 
         const newVarOrdering = {
-            ordering: varOrdering.ordering,
-            orderingID: latestSortColIdsJumpPage.map((val) =>
-                Number(val.split('-')[1]),
-            ),
+            ordering: sortVarOrdering(varOrdering.ordering),
+            orderingID: latestSortColIdsJumpPage.map((val) => Number(val.split('-')[1])),
         };
         buildJumpTbl(newVarOrdering);
     }
 };
 
 const updateObjectiveForTargetPage = (objectiveIdVal, targetObjectiveId) => {
-    const objectiveElem = $(
-        `${jumpEls.jumpTblBody} tr input[type=radio][name=objective_var]`,
-    );
-    const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(
-        getTargetPage()[0],
-    );
+    const objectiveElem = $(`${jumpEls.jumpTblBody} tr input[type=radio][name=objective_var]`);
+    const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(getTargetPage()[0]);
     if (isPageJumpToHasObjective) {
-        if (
-            objectiveIdVal &&
-            objectiveIdVal === targetObjectiveId &&
-            !noneObjective
-        ) {
+        if (objectiveIdVal && objectiveIdVal === targetObjectiveId && !noneObjective) {
             noneObjective = true;
             $(`#${objectiveIdVal}`).prop('checked', false);
         } else if (objectiveIdVal && !noneObjective) {
@@ -1021,10 +865,7 @@ const updateObjectiveForTargetPage = (objectiveIdVal, targetObjectiveId) => {
 };
 
 const moveObjectiveRowToTop = (objectiveIdVal) => {
-    const elementRow = $(`#${objectiveIdVal}`)
-        .prop('checked', true)
-        .parents()
-        .eq(2);
+    const elementRow = $(`#${objectiveIdVal}`).prop('checked', true).parents().eq(2);
     $(jumpEls.jumpTblBody).prepend(elementRow);
 };
 
@@ -1034,10 +875,7 @@ const handleJumpChangeSelectAll = (elem) => {
     if (isChecked) {
         latestSortColIdsJumpPage = $(jumpEls.jumpTblBodyTr)
             .toArray()
-            .map(
-                (elem) =>
-                    `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`,
-            );
+            .map((elem) => `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`);
     } else {
         $(jumpEls.jumpObjectiveEls).prop('checked', false);
         latestSortColIdsJumpPage = [];
@@ -1063,16 +901,11 @@ const handleJumpSelectedItems = (elem) => {
 const updateJumpStatus = () => {
     const targetPage = getTargetPage()[0];
     const countVariable = $(jumpEls.jumpVariableEls).length;
-    const countVariableUnChecked = $(
-        `${jumpEls.jumpVariableEls}:not(:checked)`,
-    ).length;
+    const countVariableUnChecked = $(`${jumpEls.jumpVariableEls}:not(:checked)`).length;
     const countVariableChecked = countVariable - countVariableUnChecked;
     $(jumpEls.totalCheckedColumn).text(countVariableChecked);
     $(jumpEls.totalColumns).text(MAX_SENSOR_NUMBER[targetPage]);
-    $(jumpEls.jumpSelectAllCheckbox).prop(
-        'checked',
-        countVariable !== 0 && countVariableUnChecked === 0,
-    );
+    $(jumpEls.jumpSelectAllCheckbox).prop('checked', countVariable !== 0 && countVariableUnChecked === 0);
     if ($(`${jumpEls.jumpTblBodyTr}.gray`).length === 0) {
         $(jumpEls.searchInput).trigger($.Event('keypress'), { keycode: 13 });
     }
@@ -1088,19 +921,24 @@ function searchJumpInputHandler(event) {
 }
 
 const updateLatestSortColByRowElems = (rowElemsAdd, rowElemsRemove) => {
-    const variableChecked = rowElemsAdd.map(
-        (elem) =>
-            `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`,
-    );
+    const variableChecked = rowElemsAdd.map((elem) => `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`);
     const variableUnchecked = rowElemsRemove.map(
-        (elem) =>
-            `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`,
+        (elem) => `${$(elem).attr('data-proc-id')}-${$(elem).attr('data-col-id')}`,
     );
-    latestSortColIdsJumpPage.filter(
-        (item) => !variableUnchecked.includes(item),
-    );
+    latestSortColIdsJumpPage.filter((item) => !variableUnchecked.includes(item));
     latestSortColIdsJumpPage.push(...variableChecked);
     latestSortColIdsJumpPage = latestSortColIdsJumpPage
         .filter((item) => !variableUnchecked.includes(item))
         .filter((value, index, array) => array.indexOf(value) === index);
+};
+
+// sortVarOrdering to re-build JumpTable
+const sortVarOrdering = (varOrder) => {
+    const latestSortColID = latestSortColIdsJumpPage.map((val) => Number(val.split('-')[1]));
+    return varOrder.sort((a, b) => {
+        const aIndex = latestSortColID.indexOf(a.id);
+        const bIndex = latestSortColID.indexOf(b.id);
+
+        return (aIndex === -1 ? Infinity : aIndex) - (bIndex === -1 ? Infinity : bIndex);
+    });
 };

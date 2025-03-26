@@ -101,7 +101,6 @@ class ShowGraphConfigData(DictToClass):
                 DataType.INTEGER.name,
                 DataType.INTEGER_SEP.name,
                 DataType.EU_INTEGER_SEP.name,
-                DataType.BIG_INT.name,
             ]
         ]
         if column_name_only:

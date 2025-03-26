@@ -105,6 +105,12 @@ def gen_trace_key_info(proc_id, keys):
     return trace_key_infos
 
 
+def finished_transaction_import(process_id=None, publish: bool = True, is_user_request: bool = False):
+    logger.info('TRANSACTION_UPDATED_SUCCESS')
+    EventQueue.put(EventBackgroundAnnounce(data=True, event=AnnounceEvent.TRANSACTION_UPDATED))
+    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
+
+
 def add_gen_proc_link_job(process_id=None, publish=True, is_user_request: bool = False):
     """call gen proc link id job
 
@@ -251,7 +257,7 @@ def restructure_indexes_gen(process_id):
     yield 100
 
 
-def add_restructure_indexes_job(process_id=None):
+def add_restructure_indexes_job(process_id=None, delay: int = 0):
     """
     add job to handle indexes restructure of processes
     """
@@ -259,6 +265,7 @@ def add_restructure_indexes_job(process_id=None):
 
     for proc_id in proc_ids:
         run_time = datetime.now().astimezone(utc)
+        run_time += timedelta(seconds=delay)
         date_trigger = date.DateTrigger(run_date=run_time, timezone=utc)
         EventQueue.put(
             EventAddJob(

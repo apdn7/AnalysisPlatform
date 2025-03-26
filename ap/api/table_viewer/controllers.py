@@ -133,7 +133,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
     )
 
     # display header names, add suffixes to duplicate header names (including dummy header case)
-    header_names, _ = add_suffix_if_duplicated(header_names)
+    header_names, *_ = add_suffix_if_duplicated(header_names)
     df_data = pd.DataFrame(columns=header_names, data=data_details)
 
     if sort_colum:
@@ -141,7 +141,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
         sort_column_raw_name = dict_column_name[sort_colum]
         if sort_column_raw_name and sort_column_raw_name in df_data.columns:
             asc = sort_order == 'ASC'
-            df_data.sort_values(by=[sort_column_raw_name], ascending=asc, inplace=True)
+            df_data = df_data.sort_values(by=[sort_column_raw_name], ascending=asc)
 
     df_data = df_data.head(limit)
     cols = df_data.columns

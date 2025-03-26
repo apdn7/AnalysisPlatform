@@ -6,11 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <!-- https://stackoverflow.com/questions/31075893/im-getting-favicon-ico-error -->
-        <link
-            rel="icon"
-            href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
-            type="image/x-icon"
-        />
+        <link rel="icon" href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}" type="image/x-icon" />
         <link
             rel="shortcut icon"
             href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
@@ -126,10 +122,7 @@
             const getSetting = objTitle[currentUrl];
             if (getSetting) {
                 $('title').html(getSetting.title);
-                $("link[rel*='icon']").prop(
-                    'href',
-                    '/static/common/icons/' + getSetting.icon + '',
-                );
+                $("link[rel*='icon']").prop('href', '/static/common/icons/' + getSetting.icon + '');
             }
         </script>
         {% if not do_not_send_ga %}
@@ -147,9 +140,9 @@
                 gtag('js', new Date());
                 gtag('config', GA_TRACKING_ID);
 
-                const user_group = docCookies.getItem('user_group');
-                const app_source = docCookies.getItem('app_location');
-                let app_version = docCookies.getItem('app_version');
+                const user_group = docCookies.getItem(keyPort('user_group'));
+                const app_source = docCookies.getItem(keyPort('app_location'));
+                let app_version = docCookies.getItem(keyPort('app_version'));
                 app_version = app_version.split('.').slice(0, -1).join('.');
 
                 gtag('event', 'apdn7_events_tracking', {
@@ -172,12 +165,13 @@
             {% import 'macros.html' as macros %}
             {% block body %}
                 <div id="content">
-                    <header
-                        class="main-header navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down"
-                    >
+                    <header class="main-header navbar-expand-lg navbar-dark bg-primary graph-navi graph-navi-top-down">
                         {% include 'header.html' %}
                     </header>
-                    {{ macros.alert_message("alertNoLinkConfig", header_warning=True) }}
+                    <div class="multi-alert-message-area">
+                        {{ macros.alert_message("alertNoLinkConfig", header_warning=True) }}
+                        {{ macros.alert_message("alertMsgCheckUpdateTransactionDataJobShowGraph", header_warning=True) }}
+                    </div>
                     {% include 'messages.html' %}
                     <div class="row" id="mainContent">
                         <div class="col-lg-12">
@@ -196,11 +190,8 @@
             {% endblock %}
             <script type="text/javascript">
                 // hide setting page
-                const hideSettingPage = docCookies.getItem('hide_setting_page');
-                const useDefaultLogLevel = docCookies.getItem('log_level');
-                const isBrowserInvalidVersion = docCookies.getItem(
-                    'invalid_browser_version',
-                );
+                const hideSettingPage = docCookies.getItem(keyPort('hide_setting_page'));
+                const useDefaultLogLevel = docCookies.getItem(keyPort('log_level'));
                 if (hideSettingPage === 'True') {
                     $('#settingPageMenu').css('display', 'none');
                 }
@@ -210,11 +201,11 @@
                 }
 
                 // app version
-                const version = docCookies.getItem('app_version');
+                const version = docCookies.getItem(keyPort('app_version'));
                 $('#appVersion').text(version);
 
                 // app Location
-                const appLocation = docCookies.getItem('app_location');
+                const appLocation = docCookies.getItem(keyPort('app_location'));
                 if (appLocation) {
                     $('#appLocation').text(appLocation);
                 }

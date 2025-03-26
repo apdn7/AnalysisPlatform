@@ -4,13 +4,7 @@ const THIN_DATA_COUNT = 4000;
 // and three dots ('JP0123...')
 const CAT_LABEL_LIMIT = 12;
 
-function YasuTsChart(
-    $,
-    paramObj,
-    chartLabels = null,
-    tabID = null,
-    xaxis = 'TIME',
-) {
+function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIME') {
     const canvasId = setParam('canvasId', 'chart01');
     const procId = setParam('procId', null);
     let tsData = setParam('tsData', []);
@@ -210,9 +204,7 @@ function YasuTsChart(
             const y = dataPoint.parsed.y;
             if (dicRankLabels) {
                 const rankLabel = dicRankLabels[y];
-                return rankLabel
-                    ? `Cat${`0${Number(y)}`.slice(-2)}: ${rankLabel}`
-                    : COMMON_CONSTANT.NA;
+                return rankLabel ? `Cat${`0${Number(y)}`.slice(-2)}: ${rankLabel}` : COMMON_CONSTANT.NA;
             }
 
             return `${applySignificantDigit(y)}`;
@@ -265,9 +257,7 @@ function YasuTsChart(
             }
 
             if (
-                (COMMON_CONSTANT.NA === medVal &&
-                    COMMON_CONSTANT.NA === minVal &&
-                    COMMON_CONSTANT.NA === maxVal) ||
+                (COMMON_CONSTANT.NA === medVal && COMMON_CONSTANT.NA === minVal && COMMON_CONSTANT.NA === maxVal) ||
                 medVal === noLinked
             ) {
                 minVal = '';
@@ -279,13 +269,11 @@ function YasuTsChart(
 
         // use showname for Japan locale only
         const filterNameByLocale = (threholdInfo) => {
-            const currentLocale = docCookies.getItem('locale');
+            const currentLocale = docCookies.getItem(keyPort('locale'));
             if (!threholdInfo['type']) {
                 return i18n.default;
             }
-            return currentLocale === localeConst.JP
-                ? threholdInfo['type']
-                : threholdInfo['eng_name'];
+            return currentLocale === localeConst.JP ? threholdInfo['type'] : threholdInfo['eng_name'];
         };
         // get threshold of timerange
         const getThresholdInfor = (dataPoint) => {
@@ -299,33 +287,18 @@ function YasuTsChart(
                     ? plotData.catExpBox
                     : [plotData.catExpBox]
                 : null;
-            const [chartInfos, chartInfosOrg] = getChartInfo(
-                plotData,
-                'TIME',
-                filterCond,
-            );
-            const clickedVal =
-                currentTraceData.array_plotdata[dataIndex].array_x[
-                    dataPoint.dataIndex
-                ];
-            const [latestChartInfo] = chooseLatestThresholds(
-                chartInfos,
-                chartInfosOrg,
-                clickedVal,
-            );
+            const [chartInfos, chartInfosOrg] = getChartInfo(plotData, 'TIME', filterCond);
+            const clickedVal = currentTraceData.array_plotdata[dataIndex].array_x[dataPoint.dataIndex];
+            const [latestChartInfo] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
             const threshHigh = latestChartInfo['thresh-high'] || '';
             const threshLow = latestChartInfo['thresh-low'] || '';
             const prcMax = latestChartInfo['prc-max'] || '';
             const prcMin = latestChartInfo['prc-min'] || '';
             const validFrom = latestChartInfo['act-from']
-                ? moment(latestChartInfo['act-from']).format(
-                      'YYYY-MM-DD HH:mm:ss',
-                  )
+                ? moment(latestChartInfo['act-from']).format('YYYY-MM-DD HH:mm:ss')
                 : '';
             const validTo = latestChartInfo['act-to']
-                ? moment(latestChartInfo['act-to']).format(
-                      'YYYY-MM-DD HH:mm:ss',
-                  )
+                ? moment(latestChartInfo['act-to']).format('YYYY-MM-DD HH:mm:ss')
                 : '';
             const filterCol = filterNameByLocale(latestChartInfo);
             const filterDetail = latestChartInfo['name'] || i18n.default;
@@ -345,15 +318,11 @@ function YasuTsChart(
 
         const getDatTimeObj = (dataPoint) => {
             const currentTraceData = graphStore.getTraceData();
-            const datetimeCol =
-                currentTraceData.common_info[procId].datetime_col;
+            const datetimeCol = currentTraceData.common_info[procId].datetime_col;
 
             const canvasId = dataPoint.chart.canvas.id;
             const dataIndex = $(`#${canvasId}`).attr('plotdata-index') || 0;
-            const x =
-                currentTraceData.array_plotdata[dataIndex].array_x[
-                    dataPoint.dataIndex
-                ];
+            const x = currentTraceData.array_plotdata[dataIndex].array_x[dataPoint.dataIndex];
             if (isEmpty(x)) {
                 return { name: '', value: '' };
             }
@@ -362,8 +331,7 @@ function YasuTsChart(
         };
         const getSerialObj = (dataPoint) => {
             const currentTraceData = graphStore.getTraceData();
-            const serialColsName =
-                currentTraceData.common_info[procId].serial_columns || [];
+            const serialColsName = currentTraceData.common_info[procId].serial_columns || [];
             if (isEmpty(serialColsName)) {
                 return [{ name: '', value: '' }];
             }
@@ -373,8 +341,7 @@ function YasuTsChart(
             const canvasId = graphStore.getSelectedCanvas();
             const canvasIdx = parseInt(canvasId.substring(5, 8)) - 1; // canvasId = 'chart03' -> canvasIdx = 2
             if (currentTraceData.is_thin_data) {
-                serials =
-                    currentTraceData.array_plotdata[canvasIdx].serial_data;
+                serials = currentTraceData.array_plotdata[canvasIdx].serial_data;
             } else {
                 serials = currentTraceData.serial_data[procId];
             }
@@ -404,12 +371,7 @@ function YasuTsChart(
         const genDataTable = (dataPoint, outlierDict, currentThreshold) => {
             let thresholdTr = '';
             if (plotDataMin.length || plotDataMax.length) {
-                const [minVal, medVal, maxVal] = getDatYMinMaxVal(
-                    dataPoint,
-                    plotDataMin,
-                    plotDataMax,
-                    outlierDict,
-                );
+                const [minVal, medVal, maxVal] = getDatYMinMaxVal(dataPoint, plotDataMin, plotDataMax, outlierDict);
                 if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
                     thresholdTr += genTRItems(i18n.outlierVal, medVal);
                 } else {
@@ -420,29 +382,16 @@ function YasuTsChart(
 
                 // show from, to N of slot
                 if (slotFrom && slotFrom[dataPoint.dataIndex]) {
-                    thresholdTr += genTRItems(
-                        'From',
-                        formatDateTime(slotFrom[dataPoint.dataIndex]),
-                    );
+                    thresholdTr += genTRItems('From', formatDateTime(slotFrom[dataPoint.dataIndex]));
                 }
                 if (slotTo && slotTo[dataPoint.dataIndex]) {
-                    thresholdTr += genTRItems(
-                        'To',
-                        formatDateTime(slotTo[dataPoint.dataIndex]),
-                    );
+                    thresholdTr += genTRItems('To', formatDateTime(slotTo[dataPoint.dataIndex]));
                 }
                 if (slotCount && slotCount[dataPoint.dataIndex]) {
-                    thresholdTr += genTRItems(
-                        'N',
-                        applySignificantDigit(slotCount[dataPoint.dataIndex]),
-                    );
+                    thresholdTr += genTRItems('N', applySignificantDigit(slotCount[dataPoint.dataIndex]));
                 }
             } else {
-                const yVal = getDatYVal(
-                    dataPoint,
-                    beforeRankValues,
-                    outlierDict,
-                );
+                const yVal = getDatYVal(dataPoint, beforeRankValues, outlierDict);
                 if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
                     thresholdTr += genTRItems(i18n.outlierVal, yVal);
                 } else {
@@ -462,30 +411,15 @@ function YasuTsChart(
             thresholdTr += genTRItems('', ''); // br
 
             // filter
-            thresholdTr += genTRItems(
-                i18n.attribute,
-                currentThreshold.filterCol,
-                currentThreshold.filterDetail,
-            );
+            thresholdTr += genTRItems(i18n.attribute, currentThreshold.filterCol, currentThreshold.filterDetail);
             thresholdTr += genTRItems('', ''); // br
             // threshold table
             thresholdTr += genTRItems('', i18n.limit, i18n.procLimit);
-            thresholdTr += genTRItems(
-                i18n.threshHigh,
-                currentThreshold.threshHigh,
-                currentThreshold.prcMax,
-            );
-            thresholdTr += genTRItems(
-                i18n.threshLow,
-                currentThreshold.threshLow,
-                currentThreshold.prcMin,
-            );
+            thresholdTr += genTRItems(i18n.threshHigh, currentThreshold.threshHigh, currentThreshold.prcMax);
+            thresholdTr += genTRItems(i18n.threshLow, currentThreshold.threshLow, currentThreshold.prcMin);
             thresholdTr += genTRItems('', '');
             // apply time
-            thresholdTr += genTRItems(
-                i18n.validFrom,
-                currentThreshold.validFrom,
-            );
+            thresholdTr += genTRItems(i18n.validFrom, currentThreshold.validFrom);
             thresholdTr += genTRItems(i18n.validTo, currentThreshold.validTo);
             return thresholdTr;
         };
@@ -579,11 +513,7 @@ function YasuTsChart(
                         if (xaxis === 'INDEX') {
                             return;
                         }
-                        scale._unit = getUnitDateTimeFormat(
-                            scale.min,
-                            scale.max,
-                            scale.ticks.length,
-                        );
+                        scale._unit = getUnitDateTimeFormat(scale.min, scale.max, scale.ticks.length);
                     },
                     ticks: {
                         callback: function (value) {
@@ -651,18 +581,12 @@ function YasuTsChart(
                             if (ticks) {
                                 ticks = [
                                     {
-                                        value: String(
-                                            Number(ticks[0].value) - 0.5,
-                                        ),
+                                        value: String(Number(ticks[0].value) - 0.5),
                                     },
                                 ].concat(ticks);
                                 ticks = ticks.concat([
                                     {
-                                        value: String(
-                                            Number(
-                                                ticks[ticks.length - 1].value,
-                                            ) + 0.5,
-                                        ),
+                                        value: String(Number(ticks[ticks.length - 1].value) + 0.5),
                                     },
                                 ]);
                                 axis.ticks = ticks;
@@ -708,8 +632,7 @@ function YasuTsChart(
                     afterTickToLabelConversion: function adjust(context) {
                         const ticks = context.ticks;
                         context.ticks[0].label = '';
-                        if (ticks.length)
-                            context.ticks[ticks.length - 1].label = '';
+                        if (ticks.length) context.ticks[ticks.length - 1].label = '';
                         alignLengthTickLabels(context.ticks);
                     },
                     afterFit: function (scaleInstance) {
@@ -721,9 +644,7 @@ function YasuTsChart(
                         padding: beforeRankValues ? -37 : 5,
                         maxRotation: 0,
                         minRotation: 0,
-                        sampleSize: beforeRankValues
-                            ? Object.keys(beforeRankValues).length
-                            : 8,
+                        sampleSize: beforeRankValues ? Object.keys(beforeRankValues).length : 8,
                         color: CONST.TICK,
                         maxTicksLimit: 9,
                         // count: 9, // show max 8 tick labels
@@ -732,23 +653,15 @@ function YasuTsChart(
                             if (isCatLimited) return '';
 
                             // String Ranked label
-                            let showVal = applySignificantDigit(
-                                value,
-                                undefined,
-                                y_fmt,
-                            );
+                            let showVal = applySignificantDigit(value, undefined, y_fmt);
                             if (beforeRankValues) {
                                 showVal = `0${Number(showVal)}`.slice(-2);
                                 showVal = showVal.padEnd(5);
                                 const onlyVal = beforeRankValues[value];
-                                const isNeedToAddDotSymbol =
-                                    String(onlyVal).length > CAT_LABEL_LIMIT;
+                                const isNeedToAddDotSymbol = String(onlyVal).length > CAT_LABEL_LIMIT;
                                 if (onlyVal !== undefined) {
                                     showVal = `Cat${showVal}`;
-                                    showVal += String(onlyVal).substring(
-                                        0,
-                                        CAT_LABEL_LIMIT,
-                                    );
+                                    showVal += String(onlyVal).substring(0, CAT_LABEL_LIMIT);
                                     if (isNeedToAddDotSymbol) {
                                         showVal += '...';
                                     }
@@ -770,12 +683,7 @@ function YasuTsChart(
                 },
             },
             onHover(evt, a, chart) {
-                const item = chart.getElementsAtEventForMode(
-                    evt,
-                    'nearest',
-                    { intersect: true },
-                    false,
-                ); // const lastItem = chart.getActiveElements();
+                const item = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false); // const lastItem = chart.getActiveElements();
 
                 if (item.length) {
                     // save hovered data index
@@ -827,12 +735,7 @@ function YasuTsChart(
     const yLabels = isCatLimited ? [] : xLabels;
     const chartData = isCatLimited ? [] : plotData;
 
-    const pointSize =
-        plotData.length <= CONST.SMALL_DATA_SIZE
-            ? 2.5
-            : plotData.length < 1000
-              ? 1.5
-              : 1;
+    const pointSize = plotData.length <= CONST.SMALL_DATA_SIZE ? 2.5 : plotData.length < 1000 ? 1.5 : 1;
 
     config.data = {
         labels: yLabels,
@@ -843,14 +746,10 @@ function YasuTsChart(
                 backgroundColor: pointColor, // ts chart dot color
                 borderColor: pointColor, // link between dot color
                 borderWidth: 0.5,
-                showLine: beforeRankValues
-                    ? false
-                    : !(isThinData || plotData.length >= 1000),
+                showLine: beforeRankValues ? false : !(isThinData || plotData.length >= 1000),
                 pointRadius: pointSize,
                 order: 0,
-                pointBackgroundColor: new Array(plotData.length).fill(
-                    pointColor,
-                ), // stepped: !!beforeRankValues,
+                pointBackgroundColor: new Array(plotData.length).fill(pointColor), // stepped: !!beforeRankValues,
                 dictIdx2YValue,
             },
             {
@@ -887,12 +786,8 @@ function YasuTsChart(
         const prcMin = chartInfo['prc-min'];
         const startDateTime = convertFunc(startPoint);
         const endDateTime = convertFunc(endPoint);
-        let actFrom = isEmpty(chartInfo['act-from'])
-            ? startDateTime
-            : convertFunc(chartInfo['act-from']);
-        let actTo = isEmpty(chartInfo['act-to'])
-            ? endDateTime
-            : convertFunc(chartInfo['act-to']);
+        let actFrom = isEmpty(chartInfo['act-from']) ? startDateTime : convertFunc(chartInfo['act-from']);
+        let actTo = isEmpty(chartInfo['act-to']) ? endDateTime : convertFunc(chartInfo['act-to']);
         if (endDateTime < actFrom || actTo < startDateTime) {
             // out of range
             continue;
@@ -904,23 +799,39 @@ function YasuTsChart(
             actTo = endDateTime;
         }
         if (!isEmpty(threshHigh)) {
-            config.options.plugins.annotation.annotations[`ucl-${idx}`] =
-                createTSThreshold(threshHigh, CONST.RED, actFrom, actTo);
+            config.options.plugins.annotation.annotations[`ucl-${idx}`] = createTSThreshold(
+                threshHigh,
+                CONST.RED,
+                actFrom,
+                actTo,
+            );
         }
 
         if (!isEmpty(threshLow)) {
-            config.options.plugins.annotation.annotations[`lcl-${idx}`] =
-                createTSThreshold(threshLow, CONST.RED, actFrom, actTo);
+            config.options.plugins.annotation.annotations[`lcl-${idx}`] = createTSThreshold(
+                threshLow,
+                CONST.RED,
+                actFrom,
+                actTo,
+            );
         }
 
         if (!isEmpty(prcMin)) {
-            config.options.plugins.annotation.annotations[`lpcl-${idx}`] =
-                createTSThreshold(prcMin, CONST.BLUE, actFrom, actTo);
+            config.options.plugins.annotation.annotations[`lpcl-${idx}`] = createTSThreshold(
+                prcMin,
+                CONST.BLUE,
+                actFrom,
+                actTo,
+            );
         }
 
         if (!isEmpty(prcMax)) {
-            config.options.plugins.annotation.annotations[`upcl-${idx}`] =
-                createTSThreshold(prcMax, CONST.BLUE, actFrom, actTo);
+            config.options.plugins.annotation.annotations[`upcl-${idx}`] = createTSThreshold(
+                prcMax,
+                CONST.BLUE,
+                actFrom,
+                actTo,
+            );
         }
     }
 
@@ -952,11 +863,7 @@ function YasuTsChart(
         }
     }
 
-    const stepLineAnnotation = genStepLineAnnotation(
-        plotData,
-        xLabels,
-        pointColor,
-    );
+    const stepLineAnnotation = genStepLineAnnotation(plotData, xLabels, pointColor);
     if (!isCatLimited && !_.isEmpty(stepLineAnnotation)) {
         config.options.plugins.annotation.annotations = Object.assign(
             config.options.plugins.annotation.annotations,
@@ -1014,13 +921,7 @@ function YasuTsChart(
     return chart;
 }
 
-const createTSThreshold = (
-    thresholdVal,
-    color = CONST.BLUE,
-    startPoint = null,
-    endPoint = null,
-    borderDash = [],
-) => ({
+const createTSThreshold = (thresholdVal, color = CONST.BLUE, startPoint = null, endPoint = null, borderDash = []) => ({
     type: 'box',
     scaleID: 'y',
     xMin: startPoint,
@@ -1044,18 +945,9 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
             ? plotData.catExpBox
             : [plotData.catExpBox]
         : null;
-    const [chartInfos, chartInfosOrg] = getChartInfo(
-        plotData,
-        'TIME',
-        filterCond,
-    );
-    const clickedVal =
-        currentTraceData.array_plotdata[dataIndex].array_x[clickedIdx];
-    const [latestChartInfo, latestIndex] = chooseLatestThresholds(
-        chartInfos,
-        chartInfosOrg,
-        clickedVal,
-    );
+    const [chartInfos, chartInfosOrg] = getChartInfo(plotData, 'TIME', filterCond);
+    const clickedVal = currentTraceData.array_plotdata[dataIndex].array_x[clickedIdx];
+    const [latestChartInfo, latestIndex] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
     // from latest chartInfo, update histogram, update scatter plot, update summary
     const threshHigh = latestChartInfo['thresh-high'];
     const threshLow = latestChartInfo['thresh-low'];
@@ -1067,9 +959,7 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
     const prcMin = latestChartInfo['prc-min'];
 
     // update thresholds
-    const sameRowCanvases = $(`#${canvasId}`)
-        .closest('div .chart-row')
-        .find('canvas');
+    const sameRowCanvases = $(`#${canvasId}`).closest('div .chart-row').find('canvas');
     sameRowCanvases.each(function f() {
         const canvasId = $(this).attr('id');
         const chartType = $(this).attr('chart-type');
@@ -1080,37 +970,33 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
                 removeThresholdsOfChart(scatterChartObject, CONST.HORIZONTAL);
 
                 if (threshHigh !== null) {
-                    scatterChartObject.options.plugins.annotation.annotations.ucl =
-                        createHorizonalThreshold(
-                            threshHigh,
-                            CONST.RED,
-                            CONST.UCL,
-                        );
+                    scatterChartObject.options.plugins.annotation.annotations.ucl = createHorizonalThreshold(
+                        threshHigh,
+                        CONST.RED,
+                        CONST.UCL,
+                    );
                 }
 
                 if (threshLow !== null) {
-                    scatterChartObject.options.plugins.annotation.annotations.lcl =
-                        createHorizonalThreshold(
-                            threshLow,
-                            CONST.RED,
-                            CONST.LCL,
-                        );
+                    scatterChartObject.options.plugins.annotation.annotations.lcl = createHorizonalThreshold(
+                        threshLow,
+                        CONST.RED,
+                        CONST.LCL,
+                    );
                 }
                 if (prcMax !== null) {
-                    scatterChartObject.options.plugins.annotation.annotations.upcl =
-                        createHorizonalThreshold(
-                            prcMax,
-                            CONST.BLUE,
-                            CONST.UPCL,
-                        );
+                    scatterChartObject.options.plugins.annotation.annotations.upcl = createHorizonalThreshold(
+                        prcMax,
+                        CONST.BLUE,
+                        CONST.UPCL,
+                    );
                 }
                 if (prcMin !== null) {
-                    scatterChartObject.options.plugins.annotation.annotations.lpcl =
-                        createHorizonalThreshold(
-                            prcMin,
-                            CONST.BLUE,
-                            CONST.LPCL,
-                        );
+                    scatterChartObject.options.plugins.annotation.annotations.lpcl = createHorizonalThreshold(
+                        prcMin,
+                        CONST.BLUE,
+                        CONST.LPCL,
+                    );
                 }
 
                 scatterChartObject.update((mode = 'none'));
@@ -1124,8 +1010,7 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
                 const currentRowIdx = scatterCanvasIds.indexOf(canvasId);
                 const prevRowPos = currentRowIdx + 1 - 1 || numOfCarts;
                 const prevScatterCanvasId = scatterCanvasIds[prevRowPos - 1];
-                const prevScatterChartObject =
-                    graphStore.getScatterById(prevScatterCanvasId);
+                const prevScatterChartObject = graphStore.getScatterById(prevScatterCanvasId);
                 if (!prevScatterChartObject) {
                     return;
                 }
@@ -1133,37 +1018,33 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
                 removeThresholdsOfChart(prevScatterChartObject, CONST.VERTICAL);
 
                 if (threshHigh !== null) {
-                    prevScatterChartObject.options.plugins.annotation.annotations.vucl =
-                        createVerticalThreshold(
-                            threshHigh,
-                            CONST.RED,
-                            CONST.vUCL,
-                        );
+                    prevScatterChartObject.options.plugins.annotation.annotations.vucl = createVerticalThreshold(
+                        threshHigh,
+                        CONST.RED,
+                        CONST.vUCL,
+                    );
                 }
 
                 if (threshLow !== null) {
-                    prevScatterChartObject.options.plugins.annotation.annotations.vlcl =
-                        createVerticalThreshold(
-                            threshLow,
-                            CONST.RED,
-                            CONST.vLCL,
-                        );
+                    prevScatterChartObject.options.plugins.annotation.annotations.vlcl = createVerticalThreshold(
+                        threshLow,
+                        CONST.RED,
+                        CONST.vLCL,
+                    );
                 }
                 if (prcMax !== null) {
-                    prevScatterChartObject.options.plugins.annotation.annotations.vupcl =
-                        createVerticalThreshold(
-                            prcMax,
-                            CONST.BLUE,
-                            CONST.vUPCL,
-                        );
+                    prevScatterChartObject.options.plugins.annotation.annotations.vupcl = createVerticalThreshold(
+                        prcMax,
+                        CONST.BLUE,
+                        CONST.vUPCL,
+                    );
                 }
                 if (prcMin !== null) {
-                    prevScatterChartObject.options.plugins.annotation.annotations.vlpcl =
-                        createVerticalThreshold(
-                            prcMin,
-                            CONST.BLUE,
-                            CONST.vLPCL,
-                        );
+                    prevScatterChartObject.options.plugins.annotation.annotations.vlpcl = createVerticalThreshold(
+                        prcMin,
+                        CONST.BLUE,
+                        CONST.vLPCL,
+                    );
                 }
 
                 prevScatterChartObject.update((mode = 'none'));
@@ -1175,37 +1056,33 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
             if (histChartObject) {
                 removeThresholdsOfChart(histChartObject);
                 if (threshHigh !== null) {
-                    histChartObject.options.plugins.annotation.annotations.ucl =
-                        createHorizonalThreshold(
-                            threshHigh,
-                            CONST.RED,
-                            CONST.UCL,
-                        );
+                    histChartObject.options.plugins.annotation.annotations.ucl = createHorizonalThreshold(
+                        threshHigh,
+                        CONST.RED,
+                        CONST.UCL,
+                    );
                 }
 
                 if (threshLow !== null) {
-                    histChartObject.options.plugins.annotation.annotations.lcl =
-                        createHorizonalThreshold(
-                            threshLow,
-                            CONST.RED,
-                            CONST.LCL,
-                        );
+                    histChartObject.options.plugins.annotation.annotations.lcl = createHorizonalThreshold(
+                        threshLow,
+                        CONST.RED,
+                        CONST.LCL,
+                    );
                 }
                 if (prcMax !== null) {
-                    histChartObject.options.plugins.annotation.annotations.upcl =
-                        createHorizonalThreshold(
-                            prcMax,
-                            CONST.BLUE,
-                            CONST.UPCL,
-                        );
+                    histChartObject.options.plugins.annotation.annotations.upcl = createHorizonalThreshold(
+                        prcMax,
+                        CONST.BLUE,
+                        CONST.UPCL,
+                    );
                 }
                 if (prcMin !== null) {
-                    histChartObject.options.plugins.annotation.annotations.lpcl =
-                        createHorizonalThreshold(
-                            prcMin,
-                            CONST.BLUE,
-                            CONST.LPCL,
-                        );
+                    histChartObject.options.plugins.annotation.annotations.lpcl = createHorizonalThreshold(
+                        prcMin,
+                        CONST.BLUE,
+                        CONST.LPCL,
+                    );
                 }
                 histChartObject.update((mode = 'none'));
             }
@@ -1213,9 +1090,7 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
     });
 
     // update to show summary corresponding to the click point
-    const allSummaries = $(`#${canvasId}`)
-        .closest('div .chart-row')
-        .find('.summary');
+    const allSummaries = $(`#${canvasId}`).closest('div .chart-row').find('.summary');
     allSummaries.each(function showHideSummary() {
         if ($(this).hasClass(`summary-${latestIndex}`)) {
             $(this).css('display', 'block');
@@ -1235,12 +1110,7 @@ function timeSeriesOnClick(chart, event) {
     showVerticalLineOnClick(event);
 
     // get clicked position from event
-    const eventElement = chart.getElementsAtEventForMode(
-        event,
-        'nearest',
-        { intersect: true },
-        false,
-    );
+    const eventElement = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
     if (!eventElement || eventElement.length < 1) {
         // click outside datapoint
         removeAllCrossHair(true, true, true);
@@ -1263,21 +1133,14 @@ function timeSeriesOnClick(chart, event) {
         // on DOUBLE CLICK: draw all crosshair line on double click
         setTimeout(() => {
             if (curCnt === avoidMultiClickCntTS) {
-                if (numDataPoints < 100000)
-                    drawCrossHairOnDoubleClick(clickPosition, canvasId);
+                if (numDataPoints < 100000) drawCrossHairOnDoubleClick(clickPosition, canvasId);
             }
         }, 200);
     } else {
         setTimeout(() => {
             if (curCnt === avoidMultiClickCntTS) {
                 // on SINGLE CLICK
-                if (numDataPoints < 100000)
-                    drawCrosshairSingleClick(
-                        clickPosition,
-                        xValue,
-                        yValue,
-                        canvasId,
-                    );
+                if (numDataPoints < 100000) drawCrosshairSingleClick(clickPosition, xValue, yValue, canvasId);
 
                 // from xValue -> find latest chartInfo
                 updateThresholdsAllTSP(clickPosition - 1);
@@ -1348,26 +1211,19 @@ const handleSelectTSMenuItem = (selectedItem = 'click', menuItem = null) => {
     }
 
     const tsChartObject = graphStore.getTimeSeriesById(selectedCanvasId);
-    const lastHoveredDataPoint =
-        graphStore.getLastHoveredDataPoint(selectedCanvasId);
+    const lastHoveredDataPoint = graphStore.getLastHoveredDataPoint(selectedCanvasId);
     if (!lastHoveredDataPoint) {
         hideFPPContextMenu();
         return;
     }
 
     const { index: clickPosition, datasetIndex } = lastHoveredDataPoint;
-    const yValue =
-        tsChartObject.data.datasets[datasetIndex].data[clickPosition];
+    const yValue = tsChartObject.data.datasets[datasetIndex].data[clickPosition];
     const xValue = tsChartObject.data.labels[clickPosition];
 
     switch (selectedItem) {
         case 'click': {
-            drawCrosshairSingleClick(
-                clickPosition,
-                xValue,
-                yValue,
-                selectedCanvasId,
-            );
+            drawCrosshairSingleClick(clickPosition, xValue, yValue, selectedCanvasId);
             break;
         }
         case 'doubleClick': {
@@ -1379,10 +1235,7 @@ const handleSelectTSMenuItem = (selectedItem = 'click', menuItem = null) => {
             const isThinData = currentTraceData.is_thin_data;
             let cycleId;
             if (isThinData) {
-                cycleId =
-                    graphStore.getArrayPlotData(selectedCanvasId).cycle_ids[
-                        clickPosition
-                    ];
+                cycleId = graphStore.getArrayPlotData(selectedCanvasId).cycle_ids[clickPosition];
             } else {
                 cycleId = currentTraceData.cycle_ids[clickPosition];
             }
@@ -1419,11 +1272,7 @@ const updateGraphScale = (scaleOption = '1') => {
         const endProcId = formVal.end_proc;
         const sensorId = formVal.GET02_VALS_SELECT;
 
-        const isHideNonePoint = isHideNoneDataPoint(
-            endProcId,
-            sensorId,
-            currentTraceData.COMMON.remove_outlier,
-        );
+        const isHideNonePoint = isHideNoneDataPoint(endProcId, sensorId, currentTraceData.COMMON.remove_outlier);
         const beforeRankValues = plotData.before_rank_values;
         if (beforeRankValues) {
             continue;
@@ -1438,19 +1287,12 @@ const updateGraphScale = (scaleOption = '1') => {
 
         const scaleInfo = getScaleInfo(plotData, scaleOption);
 
-        const [minY, maxY] = calMinMaxYScale(
-            scaleInfo['y-min'],
-            scaleInfo['y-max'],
-            scaleOption,
-        );
+        const [minY, maxY] = calMinMaxYScale(scaleInfo['y-min'], scaleInfo['y-max'], scaleOption);
         const outlierIdxs = scaleInfo.upper_outlier_idxs;
         const negOutlierIdxs = scaleInfo.lower_outlier_idxs;
         const kdeDat = scaleInfo.kde_data;
 
-        const [dictIdx2YValue, arrayYTS] = buildMapIndex2OutlierYValue(
-            plotData,
-            scaleInfo,
-        );
+        const [dictIdx2YValue, arrayYTS] = buildMapIndex2OutlierYValue(plotData, scaleInfo);
         const { arrayYEx, plotDataExColor } = produceExceptionArrayY(
             arrayY,
             minY,
@@ -1464,29 +1306,11 @@ const updateGraphScale = (scaleOption = '1') => {
             beforeRankValues,
         );
 
-        updateScales(
-            i + 1,
-            minY,
-            maxY,
-            kdeDat,
-            arrayYEx,
-            plotDataExColor,
-            arrayYTS,
-            dictIdx2YValue,
-        );
+        updateScales(i + 1, minY, maxY, kdeDat, arrayYEx, plotDataExColor, arrayYTS, dictIdx2YValue);
     }
 };
 
-const updateScales = (
-    row,
-    newMin,
-    newMax,
-    kdeDat,
-    arrayYEx,
-    plotDataExColor,
-    arrayYTS,
-    dictIdx2YValue,
-) => {
+const updateScales = (row, newMin, newMax, kdeDat, arrayYEx, plotDataExColor, arrayYTS, dictIdx2YValue) => {
     const createCanvasId = (graphType, row) => graphType + `${row}`;
     const updateMinMaxY = (chartObject, minY, maxY, kdeDat = null) => {
         if (isEmpty(chartObject)) return;
@@ -1500,18 +1324,10 @@ const updateScales = (
         }
         chartObject.update();
     };
-    const tsChartObject = graphStore.getTimeSeriesById(
-        createCanvasId('chart0', row),
-    );
-    const histChartObject = graphStore.getHistById(
-        createCanvasId('hist0', row),
-    );
-    const whiskerChartObject = graphStore.getWhiskerById(
-        createCanvasId('whisker0', row),
-    );
-    const scatterChartObject = graphStore.getScatterById(
-        createCanvasId('sctr0', row),
-    );
+    const tsChartObject = graphStore.getTimeSeriesById(createCanvasId('chart0', row));
+    const histChartObject = graphStore.getHistById(createCanvasId('hist0', row));
+    const whiskerChartObject = graphStore.getWhiskerById(createCanvasId('whisker0', row));
+    const scatterChartObject = graphStore.getScatterById(createCanvasId('sctr0', row));
 
     if (tsChartObject) {
         tsChartObject.data.datasets[0].data = arrayYTS;
@@ -1539,9 +1355,7 @@ const hideFPPContextMenu = () => {
 };
 
 const deleteThisRow = (self, isGraphArea) => {
-    const tableId = isGraphArea
-        ? formElements.serialTable2
-        : formElements.serialTable;
+    const tableId = isGraphArea ? formElements.serialTable2 : formElements.serialTable;
     $(self).closest('tr').remove();
     updateCurrentSelectedProcessSerial(name.serial);
 
@@ -1554,13 +1368,7 @@ const deleteThisRow = (self, isGraphArea) => {
     }
 };
 
-const htmlOrderColRowTemplate = (
-    priority,
-    processSelectHTML,
-    serialSelectHTML,
-    orderSelectHTML,
-    isGraphArea,
-) => `<tr>
+const htmlOrderColRowTemplate = (priority, processSelectHTML, serialSelectHTML, orderSelectHTML, isGraphArea) => `<tr>
         <td ${dragDropRowInTable.DATA_ORDER_ATTR}>${priority}</td>
         <td>
             ${processSelectHTML}
@@ -1581,8 +1389,7 @@ const htmlOrderColRowTemplate = (
 const buildProcessColumnHTML = (selectedProcId, name = 'serialProcess') => {
     const procOptions = [];
     for (const procId in procConfigs) {
-        const selected =
-            Number(procId) === Number(selectedProcId) ? 'selected' : '';
+        const selected = Number(procId) === Number(selectedProcId) ? 'selected' : '';
         const option = `<option value="${procId}" ${selected} title="${procConfigs[procId].name_en}">${procConfigs[procId].shown_name || procId}</option>`;
         procOptions.push(option);
     }
@@ -1657,25 +1464,12 @@ const createOrderColRowHTML = async (
     // sort serial & datetime to show first
     const newSortedCols = orderSeriesCols(columns);
     for (const col of newSortedCols) {
-        if (
-            col.is_serial_no ||
-            col.is_get_date ||
-            CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)
-        ) {
+        if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
             orderCols.push(col);
         }
     }
-    const processSelectHTML = buildProcessColumnHTML(
-        selectedProcId,
-        processName,
-    );
-    const columnSelectHTML = buildColumnHTML(
-        orderCols,
-        tableId,
-        serialName,
-        selectedCol,
-        selectedProcId,
-    );
+    const processSelectHTML = buildProcessColumnHTML(selectedProcId, processName);
+    const columnSelectHTML = buildColumnHTML(orderCols, tableId, serialName, selectedCol, selectedProcId);
     const orderSelectHTML = buildOrderHTML(orderName, selectedOrder);
     return htmlOrderColRowTemplate(
         priority || calcPriority(),
@@ -1686,10 +1480,7 @@ const createOrderColRowHTML = async (
     );
 };
 
-const getSelectedOrderCols = (
-    tableId = formElements.serialTable,
-    serialName = 'serialColumn',
-) => {
+const getSelectedOrderCols = (tableId = formElements.serialTable, serialName = 'serialColumn') => {
     const numRows = $(`${tableId} tbody tr`).length;
     if (!numRows) return new Set();
 
@@ -1720,18 +1511,12 @@ const disableSelectedSerials = (selectedSerials, name = 'serialColumn') => {
     });
 };
 
-const disableSelectedOption = (
-    tableId = formElements.serialTable,
-    serialName = 'serialColumn',
-) => {
+const disableSelectedOption = (tableId = formElements.serialTable, serialName = 'serialColumn') => {
     const selectedSerials = getSelectedOrderCols(tableId, serialName);
     disableSelectedSerials(selectedSerials, serialName);
 };
 
-const updatePriorityAndDisableSelected = (
-    tableId = formElements.serialTable,
-    serialName = 'serialColumn',
-) => {
+const updatePriorityAndDisableSelected = (tableId = formElements.serialTable, serialName = 'serialColumn') => {
     updatePriority(tableId);
     disableSelectedOption(tableId, serialName);
 };
@@ -1750,9 +1535,7 @@ const bindChangeProcessEvent = (
                 $(this).data('bind-on-change', 1);
 
                 const selectedProcId = $(this).val();
-                const orderColElement = $(this)
-                    .closest('tr')
-                    .find(`select[name=${serialName}]`);
+                const orderColElement = $(this).closest('tr').find(`select[name=${serialName}]`);
                 if (isEmpty(selectedProcId)) {
                     // empty proc -> empty column
                     orderColElement.empty().select2({
@@ -1773,10 +1556,7 @@ const bindChangeProcessEvent = (
                 const columns = procInfo.getColumns();
 
                 const selectedVal = orderColElement.val();
-                const selectedSerialCols = getSelectedOrderCols(
-                    tableId,
-                    serialName,
-                );
+                const selectedSerialCols = getSelectedOrderCols(tableId, serialName);
                 let alreadyPickedOrderCol = false;
                 let defaultOrderCol = '';
                 const orderCols = [{ id: '', text: '---', selected: true }];
@@ -1789,35 +1569,23 @@ const bindChangeProcessEvent = (
                         CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)
                     ) {
                         const orderObject = {
-                            id: col.id,
-                            text: col.shown_name,
-                            title: col.name_en,
+                            'id': col.id,
+                            'text': col.shown_name,
+                            'title': col.name_en,
                             'data-is-get-date': col.is_get_date,
                             'data-is-serial-no': col.is_serial_no,
                             'data-selected-proc-id': selectedProcId,
                         };
                         const procData = getProcessColSelected();
                         const currentOption = `${selectedProcId}-${col.id}`;
-                        const isColSelectedOnSameElement =
-                            `${selectedVal}` === `${col.id}`;
-                        const isColSelected =
-                            selectedSerialCols.has(col.id) ||
-                            selectedSerialCols.has(`${col.id}`);
+                        const isColSelectedOnSameElement = `${selectedVal}` === `${col.id}`;
+                        const isColSelected = selectedSerialCols.has(col.id) || selectedSerialCols.has(`${col.id}`);
 
                         if (!isColSelectedOnSameElement && isColSelected) {
                             orderObject.disabled = true;
-                        } else if (
-                            !alreadyPickedOrderCol &&
-                            !selectedSerials.has(col.id)
-                        ) {
-                            if (
-                                (col.is_get_date || col.is_serial_no) &&
-                                procData.includes(selectedProcId)
-                            ) {
-                                if (
-                                    !selectedProcessSerial &&
-                                    !selectedProcessSerial.has(currentOption)
-                                ) {
+                        } else if (!alreadyPickedOrderCol && !selectedSerials.has(col.id)) {
+                            if ((col.is_get_date || col.is_serial_no) && procData.includes(selectedProcId)) {
+                                if (!selectedProcessSerial && !selectedProcessSerial.has(currentOption)) {
                                     defaultOrderCol = col.id;
                                     alreadyPickedOrderCol = true;
                                 }
@@ -1845,22 +1613,11 @@ const bindChangeProcessEvent = (
                     .each(function () {
                         const selectElement = $(this);
                         const optionValue = selectElement.val();
-                        const orderCol = orderCols.find(
-                            (col) => `${col.id}` === `${optionValue}`,
-                        );
+                        const orderCol = orderCols.find((col) => `${col.id}` === `${optionValue}`);
                         selectElement
-                            .attr(
-                                'data-is-get-date',
-                                orderCol['data-is-get-date'],
-                            )
-                            .attr(
-                                'data-is-serial-no',
-                                orderCol['data-is-serial-no'],
-                            )
-                            .attr(
-                                'data-selected-proc-id',
-                                orderCol['data-selected-proc-id'],
-                            );
+                            .attr('data-is-get-date', orderCol['data-is-get-date'])
+                            .attr('data-is-serial-no', orderCol['data-is-serial-no'])
+                            .attr('data-selected-proc-id', orderCol['data-selected-proc-id']);
                     });
 
                 setSelect2Selection(tableId);
@@ -1874,11 +1631,7 @@ const bindChangeProcessEvent = (
     });
 };
 
-const bindChangeOrderColEvent = (
-    tableId = formElements.serialTable,
-    name = 'serialColumn',
-    callback = null,
-) => {
+const bindChangeOrderColEvent = (tableId = formElements.serialTable, name = 'serialColumn', callback = null) => {
     const serialSelectEl = $(`select[name=${name}]`);
     serialSelectEl.on('select2:change', (e) => {
         // catch event select option with select2
@@ -1911,9 +1664,7 @@ const bindChangeOrderColEvent = (
         let serialColDataId;
         const currentElement = $(e.currentTarget);
         const parentElement = currentElement.parents().eq(1);
-        const serialProcId = parentElement
-            .find(`select[name="TermSerialProcess"] option:selected`)
-            .val();
+        const serialProcId = parentElement.find(`select[name="TermSerialProcess"] option:selected`).val();
         if (isSelect) {
             serialColDataId = e.params.data.id;
             selectedProcessSerial.add(`${serialProcId}-${serialColDataId}`);
@@ -1933,9 +1684,7 @@ const updateCurrentSelectedProcessSerial = (serialName) => {
     serialSelects.each(function () {
         const selectElement = $(this);
         const parentElement = selectElement.parents().eq(1);
-        const serialProcId = parentElement
-            .find(`select[name="TermSerialProcess"] option:selected`)
-            .val();
+        const serialProcId = parentElement.find(`select[name="TermSerialProcess"] option:selected`).val();
         const serialColDataId = selectElement.find(':selected').val();
         if (serialColDataId) {
             currentProcessSerial.add(`${serialProcId}-${serialColDataId}`);
@@ -1955,19 +1704,11 @@ const showIndexOrderingSetting = async (
     // add to modal
     const serialTableBody = $(`${tableId} tbody`);
     serialTableBody.empty();
-    const serialOrderRowHTML = await createOrderColRowHTML(
-        startProc,
-        tableId,
-        processName,
-        serialName,
-        orderName,
-    );
+    const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName);
     serialTableBody.html(serialOrderRowHTML);
 
     // set value of serialColumn is first value
-    $(`select[name=${serialName}]`).val(
-        $(`select[name=${serialName}] option:nth-child(2)`).val(),
-    );
+    $(`select[name=${serialName}]`).val($(`select[name=${serialName}] option:nth-child(2)`).val());
 
     setSelect2Selection();
     bindChangeProcessEvent(tableId, processName, serialName);
@@ -1977,11 +1718,7 @@ const showIndexOrderingSetting = async (
     bindDragNDrop(serialTableBody, tableId, serialName);
 };
 
-const bindDragNDrop = (
-    serialTableBody,
-    tableId = formElements.serialTable,
-    serialName = 'serialColumn',
-) => {
+const bindDragNDrop = (serialTableBody, tableId = formElements.serialTable, serialName = 'serialColumn') => {
     // drag & drop for tables
     serialTableBody.sortable({
         helper: dragDropRowInTable.fixHelper,
@@ -2115,9 +1852,7 @@ const orderSeriesCols = (columns) => {
     // sort serial & datetime to show first
     const serialCols = columns.filter((col) => col.is_serial_no);
     const datetimeCols = columns.filter((col) => col.is_get_date);
-    const normalCols = columns.filter(
-        (col) => !col.is_serial_no && !col.is_get_date,
-    );
+    const normalCols = columns.filter((col) => !col.is_serial_no && !col.is_get_date);
 
     return [...serialCols, ...datetimeCols, ...normalCols];
 };

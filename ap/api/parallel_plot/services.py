@@ -10,6 +10,7 @@ from ap.api.common.services.show_graph_services import (
     calc_scale_info,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    find_inf_indexes,
     gen_unique_data,
     get_chart_infos,
     get_data_from_db,
@@ -227,7 +228,7 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
         serial_cols = dic_proc_cfgs[proc_id].get_serials(column_name_only=False)
         sql_labels = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
         if sql_labels and all(item in df.columns for item in sql_labels):
-            dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: ''})
+            dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: None})
         else:
             dic_param[SERIAL_DATA][proc_id] = pd.Series()
 
@@ -351,7 +352,6 @@ def gen_plotdata(
     category_cols_details = []
     inf_idx = []
     m_inf_idx = []
-    cast_inf_vals = False
     for proc_id, col_id, _ in lst_proc_end_col:
         col_detail = {}
         rank_value = {}
@@ -365,7 +365,7 @@ def gen_plotdata(
             is_categorical_sensor = col_cfg.is_category
             if is_categorical_sensor:
                 cat_array_y = array_y.astype('category').cat
-                na_vals = array_y.isnull().sum()
+                na_vals = array_y.isna().sum()
                 array_y = cat_array_y.codes
 
                 rank_value = {-1: NA_STR}
@@ -379,10 +379,8 @@ def gen_plotdata(
 
                 org_array_y = dic_data[proc_id][col_id]
 
-            inf_idx = list(np.where(np.array(array_y) == float('inf'))[0])
-            m_inf_idx = list(np.where(np.array(array_y) == float('-inf'))[0])
-            if inf_idx or m_inf_idx:
-                cast_inf_vals = True
+            inf_idx, m_inf_idx, cast_inf_vals = find_inf_indexes(array_y)
+
             col_detail = {
                 'col_id': col_id,
                 'col_shown_name': col_cfg.shown_name,

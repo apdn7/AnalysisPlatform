@@ -41,7 +41,7 @@ const formElements = {
     showVar: $('select[name=show-var]'),
     yScaleOption: $('select[name=yScaleOption]'),
     showCT_Time: 'input#show-ct-time',
-    autoUpdateInterval: $('#autoUpdateInterval'),
+    // autoUpdateInterval: $('#autoUpdateInterval'),
 };
 
 const tableSelectedDataElems = {
@@ -122,13 +122,7 @@ $(() => {
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -179,10 +173,7 @@ const showSettingMenu = (menu, domEvent) => {
     });
 };
 
-const parallelTraceDataWithDBChecking = (
-    action = 'TRACE-DATA',
-    clearOnFlyFilter = false,
-) => {
+const parallelTraceDataWithDBChecking = (action = 'TRACE-DATA', clearOnFlyFilter = false) => {
     requestStartedAt = performance.now();
     if (clearOnFlyFilter) {
         const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
@@ -221,9 +212,7 @@ const mergeTargetProc = (formData) => {
 
     // find duplicate process from end_proc list
     endProcID.forEach((v, k) => {
-        const selectedValue = formData
-            .getAll(formElements.VAL_SELECTED + endProcSuf[k])
-            .filter((x) => x !== 'All');
+        const selectedValue = formData.getAll(formElements.VAL_SELECTED + endProcSuf[k]).filter((x) => x !== 'All');
         const selectedObj = {};
         if (!uniqueProcs.includes(v)) {
             uniqueProcs.push(v);
@@ -239,9 +228,7 @@ const mergeTargetProc = (formData) => {
     Object.entries(valSelected).forEach(([k, v]) => {
         formData.delete(`${formElements.VAL_SELECTED}${k}`);
         if (v.length) {
-            v.map((selection) =>
-                formData.append(`${formElements.VAL_SELECTED}${k}`, selection),
-            );
+            v.map((selection) => formData.append(`${formElements.VAL_SELECTED}${k}`, selection));
         } else {
             formData.delete(`${formElements.END_PROC}${k}`);
         }
@@ -255,10 +242,7 @@ const mergeTargetProc = (formData) => {
     // append objective var for new PCP
     const objectiveVar = formData.get('objectiveVar');
     if (objectiveVar) {
-        const sensorValName = $(`#objectiveVar-${objectiveVar}`)
-            .closest('.row')
-            .find('input:eq(0)')
-            .attr('name');
+        const sensorValName = $(`#objectiveVar-${objectiveVar}`).closest('.row').find('input:eq(0)').attr('name');
         const allValsSelected = formData.getAll(sensorValName);
         if (sensorValName && !allValsSelected.includes(sensorValName)) {
             formData.append(sensorValName, objectiveVar);
@@ -322,69 +306,53 @@ const collectFormDataPCP = (clearOnFlyFilter, autoUpdate = false) => {
     return formData;
 };
 
-const showParallelGraph = (
-    clearOnFlyFilter = false,
-    isRedirectFromJump = false,
-) => {
+const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump = false) => {
     const formData = collectFormDataPCP(clearOnFlyFilter);
 
-    showGraphCallApi(
-        '/ap/api/pcp/index',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            if (res.is_send_ga_off) {
-                showGAToastr(true);
-            }
+    showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
+        if (res.is_send_ga_off) {
+            showGAToastr(true);
+        }
 
-            paracordTraces = res;
-            // store trace result
-            graphStore.setTraceData(_.cloneDeep(res));
+        paracordTraces = res;
+        // store trace result
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            // clear targetSensorIndex
-            clearTargetTmp();
+        // clear targetSensorIndex
+        clearTargetTmp();
 
-            // reset setting variables
-            if (clearOnFlyFilter) {
-                resetSetting(isRedirectFromJump);
-            }
+        // reset setting variables
+        if (clearOnFlyFilter) {
+            resetSetting(isRedirectFromJump);
+        }
 
-            const sensorTypes = getSensorTypes(res.array_plotdata);
-            // set sensor type default
-            $('select[name=show-var]').val(sensorTypes);
-            let defaultShowOrder = paracordsSetting.orderOptions.correlation;
-            // set order default value for paracat only
-            if (sensorTypes === paracordsSetting.showVariables.CATEGORY) {
-                defaultShowOrder = paracordsSetting.orderOptions.process;
-            }
-            // sort graphs
-            if (latestSortColIds.length) {
-                res.ARRAY_FORMVAL = sortGraphs(
-                    res.ARRAY_FORMVAL,
-                    'GET02_VALS_SELECT',
-                    latestSortColIds,
-                );
-                res.array_plotdata = sortGraphs(
-                    res.array_plotdata,
-                    'end_col_id',
-                    latestSortColIds,
-                );
-            }
-            showParacords(
-                res,
-                { showVars: sensorTypes, orderBy: defaultShowOrder },
-                isRedirectFromJump,
-                clearOnFlyFilter,
-                null,
-                true,
-            );
+        const sensorTypes = getSensorTypes(res.array_plotdata);
+        // set sensor type default
+        $('select[name=show-var]').val(sensorTypes);
+        let defaultShowOrder = paracordsSetting.orderOptions.correlation;
+        // set order default value for paracat only
+        if (sensorTypes === paracordsSetting.showVariables.CATEGORY) {
+            defaultShowOrder = paracordsSetting.orderOptions.process;
+        }
+        // sort graphs
+        if (latestSortColIds.length) {
+            res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+            res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
+        }
+        showParacords(
+            res,
+            { showVars: sensorTypes, orderBy: defaultShowOrder },
+            isRedirectFromJump,
+            clearOnFlyFilter,
+            null,
+            true,
+        );
 
-            setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, []);
 
-            // show info table
-            showInfoTable(res);
-        },
-    );
+        // show info table
+        showInfoTable(res);
+    });
 };
 
 const hideMenu = () => {
@@ -445,14 +413,8 @@ const getSettingOptions = () => {
     const yScaleOption = $("select[name='yScaleOption']").val();
     const isSortedByCorr = sortedOptions === CONST.CORR;
     const showOrderFrom = $("input[name='corr_value']").val();
-    const showMaxVars =
-        showOrder === CONST.CORR
-            ? Number($("input[name='max_vars']").val())
-            : undefined;
-    const showTopVars =
-        showOrder === CONST.CORR
-            ? Number($("input[name='top_vars']").val())
-            : undefined;
+    const showMaxVars = showOrder === CONST.CORR ? Number($("input[name='max_vars']").val()) : undefined;
+    const showTopVars = showOrder === CONST.CORR ? Number($("input[name='top_vars']").val()) : undefined;
     const fineSelect = formElements.fineSelectEl.is(':checked');
     return {
         showVars: showVariable,
@@ -470,17 +432,11 @@ const getSettingOptions = () => {
 
 const setSettingOptions = (showVariable = false, showOrder = false) => {
     if (showVariable) {
-        $(`input[name='show-var'][value='${showVariable}']`).prop(
-            'checked',
-            true,
-        );
+        $(`input[name='show-var'][value='${showVariable}']`).prop('checked', true);
     }
     if (showOrder) {
         $(`input[name='sort_by'][value='${showOrder}']`).prop('checked', true);
-        const orderingName = $('input[name=sort_by]:checked')
-            .closest('.form-check')
-            .find('span:first')
-            .text();
+        const orderingName = $('input[name=sort_by]:checked').closest('.form-check').find('span:first').text();
         // update ordering name
         $('#ordering-name').text(orderingName);
     }
@@ -517,25 +473,13 @@ const handleSelectMenuItem = (e, updatePosition = false) => {
 
 const onChangeYScale = (selection) => {
     const settings = getSettingOptions();
-    showParacords(
-        paracordTraces,
-        settings,
-        false,
-        false,
-        paracordTraces.options,
-    );
+    showParacords(paracordTraces, settings, false, false, paracordTraces.options);
 };
 
 const onChangeFineSelect = () => {
     const settings = getSettingOptions();
     showParacordWithSettings(true);
-    showParacords(
-        paracordTraces,
-        settings,
-        false,
-        false,
-        paracordTraces.options,
-    );
+    showParacords(paracordTraces, settings, false, false, paracordTraces.options);
 };
 
 const onChangeDataView = (e) => {
@@ -547,45 +491,36 @@ const onChangeDataView = (e) => {
     }
 };
 
-const callToBackEndAPI = async (
-    filter,
-    clearOnFlyFilter = false,
-    autoUpdate = false,
-) => {
+const callToBackEndAPI = async (filter, clearOnFlyFilter = false, autoUpdate = false) => {
     loadingShow();
     const formData = collectFormDataPCP(clearOnFlyFilter, autoUpdate);
-    showGraphCallApi(
-        '/ap/api/pcp/index',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            paracordTraces = res;
-            const settings = getSettingOptions();
-            needUpdateDimColor = true;
-            graphStore.setTraceData(_.cloneDeep(res));
+    showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
+        paracordTraces = res;
+        const settings = getSettingOptions();
+        needUpdateDimColor = true;
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            // clear old target variables
-            if (settings.showVariable === 'category') {
-                // clearTargetTmp();
-                const previousEndDim = getDPVFromLatestCatDim();
-                if (previousEndDim) {
-                    updateTargetDim(previousEndDim);
-                }
+        // clear old target variables
+        if (settings.showVariable === 'category') {
+            // clearTargetTmp();
+            const previousEndDim = getDPVFromLatestCatDim();
+            if (previousEndDim) {
+                updateTargetDim(previousEndDim);
             }
+        }
 
-            if (paracordTraces) {
-                // do not use default corr threshold
-                settings.useCorrDefaultThreshold = false;
-                showParacords(paracordTraces, settings, false, filter);
-                $('#updateParacords').addClass('hide');
-            }
+        if (paracordTraces) {
+            // do not use default corr threshold
+            settings.useCorrDefaultThreshold = false;
+            showParacords(paracordTraces, settings, false, filter);
+            $('#updateParacords').addClass('hide');
+        }
 
-            setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, []);
 
-            removeOutlierOptionChanged = false;
-            removeOutliers = 0;
-        },
-    );
+        removeOutlierOptionChanged = false;
+        removeOutliers = 0;
+    });
 };
 
 const handleSetPollingData = () => {
@@ -629,9 +564,7 @@ const getEndCatDimFromChart = () => {
         return x;
     };
     const dimensions = $('g.dimension');
-    let dimPosition = dimensions.map((i, dim) => [
-        [getPosition($(dim).attr('transform')), i],
-    ]);
+    let dimPosition = dimensions.map((i, dim) => [[getPosition($(dim).attr('transform')), i]]);
     dimPosition.sort((a, b) => b[0] - a[0]);
     if (dimPosition.length) {
         // last dim at first position of list
@@ -646,9 +579,7 @@ const changeDimColor = (objective, isParacat = false) => {
     const allDim = $('#paracord-plot g.y-axis');
     const lastDim = $(`#paracord-plot g.y-axis:eq(${allDim.length - 1})`);
     if (objective.name) {
-        const sameProcDim = $('#paracord-plot g.y-axis').find(
-            `.axis-title[data-dpv^=${objective.procId}]`,
-        );
+        const sameProcDim = $('#paracord-plot g.y-axis').find(`.axis-title[data-dpv^=${objective.procId}]`);
         const tspanLabel = '.axis-title tspan.line>tspan';
         // reset all dim color
         allDim.find(tspanLabel).css('fill', CONST.WHITE);
@@ -667,14 +598,11 @@ const changeDimColor = (objective, isParacat = false) => {
         const endDim = getEndCatDimFromChart();
         // assign blue for same process columns
         if (objective.name) {
-            allCatDim
-                .filter((i, v) => $(v).data('dpv') === objective.name)
-                .css('fill', CONST.YELLOW);
+            allCatDim.filter((i, v) => $(v).data('dpv') === objective.name).css('fill', CONST.YELLOW);
             allCatDim
                 .filter(
                     (i, v) =>
-                        $(v).data('dpv').split('-')[0] ===
-                            String(objective.procId) &&
+                        $(v).data('dpv').split('-')[0] === String(objective.procId) &&
                         $(v).data('dpv') !== objective.name,
                 )
                 .css('fill', CONST.LIGHT_BLUE);
@@ -712,10 +640,7 @@ const updateTargetDim = (targetDPV, changeColor = false) => {
         clearTargetTmp();
         // re-assign target dimension information
         paracordTraces.array_plotdata.forEach((dat, idx) => {
-            if (
-                dat.col_detail.col_id === newTargetDPV[1] &&
-                dat.col_detail.proc_id === newTargetDPV[0]
-            ) {
+            if (dat.col_detail.col_id === newTargetDPV[1] && dat.col_detail.proc_id === newTargetDPV[0]) {
                 targetDim = newTargetDPV;
                 targetSensorIndex = idx;
                 targetSensorDat = dat.array_y;
@@ -802,15 +727,9 @@ const showParacords = (
 
     const plotDat = dat.array_plotdata;
     // if showVar = 'category only' and
-    const categoryOnly =
-        plotDat.filter((data) => data.col_detail.is_category).length ===
-        plotDat.length;
-    const isShowMsg =
-        pcpPlot.dimensions.length > 0 && !categoryOnly && changeVariableOnly;
-    if (
-        pcpPlot.settings.showVars === ParallelProps.showVariables.CATEGORY &&
-        isShowMsg
-    ) {
+    const categoryOnly = plotDat.filter((data) => data.col_detail.is_category).length === plotDat.length;
+    const isShowMsg = pcpPlot.dimensions.length > 0 && !categoryOnly && changeVariableOnly;
+    if (pcpPlot.settings.showVars === ParallelProps.showVariables.CATEGORY && isShowMsg) {
         const msgContent = $('#i18nRemoveRealInParcats').text();
         showToastrMsg(msgContent);
         changeVariableOnly = false;
@@ -818,15 +737,10 @@ const showParacords = (
 
     setTimeout(() => {
         loadingHide();
-        $('text.dimlabel[data-dpv]:not([is-categorize])').addClass(
-            showFilterClass,
-        );
+        $('text.dimlabel[data-dpv]:not([is-categorize])').addClass(showFilterClass);
         $('#paracord-plot').scrollLeft(1000);
         // update category position of on-demand-filter same as dimension
-        const odfData = updateCategoryOrdering(
-            dat.filter_on_demand.category,
-            pcpPlot.dimensions,
-        );
+        const odfData = updateCategoryOrdering(dat.filter_on_demand.category, pcpPlot.dimensions);
         const filterData = {
             ...dat.filter_on_demand,
             category: odfData,
@@ -845,11 +759,7 @@ const showParacords = (
 };
 
 const propComparator = (propName) => (a, b) =>
-    Math.abs(a[propName]) === Math.abs(b[propName])
-        ? 0
-        : Math.abs(a[propName]) < Math.abs(b[propName])
-          ? -1
-          : 1;
+    Math.abs(a[propName]) === Math.abs(b[propName]) ? 0 : Math.abs(a[propName]) < Math.abs(b[propName]) ? -1 : 1;
 
 const updateParacords = (dimensionID) => {
     if (!paracordTraces) {
@@ -857,14 +767,9 @@ const updateParacords = (dimensionID) => {
     }
     const plotData = paracordTraces.array_plotdata;
     let targetDim = plotData[plotData.length - 1];
-    const explainDim = plotData.filter(
-        (dim) => String(dim.end_col_id) == String(dimensionID),
-    );
+    const explainDim = plotData.filter((dim) => String(dim.end_col_id) == String(dimensionID));
     const pcpData = plotData.filter(
-        (dim) =>
-            ![String(dimensionID), String(targetDim.end_col_id)].includes(
-                String(dim.end_col_id),
-            ),
+        (dim) => ![String(dimensionID), String(targetDim.end_col_id)].includes(String(dim.end_col_id)),
     );
     // update pcp data
     paracordTraces.array_plotdata = [...pcpData, ...explainDim, targetDim];
@@ -891,10 +796,7 @@ const changeShowVariableByType = (selection) => {
             $('input[name=sort_by][value=setting]').prop('checked', true);
         }
     }
-    $('input[type=radio][name=sort_by][value=correlation]').prop(
-        'disabled',
-        propOption,
-    );
+    $('input[type=radio][name=sort_by][value=correlation]').prop('disabled', propOption);
     $('input[type=number][name=corr_value]').prop('disabled', propOption);
 
     loading.show();
@@ -928,9 +830,8 @@ const filterByShowVarType = (plotData, showVar) =>
 
         if (showVar === paracordsSetting.showVariables.CATEGORIZED) {
             return (
-                [DataTypes.INTEGER.name, DataTypes.REAL.name].includes(
-                    data.col_detail.data_type,
-                ) || data.col_detail.is_category === true
+                [DataTypes.INTEGER.name, DataTypes.REAL.name].includes(data.col_detail.data_type) ||
+                data.col_detail.is_category === true
             );
         }
     });
@@ -941,10 +842,7 @@ const orderingEventHandler = () => {
         const targetVal = isSubInput ? e.target.name : e.target.value;
         const sortBy = $('input[name=sort_by]:checked').val();
         const corrOrderBy = $('input[name=sort_option]:checked').val();
-        if (
-            !paracordsSetting.corrOrdering.all.includes(targetVal) ||
-            (sortBy === CONST.CORR && !corrOrderBy)
-        ) {
+        if (!paracordsSetting.corrOrdering.all.includes(targetVal) || (sortBy === CONST.CORR && !corrOrderBy)) {
             // reset before change
             $('input[name=sort_option]').prop('checked', false);
             if (sortBy === CONST.CORR) {
@@ -955,30 +853,16 @@ const orderingEventHandler = () => {
         }
 
         // sub input
-        if (
-            isSubInput &&
-            corrOrderBy !== CONST.CORR &&
-            paracordsSetting.corrOrdering.corrValue.includes(targetVal)
-        ) {
+        if (isSubInput && corrOrderBy !== CONST.CORR && paracordsSetting.corrOrdering.corrValue.includes(targetVal)) {
             // reset to corr order
-            $('input[name=sort_option][value=correlation]').prop(
-                'checked',
-                true,
-            );
+            $('input[name=sort_option][value=correlation]').prop('checked', true);
         }
-        if (
-            isSubInput &&
-            corrOrderBy === CONST.CORR &&
-            paracordsSetting.corrOrdering.orderLim.includes(targetVal)
-        ) {
+        if (isSubInput && corrOrderBy === CONST.CORR && paracordsSetting.corrOrdering.orderLim.includes(targetVal)) {
             // reset to top variable limit
             $('input[name=sort_option][value=top]').prop('checked', true);
         }
 
-        const orderingName = $('input[name=sort_by]:checked')
-            .closest('.form-check')
-            .find('span:first')
-            .text();
+        const orderingName = $('input[name=sort_by]:checked').closest('.form-check').find('span:first').text();
         // update ordering name
         $('#ordering-name').text(orderingName);
 
@@ -1002,10 +886,7 @@ const orderingEventHandler = () => {
 
 const dumpData = (type) => {
     const formData = lastUsedFormData || collectFormDataPCP(true);
-    formData.set(
-        'constraint_range',
-        JSON.stringify(pcpPlot.selectedConstraintRange),
-    );
+    formData.set('constraint_range', JSON.stringify(pcpPlot.selectedConstraintRange));
     formData.set(CONST.ONLY_EXPORT_DATA_SELECTED, onlyExportSelectedData);
     if (onlyExportSelectedData) {
         formData.set('export_from', 'plot');
@@ -1019,12 +900,8 @@ const handleExportData = (type, exportDataSelected = false) => {
 };
 
 const getObjectiveDim = (asArray = false) => {
-    const endRealDim = $('#paracord-plot g.y-axis:eq(-1)')
-        .find('text.axis-title')
-        .data('dpv');
-    const endcatDim = $('#paracord-plot g.dimension:eq(-1)')
-        .find('.dimlabel:eq(0)')
-        .data('dpv');
+    const endRealDim = $('#paracord-plot g.y-axis:eq(-1)').find('text.axis-title').data('dpv');
+    const endcatDim = $('#paracord-plot g.dimension:eq(-1)').find('.dimlabel:eq(0)').data('dpv');
     const endDimID = endRealDim || endcatDim;
     if (asArray) {
         return endDimID.split('-');
@@ -1058,10 +935,7 @@ const updateCategoryOrdering = (categoryData, dimensions) => {
     const catsOnDemandFilter = dimensions
         .map((dim) => {
             const [procID, colID] = dim.dimID.split('-').map((i) => Number(i));
-            const odfDims = categoryData.filter(
-                (catDim) =>
-                    catDim.proc_name == procID && catDim.column_id == colID,
-            );
+            const odfDims = categoryData.filter((catDim) => catDim.proc_name == procID && catDim.column_id == colID);
             if (odfDims.length) {
                 return odfDims[0];
             }
@@ -1081,10 +955,7 @@ const getDimOrderingFromODF = () => {
     const endDimIDFromChart = endDim.dPV;
 
     const [, odfDims] = getSortedCatExpAndCategories();
-    const dimOrderingFromODF = odfDims.map((dim) => [
-        Number(dim.end_proc_cate),
-        Number(dim.GET02_CATE_SELECT[0]),
-    ]);
+    const dimOrderingFromODF = odfDims.map((dim) => [Number(dim.end_proc_cate), Number(dim.GET02_CATE_SELECT[0])]);
     if (!dimOrderingFromODF || !dimOrderingFromODF.length) {
         return endDimIDFromChart.split('-').map((val) => Number(val));
     }
@@ -1093,9 +964,7 @@ const getDimOrderingFromODF = () => {
     const endDimFromODF = dpvOrdering[dpvOrdering.length - 1];
 
     if (dpvOrdering.includes(endDimIDFromChart)) {
-        endDim = latestDimensionInChart.filter(
-            (dim) => dim.dPV == endDimFromODF,
-        )[0];
+        endDim = latestDimensionInChart.filter((dim) => dim.dPV == endDimFromODF)[0];
     }
     return endDim.dPV.split('-').map((val) => Number(val));
 };
@@ -1110,10 +979,7 @@ const rearrangeDimAfterODF = (data) => {
     let catDims = [];
 
     const [, odfDims] = getSortedCatExpAndCategories();
-    const dimOrderingFromODF = odfDims.map((dim) => [
-        Number(dim.end_proc_cate),
-        Number(dim.GET02_CATE_SELECT[0]),
-    ]);
+    const dimOrderingFromODF = odfDims.map((dim) => [Number(dim.end_proc_cate), Number(dim.GET02_CATE_SELECT[0])]);
     if (!dimOrderingFromODF) {
         return data;
     }
@@ -1129,9 +995,7 @@ const rearrangeDimAfterODF = (data) => {
     }
 
     // filter columns are not in category list and endDim
-    unCatDims = data.filter(
-        (dim) => !dpvOrdering.includes(dim.dPV) && dim.dPV !== endDim.dPV,
-    );
+    unCatDims = data.filter((dim) => !dpvOrdering.includes(dim.dPV) && dim.dPV !== endDim.dPV);
 
     catDims = dpvOrdering
         .filter((dimDPV) => dimDPV !== endDim.dPV)
@@ -1139,15 +1003,11 @@ const rearrangeDimAfterODF = (data) => {
             return data.filter((dim) => dim.dPV === dimDPV)[0];
         });
 
-    return [...catDims, ...unCatDims, endDim].filter(
-        (dim) => dim !== undefined,
-    );
+    return [...catDims, ...unCatDims, endDim].filter((dim) => dim !== undefined);
 };
 
 const getAllDimDPVFromChart = () => {
-    const allDimInParal = Array.from(
-        $('#paracord-plot g.y-axis').find('text.axis-title'),
-    );
+    const allDimInParal = Array.from($('#paracord-plot g.y-axis').find('text.axis-title'));
     const allDimInParac = $('g.dimension');
 
     const getParacDimPosition = (translateVal) => {
@@ -1165,15 +1025,11 @@ const getAllDimDPVFromChart = () => {
         return allDimInParal.map((dim) => $(dim).data('dpv'));
     }
 
-    let catDimPosition = allDimInParac.map((i, dim) => [
-        [getParacDimPosition($(dim).attr('transform')), i],
-    ]);
+    let catDimPosition = allDimInParac.map((i, dim) => [[getParacDimPosition($(dim).attr('transform')), i]]);
     // sort categroy dimension by transform value
     catDimPosition.sort((a, b) => a[0] - b[0]);
     if (catDimPosition.length) {
-        const dpvs = catDimPosition.map((_, dim) =>
-            $(allDimInParac[dim[1]]).find('text.dimlabel:eq(0)').data('dpv'),
-        );
+        const dpvs = catDimPosition.map((_, dim) => $(allDimInParac[dim[1]]).find('text.dimlabel:eq(0)').data('dpv'));
         return Array.from(dpvs);
     }
     return [];
@@ -1185,8 +1041,7 @@ const getDimPositionFromGraph = () => {
     }
     const latestDimDPV = latestDimensionInChart.map((dim) => dim.dPV);
     const currentDimDPV = getAllDimDPVFromChart();
-    const isChanged =
-        JSON.stringify(latestDimDPV) !== JSON.stringify(currentDimDPV);
+    const isChanged = JSON.stringify(latestDimDPV) !== JSON.stringify(currentDimDPV);
     if (isChanged) {
         return currentDimDPV;
     }
@@ -1197,9 +1052,7 @@ const updateDimPosition = (dimPositions) => {
     if (latestDimensionInChart) {
         const dimensions = [];
         dimPositions.forEach((dPV) => {
-            dimensions.push(
-                latestDimensionInChart.filter((dim) => dim.dPV === dPV)[0],
-            );
+            dimensions.push(latestDimensionInChart.filter((dim) => dim.dPV === dPV)[0]);
         });
         return dimensions;
     }
@@ -1210,20 +1063,14 @@ const transformCategoryData = (dimensions, useCategorized) => {
     dimensions.forEach((dimension) => {
         const [, colID] = dimension.dPV.split('-').map((i) => Number(i));
         const [sensorDat] = paracordTraces
-            ? paracordTraces.array_plotdata.filter(
-                  (plot) => plot.end_col_id == colID,
-              )
+            ? paracordTraces.array_plotdata.filter((plot) => plot.end_col_id == colID)
             : null;
         const uniqueArrayY = Array.from(new Set(sensorDat.array_y)).length;
         // format ticks of dimension
-        dimension.ticktext = dimension.ticktext.map((i) =>
-            applySignificantDigit(i),
-        );
+        dimension.ticktext = dimension.ticktext.map((i) => applySignificantDigit(i));
         if (sensorDat.col_detail.data_type == DataTypes.INTEGER.name) {
             if (uniqueArrayY > MAX_INT_LABEL_SIZE) {
-                dimension.values = sensorDat.categorized_data.map((i) =>
-                    parseInt(i),
-                );
+                dimension.values = sensorDat.categorized_data.map((i) => parseInt(i));
                 return;
             }
         }
@@ -1245,9 +1092,7 @@ const transformCategoryData = (dimensions, useCategorized) => {
                     sensorArrayY = sensorDat.categorized_data;
                 }
                 let hasNA = sensorArrayY.includes(null);
-                rankVal = Array.from(
-                    new Set(sensorArrayY.filter((i) => i)),
-                ).sort((a, b) => a - b);
+                rankVal = Array.from(new Set(sensorArrayY.filter((i) => i))).sort((a, b) => a - b);
                 if (dimension.isReal) {
                     rankVal.reverse(); // [3,2,1]
                 }
@@ -1263,12 +1108,8 @@ const transformCategoryData = (dimensions, useCategorized) => {
                 const naIndex = dimension.ticktext.indexOf(COMMON_CONSTANT.NA);
                 // has NA in rank_value
                 if (naIndex >= 0) {
-                    const tickTextWtNA = dimension.ticktext.filter(
-                        (tick) => tick !== COMMON_CONSTANT.NA,
-                    );
-                    const tickValWtNA = dimension.tickvals.filter(
-                        (val, i) => i !== naIndex,
-                    );
+                    const tickTextWtNA = dimension.ticktext.filter((tick) => tick !== COMMON_CONSTANT.NA);
+                    const tickValWtNA = dimension.tickvals.filter((val, i) => i !== naIndex);
                     const naVal = dimension.tickvals[naIndex];
                     // add NA to categories of sensors
                     dimension.ticktext = [...tickTextWtNA, COMMON_CONSTANT.NA];
@@ -1286,9 +1127,7 @@ const transformCategoryData = (dimensions, useCategorized) => {
 const rearrangeNominalVars = (data, categoryCols, prop) => {
     const isNominalScale = prop.is_nominal_scale == 'true';
     // re-arrange when there are nominal vars else do not apply
-    let nominalVars = prop.nominal_vars
-        ? prop.nominal_vars.map((i) => Number(i))
-        : [];
+    let nominalVars = prop.nominal_vars ? prop.nominal_vars.map((i) => Number(i)) : [];
     if (isNominalScale) {
         nominalVars = categoryCols.map((col) => col.col_id);
     }
@@ -1308,12 +1147,8 @@ const rearrangeNominalVars = (data, categoryCols, prop) => {
                     .map((tick) => (!isNaN(Number(tick)) ? Number(tick) : tick))
                     .filter((tick) => tick !== COMMON_CONSTANT.NA);
                 let tickValsSorted = [...tickVals].sort((a, b) => a - b);
-                const sortIndex = tickValsSorted.map((tick) =>
-                    tickVals.indexOf(tick),
-                );
-                dim.categoryarray = sortIndex.map(
-                    (idx) => dim.categoryarray[idx],
-                );
+                const sortIndex = tickValsSorted.map((tick) => tickVals.indexOf(tick));
+                dim.categoryarray = sortIndex.map((idx) => dim.categoryarray[idx]);
                 dim.group = sortIndex.map((idx) => dim.group[idx]);
                 dim.ticktext = sortIndex.map((idx) => dim.ticktext[idx]);
                 dim.tickvals = sortIndex.map((idx) => dim.tickvals[idx]);
@@ -1359,34 +1194,23 @@ const genObjectiveDimForNumberCol = (dimensions, objectVarID) => {
         // add NA again
         if (hasNA) {
             uniqueVals = [...uniqueVals.filter((i) => i !== NAValue), NAValue];
-            reverseVals = [
-                ...reverseVals.filter((i) => i !== NAValue),
-                NAValue,
-            ];
+            reverseVals = [...reverseVals.filter((i) => i !== NAValue), NAValue];
         }
         // create dummy value
-        endDim.values = dummyVals.map(
-            (i) => reverseVals[uniqueVals.indexOf(i)],
-        );
+        endDim.values = dummyVals.map((i) => reverseVals[uniqueVals.indexOf(i)]);
 
         // update categoryarray
         endDim.categoryarray = uniqueVals;
 
         if (hasNA) {
-            endDim.values = endDim.values.map((i) =>
-                i == NAValue ? maxVal : i,
-            );
-            endDim.categoryarray = endDim.categoryarray.map((i) =>
-                i == NAValue ? maxVal : i,
-            );
+            endDim.values = endDim.values.map((i) => (i == NAValue ? maxVal : i));
+            endDim.categoryarray = endDim.categoryarray.map((i) => (i == NAValue ? maxVal : i));
         }
         // update tickvals
         endDim.tickvals = endDim.categoryarray;
         // update ticktext
         const tickWoNA = endDim.ticktext.reverse();
-        endDim.ticktext = hasNA
-            ? [...tickWoNA.filter((i) => i !== NA), NA]
-            : tickWoNA;
+        endDim.ticktext = hasNA ? [...tickWoNA.filter((i) => i !== NA), NA] : tickWoNA;
         // update group
         endDim.group = endDim.ticktext;
 
@@ -1434,10 +1258,9 @@ const getSelectedValues = () => {
     const graphDiv = document.getElementById(pcpPlot.plotDOMId);
     // do not execute data selection for categorized real graph
     if (
-        [
-            ParallelProps.showVariables.CATEGORY,
-            ParallelProps.showVariables.CATEGORIZED,
-        ].includes(pcpPlot.settings.showVars)
+        [ParallelProps.showVariables.CATEGORY, ParallelProps.showVariables.CATEGORIZED].includes(
+            pcpPlot.settings.showVars,
+        )
     ) {
         return;
     }
@@ -1465,8 +1288,7 @@ const getSelectedValues = () => {
                 }
                 return selectedValue
                     .map((val) => {
-                        const indexTickVal =
-                            selectedDimension.tickvals.indexOf(val);
+                        const indexTickVal = selectedDimension.tickvals.indexOf(val);
                         return selectedDimension.ticktext[indexTickVal];
                     })
                     .filter((v) => v);
@@ -1481,19 +1303,30 @@ const onChangeShowCTTime = (e) => {
     $(e).attr('disabled', true);
     e.ready = true;
     const settingInfo = getSettingCommonInfo();
+    const userSetting = JSON.parse(settingInfo.settings);
+    const traceDataForm = userSetting.traceDataForm;
+    const lastElementChecked = traceDataForm
+        .filter(
+            (item) =>
+                (item.type === 'checkbox' && item.name.startsWith('GET02_VALS_SELECT') && item.checked) ||
+                (item.type === 'radio' && item.name === 'objectiveVar' && item.checked),
+        )
+        .pop();
+    const lastElementCheckedId = lastElementChecked?.id || '';
+    $(formElements.showCT_Time).data('target-id-to-enable-ct', lastElementCheckedId);
     $(formElements.endProcSelectedItem).trigger('change');
     setTimeout(function () {
         applyUserSetting(settingInfo, null, false);
+        if (!lastElementCheckedId) {
+            enableCycleTimeAnalysis();
+        }
     }, 100);
 };
 
 const getSelectedDataFrame = async () => {
     const formData = collectFormDataPCP(true);
     formData.set('export_from', 'plot');
-    formData.set(
-        'constraint_range',
-        JSON.stringify(pcpPlot.selectedConstraintRange),
-    );
+    formData.set('constraint_range', JSON.stringify(pcpPlot.selectedConstraintRange));
     loadingShow();
     const queryString = genQueryStringFromFormData(formData);
     if (queryString && queryString.includes('GET02_VALS_SELECT')) {
@@ -1504,10 +1337,7 @@ const getSelectedDataFrame = async () => {
 };
 
 const fetchSelectedDataFrame = async (queryString) => {
-    const dataFrame = await fetchData(
-        `/ap/api/pcp/select_data?${queryString}`,
-        {},
-    );
+    const dataFrame = await fetchData(`/ap/api/pcp/select_data?${queryString}`, {});
     return [dataFrame['cols'], dataFrame['rows'], dataFrame['cols_name']];
 };
 

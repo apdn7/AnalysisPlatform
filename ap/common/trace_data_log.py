@@ -32,6 +32,7 @@ def _gen_dataset_id():
 gen_dataset_id_inst = _gen_dataset_id()
 
 
+@log_execution_time()
 def send_gtag(**kwargs):
     try:
         ga_tracking_id = current_app.config.get('GA_TRACKING_ID')

@@ -18,14 +18,17 @@ from ap.common.constants import (
     DATA_NAME_V2_SUFFIX,
     DF_CHUNK_SIZE,
     DUMMY_V2_PROCESS_NAME,
+    QUALITY_DEFINITION,
     REVERSED_WELL_KNOWN_COLUMNS,
     REVERSED_WELL_KNOWN_EN_COLUMNS,
     SUB_PART_NO_DEFAULT_NO,
     SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_NAMES,
+    V2_MULTI_EXTEND_COL_DIC,
     V2_SAME_COL_DIC,
     WELL_KNOWN_COLUMNS,
     WELL_KNOWN_EN_COLUMNS,
+    DataColumnType,
     DataGroupType,
     DataType,
     DBType,
@@ -61,10 +64,11 @@ def predict_v2_data_type(columns, df):
 
 
 @log_execution_time()
-def add_process_columns(process_id, column_data: list):
+def add_process_columns(cfg_proc: CfgProcess, column_data: list):
+    process_id = cfg_proc.id
     proc_column_schemas = ProcessColumnSchema()
-    current_columns = CfgProcessColumn.get_all_columns(process_id)
     with make_session() as meta_session:
+        current_columns = CfgProcessColumn.get_all_columns(process_id)
         sensors = set()
         for column in column_data:
             proc_column = proc_column_schemas.load(column)
@@ -74,6 +78,8 @@ def add_process_columns(process_id, column_data: list):
             current_columns.append(proc_column)
             sensors.add((process_id, proc_column.column_name, DataType[proc_column.data_type].value))
 
+        # todo: remove above code: old method to save new columns
+        # resolved by `current_columns.append`
         # save columns
         crud_config(
             meta_session=meta_session,
@@ -83,11 +89,13 @@ def add_process_columns(process_id, column_data: list):
             model=CfgProcessColumn,
         )
 
+    # update columns in static cfg_proc
+    cfg_proc.columns = [col.clone() for col in current_columns]
     return True
 
 
-def add_remaining_v2_columns(df, process_id):
-    remaining_columns = find_remaining_columns(process_id, df.columns)
+def add_remaining_v2_columns(df, cfg_proc: CfgProcess):
+    remaining_columns = find_remaining_columns(cfg_proc, df.columns)
     if not remaining_columns:
         return False
 
@@ -99,10 +107,11 @@ def add_remaining_v2_columns(df, process_id):
                 'column_name': col,
                 'data_type': DataType(data_types[i]).name,
                 'predict_type': DataType(data_types[i]).name,
+                'column_type': DataColumnType.GENERATED.value,
             },
         )
 
-    return add_process_columns(process_id, columns)
+    return add_process_columns(cfg_proc, columns)
 
 
 @log_execution_time()
@@ -210,6 +219,10 @@ def get_df_v2_process_single_file(
     # rename abnormal history name
     if is_abnormal_v2 and datasource_type == DBType.V2_HISTORY:
         df = rename_abnormal_history_col_names_from_df(df, datasource_type)
+
+    if datasource_type in [DBType.V2_MULTI]:
+        # df = rename_multi_col_names_from_df(df)
+        df = rename_quality_group(df, datasource_type)
     return df
 
 
@@ -259,6 +272,18 @@ def simple_convert_to_v2_vertical(
         if normalized_col.startswith(quality_name_col):
             quality_name_like_cols.append(col)
 
+        if datasource_type == DBType.V2_MULTI:
+            if (
+                normalized_col.startswith(tuple(V2_MULTI_EXTEND_COL_DIC[DataGroupType.QUALITY_NAME.value]))
+                and col not in quality_name_like_cols
+            ):
+                quality_name_like_cols.append(col)
+
+            if (
+                normalized_col.startswith(tuple(V2_MULTI_EXTEND_COL_DIC[DataGroupType.DATA_VALUE.value]))
+                and col not in data_value_like_cols
+            ):
+                data_value_like_cols.append(col)
     assert len(quality_name_like_cols) == len(data_value_like_cols)
     assert len(quality_name_like_cols) > 0
 
@@ -306,16 +331,14 @@ def simple_convert_to_v2_vertical(
     df = df.dropna(subset=[quality_name_col])
     # replace vertical cols
     unique_vertical_cols = df[quality_name_col].unique().tolist()
-    normalized_vertical_cols = (
-        pd.Series(unique_vertical_cols).apply(normalize_str).replace(r'計測値:|measurement.', '', regex=True)
-    )
+    normalized_vertical_cols = pd.Series(unique_vertical_cols).apply(normalize_str)
 
     df = df.pivot(index=unique_cols, columns=quality_name_col, values=data_value_col)
     # find duplicate quality columns, compare with index of df
     duplicated_cols = list(set(df.columns).intersection(unique_cols))
     filter_cols = unique_cols + list(normalized_vertical_cols)
     if len(duplicated_cols) or len(filter_cols):
-        df_columns, is_duplicated = add_suffix_if_duplicated(filter_cols)
+        df_columns, is_duplicated, _ = add_suffix_if_duplicated(filter_cols)
         # rename columns if there is duplicated measure item name
         if True in is_duplicated:
             normalized_vertical_cols = df_columns[len(unique_cols) :]
@@ -353,6 +376,11 @@ def build_read_csv_for_v2(file_path: str, datasource_type: DBType = DBType.V2, i
     if is_en_cols:
         must_get_columns = tuple(WELL_KNOWN_EN_COLUMNS[datasource_type.name].keys())
 
+    if datasource_type == DBType.V2_MULTI:
+        v2_multi = tuple(V2_MULTI_EXTEND_COL_DIC.values())
+        extend_get_columns = tuple(x for pair in zip(v2_multi[0], v2_multi[1]) for x in pair)
+        must_get_columns = must_get_columns + extend_get_columns
+
     def usecols(x):
         return x.startswith(must_get_columns)
 
@@ -366,7 +394,7 @@ def build_read_csv_for_v2(file_path: str, datasource_type: DBType = DBType.V2, i
             'usecols': usecols if not is_en_cols else usecols_with_normalization,
             'skipinitialspace': True,
             'na_values': NA_VALUES,
-            'error_bad_lines': False,
+            'on_bad_lines': 'skip',
             'skip_blank_lines': True,
             'dtype': dtype,
         },
@@ -376,23 +404,14 @@ def build_read_csv_for_v2(file_path: str, datasource_type: DBType = DBType.V2, i
 
 @log_execution_time()
 @use_meta_session()
-def save_unused_columns(process_id, unused_columns, meta_session: scoped_session = None):
-    is_v2 = is_v2_data_source(process_id=process_id, meta_session=meta_session)
+def save_unused_columns(process: CfgProcess, unused_columns, meta_session: scoped_session = None):
+    is_v2 = is_v2_data_source(process_id=process.id, meta_session=meta_session)
     if not is_v2:
-        return
+        return process
 
-    if unused_columns:
-        unused_columns = [CfgProcessUnusedColumn(process_id=process_id, column_name=name) for name in unused_columns]
-        crud_config(
-            meta_session=meta_session,
-            data=unused_columns,
-            parent_key_names=CfgProcessUnusedColumn.process_id.key,
-            key_names=CfgProcessUnusedColumn.column_name.key,
-            model=CfgProcessUnusedColumn,
-            autocommit=False,
-        )
-    else:
-        CfgProcessUnusedColumn.delete_all_columns_by_proc_id(process_id, meta_session=meta_session)
+    # just set `unused_columns` is enough, they will be auto deleted because we used `delete-orphan`
+    process.unused_columns = [CfgProcessUnusedColumn(column_name=name) for name in unused_columns]
+    return meta_session.merge(process)
 
 
 @log_execution_time()
@@ -467,16 +486,16 @@ def rename_sub_part_no(df: pd.DataFrame, datasource_type=None) -> Tuple[DataFram
 
 
 @log_execution_time()
-def find_remaining_columns(process_id, all_columns):
+def find_remaining_columns(cfg_proc: CfgProcess, all_columns):
     """
     Get new columns of V2 process that are not in unused columns and used columns
-    :param process_id:
+    :param cfg_proc:
     :param all_columns:
     :return: remaining column that need to import
     """
-    unused_columns = CfgProcessUnusedColumn.get_all_unused_columns_by_process_id(process_id)
+    unused_columns = [col.column_name for col in cfg_proc.unused_columns]
 
-    import_columns = [col.column_name for col in CfgProcessColumn.get_all_columns(process_id)]
+    import_columns = [col.column_name for col in cfg_proc.columns]
     used_columns = unused_columns + import_columns
     return [col for col in all_columns if col not in used_columns]
 
@@ -493,6 +512,10 @@ def get_v2_datasource_type_from_df(df: DataFrame) -> Union[tuple[DBType, bool, b
     is_abnormal = False
     is_en_cols = False
     for datasource_type in [DBType.V2_HISTORY, DBType.V2, DBType.V2_MULTI]:
+        # check if there is complex quality in V2 multi case
+        if datasource_type == DBType.V2_MULTI:
+            _df = rename_quality_group(df, datasource_type)
+            columns = {col.strip() for col in _df.columns}
         columns = {V2_SAME_COL_DIC[col] if col in V2_SAME_COL_DIC else col for col in columns}
         must_exist_columns = set(WELL_KNOWN_COLUMNS[datasource_type.name].keys())
         abnormal_must_exist_columns = set(ABNORMAL_WELL_KNOWN_COLUMNS[datasource_type.name].keys())
@@ -534,7 +557,7 @@ def transform_partno_value(df: pd.DataFrame, partno_columns: List) -> pd.DataFra
 
 
 @log_execution_time()
-def prepare_to_import_v2_df(df: DataFrame, process_id: int, datasource_type=None) -> Tuple[DataFrame, bool]:
+def prepare_to_import_v2_df(df: DataFrame, cfg_proc: CfgProcess, datasource_type=None) -> Tuple[DataFrame, bool]:
     """
     :return: transformed dataframe, has_new_columns
     """
@@ -549,7 +572,7 @@ def prepare_to_import_v2_df(df: DataFrame, process_id: int, datasource_type=None
     # we just need to find remaining columns on long dataset
     has_remaining_cols = False
     if datasource_type in [DBType.V2, DBType.V2_MULTI]:
-        has_remaining_cols = add_remaining_v2_columns(df.iloc[:1000], process_id)
+        has_remaining_cols = add_remaining_v2_columns(df.iloc[:1000], cfg_proc)
     return df, has_remaining_cols
 
 
@@ -597,8 +620,72 @@ def rename_abnormal_history_col_names_from_df(df, datasource_type):
             rename_headers[col_name] = rename_col
     # return rename_headers
     if len(rename_headers.keys()):
-        df.rename(columns=rename_headers, inplace=True)
+        df = df.rename(columns=rename_headers)
     return df
+
+
+def rename_quality_group(df, datasource_type):
+    quality_names = QUALITY_DEFINITION[DataGroupType.QUALITY_NAME.value]
+    data_values = QUALITY_DEFINITION[DataGroupType.DATA_VALUE.value]
+    quality_names = [col for col in df.columns if col.startswith(tuple(quality_names))]
+    data_value = [col for col in df.columns if col.startswith(tuple(data_values))]
+
+    if len(quality_names) != len(data_value):
+        # could not extract correct quality data
+        return df
+
+    quality_correct_name = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name][DataGroupType.QUALITY_NAME.value]
+    quality_correct_value = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name][DataGroupType.DATA_VALUE.value]
+
+    rename_dict = {}
+    for idx, (q_name, q_value) in enumerate(list(zip(quality_names, data_value))):
+        rename_dict[q_name] = quality_correct_name if not idx else f'{quality_correct_name}.{idx}'
+        rename_dict[q_value] = quality_correct_value if not idx else f'{quality_correct_value}.{idx}'
+
+    _df = df.copy()
+    if rename_dict:
+        _df = _df.rename(columns=rename_dict)
+    return _df
+
+
+def rename_multi_col_names_from_df(df):
+    """
+    :return: df with normal headers
+    """
+    rename_headers = {}
+    headers = df.columns.to_list()
+    for col_name in headers:
+        new_name = ''
+        for key, values in V2_MULTI_EXTEND_COL_DIC.items():
+            if any(col_name.startswith(prefix) for prefix in values if isinstance(prefix, str)):
+                if key == DataGroupType.DATA_VALUE.value:
+                    new_name = REVERSED_WELL_KNOWN_COLUMNS[DBType.V2_MULTI.name][DataGroupType.DATA_VALUE.value]
+                elif key == DataGroupType.QUALITY_NAME.value:
+                    new_name = REVERSED_WELL_KNOWN_COLUMNS[DBType.V2_MULTI.name][DataGroupType.QUALITY_NAME.value]
+        if col_name == new_name or not new_name:
+            continue
+        max_suffix = get_max_suffix(df.columns, new_name)
+        new_name = f'{new_name}.{max_suffix + 1}' if new_name in df.columns else col_name
+        rename_headers[col_name] = new_name
+        if rename_headers:
+            df = df.rename(columns=rename_headers)
+
+    return df
+
+
+def get_max_suffix(columns, base_name):
+    max_suffix = 0
+
+    for col in columns:
+        if col.startswith(base_name):
+            match = re.match(rf'^{base_name}(\.\d+)?$', col)
+            if match:
+                if match.group(1):
+                    num_suffix = int(match.group(1)[1:])
+                    max_suffix = max(max_suffix, num_suffix)
+                else:
+                    max_suffix = max(max_suffix, 0)
+    return max_suffix
 
 
 def normalize_column_name(columns_name):
@@ -609,7 +696,7 @@ def normalize_column_name(columns_name):
         col_name = column_name.lower()
         for symbol in convert_symbols:
             col_name = col_name.replace(symbol, '_')
-        if col_name[-1] == '_':
+        if col_name[-1:] == '_':
             # remove last underscore of column name
             # eg. serial_no_ -> serial_no
             col_name = col_name[:-1]
@@ -679,8 +766,15 @@ def convert_horizontal_columns_to_vertical_columns(
     Converting all columns marked as horizontal columns to vertical columns
     """
     unique_cols = [col for col in df.columns if col not in horizontal_columns + [variable_col] + [value_col]]
+
+    # pandas 2.0 does not allow `variable_col` to be existed in `df`
+    # so we need to drop it before run
+    horizontal_df = df
+    if value_col in df:
+        horizontal_df = horizontal_df.drop(value_col, axis=1)
+
     vertical_df = pd.melt(
-        df,
+        horizontal_df,
         id_vars=unique_cols,
         value_vars=horizontal_columns,
         var_name=variable_col,

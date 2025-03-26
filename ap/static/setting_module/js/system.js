@@ -1,6 +1,14 @@
 const systemElements = {
     divSystemConfig: '#cfgSystem',
+    deleteLogDataModal: '#deleteLogDataModal',
+    deleteDataFolderModal: '#deleteDataFolderModal',
     backupAndRestoreModal: '#backupAndRestoreModal',
+    resetTransactionDataModal: '#resetTransactionDataModal',
+    exportDataModal: '#exportDataModal',
+    importDataModal: '#importDataModal',
+    importDatabase: '#importDatabase',
+    // TODO: Should this get a separate ID?
+    uploadBackupFile: '#importSelectFileInput',
 };
 
 let defaultTimeRange = '';
@@ -68,9 +76,7 @@ const generateHTMLBackupAndRestoreModal = () => {
 
 const getBackupAndRestoreInfo = () => {
     const selectDateTimeRange = $('#datetimeRangePicker').val();
-    const [starting, ending] = selectDateTimeRange.split(
-        DATETIME_PICKER_SEPARATOR,
-    );
+    const [starting, ending] = selectDateTimeRange.split(DATETIME_PICKER_SEPARATOR);
     if (starting && ending) {
         const startTime = moment.utc(moment(starting)).format(DATETIME_FORMAT);
         const endTime = moment.utc(moment(ending)).format(DATETIME_FORMAT);
@@ -129,9 +135,7 @@ function getDataCountForCalendar() {
      *     tableTo: function(): void,
      * }}
      * */
-    const cacheFunction = document.getElementById(
-        'backupAndRestoreModal',
-    ).cacheFunction;
+    const cacheFunction = document.getElementById('backupAndRestoreModal').cacheFunction;
     if (cacheFunction) {
         if (_.isFunction(cacheFunction)) {
             cacheFunction();
@@ -147,26 +151,19 @@ function getDataCountForCalendar() {
  * Switch Backup Restore Tab
  * @param {HTMLLIElement} liElement - a Li html element
  */
-const switchBackupRestoreTab = (
-    liElement = document.getElementById('liBackupTab'),
-) => {
+const switchBackupRestoreTab = (liElement = document.getElementById('liBackupTab')) => {
     // Set tab active
     liElement.classList.add('active');
     liElement.firstElementChild.classList.add('active');
     liElement.firstElementChild.setAttribute('aria-selected', String(true));
 
     // Set another tab deactivate
-    const anotherLiElement =
-        liElement.nextElementSibling ?? liElement.previousElementSibling;
+    const anotherLiElement = liElement.nextElementSibling ?? liElement.previousElementSibling;
     anotherLiElement.classList.remove('active');
     anotherLiElement.firstElementChild.classList.remove('active');
-    anotherLiElement.firstElementChild.setAttribute(
-        'aria-selected',
-        String(false),
-    );
+    anotherLiElement.firstElementChild.setAttribute('aria-selected', String(false));
 
-    const aElement =
-        /** @type{HTMLAnchorElement} */ liElement.firstElementChild;
+    const aElement = /** @type{HTMLAnchorElement} */ liElement.firstElementChild;
     const currentTab = aElement.getAttribute('href').replace('#', '');
     $('#idFlagBKRT').val(currentTab);
     $(`#${aElement.dataset.showButtonId}`).show();
@@ -174,15 +171,149 @@ const switchBackupRestoreTab = (
     getDataCountForCalendar();
 };
 
+const showResetTransactionDataModal = () => {
+    $(systemElements.resetTransactionDataModal).modal('show');
+};
+
+const resetTransactionData = () => {
+    const url = '/ap/api/setting/reset_transaction_data';
+    fetchWithLog(url, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+    })
+        .then((response) => response.clone().json())
+        .then((data) => {
+            // refresh Vis network
+            reloadTraceConfigFromDB();
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+};
+
+const showDeleteLogDataModal = () => {
+    $(systemElements.deleteLogDataModal).modal('show');
+};
+
+const showDeleteDataFolderModal = () => {
+    $(systemElements.deleteDataFolderModal).modal('show');
+};
+
+const deleteLogDataData = () => {
+    const url = '/ap/api/setting/delete_log_data';
+    fetchWithLog(url, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Delete success:', data);
+            // No need to show error because it always happens
+            // if (data['errors']) {
+            //     // show toast to notify user
+            //     for (const error of data['errors']) {
+            //         showToastrMsg(error['message'], MESSAGE_LEVEL.ERROR);
+            //     }
+            // }
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+};
+
+const deleteDataFolder = () => {
+    const url = '/ap/api/setting/delete_folder_data';
+    fetchWithLog(url, {
+        method: 'DELETE',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Delete success:', data);
+            // No need to show error because it always happens
+            // if (data['errors']) {
+            //     // show toast to notify user
+            //     for (const error of data['errors']) {
+            //         showToastrMsg(error['message'], MESSAGE_LEVEL.ERROR);
+            //     }
+            // }
+        })
+        .catch((e) => {
+            console.error(e);
+        });
+};
+
+const showZipExportModal = () => {
+    $(systemElements.exportDataModal).modal('show');
+};
+
+const showZipImportModal = () => {
+    $(systemElements.importDataModal).modal('show');
+};
+
+const zipExportDatabase = () => {
+    const exportModeEle = $('[name=isExportMode]');
+    const url = '/ap/api/setting/zip_export_database';
+    const file_name = `AP_config_${moment().format('YYYYMMDDHHmmss')}.zip`;
+    downloadTextFile(url, file_name, { cache: 'no-cache' });
+    exportModeEle.remove();
+    return false;
+};
+
+const startImportDataZipFile = () => {
+    $(`${systemElements.importDatabase} .box__success span`).text('');
+    $(`${systemElements.importDatabase} .box__success`).hide();
+    $(systemElements.uploadBackupFile).val('');
+    $(systemElements.importDatabase).modal('show');
+};
+
+const zipImportDatabase = () => {
+    // TODO: Try not to use settingFile for drag drop case
+    const filename = $('input[name="file"]').prop('files')[0] || settingFile;
+    if (!filename.name) {
+        return;
+    }
+
+    // Create a FormData object to send the file data
+    const formData = new FormData();
+    formData.append('file', filename);
+
+    const url = '/ap/api/setting/zip_import_database';
+    $.ajax({
+        url: url, // Replace with the URL of the back-end server
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            // response = jsonParse(response);
+            // const redirectPage = response.page;
+            showImportAppSettingDone();
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        },
+        error: function (xhr, status, error) {
+            const msgContent = warningI18n.importAppSettingFailed;
+            showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
+            console.error('Error uploading file:', error);
+        },
+    });
+};
+
 $(() => {
-    $(systemElements.divSystemConfig)[0].addEventListener(
-        'contextmenu',
-        baseRightClickHandler,
-        false,
-    );
-    $(systemElements.divSystemConfig)[0].addEventListener(
-        'mouseup',
-        handleMouseUp,
-        false,
-    );
+    $(systemElements.divSystemConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
+    $(systemElements.divSystemConfig)[0].addEventListener('mouseup', handleMouseUp, false);
 });

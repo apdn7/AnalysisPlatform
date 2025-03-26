@@ -1,10 +1,17 @@
+import importlib.util
 import logging
+import os
+from abc import ABC, abstractmethod
+
+import pandas as pd
+from pydantic import BaseModel, ValidationError
 
 from ap.common.common_utils import (
     detect_encoding,
     get_base_dir,
     get_etl_path,
     get_temp_path,
+    get_user_scripts_path,
     get_wrapr_path,
     make_dir,
     open_with_zip,
@@ -23,23 +30,77 @@ NO_DATA_ERROR = 'NoDataError'
 logger = logging.getLogger(__name__)
 
 
-@log_execution_time()
-def preview_data(fname):
-    """
-    transform data , output will be put in temp folder
-    """
-    output_fname = call_com_read(fname, get_temp_path())
-    return output_fname
+class PyETLInterface(ABC):
+    class ImportSchema(BaseModel):
+        @classmethod
+        def schema_definition(cls):
+            return cls
+
+    @abstractmethod
+    def extract(self, fname: str) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        pass
+
+    def validate(self, df: pd.DataFrame) -> pd.DataFrame:
+        schema = self.ImportSchema.schema_definition()
+        if len(schema.model_fields) == 0:
+            return df
+
+        validated_data = []
+        for _, row in df.iterrows():
+            try:
+                validated_row = schema(**row.to_dict())
+                validated_data.append(validated_row.dict())
+            except ValidationError as e:
+                logger.debug(f'Validation error: {e}')
+                raise e
+        return pd.DataFrame(validated_data)
 
 
 @log_execution_time()
-def csv_transform(proc_id, fname):
+def csv_transform(fname, etl_func, proc_id=None):
     """transform to standard csv"""
-    out_dir = get_base_dir(fname)
-    etl_dir = get_etl_path(str(proc_id), out_dir)
-    make_dir(etl_dir)
+    if proc_id:
+        csv_base_dir = get_base_dir(fname)
+        out_dir = get_etl_path(str(proc_id), csv_base_dir)
+        make_dir(out_dir)
+    else:
+        out_dir = get_temp_path()
 
-    output_fname = call_com_read(fname, etl_dir)
+    output_fname = None
+
+    if etl_func.endswith('.py'):
+        py_etl_path = os.path.join(get_user_scripts_path(), 'py', etl_func)
+        if os.path.isfile(py_etl_path):
+            module_name = etl_func[:-3]
+
+            spec = importlib.util.spec_from_file_location(module_name, py_etl_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            for attr_name in dir(module):
+                attr = getattr(module, attr_name)
+                if isinstance(attr, type) and issubclass(attr, PyETLInterface) and attr is not PyETLInterface:
+                    # instantiate ETL class
+                    etl_instance = attr()
+
+                    df = etl_instance.extract(fname)
+                    validated_df = etl_instance.validate(df)
+                    transformed_df = etl_instance.transform(validated_df)
+
+                    output_fname = os.path.join(out_dir, f'transformed_{os.path.basename(etl_func)}')
+                    transformed_df.to_csv(output_fname, index=False)
+                    break
+
+            if not output_fname:
+                raise ValueError(f'No valid ETL class found in {etl_func}')
+
+    if output_fname is None:
+        output_fname = call_com_read(fname, out_dir)
+
     return output_fname
 
 

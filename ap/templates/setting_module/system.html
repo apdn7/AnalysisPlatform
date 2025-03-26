@@ -1,11 +1,6 @@
 <div class="card graph-navi mt-0" id="cfgSystem">
     <div class="card-body">
-        <div
-            class="panel-group"
-            id="accordionCfgSystem"
-            role="tablist"
-            aria-multiselectable="true"
-        >
+        <div class="panel-group" id="accordionCfgSystem" role="tablist" aria-multiselectable="true">
             <div class="panel panel-default">
                 <form id="cfgSystemForm">
                     <div class="panel-heading" role="tab" id="headingCfgSystem">
@@ -40,13 +35,41 @@
                                 <h4>Database</h4>
                             </div>
                             <div class="col row mt-2">
-                                <div
-                                    class="col-md-2 mt-2"
-                                    id="transactionDataTitle"
-                                >
+                                <div class="col-md-2 mt-2" id="cfgBackupMigrationTitle">
+                                    <h5>Config Backup & Migration</h5>
+                                </div>
+                                <div class="col-md-10">
+                                    <button
+                                        id="btnExportData"
+                                        onclick="showZipExportModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Export
+                                    </button>
+                                    <button
+                                        id="btnImportDataZipFile"
+                                        onclick="showZipImportModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Import
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col row mt-2">
+                                <div class="col-md-2 mt-2" id="transactionDataTitle">
                                     <h5>Transaction Data</h5>
                                 </div>
                                 <div class="col-md-10">
+                                    <button
+                                        id="btnShowResetTransactionDataModal"
+                                        onclick="showResetTransactionDataModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Reset
+                                    </button>
                                     <button
                                         id="btnBackupAndRestoreDate"
                                         onclick="openBackupAndRestoreModal()"
@@ -54,6 +77,39 @@
                                         type="button"
                                     >
                                         Backup & Restore
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <h4>File</h4>
+                            </div>
+                            <div class="col row mt-2">
+                                <div class="col-md-2 mt-2" id="logFolderTitle">
+                                    <h5>Log Folder</h5>
+                                </div>
+                                <div class="col-md-10">
+                                    <button
+                                        id="btnShowDeleteLogDataModal"
+                                        onclick="showDeleteLogDataModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col row mt-2">
+                                <div class="col-md-2 mt-2" id="dataFolderTitle">
+                                    <h5>Data Folder</h5>
+                                </div>
+                                <div class="col-md-10">
+                                    <button
+                                        id="btnShowDeleteDataFolderModal"
+                                        onclick="showDeleteDataFolderModal()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Delete
                                     </button>
                                 </div>
                             </div>
@@ -65,18 +121,9 @@
     </div>
 
     <div>
-        <ul
-            id="cfgSystemContextMenu"
-            name="contextMenu"
-            class="context-menu"
-            style="display:none;"
-        >
-            <li class="menu-item" onclick="maximizeCard('collapseCfgSystem')">
-                {{ _("Maximize card") }}
-            </li>
-            <li class="menu-item" onclick="minimizeCard('collapseCfgSystem')">
-                {{ _("Minimize card") }}
-            </li>
+        <ul id="cfgSystemContextMenu" name="contextMenu" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="maximizeCard('collapseCfgSystem')">{{ _("Maximize card") }}</li>
+            <li class="menu-item" onclick="minimizeCard('collapseCfgSystem')">{{ _("Minimize card") }}</li>
         </ul>
     </div>
 </div>
@@ -85,15 +132,9 @@
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <div
-                    class="d-flex align-items-center nav-tabs justify-content-between"
-                >
+                <div class="d-flex align-items-center nav-tabs justify-content-between">
                     <ul id="tabs" class="nav nav-tabs" role="tablist">
-                        <li
-                            class="nav-item active"
-                            onclick="switchBackupRestoreTab(this)"
-                            id="liBackupTab"
-                        >
+                        <li class="nav-item active" onclick="switchBackupRestoreTab(this)" id="liBackupTab">
                             <a
                                 href="#backupTab"
                                 data-show-button-id="btnBackupData"
@@ -104,10 +145,7 @@
                                 >BackUp</a
                             >
                         </li>
-                        <li
-                            class="nav-item"
-                            onclick="switchBackupRestoreTab(this)"
-                        >
+                        <li class="nav-item" onclick="switchBackupRestoreTab(this)">
                             <a
                                 href="#restoreTab"
                                 data-show-button-id="btnRestoreData"
@@ -130,9 +168,7 @@
                     <input id="idFlagBKRT" type="hidden" />
                 </div>
                 <div id="tabContent" class="tab-content">
-                    <div
-                        class="card end-proc dynamic-element table-bordered py-sm-3"
-                    >
+                    <div class="card end-proc dynamic-element table-bordered py-sm-3">
                         <div id="backupAndRestoreProcessSelection"></div>
                         <br />
                         {{ macros.data_finder_card() }}
@@ -165,6 +201,192 @@
     </div>
 </div>
 
+<div id="resetTransactionDataModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Warning</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label"
+                    >{{ _('All imported data will be permanently deleted. Do you want to continue?') }}</label
+                >
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Abort</button>
+                <button
+                    id="btnResetTransactionData"
+                    onclick="resetTransactionData()"
+                    class="btn btn-secondary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteLogDataModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Warning</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label"
+                    >{{ _('All log data in the following folder will be permanently deleted. Do you want to continue?') }}</label
+                >
+                <label class="col-form-label" style="overflow-wrap: anywhere;">{{ log_path }}</label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Abort</button>
+                <button
+                    id="btnDeleteLogData"
+                    onclick="deleteLogDataData()"
+                    class="btn btn-secondary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteDataFolderModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Warning</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label"
+                    >{{ _('All files and folders in the following folder will be permanently deleted. Do you want to continue?') }}</label
+                >
+                <label class="col-form-label" style="overflow-wrap: anywhere;">{{ data_path }}</label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Abort</button>
+                <button
+                    id="btnDeleteDataFolder"
+                    onclick="deleteDataFolder()"
+                    class="btn btn-secondary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    Proceed
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% block js %}
     <script src="{{ url_for('setting_module.static', filename = 'js/system.js') }}"></script>
 {% endblock %}
+
+<div id="exportDataModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _('Confirmation') }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label">{{ _('confirmExportZipMsg') }}</label>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="btnExportDataModal"
+                    onclick="zipExportDatabase()"
+                    class="btn btn-primary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="importDataModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _('Warning') }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label">{{ _('confirmImportZipFileMsg') }}</label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">{{ _('Abort') }}</button>
+                <button
+                    id="btnImportData"
+                    onclick="startImportDataZipFile()"
+                    class="btn btn-secondary"
+                    data-item-id=""
+                    data-dismiss="modal"
+                >
+                    {{ _('Proceed') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    class="modal fade db-modal"
+    id="importDatabase"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="importLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="">{{ _('Import Config') }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label class="col-form-label">{{ _('dragDropZipFilePromptMsg') }}</label>
+                <div class="card card-body drag-card">
+                    <div class="drag-area import-drag-area box has-advanced-upload">
+                        <div class="icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="box__success"><span></span></div>
+                        <button id="chooseFile" class="btn btn-light" onclick="$('#importSelectFileInput').click();">
+                            {{ _('Choose a file') }}
+                        </button>
+                        <input type="file" name="file" hidden id="importSelectFileInput" accept=".zip" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="bntImportDatabase"
+                    onclick="zipImportDatabase()"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>

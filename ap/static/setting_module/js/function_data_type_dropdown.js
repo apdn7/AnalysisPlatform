@@ -28,9 +28,7 @@ class FunctionDataTypeDropdown {
         null: { value: null, name: '' }, // Empty item
         mainDatetime: {
             value: 1,
-            name: $(procModali18n.i18nMainDatetime)
-                .text()
-                .replace('main::', ''),
+            name: $(procModali18n.i18nMainDatetime).text().replace('main::', ''),
         },
         datetimeKey: {
             value: 2,
@@ -85,9 +83,7 @@ class FunctionDataTypeDropdown {
      * @return {string} - HTML string of dropdown
      */
     static generateHTML(index, datatype = null) {
-        const selectedDataType = Object.values(this.DataTypes).filter(
-            (d) => d.value === datatype,
-        )[0];
+        const selectedDataType = Object.values(this.DataTypes).filter((d) => d.value === datatype)[0];
         return `
 <div class="multi-level-dropdown config-data-type-dropdown config-data-type-dropdown_${index}" data-index="${index}">
     <button class="btn btn-default dropdown-toggle" type="button">
@@ -186,15 +182,12 @@ class FunctionDataTypeDropdown {
         }
 
         /** @type {HTMLSpanElement} */
-        const span = li.closest('.config-data-type-dropdown').firstElementChild
-            .firstElementChild;
+        const span = li.closest('.config-data-type-dropdown').firstElementChild.firstElementChild;
         span.dataset.value = String(selectedDatatype);
         span.textContent = li.textContent;
 
         /** @type {HTMLLIElement} */
-        const previousSelectedLi = li
-            .closest('.data-type-selection-content')
-            .querySelector('li.active');
+        const previousSelectedLi = li.closest('.data-type-selection-content').querySelector('li.active');
         if (previousSelectedLi != null) {
             previousSelectedLi.classList.remove('active');
         }
@@ -229,18 +222,13 @@ class FunctionDataTypeDropdown {
             ...new Set([
                 // function columns
                 ...[...otherDropdowns].map(
-                    (dropdownDiv) =>
-                        FunctionDataTypeDropdown.getSelectedDatatype(
-                            dropdownDiv,
-                        ).value,
+                    (dropdownDiv) => FunctionDataTypeDropdown.getSelectedDatatype(dropdownDiv).value,
                 ),
                 // normal columns
                 ...currentProcDataCols.map((col) => col.column_type),
             ]),
         ];
-        const liItems = button.nextElementSibling.querySelectorAll(
-            'li.dataTypeSelection',
-        );
+        const liItems = button.nextElementSibling.querySelectorAll('li.dataTypeSelection');
         liItems.forEach((li) => {
             // disable item of it belongs to other function column, otherwise.
             if (otherSelectedValues.includes(li.value)) {
@@ -281,20 +269,12 @@ class FunctionDataTypeDropdown {
      * @param {HTMLDivElement} dropdownDiv - a div HTML object
      */
     static injectEvent(dropdownDiv) {
-        dropdownDiv.firstElementChild.addEventListener(
-            'click',
-            FunctionDataTypeDropdown.#showDropdownEvent,
-        );
+        dropdownDiv.firstElementChild.addEventListener('click', FunctionDataTypeDropdown.#showDropdownEvent);
 
         dropdownDiv.lastElementChild
-            .querySelectorAll(
-                'ul li.dataTypeSelection:not([disabled="disabled"])',
-            )
+            .querySelectorAll('ul li.dataTypeSelection:not([disabled="disabled"])')
             .forEach((li) => {
-                li.addEventListener(
-                    'click',
-                    FunctionDataTypeDropdown.#selectFunctionDataTypeEvent,
-                );
+                li.addEventListener('click', FunctionDataTypeDropdown.#selectFunctionDataTypeEvent);
             });
     }
 
@@ -303,20 +283,12 @@ class FunctionDataTypeDropdown {
      * @param {HTMLDivElement} dropdownDiv - a div HTML object
      */
     static removeEvent(dropdownDiv) {
-        dropdownDiv.firstElementChild.removeEventListener(
-            'click',
-            FunctionDataTypeDropdown.#showDropdownEvent,
-        );
+        dropdownDiv.firstElementChild.removeEventListener('click', FunctionDataTypeDropdown.#showDropdownEvent);
 
         dropdownDiv.lastElementChild
-            .querySelectorAll(
-                'ul li.dataTypeSelection:not([disabled="disabled"])',
-            )
+            .querySelectorAll('ul li.dataTypeSelection:not([disabled="disabled"])')
             .forEach((li) => {
-                li.removeEventListener(
-                    'click',
-                    FunctionDataTypeDropdown.#selectFunctionDataTypeEvent,
-                );
+                li.removeEventListener('click', FunctionDataTypeDropdown.#selectFunctionDataTypeEvent);
             });
     }
 }

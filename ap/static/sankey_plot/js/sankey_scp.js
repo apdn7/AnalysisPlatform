@@ -76,10 +76,7 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
                 color: COLOR.WHITE,
             },
             gridcolor: COLOR.GRID,
-            tickformat:
-                props.xFmt !== undefined && props.xFmt.includes('e')
-                    ? '.1e'
-                    : '',
+            tickformat: props.xFmt !== undefined && props.xFmt.includes('e') ? '.1e' : '',
         },
         yaxis: {
             range: props.rangeY || 'auto',
@@ -96,10 +93,7 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
                 size: 12,
                 color: COLOR.WHITE,
             },
-            tickformat:
-                props.yFmt !== undefined && props.yFmt.includes('e')
-                    ? '.1e'
-                    : '',
+            tickformat: props.yFmt !== undefined && props.yFmt.includes('e') ? '.1e' : '',
         },
         autosize: true,
         margin: 55,
@@ -134,25 +128,14 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
         const dataPoint = data.points[0];
         const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
         const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
-        const datetime = dataPoint.data.customdata
-            ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex])
-            : '';
-        const serials = getSerialsText(
-            dpIndex,
-            dataPoint.data.customdata.serials,
-        );
+        const datetime = dataPoint.data.customdata ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex]) : '';
+        const serials = getSerialsText(dpIndex, dataPoint.data.customdata.serials);
         const isHideX = props.hideX;
         const hoverData = [];
         if (!isHideX) {
-            hoverData.push([
-                props.titleX,
-                applySignificantDigit(xValue, props.xFmt),
-            ]);
+            hoverData.push([props.titleX, applySignificantDigit(xValue, props.xFmt)]);
         }
-        hoverData.push([
-            props.hoverTitleY,
-            applySignificantDigit(yValue, props.yFmt),
-        ]);
+        hoverData.push([props.hoverTitleY, applySignificantDigit(yValue, props.yFmt)]);
         hoverData.push(['Datetime', datetime]);
         hoverData.push(...serials);
         const tableData = genHoverDataTable(hoverData);
@@ -341,17 +324,7 @@ const drawConfusionMatrix = (canvasID, classifProps) => {
 
 const showScatterPlot = (dicScp) => {
     if (!dicScp || Object.keys.length === 0) return;
-    const {
-        actual,
-        fitted,
-        residuals,
-        serials,
-        index,
-        times,
-        actual_fmt,
-        fitted_fmt,
-        residuals_fmt,
-    } = dicScp;
+    const { actual, fitted, residuals, serials, index, times, actual_fmt, fitted_fmt, residuals_fmt } = dicScp;
     const [minX, maxX] = findMinMax(actual);
     const [minY, maxY] = findMinMax(fitted);
 

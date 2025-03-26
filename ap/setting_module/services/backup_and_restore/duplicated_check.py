@@ -37,11 +37,11 @@ def remove_unused_columns_and_add_missing_columns(
 
     # remove redundant
     intersected_columns = columns.intersection(df.columns)
-    df = df[intersected_columns]
+    df = df[list(intersected_columns)]
 
     # add missing
     missing_columns = columns.difference(df.columns)
-    df.loc[:, missing_columns] = None
+    df.loc[:, list(missing_columns)] = None
 
     return df
 

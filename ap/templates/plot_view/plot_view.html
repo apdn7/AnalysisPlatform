@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <link
-        href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}"
-        rel="stylesheet"
-    />
+    <link href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename = 'plot_view/js/plot_view.js') }}"></script>
     <script>
         gtag('config', GA_TRACKING_ID, {
@@ -23,12 +20,7 @@
             <div class="col-sm-1">
                 <span class="plot-view-label">List</span>
                 <br />
-                <button
-                    class="btn clipboard"
-                    style="float:right;"
-                    data-clipboard-target="#listTable"
-                    title=""
-                >
+                <button class="btn clipboard" style="float:right;" data-clipboard-target="#listTable" title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
@@ -60,12 +52,7 @@
             <div class="col-sm-1">
                 <span class="plot-view-label">Stats</span>
                 <br />
-                <button
-                    class="btn clipboard"
-                    style="float:right;"
-                    data-clipboard-target="#statTable"
-                    title=""
-                >
+                <button class="btn clipboard" style="float:right;" data-clipboard-target="#statTable" title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
@@ -97,12 +84,7 @@
             <div class="col-sm-1">
                 <span class="plot-view-label">Full Link Data</span>
                 <br />
-                <button
-                    class="btn clipboard"
-                    style="float:right;"
-                    data-clipboard-target="#fullLinkTable"
-                    title=""
-                >
+                <button class="btn clipboard" style="float:right;" data-clipboard-target="#fullLinkTable" title="">
                     <i class="fa fa-copy" aria-hidden="true"></i>
                 </button>
             </div>
@@ -133,9 +115,7 @@
     </div>
 
     <div class="loading" style="display: none;"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

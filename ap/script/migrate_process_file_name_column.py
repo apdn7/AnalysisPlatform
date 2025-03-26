@@ -1,5 +1,7 @@
 from sqlalchemy import create_engine, null
 from sqlalchemy.orm import load_only, Session
+
+from ap.common.common_utils import create_sa_engine_for_migration
 from ap.common.constants import DataColumnType
 from ap.common.pydn.dblib import sqlite
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
@@ -84,7 +86,7 @@ def migrate_cfg_process_column_add_parent_id(app_db_src):
 
 
 def migrate_cfg_process_column_change_all_generated_datetime_column_type(app_db_src):
-    engine = create_engine('sqlite:///' + app_db_src)
+    engine = create_sa_engine_for_migration('sqlite:///' + app_db_src)
     datetime_generated = 'DatetimeGenerated'
     with engine.connect() as conn:
         session = Session(bind=conn)

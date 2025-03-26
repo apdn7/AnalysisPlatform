@@ -3,27 +3,25 @@ import contextlib
 import logging
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 
+import sqlalchemy as sa
 import wtforms_json
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.date import DateTrigger
 from flask import Flask, Response, g, render_template
-from flask_apscheduler import STATE_STOPPED, APScheduler
+from flask_apscheduler import STATE_STOPPED
 from flask_babel import Babel
-from flask_babel import gettext as _
 from flask_compress import Compress
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from pytz import utc
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import create_session, scoped_session
+from sqlalchemy import NullPool
+from sqlalchemy.orm import DeclarativeBase, create_session, scoped_session
 
 from ap.common.common_utils import (
     DATE_FORMAT_STR,
     NoDataFoundException,
-    check_client_browser,
     check_exist,
     count_file_in_folder,
     find_babel_locale,
@@ -43,6 +41,7 @@ from ap.common.constants import (
     LOG_LEVEL,
     MAIN_THREAD,
     PORT,
+    PROCESS_QUEUE,
     REQUEST_THREAD_ID,
     SERVER_ADDR,
     SHUTDOWN,
@@ -61,6 +60,7 @@ from ap.common.constants import (
     FlaskGKey,
     MaxGraphNumber,
 )
+from ap.common.jobs.scheduler import CustomizeScheduler
 from ap.common.logger import log_execution_time
 from ap.common.services.http_content import json_dumps
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
@@ -76,11 +76,13 @@ from ap.common.yaml_utils import (
 from ap.equations.error import FunctionErrors, FunctionFieldError
 from ap.script.migrate_delta_time import migrate_delta_time_in_cfg_trace_key
 from ap.script.migrate_m_function import migrate_m_function_data
+from ap.script.migrate_m_unit import migrate_m_unit_data
 
 logger = logging.getLogger(__name__)
 
 dic_config = {
     MAIN_THREAD: None,
+    PROCESS_QUEUE: None,
     DB_SECRET_KEY: None,
     SQLITE_CONFIG_DIR: None,
     APP_DB_FILE: None,
@@ -101,29 +103,16 @@ max_graph_config = {
 }
 
 
-class CustomizeScheduler(APScheduler):
-    RESCHEDULE_SECONDS = 30
-
-    def add_job(self, id, func, **kwargs):
-        super().add_job(id, func, **kwargs)
-
-    def reschedule_job(self, id, func, func_params):
-        job = scheduler.get_job(id)
-        run_time = datetime.now().astimezone(utc) + timedelta(seconds=self.RESCHEDULE_SECONDS)
-        if job:
-            job.next_run_time = run_time
-            if job.trigger:
-                if type(job.trigger).__name__ == 'DateTrigger':
-                    job.trigger.run_date = run_time
-                elif type(job.trigger).__name__ == 'IntervalTrigger':
-                    job.trigger.start_date = run_time
-            job.reschedule(trigger=job.trigger)
-        else:
-            trigger = DateTrigger(run_date=run_time, timezone=utc)
-            super().add_job(id, func, trigger=trigger, replace_existing=True, kwargs=func_params)
+class BaseSqlalchemy(DeclarativeBase):
+    pass
 
 
-db = SQLAlchemy(session_options={'autoflush': False})
+# set to NullPool until we know how to handle QueuePool
+db = SQLAlchemy(
+    model_class=BaseSqlalchemy,
+    session_options={'autoflush': False},
+    engine_options={'poolclass': NullPool},
+)
 migrate = Migrate()
 scheduler = CustomizeScheduler(BackgroundScheduler(timezone=utc))
 ma = Marshmallow()
@@ -149,18 +138,15 @@ def init_engine(app, uri, **kwargs):
     global db_engine
     # By default, sqlalchemy does not overwrite table. Then no need to manually check file exists neither table exists.
     # https://docs.sqlalchemy.org/en/14/core/metadata.html?highlight=create_all#sqlalchemy.schema.MetaData.create_all
-    db.create_all(app=app)
-    db_engine = create_engine(uri, **kwargs)
+    with app.app_context():
+        db.create_all()
+    db_engine = sa.create_engine(uri, **kwargs)
 
-    # @event.listens_for(db_engine, 'connect')
-    # def do_connect(dbapi_conn, _connection_record):
-    #     set_sqlite_params(dbapi_conn)
-
-    @event.listens_for(db_engine, 'begin')
+    @sa.event.listens_for(db_engine, 'begin')
     def do_begin(dbapi_conn):
-        dbapi_conn.execute('BEGIN IMMEDIATE')
+        dbapi_conn.execute(sa.text('BEGIN IMMEDIATE'))
 
-    @event.listens_for(db_engine, 'commit')
+    @sa.event.listens_for(db_engine, 'commit')
     def do_expire(dbapi_conn):
         """
         Expire all objects in `db.session` everytime meta session perform a commit.
@@ -269,7 +255,8 @@ def create_app(object_name=None, is_main=False):
     db.init_app(app)
     migrate.init_app(app, db)
     ma.init_app(app)
-    init_engine(app, app.config['SQLALCHEMY_DATABASE_URI'])
+    # set to NullPool until we know how to handle QueuePool
+    init_engine(app, app.config['SQLALCHEMY_DATABASE_URI'], poolclass=NullPool)
     # reset import history when no universal db
     if should_reset_import_history:
         from ap.script.hot_fix.fix_db_issues import reset_import_history
@@ -295,7 +282,6 @@ def create_app(object_name=None, is_main=False):
 
     dic_config['INIT_LOG_DIR'] = app.config.get('INIT_LOG_DIR')
 
-    babel = Babel(app)
     Compress(app)
 
     api_create_module(app)
@@ -333,9 +319,18 @@ def create_app(object_name=None, is_main=False):
     lang = find_babel_locale(lang)
     lang = lang or app.config['BABEL_DEFAULT_LOCALE']
 
-    @babel.localeselector
+    # create prefix for cookie key to prevent using same cookie between ports when runiing app
+    def key_port(key):
+        port = start_up_yaml.get_node(
+            ['setting_startup', 'port'],
+            basic_config_yaml.get_node(['info', 'port-no'], '7770'),
+        )
+        return f'{port}_{key}'
+
     def get_locale():
-        return request.cookies.get('locale') or lang
+        return request.cookies.get(key_port('locale')) or lang
+
+    Babel(app, locale_selector=get_locale)
 
     # get app version
     version_file = app.config.get('VERSION_FILE_PATH') or os.path.join(os.getcwd(), 'VERSION')
@@ -371,13 +366,16 @@ def create_app(object_name=None, is_main=False):
         migrate_cfg_process_column_add_column_type(app.config[APP_DB_FILE])
         migrate_cfg_process_column_add_parent_id(app.config[APP_DB_FILE])
         migrate_cfg_process_column(app.config[APP_DB_FILE])
-        migrate_cfg_process_column_change_all_generated_datetime_column_type(app.config[APP_DB_FILE])
         migrate_cfg_process(app.config[APP_DB_FILE])
+        migrate_cfg_process_column_change_all_generated_datetime_column_type(app.config[APP_DB_FILE])
 
         # migrate function data
         migrate_m_function_data(app.config[APP_DB_FILE])
         # migrate delta_time
         migrate_delta_time_in_cfg_trace_key(app.config[APP_DB_FILE])
+
+        # migrate m_unit
+        migrate_m_unit_data(app.config[APP_DB_FILE])
 
     # start scheduler (Notice: start scheduler at the end , because it may run job before above setting info was set)
     if scheduler.state != STATE_STOPPED:
@@ -415,19 +413,19 @@ def create_app(object_name=None, is_main=False):
         if not is_ignore_content and request.blueprint != EXTERNAL_API:
             bind_user_info(request)
 
-            if not dic_config.get(TESTING):
-                is_valid_browser, is_valid_version = check_client_browser(request)
-                if not is_valid_version:
-                    # safari not valid version
-                    g.is_valid_version = True
-
-                if not is_valid_browser:
-                    # browser not valid
-                    content = {
-                        'title': _('InvalidBrowserTitle'),
-                        'message': _('InvalidBrowserContent'),
-                    }
-                    return render_template('none.html', **content)
+            # if not dic_config.get(TESTING):
+            #     is_valid_browser, is_valid_version = check_client_browser(request)
+            #     if not is_valid_version:
+            #         # safari not valid version
+            #         g.is_valid_version = True
+            #
+            #     if not is_valid_browser:
+            #         # browser not valid
+            #         content = {
+            #             'title': _('InvalidBrowserTitle'),
+            #             'message': _('InvalidBrowserContent'),
+            #         }
+            #         return render_template('none.html', **content)
 
     @app.after_request
     def after_request_callback(response: Response):
@@ -439,21 +437,17 @@ def create_app(object_name=None, is_main=False):
             from ap.common.disk_usage import (
                 add_disk_capacity_into_response,
                 get_disk_capacity_to_load_ui,
-                get_ip_address,
             )
 
             dict_capacity = get_disk_capacity_to_load_ui()
             add_disk_capacity_into_response(response, dict_capacity)
-            if not request.cookies.get('locale'):
-                response.set_cookie('locale', lang)
+            if not request.cookies.get(key_port('locale')):
+                response.set_cookie(key_port('locale'), lang)
 
-            server_ip = get_ip_address()
-            server_ip = [server_ip] + SERVER_ADDR
-            client_ip = request.remote_addr
-            is_admin = int(client_ip in server_ip)
-            response.set_cookie('is_admin', str(is_admin))
-            response.set_cookie('sub_title', sub_title)
-            response.set_cookie('user_group', user_group)
+            is_admin = int(is_admin_request(request))
+            response.set_cookie(key_port('is_admin'), str(is_admin))
+            response.set_cookie(key_port('sub_title'), sub_title)
+            response.set_cookie(key_port('user_group'), user_group)
 
         # close app db session
         close_sessions()
@@ -476,22 +470,21 @@ def create_app(object_name=None, is_main=False):
         resource_type = request.base_url or ''
         is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
         if not is_ignore_content:
+            # "hide_setting_page: true" apply only to ip address/pc address instead of localhost
+            is_hide_setting_page = hide_setting_page and not is_admin_request(request)
             bind_user_info(request, response)
-            response.set_cookie('log_level', str(is_default_log_level))
-            response.set_cookie('hide_setting_page', str(hide_setting_page))
-            response.set_cookie('app_version', str(app_ver).strip('\n'))
-            response.set_cookie('app_location', str(app_source).strip('\n'))
+            response.set_cookie(key_port('log_level'), str(is_default_log_level))
+            response.set_cookie(key_port('hide_setting_page'), str(is_hide_setting_page))
+            response.set_cookie(key_port('app_version'), str(app_ver).strip('\n'))
+            response.set_cookie(key_port('app_location'), str(app_source).strip('\n'))
 
-        response.set_cookie('invalid_browser_version', '0')
-        if hasattr(g, 'is_valid_version') and g.is_valid_version:
-            response.set_cookie('invalid_browser_version', '1')
         if app.config.get('app_startup_time'):
             response.set_cookie(
-                'app_startup_time',
+                key_port('app_startup_time'),
                 str(app.config.get('app_startup_time').strftime(DATE_FORMAT_STR)),
             )
-        response.set_cookie('announce_update_time', str(ANNOUNCE_UPDATE_TIME))
-        response.set_cookie('limit_checking_newer_version_time', str(LIMIT_CHECKING_NEWER_VERSION_TIME))
+        response.set_cookie(key_port('announce_update_time'), str(ANNOUNCE_UPDATE_TIME))
+        response.set_cookie(key_port('limit_checking_newer_version_time'), str(LIMIT_CHECKING_NEWER_VERSION_TIME))
 
         return response
 
@@ -575,29 +568,6 @@ def create_app(object_name=None, is_main=False):
 
 
 @log_execution_time()
-def init_db(app):
-    """
-    init db with some parameter
-    :return:
-    """
-    from .common.common_utils import set_sqlite_params
-
-    db.create_all(app=app)
-    # Universal DB init
-    # if not universal_db_exists():
-
-    universal_engine = db.get_engine(app)
-
-    @event.listens_for(universal_engine, 'connect')
-    def do_connect(dbapi_conn, _connection_record):
-        set_sqlite_params(dbapi_conn)
-
-    # @event.listens_for(universal_engine, 'begin')
-    # def do_begin(dbapi_conn):
-    #     dbapi_conn.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
-
-
-@log_execution_time()
 def get_basic_yaml_obj():
     return dic_yaml_config_instance[YAML_CONFIG_BASIC]
 
@@ -619,3 +589,15 @@ def get_app_group(app_source, user_group):
         user_group = AppGroup.Dev.value
 
     return user_group
+
+
+def is_admin_request(request):
+    from ap.common.disk_usage import (
+        get_ip_address,
+    )
+
+    server_ip = get_ip_address()
+    server_ip = [server_ip] + SERVER_ADDR
+    client_ip = request.remote_addr
+    is_admin = client_ip in server_ip
+    return is_admin

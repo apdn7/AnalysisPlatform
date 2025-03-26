@@ -15,13 +15,10 @@ class DataTypeDropdown_Constant {
         r: document.getElementById(DataTypes.REAL.i18nLabelID).textContent,
         t: document.getElementById(DataTypes.TEXT.i18nLabelID).textContent,
         d: document.getElementById(DataTypes.DATETIME.i18nLabelID).textContent,
-        s_i: document.getElementById(DataTypes.SMALL_INT?.i18nLabelID)
-            ?.textContent,
+        s_i: document.getElementById(DataTypes.SMALL_INT?.i18nLabelID)?.textContent,
         i: document.getElementById('i18nInteger_Int32')?.textContent,
-        b_i: document.getElementById(DataTypes.BIG_INT.i18nLabelID)
-            ?.textContent,
-        T: document.getElementById(DataTypes.CATEGORY?.i18nLabelID)
-            ?.textContent,
+        b_i: document.getElementById(DataTypes.BIG_INT.i18nLabelID)?.textContent,
+        T: document.getElementById(DataTypes.CATEGORY?.i18nLabelID)?.textContent,
         b: document.getElementById(DataTypes.BOOLEAN.i18nLabelID).textContent,
         date: document.getElementById(DataTypes.DATE.i18nLabelID).textContent,
         time: document.getElementById(DataTypes.TIME.i18nLabelID).textContent,
@@ -68,12 +65,7 @@ class DataTypeDropdown_Constant {
     /**
      * A list of attributes that be limited to be selected one time
      */
-    static UnableToReselectAttrs = Object.freeze([
-        'is_get_date',
-        'is_auto_increment',
-        'is_main_date',
-        'is_main_time',
-    ]);
+    static UnableToReselectAttrs = Object.freeze(['is_get_date', 'is_auto_increment', 'is_main_date', 'is_main_time']);
 
     /**
      * A list of attributes that be limited to select only one 1 column / process

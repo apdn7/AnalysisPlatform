@@ -35,13 +35,7 @@ function removeVerticalLine() {
     isRemoveCrosshair = true;
 }
 
-function showVerticalLine(
-    offsetTop,
-    offsetLeft,
-    lineHeight,
-    isLeft = true,
-    index = 0,
-) {
+function showVerticalLine(offsetTop, offsetLeft, lineHeight, isLeft = true, index = 0) {
     const color = colors[index];
     const showLine = (crossV, crossH, offsetTop, offsetLeft, lineHeight) => {
         crossV.css({ display: 'block' });
@@ -53,21 +47,9 @@ function showVerticalLine(
     };
 
     if (isLeft) {
-        showLine(
-            $(celes.crossVLeft),
-            $(celes.crossHLeft),
-            offsetTop,
-            offsetLeft,
-            lineHeight,
-        );
+        showLine($(celes.crossVLeft), $(celes.crossHLeft), offsetTop, offsetLeft, lineHeight);
     } else {
-        showLine(
-            $(celes.crossVRight),
-            $(celes.crossHRight),
-            offsetTop,
-            offsetLeft,
-            lineHeight,
-        );
+        showLine($(celes.crossVRight), $(celes.crossHRight), offsetTop, offsetLeft, lineHeight);
     }
 }
 
@@ -110,8 +92,7 @@ const genVerticalCrossLineHtml = (edgeLeft, edgeRight, id) => {
 
     if (idRight) {
         const offsetTopRight = edgeRight.offset().top;
-        const offsetLeftRight =
-            edgeRight.offset().left + edgeRight.outerWidth();
+        const offsetLeftRight = edgeRight.offset().left + edgeRight.outerWidth();
         const lineHeighRight = $('#baseFooter').offset().top - offsetTopRight;
         crossRight = `
         <div id="${idRight}-v" line="${id}" class="cross cross-anchor cross-line" style="display: block; top: ${offsetTopRight}px">
@@ -123,8 +104,7 @@ const genVerticalCrossLineHtml = (edgeLeft, edgeRight, id) => {
 };
 
 const genAllCrossInLine = (lineId = null) => {
-    const cateBoxEl =
-        lineId !== null ? `.cate-box[line=${lineId}]` : '.cate-box';
+    const cateBoxEl = lineId !== null ? `.cate-box[line=${lineId}]` : '.cate-box';
     $(`${formElements.cateTable} ${cateBoxEl}`).parent().attr('gen-all', 1);
     $(`${formElements.cateTable} ${cateBoxEl}`).each(function () {
         genSingleCross(this);
@@ -137,11 +117,7 @@ const genSingleCross = (e) => {
     const edgeLeft = $(e).find('.cate-edge-left');
     const edgeRight = $(e).find('.cate-edge-right');
 
-    const [crossLeft, crossRight] = genVerticalCrossLineHtml(
-        edgeLeft,
-        edgeRight,
-        id,
-    );
+    const [crossLeft, crossRight] = genVerticalCrossLineHtml(edgeLeft, edgeRight, id);
 
     $('body').append(crossLeft);
     $('body').append(crossRight);
@@ -149,9 +125,7 @@ const genSingleCross = (e) => {
 
 const hideAllCrossAnchorInline = (lineId) => {
     if (lineId) {
-        $(`${formElements.cateTable} .cate-box[line=${lineId}]`)
-            .parent()
-            .removeAttr('gen-all');
+        $(`${formElements.cateTable} .cate-box[line=${lineId}]`).parent().removeAttr('gen-all');
         $(`.cross[line=${lineId}]`).remove();
     } else {
         $(`${formElements.cateTable} .cate-box`).parent().removeAttr('gen-all');
@@ -160,9 +134,7 @@ const hideAllCrossAnchorInline = (lineId) => {
 };
 
 const resetPositionOfCrossLine = () => {
-    const anchorLabels = [...$('.cross-line[data-parent-id]')].map((el) =>
-        $(el).attr('data-parent-id'),
-    );
+    const anchorLabels = [...$('.cross-line[data-parent-id]')].map((el) => $(el).attr('data-parent-id'));
     hideAllCrossAnchorInline();
     for (const parentId of anchorLabels) {
         handleShowAnchor($(`[data-id=${parentId}]`));
@@ -185,8 +157,7 @@ const addDrawVerticalLineEvent = () => {
         const target = e.target.closest('.cate-box');
         const [line, col] = $(target).attr('id').split('-');
         const id = `cate-edge-${line}-${col}`;
-        const hasCross =
-            $(`#${id}-right-v`).length || $(`#${id}-left-v`).length;
+        const hasCross = $(`#${id}-right-v`).length || $(`#${id}-left-v`).length;
         if (hasCross) {
             hideOneCross(line, col);
         } else {
@@ -197,11 +168,7 @@ const addDrawVerticalLineEvent = () => {
     $('.cate-box').on('dblclick', (e) => {
         const target = e.target.closest('.cate-box');
         const [line, _] = $(target).attr('id').split('-');
-        const hasAllCross = $(
-            `${formElements.cateTable} .cate-box[line=${line}]`,
-        )
-            .parent()
-            .attr('gen-all');
+        const hasAllCross = $(`${formElements.cateTable} .cate-box[line=${line}]`).parent().attr('gen-all');
         if (hasAllCross) {
             hideAllCrossAnchorInline(line);
         } else {
@@ -234,13 +201,7 @@ const addDrawVerticalLineEvent = () => {
                     isLeft = false;
                 }
                 const lineHeight = $('#baseFooter').offset().top - offsetTop;
-                showVerticalLine(
-                    offsetTop,
-                    offsetLeft,
-                    lineHeight,
-                    isLeft,
-                    index,
-                );
+                showVerticalLine(offsetTop, offsetLeft, lineHeight, isLeft, index);
             }
         });
     });
@@ -248,9 +209,7 @@ const addDrawVerticalLineEvent = () => {
 
 function showVerticalLineOnClick(clickEvent) {
     // show red vertical line on category table when user click in graph
-    const offsetTop = $(celes.cateTable)[0]
-        ? $(celes.cateTable).offset().top
-        : $('#plot-cards').offset().top;
+    const offsetTop = $(celes.cateTable)[0] ? $(celes.cateTable).offset().top : $('#plot-cards').offset().top;
     const offsetLeft = clickEvent.native.clientX;
     const lineHeight = $(celes.cateTable).height() || 0;
     showVerticalLine(offsetTop, offsetLeft, lineHeight);
@@ -263,12 +222,8 @@ function removeCrossHairOfChart(graphObj, update = true) {
             graphObj.options.plugins.annotation.annotations['crosshair-x'] ||
             graphObj.options.plugins.annotation.annotations['crosshair-y']
         ) {
-            delete graphObj.options.plugins.annotation.annotations[
-                'crosshair-x'
-            ];
-            delete graphObj.options.plugins.annotation.annotations[
-                'crosshair-y'
-            ];
+            delete graphObj.options.plugins.annotation.annotations['crosshair-x'];
+            delete graphObj.options.plugins.annotation.annotations['crosshair-y'];
             if (update) graphObj.update((mode = 'none'));
         }
     } catch (e) {
@@ -336,11 +291,7 @@ $(document).on('click', (e) => {
     $('.cate-tooltip').css({ visibility: 'hidden' });
 });
 
-function removeAllCrossHair(
-    updateTS = true,
-    updateHist = true,
-    updateSct = true,
-) {
+function removeAllCrossHair(updateTS = true, updateHist = true, updateSct = true) {
     graphStore.getAllTimeSeries().forEach((graphObj) => {
         removeCrossHairOfChart(graphObj, updateTS);
     });
@@ -386,11 +337,7 @@ const scatterVertialLine = (xValue, color = CONST.CH_OTHER) => ({
     },
 });
 
-const histHorizontalLine = (
-    yValue,
-    props = undefined,
-    color = CONST.CH_OTHER,
-) => {
+const histHorizontalLine = (yValue, props = undefined, color = CONST.CH_OTHER) => {
     // histogram is drawing as reverse mode
     // need to get item in chart from yValue
     let values = yValue;
@@ -466,18 +413,19 @@ const drawCrossHairOnDoubleClick = (clickPosition, selectedCanvasId) => {
                 return;
             }
             // draw vertical from corresponding xValue
-            const scatterDataPoint =
-                scatterChartObject.data.datasets[0].data[clickPosition - 1];
+            const scatterDataPoint = scatterChartObject.data.datasets[0].data[clickPosition - 1];
             if (scatterDataPoint) {
                 const cXValue = scatterDataPoint.x;
                 const cYValue = scatterDataPoint.y;
                 if (!isEmpty(cXValue) && !isEmpty(cYValue)) {
-                    scatterChartObject.options.plugins.annotation.annotations[
-                        'crosshair-x'
-                    ] = scatterVertialLine(cXValue, color);
-                    scatterChartObject.options.plugins.annotation.annotations[
-                        'crosshair-y'
-                    ] = scatterHorizontalline(cYValue, color);
+                    scatterChartObject.options.plugins.annotation.annotations['crosshair-x'] = scatterVertialLine(
+                        cXValue,
+                        color,
+                    );
+                    scatterChartObject.options.plugins.annotation.annotations['crosshair-y'] = scatterHorizontalline(
+                        cYValue,
+                        color,
+                    );
                     scatterChartObject.update((mode = 'none'));
                 }
             }
@@ -487,28 +435,22 @@ const drawCrossHairOnDoubleClick = (clickPosition, selectedCanvasId) => {
             // draw horizontal from yValue
             const histChartObject = graphStore.getHistById(canvasId);
             // get time series chart of the row of histogram to get corresponding yValue
-            const coTimeSeriesGraph =
-                graphStore.getTimeSeriesFromHist(canvasId);
+            const coTimeSeriesGraph = graphStore.getTimeSeriesFromHist(canvasId);
             if (coTimeSeriesGraph) {
                 // get coYValue from clickPosition
-                const coYValue =
-                    coTimeSeriesGraph.data.datasets[0].data[clickPosition];
+                const coYValue = coTimeSeriesGraph.data.datasets[0].data[clickPosition];
                 if (!isEmpty(coYValue) && histChartObject) {
                     props = undefined;
-                    if (
-                        histChartObject.data.rank_values &&
-                        histChartObject.data.cat_labels
-                    ) {
+                    if (histChartObject.data.rank_values && histChartObject.data.cat_labels) {
                         props = {
-                            rank_values:
-                                histChartObject.data.rank_values || undefined,
-                            cat_labels:
-                                histChartObject.data.cat_labels || undefined,
+                            rank_values: histChartObject.data.rank_values || undefined,
+                            cat_labels: histChartObject.data.cat_labels || undefined,
                         };
                     }
-                    histChartObject.options.plugins.annotation.annotations[
-                        'crosshair-y'
-                    ] = histHorizontalLine(coYValue, props);
+                    histChartObject.options.plugins.annotation.annotations['crosshair-y'] = histHorizontalLine(
+                        coYValue,
+                        props,
+                    );
                     histChartObject.update((mode = 'none'));
                 }
             }
@@ -525,32 +467,24 @@ const drawCrossHairOnDoubleClick = (clickPosition, selectedCanvasId) => {
             const xValue = tsChartObject.data.labels[clickPosition];
             // dont draw horizontal line if that data point is null
             if (!isEmpty(coClickedData)) {
-                tsChartObject.options.plugins.annotation.annotations[
-                    'crosshair-y'
-                ] = tsHorizonalLine(coClickedData, color);
+                tsChartObject.options.plugins.annotation.annotations['crosshair-y'] = tsHorizonalLine(
+                    coClickedData,
+                    color,
+                );
             }
 
             // draw vertical from xValue
-            tsChartObject.options.plugins.annotation.annotations[
-                'crosshair-x'
-            ] = tsVerticalLine(xValue, color);
+            tsChartObject.options.plugins.annotation.annotations['crosshair-x'] = tsVerticalLine(xValue, color);
             tsChartObject.update((mode = 'none'));
         }
     });
 };
 
-const drawCrosshairSingleClick = (
-    clickPosition,
-    xValue,
-    yValue,
-    selectedCanvasId,
-) => {
+const drawCrosshairSingleClick = (clickPosition, xValue, yValue, selectedCanvasId) => {
     removeAllCrossHair(false, true, true);
 
     // find histogram and scatter plot at the same row
-    const sameRowCanvases = $(`#${selectedCanvasId}`)
-        .closest('div .chart-row')
-        .find('canvas');
+    const sameRowCanvases = $(`#${selectedCanvasId}`).closest('div .chart-row').find('canvas');
     sameRowCanvases.each(function f() {
         const canvasId = $(this).attr('id');
         const chartType = $(this).attr('chart-type');
@@ -562,9 +496,10 @@ const drawCrosshairSingleClick = (
         if (chartType === 'scatter') {
             const scatterChartObject = graphStore.getScatterById(canvasId);
             if (scatterChartObject) {
-                scatterChartObject.options.plugins.annotation.annotations[
-                    'crosshair-y'
-                ] = scatterHorizontalline(yValue, color);
+                scatterChartObject.options.plugins.annotation.annotations['crosshair-y'] = scatterHorizontalline(
+                    yValue,
+                    color,
+                );
                 scatterChartObject.update((mode = 'none'));
             }
         }
@@ -573,20 +508,17 @@ const drawCrosshairSingleClick = (
             const histChartObject = graphStore.getHistById(canvasId);
             if (histChartObject) {
                 props = undefined;
-                if (
-                    histChartObject.data.rank_values &&
-                    histChartObject.data.cat_labels
-                ) {
+                if (histChartObject.data.rank_values && histChartObject.data.cat_labels) {
                     props = {
-                        rank_values:
-                            histChartObject.data.rank_values || undefined,
-                        cat_labels:
-                            histChartObject.data.cat_labels || undefined,
+                        rank_values: histChartObject.data.rank_values || undefined,
+                        cat_labels: histChartObject.data.cat_labels || undefined,
                     };
                 }
-                histChartObject.options.plugins.annotation.annotations[
-                    'crosshair-y'
-                ] = histHorizontalLine(yValue, props, color);
+                histChartObject.options.plugins.annotation.annotations['crosshair-y'] = histHorizontalLine(
+                    yValue,
+                    props,
+                    color,
+                );
                 histChartObject.update((mode = 'none'));
             }
         }
@@ -595,9 +527,7 @@ const drawCrosshairSingleClick = (
             // draw vertical from xValue
             const tsChartObject = graphStore.getTimeSeriesById(canvasId);
             // draw horizontal from yValue
-            tsChartObject.options.plugins.annotation.annotations[
-                'crosshair-y'
-            ] = tsHorizonalLine(yValue, color);
+            tsChartObject.options.plugins.annotation.annotations['crosshair-y'] = tsHorizonalLine(yValue, color);
             tsChartObject.update((mode = 'none'));
         }
     });
@@ -608,8 +538,7 @@ const drawCrosshairSingleClick = (
         if (canvasId === selectedCanvasId) {
             color = CONST.CH_SELF;
         }
-        graphObj.options.plugins.annotation.annotations['crosshair-x'] =
-            tsVerticalLine(xValue, color);
+        graphObj.options.plugins.annotation.annotations['crosshair-x'] = tsVerticalLine(xValue, color);
         graphObj.update((mode = 'none'));
     });
 };

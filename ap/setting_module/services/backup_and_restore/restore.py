@@ -87,7 +87,7 @@ def restore_db_data_from_file(
             sql_insert = gen_bulk_insert_sql(transaction_data.table_name, *sql_params)
             # need to convert to correct datetime format before inserting to database
             df_insert[get_date_col] = df_insert[get_date_col].dt.strftime(DATE_FORMAT_STR)
-            insert_data(db_instance, sql_insert, df_insert.values.tolist())
+            insert_data(db_instance, sql_insert, df_insert.to_numpy().tolist())
 
         save_proc_data_count_multiple_dfs(
             db_instance,

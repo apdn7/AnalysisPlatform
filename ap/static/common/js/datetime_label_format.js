@@ -16,10 +16,7 @@ const getUnitDateTimeFormat = (startTime, endTime, tickLength = 1) => {
     const start = moment(startTime);
     const end = moment(endTime);
     const distanceTime = moment.duration(end.diff(start), 'milliseconds');
-    const offsetTime = moment.duration(
-        distanceTime / tickLength,
-        'milliseconds',
-    );
+    const offsetTime = moment.duration(distanceTime / tickLength, 'milliseconds');
     if (distanceTime.asYears() >= 1) {
         unit = offsetTime.asYears() >= 1 ? 'year' : 'month';
     } else if (distanceTime.asMonths() >= 1) {

@@ -1,3 +1,4 @@
+import contextlib
 import datetime as dt
 import logging
 import math
@@ -10,6 +11,7 @@ from ap.common.common_utils import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_FACTORY_DB,
     convert_time,
+    generate_job_id,
     get_current_timestamp,
 )
 from ap.common.constants import (
@@ -26,7 +28,12 @@ from ap.common.constants import (
 from ap.common.disk_usage import get_disk_capacity_once
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
-from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue, EventRunFunction
+from ap.common.multiprocess_sharing import (
+    EventBackgroundAnnounce,
+    EventQueue,
+    EventRunFunction,
+    RunningJobs,
+)
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.error_message_handler import ErrorMessageHandler
 from ap.common.timezone_utils import choose_utc_convert_func
@@ -84,7 +91,7 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
     else:
         jobs = jobs.order_by(JobManagement.id.desc())
 
-    jobs = jobs.paginate(page, per_page, error_out=False)
+    jobs = jobs.paginate(page=page, per_page=per_page, error_out=False)
     dic_procs = get_all_proc_shown_names()
     rows = []
     for _job in jobs.items:
@@ -92,7 +99,7 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
         job = DictToClass(**dic_job)
 
         # get job information and send to UI
-        job_name = f'{job.job_type}_{job.process_id}' if job.process_id else job.job_type
+        job_name = generate_job_id(job.job_type, job.process_id)
 
         if not error_page and job.process_id is not None and job.process_id not in dic_procs:
             # do not show deleted process in job normal page -> show only job error page
@@ -144,6 +151,8 @@ def send_processing_info(
     global previous_disk_status
     error_msg_handler = ErrorMessageHandler()
 
+    running_jobs = RunningJobs.get_running_jobs()
+
     start_tm = dt.datetime.utcnow()
     with make_session() as meta_session:
         job = JobManagement()
@@ -152,28 +161,28 @@ def send_processing_info(
 
         # datasource_idの代わりに、t_job_managementテーブルにdatasource_nameが保存される。
         if job.db_code is not None:
-            data_source: CfgDataSource = CfgDataSource.query.get(job.db_code)
+            data_source = CfgDataSource.get_ds(job.db_code)
             job.db_name = data_source.name
 
         job.process_id = process_id
 
         # Yamlの代わりに、データベースからデータを取得する。
         job.process_name = process_name
-        if not process_name:
-            data_process: CfgProcess = CfgProcess.query.get(job.process_id)
+        if not process_name and job.process_id:
+            data_process = CfgProcess.get_proc_by_id(job.process_id)
             if data_process:
                 job.process_name = data_process.name
 
         job.status = str(JobStatus.PROCESSING)
         meta_session.add(job)
-        meta_session.commit()
+        meta_session.flush()
         job = DictToClass(**job.as_dict())
 
     # processing info
     dic_res = {
         job.id: {
             JOB_ID: job.id,
-            JOB_NAME: f'{job.job_type}_{job.process_id}' if job.process_id else job.job_type,
+            JOB_NAME: generate_job_id(job.job_type, job.process_id),
             JOB_TYPE: job.job_type,
             DB_CODE: job.db_code or '',
             PROC_CODE: job.process_name or '',
@@ -188,6 +197,8 @@ def send_processing_info(
             DETAIL: '',
         },
     }
+
+    real_job_id = dic_res[job.id][JOB_NAME]
 
     prev_job_info = None
     notify_data_type_error_flg = True
@@ -238,6 +249,20 @@ def send_processing_info(
 
                 # job err msg
                 update_job_management_status_n_error(job, job_info)
+
+                # Check to interrupt generator
+                if job_info.is_safe_interrupt:
+                    with RunningJobs.lock():
+                        running_job = running_jobs.get(real_job_id)
+                        if running_job is None:
+                            logger.error(f'send_processing_info: {real_job_id} does not exist in `running_jobs`')
+                        elif running_job.wait_to_kill:
+                            job.status = JobStatus.KILLED
+                            job = update_job_management(job)
+                            generator_func.close()
+                            logger.info(f'{real_job_id}: killed successfully')
+                            break
+
             elif job_type is JobType.GEN_GLOBAL:
                 _, dic_cycle_ids, dic_edge_cnt = job_info
                 save_proc_link_count(job.id, dic_cycle_ids, dic_edge_cnt)
@@ -308,7 +333,12 @@ def update_job_management(job, err=None):
             job.done_percent = 100
             job.error_msg = None
         else:
-            job.status = JobStatus.FATAL.name if job.status == JobStatus.FATAL else JobStatus.FAILED.name
+            if job.status == JobStatus.FATAL:
+                job.status = JobStatus.FATAL.name
+            elif job.status == JobStatus.KILLED:
+                job.status = JobStatus.KILLED.name
+            else:
+                job.status = JobStatus.FAILED.name
             job.error_msg = err or job.error_msg or UNKNOWN_ERROR_TEXT
 
         job.duration = round(
@@ -317,7 +347,7 @@ def update_job_management(job, err=None):
         )
         job.end_tm = get_current_timestamp()
 
-        meta_session.merge(job)
+        job = meta_session.merge(job)
         job = DictToClass(**job.as_dict())
 
     return job
@@ -337,6 +367,7 @@ class JobInfo:
     import_type: str
     import_from: str
     import_to: str
+    is_safe_interrupt: bool
 
     def __init__(self):
         self.job_id = None
@@ -366,6 +397,9 @@ class JobInfo:
         self.import_type = None
         self.import_from = None
         self.import_to = None
+
+        # serve to determine the time that job can be stopped without missing data
+        self.is_safe_interrupt = False
 
     @property
     def committed_count(self):
@@ -407,6 +441,12 @@ class JobInfo:
             percent = ALMOST_COMPLETE_PERCENT
 
         self.percent = percent
+
+    @contextlib.contextmanager
+    def interruptible(self, is_safe_interrupt: bool = True):
+        self.is_safe_interrupt = is_safe_interrupt
+        yield self
+        self.is_safe_interrupt = False
 
 
 def format_factory_date_to_meta_data(date_val, is_tz_col):

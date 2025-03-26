@@ -114,10 +114,30 @@ class CacheConfig:
 class CustomCache:
     """Custom cache with file-based and memory-based"""
 
-    # use fanout cache for better sharding
-    # this has size limit = 1Gb, each shard has 250 Mb
-    # this is process-safe, we can use multiple process in the same cache folder
-    disk_cache = diskcache.FanoutCache(directory=get_cache_path(), shards=4)
+    # cached timeout
+    # confirmed with PO, that we don't want to save files more than a week
+    # however, we have `use_expired_cache` parameter, so we need to apply this to memory cached as well
+    infinity_cache_timeout = 7 * 24 * 60 * 60  # seconds
+
+    CUSTOM_SETTINGS = {
+        'statistics': 0,  # False
+        'tag_index': 0,  # False
+        'eviction_policy': 'least-recently-stored',
+        'size_limit': 2**30 * 4,  # 4gb
+        'cull_limit': 10,
+        'sqlite_auto_vacuum': 1,  # FULL
+        'sqlite_cache_size': 2**13,  # 8,192 pages
+        'sqlite_journal_mode': 'wal',
+        'sqlite_mmap_size': 2**26,  # 64mb
+        'sqlite_synchronous': 1,  # NORMAL
+        'disk_min_file_size': 2**15,  # 32kb
+    }
+
+    # We initially used FanoutCache with sharding for better performance.
+    # But using fanout pattern will split memory into several directories with equal size limit.
+    # After discussing, we reverted it back and use default size limit which is 1GB # for the whole directory,
+    # instead of 250Mb for each single *shard* directory.
+    disk_cache = diskcache.Cache(directory=get_cache_path(), **CUSTOM_SETTINGS)
 
     # only store 50 objects in memory and default 300 seconds timeout
     # in the future we might want to drop this perhaps ?
@@ -274,21 +294,33 @@ class CustomCache:
     def set(cls, key, value, timeout, save_file: bool) -> bool:
         # determine if a cache should always be saved as file
         if save_file:
-            return cls.disk_cache.set(key=key, value=value, expire=timeout)
+            return cls.save_to_disk(key, value, timeout)
 
         # first, try to save using memory, if it does not success, try to save using file
-        added_memory = cls.memory_cache.set(key=key, value=value, timeout=timeout)
-        if not added_memory:
-            return cls.disk_cache.set(key=key, value=value, expire=timeout)
+        if not cls.save_to_memory(key, value, timeout):
+            return cls.save_to_disk(key, value, timeout)
 
         # added to memory, however this object might be too big, remove it out and save to disk instead
         # this code is unsafe since we tried access protected item here ...
         _, cached_binary = cls.memory_cache._cache[key]  # noqa
         if len(cached_binary) > cls.cached_object_size:  # 1.25Mb
             cls.memory_cache.delete(key)
-            return cls.disk_cache.set(key=key, value=value, expire=timeout)
+            return cls.save_to_disk(key, value, timeout)
 
+        # saved to memory
         return True
+
+    @classmethod
+    def save_to_memory(cls, key, value, timeout: int | None = None) -> bool:
+        if timeout is None:
+            timeout = cls.infinity_cache_timeout
+        return cls.memory_cache.set(key=key, value=value, timeout=timeout)
+
+    @classmethod
+    def save_to_disk(cls, key, value, timeout: int | None = None) -> bool:
+        if timeout is None:
+            timeout = cls.infinity_cache_timeout
+        return cls.disk_cache.set(key=key, value=value, expire=timeout)
 
     @classmethod
     def _prune(cls):
@@ -309,9 +341,9 @@ class CustomCache:
     @classmethod
     def change_timeout_to_infinity(cls, key: str, value: Any):
         if cls.in_memory(key):
-            cls.memory_cache.set(key=key, value=value, timeout=0)
+            cls.memory_cache.set(key=key, value=value, timeout=cls.infinity_cache_timeout)
         elif cls.in_disk(key):
-            cls.disk_cache.set(key=key, value=value, expire=None)
+            cls.disk_cache.set(key=key, value=value, expire=cls.infinity_cache_timeout)
 
     @classmethod
     def compute_key(

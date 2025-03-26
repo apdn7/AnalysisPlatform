@@ -9,9 +9,7 @@
  * @return {string} - value
  */
 window.getCookie = function getCookie(name) {
-    const match = document.cookie.match(
-        new RegExp('(^| )' + name + '=([^;]+)'),
-    );
+    const match = document.cookie.match(new RegExp('(^| )' + keyPort(name) + '=([^;]+)'));
     if (match) return match[2];
 };
 
@@ -39,12 +37,11 @@ window.getCookie = function getCookie(name) {
  * }>}
  */
 function getLatestRelease() {
-    const apiUrl =
-        'https://api.github.com/repos/apdn7/AnalysisPlatform/releases/latest';
+    const apiUrl = 'https://api.github.com/repos/apdn7/AnalysisPlatform/releases/latest';
     return fetch(apiUrl, {
         method: 'GET',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
     }).then((response) => response.json());
@@ -60,8 +57,9 @@ function getLatestRelease() {
  * }} - version of DN7
  */
 function getCurrentVersionInfo() {
-    const [appVersion, version, sprintNumber, commitHash] =
-        /^(v.*)\.(\d+)\.([A-Za-z0-9]+)/g.exec(getCookie('app_version'));
+    const [appVersion, version, sprintNumber, commitHash] = /^(v.*)\.(\d+)\.([A-Za-z0-9]+)/g.exec(
+        getCookie('app_version'),
+    );
     return {
         appVersion,
         version,
@@ -92,8 +90,7 @@ function announceNewVersion() {
     const previousQuestionIconHTML = tourButtonElement.innerHTML;
     const previousAutolinkContentHTML = autolinkElement.innerHTML;
 
-    tourButtonElement.innerHTML =
-        '<i class="fa fa-info-circle blink_btn" aria-hidden="true"></i>';
+    tourButtonElement.innerHTML = '<i class="fa fa-info-circle blink_btn" aria-hidden="true"></i>';
     autolinkElement.innerHTML =
         '<i class="fa-brands fa-github"></i> ' +
         document.getElementById('i18nDownloadNewVersion').textContent.trim() +
@@ -114,9 +111,7 @@ function announceNewVersion() {
  */
 async function checkNewVersion() {
     const appStartupTime = moment.utc(getCookie('app_startup_time')).local();
-    const limitCheckingNewerVersionTime = parseInt(
-        getCookie('limit_checking_newer_version_time'),
-    );
+    const limitCheckingNewerVersionTime = parseInt(getCookie('limit_checking_newer_version_time'));
     const now = moment();
 
     // calculate the time from startup to now is many seconds through

@@ -40,27 +40,18 @@
                     <div class="col-sm-6 align-with-label">
                         <div class="form-group">
                             <div class="card card-body drag-card">
-                                <div
-                                    class="drag-area co-occurrence-drag-area box has-advanced-upload"
-                                >
+                                <div class="drag-area co-occurrence-drag-area box has-advanced-upload">
                                     <div class="icon">
                                         <i class="fas fa-cloud-upload-alt"></i>
                                     </div>
                                     <div class="box__input">
-                                        <header>
-                                            {{ _('Drag and drop file here') }}
-                                        </header>
+                                        <header>{{ _('Drag and drop file here') }}</header>
                                         <span>{{ _('Or') }}</span>
                                     </div>
                                     <div class="box__success">
                                         <span></span>
                                     </div>
-                                    <button
-                                        id="selectFileBtn"
-                                        class="btn btn-light"
-                                    >
-                                        {{ _('Choose a file') }}
-                                    </button>
+                                    <button id="selectFileBtn" class="btn btn-light">{{ _('Choose a file') }}</button>
                                     <input
                                         type="file"
                                         hidden
@@ -80,9 +71,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 align-with-label">
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -91,15 +80,9 @@
                                 value="CSV"
                                 checked
                             />
-                            <label
-                                class="custom-control-label"
-                                for="fileTypeCSV"
-                                >CSV</label
-                            >
+                            <label class="custom-control-label" for="fileTypeCSV">CSV</label>
                         </div>
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -107,15 +90,9 @@
                                 name="fileType"
                                 value="TSV"
                             />
-                            <label
-                                class="custom-control-label"
-                                for="fileTypeTSV"
-                                >TSV</label
-                            >
+                            <label class="custom-control-label" for="fileTypeTSV">TSV</label>
                         </div>
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -123,11 +100,7 @@
                                 name="fileType"
                                 value="SMC"
                             />
-                            <label
-                                class="custom-control-label"
-                                for="fileTypeSMC"
-                                >Semicolon(;)SV</label
-                            >
+                            <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
                         </div>
                     </div>
                 </div>
@@ -140,9 +113,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 align-with-label">
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -151,15 +122,9 @@
                                 value="Hour"
                                 checked
                             />
-                            <label
-                                class="custom-control-label"
-                                for="aggregateByHour"
-                                >{{ _("Hour") }}</label
-                            >
+                            <label class="custom-control-label" for="aggregateByHour">{{ _("Hour") }}</label>
                         </div>
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -167,11 +132,7 @@
                                 name="aggregateBy"
                                 value="Day"
                             />
-                            <label
-                                class="custom-control-label"
-                                for="aggregateByDay"
-                                >{{ _("Day") }}</label
-                            >
+                            <label class="custom-control-label" for="aggregateByDay">{{ _("Day") }}</label>
                         </div>
                     </div>
                 </div>
@@ -198,15 +159,9 @@
                         </div>
                     </div>
                     <div class="col-sm-3 align-with-label">
-                        <span
-                            id="thresholdValue"
-                            class="font-weight-bold text-primary"
-                            >100</span
-                        >
+                        <span id="thresholdValue" class="font-weight-bold text-primary">100</span>
                         <span class="font-weight-bold text-primary">%</span>
-                        <span class="font-weight-bold text-primary"
-                            >({{ _('of all edges') }})</span
-                        >
+                        <span class="font-weight-bold text-primary">({{ _('of all edges') }})</span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -217,9 +172,7 @@
                         </div>
                     </div>
                     <div class="col-sm-6 align-with-label">
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -228,15 +181,9 @@
                                 value="CIRCLE"
                                 checked
                             />
-                            <label
-                                class="custom-control-label"
-                                for="layoutCircle"
-                                >{{ _("Circle") }}</label
-                            >
+                            <label class="custom-control-label" for="layoutCircle">{{ _("Circle") }}</label>
                         </div>
-                        <div
-                            class="custom-control custom-radio custom-control-inline"
-                        >
+                        <div class="custom-control custom-radio custom-control-inline">
                             <input
                                 type="radio"
                                 class="custom-control-input"
@@ -244,17 +191,12 @@
                                 name="layout"
                                 value="FORCE_ATLAS_2"
                             />
-                            <label class="custom-control-label" for="layoutAuto"
-                                >{{ _("Auto") }}</label
-                            >
+                            <label class="custom-control-label" for="layoutAuto">{{ _("Auto") }}</label>
                         </div>
                     </div>
                     <div class="col-sm-3"></div>
                 </div>
-                <div
-                    style="text-align: center;"
-                    class="graph-navi graph-navi-top-down"
-                >
+                <div style="text-align: center;" class="graph-navi graph-navi-top-down">
                     {{
                         macros.switch_button(
                         id='tooltipsEnableBtn',
@@ -288,9 +230,7 @@
                 checked
                 onchange="updateNodeLabel(this);"
             />
-            <label class="custom-control-label" for="showAllNodeLabels"
-                >{{ _('Show all node labels') }}</label
-            >
+            <label class="custom-control-label" for="showAllNodeLabels">{{ _('Show all node labels') }}</label>
         </div>
 
         <div class="card chart-wrapper chart-margin">
@@ -300,12 +240,8 @@
                         <div class="">
                             <div class="">
                                 <div class="btn-control" style="">
-                                    <span
-                                        id="restoreZoom"
-                                        style="cursor: pointer; color: grey"
-                                        ><i
-                                            class="fas fa-expand-arrows-alt fa-2x"
-                                        ></i
+                                    <span id="restoreZoom" style="cursor: pointer; color: grey"
+                                        ><i class="fas fa-expand-arrows-alt fa-2x"></i
                                     ></span>
                                 </div>
                             </div>

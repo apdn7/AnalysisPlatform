@@ -57,13 +57,7 @@ $(() => {
     endProcItem();
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -94,7 +88,10 @@ const graphicalLassoShowGraph = () => {
     }
 };
 
-const collectFromDataGL = (clearOnFlyFilter) => {
+const collectFromDataGL = (clearOnFlyFilter, autoUpdate = false) => {
+    if (autoUpdate) {
+        return genDatetimeRange(lastUsedFormData);
+    }
     const traceForm = $(formElements.formID);
     let formData = null;
     if (clearOnFlyFilter) {
@@ -109,34 +106,33 @@ const collectFromDataGL = (clearOnFlyFilter) => {
     return formData;
 };
 
-const callToBackEndAPI = (clearOnFlyFilter = true) => {
-    const formData = collectFromDataGL(clearOnFlyFilter);
+const handleSetPollingData = () => {
+    const settings = collectFromDataGL(false);
+    callToBackEndAPI(settings, false, true);
+};
 
-    showGraphCallApi(
-        '/ap/api/gl/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            resData = res;
-            graphStore.setTraceData(res);
-            showGraphicalLasso(res);
+const callToBackEndAPI = (clearOnFlyFilter = true, autoUpdate = false) => {
+    const formData = collectFromDataGL(clearOnFlyFilter, autoUpdate);
 
-            $('html, body').animate(
-                {
-                    scrollTop: getOffsetTopDisplayGraph(
-                        formElements.plotCardId,
-                    ),
-                },
-                500,
-            );
-            // show info table
-            showInfoTable(res);
+    showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        resData = res;
+        graphStore.setTraceData(res);
+        showGraphicalLasso(res);
 
-            fillDataToFilterModal(res.filter_on_demand, () => {
-                callToBackEndAPI(false);
-            });
-        },
-    );
+        $('html, body').animate(
+            {
+                scrollTop: getOffsetTopDisplayGraph(formElements.plotCardId),
+            },
+            500,
+        );
+        setPollingData(formData, handleSetPollingData, []);
+        // show info table
+        showInfoTable(res);
+
+        fillDataToFilterModal(res.filter_on_demand, () => {
+            callToBackEndAPI(false);
+        });
+    });
 };
 
 const setSparsityValue = (alphas, bestAlphas = 0, threshold) => {
@@ -158,22 +154,15 @@ const setSparsityValue = (alphas, bestAlphas = 0, threshold) => {
     $('#sparsityValue').text(selectedSparsity);
     $('#thresholdValue').text(threshold);
 };
-const showGraphicalLasso = (
-    res,
-    changedThreshold = null,
-    alpha = null,
-    inCurrentPosition = false,
-) => {
+const showGraphicalLasso = (res, changedThreshold = null, alpha = null, inCurrentPosition = false) => {
     formElements.plotCard.show();
     $(`#${formElements.graphicalLassoCanvasId}`).empty();
     if (!res.array_plotdata) return;
-    const [alphas, best_alpha, threshold, dic_nodes, dic_edges, processNames] =
-        res.array_plotdata;
+    const [alphas, best_alpha, threshold, dic_nodes, dic_edges, processNames] = res.array_plotdata;
 
     if (!dic_nodes) return;
 
-    selectedThreshold =
-        changedThreshold !== null ? changedThreshold : threshold;
+    selectedThreshold = changedThreshold !== null ? changedThreshold : threshold;
     selectedSparsity = alpha !== null ? alpha : best_alpha;
     const availableThresholds = Object.keys(dic_nodes);
     setRangeValue(res, 'threshold', null, true);
@@ -197,10 +186,7 @@ const showGraphicalLasso = (
         // update node label
         node.label = label;
         // update node position
-        if (
-            inCurrentPosition &&
-            Object.keys(nodePositionData).includes(node.id)
-        ) {
+        if (inCurrentPosition && Object.keys(nodePositionData).includes(node.id)) {
             node.x = nodePositionData[node.id].x;
             node.y = nodePositionData[node.id].y;
         }
@@ -233,12 +219,7 @@ const castToStr = (number) => {
     }
     return number;
 };
-const setRangeValue = (
-    res,
-    rangeId,
-    availableValues = null,
-    isThreshold = false,
-) => {
+const setRangeValue = (res, rangeId, availableValues = null, isThreshold = false) => {
     const range = $(`#${rangeId}`);
     const valueEl = $(`#${rangeId}Value`);
 

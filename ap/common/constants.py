@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import re
 from enum import Enum, auto
 from typing import Optional
 
 import numpy as np
 import pandas as pd
+import sqlalchemy as sa
 from dateutil import tz
 
 MATCHED_FILTER_IDS = 'matched_filter_ids'
@@ -64,7 +66,7 @@ LOG_LEVEL = 'log_level'
 # fiscal year start month
 FISCAL_YEAR_START_MONTH = 4
 
-MAX_SAFE_INTEGER = 9007199254740991
+MAX_SAFE_INTEGER = 9007199254740992
 DELIMITER_KW = 'sep'
 ENCODING_KW = 'encoding'
 
@@ -489,6 +491,41 @@ class DataType(Enum):
     BOOLEAN = 11
     DATE = 12
     TIME = 13
+    CATEGORY = 14
+
+    @classmethod
+    def correct_data_type(cls, data_type: str) -> str:
+        if data_type == cls.CATEGORY.name:
+            data_type = cls.INTEGER.name
+        return data_type
+
+    def sqlalchemy_type(self):
+        if self in (DataType.INTEGER, DataType.INTEGER_SEP, DataType.EU_INTEGER_SEP):
+            return sa.Integer
+        # currently treat category as integer, ask hoangpm6 for more
+        if self in (DataType.CATEGORY,):
+            return sa.Integer
+        if self in (DataType.REAL, DataType.REAL_SEP, DataType.EU_REAL_SEP):
+            return sa.Float
+        if self in (DataType.DATETIME,):
+            return sa.DateTime
+        if self in (DataType.DATE,):
+            return sa.Date
+        if self in (DataType.TIME,):
+            return sa.Time
+        if self in (DataType.BOOLEAN,):
+            return sa.Boolean
+        return sa.Text
+
+    @classmethod
+    def order_columns(cls) -> list[str]:
+        return [
+            cls.DATETIME.name,
+            cls.TEXT.name,
+            cls.INTEGER.name,
+            cls.INTEGER_SEP.name,
+            cls.EU_INTEGER_SEP.name,
+        ]
 
 
 class DataTypeEncode(Enum):
@@ -498,7 +535,6 @@ class DataTypeEncode(Enum):
     TEXT = 'Str'
     CATEGORY = 'Int(Cat)'
     DATETIME = 'CT'
-    BIG_INT = 'BigInt'
 
 
 class JobStatus(Enum):
@@ -564,6 +600,7 @@ class CfgConstantType(Enum):
     EFA_HEADER_EXISTS = auto()
     DISK_USAGE_CONFIG = auto()
     CHECK_DB_LOCK = auto()
+    BREAK_JOB = auto()
     CONVERTED_USER_SETTING_URL = auto()
     MAX_GRAPH_NUMBER = auto()
 
@@ -680,6 +717,8 @@ class YType(Enum):
 class ProcessCfgConst(Enum):
     PROC_ID = 'id'
     PROC_COLUMNS = 'columns'
+    DATA_SOURCE_ID = 'data_source_id'
+    PROC_NAME_EN = 'name_en'
 
 
 class EFAColumn(Enum):
@@ -1381,6 +1420,18 @@ ABNORMAL_V2_COLS = {
 V2_SAME_COL_DIC = {
     'トレーNo': 'トレイNo',
     '子部品トレーNo': '子部品トレイNo',
+    # '計測項目名': '測定項目名',
+}
+
+V2_MULTI_EXTEND_COL_DIC = {
+    DataGroupType.QUALITY_NAME.value: ['加工項目名', 'key1', 'key2', 'key3', '計測項目名'],
+    DataGroupType.DATA_VALUE.value: ['加工値', 'value1', 'value2', 'value3', '計測値'],
+}
+
+# Put all pattern of quality name and quality value here
+QUALITY_DEFINITION = {
+    DataGroupType.QUALITY_NAME.value: ['加工項目名', '計測項目名', '測定項目名'],
+    DataGroupType.DATA_VALUE.value: ['加工値', '計測値', '測定値'],
 }
 
 # for en column name from v2 files
@@ -1440,6 +1491,12 @@ SELECTED_VARS = 'selected_vars'
 
 ZERO_FILL_PATTERN = r'^{\:(0)([<>]?)([1-9]\d*)d?\}$'  # {:010}, {:010d}
 ZERO_FILL_PATTERN_2 = r'^{\:([1-9])([<>])(\d+)d?\}$'  # {:1>10}, {:1>10}, {:1<10d}
+
+# instance folder names
+PREVIEW_DATA_FOLDER = 'preview_data'
+TRANSACTION_FOLDER = 'transaction'
+CONFIG_DB = 'app.sqlite3'
+SCHEDULER_DB = 'scheduler.sqlite3'
 
 
 class MasterDBType(BaseEnum):
@@ -1538,10 +1595,6 @@ class RawDataTypeDB(BaseEnum):  # data type user select
     DATE = DataType.DATE.name
     TIME = DataType.TIME.name
 
-    # SMALL_INT = 's_i'
-    BIG_INT = DataType.BIG_INT.name
-    # CATEGORY_INTEGER = 'I'
-    # CATEGORY_TEXT = 'T'
     CATEGORY = 'CATEGORY'  # Rainbow treat category as integer
 
     def __repr__(self) -> str:
@@ -1555,7 +1608,6 @@ class RawDataTypeDB(BaseEnum):  # data type user select
         return data_type_db_value in (
             RawDataTypeDB.INTEGER.value,
             RawDataTypeDB.CATEGORY.value,
-            RawDataTypeDB.BIG_INT.value,
         )
 
     @staticmethod
@@ -1592,12 +1644,6 @@ class RawDataTypeDB(BaseEnum):  # data type user select
 
         if raw_data_type == RawDataTypeDB.BOOLEAN:
             return pd.BooleanDtype()
-
-        # if raw_data_type == RawDataTypeDB.SMALL_INT:
-        #     return pd.Int16Dtype()
-        #
-        if raw_data_type == RawDataTypeDB.BIG_INT:
-            return pd.Int64Dtype()
 
         if raw_data_type == RawDataTypeDB.CATEGORY:
             return pd.Int64Dtype()
@@ -1638,16 +1684,12 @@ dict_invalid_data_type_regex = {
     RawDataTypeDB.TEXT.value: '.*',
     RawDataTypeDB.BOOLEAN.value: '[^0-1]',
     RawDataTypeDB.DATETIME.value: '.*',
-    # RawDataTypeDB.SMALL_INT.value: r'[^-0-9]+',
-    RawDataTypeDB.BIG_INT.value: r'[^-0-9]+',
     RawDataTypeDB.CATEGORY.value: '.*',
 }
 
 dict_numeric_type_ranges = {
     RawDataTypeDB.INTEGER.value: {'max': INT32_MAX, 'min': INT32_MIN},
     RawDataTypeDB.BOOLEAN.value: {'max': 1, 'min': 0},
-    # RawDataTypeDB.SMALL_INT.value: {'max': INT16_MAX, 'min': INT16_MIN},
-    RawDataTypeDB.BIG_INT.value: {'max': INT64_MAX, 'min': INT64_MIN},
 }
 
 
@@ -1673,7 +1715,6 @@ dict_dtype = {
     'time': DataType.TIME.name,
     'cast': FunctionCastDataType.CAST.value,
     'x': FunctionCastDataType.SAME_AS_X.value,
-    'b_i': DataType.BIG_INT.name,
 }
 
 
@@ -1742,6 +1783,7 @@ START_DATE_ID = 'startDate'
 START_TIME_ID = 'startTime'
 END_DATE_ID = 'endDate'
 END_TIME_ID = 'endTime'
+SOURCE_PATH = 'source_path'
 
 
 EXAMPLE_VALUE = 3
@@ -1762,6 +1804,7 @@ class PagePath(Enum):
     REGISTER_DATA_FILE = 'ap/register_by_file'
 
 
+PROCESS_QUEUE = '_queue'
 MAIN_THREAD = 'MAIN_THREAD'
 SHUTDOWN = 'SHUTDOWN'
 PORT = 'PORT'
@@ -1784,9 +1827,11 @@ class AnnounceEvent(Enum):
     PCA_SENSOR = auto()
     SHOW_GRAPH = auto()
     DISK_USAGE = auto()
+    CLEAR_TRANSACTION_DATA = auto()
     DATA_REGISTER = auto()
     BACKUP_DATA_FINISHED = auto()
     RESTORE_DATA_FINISHED = auto()
+    TRANSACTION_UPDATED = auto()
 
 
 class JobType(Enum):
@@ -1802,7 +1847,7 @@ class JobType(Enum):
     GEN_GLOBAL = 6
     # CLEAN_DATA = 7
     FACTORY_PAST_IMPORT = 8
-    IDLE_MORNITORING = 9
+    IDLE_MONITORING = 9
     SHUTDOWN_APP = 10
     BACKUP_DATABASE = 11
     PROC_LINK_COUNT = 12
@@ -1811,9 +1856,21 @@ class JobType(Enum):
     RESTRUCTURE_INDEXES = 15
     CLEAN_EXPIRED_REQUEST = 16
     PROCESS_COMMUNICATE = 17
+    UPDATE_TRANSACTION_TABLE = 18
+
+
+class ListenNotifyType(BaseEnum):
+    JOB_PROCESS = auto()
+    ADD_JOB = auto()
+    RESCHEDULE_JOB = auto()
+    CLEAR_CACHE = auto()
+    SHUTDOWN = auto()
+    CATEGORY_ERROR = auto()
+    RUNNING_JOB = auto()
 
 
 SEQUENCE_CACHE = 1000
+DATA_CACHE_FOLDER = 'cache'
 
 
 class DuplicateMode(BaseEnum):
@@ -1882,8 +1939,8 @@ class ColumnDTypeToSQLiteDType(BaseEnum):
     EU_REAL_SEP = 'real'
     EU_INTEGER_SEP = 'integer'
     K_SEP_NULL = 'null'
-    BIG_INT = 'string'
     BOOLEAN = 'boolean'
+    CATEGORY = 'integer'
 
 
 # if nchar(header) > 90%: generate column name
@@ -1915,19 +1972,33 @@ ANNOUNCE_UPDATE_TIME: int = 60  # unit: seconds
 # Limit range time to check new version
 LIMIT_CHECKING_NEWER_VERSION_TIME: int = 60  # unit: seconds
 
-DATE_TYPE_REGEX = (
+PROCESS_QUEUE_FILE_NAME = f'process_queue.{FileExtension.Pickle.value}'
+
+# MM-DD | MM月DD日 | MM/DD -> current year -MM-DD 00:00:00
+DATETIME_TYPE_MD = re.compile(r'^(?P<m>\d{1,2})[-/月](?P<d>\d{1,2})日?$')
+# YYYY/MM/DD | YYYY-MM-DD | YYYY年MM月DD日 | YY-MM-DD | YY/MM/DD | YY年MM月DD日-> YYYY-MM-DD 00:00:00
+DATETIME_TYPE_YMD = re.compile(r'^(?P<y>\d{4}|\d{1,2})[-/年](?P<m>\d{1,2})[-/月](?P<d>\d{1,2})日?$')
+# YYYY年MM月DD日hh時mm分ss秒 -> YYYY-MM-DD hh:mm:ss
+DATETIME_TYPE_YMD_HMS = re.compile(
+    r'^(?P<y>\d{4})年(?P<m>\d{1,2})月(?P<d>\d{1,2})日(?P<h>\d{1,2})時(?P<min>\d{1,2})分(?P<s>\d{1,2})秒$',
+)
+
+# replace a comma that exist between numbers
+COMMA_BETWEEN_NUMBERS_REGEX = re.compile(r'(?<=\d),(?=\d)')
+
+DATE_TYPE_REGEX = re.compile(
     '^'
     r'(?P<year>\d{2}|\d{4})'
-    r'(?:[\-\.\s\/\\年]?(?P<month>\d|0\d|1[0-2])[月]?)'
-    r'(?:[\-\.\s\/\\]?(?P<day>\d|[0-2]\d|3[0-1])[日]?)?'
-    '$'
+    r'[\-.\s/\\年]?(?P<month>\d|0\d|1[0-2])月?'
+    r'(?:[\-.\s/\\]?(?P<day>\d|[0-2]\d|3[0-1])日?)?'
+    '$',
 )
-TIME_TYPE_REGEX = (
+TIME_TYPE_REGEX = re.compile(
     '^'
     r'(?P<hour>\d|[01]\d|2[0-3])'
-    r'(?:[:\-\.\s時]?(?P<minute>\d|[0-5]\d)[分]?)'
-    r'(?:[:\-\.\s]?(?P<second>\d|[0-5]\d)[秒]?)?'
-    '$'
+    r'[:\-.\s時]?(?P<minute>\d|[0-5]\d)分?'
+    r'(?:[:\-.\s]?(?P<second>\d|[0-5]\d)秒?)?'
+    '$',
 )
 
 
@@ -1942,3 +2013,16 @@ class PCAFilterCondition(BaseEnum):
     # train data conditions
     TRAIN_COND_PROC = 'traincond_proc'
     TRAIN_LINE_COND = 'trainfilter-line-machine-id'
+
+
+# to remove 計測値:|measurement. from column name
+MEASUREMENTS_DEFINED = [
+    '計測値:',
+    '加工値:',
+    '加工条件:',
+    '加工条件値:',
+    'その他:',
+    'measurement.',
+    '測定値:',
+    'OK/NG情報:',
+]

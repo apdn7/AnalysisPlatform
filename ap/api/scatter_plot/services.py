@@ -45,6 +45,7 @@ from ap.common.constants import (
     ELAPSED_TIME,
     END_COL_ID,
     END_DATE,
+    END_DT,
     END_PROC_ID,
     END_TM,
     H_LABEL,
@@ -68,6 +69,7 @@ from ap.common.constants import (
     SERIALS,
     SORT_KEY,
     START_DATE,
+    START_DT,
     START_PROC,
     START_TM,
     SUMMARIES,
@@ -219,7 +221,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                     _use_expired_cache=use_expired_cache,
                 )
 
-                convert_datetime_to_ct(df_term, graph_param)
+                df_term = convert_datetime_to_ct(df_term, graph_param)
 
                 df = df_term.copy() if df is None else pd.concat([df, df_term])
 
@@ -282,7 +284,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             actual_record_number = dic_param.get(ACTUAL_RECORD_NUMBER)
             unique_serial = dic_param.get(UNIQUE_SERIAL)
 
-        convert_datetime_to_ct(df, graph_param)
+        df = convert_datetime_to_ct(df, graph_param)
 
         chart_type, x_category, y_category = get_chart_type(df, x_id, y_id, dic_cols)
         # in SCP, accept int/int as scater instead of heatmap
@@ -394,8 +396,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
             # group by and count frequency
             df_graph['__count__'] = df_graph.groupby(color_col)[color_col].transform('count')
-            df_graph.sort_values('__count__', inplace=True, ascending=False)
-            df_graph.drop('__count__', axis=1, inplace=True)
+            df_graph = df_graph.sort_values('__count__', ascending=False).drop('__count__', axis=1)
 
             df_cols = (df_col for df_col in df_graph.columns if df_col != 'x_serial_dat')
             for key in df_cols:
@@ -428,9 +429,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             graph['end_proc_id'] = x_proc_id
 
             if color_order is ColorOrder.TIME or color_order is ColorOrder.ELAPSED_TIME:
-                dic_param['color_fmt'] = get_fmt_from_color_setting(df_graph[color_col].to_list(), color_order)
+                dic_param['color_fmt'] = get_fmt_from_color_setting(df_graph[color_col], color_order)
             else:
-                dic_param['color_fmt'] = get_fmt_from_array(df[color_label].to_list()) if color_label else ''
+                dic_param['color_fmt'] = get_fmt_from_array(df[color_label]) if color_label else ''
 
     else:
         group_by_cols = []
@@ -587,9 +588,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     dic_param['is_show_h_label'] = is_show_h_label
     dic_param['is_show_first_h_label'] = is_show_first_h_label
     dic_param['is_filtered'] = bool(dic_cat_filters)
-    dic_param['x_fmt'] = get_fmt_from_array(df[x_label].to_list())
-    dic_param['y_fmt'] = get_fmt_from_array(df[y_label].to_list())
-
+    dic_param['x_fmt'] = get_fmt_from_array(df[x_label])
+    dic_param['y_fmt'] = get_fmt_from_array(df[y_label])
+    dic_param['is_judge_color'] = dic_cols[color_id].is_judge if color_id else None
     # add proc name for x and y column
     dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].shown_name if x_id else None
     dic_param['y_proc'] = dic_proc_cfgs[dic_cols[y_id].process_id].shown_name if y_id else None
@@ -843,8 +844,7 @@ def split_df_by_time_range(dic_df_chunks, max_group=None, max_record_per_group=N
 @log_execution_time()
 def drop_missing_data(df: DataFrame, cols):
     if df is not None and len(df):
-        df.dropna(subset=[col for col in cols if col], inplace=True)
-        df = df.convert_dtypes()
+        df = df.dropna(subset=[col for col in cols if col]).convert_dtypes()
     return df
 
 
@@ -862,7 +862,7 @@ def get_v_keys_str(v_keys):
 @log_execution_time()
 def calc_elapsed_times(df_data, time_col):
     elapsed_times = pd.to_datetime(df_data[time_col]).sort_values()
-    elapsed_times = elapsed_times.iloc[0:] - elapsed_times.iat[0]
+    elapsed_times = elapsed_times.iloc[0:] - elapsed_times.iloc[0]
     elapsed_times = elapsed_times.dt.total_seconds().fillna(0)
     elapsed_times = elapsed_times.sort_index()
     elapsed_times = elapsed_times.convert_dtypes()
@@ -1024,10 +1024,10 @@ def gen_scatter_by_cyclic(
     df = drop_missing_data(df, [x, y, color] + levels)
 
     dic_df_chunks = {}
-    df.set_index(TIME_COL, inplace=True, drop=False)
+    df = df.set_index(TIME_COL, drop=False)
     for term_id, term in enumerate(terms):
-        start_dt = term['start_dt']
-        end_dt = term['end_dt']
+        start_dt = term[START_DT]
+        end_dt = term[END_DT]
         df_chunk = df[(df.index >= start_dt) & (df.index < end_dt)]
         dic_df_chunks[(start_dt, end_dt)] = df_chunk
 
@@ -1154,10 +1154,9 @@ def gen_scatter_cat_div(
         h_keys_str = h_key
         count_h_key = 0
 
-        for v_keys, df_data in dic_group.items():
-            for idx in list_na_indexes:
-                if idx in df_data.index:
-                    df_data.drop(idx, inplace=True)
+        for v_keys, df_data_ in dic_group.items():
+            df_data = df_data_.drop(index=list_na_indexes)
+
             if v_keys not in facet_keys:
                 count_h_key += 1
                 if count_h_key == len(dic_group) and all(val is not None for val in facet_keys):
@@ -1167,7 +1166,6 @@ def gen_scatter_cat_div(
                 continue
 
             v_keys_str = get_v_keys_str(v_keys)
-            # elapsed_times = calc_elapsed_times(df_data, time_col)
 
             if df_data.empty:
                 empty_dic_data, empty_output_time = gen_empty_dic_graphs([v_keys], h_keys_str, None, None, None)
@@ -1292,7 +1290,7 @@ def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_
         V_LABEL: v_keys_str,
         ARRAY_X: df_data[x],
         ARRAY_Y: df_data[y],
-        COLORS: df_data[color] if color else [],
+        COLORS: df_data[color] if color else pd.Series(),
         TIMES: times,
         TIME_MIN: time_min,
         TIME_MAX: time_max,
@@ -1310,15 +1308,15 @@ def gen_empty_dic_graphs(facet_keys, h_keys_str, v_keys_str, time_min, time_max,
         V_LABEL: v_keys_str,
         ARRAY_X: pd.Series(),
         ARRAY_Y: pd.Series(),
-        COLORS: [],
+        COLORS: pd.Series(),
         TIMES: pd.Series(),
         TIME_MIN: time_min,
         TIME_MAX: time_max,
         N_TOTAL: 0,
         SORT_KEY: h_keys_str if sort_key is None else sort_key,
-        X_SERIAL: [],
-        Y_SERIAL: [],
-        CYCLE_IDS: [],
+        X_SERIAL: pd.Series(),
+        Y_SERIAL: pd.Series(),
+        CYCLE_IDS: pd.Series(),
         IS_EMPTY_GRAPH: True,
     }
     output_time = ([], [])
@@ -1350,7 +1348,7 @@ def gen_df_limit_data(graph, keys, limit=None):
 @abort_process_handler()
 def sort_df(df, columns):
     cols = [col for col in columns if col in df.columns]
-    df.sort_values(by=cols, inplace=True)
+    df = df.sort_values(by=cols)
 
     return df
 
@@ -1436,8 +1434,7 @@ def gen_map_xy_heatmap_matrix(x_name, y_name, all_x, all_y, graph):
 
     missing_data = [None] * len(missing_y)
     df_missing = pd.DataFrame({col: missing_data for col in map_xy_array_z.columns}, index=missing_y)
-    map_xy_array_z = pd.concat([map_xy_array_z, df_missing])
-    map_xy_array_z.sort_index(inplace=True)
+    map_xy_array_z = pd.concat([map_xy_array_z, df_missing]).sort_index()
 
     # limit 10K cells
     if map_xy_array_z.size > HEATMAP_COL_ROW * HEATMAP_COL_ROW:

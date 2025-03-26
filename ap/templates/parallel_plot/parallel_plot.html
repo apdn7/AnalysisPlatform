@@ -20,10 +20,7 @@
             {{ macros.start_proc(showAutoUpdate=true) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
             <br class="graph-navi graph-navi-top-down" />
-            <div
-                class="show-graph-div d-flex justify-content-center align-items-center"
-                style="text-align: center;"
-            >
+            <div class="show-graph-div d-flex justify-content-center align-items-center" style="text-align: center;">
                 {{
                     macros.switch_button(
                     id='tooltipsEnableBtn',
@@ -56,10 +53,7 @@
         {{ macros.jump_modal() }}
     </div>
     <div class="graph-navi plot-content" id="sctr-card">
-        <div
-            class="d-flex justify-content-between align-items-center mb-3"
-            id="graph-settings-area"
-        >
+        <div class="d-flex justify-content-between align-items-center mb-3" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
             {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSortPCPDimension();}') }}
@@ -80,11 +74,7 @@
             <div class="d-flex flex-row-reverse flex-grow-1"></div>
         </div>
         <div class="card chart-wrapper chart-margin">
-            <div
-                class="dark-bg"
-                id="paracord-plot"
-                style="display: none; overflow-x: scroll;"
-            ></div>
+            <div class="dark-bg" id="paracord-plot" style="display: none; overflow-x: scroll;"></div>
         </div>
         <div id="stContentTab">
             <div class="setting-inform-content"></div>
@@ -97,14 +87,9 @@
         </div>
 
         <div id="tableDataSelectedArea" style="overflow-x: auto;">
-            <table
-                id="tableViewDataSelected"
-                class="table table-bordered table-hover-light"
-            >
+            <table id="tableViewDataSelected" class="table table-bordered table-hover-light">
                 <thead>
-                    <tr
-                        style="text-align: center; background-color: #303030;"
-                    ></tr>
+                    <tr style="text-align: center; background-color: #303030;"></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -112,32 +97,18 @@
     </div>
 
     <div>
-        <ul
-            id="contextMenuParallelPlot"
-            class="context-menu"
-            style="display:none;"
-        >
-            <li
-                class="menu-item"
-                onclick="handleSelectMenuItem(this)"
-                data-target-dim=""
-            >
+        <ul id="contextMenuParallelPlot" class="context-menu" style="display:none;">
+            <li class="menu-item" onclick="handleSelectMenuItem(this)" data-target-dim="">
                 {{ _("Response variable") }}
             </li>
-            <li
-                class="menu-item"
-                onclick="handleSelectMenuItem(this, true)"
-                data-target-dim=""
-            >
+            <li class="menu-item" onclick="handleSelectMenuItem(this, true)" data-target-dim="">
                 {{ _("Move next to target variable") }}
             </li>
         </ul>
     </div>
     <div id="dimFullName" class="custom-tooltip"></div>
     <div class=" loading"></div>
-    <div style="display: none;" id="msgErrorDBConnection">
-        {{ _("Could not access") }}
-    </div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
     <a
         style="display: none;"
         id="msgErrorDBConnectionAction"

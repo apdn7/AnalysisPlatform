@@ -52,18 +52,13 @@ const getColumnNames = async (database, tableName) => {
     }
 
     // get columns from db
-    const url = new URL(
-        '/ap/api/table_viewer/column_names',
-        window.location.href,
-    ).href;
+    const url = new URL('/ap/api/table_viewer/column_names', window.location.href).href;
     const params = {
         database,
         table: replacedTableName,
     };
     const paramString = new URLSearchParams(params);
-    const json = await fetch(`${url}?${paramString.toString()}`).then(
-        (response) => response.clone().json(),
-    );
+    const json = await fetch(`${url}?${paramString.toString()}`).then((response) => response.clone().json());
 
     // add columns to cache
     if (cachedColumns[database]) {
@@ -84,11 +79,7 @@ const showSortColumnOptions = async (procId) => {
         return;
     }
 
-    const res = await fetchData(
-        `/ap/api/setting/proc_table_viewer_columns/${procId}`,
-        {},
-        'GET',
-    );
+    const res = await fetchData(`/ap/api/setting/proc_table_viewer_columns/${procId}`, {}, 'GET');
     const procCfg = res.data;
     const procColumns = res.data.columns;
 
@@ -103,11 +94,7 @@ const showSortColumnOptions = async (procId) => {
     if (procColumns.length) {
         procColumns.forEach((col) => {
             const columnName = col.column_raw_name || col.column_name;
-            sortSelectionHTML += buildOptionHTML(
-                col.column_name,
-                col.shown_name,
-                columnName,
-            );
+            sortSelectionHTML += buildOptionHTML(col.column_name, col.shown_name, columnName);
         });
     }
 
@@ -134,7 +121,7 @@ const queryRecordsFromDB = (
     fetch('api/table_viewer/table_records', {
         method: 'POST',
         headers: {
-            Accept: 'application/json',
+            'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
@@ -183,11 +170,8 @@ const getLanguage = () => {
         en: 'English',
         ja: 'Japanese',
     };
-    const locale = docCookies.getItem('locale');
-    const url = new URL(
-        `/ap/static/table_viewer/lang/${langMap[locale]}.json`,
-        window.location.href,
-    ).href;
+    const locale = docCookies.getItem(keyPort('locale'));
+    const url = new URL(`/ap/static/table_viewer/lang/${langMap[locale]}.json`, window.location.href).href;
     return url;
 };
 
@@ -285,21 +269,13 @@ $(() => {
         cleanViewTable();
         loadingShow();
 
-        const { databaseCode, tableName, sortColumn, sortOrder, limit } =
-            getFormInput();
+        const { databaseCode, tableName, sortColumn, sortOrder, limit } = getFormInput();
 
         if (!databaseCode) {
             setTimeout(loadingHide, 0);
             return;
         }
-        queryRecordsFromDB(
-            databaseCode,
-            tableName,
-            sortColumn,
-            sortOrder,
-            limit,
-            showRecordsToViewTable,
-        );
+        queryRecordsFromDB(databaseCode, tableName, sortColumn, sortOrder, limit, showRecordsToViewTable);
     });
     ele.tableSelection.select2();
     ele.sortSelection.select2();

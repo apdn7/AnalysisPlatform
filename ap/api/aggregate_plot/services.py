@@ -1,5 +1,6 @@
 import copy
-from typing import Any, Dict, List, Optional, Tuple
+import uuid
+from typing import Any, List, Optional
 
 import pandas as pd
 from dateutil.tz import tz
@@ -62,9 +63,12 @@ from ap.common.constants import (
     CacheType,
     DataType,
     HMFunction,
+    X,
+    Y,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
@@ -130,7 +134,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
     export_data = df.copy()
 
     # calculate cycle_time and replace target column
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     # chunk data by cyclic terms
     if graph_param.common.cyclic_div_num:
@@ -184,10 +188,10 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
 def get_df_chunk_cyclic(df, dic_param):
     produce_cyclic_terms(dic_param)
     terms = gen_dic_param_terms(dic_param)
-    df.set_index(TIME_COL, inplace=True, drop=False)
+    df = df.set_index(TIME_COL, drop=False)
     df_full = None
     for term_id, term in enumerate(terms):
-        df_chunk = df[(df.index >= term[START_DT]) & (df.index < term[END_DT])]
+        df_chunk = df[(df[TIME_COL] >= term[START_DT]) & (df[TIME_COL] < term[END_DT])]
         df_chunk[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
 
         df_full = df_chunk.copy(deep=True) if df_full is None else pd.concat([df_full, df_chunk])
@@ -243,25 +247,30 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
 @log_execution_time()
 def gen_divide_format_column(
     df: pd.DataFrame,
-    divide_calendar_dates: List[str],
-    divide_calendar_labels: List[str],
+    divide_calendar_dates: list[str],
+    divide_calendar_labels: list[str],
 ) -> pd.DataFrame:
-    df[DIVIDE_FMT_COL] = None
-    if df.empty:
-        return df
-    df.sort_values(TIME_COL, inplace=True)
-    dt = pd.to_datetime(df[TIME_COL])
+    # create temporary column for searching values
+    temp_col = '__temp__datetime__'
+    df[temp_col] = pd.to_datetime(df[TIME_COL])
+
     divide_calendar_dates = pd.to_datetime(divide_calendar_dates, utc=True)
-    for i, label in enumerate(divide_calendar_labels):
-        start_time = divide_calendar_dates[i]
-        end_time = divide_calendar_dates[i + 1]
-        start_index, end_index = dt.searchsorted([start_time, end_time])
-        df[start_index:end_index][DIVIDE_FMT_COL] = label
+    df = assign_group_labels_for_dataframe(
+        df,
+        by=temp_col,
+        label_column=DIVIDE_FMT_COL,
+        bins=divide_calendar_dates,
+        labels=divide_calendar_labels,
+    )
+
+    # remove temporary column
+    df = df.drop(columns=[temp_col])
+
     return df
 
 
 @log_execution_time()
-def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int = None) -> List[Dict[Any, Any]]:
+def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int = None) -> list[dict[Any, Any]]:
     plot_data = []
     is_graph_limited = False
     target_vars = graph_param.common.sensor_cols
@@ -421,14 +430,14 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
     return plot_data, str_cols, is_graph_limited
 
 
-def sort_ok_ng(list):
-    ok_index = list.index('OK') if 'OK' in list else None
-    ng_index = list.index('NG') if 'NG' in list else None
+def sort_ok_ng(unique_div_vars: list[str]):
+    ok_index = unique_div_vars.index('OK') if 'OK' in unique_div_vars else None
+    ng_index = unique_div_vars.index('NG') if 'NG' in unique_div_vars else None
 
     # change position of OK an NG
     if ok_index is not None and ng_index is not None and ok_index > ng_index:
-        list[ok_index], list[ng_index] = list[ng_index], list[ok_index]
-    return list
+        unique_div_vars[ok_index], unique_div_vars[ng_index] = unique_div_vars[ng_index], unique_div_vars[ok_index]
+    return unique_div_vars
 
 
 def get_div_col_name(graph_param: DicParam) -> str:
@@ -470,7 +479,7 @@ def summarize_redundant_groups_into_others(
     maximum_allowed_groups: int,
     other_key: str,
     other_col: Optional[str],
-) -> Tuple[pd.DataFrame, List[Any]]:
+) -> tuple[pd.DataFrame, list[Any]]:
     """Summarize color value if total unique value of color columns exceed `maximum_allowed_groups`"""
     color_col_name = get_color_col_name(graph_param, target_var)
     if color_col_name is None or other_col is None:
@@ -492,14 +501,15 @@ def replace_redundant_groups_into_others(
     new_column_name: str,
     maximum_allowed_groups: int,
     other_key: str,
-) -> Tuple[pd.DataFrame, List[Any]]:
+) -> tuple[pd.DataFrame, list[Any]]:
     """Rename redundant value in `column_name` into `other_key`
     - We first sort value priority based on `value_counts`.
     - Every key have smaller `value_counts` should have lower priority
     """
     assert maximum_allowed_groups > 0
 
-    color_counts = df[column_name].value_counts()
+    colors = df[column_name].astype(pd.StringDtype())
+    color_counts = colors.value_counts()
     counted_keys = color_counts.index.to_list()
 
     if maximum_allowed_groups >= len(counted_keys):
@@ -507,7 +517,8 @@ def replace_redundant_groups_into_others(
         return df, counted_keys
 
     non_redundant_groups = maximum_allowed_groups - 1
-    df[new_column_name] = df[column_name].replace(to_replace=counted_keys[non_redundant_groups:], value=other_key)
+    # Need to convert to string before converting because `other_key` can be "Other", which is string
+    df[new_column_name] = colors.replace(to_replace=counted_keys[non_redundant_groups:], value=other_key)
 
     # form a new_keys, with OTHER_KEY always on tops
     sorted_keys = [other_key] + counted_keys[:non_redundant_groups]
@@ -522,8 +533,8 @@ def get_data_for_target_var_without_facets(
     graph_param: DicParam,
     is_real_data: bool,
     target_var: int,
-    sorted_colors: List[Any],
-) -> List[Dict[Any, Any]]:
+    sorted_colors: list[str],
+) -> tuple[list[dict[Any, Any]], pd.Series]:
     chart_type = 'lines+markers' if is_real_data else 'bar'
 
     target_col = graph_param.get_col_cfg(target_var)
@@ -533,12 +544,11 @@ def get_data_for_target_var_without_facets(
 
     full_array_y = pd.Series([])
 
-    def gen_trace_data(sub_df: pd.DataFrame, col_name: str) -> Dict[str, Any]:
+    def gen_trace_data(sub_df: pd.DataFrame, col_name: str) -> tuple[dict[str, Any], pd.Series]:
         y = sub_df[target_col_name].reset_index(drop=True)
-
         trace_data = {
-            'x': pd.Series(sub_df[target_col_name].index),
-            'y': y,
+            X: pd.Series(sub_df[target_col_name].index),
+            Y: y,
             COL_DETAIL_NAME: col_name,
             COL_TYPE: chart_type,
         }
@@ -550,7 +560,7 @@ def get_data_for_target_var_without_facets(
     if color_id is None:
         data, array_y = gen_trace_data(df, target_col.shown_name)
         if is_real_data:
-            full_array_y = full_array_y.append(array_y)
+            full_array_y = append_series(full_array_y, array_y)
 
         plot_data = [data]
     else:
@@ -559,7 +569,7 @@ def get_data_for_target_var_without_facets(
             try:
                 data, array_y = gen_trace_data(df.xs(color), color)
                 if is_real_data:
-                    full_array_y = full_array_y.append(array_y)
+                    full_array_y = append_series(full_array_y, array_y)
 
                 plot_data.append(data)
             except KeyError:
@@ -596,13 +606,23 @@ def gen_groupby_from_target_var(
     is_real_data: bool,
 ) -> DataFrameGroupBy:
     agg_cols = get_agg_cols(df, graph_param, target_var)
+
+    # colors columns now converted into string, hence we need to convert our color columns into string
+    # before grouping by
+    agg_cols_str = [uuid.uuid4().hex for _ in agg_cols]
+
+    # since we don't use this `df` anymore, we can modify it directly
+    for col, col_str in zip(agg_cols, agg_cols_str):
+        df[col_str] = df[col].astype(pd.StringDtype())
+
     target_col_name = graph_param.gen_label_from_col_id(target_var)
     # remove na before apply aggregate method for real variable only
     if is_real_data:
-        df_groupby = df.dropna(subset=[target_col_name]).groupby(agg_cols)[[target_col_name]]
+        df_groupby = df.dropna(subset=[target_col_name]).groupby(agg_cols_str)[[target_col_name]]
     else:
         # count, do not remove na
-        df_groupby = df.groupby(agg_cols)[[target_col_name]]
+        df_groupby = df.groupby(agg_cols_str)[[target_col_name]]
+
     return df_groupby
 
 

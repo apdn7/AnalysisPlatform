@@ -23,8 +23,8 @@ def gen_full_data_by_time(df, start_date, end_date, query_type):
     if query_type == DataCountType.WEEK.value:
         # week only
         group_conditions.append(df[DataCountTable.datetime.name].dt.hour)
-    df_grouped = df.groupby(group_conditions).sum()
-    df_indexes = df_grouped.index.values.tolist()
+    df_grouped = df.groupby(group_conditions)[[DataCountTable.count.name]].sum()
+    df_indexes = df_grouped.index.to_numpy().tolist()
     date_range = pd.date_range(start_date, end_date, freq=FREQ_FOR_RANGE[query_type])
 
     term_format = TERM_FORMAT[query_type]

@@ -53,7 +53,7 @@ class EquationSampleData(BaseModel):
 
         # Convert datetime format before evaluation
         if datetime_format is not None:
-            from ap.api.setting_module.services.csv_import import convert_datetime_format
+            from ap.common.datetime_format_utils import convert_datetime_format
 
             df = convert_datetime_format(df, dic_data_type, datetime_format)
 

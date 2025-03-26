@@ -20,11 +20,7 @@ class ParallelProps {
         correlation: 'correlation',
     };
 
-    static realTypes = [
-        DataTypes.REAL.name,
-        DataTypes.REAL_SEP.name,
-        DataTypes.EU_REAL_SEP.name,
-    ];
+    static realTypes = [DataTypes.REAL.name, DataTypes.REAL_SEP.name, DataTypes.EU_REAL_SEP.name];
     static intTypes = [
         DataTypes.INTEGER.name,
         DataTypes.INTEGER_SEP.name,
@@ -35,20 +31,11 @@ class ParallelProps {
     static datetimeType = [DataTypes.DATETIME.name];
     // valid data types init
     static validDataTypes = {
-        all: [
-            ...this.realTypes,
-            ...this.intTypes,
-            ...this.catTypes,
-            ...this.datetimeType,
-        ],
+        all: [...this.realTypes, ...this.intTypes, ...this.catTypes, ...this.datetimeType],
         real: this.realTypes,
         number: [...this.realTypes, ...this.intTypes],
         category: [...this.catTypes, ...this.intTypes],
-        categorized_real: [
-            ...this.realTypes,
-            ...this.intTypes,
-            ...this.catTypes,
-        ],
+        categorized_real: [...this.realTypes, ...this.intTypes, ...this.catTypes],
         datetime: [...this.datetimeType],
     };
 

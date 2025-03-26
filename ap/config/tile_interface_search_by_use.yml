@@ -151,6 +151,33 @@
                          <li> ターゲット変数: 見たい測定値(良/不良・重要特性など)</li>
                          <li> 対象期間: 「表示周期」を、短期の傾向ならDaily、中長期の傾向ならWeeklyに指定</li>
                          </ul>'
+  - title_en: 'How do I get aggregate results and statistics by time period and the contents of the selected variable?'
+    title_ja: '期間別、選択した変数の内容別の傾向を把握したい'
+    icon_path: 'columnchart.png'
+    example_en: '<ul>
+                 <li> I want to know the daily production number and defective number/defective rate.</li>
+                 <li> I want to understand the trend of daily measurements.</li>
+                 <li> I want to know which line, equipment and part number has the most defective.</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 日々の生産数と不良数・不良率を知りたい</li>
+                 <li> 日々の計測値の傾向を把握したい</li>
+                 <li> どのライン、設備、品番の不良が多いのかを知りたい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: agp
+        description_en: '<ul>
+                         <li> Color: The color can be changed according to the contents of the selected variable.</li>
+                         <li> Divide the horizontal tick by year, half year, quarter, month, week, day, hour</li>
+                         <li> Facet > Div: Divide the horizontal tick by the contents of the selected variable.</li>
+                         </ul>'
+        description_ja: '<ul>
+                         <li> Color: 選択した変数の内容に応じて色を変更</li>
+                         <li> 横軸の目盛りを年、半年、四半期、月、週、日、時間で分割</li>
+                         <li> Facet > Div: 横軸の目盛りを選択した変数の内容で分割</li>
+                         </ul>'
   - title_en: 'How do I find a measurement that seems to be related to the objective variable?'
     title_ja: '目的変数に寄与していそうな測定値を探したい'
     icon_path: 'search.png'
@@ -210,7 +237,7 @@
                          ※ 上級者用'
   - title_en: 'How do I monitor the change of the distiribution of each measurement?'
     title_ja: '測定項目の分布の動きを把握したい'
-    icon_path: 'columnchart.png'
+    icon_path: 'water-solid.png'
     example_en: '<ul>
                  <li> I want to visualize the change of distributions with more comprehensible way</li>
                  <li> I have too many data points, so the line chart is hard to interpret</li>
@@ -238,6 +265,29 @@
                          <li> 対象期間: 時系列的な変化を見たい場合は「期間分解」を選択</li>
                          </ul>
                          ※ FPPより細かい分布の変動と、その変数間の関係性が分かりやすい'
+  - title_en: 'How do I analyze the trends of various coordinates?'
+    title_ja: '各座標の傾向を把握したい'
+    icon_path: 'table-cells-solid.png'
+    example_en: '<ul>
+                 <li> I want to understand the coordinates where there are specific differences in trends (many defects, different values).</li>
+                 <li> I want to display wafer maps.</li>
+                 </ul>'
+    example_ja: '<ul>
+                 <li> 特異的に傾向が違う(不良が多い、値が違う)座標を把握したい</li>
+                 <li> ウェハマップを表示したい</li>
+                 </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: hmp
+        description_en: '<ul>
+                         <li> Color > Numeric: Statistics can be calculated</li>
+                         <li> Color > Others: You can change the color depending on the aggregate value or the contents of the selected variable.</li>
+                         </ul>'
+        description_ja: '<ul>
+                         <li> Color > 数値: 統計量を計算</li>
+                         <li> Color > その他: 集計値や選択した変数の内容に応じて色を変更</li>
+                         </ul>'
   - title_en: 'How do I monitor the change of many measurements simultaneously?'
     title_ja: '多くの変数(多変量)の変動を一括して把握したい'
     icon_path: 'manyvariables.png'

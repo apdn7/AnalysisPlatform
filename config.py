@@ -1,10 +1,11 @@
 import logging
 import os
 
-from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from sqlalchemy import NullPool
 
 from ap.common.common_utils import resource_path
+from ap.common.jobs.executor import CustomizeProcessPoolExecutor, CustomizeThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ class Config(object):
 
     # APScheduler
     SCHEDULER_EXECUTORS = {
-        'default': ProcessPoolExecutor(5),
-        'threadpool': ThreadPoolExecutor(100),
+        'default': CustomizeProcessPoolExecutor(5),
+        'threadpool': CustomizeThreadPoolExecutor(100),
     }
 
     SCHEDULER_JOB_DEFAULTS = {'coalesce': True, 'max_instances': 1, 'misfire_grace_time': 2 * 60}
@@ -84,8 +85,9 @@ class ProdConfig(Config):
     APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + APP_DB_FILE
     SCHEDULER_FULL_PATH = os.path.join(SQLITE_CONFIG_DIR, 'scheduler.sqlite3')
+    # set to NullPool until we know how to handle QueuePool
     SCHEDULER_JOBSTORES = {
-        'default': SQLAlchemyJobStore(url='sqlite:///' + SCHEDULER_FULL_PATH),
+        'default': SQLAlchemyJobStore(url='sqlite:///' + SCHEDULER_FULL_PATH, engine_options={'poolclass': NullPool}),
     }
     YAML_CONFIG_DIR = os.path.join(basedir, 'ap', 'config')
     UNIVERSAL_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'transaction')
@@ -98,8 +100,9 @@ class DevConfig(Config):
     APP_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'app.sqlite3')
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + APP_DB_FILE
     SCHEDULER_FULL_PATH = os.path.join(SQLITE_CONFIG_DIR, 'scheduler.sqlite3')
+    # set to NullPool until we know how to handle QueuePool
     SCHEDULER_JOBSTORES = {
-        'default': SQLAlchemyJobStore(url='sqlite:///' + SCHEDULER_FULL_PATH),
+        'default': SQLAlchemyJobStore(url='sqlite:///' + SCHEDULER_FULL_PATH, engine_options={'poolclass': NullPool}),
     }
     YAML_CONFIG_DIR = os.path.join(basedir, 'ap', 'config')
     UNIVERSAL_DB_FILE = os.path.join(SQLITE_CONFIG_DIR, 'transaction')

@@ -10,18 +10,15 @@ from ap.api.setting_module.services.software_workshop_etl_services import (
     child_equips_table,
     get_processes_stmt,
 )
-from ap.api.setting_module.services.v2_etl_services import is_v2_data_source, save_unused_columns
+from ap.api.setting_module.services.v2_etl_services import save_unused_columns
 from ap.common.constants import (
-    ID,
     TABLE_PROCESS_NAME,
     UNDER_SCORE,
-    DataType,
     DBType,
     MasterDBType,
 )
 from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.pydn.dblib.postgresql import PostgreSQL
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_list
 from ap.equations.utils import get_all_functions_info
@@ -30,7 +27,6 @@ from ap.setting_module.models import (
     CfgFilter,
     CfgProcess,
     CfgProcessColumn,
-    CfgProcessFunctionColumn,
     CfgVisualization,
     make_session,
     use_meta_session,
@@ -102,91 +98,53 @@ def get_all_visualizations():
 
 
 @use_meta_session()
-def create_or_update_process_cfg(proc_data, unused_columns, meta_session: scoped_session = None):
-    is_create_new = False
-    need_to_deleted_cols = []
-    transaction_ds = gen_data_source_of_universal_db(proc_data[ID])
-    # get existing columns from transaction table
-    if proc_data[ID] and len(unused_columns) and is_v2_data_source(process_id=proc_data[ID]):
-        with DbProxy(transaction_ds, True, immediate_isolation_level=False):
-            origin_proc_data = TransactionData(proc_data[ID], meta_session=meta_session)
-            for col in unused_columns:
-                col_dat = origin_proc_data.get_cfg_column_by_name(col, is_compare_bridge_column_name=False)
-                if col_dat:
-                    need_to_deleted_cols.append(col_dat.bridge_column_name)
-
-    # create column alchemy object + assign process id
-    process = CfgProcess(**proc_data)
-    columns = process.columns
+def create_or_update_process_cfg(
+    process: CfgProcess,
+    unused_columns: list[str],
+    meta_session: scoped_session = None,
+) -> CfgProcess:
     dict_id_column_name = {}
-    for proc_column in columns:
-        # transform data type
-        proc_column.predict_type = proc_column.data_type
-        if proc_column.data_type in (DataType.EU_REAL_SEP.name, DataType.REAL_SEP.name):
-            proc_column.data_type = DataType.REAL.name
-        if proc_column.data_type in (DataType.EU_INTEGER_SEP.name, DataType.INTEGER_SEP.name):
-            proc_column.data_type = DataType.INTEGER.name
-
-        # transform english name
-        if not proc_column.name_en:
-            proc_column.name_en = to_romaji(proc_column.column_name)
-
+    # We have a hack that is sending column with negative id to backend.
+    # To keep function columns relationship.
+    # Hence, we save a dictionary here, so that we can revert the ID later.
+    for column in process.columns:
         # get id with name before save db
-        dict_id_column_name[proc_column.id] = proc_column.column_name
-        if proc_column.id and proc_column.id < 0:  # set None for new column
-            proc_column.id = None
-        for function_col in proc_column.function_details:
+        dict_id_column_name[column.id] = column.column_name
+        if column.id and column.id < 0:  # set None for new column
+            column.id = None
+        for function_col in column.function_details:
             if function_col.id and function_col.id < 0:
                 function_col.id = None
 
-    if process.id:
-        # update process
-        process_exist: CfgProcess = meta_session.query(CfgProcess).get(process.id)
-        process.data_source = process_exist.data_source
-        process = meta_session.merge(process)
+    # merge to get `process.id`
+    process = meta_session.merge(process)
 
-        # Update child processes with parent_id
-        sys_name = proc_data.get('name')
-        name_jp = proc_data.get('name_jp')
-        name_en = proc_data.get('name_en')
-        name_local = proc_data.get('name_local')
-        child_processes = meta_session.query(CfgProcess).filter_by(parent_id=process.id).all()
-        for child_process in child_processes:
-            child_process.name = sys_name
-            child_process.name_jp = name_jp
-            child_process.name_en = name_en
-            child_process.name_local = name_local
-
-    else:
-        # insert new process
-        meta_session.add(process)
-        is_create_new = True
-
+    # need to flush if we create new process, to get `process.id`
     meta_session.flush()
-    # Update process order
-    if is_create_new and not process.order:
-        process.update_order(meta_session, process.id, process.id - 1)
+
+    children_processes = CfgProcess.get_children(process.id, session=meta_session)
+    for child_process in children_processes:
+        child_process.name = process.name
+        child_process.name_jp = process.name_jp
+        child_process.name_en = process.name_en
+        child_process.name_local = process.name_local
+
+    # update order if new
+    if process.order is None:
+        process.order = process.id - 1
+
     dict_column_name_with_id = {col.column_name: col.id for col in process.columns}
     # assign process function after save process columns
     for column in process.columns:
         for func_col in column.function_details:
-            func_col: CfgProcessFunctionColumn
             func_col.var_x = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_x))
             func_col.var_y = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_y))
 
     # update process function columns
-    meta_session.merge(process)
+    process = meta_session.merge(process)
 
     # save uncheck cols of v2 only
-    save_unused_columns(process.id, unused_columns, meta_session=meta_session)
-
-    # create table transaction_process
-    with DbProxy(transaction_ds, True, immediate_isolation_level=True) as db_instance:
-        trans_data = TransactionData(process.id, meta_session=meta_session)
-        trans_data.create_table(db_instance)
-        # delete unused columns
-        if len(need_to_deleted_cols):
-            trans_data.delete_columns(db_instance, need_to_deleted_cols)
+    process = save_unused_columns(process, unused_columns, meta_session=meta_session)
 
     return process
 
@@ -287,7 +245,7 @@ def get_list_process_software_workshop(data_source_id, updated_at=None):
 
     process_fact_ids = df[child_equips_table.c.child_equip_id.name].to_list()
     master_types = df['master_type'].to_list()
-    table_names = (df['data_type'] + UNDER_SCORE + df[TABLE_PROCESS_NAME]).to_list()
+    table_names = (df[TABLE_PROCESS_NAME] + UNDER_SCORE + df['data_type']).to_list()
     table_names = normalize_list(table_names)
 
     return table_names, process_fact_ids, master_types
@@ -329,35 +287,3 @@ def get_ct_range(proc_id, columns):
         return ct_range
     except Exception:
         return []
-
-
-def gen_function_column(process_columns, session: scoped_session | PostgreSQL):
-    for process_column in process_columns:
-        if process_column.function_config is None:
-            continue
-
-        dict_function_column = {
-            'function_id': process_column.function_config.get('function_id'),
-            'var_x': process_column.function_config.get('var_x'),
-            'var_y': process_column.function_config.get('var_y'),
-            'coe_a_n_s': process_column.function_config.get('coe_a_n_s'),
-            'coe_b_k_t': process_column.function_config.get('coe_b_k_t'),
-            'coe_c': process_column.function_config.get('coe_c'),
-            'return_type': process_column.function_config.get('return_type'),
-            'note': process_column.function_config.get('note'),
-        }
-
-        if process_column.function_config.get('function_column_id'):  # In case of exist record
-            dict_function_column['id'] = process_column.function_config.get('function_column_id')
-
-        select_cols = []
-        rows = []
-        for col, value in dict_function_column.items():
-            select_cols.append(col)
-            rows.append(value if value != '' else None)
-        rows = [tuple(rows)]
-
-        if isinstance(session, scoped_session):
-            CfgProcessFunctionColumn.insert_records(select_cols, rows, session)
-        else:
-            session.bulk_insert(CfgProcessFunctionColumn.get_table_name(), select_cols, rows)

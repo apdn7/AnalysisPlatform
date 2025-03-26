@@ -27,21 +27,12 @@ const drawAgPPlot = (
     divFromTo,
     isCommonScale = false,
 ) => {
-    const {
-        agg_function,
-        color_name,
-        color_column_type,
-        unique_color,
-        fmt,
-        shown_name,
-    } = plotData;
+    const { agg_function, color_name, color_column_type, unique_color, fmt, shown_name } = plotData;
 
     const isLineChart = agg_function && agg_function.toLowerCase() !== 'count';
     const showPercent =
-        [
-            AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL,
-            AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET,
-        ].includes(yAxisDisplayMode) && !isLineChart;
+        [AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode) &&
+        !isLineChart;
 
     let xTitles = data[0] ? [...data[0].x] : [];
     const tickLen = xTitles.length ? xTitles[0].length : 0;
@@ -148,8 +139,7 @@ const drawAgPPlot = (
 
     agPPlot.on('plotly_hover', (data) => {
         const dpIndex = getDataPointIndex(data);
-        const { x, y, name, type, isOutlier, colorName, outlierVal, colId } =
-            data.points[0].data;
+        const { x, y, name, type, isOutlier, colorName, outlierVal, colId } = data.points[0].data;
         const xVal = x[dpIndex].slice(1);
         const color = colorName || name;
         const hasColor = !!color_name;
@@ -167,10 +157,7 @@ const drawAgPPlot = (
             }
 
             if (from && to) {
-                period.push([
-                    'Period',
-                    `${from}${DATETIME_PICKER_SEPARATOR}${to}`,
-                ]);
+                period.push(['Period', `${from}${DATETIME_PICKER_SEPARATOR}${to}`]);
             }
         }
 
@@ -179,41 +166,24 @@ const drawAgPPlot = (
             const divIndex = div.indexOf(xVal);
             if (divIndex !== -1) {
                 const fromToOb = divFromTo[divIndex];
-                fromTo.push(
-                    ['From', formatDateTime(fromToOb[0])],
-                    ['To', formatDateTime(fromToOb[1])],
-                );
+                fromTo.push(['From', formatDateTime(fromToOb[0])], ['To', formatDateTime(fromToOb[1])]);
             }
         }
         if (type.includes('lines') || isOutlier) {
             const showVal = [];
             if (isOutlier) {
-                showVal.push([
-                    i18n.outlier,
-                    applySignificantDigit(outlierVal[dpIndex]),
-                ]);
+                showVal.push([i18n.outlier, applySignificantDigit(outlierVal[dpIndex])]);
             } else {
-                showVal.push([
-                    agg_function,
-                    applySignificantDigit(nByXAndColor),
-                ]);
+                showVal.push([agg_function, applySignificantDigit(nByXAndColor)]);
             }
-            dataTable = genHoverDataTable([
-                ['x', xVal],
-                ...period,
-                ['Color', color],
-                ...showVal,
-                ...fromTo,
-            ]);
+            dataTable = genHoverDataTable([['x', xVal], ...period, ['Color', color], ...showVal, ...fromTo]);
         } else {
             const nByX = showPercent ? '100%' : countByXAxis[colId][xVal];
             const NByColor = showPercent
                 ? `${applySignificantDigit(nByXAndColor)}%`
                 : applySignificantDigit(nByXAndColor);
 
-            const NByColorHover = hasColor
-                ? [['N by x and Color', NByColor]]
-                : [];
+            const NByColorHover = hasColor ? [['N by x and Color', NByColor]] : [];
 
             dataTable = genHoverDataTable([
                 ['x', xVal],
@@ -244,8 +214,7 @@ const reduceTicksArray = (array, tickLen) => {
     const nTicks = MAX_TICKS;
     const isReduce = array.length > MAX_TICKS;
     if (!isReduce) return array;
-    let nextIndex =
-        array.length / nTicks < 2 ? 2 : Math.round(array.length / nTicks);
+    let nextIndex = array.length / nTicks < 2 ? 2 : Math.round(array.length / nTicks);
     if (nextIndex * nTicks > MAX_TICKS) {
         nextIndex += 1;
     }
@@ -264,8 +233,7 @@ const prepareColorForTrace = (data, uniqueColor, colorColumnType) => {
     const getDefaultColor = (colorType, colorName, index) => {
         let color = COLOR_DEFAULT[index];
         // When variable data type is judge: Change color scale to OK:Blue, NG:Red in AgP
-        if (colorType === masterDataGroup.JUDGE)
-            color = JUDGE_COLOR_DEFAULT[colorName];
+        if (colorType === masterDataGroup.JUDGE) color = JUDGE_COLOR_DEFAULT[colorName];
         return color;
     };
     if (uniqueColor.length > 0) {
@@ -282,10 +250,7 @@ const prepareColorForTrace = (data, uniqueColor, colorColumnType) => {
 
     return data.map((da) => {
         const colors = styles.filter((st) => st.target === da.name);
-        const color =
-            colors.length > 0
-                ? styles.filter((st) => st.target === da.name)[0].color
-                : '';
+        const color = colors.length > 0 ? styles.filter((st) => st.target === da.name)[0].color : '';
         return {
             ...da,
             marker: {

@@ -70,17 +70,7 @@ const formElements = {
 
 const calenderFormat = {
     1: {
-        group1: [
-            'yyyymmddHH',
-            'yymmddHH',
-            'mmddHH',
-            'ddHH',
-            'HH',
-            'yyyymmdd',
-            'yymmdd',
-            'mmdd',
-            'dd',
-        ],
+        group1: ['yyyymmddHH', 'yymmddHH', 'mmddHH', 'ddHH', 'HH', 'yyyymmdd', 'yymmdd', 'mmdd', 'dd'],
         group2: ['yyyymm', 'yymm', 'mm', 'yyyy', 'yy'],
     },
     2: {
@@ -103,19 +93,7 @@ const calenderFormat = {
         group2: ['yyyymm', 'yymm', 'mm', 'yyyy', 'yy'],
     },
     3: {
-        group1: [
-            'ffffh',
-            'ffffq',
-            'ffh',
-            'ffq',
-            'ffff',
-            'ff',
-            'h',
-            'q',
-            'ffffmm',
-            'ffmm',
-            'ww',
-        ],
+        group1: ['ffffh', 'ffffq', 'ffh', 'ffq', 'ffff', 'ff', 'h', 'q', 'ffffmm', 'ffmm', 'ww'],
     },
     4: {
         group1: [
@@ -173,19 +151,14 @@ $(() => {
         colorAsDropdown: true,
         hasDiv: true,
         showFilter: true,
+        isSelectColorBySelect2: true,
     });
     endProcItem(() => {
         onChangeDivInFacet();
     });
 
     // add first condition process
-    const condProcItem = addCondProc(
-        endProcs.ids,
-        endProcs.names,
-        '',
-        formElements.formID,
-        'btn-add-cond-proc',
-    );
+    const condProcItem = addCondProc(endProcs.ids, endProcs.names, '', formElements.formID, 'btn-add-cond-proc');
     condProcItem();
 
     // click even of condition proc add button
@@ -199,7 +172,8 @@ $(() => {
             onChangeDivInFacet();
         });
         // checkAndHideStratifiedVar();
-        addAttributeToElement();
+        const newEndProcElem = $('[id^=end-proc-process-div-]').children().last();
+        addAttributeToElement(newEndProcElem);
     });
 
     formElements.divideOption.trigger('change');
@@ -299,16 +273,12 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
         const compareType = formData.get('compareType');
         if (compareType === divideOptions.cyclicCalender) {
             if (!formData.get(CYCLIC_TERM.DIV_OFFSET)) {
-                const offsetH =
-                    Number(divOffset.split(':')[0]) +
-                    Number(divOffset.split(':')[1]) / 60;
+                const offsetH = Number(divOffset.split(':')[0]) + Number(divOffset.split(':')[1]) / 60;
                 formData.set(CYCLIC_TERM.DIV_OFFSET, offsetH.toString());
             }
 
             // convert divFromTo from local to UTC
-            const divDates = divFromTo.map((date) =>
-                toUTCDateTime(date, null, true),
-            );
+            const divDates = divFromTo.map((date) => toUTCDateTime(date, null, true));
 
             formData.set('divDates', JSON.stringify(divDates));
             formData.set('divFormats', JSON.stringify(divFormats));
@@ -340,9 +310,7 @@ const transformColorsParams = (formData) => {
         .forEach((ele) => {
             const targetID = $(ele).data('target-var-id');
             const colorVal = $(ele).val();
-            const isObjectiveVar = $(
-                `input[name^=GET02_VALS_SELECT][value=${targetID}]`,
-            ).prop('checked');
+            const isObjectiveVar = $(`input[name^=GET02_VALS_SELECT][value=${targetID}]`).prop('checked');
             if (colorVal && colorVal !== '' && isObjectiveVar) {
                 colorVars[targetID] = colorVal;
             }
@@ -364,52 +332,39 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         return;
     }
 
-    showGraphCallApi(
-        '/ap/api/agp/plot',
-        formData,
-        REQUEST_TIMEOUT,
-        async (res) => {
-            afterShowAGP();
+    showGraphCallApi('/ap/api/agp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+        afterShowAGP();
 
-            // sort graphs
-            if (latestSortColIds && latestSortColIds.length) {
-                res.ARRAY_FORMVAL = sortGraphs(
-                    res.ARRAY_FORMVAL,
-                    'GET02_VALS_SELECT',
-                    latestSortColIds,
-                );
-                res.array_plotdata = sortGraphs(
-                    res.array_plotdata,
-                    'end_col_id',
-                    latestSortColIds,
-                );
-            }
+        // sort graphs
+        if (latestSortColIds && latestSortColIds.length) {
+            res.ARRAY_FORMVAL = sortGraphs(res.ARRAY_FORMVAL, 'GET02_VALS_SELECT', latestSortColIds);
+            res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
+        }
 
-            currentData = res;
-            graphStore.setTraceData(_.cloneDeep(res));
+        currentData = res;
+        graphStore.setTraceData(_.cloneDeep(res));
 
-            const scaleOption = getScaleOption();
+        const scaleOption = getScaleOption();
 
-            useDivsArray = [...divArrays];
-            useDivFromTo = [...divFromTo];
+        useDivsArray = [...divArrays];
+        useDivFromTo = [...divFromTo];
 
-            drawAGP(res, scaleOption, yAxisDisplayMode, clearOnFlyFilter);
+        drawAGP(res, scaleOption, yAxisDisplayMode, true);
 
-            // show info table
-            showInfoTable(res);
+        // show info table
+        showInfoTable(res);
 
-            if (!autoUpdate) {
-                $('html, body').animate(
-                    {
-                        scrollTop: getOffsetTopDisplayGraph('#scaleOption'),
-                    },
-                    500,
-                );
-            }
+        if (!autoUpdate) {
+            $('html, body').animate(
+                {
+                    scrollTop: getOffsetTopDisplayGraph('#scaleOption'),
+                },
+                500,
+            );
+        }
 
-            setPollingData(formData, longPollingHandler, []);
-        },
-    );
+        setPollingData(formData, longPollingHandler, []);
+    });
 };
 
 const longPollingHandler = () => {
@@ -417,25 +372,14 @@ const longPollingHandler = () => {
     queryDataAndShowAGP(false, true);
 };
 
-const drawAGP = (
-    orgData,
-    scale = scaleOption,
-    showPercent = yAxisDisplayMode,
-    clearOnFlyFilter = false,
-) => {
+const drawAGP = (orgData, scale = scaleOption, showPercent = yAxisDisplayMode, reCalculateYAxisSum = false) => {
     const data = _.cloneDeep(orgData); // if slow, change
     if (!data) {
         return;
     }
 
     // orgData.array_plotdata = array_plotdata;
-    renderAgPAllChart(
-        orgData.array_plotdata,
-        orgData.COMMON.compareType,
-        scale,
-        showPercent,
-        clearOnFlyFilter,
-    );
+    renderAgPAllChart(orgData.array_plotdata, orgData.COMMON.compareType, scale, showPercent, reCalculateYAxisSum);
 
     // implement order
     $(formElements.agpCard).sortable({});
@@ -454,15 +398,9 @@ const drawAGP = (
 };
 
 const yScaleOptionHandle = (aggFunct) => {
-    const isShowOptions = [
-        Y_SCALE_METHODS.AGG_FUNCT.MEAN,
-        Y_SCALE_METHODS.AGG_FUNCT.MEDIAN,
-    ].includes(aggFunct);
+    const isShowOptions = [Y_SCALE_METHODS.AGG_FUNCT.MEAN, Y_SCALE_METHODS.AGG_FUNCT.MEDIAN].includes(aggFunct);
 
-    [
-        Y_SCALE_METHODS.OPTIONS.GRAPH_CFG,
-        Y_SCALE_METHODS.OPTIONS.THRESHOLD_CFG,
-    ].forEach((option) => {
+    [Y_SCALE_METHODS.OPTIONS.GRAPH_CFG, Y_SCALE_METHODS.OPTIONS.THRESHOLD_CFG].forEach((option) => {
         const scale = formElements.scaleOption.find(`option[value=${option}]`);
         if (isShowOptions) {
             scale.show();
@@ -478,11 +416,7 @@ const dumpData = (exportType, dataSrc) => {
     if (exportType === EXPORT_TYPE.TSV_CLIPBOARD) {
         tsvClipBoard(AGP_EXPORT_URL.TSV.url, formData);
     } else {
-        exportData(
-            AGP_EXPORT_URL[exportType].url,
-            AGP_EXPORT_URL[exportType].ext_name,
-            formData,
-        );
+        exportData(AGP_EXPORT_URL[exportType].url, AGP_EXPORT_URL[exportType].ext_name, formData);
     }
 };
 
@@ -555,13 +489,8 @@ const onChangeDivideFormat = (e) => {
     changeFormatAndExample(e);
 };
 
-const renderAgPChartLayout = (
-    chartOption,
-    chartHeight = '40vh',
-    isCTCol = false,
-) => {
-    const { processName, columnName, facetLevel1, facetLevel2, chartId } =
-        chartOption;
+const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false) => {
+    const { processName, columnName, facetLevel1, facetLevel2, chartId } = chartOption;
     let facet = [facetLevel1, facetLevel2].filter((f) => checkTrue(f));
     const levelTitle = facet.map((el, i) => `${el}`).join(' | ');
     const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
@@ -597,7 +526,7 @@ const renderAgPAllChart = (
     compareType = '',
     scaleOption,
     yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT,
-    clearOnFlyFilter = false,
+    reCalculateYAxisSum = false,
 ) => {
     if (!plots) return;
     $(formElements.agpCard).empty();
@@ -610,8 +539,7 @@ const renderAgPAllChart = (
     }
 
     const isCyclicCalender = compareType === divideOptions.cyclicCalender;
-
-    if (clearOnFlyFilter) {
+    if (reCalculateYAxisSum) {
         countByXAxis = {};
         countByFacet = {};
     }
@@ -629,20 +557,12 @@ const renderAgPAllChart = (
             facetLevel2,
             chartId: canvasId,
             scale: {
-                ymax: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]][
-                    'y-max'
-                ],
-                ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]][
-                    'y-min'
-                ],
+                ymax: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]]['y-max'],
+                ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]]['y-min'],
             },
         };
         const isCTCol = isCycleTimeCol(end_proc_id, end_col_id);
-        const chartHtml = renderAgPChartLayout(
-            chartOption,
-            chartHeight,
-            isCTCol,
-        );
+        const chartHtml = renderAgPChartLayout(chartOption, chartHeight, isCTCol);
         const facetKey = `${facetLevel1 || ''}${facetLevel2 || ''}`;
 
         $(formElements.agpCard).append(chartHtml);
@@ -677,19 +597,12 @@ const renderAgPAllChart = (
 
         if (compareType === divideOptions.cyclicTerm) {
             div = currentData.COMMON.cyclic_terms;
-            div = div.map((term) =>
-                term.map((t) => formatDateTime(t)).join(' -<br>'),
-            );
+            div = div.map((term) => term.map((t) => formatDateTime(t)).join(' -<br>'));
         }
 
         if (compareType === divideOptions.directTerm) {
-            div = currentData.time_conds.map((term) => [
-                term['start_dt'],
-                term['end_dt'],
-            ]);
-            div = div.map((term) =>
-                term.map((t) => formatDateTime(t)).join(' -<br>'),
-            );
+            div = currentData.time_conds.map((term) => [term['start_dt'], term['end_dt']]);
+            div = div.map((term) => term.map((t) => formatDateTime(t)).join(' -<br>'));
         }
 
         // reduce full div range
@@ -706,11 +619,7 @@ const renderAgPAllChart = (
                 colId: end_col_id,
             };
             let { x, y } = trace;
-            if (
-                [divideOptions.directTerm, divideOptions.cyclicTerm].includes(
-                    compareType,
-                )
-            ) {
+            if ([divideOptions.directTerm, divideOptions.cyclicTerm].includes(compareType)) {
                 x = x.map((term) =>
                     term
                         .split(' | ')
@@ -722,7 +631,7 @@ const renderAgPAllChart = (
             const newY = [];
             for (let i = 0; i < div.length; i += 1) {
                 const currDiv = div[i];
-                const indexOfCurrDiv = x.indexOf(currDiv);
+                const indexOfCurrDiv = x.map((i) => String(i)).indexOf(String(currDiv));
                 newX.push(currDiv);
                 if (indexOfCurrDiv !== -1) {
                     newY.push(y[indexOfCurrDiv]);
@@ -733,19 +642,16 @@ const renderAgPAllChart = (
             trace.x = [...newX];
             trace.y = [...newY];
 
-            if (clearOnFlyFilter) {
+            // for now, this sum is calculated only when API is called
+            if (reCalculateYAxisSum) {
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
-                    const indexOfCurrDiv = trace.x.indexOf(currDiv);
-                    sumCountByXAxis(
-                        currDiv,
-                        trace.y[indexOfCurrDiv],
-                        end_col_id,
-                    );
+                    const indexOfCurrDiv = trace.x.indexOf(String(currDiv));
+                    sumCountByXAxis(currDiv, trace.y[indexOfCurrDiv], end_col_id);
                 }
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
-                    const indexOfCurrDiv = trace.x.indexOf(currDiv);
+                    const indexOfCurrDiv = trace.x.indexOf(String(currDiv));
                     sumCountByFacet(facetKey, currDiv, trace.y[indexOfCurrDiv]);
                 }
             }
@@ -754,17 +660,9 @@ const renderAgPAllChart = (
             return trace;
         });
 
-        if (
-            [
-                AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL,
-                AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET,
-            ].includes(yAxisDisplayMode)
-        ) {
+        if ([AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode)) {
             data = data.map((trace) => {
-                if (
-                    trace.type.toLowerCase() === 'bar' &&
-                    yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL
-                ) {
+                if (trace.type.toLowerCase() === 'bar' && yAxisDisplayMode === AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL) {
                     return toTotalYAxisPercent(countByXAxis, trace);
                 } else if (
                     trace.type.toLowerCase() === 'bar' &&
@@ -777,11 +675,8 @@ const renderAgPAllChart = (
         }
         // linechart for real, datetime, int. bar chart for others including int(Cat)
         const isNumeric =
-            [
-                DataTypes.REAL.name,
-                DataTypes.DATETIME.name,
-                DataTypes.INTEGER.name,
-            ].includes(plotData.data_type) && !plotData.is_category;
+            [DataTypes.REAL.name, DataTypes.DATETIME.name, DataTypes.INTEGER.name].includes(plotData.data_type) &&
+            !plotData.is_category;
 
         let barChartScale = null;
         // get scale common for bar chart if scale is common
@@ -790,9 +685,7 @@ const renderAgPAllChart = (
             barChartScale = getScaleInfo(plotData, scaleOption);
         }
 
-        const yScale = isNumeric
-            ? getScaleInfo(plotData, scaleOption)
-            : barChartScale;
+        const yScale = isNumeric ? getScaleInfo(plotData, scaleOption) : barChartScale;
         drawAgPPlot(
             data,
             plotData,
@@ -850,9 +743,7 @@ const setYAxisOption = () => {
     const isFacet = isSetFacet();
 
     if (isFacet) {
-        formElements.yAxisPercentOrCount
-            .find('option[value=yAxisFacet]')
-            .show();
+        formElements.yAxisPercentOrCount.find('option[value=yAxisFacet]').show();
         return;
     }
     formElements.yAxisPercentOrCount.find('option[value=yAxisFacet]').hide();

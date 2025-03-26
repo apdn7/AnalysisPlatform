@@ -31,8 +31,7 @@ def validate_csv_data(df: DataFrame):
     data_cols = cols[1:]
 
     # fill na
-    df.dropna(how='all', inplace=True)
-    df.fillna(0, inplace=True)
+    df = df.dropna(how='all').fillna(0)
 
     # convert time
     try:
@@ -65,7 +64,7 @@ def validate_csv_data(df: DataFrame):
             return Exception('There are some values < 0 in data columns')
 
     # check not integer ( float )
-    if df.select_dtypes(include=['integer']).columns.size < len(data_cols):
+    if df.select_dtypes(include=['int32', 'int64']).columns.size < len(data_cols):
         return Exception('There are some float values in data columns')
 
     return True
@@ -80,7 +79,9 @@ def calc_csv_graph_data(df: DataFrame, aggregate_by: AggregateBy, pareto=None):
     date_time_col = cols[0]
     data_cols = cols[1:]
 
-    df.set_index(date_time_col, inplace=True)
+    # fix could not group_by failed without datetimeindex since upgrade to pd2.2
+    df[date_time_col] = pd.to_datetime(df[date_time_col])
+    df = df.set_index(date_time_col)
 
     freq = 'H' if aggregate_by is AggregateBy.HOUR else 'D'
 
@@ -155,18 +156,18 @@ def filter_edge_by_threshold(edges, threshold=100):
     send_ga=True,
 )
 def calc_pareto(df: pd.DataFrame):
-    drop_col = df.columns.values[0]
+    drop_col = df.columns.to_numpy()[0]
 
     # ----- summarize -----
     # sort with descending order and take cumsum for pareto chart
     total_occurrences = df.drop(drop_col, axis='columns').sum(axis='index').sort_values(ascending=False)
     cum_occurrences_ratio = total_occurrences.cumsum() / total_occurrences.sum()
-    alarm_names = total_occurrences.index.values
+    alarm_names = total_occurrences.index.to_numpy()
     logger.info(
         f'''\
 alarm names: {alarm_names[:5]} ...
-total number of alarms: {total_occurrences.values[:5]} ...
-cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.values[:5]} ...
+total number of alarms: {total_occurrences.to_numpy()[:5]} ...
+cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.to_numpy()[:5]} ...
 ''',
     )
 
@@ -190,13 +191,13 @@ cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.values[:5]} ...
             'name': _('Total Occurrences'),
             'orientation': 'h',
             'marker_color': bar_colors,
-            'text': total_occurrences.values,
+            'text': total_occurrences.to_numpy(),
             'highlight_bars': highlight_bars,
         },
         'line_cum_ratio': {
             'x': cum_occurrences_ratio * total_occurrences.max(),
             'name': _('Cumulative Ratio [%]'),
-            'text': cum_occurrences_ratio.values * 100,
+            'text': cum_occurrences_ratio.to_numpy() * 100,
             'mode': 'lines+markers',
         },
         'line_80_percent': {

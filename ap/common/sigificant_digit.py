@@ -1,8 +1,13 @@
+import logging
+import math
+
 import numpy as np
 import pandas as pd
-from pandas import Series
 
+from ap import log_execution_time
 from ap.common.constants import ColorOrder
+
+logger = logging.getLogger(__name__)
 
 
 def signify_digit_pca(x, sig_dig=4):
@@ -15,7 +20,7 @@ def signify_digit_pca(x, sig_dig=4):
     try:
         if not x or isinstance(x, (int, np.integer)):  # None -> None, 0 -> 0
             return x
-        if np.isnan(x):  # NaN -> None
+        if pd.isna(x):  # NaN -> None
             return None
 
         fmt = '{:' + signify_digit_fmt(x, sig_dig) + '}'
@@ -34,7 +39,9 @@ def signify_digit_fmt(x, sig_dig=4):
         sig_dig = 6
 
     digit = np.floor(np.log10(abs(x))).astype(int)
-    if isinstance(x, int) or isinstance(x, float) and x.is_integer():
+    if isinstance(x, (int, np.integer)) or (
+        isinstance(x, (float, np.float16, np.float32, np.float64)) and x.is_integer()
+    ):
         fmt = ',d'
     elif digit < -3 or digit > 6:
         fmt = '.' + str(sig_dig - 1) + 'e'
@@ -45,24 +52,28 @@ def signify_digit_fmt(x, sig_dig=4):
     return fmt
 
 
+@log_execution_time()
 def get_fmt_from_array(arr, sig_dit=4):
-    if isinstance(arr, Series):
-        arr = arr.to_list()
+    if not isinstance(arr, pd.Series):
+        arr = pd.Series(arr)
+
     if len(arr) == 0:
         return ''
-    if isinstance(arr[0], str):
+
+    if not pd.api.types.is_numeric_dtype(arr):
         return ''
 
-    with pd.option_context('mode.use_inf_as_na', True):
-        arr = pd.Series(arr).dropna().sort_values().to_list()
-
+    arr = arr.replace([np.inf, -np.inf], np.nan).dropna().sort_values()
     if len(arr) == 0:
         return ''
 
     length = len(arr)
-    trim_number = int(np.floor(length * 0.05))
-    max_number_arr = arr[trim_number : length - trim_number]
-    max_number = max(max_number_arr) if max_number_arr else max(arr)
+
+    lower_bound = math.floor(length * 0.05)
+    upper_bound = length - lower_bound
+
+    max_number_arr = arr.iloc[lower_bound:upper_bound]
+    max_number = max_number_arr.max() if len(max_number_arr) else arr.max()
 
     return signify_digit_fmt(max_number, sig_dit)
 
@@ -90,10 +101,10 @@ def signify_digit(n, sig_digit=4):
     return signify_digit_pca(n, sig_digit)
 
 
-def get_fmt_from_color_setting(color_vals, color_setting):
+def get_fmt_from_color_setting(color_vals: pd.Series, color_setting):
     scp_scatter_max_tick_vals = 5
-    color_max = max(color_vals)
-    color_min = min(color_vals)
+    color_max = color_vals.max()
+    color_min = color_vals.min()
     fmt = get_fmt_from_array(color_vals)
     if 'e' not in fmt:
         if color_setting is ColorOrder.TIME:

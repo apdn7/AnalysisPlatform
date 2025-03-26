@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from typing import List, Optional, Set, Union
@@ -7,6 +9,7 @@ import sqlalchemy as sa
 from pandas import DataFrame
 from sqlalchemy.orm import scoped_session
 
+from ap import log_execution_time
 from ap.api.common.services.show_graph_database import DictToClass
 from ap.common.common_utils import (
     DATE_FORMAT_SQLITE_STR,
@@ -62,10 +65,15 @@ class TransactionData:
     duplicate_serial_number: int = None
     df: DataFrame = None
 
-    def __init__(self, process_id: int, meta_session: scoped_session = None):
-        self.cfg_process: CfgProcess = (meta_session.query(CfgProcess) if meta_session else CfgProcess.query).get(
-            process_id,
-        )
+    def __init__(self, process: Union[int, CfgProcess], meta_session: scoped_session = None):
+        if isinstance(process, CfgProcess):
+            process_id = process.id
+            self.cfg_process = process
+        else:
+            process_id = process
+            self.cfg_process: CfgProcess = (meta_session.query(CfgProcess) if meta_session else CfgProcess.query).get(
+                process_id,
+            )
         if not self.cfg_process:
             raise Exception('Not exist process id')
 
@@ -74,9 +82,7 @@ class TransactionData:
         self.data_count_table_name = self.cfg_process.data_count_table_name
         self.import_history_table_name = self.cfg_process.import_history_table_name
 
-        self.cfg_process_columns = [
-            col for col in self.cfg_process.columns if col.column_type != DataColumnType.GENERATED_EQUATION.value
-        ]
+        self.cfg_process_columns = self.cfg_process.get_transaction_process_columns()
         self.serial_columns = []
 
         for cfg_process_column in self.cfg_process_columns:
@@ -96,9 +102,13 @@ class TransactionData:
                 self.main_time_column = cfg_process_column
                 continue
 
-    def get_new_columns(self, db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer]) -> List[CfgProcessColumn]:
-        sql = f'SELECT * FROM {self.table_name} WHERE 1=2;'
-        exist_columns, _ = db_instance.run_sql(sql)
+    def get_new_columns(
+        self,
+        db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer],
+        table_name: Optional[str] = None,
+    ) -> List[CfgProcessColumn]:
+        table_name = table_name or self.table_name
+        exist_columns = self.get_table_columns(db_instance, table_name)
         new_columns = []
         for cfg_process_column in self.cfg_process_columns:
             if cfg_process_column.bridge_column_name not in exist_columns:
@@ -111,6 +121,7 @@ class TransactionData:
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
         return rows[0][0] or 0
 
+    @log_execution_time()
     def get_column_dtype(self, db_instance: Union[PostgreSQL, SQLite3], columns):
         columns_type = []
         for col in columns:
@@ -126,31 +137,34 @@ class TransactionData:
                 col_dtypes[col.bridge_column_name] = ColumnDTypeToSQLiteDType[col.data_type].value
         return col_dtypes
 
+    @log_execution_time()
     def get_data_for_check_duplicate(self, db_instance: Union[PostgreSQL, SQLite3], start_dt, end_dt):
         date_col = self.getdate_column.bridge_column_name
         sql = f'SELECT * FROM {self.table_name} WHERE {date_col} BETWEEN {SQL_PARAM_SYMBOL} AND {SQL_PARAM_SYMBOL}'
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=[start_dt, end_dt])
         return cols, rows
 
-    def create_table(self, db_instance):
+    def create_table(self, db_instance, table_name: Optional[str] = None, auto_commit: bool = True):
         dict_col_with_type = {column.bridge_column_name: column.data_type for column in self.cfg_process_columns}
-        table_name = self.table_name
+        table_name = table_name or self.table_name
         if table_name in db_instance.list_tables():
-            new_columns = self.get_new_columns(db_instance)
+            new_columns = self.get_new_columns(db_instance, table_name=table_name)
             if new_columns:
                 dict_new_col_with_type = {column.bridge_column_name: column.data_type for column in new_columns}
-                self.add_columns(db_instance, dict_new_col_with_type)
+                self.add_columns(db_instance, self.table_name, dict_new_col_with_type, auto_commit=auto_commit)
             # TODO: update data type error
-            self.update_data_types(db_instance, dict_col_with_type)
+            self.update_data_types(db_instance, dict_col_with_type, auto_commit=auto_commit)
             return table_name
 
         # self.__create_sequence_table(db_instance)
-        sql = f'CREATE TABLE IF NOT EXISTS {self.table_name}'
+        sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
         sql_col = ''
         for col_name, _data_type in dict_col_with_type.items():
             data_type = (
                 DataType.TEXT.name
                 if _data_type in [DataType.DATETIME.name, DataType.DATE.name, DataType.TIME.name]
+                else DataType.INTEGER.name
+                if _data_type == DataType.CATEGORY.name
                 else _data_type
             )
             sql_col += f'{col_name} {data_type}, '
@@ -161,12 +175,12 @@ class TransactionData:
             sql_col = 'created_at datetime'
 
         sql = f'{sql} ({sql_col})'
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         # create data count table
-        self.create_data_count_table(db_instance)
+        self.create_data_count_table(db_instance, auto_commit=auto_commit)
         # create import history table
-        self.create_import_history_table(db_instance)
+        self.create_import_history_table(db_instance, auto_commit=auto_commit)
 
         return table_name
 
@@ -254,10 +268,10 @@ class TransactionData:
             DataType.EU_REAL_SEP.name: 'float',
             DataType.EU_INTEGER_SEP.name: 'int',
             DataType.K_SEP_NULL.name: 'float',
-            # DataType.BIG_INT.name: '',
             DataType.BOOLEAN.name: 'boolean',
             DataType.DATE.name: 'string',
             DataType.TIME.name: 'string',
+            DataType.CATEGORY.name: 'int',
         }
         distinct_values = transaction_data_obj.select_distinct_data(db_instance, column_name, SQL_LIMIT)
         series_distinct_value = pd.Series(distinct_values)
@@ -270,7 +284,7 @@ class TransactionData:
 
         return True
 
-    def create_data_count_table(self, db_instance):
+    def create_data_count_table(self, db_instance, auto_commit: bool = True):
         dict_col_with_type = DataCountTable.to_dict()
         table_name = self.data_count_table_name
         if table_name in db_instance.list_tables():
@@ -282,15 +296,15 @@ class TransactionData:
             sql_col += f'{col_name} {data_type}, '
         sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
         sql = f'{sql} ({sql_col})'
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         # index
         col_name = DataCountTable.get_date_col()
-        sql = f'CREATE INDEX IF NOT EXISTS idx_{col_name} ON {self.data_count_table_name}({col_name})'
-        db_instance.execute_sql(sql)
+        sql = f'CREATE INDEX IF NOT EXISTS idx_{col_name} ON {table_name}({col_name})'
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
         return table_name
 
-    def create_import_history_table(self, db_instance):
+    def create_import_history_table(self, db_instance, auto_commit: bool = True):
         dict_col_with_type = ImportHistoryTable.to_dict()
         table_name = self.import_history_table_name
         if table_name in db_instance.list_tables():
@@ -302,13 +316,13 @@ class TransactionData:
             sql_col += f'{col_name} {data_type}, '
         sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
         sql = f'{sql} ({sql_col})'
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         # index
         (index_name, index_cols) = ImportHistoryTable.get_indexes()
         index_cols = ','.join(index_cols)
-        sql = f'CREATE INDEX IF NOT EXISTS {index_name} ON {self.import_history_table_name}({index_cols})'
-        db_instance.execute_sql(sql)
+        sql = f'CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}({index_cols})'
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         return table_name
 
@@ -321,11 +335,16 @@ class TransactionData:
         '''
         db_instance.execute_sql(sql)
 
-    def delete_sequence_table(self, db_instance):
+    def delete_sequence_table(self, db_instance, table_name: str | None = None, auto_commit: bool = True):
+        table_name = table_name or self.table_name
         # sql = f'DROP SEQUENCE {self.table_name}_id_seq CASCADE;'
-        sql = f'DROP TABLE IF EXISTS {self.table_name};'
-        db_instance.execute_sql(sql)
-        db_instance.connection.commit()
+        sql = f'DROP TABLE IF EXISTS {table_name};'
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
+
+    @staticmethod
+    def rename_sequence_table(db_instance, old_table_name: str, new_table_name: str, auto_commit: bool = True):
+        sql = f'ALTER TABLE {old_table_name} RENAME TO {new_table_name};'
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def rename_column(self, df: DataFrame):
         df_columns = list(df.columns)
@@ -386,7 +405,7 @@ class TransactionData:
         """
         return index.to_idx(prefix=self.table_name)
 
-    def create_index(self, db_instance, new_link_key_indexes: Set[MultipleIndexes]):
+    def create_index(self, db_instance, new_link_key_indexes: Set[MultipleIndexes], auto_commit: bool = True):
         """
         create composite indexes
         """
@@ -395,7 +414,7 @@ class TransactionData:
         for multiple_indexes in missing_indexes:
             index_alias = self.__gen_index_col_name(multiple_indexes)
             sql = f'CREATE INDEX IF NOT EXISTS {index_alias} ON {self.table_name} {multiple_indexes}'
-            db_instance.execute_sql(sql)
+            db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         return missing_indexes
 
@@ -422,18 +441,32 @@ class TransactionData:
 
         return expired_indexes
 
-    def purge_index(self, db_instance):
+    def purge_index(self, db_instance, auto_commit: bool = True):
         """force remove all indexes (use for delete column)"""
         # retrieve unused indexes
         multiple_indexes = self.__get_link_key_indexes()
         # remove unused indexes
         try:
             for multiple_indexes in multiple_indexes:
-                sql = f'DROP INDEX IF EXISTS {self.__gen_index_col_name(multiple_indexes)};'
-                db_instance.execute_sql(sql)
+                self.drop_index(db_instance, self.__gen_index_col_name(multiple_indexes), auto_commit=auto_commit)
         except Exception as e:
             db_instance.connection.rollback()
             raise e
+
+    @staticmethod
+    def drop_index(db_instance, index: str, auto_commit: bool = True):
+        sql = f'DROP INDEX IF EXISTS {index};'
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
+
+    def get_indexes_by_column_name(self, db_instance, column_name: str):
+        sql = f'''SELECT name
+FROM sqlite_master
+WHERE type = 'index'
+  and tbl_name = '{self.table_name}'
+  and sql like '%{column_name}%';
+'''
+        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
+        return [row[0] for row in rows] if rows else []
 
     def __get_link_key_indexes(self) -> Set[MultipleIndexes]:
         """
@@ -513,13 +546,22 @@ class TransactionData:
             # create (composite) indexes
             self.create_index(db_instance, new_link_key_indexes=new_link_key_indexes)
 
-    def add_columns(self, db_instance, dict_new_col_with_type: dict):
-        table = self.table_name
-        for column_name, data_type in dict_new_col_with_type.items():
-            sql = f'ALTER TABLE {table} ADD COLUMN {column_name} {data_type};'
-            db_instance.execute_sql(sql)
+    @staticmethod
+    def get_table_columns(db_instance, table_name: str):
+        sql = f'SELECT * FROM {table_name} WHERE 1=2;'
+        exist_columns, _ = db_instance.run_sql(sql)
+        return exist_columns
 
-        db_instance.connection.commit()
+    @staticmethod
+    def add_columns(db_instance, table_name: str, dict_col_with_type: dict[str, str], auto_commit: bool = True):
+        exist_columns = TransactionData.get_table_columns(db_instance, table_name)
+        for column_name in dict_col_with_type.keys():
+            if column_name in exist_columns:
+                continue
+
+            data_type = dict_col_with_type[column_name]
+            data_type = DataType.correct_data_type(data_type)
+            TransactionData.add_column(db_instance, table_name, column_name, data_type, auto_commit=auto_commit)
 
     def get_column_name(self, column_id, brs_column_name=True):
         for cfg_process_column in self.cfg_process_columns:
@@ -559,16 +601,19 @@ class TransactionData:
                 return cfg_process_column
         return None
 
-    def delete_columns(self, db_instance, column_names: List):
+    def delete_columns(self, db_instance, column_names: List, auto_commit: bool = True):
         table = self.table_name
-        sql = f'ALTER TABLE {table} '
-        for column_name in column_names:
-            sql += f'DROP COLUMN {column_name}, '
+        exist_columns = self.get_table_columns(db_instance, table)
+        delete_columns = [column_name for column_name in column_names if column_name in exist_columns]
+        if not delete_columns:
+            return
 
-        sql = sql.rstrip(', ')
-        db_instance.execute_sql(sql)
+        # In SQLite, we cannot drop multi columns in one query statement
+        sql = f'ALTER TABLE {table} DROP COLUMN {{}}'
+        for column_name in delete_columns:
+            db_instance.execute_sql(sql.format(column_name), auto_commit=auto_commit)
 
-    def update_data_types(self, db_instance, dict_col_with_type):
+    def update_data_types(self, db_instance, dict_col_with_type, auto_commit: bool = True):
         current_dict_col_with_type = get_type_all_columns(db_instance, self.table_name)
         new_data_types = {}
         for column_name, data_type in dict_col_with_type.items():
@@ -577,38 +622,53 @@ class TransactionData:
             if (
                 column_name != self.getdate_column.bridge_column_name and new_data_type != current_data_type
             ):  # can not update for column get_date
+                new_data_type = DataType.correct_data_type(new_data_type)
                 new_data_types[column_name] = new_data_type
 
         if new_data_types:
-            self.purge_index(db_instance)
+            self.purge_index(db_instance, auto_commit=auto_commit)
             for column_name, new_data_type in new_data_types.items():
                 new_column_name = f"{column_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                self.add_column(db_instance, new_column_name, new_data_type)
-                self.update_and_cast_date_type(db_instance, column_name, new_column_name, new_data_type)
-                self.delete_columns(db_instance, [column_name])
+                self.add_column(db_instance, self.table_name, new_column_name, new_data_type, auto_commit=auto_commit)
+                self.update_and_cast_date_type(
+                    db_instance,
+                    column_name,
+                    new_column_name,
+                    new_data_type,
+                    auto_commit=auto_commit,
+                )
+                self.delete_columns(db_instance, [column_name], auto_commit=auto_commit)
                 # self.rename_column_name(
                 #     db_instance,
                 #     column_name,
                 #     f'{new_column_name}_1',
                 # )  # TODO: remove if update version sqlite
-                self.rename_column_name(db_instance, new_column_name, column_name)
+                self.rename_column_name(db_instance, new_column_name, column_name, auto_commit=auto_commit)
             self.create_index(db_instance, self.__get_link_key_indexes())
 
-    def add_column(self, db_instance, new_column_name, data_type):
+    @staticmethod
+    def add_column(db_instance, table_name: str, new_column_name: str, data_type: str, auto_commit: bool = True):
         sql = f'''
-        ALTER TABLE {self.table_name} ADD COLUMN {new_column_name} {data_type}
+        ALTER TABLE {table_name} ADD COLUMN {new_column_name} {data_type}
         '''
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
-    def update_and_cast_date_type(self, db_instance, old_column_name, new_column_name, new_data_type):
+    def update_and_cast_date_type(
+        self,
+        db_instance,
+        old_column_name,
+        new_column_name,
+        new_data_type,
+        auto_commit: bool = True,
+    ):
         sql = f'UPDATE {self.table_name} SET {new_column_name} = CAST({old_column_name} AS {new_data_type}) WHERE 1=1'
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
-    def rename_column_name(self, db_instance, old_column_name, new_column_name):
+    def rename_column_name(self, db_instance, old_column_name, new_column_name, auto_commit: bool = True):
         sql = f'''
         ALTER TABLE {self.table_name} RENAME COLUMN {old_column_name} TO {new_column_name};
         '''
-        db_instance.execute_sql(sql)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def delete_process(self, db_instance):
         table_name = self.table_name
@@ -780,17 +840,16 @@ class TransactionData:
 
         existed_columns_name = {
             self.id_col_name,
-            self.getdate_column,
+            self.getdate_column.bridge_column_name,
         }
 
         for column in self.cfg_process_columns:
             column_name = column.bridge_column_name
             if column_name in existed_columns_name:
                 continue
-
+            existed_columns_name.add(column_name)
             data_type = DataType[column.data_type]
-            sql_type = sa.Integer if data_type in [data_type.INTEGER, data_type.REAL] else sa.String
-            columns.append(sa.Column(column_name, sql_type))
+            columns.append(sa.Column(column_name, data_type.sqlalchemy_type()))
 
         return sa.Table(self.table_name, sa.MetaData(), *columns)
 
@@ -829,6 +888,14 @@ class TransactionData:
 
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
         return cols, rows
+
+    def get_all_data_by_chunk(self, db_instance: Union[PostgreSQL, SQLite3], chunk_size=1_000_000):
+        sql = f'SELECT * FROM {self.table_name}'
+        data = db_instance.fetch_many(sql, size=chunk_size)
+        if not data:
+            return None
+
+        yield from data
 
     def get_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time, limit=1_000_000):
         sql = f'''
@@ -925,6 +992,24 @@ class TransactionData:
         params = [import_type]
         _, data = db_instance.run_sql(sql, params=params)
         return data[0]['total']
+
+    def get_sample_data(self, db_instance: Union[SQLite3], columns: list, limit=5) -> pd.DataFrame:
+        """
+        get sample data for process link purpose
+        return df with column name are cfg_process_column's id
+        """
+        link_cols = '*'
+        if columns:
+            link_cols = ','.join([f'{col.bridge_column_name} as "{col.id}"' for col in columns])
+        sql = f'''
+            SELECT {link_cols}
+            FROM {self.table_name}
+            ORDER BY {self.getdate_column.bridge_column_name} DESC
+            LIMIT {limit};
+        '''
+        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
+        df = pd.DataFrame(rows, columns=cols, dtype='object')
+        return df
 
 
 class DataCountTable(BaseEnum):

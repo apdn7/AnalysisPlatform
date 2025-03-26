@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 
 {% block asset %}
-    <link
-        rel="stylesheet"
-        href="{{ url_for('table_viewer.static', filename = 'css/table_viewer.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('table_viewer.static', filename = 'css/table_viewer.css') }}" />
 
     <script>
         gtag('config', GA_TRACKING_ID, {
@@ -24,9 +21,7 @@
                 {{ macros.alert_message("alert-msg-info") }}
                 <div class="table-responsive-xl" style="overflow: hidden;">
                     <div class="form-group">
-                        <label for="procSelection"
-                            ><h5>{{ _('Process') }}</h5></label
-                        >
+                        <label for="procSelection"><h5>{{ _('Process') }}</h5></label>
                         <div style="display: flex;justify-content: left;">
                             <select
                                 class="form-control select2-selection--single col-md-5"
@@ -43,12 +38,7 @@
                                             {% set title_name = proc.shown_name ~ '(' ~ proc.data_source.type ~ "," ~ proc.table_name ~ ',' ~ (proc.data_source.db_detail.host or proc.data_source.db_detail.dbname) ~ ')' %}
                                         {% endif %}
 
-                                        <option
-                                            value="{{ proc.id }}"
-                                            title="{{ title_name }}"
-                                        >
-                                            {{ title_name }}
-                                        </option>
+                                        <option value="{{ proc.id }}" title="{{ title_name }}">{{ title_name }}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -63,9 +53,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="sortSelection"
-                            ><h5>{{ _('Sort') }}</h5></label
-                        >
+                        <label for="sortSelection"><h5>{{ _('Sort') }}</h5></label>
                         <div class="form-inline">
                             <select
                                 class="form-control select2-selection--single select-n-columns col-md-5"
@@ -75,9 +63,7 @@
                                 <option value="">---</option>
                             </select>
                             <div class="form-group col-sm-3">
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         id="btnRadioSortDesc"
@@ -86,15 +72,11 @@
                                         value="DESC"
                                         checked
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="btnRadioSortDesc"
+                                    <label class="custom-control-label" for="btnRadioSortDesc"
                                         >{{ _('Descending') }}</label
                                     >
                                 </div>
-                                <div
-                                    class="custom-control custom-radio custom-control-inline"
-                                >
+                                <div class="custom-control custom-radio custom-control-inline">
                                     <input
                                         type="radio"
                                         id="btnRadioSortAsc"
@@ -102,9 +84,7 @@
                                         value="ASC"
                                         class="custom-control-input"
                                     />
-                                    <label
-                                        class="custom-control-label"
-                                        for="btnRadioSortAsc"
+                                    <label class="custom-control-label" for="btnRadioSortAsc"
                                         >{{ _('Ascending') }}</label
                                     >
                                 </div>
@@ -112,27 +92,15 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="rowLimitSelection"
-                            ><h5>{{ _('Number of Data') }}</h5></label
-                        >
-                        <select
-                            class="form-control col-md-5"
-                            id="rowLimitSelection"
-                            name="rowLimitSelection"
-                        >
+                        <label for="rowLimitSelection"><h5>{{ _('Number of Data') }}</h5></label>
+                        <select class="form-control col-md-5" id="rowLimitSelection" name="rowLimitSelection">
                             <option value="100" selected>100</option>
                             <option value="500">500</option>
                             <option value="1000">1000</option>
                         </select>
                     </div>
                     <div class="col-md-12 text-center">
-                        <button
-                            type="button"
-                            id="btnViewData"
-                            class="btn btn-primary center"
-                        >
-                            {{ _('Show') }}
-                        </button>
+                        <button type="button" id="btnViewData" class="btn btn-primary center">{{ _('Show') }}</button>
                     </div>
                 </div>
             </form>
@@ -141,10 +109,7 @@
 
     <div class="card" id="tblViewerCard">
         <div class="card-body">
-            <table
-                id="tableViewData"
-                class="table table-bordered table-main table-hover-light"
-            >
+            <table id="tableViewData" class="table table-bordered table-main table-hover-light">
                 <thead>
                     <tr></tr>
                 </thead>

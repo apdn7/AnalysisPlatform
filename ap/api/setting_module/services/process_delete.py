@@ -47,7 +47,15 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
     # get ids incase sqlalchemy session is dead
     deleting_process_ids = [proc.id for proc in deleting_processes]
     # stop all jobs before deleting
-    target_jobs = [JobType.CSV_IMPORT, JobType.FACTORY_IMPORT, JobType.FACTORY_PAST_IMPORT]
+    target_jobs = [
+        JobType.CSV_IMPORT,
+        JobType.FACTORY_IMPORT,
+        JobType.FACTORY_PAST_IMPORT,
+        JobType.RESTRUCTURE_INDEXES,
+        JobType.USER_BACKUP_DATABASE,
+        JobType.USER_RESTORE_DATABASE,
+        JobType.UPDATE_TRANSACTION_TABLE,
+    ]
     for proc_id in deleting_process_ids:
         EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
 

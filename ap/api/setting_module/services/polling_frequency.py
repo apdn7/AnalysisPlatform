@@ -118,11 +118,11 @@ def add_import_job(
 
 
 @log_execution_time()
-def add_idle_mornitoring_job():
+def add_idle_monitoring_job():
     EventQueue.put(
         EventAddJob(
             fn=idle_monitoring,
-            job_type=JobType.IDLE_MORNITORING,
+            job_type=JobType.IDLE_MONITORING,
             replace_existing=True,
             trigger=IntervalTrigger(seconds=IDLE_MONITORING_INTERVAL, timezone=utc),
             executor='threadpool',
@@ -158,7 +158,7 @@ def idle_monitoring():
                 fn=factory_past_data_transform_job,
                 kwargs={'process_id': param.process_id},
                 job_type=JobType.FACTORY_PAST_IMPORT,
-                job_id_prefix=JobType.IDLE_MORNITORING.name,
+                job_id_prefix=JobType.IDLE_MONITORING.name,
                 data_source_id=param.data_source_id,
                 process_id=param.process_id,
                 process_name=param.process_name,

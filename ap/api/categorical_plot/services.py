@@ -2,6 +2,7 @@ import logging
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from datetime import datetime, timedelta
+from typing import Any
 
 import pandas as pd
 from dateutil import tz
@@ -74,7 +75,6 @@ from ap.common.constants import (
     IS_GRAPH_LIMITED,
     KDE_DATA,
     MATCHED_FILTER_IDS,
-    NA_STR,
     NOT_EXACT_MATCH_FILTER_IDS,
     REMOVED_OUTLIERS,
     SCALE_AUTO,
@@ -99,6 +99,7 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.pandas_helper import to_string_with_na_adjust
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -201,7 +202,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df
         not_exact_match_filter_ids,
     ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
 
     # convert proc to cols dic
     # transform raw data to graph data
@@ -528,7 +529,7 @@ def gen_kde_data_cate_var(dic_param, dic_array_full=None):
     array_plotdatas = dic_param.get(ARRAY_PLOTDATA)
     for end_col, array_plotdata in array_plotdatas.items():
         for num, plotdata in enumerate(array_plotdata):
-            full_array_y = dic_array_full[num] if dic_array_full else None
+            full_array_y = dic_array_full[num] if dic_array_full else pd.Series()
             kde_list = calculate_kde_trace_data(plotdata, full_array_y=full_array_y)
             (
                 plotdata[SCALE_SETTING][KDE_DATA],
@@ -642,41 +643,40 @@ def gen_plotdata_without_group_by(df, end_cols):
     dic_output = {}
     array_x = df[TIME_COL]
     for end_col in end_cols:
-        dic_cate = defaultdict(dict)
-        dic_output[end_col] = dic_cate
-        dic_cate[None] = {ARRAY_X: array_x, ARRAY_Y: df[end_col]}
+        dic_output[end_col] = {
+            to_string_with_na_adjust(None, accept_none=True): {ARRAY_X: array_x, ARRAY_Y: df[end_col]},
+        }
 
     return dic_output
 
 
-def gen_plotdata_with_group_by(df, end_cols, group_by_cols):
+def gen_plotdata_with_group_by(df, end_cols, group_by_cols) -> tuple[dict[Any, Any], list[str]]:
     dic_output = {}
     df_group = df.groupby(group_by_cols)
     limit_cols = end_cols
-    group_names = []
+    group_names: set[str] = set()
 
     for end_col in limit_cols:
         dic_cate = defaultdict(dict)
-        dic_output[end_col] = dic_cate
         for _group_name, idxs in df_group.groups.items():
-            group_name = _group_name
-            div_group = group_name
-            if isinstance(group_name, (list, tuple)):
-                group_name = ' | '.join([str(NA_STR if pd.isna(val) else val) for val in group_name])
-                div_group = div_group[-1]
+            if isinstance(_group_name, (list, tuple)):
+                group_name = ' | '.join(map(to_string_with_na_adjust, _group_name))
+                div_group = to_string_with_na_adjust(_group_name[-1])
+            else:
+                group_name = to_string_with_na_adjust(_group_name)
+                div_group = group_name
 
             rows = df.loc[idxs, end_col]
-            # if len(rows.dropna()) == 0:
-            #     continue
 
-            if div_group not in group_names:
-                group_names.append(div_group)
+            group_names.add(div_group)
             dic_cate[group_name] = {
                 ARRAY_X: df.loc[idxs, TIME_COL],
                 ARRAY_Y: rows,
             }
 
-    return dic_output, group_names
+        dic_output[end_col] = dic_cate
+
+    return dic_output, list(group_names)
 
 
 def gen_plotdata_for_var(dic_proc_cfgs, dic_data, cat_exp_box_cols):
@@ -846,7 +846,7 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
     dic_str_cols = dic_param.get(DIC_STR_COLS, {})
 
     export_df = df.copy()
-    convert_datetime_to_ct(df, graph_param)
+    df = convert_datetime_to_ct(df, graph_param)
     dic_ranks = gen_before_rank_dict(df, dic_str_cols)
     # check filter match or not ( for GUI show )
     (
@@ -866,11 +866,11 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
     # create output dataJOIN
     dic_param[ARRAY_PLOTDATA] = []
     end_procs = graph_param.array_formval
-    df.set_index(TIME_COL, inplace=True, drop=False)
+    df = df.set_index(TIME_COL, drop=False)
     all_plots = []
     is_graph_limited = False
     for term_id, term in enumerate(terms):
-        df_chunk = df[(df.index >= term['start_dt']) & (df.index < term['end_dt'])]
+        df_chunk = df[(df[TIME_COL] >= term[START_DT]) & (df[TIME_COL] < term[END_DT])]
         if not len(df_chunk):
             continue
 

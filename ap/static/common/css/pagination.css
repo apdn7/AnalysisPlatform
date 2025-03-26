@@ -1,7 +1,6 @@
 .paginationjs {
     line-height: 1.6;
-    font-family: Marmelad, 'Lucida Grande', Arial, 'Hiragino Sans GB', Georgia,
-        sans-serif;
+    font-family: Marmelad, 'Lucida Grande', Arial, 'Hiragino Sans GB', Georgia, sans-serif;
     font-size: 14px;
     box-sizing: initial;
 }
@@ -119,9 +118,7 @@
     vertical-align: middle \9;
 }
 
-.paginationjs.paginationjs-theme-blue
-    .paginationjs-go-input
-    > input[type='text'],
+.paginationjs.paginationjs-theme-blue .paginationjs-go-input > input[type='text'],
 .paginationjs.paginationjs-theme-blue .paginationjs-pages li {
     border-color: #289de9;
 }
@@ -170,9 +167,7 @@
     font-size: 12px;
 }
 
-.paginationjs.paginationjs-small
-    .paginationjs-go-button
-    > input[type='button'] {
+.paginationjs.paginationjs-small .paginationjs-go-button > input[type='button'] {
     min-width: 30px;
     height: 26px;
     line-height: 24px;
@@ -243,31 +238,22 @@
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-blue
-    .paginationjs-pages
-    li.disabled
-    > a:hover {
+.paginationjs.paginationjs-theme-blue .paginationjs-pages li.disabled > a:hover {
     background: 0 0;
 }
 
-.paginationjs.paginationjs-theme-blue
-    .paginationjs-go-button
-    > input[type='button'] {
+.paginationjs.paginationjs-theme-blue .paginationjs-go-button > input[type='button'] {
     background: #289de9;
     border-color: #289de9;
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-green
-    .paginationjs-go-input
-    > input[type='text'],
+.paginationjs.paginationjs-theme-green .paginationjs-go-input > input[type='text'],
 .paginationjs.paginationjs-theme-green .paginationjs-pages li {
     border-color: #449d44;
 }
 
-.paginationjs.paginationjs-theme-blue
-    .paginationjs-go-button
-    > input[type='button']:hover {
+.paginationjs.paginationjs-theme-blue .paginationjs-go-button > input[type='button']:hover {
     background-color: #3ca5ea;
 }
 
@@ -284,31 +270,22 @@
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-green
-    .paginationjs-pages
-    li.disabled
-    > a:hover {
+.paginationjs.paginationjs-theme-green .paginationjs-pages li.disabled > a:hover {
     background: 0 0;
 }
 
-.paginationjs.paginationjs-theme-green
-    .paginationjs-go-button
-    > input[type='button'] {
+.paginationjs.paginationjs-theme-green .paginationjs-go-button > input[type='button'] {
     background: #449d44;
     border-color: #449d44;
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-yellow
-    .paginationjs-go-input
-    > input[type='text'],
+.paginationjs.paginationjs-theme-yellow .paginationjs-go-input > input[type='text'],
 .paginationjs.paginationjs-theme-yellow .paginationjs-pages li {
     border-color: #ec971f;
 }
 
-.paginationjs.paginationjs-theme-green
-    .paginationjs-go-button
-    > input[type='button']:hover {
+.paginationjs.paginationjs-theme-green .paginationjs-go-button > input[type='button']:hover {
     background-color: #55a555;
 }
 
@@ -325,31 +302,22 @@
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-yellow
-    .paginationjs-pages
-    li.disabled
-    > a:hover {
+.paginationjs.paginationjs-theme-yellow .paginationjs-pages li.disabled > a:hover {
     background: 0 0;
 }
 
-.paginationjs.paginationjs-theme-yellow
-    .paginationjs-go-button
-    > input[type='button'] {
+.paginationjs.paginationjs-theme-yellow .paginationjs-go-button > input[type='button'] {
     background: #ec971f;
     border-color: #ec971f;
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-red
-    .paginationjs-go-input
-    > input[type='text'],
+.paginationjs.paginationjs-theme-red .paginationjs-go-input > input[type='text'],
 .paginationjs.paginationjs-theme-red .paginationjs-pages li {
     border-color: #c9302c;
 }
 
-.paginationjs.paginationjs-theme-yellow
-    .paginationjs-go-button
-    > input[type='button']:hover {
+.paginationjs.paginationjs-theme-yellow .paginationjs-go-button > input[type='button']:hover {
     background-color: #eea135;
 }
 
@@ -370,17 +338,13 @@
     background: 0 0;
 }
 
-.paginationjs.paginationjs-theme-red
-    .paginationjs-go-button
-    > input[type='button'] {
+.paginationjs.paginationjs-theme-red .paginationjs-go-button > input[type='button'] {
     background: #c9302c;
     border-color: #c9302c;
     color: #fff;
 }
 
-.paginationjs.paginationjs-theme-red
-    .paginationjs-go-button
-    > input[type='button']:hover {
+.paginationjs.paginationjs-theme-red .paginationjs-go-button > input[type='button']:hover {
     background-color: #ce4541;
 }
 
