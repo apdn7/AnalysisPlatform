@@ -1,5 +1,84 @@
 # Releases
 
+## v4.7.8
+
+New features
+
+- (Common)
+  - Added a search box on the sidebar.
+    - You can search pages with the three letter abbreviation (esample: FPP), English, or by configured language.  
+    - Shortcut to move cursor to the searchbox: `Ctrl + /`
+    - Also, you can press `Enter` to open the first page, `Ctrl + Enter` to open the first page in new tab.
+    <img src="https://github.com/user-attachments/assets/4ae32c46-a643-4ac9-b790-8a5304404fdc" alt="SerchboxOnSidebar" width="600">
+- (Config)
+  - Added backup/restore functionality
+    - You can save backup of configurations and transaction data  
+    <img src="https://github.com/user-attachments/assets/ef42d347-3a80-4cd3-a90a-addc84043250" alt="BackupRestore" width="600">
+  - Data Source Config: Added Python ETL capability.  
+    - For data that need customized preprocessing, you can use a Python script to perform ETL.
+    - This functionality is currently only available for CSV/TSV.
+    - Template file: `\ap\script\user_scripts\py\template.py`
+    - .py files placed on the `\ap\script\user_scripts\py` will be listed up.
+    <img src="https://github.com/user-attachments/assets/0a11bf8f-f002-41b2-87b4-45c953016d05" alt="PythonETL" width="600">
+  - Data Link Config: Now shows a preview for data link  
+    - <img src="https://github.com/user-attachments/assets/ac463d16-bbd9-4bfc-a24e-88391c508d24" alt="PreviewDataLink" width="600">
+  - Function: Added "main::Serial" checkbox.  
+    - Now we can use variables defined in Function in process settings for data link.
+
+Improvements
+
+- (Common)
+  - Updated some python packages (for example, pandas)
+  - Improved to redirect to the bookmarked page, after the terms of use is shown.
+  - Added "New Tab" to the context menu displayed by right-clicking on the "Open" button in Bookmark page
+  - Graph setting area: Improved performance of the rendering process for large number of variables
+  - Graph settin area: Now we can switch the width of the system name shown
+    - <img src="https://github.com/user-attachments/assets/a7eb6c95-7f4b-4cf9-a7e2-94b53ec9a3a9" alt="ChangeWidthOfSensorNames" width="600">  
+- (Config)
+  - Now confirmation modal is displayed when there are unsaved changes on each config page
+  - Data Source Config: Improved to show raw data for the preview
+  - Process Config: Improved detection of data types for serial columns
+  - Process Config: Datetime data with commas will be formatted to dots when previewing date and time data
+  - Process Config: Only detect units those in DN7, when extracting units inside [ ] of column names.
+  - Process Config: ncreased the number of data source names displayed in the data source dropdown from 10 to 30.
+  - Process Config: Apply both Japanese and local names for reserved column name for certain data types
+  - The config page can now be hidden only when accessed via an IP address
+    - Change `hide-setting-page` parameter in the configuration file (`.\AnalysisPlatform478_7770\ap\config\basic_config.yml`) to `true`
+- (PCP)
+  - Improved to enable cycle time analysis when selecting a date and time variable and jumping to PCP
+- (AgP)
+  - For data export: "Filtered data", now aggregated (calculated) data is exported.
+- (SkD/GrL)
+  - Added auto-update functionality
+- (Misc)
+  - External API: Added /fpp, /pcp, /skd, /rlp, /chm, /msp, and added parameters to the Register from File API
+  - Now AgP and RLP can jumped from all other pages
+  - Improved to allow the target datetime range to be properly pasted into the target datetime values  
+  for Divide by category, Divide by term(Cyclic) and Divide by term(Direct) when copying settings to RLP or StP.
+  - Now allowstable type value ('measurement' or 'history') of Software Workshop ETL
+
+Bug fix
+
+- (Config)
+  - Process Config: Fixed an issue where column names containing full-width alphabetic characters could not be imported
+  - Process Config: Fixed a bug where column data types were not pasted correctly when using copy and paste function
+  - Process Config: Fixed a bug where new records could not be imported after setting a function
+  - Process Config: Fixed an issue where GeneratedDatetime could not be generated using the Main::Date and Main::Time columns if their names were duplicated
+  - Process Config: Fixed an issue where FileName could not be imported in Process Merge mode
+  - Data Link Config: Fixed a bug where nodes were not properly positioned
+  - Filter Config: Fixed a bug where descriptions were not displayed when moving the mouse over column title
+- (FPP)
+  - Fixed a bug where datetime values ​​were displayed in UTC time zone in label plots
+- (RLP)
+  - Fixed a bug where NG rates could not be calculated when "No data link" was selected
+  - Fixed a bug where NG rate data points were not vertically aligned with ridge line plots
+  - Fixed a bug where EMD could not be displayed correctly when invalid data was at the beginning
+- (Misc)
+  - Fixed a bug where Pulse in cleansing on the graph display page was incorrectly applied to category data
+  - Fixed a bug where data from V2 csv files could not be read
+  - Fixed a bug where historical data from V2 csv files could not be previewed due to normalization of process name strings
+  - Fixed a bug in importing data from Software Workshop ETL
+
 ## v4.7.7
 
 Improvements
