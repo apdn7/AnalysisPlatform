@@ -356,6 +356,12 @@ class ParallelPlot {
             return v;
         });
 
+        // fix PA does not show NA in PCP
+        const isNAShowAbove = naDumVal > tickVals[0] && naVals;
+        if (isNAShowAbove) {
+            tickVals.splice(0, 1);
+        }
+
         let tickText = tickVals;
         if (infIDX.length > 0) {
             tickText = [...tickText, COMMON_CONSTANT.INF];

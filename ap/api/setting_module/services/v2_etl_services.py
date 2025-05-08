@@ -104,10 +104,10 @@ def add_remaining_v2_columns(df, cfg_proc: CfgProcess):
     for i, col in enumerate(remaining_columns):
         columns.append(
             {
-                'column_name': col,
-                'data_type': DataType(data_types[i]).name,
-                'predict_type': DataType(data_types[i]).name,
-                'column_type': DataColumnType.GENERATED.value,
+                CfgProcessColumn.column_name.name: col,
+                CfgProcessColumn.data_type.name: DataType(data_types[i]).name,
+                CfgProcessColumn.raw_data_type.name: DataType(data_types[i]).name,
+                CfgProcessColumn.column_type.name: DataColumnType.GENERATED.value,
             },
         )
 

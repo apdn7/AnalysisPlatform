@@ -1,10 +1,10 @@
 import copy
 import uuid
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 import pandas as pd
 from dateutil.tz import tz
-from pandas.core.groupby import DataFrameGroupBy
+from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 from scipy.stats import iqr
 
 from ap.api.calendar_heatmap.services import agg_func_with_na, get_function_i18n, range_func
@@ -277,6 +277,10 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
 
     str_cols = []
 
+    # early return if dataframe is empty
+    if df.empty:
+        return plot_data, str_cols, is_graph_limited
+
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
         if len(plot_data) >= max_graph:
@@ -307,14 +311,16 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             OTHER_KEY,
             OTHER_COL,
         )
-        df_groupby = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_numeric)
+        df_groupby, dict_agg_cols = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_numeric)
+        # get summarized_other_col key, to remove them from agg_df
+        other_group = next((key for key, val in dict_agg_cols.items() if val == OTHER_COL), None)
 
         # get unique sorted div
         div_col_name = get_div_col_name(graph_param)
         if graph_param.common.compare_type == RL_CATEGORY:
-            unique_div_vars = sorted(df[div_col_name].dropna().unique())
+            unique_div_vars = sorted(df[div_col_name].astype(pd.StringDtype()).dropna().unique())
         else:
-            unique_div_vars = df[div_col_name].dropna().unique()
+            unique_div_vars = df[div_col_name].astype(pd.StringDtype()).dropna().unique()
         if general_col_info is None:
             continue
 
@@ -337,10 +343,6 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         else:
             agg_df = df_groupby.count()
 
-        # check empty
-        if agg_df.empty:
-            return plot_data, str_cols, is_graph_limited
-
         num_facets = len(graph_param.common.cat_exp)
 
         # TODO refactor this
@@ -351,6 +353,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                 is_numeric,
                 target_var,
                 sorted_colors,
+                other_group,
             )
             modified_agp_obj = {
                 DATA: data,
@@ -378,6 +381,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                     is_numeric,
                     target_var,
                     sorted_colors,
+                    other_group,
                 )
                 modified_agp_obj = {
                     DATA: data,
@@ -411,6 +415,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                             is_numeric,
                             target_var,
                             sorted_colors,
+                            other_group,
                         )
                     except KeyError:
                         data = []
@@ -506,25 +511,25 @@ def replace_redundant_groups_into_others(
     - We first sort value priority based on `value_counts`.
     - Every key have smaller `value_counts` should have lower priority
     """
-    assert maximum_allowed_groups > 0
+    if maximum_allowed_groups <= 0:
+        raise RuntimeError('maximum_allowed_groups should be higher than 0')
 
     colors = df[column_name].astype(pd.StringDtype())
-    color_counts = colors.value_counts()
-    counted_keys = color_counts.index.to_list()
+    sorted_colors_count = colors.value_counts(sort=True, ascending=False)
+    sorted_colors_by_count = sorted_colors_count.index.to_list()
 
-    if maximum_allowed_groups >= len(counted_keys):
-        counted_keys.reverse()
-        return df, counted_keys
+    if maximum_allowed_groups < len(sorted_colors_by_count):
+        non_redundant_groups = maximum_allowed_groups - 1
+        # Need to convert to string before converting because `other_key` can be "Other", which is string
+        df[new_column_name] = colors.replace(to_replace=sorted_colors_by_count[non_redundant_groups:], value=other_key)
 
-    non_redundant_groups = maximum_allowed_groups - 1
-    # Need to convert to string before converting because `other_key` can be "Other", which is string
-    df[new_column_name] = colors.replace(to_replace=counted_keys[non_redundant_groups:], value=other_key)
+        # form a new_keys, with OTHER_KEY always be on top
+        sorted_colors_by_count = [other_key] + sorted_colors_by_count[:non_redundant_groups]
 
-    # form a new_keys, with OTHER_KEY always on tops
-    sorted_keys = [other_key] + counted_keys[:non_redundant_groups]
-    sorted_keys.reverse()
+    # re-order sorted keys because we used ascending=False
+    sorted_colors_by_count.reverse()
 
-    return df, sorted_keys
+    return df, sorted_colors_by_count
 
 
 @log_execution_time()
@@ -534,6 +539,7 @@ def get_data_for_target_var_without_facets(
     is_real_data: bool,
     target_var: int,
     sorted_colors: list[str],
+    other_group: str = None,
 ) -> tuple[list[dict[Any, Any]], pd.Series]:
     chart_type = 'lines+markers' if is_real_data else 'bar'
 
@@ -544,8 +550,25 @@ def get_data_for_target_var_without_facets(
 
     full_array_y = pd.Series([])
 
-    def gen_trace_data(sub_df: pd.DataFrame, col_name: str) -> tuple[dict[str, Any], pd.Series]:
+    def gen_trace_data(
+        sub_df: pd.DataFrame,
+        col_name: str,
+        other_group_key: str = None,
+    ) -> tuple[dict[str, Any], pd.Series]:
         y = sub_df[target_col_name].reset_index(drop=True)
+
+        # if color has many unique value (> 9), summarized_other_col will be used
+        # in this case, colors items already combined to other
+        # so need to remove summarized_other_col from index of sub_df
+        # just use colors for index only
+        if other_group_key:
+            original_index = list(sub_df.index.names)
+            if other_group_key in original_index:
+                original_index.remove(other_group_key)
+                sub_df = sub_df.reset_index()
+                sub_df = sub_df.set_index(original_index)
+        # since pandas could not support make new Series from MultipleIndexes
+        # so careful to use pd.Series(..index)
         trace_data = {
             X: pd.Series(sub_df[target_col_name].index),
             Y: y,
@@ -567,7 +590,7 @@ def get_data_for_target_var_without_facets(
         plot_data = []
         for color in sorted_colors:
             try:
-                data, array_y = gen_trace_data(df.xs(color), color)
+                data, array_y = gen_trace_data(df.xs(color), color, other_group)
                 if is_real_data:
                     full_array_y = append_series(full_array_y, array_y)
 
@@ -604,12 +627,13 @@ def gen_groupby_from_target_var(
     graph_param: DicParam,
     target_var: int,
     is_real_data: bool,
-) -> DataFrameGroupBy:
+) -> tuple[Union[DataFrameGroupBy, SeriesGroupBy], dict[str, str]]:
     agg_cols = get_agg_cols(df, graph_param, target_var)
 
     # colors columns now converted into string, hence we need to convert our color columns into string
     # before grouping by
     agg_cols_str = [uuid.uuid4().hex for _ in agg_cols]
+    dict_agg_cols = dict(zip(agg_cols_str, agg_cols))
 
     # since we don't use this `df` anymore, we can modify it directly
     for col, col_str in zip(agg_cols, agg_cols_str):
@@ -623,7 +647,7 @@ def gen_groupby_from_target_var(
         # count, do not remove na
         df_groupby = df.groupby(agg_cols_str)[[target_col_name]]
 
-    return df_groupby
+    return df_groupby, dict_agg_cols
 
 
 @log_execution_time()

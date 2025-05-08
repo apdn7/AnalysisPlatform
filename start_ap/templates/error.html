@@ -72,6 +72,10 @@
             </div>
         </div>
         <script>
+            const END_POINTS = {
+                HOME_PAGE: 'http://localhost',
+                SHUTDOWN: '/shutdown',
+            };
             var errorConfig = {
                 100: {
                     title: 'Initial State Error',
@@ -131,6 +135,10 @@
             document.getElementById('header2').innerText = errorConfig[errorID].header;
             document.getElementById('warning').innerText = errorConfig[errorID].message;
             document.getElementById('error_code').innerText = errorID;
+            const shutdown_app = async () => {
+                await fetch(END_POINTS.SHUTDOWN, { cache: 'no-cache' });
+            };
+            shutdown_app();
         </script>
     </body>
 </html>

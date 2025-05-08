@@ -21,6 +21,7 @@ MULTIPLE_VALUES_CONNECTOR = '|'
 DEFAULT_NONE_VALUE = pd.NA
 HALF_WIDTH_SPACE = ' '
 UNIXEPOCH = 'unixepoch'
+DOUBLE_COLON_CONNECTOR = '::'
 
 SQL_COL_PREFIX = '__'
 SQL_IN_MAX = 900
@@ -436,6 +437,8 @@ SHOWN_NAME = 'shown_name'
 COL_DATA_TYPE = 'data_type'
 DIVIDE_CALENDAR_DATES = 'divDates'
 DIVIDE_CALENDAR_LABELS = 'divFormats'
+IS_DIVIDE_BY_CATEGORY = 'is_divide_by_category'
+NUMERICAL_AGG_METHOD = 'numerical_agg_method'
 
 #  data group type of column
 DATA_GROUP_TYPE = 'data_group_type'
@@ -446,6 +449,8 @@ IS_JUDGE = 'is_judge'
 # X-Y Axis for SCP and HMp
 SCP_HMP_X_AXIS = 'SCP_HMP_X_AXIS'
 SCP_HMP_Y_AXIS = 'SCP_HMP_Y_AXIS'
+
+STRENGTHEN_SELECTION = 'strengthen_selection'
 
 
 class HMFunction(Enum):
@@ -619,7 +624,6 @@ SQL_REGEXP_FUNC = 'REGEXP'
 MPS = 'www.google-analytics.com'
 R_PORTABLE = 'R-Portable'
 R_LIB_VERSION = 'R_LIB_VERSION'
-GTAG_DEFAULT_TIMEOUT = 3
 
 # Message
 MSG_DB_CON_FAILED = 'Database connection failed! Please check your database connection information'
@@ -791,6 +795,7 @@ ErrorMsgFromDB = {
 
 AUTO_BACKUP = 'auto-backup-universal'
 ANALYSIS_INTERFACE_ENV = 'ANALYSIS_INTERFACE_ENV'
+APP_TYPE_ENV = 'APP_TYPE_ENV'
 
 
 class AppEnv(Enum):
@@ -1010,17 +1015,6 @@ class DuplicateSerialCount(Enum):
     AUTO = 'auto'
     CHECK = 'check'
     SILENT = 'silent'
-
-
-class AppSource(Enum):
-    OSS = 'OSS'
-    DN = 'DN'
-
-
-class AppGroup(Enum):
-    DN = 'DN'
-    Dev = 'Dev'
-    Ext = 'Ext'
 
 
 class RemoveOutlierType(Enum):
@@ -1498,6 +1492,9 @@ TRANSACTION_FOLDER = 'transaction'
 CONFIG_DB = 'app.sqlite3'
 SCHEDULER_DB = 'scheduler.sqlite3'
 
+START_TIME_COL = 'start_time_col'
+END_TIME_COL = 'end_time_col'
+
 
 class MasterDBType(BaseEnum):
     EFA = auto()
@@ -1809,6 +1806,7 @@ MAIN_THREAD = 'MAIN_THREAD'
 SHUTDOWN = 'SHUTDOWN'
 PORT = 'PORT'
 
+SUMMARY_MESSAGE = 'summary_msg'
 
 # class DicConfig(BaseEnum):
 #     DB_SECRET_KEY = auto()
@@ -1966,12 +1964,6 @@ class DataRegisterStage(BaseEnum):
     FINISHED = 'finished'
 
 
-# Time for announcing and blinking icon
-ANNOUNCE_UPDATE_TIME: int = 60  # unit: seconds
-
-# Limit range time to check new version
-LIMIT_CHECKING_NEWER_VERSION_TIME: int = 60  # unit: seconds
-
 PROCESS_QUEUE_FILE_NAME = f'process_queue.{FileExtension.Pickle.value}'
 
 # MM-DD | MM月DD日 | MM/DD -> current year -MM-DD 00:00:00
@@ -2026,3 +2018,20 @@ MEASUREMENTS_DEFINED = [
     '測定値:',
     'OK/NG情報:',
 ]
+
+
+class DataExportMode(BaseEnum):
+    PLOT = 'plot'
+    ALL = 'all'
+
+
+KEY_IMPORT_FILTERS = 'import_filters'
+KEY_FILTER_FUNCTION = 'filter_function'
+
+TASK_KEY = 'task'
+
+
+class GrLassoTask(BaseEnum):
+    REGRESSION = 'regression'
+    BINARY = 'binary'
+    MULTI_CLASS = 'multiclass'

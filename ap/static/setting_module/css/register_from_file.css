@@ -73,10 +73,24 @@
     column-gap: 15px;
 }
 
-.scroll-content {
-    top: 4px !important;
-}
-
 .extend-section {
     margin-top: 0.2rem;
+}
+
+.config-section .form-group,
+.extend-section .form-group {
+    margin-bottom: 0;
+}
+
+.extend-section:not(.extend-section:first-child)::before {
+    height: 3px;
+    display: block;
+    background: #222222;
+    content: '';
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+}
+
+[id^='processGeneralInfo'] div.form-group.row {
+    align-items: baseline;
 }

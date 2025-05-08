@@ -13,7 +13,7 @@ import pandas as pd
 from flask_babel import get_locale
 
 from ap import check_exist
-from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter
+from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter, df_transform
 from ap.api.setting_module.services.csv_import import convert_csv_timezone, gen_dummy_header
 from ap.api.setting_module.services.data_import import (
     PANDAS_DEFAULT_NA,
@@ -117,14 +117,13 @@ def get_latest_records(
     is_v2_datasource=False,
     filtered_process_name=None,
     process_factid=None,
-    is_convert_datetime=True,
     master_type: MasterDBType = None,
+    etl_func: str = '',
 ):
     previewed_files = None
     cols_with_types = []
     delimiter = 'Auto'
     skip_head = None
-    etl_func = ''
     n_rows = None
     is_transpose = None
     has_ct_col = True
@@ -180,7 +179,6 @@ def get_latest_records(
                 is_transpose=is_transpose,
                 show_file_name_column=True,
                 current_process_id=current_process_id,
-                is_convert_datetime=is_convert_datetime,
                 is_file_checker=is_file_checker,
             )
         column_raw_names = dic_preview.get('org_headers')
@@ -220,6 +218,9 @@ def get_latest_records(
             process_factid=process_factid,
             master_type=master_type,
         )
+        if etl_func:
+            df_rows = df_transform(df_rows, etl_func)
+            cols = df_rows.columns.tolist()
         data_types = [gen_data_types(df_rows[col]) for col in cols]
         same_values = check_same_values_in_df(df_rows, cols)
         if cols and data_types:
@@ -270,8 +271,14 @@ def get_latest_records(
                     df_rows[col] = df_rows[col].astype('float64').astype('Int64')
 
                 if data_type_by_cols[col] == DataType.TEXT.name:
+                    df_rows[col] = df_rows[col].astype(pd.StringDtype())
+                    # if original data is boolean, it should be convert to lower string
+                    # same as text from sql (true/false), instead of python bool type (True/False)
+                    if pd.api.types.is_bool_dtype(df_rows[col]):
+                        df_rows[col] = df_rows[col].str.lower()
                     # fill na to '' for string column
-                    df_rows[col] = df_rows[col].astype('string').fillna('')
+                    df_rows[col] = df_rows[col].fillna('')
+
             except Exception:
                 continue
         rows = transform_df_to_rows(cols, df_rows, limit)
@@ -873,6 +880,7 @@ def preview_v2_data(
     file_name=None,
     show_file_name_column=False,
     is_show_raw_data=False,
+    is_convert_datetime=False,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
     sorted_files = get_sorted_files_by_size(folder_url) if not file_name else [file_name]
@@ -927,6 +935,7 @@ def preview_v2_data(
                 raise NotImplementedError
 
             file_data_idx += 1
+            csv_file = os.path.basename(largest_file)
             if len(data_details) > 0 or file_data_idx >= len(sorted_files):
                 file_data_idx = -1
 
@@ -1003,8 +1012,15 @@ def preview_v2_data(
             if DataType(dtype) is not DataType.DATETIME:
                 continue
             # Convert UTC time
-            df_data_details = validate_datetime(df_data_details, col, False, False)
-            df_data_details = convert_csv_timezone(df_data_details, col)
+            df_data_details = validate_datetime(
+                df_data_details,
+                col,
+                False,
+                False,
+                is_convert_datetime=is_convert_datetime,
+            )
+            if is_convert_datetime:
+                df_data_details = convert_csv_timezone(df_data_details, col)
             df_data_details = df_data_details.dropna(subset=[col])
             # TODO: can we do this faster?
             data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
@@ -1519,18 +1535,20 @@ def save_preview_data_file(
     data: dict,
     table_name=None,
     process_factid=None,
+    etl_func=None,
 ):
     sample_data_file = gen_latest_record_result_file_path(
         data_source_id,
         table_name=table_name,
         process_factid=process_factid,
+        etl_func=etl_func,
     )
     make_dir_from_file_path(sample_data_file)
     with open(sample_data_file, 'w') as outfile:
         json.dump(data, outfile)
 
 
-def get_preview_data_files(data_source_id, table_name=None, process_factid=None):
+def get_preview_data_files(data_source_id, table_name=None, process_factid=None, etl_func=None):
     folder_path = get_preview_data_file_folder(data_source_id)
     if check_exist(folder_path):
         _files = get_files(folder_path, extension=['csv', 'tsv', 'json'])
@@ -1538,6 +1556,7 @@ def get_preview_data_files(data_source_id, table_name=None, process_factid=None)
             data_source_id,
             table_name=table_name,
             process_factid=process_factid,
+            etl_func=etl_func,
         )
         if file_name in _files:
             return file_name
@@ -1545,12 +1564,17 @@ def get_preview_data_files(data_source_id, table_name=None, process_factid=None)
     return None
 
 
-def gen_latest_record_result_file_path(data_source_id, table_name=None, process_factid=None):
+def gen_latest_record_result_file_path(data_source_id, table_name=None, process_factid=None, etl_func=None):
     sample_data_path = get_preview_data_file_folder(data_source_id)
     if table_name:
-        file_name = f'{data_source_id}_{table_name}.json'
+        name = f'{data_source_id}_{table_name}'
+        file_name = f'{name}.json' if not etl_func else f'{name}_{etl_func}.json'
     elif process_factid:
-        file_name = f'{data_source_id}_{process_factid}.json'
+        file_name = (
+            f'{data_source_id}_{process_factid}.json'
+            if not etl_func
+            else f'{data_source_id}_{process_factid}_{etl_func}.json'
+        )
     else:
         file_name = f'{data_source_id}.json'
     sample_data_file = os.path.join(sample_data_path, file_name)

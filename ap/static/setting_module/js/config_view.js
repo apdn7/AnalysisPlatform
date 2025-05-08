@@ -28,7 +28,6 @@ const csvResourceElements = {
     csvConfirmModalMsg: '#csvConfirmModalMsg',
     msgWarnEmptyType: '#i18nWarnEmptyType',
     msgWarnManyGetdate: '#i18nWarnManyGetdate',
-    msgErrorNoGetdate: '#i18nErrorNoGetdate',
     msgConfirm: '#i18nConfirmMsg',
     sqlInputFile: '#form-control-file',
     skipHead: '#skipHead',

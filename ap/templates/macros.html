@@ -2580,3 +2580,34 @@
         {% endif %}
     </div>
 {% endmacro %}
+
+{% macro etl_optional_function_dropdown(id='', name='', disable=true, etl_scripts=[]) %}
+    <select
+        name="{{ name }}"
+        id="{{ id }}"
+        class="form-control select2-selection--single"
+        {{ 'disabled' if disable else '' }}
+    >
+        <option value="">---</option>
+        {% for script in etl_scripts %}
+            <option value="{{ script }}">{{ script }}</option>
+        {% endfor %}
+    </select>
+{% endmacro %}
+
+{% macro input_checkbox(id='', class='', name='', title='', hintText='', hoverTitle='', checked='', callBackFunc='') %}
+    <div class="custom-control custom-checkbox ml-4">
+        <input
+            type="checkbox"
+            id="{{ id }}"
+            class="custom-control-input"
+            name="{{ id or name }}"
+            onchange="{{ callBackFunc }};"
+            {{ checked }}
+            style="margin-top: 2px;"
+        />
+        <label class="custom-control-label {{ hintText }}" title="{{ hoverTitle }}" for="{{ id }}"
+            >{{ _(title) }}</label
+        >
+    </div>
+{% endmacro %}

@@ -235,6 +235,18 @@ const HistogramWithDensityCurve = ($, paramObj) => {
         layout.xaxis.autorange = false;
     }
 
+    //fix: data is fewer than tickvals then it overlap tickvals
+    for (let i = 0; i < data.length; i++) {
+        if (layout.yaxis.tickvals && layout.yaxis.tickvals > data[i].y) {
+            layout.yaxis.tickvals.forEach((y) => {
+                if (!data[i].y.includes(y)) {
+                    data[i].x.push(null);
+                    data[i].y.push(y);
+                }
+            });
+        }
+    }
+
     Plotly.newPlot(canvasId, data, layout, {
         displayModeBar: false,
         responsive: true, // responsive histogram

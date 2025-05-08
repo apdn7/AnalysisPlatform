@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Sequence, TypeVar
 
+import numpy as np
 import pandas as pd
 
 from ap.common.constants import NA_STR
@@ -57,12 +58,28 @@ def assign_group_labels_for_dataframe(
     bins: Sequence[Any],
     labels: list[str],
 ):
-    """Assign each group in bins by specific label
-    To simplify, this function is the faster version of:
-    >>> for start, end, label in zip(bins[:-1], bins[1:], labels):
-    >>>     df.loc[(df[by] >= start) & (df[by] < end), label_column] = label
+    """Assign each group in bins by specific label. To simplify, this function is the faster version of:
+
+    >>> for start, end, label in zip(bins[:-1], bins[1:], labels): # doctest: +SKIP
+    >>>     df.loc[(df[by] >= start) & (df[by] < end), label_column] = label # doctest: +SKIP
     But it is much safer, as it also check datatype of `df[by]` and `bins`
     as well as the length of `bins` and `labels`
+
+    >>> df = pd.DataFrame({'x': [1,2,3,4,5,6]})
+    >>> assign_group_labels_for_dataframe(df,
+    ...    by='x',
+    ...    label_column='label',
+    ...    bins=[1, 3, 5, 7],
+    ...    labels=['1 to 3', '3 to 5', '5 to 7'],
+    ...    )
+       x   label
+    0  1  1 to 3
+    1  2  1 to 3
+    2  3  3 to 5
+    3  4  3 to 5
+    4  5  5 to 7
+    5  6  5 to 7
+
     """
     # Assign empty label column first.
     df[label_column] = pd.Series(dtype=pd.StringDtype())
@@ -90,3 +107,16 @@ def assign_group_labels_for_dataframe(
     ).astype(pd.StringDtype())
 
     return df
+
+
+def check_if_array_is_repeating(array: np.ndarray) -> bool:
+    """
+
+    :param array: numpy array to check
+    :return:
+    array_has_same_value (bool): True if `array` has the same value, False otherwise
+    """
+    array_has_same_value = False
+    if array.shape[0] == 0 or (array[0] == array).all():
+        array_has_same_value = True
+    return array_has_same_value

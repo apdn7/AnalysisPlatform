@@ -6,8 +6,8 @@
                     <div class="panel-heading" role="tab" id="headingPC">
                         <div class="form-header">
                             <div class="row" style="padding-top: 5px; padding-bottom: 5px;">
-                                <div class="col-7">
-                                    <div class="collapse-box header-left">
+                                <div class="col-7 collapse-wrapped-row">
+                                    <div class="collapse-box header-left my-0">
                                         <a
                                             role="button"
                                             data-toggle="collapse"
@@ -154,40 +154,52 @@
     </div>
 </div>
 {% block js %}
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css') }}"
+    />
     <script src="{{ url_for('setting_module.static', filename = 'js/process_config_section.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/failed_cast_data_modal.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_table_utils.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_process_config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_function_config.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/parse_data_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_date_time_format.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/function_config_modals.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/main_serial_function_column.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_filter_config.js') }}"></script>
     <!-- prettier-ignore-start -->
     <script>
         let cfgDS = {{ all_datasource|safe }};
         /**
+         * @typedef FunctionDefinition
+         * @property {string[]} coefs - defined kind of parameters of function
+         * @property {string[]} required_coefs - function required parameters
+         * @property {string[]} optional_coefs - function optional parameters
+         * @property {string} function_name_en - function name by english
+         * @property {string} function_name_jp - function name by japanese
+         * @property {string} description_en - function description by english
+         * @property {string} description_jp - function description by japanese
+         * @property {string} function_type - function name
+         * @property {number} id - id of master function
+         * @property {string[]} vars - defined kind of vars
+         * @property {string[]} x_types - allowed varX's data types
+         * @property {string[]} y_types - allowed varY's data types
+         * @property {boolean} show_serial - whether to show serial or not
+         * @property {string} a - a argument of function
+         * @property {string} b - b argument of function
+         * @property {string} c - c argument of function
+         * @property {string} n - n argument of function
+         * @property {string} k - k argument of function
+         * @property {string} s - s argument of function
+         * @property {string} t - t argument of function
+         */
+
+        /**
          * A list of dictionary that contains all master function information
-         * @type {Array<{
-         *     coefs: string[], // defined kind of parameters of function
-         *     required_coefs: string[], // function requried parameters
-         *     optional_coefs: string[], // function optional parameters
-         *     function_name_en: string, // function name by english
-         *     function_name_jp: string, // function name by japanese
-         *     description_en: string, // function description by english
-         *     description_jp: string, // function description by japanese
-         *     function_type: string, // function name
-         *     id: number, // id of master function
-         *     vars: string[], // defined kind of vars
-         *     x_types: string[], // allowed varX's data types
-         *     y_types: string[], // allowed varY's data types
-         *     show_serial: boolean, // whether to show serial or not
-         *     a: string, // a argument of function
-         *     b: string, // b argument of function
-         *     c: string, // c argument of function
-         *     n: string, // n argument of function
-         *     k: string, // k argument of function
-         *     s: string, // s argument of function
-         *     t: string, // t argument of function
-         * }>} - alist of dictionary
+         * @type {FunctionDefinition[]} - alist of dictionary
          */
         const allMasterFunction = {{ all_function|safe }};
     </script>

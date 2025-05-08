@@ -29,7 +29,7 @@ const buildTimeSeriesSummaryResultsHTML = (
         <tr>
             <th colspan="2">
                 <span class="prc-name show-detail cat-exp-box" title="${hasLevel2 ? 'Level1 | Level2' : 'Level1'}">${catExpBox}</span>
-            </td>
+            </th>
         </tr>`;
     }
 
@@ -39,12 +39,12 @@ const buildTimeSeriesSummaryResultsHTML = (
             <tr>
                 <th colspan="2">
                     <span class="prc-name" title="${getProc}">${getProc}</span>
-                </td>
+                </th>
             </tr>
             <tr>
                 <th colspan="2">
                     <span class="prc-name" title="${getVal}${unit}">${getVal}${unit} ${CTLabel}</span>
-                </td>
+                </th>
             </tr>
             ${catExpBoxHtml}
             </thead>

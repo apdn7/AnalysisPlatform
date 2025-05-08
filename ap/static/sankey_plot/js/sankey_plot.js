@@ -1,7 +1,20 @@
+const BAR_MODE_STACK_COLOR = [
+    '#1f77b4',
+    '#ff7f0e',
+    '#2ca02c',
+    '#d62728',
+    '#9467bd',
+    '#8c564b',
+    '#e377c2',
+    '#7f7f7f',
+    '#bcbd22',
+];
+
 const REQUEST_TIMEOUT = setRequestTimeOut();
 const MAX_NUMBER_OF_SENSOR = 512;
 const MIN_NUMBER_OF_SENSOR = 0;
 const MAX_SENSORS_LIM = 100;
+const WRAP_TEXT = 15; // skd legend wraptext
 let tabID = null;
 const graphStore = new GraphStore();
 const formElements = {
@@ -28,6 +41,9 @@ const formElements = {
     plotCardId: 'plot-card',
     graphContainerId: 'graphContainer',
     barContainerId: 'barContainer',
+    barContainerCol: 'bar-container-col',
+    graphContainerCol: 'graph-container-col',
+    legendTitle: 'skd-chart-title',
 };
 
 const i18n = {
@@ -80,7 +96,7 @@ $(() => {
         objectiveHoverMsg: i18n.objectiveHoverMsg,
         hideStrVariable: false,
         showFilter: true,
-        allowObjectiveForRealOnly: true,
+        allowObjectiveForRealOnly: false,
         disableSerialAsObjective: true,
     });
     endProcItem();
@@ -152,25 +168,6 @@ const showBarGraph = (barJson) => {
     }
 
     const wrappedLabels = barJson.y?.map((label) => wraptext(label, 19));
-
-    const trace = {
-        x: barJson.x || [],
-        y: barJson.y || [],
-        text: barJson.text.map((number) => applySignificantDigit(number)) || [],
-        customdata: barJson.y,
-        orientation: 'h',
-        marker: {
-            color: barJson.marker_color || [],
-        },
-        hovertemplate: '%{customdata}<br>' + '%{text}<br><extra></extra>',
-        type: 'bar',
-        insidetextanchor: 'start',
-        insidetextfont: {
-            color: '#65c5f1',
-        },
-    };
-
-    const data = [trace];
 
     const layout = {
         font: {
@@ -370,12 +367,87 @@ const showBarGraph = (barJson) => {
         },
     };
 
+    let data = [];
+
+    if (barJson?.task == 'multiclass') {
+        $(`.${formElements.barContainerCol}`).removeClass('col-4').addClass('col-5');
+        $(`.${formElements.graphContainerCol}`).removeClass('col-8').addClass('col-7');
+        barJson.x.forEach((_x, _i) => {
+            const text = barJson.text[_i].map((number) => applySignificantDigit(number)) || [];
+            const customdata = barJson.y;
+            let trace = {
+                name: wraptext(barJson.marker_color[_i][0], WRAP_TEXT),
+                x: _x,
+                y: barJson.y || [],
+                text: text,
+                customdata: customdata,
+                orientation: 'h',
+                hovertemplate: '%{customdata}<br>%{text}<br><extra></extra>',
+                type: 'bar',
+                textposition: 'none',
+                marker: {
+                    color: BAR_MODE_STACK_COLOR[_i],
+                },
+            };
+            data.push(trace);
+            layout.barmode = 'stack';
+            layout.legend = {
+                title: {
+                    text: barJson.objective,
+                },
+                x: 0,
+                xanchor: 'right',
+                bgcolor: 'rgba(34, 34, 34, 1)',
+                orientation: 'v',
+                traceorder: 'normal',
+            };
+        });
+    } else {
+        $(`.${formElements.barContainerCol}`).removeClass('col-5').addClass('col-4');
+        $(`.${formElements.graphContainerCol}`).removeClass('col-7').addClass('col-8');
+        let trace = {
+            x: barJson.x || [],
+            y: barJson.y || [],
+            text: barJson.text.map((number) => applySignificantDigit(number)) || [],
+            customdata: barJson.y,
+            orientation: 'h',
+            hovertemplate: '%{customdata}<br>' + '%{text}<br><extra></extra>',
+            type: 'bar',
+            insidetextanchor: 'start',
+            insidetextfont: {
+                color: '#65c5f1',
+            },
+        };
+        // use default color pallet for multiclass objective
+        if (barJson?.task !== 'multiclass') {
+            trace.marker = {
+                color: barJson.marker_color || [],
+            };
+        }
+        data.push(trace);
+    }
+    const yLabel = barJson.y.reduce((longest, current) => {
+        return current.length > longest.length ? current : longest;
+    }, '');
+    const legendLabel = barJson.marker_color.flat().reduce((longest, current) => {
+        return current.length > longest.length ? current : longest;
+    }, '');
     Plotly.newPlot(formElements.barContainerId, data, layout, {
         ...genPlotlyIconSettings(),
         displaylogo: false,
         responsive: true,
         useResizeHandler: true,
         style: { width: '100%', height: '100%' },
+    }).then(() => {
+        const legendToggle = $(`#${formElements.barContainerId} .legendtoggle`);
+        Plotly.relayout(formElements.barContainerId, { 'legend.x': getLegendX(yLabel, legendLabel) });
+        legendToggle.on('mousemove', function (evt) {
+            const legendIdx = $(`#${formElements.barContainerId} .legendtoggle`).index(this);
+            $(`.${formElements.legendTitle}`).text(barJson.marker_color[legendIdx][0]);
+        });
+        legendToggle.on('mouseleave', function (evt) {
+            $(`.${formElements.legendTitle}`).text('');
+        });
     });
 };
 
@@ -758,7 +830,7 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
             if (!reselectVars) {
                 problematicData = {
                     null_percent: res.null_percent || {},
-                    zero_variance: res.err_cols || [],
+                    zero_variance: res.zero_variance || [],
                     selected_vars: res.selected_vars || [],
                 };
             }
@@ -780,8 +852,10 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
         setPollingData(formData, handleSetPollingData, []);
 
         showSankeyPlot(res.plotly_data);
-
         showScatterPlot(res.dic_scp, {});
+
+        // show summary information
+        showSummaryInfo(res.summary_msg);
 
         // show info table
         showInfoTable(res);
@@ -806,4 +880,8 @@ const dumpData = (type) => {
 
 const handleExportData = (type) => {
     showGraphAndDumpData(type, dumpData);
+};
+
+const onChangeStrengthenSelection = (e) => {
+    callToBackEndAPI(false);
 };

@@ -9,6 +9,36 @@
  */
 class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     /**
+     * Show DataType Modal
+     * @param {Event} event - an HTML object of dropdown
+     */
+    static showDataTypeModal(event) {
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ event.currentTarget.closest(
+            'div.config-data-type-dropdown',
+        );
+        DataTypeDropdown_Controller.init(dataTypeDropdownElement);
+        DataTypeDropdown_Controller.hideAllDropdownMenu();
+
+        // Calculate position to show dropdown menu
+        const $dropdownEl = $(dataTypeDropdownElement).find('.data-type-selection');
+        $dropdownEl.show(); // need show to get exactly height of child element
+        const dropdownHeight = $dropdownEl.find('.data-type-selection-left').height();
+        const windowHeight = $(window).height();
+        const left = event.clientX || dataTypeDropdownElement.getClientRects()[0].x;
+        let top = event.clientY || dataTypeDropdownElement.getClientRects()[0].y + 26;
+        if (top + dropdownHeight > windowHeight) {
+            top -= top + dropdownHeight - windowHeight;
+        }
+        $dropdownEl.css({
+            position: 'fixed',
+            top: top,
+            left: left,
+            display: 'flex',
+            zIndex: '99999',
+        });
+    }
+
+    /**
      * Initialize
      * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
      * @param options - Option for dropdown initialization
@@ -24,22 +54,32 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const isRegisteredCol = showValueOption.getAttribute('is-registered-col') === 'true';
         const isBigInt = showValueOption.getAttribute('is-big-int') === 'true';
         const selectOption = this.getOptionByAttrKey(dataTypeDropdownElement, rawDataType, attrKey);
+        const parentDropdownEle = $dataTypeDropdownElement.closest('td');
+        const isInitialize = parentDropdownEle.attr('is-initialize') === 'true';
         selectOption.addClass('active');
 
         this.setValueToShowValueElement(dataTypeDropdownElement, rawDataType, selectOption.text(), attrKey);
 
-        if (options.resetDefaultInput) {
-            this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
-        }
+        // if (options.resetDefaultInput) {
+        //     this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
+        // }
 
-        this.disableOtherDataType(dataTypeDropdownElement, isRegisteredCol || isBigInt, rawDataType, attrKey);
+        this.disableOtherDataType(
+            dataTypeDropdownElement,
+            isRegisteredCol || isBigInt,
+            rawDataType,
+            attrKey,
+            isInitialize,
+        );
 
-        // disable copy function if allow select one item
-        this.disableCopyItem(dataTypeDropdownElement, attrKey);
-        if (currentProcess?.is_show_file_name != null) {
+        if (currentProcess?.is_show_file_name != null && !isInitialize) {
             // data of process imported
             this.disableDatetimeMainItem(dataTypeDropdownElement);
         }
+
+        // if (isInitialize) {
+        //     this.enableDataType(dataTypeDropdownElement);
+        // }
     }
 
     /**
@@ -53,6 +93,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             if (htmlElement.getAttribute('disabled')) return;
             func.call(this, event);
         }
+
         return inner;
     }
 
@@ -67,9 +108,11 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
     /**
      * Hide all data type dropdown on UI
+     * @param {function(): void} callback
      */
-    static hideAllDropdownMenu() {
+    static hideAllDropdownMenu(callback = DataTypeDropdown_Helper.hideAllDropdownMenu.callback) {
         $('.data-type-selection').hide();
+        (callback ?? (() => {}))();
     }
 
     /**
@@ -127,38 +170,46 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
     /**
      * Set Default Name And Disable Input
-     * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
-     * @param {string} attrKey - attrKey of option
+     * @param {JspreadSheetTable} table - jspreadsheet table
+     * @param {number} columnType - column type of row
+     * @param {number} rowIndex - index of row
      */
-    static setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey = '') {
-        const $tr = $(dataTypeDropdownElement.closest('tr'));
-        const $systemInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.systemName}]`);
-        const $japaneseNameInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.japaneseName}]`);
-        const $localNameInput = /** @type jQuery */ $tr.find(`input[name=${this.ElementNames.localName}]`);
-        const oldValSystem = $systemInput.attr('old-value');
-        const oldValJa = $japaneseNameInput.attr('old-value');
-        const originalSystem = $systemInput.data('original-value');
-        const originalLocalName = $localNameInput.data('original-value');
-        if (fixedNameAttrs.includes(attrKey)) {
+    static setDefaultNameAndDisableInput(table, columnType, rowIndex) {
+        const systemNameColumnIdx = table.getIndexHeaderByName(PROCESS_COLUMNS.name_en);
+        const japaneseNameColumnIdx = table.getIndexHeaderByName(PROCESS_COLUMNS.name_jp);
+        const localNameColumnIdx = table.getIndexHeaderByName(PROCESS_COLUMNS.name_local);
+        const originalNameColumnIdx = table.getIndexHeaderByName(PROCESS_COLUMNS.column_raw_name);
+
+        const systemNameCell = table.getCellFromCoords(systemNameColumnIdx, rowIndex);
+        const japaneseNameCell = table.getCellFromCoords(japaneseNameColumnIdx, rowIndex);
+        const localNameCell = table.getCellFromCoords(localNameColumnIdx, rowIndex);
+        const originalNameCell = table.getCellFromCoords(originalNameColumnIdx, rowIndex);
+        const oldValSystem = systemNameCell.getAttribute('old-value') || '';
+        const oldValJa = japaneseNameCell.getAttribute('old-value') || '';
+        const oldValLocal = localNameCell.getAttribute('old-value') || '';
+        const originalName = originalNameCell.textContent;
+        if (fixedNameColumnTypes.includes(columnType)) {
             // set default value to system and input
             if (!oldValSystem || !oldValJa) {
-                $systemInput.attr('old-value', $systemInput.val());
-                $japaneseNameInput.attr('old-value', $japaneseNameInput.val());
+                systemNameCell.setAttribute('old-value', systemNameCell.textContent);
+                japaneseNameCell.setAttribute('old-value', japaneseNameCell.textContent);
             }
-            $systemInput.val(fixedName[attrKey].system).prop('disabled', true);
-            $japaneseNameInput.val(fixedName[attrKey].japanese).prop('disabled', true);
-            $localNameInput.val(fixedName[attrKey].system).prop('disabled', true);
+            table.setValueFromCoords(systemNameColumnIdx, rowIndex, fixedName[columnType].system, true);
+            systemNameCell.classList.add(READONLY_CLASS, 'disabled');
+            table.setValueFromCoords(japaneseNameColumnIdx, rowIndex, fixedName[columnType].japanese, true);
+            japaneseNameCell.classList.add(READONLY_CLASS, 'disabled');
+            table.setValueFromCoords(localNameColumnIdx, rowIndex, fixedName[columnType].system, true);
+            localNameCell.classList.add(READONLY_CLASS, 'disabled');
         } else {
+            systemNameCell.classList.remove(READONLY_CLASS, 'disabled');
+            japaneseNameCell.classList.remove(READONLY_CLASS, 'disabled');
+            localNameCell.classList.remove(READONLY_CLASS, 'disabled');
             // revert to original name
             if (oldValSystem && oldValJa) {
-                $systemInput.val(originalSystem);
-                $japaneseNameInput.val(originalSystem);
-                $localNameInput.val(originalLocalName);
+                table.setValueFromCoords(systemNameColumnIdx, rowIndex, oldValSystem, true);
+                table.setValueFromCoords(japaneseNameColumnIdx, rowIndex, oldValSystem, true); // TODO: merge code fix for Hung's MR
+                table.setValueFromCoords(localNameColumnIdx, rowIndex, oldValLocal, true);
             }
-
-            $systemInput.prop('disabled', false);
-            $japaneseNameInput.prop('disabled', false);
-            $localNameInput.prop('disabled', false);
         }
     }
 
@@ -169,8 +220,8 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {string} dataType - data type want to disable
      * @param {string} attrKey - attrKey of option
      */
-    static disableOtherDataType(dataTypeDropdownElement, isRegisteredCol = false, dataType, attrKey) {
-        if (!isRegisteredCol) return;
+    static disableOtherDataType(dataTypeDropdownElement, isRegisteredCol = false, dataType, attrKey, isInitialize) {
+        if (!isRegisteredCol || isInitialize) return;
         if (this.UnableToReselectAttrs.includes(attrKey)) {
             // disable all option
             $(dataTypeDropdownElement).find(`ul li.dataTypeSelection:not([${attrKey}])`).attr('disabled', true);
@@ -188,7 +239,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 .find(`ul li.dataTypeSelection`)
                 .each((index, liElement) => {
                     const $liElement = $(liElement);
-                    let dataType = $liElement.attr('data-type');
+                    let dataType = $liElement.attr('value');
                     if (!dataTypeAllows.includes(dataType)) {
                         $liElement.attr('disabled', String(true));
                     }
@@ -197,17 +248,47 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
-     * Disable Copy Item
+     * Enable DataType
      * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
-     * @param {string} attrKey
      */
-    static disableCopyItem(dataTypeDropdownElement, attrKey) {
-        // disable copy function if allow select one item
-        if (this.AllowSelectOneAttrs.includes(attrKey)) {
-            $(dataTypeDropdownElement).find(`ul li.copy-item`).attr('disabled', true);
+    static enableDataType(dataTypeDropdownElement) {
+        $(dataTypeDropdownElement).find(`ul li.dataTypeSelection`).attr('disabled', false);
+    }
+
+    /**
+     * Disable Other DataType
+     * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
+     * @param {boolean} isRegisteredCol - isRegisteredCol
+     * @param {string} dataType - data type want to disable
+     * @param {string} attrKey - attrKey of option
+     */
+    // TODO: refactor
+    static disableOtherDataType_New(cell, value, rowData, oldDataType, newDataType) {
+        if ((typeof isInitialize !== 'undefined' && isInitialize) || rowData.id < 0) return value;
+        const unableToReselectAttrs = [
+            masterDataGroup.MAIN_TIME,
+            masterDataGroup.MAIN_DATE,
+            masterDataGroup.MAIN_DATETIME,
+            masterDataGroup.DATETIME_KEY,
+        ];
+
+        if (unableToReselectAttrs.includes(rowData.column_type)) {
+            // return old value
+            value = cell.innerText;
         } else {
-            $(dataTypeDropdownElement).find(`ul li.copy-item`).attr('disabled', false);
+            // select all other data type option -> add disabled
+            let dataTypeAllows = [oldDataType];
+            const indexOrder = this.DataTypeOrder.indexOf(oldDataType);
+            if (indexOrder !== -1) {
+                for (let i = indexOrder; i < this.DataTypeOrder.length; i++) {
+                    dataTypeAllows.push(this.DataTypeOrder[i]);
+                }
+            }
+            if (!dataTypeAllows.includes(newDataType)) {
+                value = cell.innerText;
+            }
         }
+        return value;
     }
 
     /**
@@ -219,7 +300,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${index}) .sample-data`)].map(
             (el) => $(el),
         );
-        const attrName = 'data-original';
+        const attrName = DATA_ORIGINAL_ATTR;
         let countIllegal = 0;
         for (const e of vals) {
             let val = e.attr(attrName);
@@ -268,15 +349,13 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             'div.config-data-type-dropdown',
         );
         const attrKey = DataTypeDropdown_Helper.getAttrOfDataTypeItem(currentTarget);
-        const value = currentTarget.getAttribute('value');
+        const value = currentTarget.innerText;
 
-        DataTypeDropdown_Helper.changeDataType(
-            dataTypeDropdownElement,
-            value,
-            currentTarget.textContent,
-            attrKey,
-            currentTarget,
-        );
+        const spanElement = dataTypeDropdownElement.querySelector('button > span');
+        spanElement.innerText = value;
+        spanElement.setAttribute('value', value);
+        spanElement.setAttribute('title', value);
+        spanElement.removeAttribute('column_type');
     }
 
     /**
@@ -305,103 +384,79 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
     /**
      * Change DataType
-     * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
-     * @param {string} value
-     * @param {string} text
-     * @param {string} attrKey
-     * @param {HTMLElement} el
+     * @param {SpreadSheetProcessConfig} spreadsheet
+     * @param {number} rowIndex
+     * @param {string} shownDataType
+     * @param {boolean} isChangeHiddenColumn - check change datatype, column type
      */
-    static changeDataType(dataTypeDropdownElement, value, text, attrKey, el = null) {
-        if (attrKey === 'is_main_serial_no' && typeof FunctionInfo !== 'undefined') {
-            // check create or editing function column
-            const isMainSerialChecked = functionConfigElements.isMainSerialCheckboxElement.checked;
-            // check function column has column main serial.
-            const functionColumnInfos = FunctionInfo.collectAllFunctionRows();
-            const mainSerialFunctionCol = functionColumnInfos.find((functionCol) => functionCol.isMainSerialNo);
-            if (isMainSerialChecked || mainSerialFunctionCol) {
-                const columnIdx = dataTypeDropdownElement
-                    .closest('tr')
-                    .querySelector('td.column-number')
-                    .getAttribute('data-col-idx');
-                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-value', value);
-                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-text', text);
-                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute(
-                    'change-column-index',
-                    columnIdx,
-                );
-                $(functionConfigElements.confirmUncheckMainSerialFunctionColumnModal).modal('show');
-                return;
-            }
-        }
-        this.setValueToShowValueElement(dataTypeDropdownElement, value, text, attrKey);
-        this.setDefaultNameAndDisableInput(dataTypeDropdownElement, attrKey);
-
-        // get current datatype
-        const beforeDataTypeEle = dataTypeDropdownElement.querySelector(`ul li.active`);
-        const beforeAttrKey = beforeDataTypeEle ? this.getAttrOfDataTypeItem(beforeDataTypeEle) : '';
-
-        $(dataTypeDropdownElement).find(`ul li`).removeClass('active');
-
-        this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey).addClass('active');
-
-        if (this.AllowSelectOneAttrs.includes(attrKey)) {
-            // remove attr of others
-            this.resetOtherMainAttrKey(dataTypeDropdownElement, attrKey);
-        }
+    static changeShownDataType(spreadsheet, rowIndex, shownDataType, { isFirstLoad = false } = {}) {
+        const beforeRowData = spreadsheet.table.getRowDataByIndex(rowIndex);
+        const beforeColumnType = beforeRowData.column_type;
+        const table = spreadsheet.table;
+        const [dataType, columnType] = this.convertShownDataTypeToColumnTypeAndDataType(shownDataType);
+        // this.handleCheckDuplicateMainSerial(procConfigTable, rowIndex, shownDataType, dataType, columnType);
+        // change data type
+        this.changeDataType(table, dataType, rowIndex);
+        // change column typ
+        this.changeColumnType(table, columnType, rowIndex);
+        this.disableShownDataType(table, columnType, rowIndex);
+        // this.setValueToShowValueElement(dataTypeDropdownElement, value, text, attrKey); // TODO: check not use
+        this.setDefaultNameAndDisableInput(table, columnType, rowIndex);
 
         // disable data type column not input format
         // this.enableDisableFormatText(dataTypeDropdownElement, value); // ES not use
-
-        // disable copy function if allow select one item
-        this.disableCopyItem(dataTypeDropdownElement, attrKey);
-
-        if (el) {
-            this.parseDataType(dataTypeDropdownElement, el);
+        this.resetOtherMainAttrKey(spreadsheet, shownDataType, rowIndex);
+        this.parseDataType(spreadsheet, dataType, rowIndex, columnType);
+        if ([masterDataGroup.MAIN_DATETIME].includes(columnType)) {
+            // remove dummy datetime
+            const dummyDatetimeRow = spreadsheet.dummyDateTimeRow();
+            if (dummyDatetimeRow && !isFirstLoad) {
+                ProcessConfigSection.removeDummyDatetimeColumn(spreadsheet.table);
+            }
         }
-
-        this.setColumnTypeForMainDateMainTime(dataTypeDropdownElement, attrKey);
-
-        ProcessConfigSection.handleMainDateAndMainTime(dataTypeDropdownElement, attrKey, beforeAttrKey);
+        if (!isFirstLoad) {
+            ProcessConfigSection.handleMainDateAndMainTime(spreadsheet, dataType, columnType, beforeColumnType);
+        }
     }
 
     /**
      * Change to normal data type for the another columns have same data type with main attribute key
-     * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
-     * @param {string} attrKey - main attribute key
+     * @param {SpreadSheetProcessConfig} spreadsheet
+     * @param {string} shownDataType - column type
+     * @param {number} currentRowIndex - main attribute key
      */
-    static resetOtherMainAttrKey(dataTypeDropdownElement, attrKey) {
-        // Find same data type element from another columns
-        const sameDataTypeElements = /** @type HTMLSpanElement[] */ [];
-        [...dataTypeDropdownElement.closest('tbody').querySelectorAll('div.config-data-type-dropdown')].forEach(
-            (dropdownElement) => {
-                const sameDataTypeElement = dropdownElement.querySelector(`[name=dataType][${attrKey}]`);
-                if (dropdownElement !== dataTypeDropdownElement && sameDataTypeElement != null) {
-                    sameDataTypeElements.push(sameDataTypeElement);
-                }
-            },
-        );
+    static resetOtherMainAttrKey(spreadsheet, shownDataType, currentRowIndex) {
+        const [currentRowDataType, currentRowColumnType] =
+            this.convertShownDataTypeToColumnTypeAndDataType(shownDataType);
 
-        if (!sameDataTypeElements.length) return;
+        // Do not check if this column type does not need to be unique.
+        if (!this.AllowSelectOneAttrs.includes(currentRowColumnType)) {
+            return;
+        }
+
+        const sameColumnTypeIndexes = spreadsheet
+            .rowsByColumnTypes(currentRowColumnType)
+            .map((row) => _.first(_.values(row)).rowIndex)
+            .filter((rowIndex) => rowIndex !== currentRowIndex);
 
         // Change to normal data type for another columns have same data type with main attribute key
-        sameDataTypeElements.forEach((el) => this.changeToNormalDataType(el));
+        sameColumnTypeIndexes.forEach((index) => this.changeToNormalDataType(spreadsheet.table, index));
     }
 
     /**
      * Change to normal data type for another columns have same data type with main attribute key
-     * @param {HTMLSpanElement} el
+     * @param {JspreadSheetTable} table
+     * @param {number} rowIndex - index of row
      */
-    static changeToNormalDataType(el) {
-        const anotherDataTypeDropdownElement = el.closest('div.config-data-type-dropdown');
-        let dataType = el.getAttribute('value'); // EDGESERVER ONLY
-        // add Boolean for judge
-        if ([DataTypes.DATE.name, DataTypes.TIME.name].includes(dataType)) {
-            dataType = DataTypes.STRING.name;
-        }
-        this.init(anotherDataTypeDropdownElement);
-        $(anotherDataTypeDropdownElement)
-            .find(`li[value=${dataType}][only-datatype]`) // EDGESERVER ONLY
-            .trigger('click');
+    static changeToNormalDataType(table, rowIndex) {
+        const rowData = table.getRowDataByIndex(rowIndex);
+        const dataType = rowData[PROCESS_COLUMNS.raw_data_type];
+        const normalShownDataType = this.convertColumnTypeAndDataTypeToShownDataType(
+            masterDataGroup.GENERATED,
+            dataType,
+        );
+        const shownDataTypeIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+        table.setValueFromCoords(shownDataTypeIndex, rowIndex, normalShownDataType, true);
     }
 
     /**
@@ -454,13 +509,70 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
-     * Parse DataType
-     * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
-     * @param {HTMLElement} ele
+     * Disable cell in data type column
+     * @param {JspreadSheetTable} table - jspreadsheet table
+     * @param {number} columnType - column type
+     * @param {number} rowIndex - index of row
      */
-    static parseDataType(dataTypeDropdownElement, ele) {
-        const index = $(ele).closest('tr').index();
-        parseDataTypeProc(ele, index, dataTypeDropdownElement);
+    static disableShownDataType(table, columnType, rowIndex, isInitialize = true) {
+        // disable main datetime if process saved
+        if (
+            !isInitialize &&
+            currentProcess &&
+            [masterDataGroup.MAIN_DATETIME, masterDataGroup.MAIN_DATE, masterDataGroup.MAIN_TIME].includes(columnType)
+        ) {
+            const shownDataTypeColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+            const disableCell = table.getCellFromCoords(shownDataTypeColumnIndex, rowIndex);
+            disableCell.classList.add('readonly', 'disabled');
+        }
+    }
+
+    /**
+     * Change Data Type of row
+     * @param {JspreadSheetTable} table - jspreadsheet table
+     * @param {string} newRawDataType
+     * @param {integer} rowIndex
+     */
+    static changeDataType(table, newRawDataType, rowIndex) {
+        const rawDataTypeIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.raw_data_type);
+        table.setValueFromCoords(rawDataTypeIndex, rowIndex, newRawDataType);
+        const dataTypeIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.data_type);
+        const dictConvertDataType = {
+            REAL_SEP: DataTypes.REAL.name,
+            EU_REAL_SEP: DataTypes.REAL.name,
+            INTEGER_SEP: DataTypes.INTEGER.name,
+            EU_INTEGER_SEP: DataTypes.INTEGER.name,
+        };
+        const newDataType = dictConvertDataType[newRawDataType] || newRawDataType;
+        table.setValueFromCoords(dataTypeIndex, rowIndex, newDataType);
+    }
+
+    /**
+     * Change Column Type
+     * @param {JspreadSheetTable} table - jspreadsheet table
+     * @param {number} columnType
+     * @param {number} rowIndex
+     */
+    static changeColumnType(table, columnType, rowIndex) {
+        const columnTypeIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.column_type);
+        table.setValueFromCoords(columnTypeIndex, rowIndex, columnType);
+        // change is main serial
+        const isGetDateColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.is_get_date);
+        table.setValueFromCoords(isGetDateColumnIndex, rowIndex, columnType === masterDataGroup.MAIN_DATETIME);
+        // change is main serial
+        const isMainSerialColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.is_serial_no);
+        table.setValueFromCoords(isMainSerialColumnIndex, rowIndex, columnType === masterDataGroup.MAIN_SERIAL);
+    }
+
+    /**
+     * Parse DataType
+     * @param {SpreadSheetProcessConfig} spreadsheet
+     * @param {string} dataType - new dataType
+     * @param {number} rowIndex - rowIndex
+     * @param {number} columnType - column type
+     */
+    static parseDataType(spreadsheet, dataType, rowIndex, columnType) {
+        parseDataTypeProc(spreadsheet, dataType, rowIndex, columnType);
     }
 
     /**
@@ -473,37 +585,6 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
-     * Handle Copy To All Below
-     * @param {Event} event
-     */
-    static handleCopyToAllBelow(event) {
-        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
-        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
-            'div.config-data-type-dropdown',
-        );
-        const [value, attrKey, showValueEl] = this.getDataOfSelectedOption(dataTypeDropdownElement);
-        const optionEl = this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey);
-        const nextRows = [...$(showValueEl.closest('tr')).nextAll()];
-        nextRows.forEach((row) => {
-            const isMasterCol = row.getAttribute('is-master-col') === 'true';
-            if (isMasterCol) {
-                return;
-            }
-
-            const dataTypeDropdownElement =
-                /** @type HTMLDivElement */
-                row.querySelector('div.config-data-type-dropdown');
-            this.changeDataType(
-                dataTypeDropdownElement,
-                value,
-                optionEl.text(),
-                attrKey,
-                this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey)[0],
-            );
-        });
-    }
-
-    /**
      * Get Data Of Selected Option
      * @param {HTMLDivElement} dataTypeDropdownElement - an HTML object of dropdown
      * @return {(string|string|string|HTMLElement)[]}
@@ -513,36 +594,6 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const attrKey = this.getAttrOfDataTypeItem(showValueEl);
         const dataType = showValueEl.dataset.rawDataType;
         return [dataType, attrKey, showValueEl];
-    }
-
-    /**
-     * Handle Copy To Filtered
-     * @param {Event} event
-     */
-    static handleCopyToFiltered(event) {
-        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
-        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
-            'div.config-data-type-dropdown',
-        );
-        const [value, attrKey] = this.getDataOfSelectedOption(dataTypeDropdownElement);
-        const optionEl = this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey);
-        const filterRows = [...$(dataTypeDropdownElement).closest('table').find('tbody tr:not(.gray):visible')];
-        filterRows.forEach((row) => {
-            const isMasterCol = row.getAttribute('is-master-col') === 'true';
-            if (isMasterCol) {
-                return;
-            }
-            const dataTypeDropdownElement =
-                /** @type HTMLDivElement */
-                row.querySelector('div.config-data-type-dropdown');
-            this.changeDataType(
-                dataTypeDropdownElement,
-                value,
-                optionEl.text(),
-                attrKey,
-                this.getOptionByAttrKey(dataTypeDropdownElement, value, attrKey)[0],
-            );
-        });
     }
 
     /**
@@ -590,57 +641,155 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
-     * Convert Column Type To Attr Key
+     * Convert Column Type and DataType To Show Data Type
      * @public
      * @param {number} columnType - column type
-     * @return {ColumnTypeInfo} - column attribute dict
+     * @return {string} - column attribute dict
      */
-    static convertColumnTypeToAttrKey(columnType = 99) {
-        const col = {};
-        switch (columnType) {
-            case this.DataGroupType['MAIN_SERIAL']:
-                col.is_serial_no = false;
-                col.is_main_serial_no = true;
-                return col;
-            case this.DataGroupType['SERIAL']:
-                col.is_serial_no = true;
-                col.is_main_serial_no = false;
-                return col;
-            case this.DataGroupType['LINE_NAME']:
-                col.is_line_name = true;
-                return col;
-            case this.DataGroupType['LINE_NO']:
-                col.is_line_no = true;
-                return col;
-            case this.DataGroupType['EQ_NAME']:
-                col.is_eq_name = true;
-                return col;
-            case this.DataGroupType['EQ_NO']:
-                col.is_eq_no = true;
-                return col;
-            case this.DataGroupType['PART_NAME']:
-                col.is_part_name = true;
-                return col;
-            case this.DataGroupType['PART_NO']:
-                col.is_part_no = true;
-                return col;
-            case this.DataGroupType['ST_NO']:
-                col.is_st_no = true;
-                return col;
-            case this.DataGroupType['JUDGE']:
-                col.is_judge = true;
-                return col;
-            case this.DataGroupType['INT_CATE']:
-                col.is_int_cat = true;
-                return col;
-            case this.DataGroupType['MAIN_DATE']:
-                col.is_main_date = true;
-                return col;
-            case this.DataGroupType['MAIN_TIME']:
-                col.is_main_time = true;
-                return col;
+    static convertColumnTypeAndDataTypeToShownDataType(columnType, dataType) {
+        let col = DataTypes.STRING.selectionBoxDisplay;
+        if (dataType === DataTypes.DATETIME.name) {
+            if (columnType === masterDataGroup.MAIN_DATETIME) {
+                col = $(procModali18n.i18nMainDatetime).text();
+            } else if (columnType === masterDataGroup.DATETIME_KEY) {
+                col = $(procModali18n.i18nDatetimeKey).text();
+            } else {
+                col = DataTypes.DATETIME.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.INTEGER.name) {
+            if (columnType === masterDataGroup.MAIN_SERIAL) {
+                col = $(procModali18n.i18nMainSerialInt).text();
+            } else if (columnType === masterDataGroup.SERIAL) {
+                col = $(procModali18n.i18nSerialInt).text();
+            } else if (columnType === masterDataGroup.PART_NO) {
+                col = $(procModali18n.i18nPartNoInt).text();
+            } else if (columnType === masterDataGroup.LINE_NO) {
+                col = $(procModali18n.i18nLineNoInt).text();
+            } else if (columnType === masterDataGroup.EQ_NO) {
+                col = $(procModali18n.i18nEqNoInt).text();
+            } else if (columnType === masterDataGroup.ST_NO) {
+                col = $(procModali18n.i18nStNoInt).text();
+            } else if (columnType === masterDataGroup.INT_CATE) {
+                col = DataTypes.INTEGER_CAT.selectionBoxDisplay;
+            } else {
+                col = DataTypes.INTEGER.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.INTEGER_SEP.name) {
+            col = procModali18n.i18nIntSep;
+        } else if (dataType === DataTypes.EU_INTEGER_SEP.name) {
+            col = procModali18n.i18nEuIntSep;
+        }
+        if (dataType === DataTypes.STRING.name) {
+            if (columnType === masterDataGroup.MAIN_SERIAL) {
+                col = $(procModali18n.i18nMainSerialStr).text();
+            } else if (columnType === masterDataGroup.SERIAL) {
+                col = $(procModali18n.i18nSerialStr).text();
+            } else if (columnType === masterDataGroup.PART_NAME) {
+                col = $(procModali18n.i18nPartNameStr).text();
+            } else if (columnType === masterDataGroup.LINE_NAME) {
+                col = $(procModali18n.i18nLineNameStr).text();
+            } else if (columnType === masterDataGroup.EQ_NAME) {
+                col = $(procModali18n.i18nEqNameStr).text();
+            } else {
+                col = DataTypes.STRING.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.DATE.name) {
+            if (columnType === masterDataGroup.MAIN_DATE) {
+                col = $(procModali18n.i18nMainDate).text();
+            } else {
+                col = DataTypes.DATE.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.TIME.name) {
+            if (columnType === masterDataGroup.MAIN_TIME) {
+                col = $(procModali18n.i18nMainTime).text();
+            } else {
+                col = DataTypes.TIME.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.BOOLEAN.name) {
+            if (columnType === masterDataGroup.JUDGE) {
+                col = $(procModali18n.i18nJudgeNo).text();
+            } else {
+                col = DataTypes.BOOLEAN.selectionBoxDisplay;
+            }
+        }
+        if (dataType === DataTypes.REAL.name) {
+            col = DataTypes.REAL.selectionBoxDisplay;
+        } else if (dataType === DataTypes.REAL_SEP.name) {
+            col = procModali18n.i18nRealSep;
+        } else if (dataType === DataTypes.EU_REAL_SEP.name) {
+            col = procModali18n.i18nEuRealSep;
+        }
+        return col;
+    }
+
+    /**
+     * Convert Column Type and DataType To Shown Data Type
+     * @public
+     * @param {String} - shown data type
+     */
+    static convertShownDataTypeToColumnTypeAndDataType(shownDataType) {
+        switch (shownDataType) {
+            // master data type
+            case $(procModali18n.i18nMainDatetime).text():
+                return [DataTypes.DATETIME.name, masterDataGroup.MAIN_DATETIME];
+            case $(procModali18n.i18nDatetimeKey).text():
+                return [DataTypes.DATETIME.name, masterDataGroup.DATETIME_KEY];
+            case $(procModali18n.i18nMainSerialInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.MAIN_SERIAL];
+            case $(procModali18n.i18nSerialInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.SERIAL];
+            case $(procModali18n.i18nPartNoInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.PART_NO];
+            case $(procModali18n.i18nLineNoInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.LINE_NO];
+            case $(procModali18n.i18nEqNoInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.EQ_NO];
+            case $(procModali18n.i18nStNoInt).text():
+                return [DataTypes.INTEGER.name, masterDataGroup.ST_NO];
+            case $(procModali18n.i18nMainSerialStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.MAIN_SERIAL];
+            case $(procModali18n.i18nSerialStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.SERIAL];
+            case $(procModali18n.i18nPartNameStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.PART_NAME];
+            case $(procModali18n.i18nLineNameStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.LINE_NAME];
+            case $(procModali18n.i18nEqNameStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.EQ_NAME];
+            case $(procModali18n.i18nMainDate).text():
+                return [DataTypes.DATE.name, masterDataGroup.MAIN_DATE];
+            case $(procModali18n.i18nMainTime).text():
+                return [DataTypes.TIME.name, masterDataGroup.MAIN_TIME];
+            case $(procModali18n.i18nJudgeNo).text():
+                return [DataTypes.BOOLEAN.name, masterDataGroup.JUDGE];
+            // normal data type
+            case DataTypes.DATETIME.selectionBoxDisplay:
+                return [DataTypes.DATETIME.name, masterDataGroup.GENERATED];
+            case DataTypes.STRING.selectionBoxDisplay:
+                return [DataTypes.STRING.name, masterDataGroup.GENERATED];
+            case DataTypes.INTEGER_CAT.selectionBoxDisplay:
+                return [DataTypes.INTEGER.name, masterDataGroup.INT_CATE];
+            case procModali18n.i18nIntSep:
+                return [DataTypes.INTEGER_SEP.name, masterDataGroup.GENERATED];
+            case procModali18n.i18nEuIntSep:
+                return [DataTypes.EU_INTEGER_SEP.name, masterDataGroup.GENERATED];
+            case DataTypes.INTEGER.selectionBoxDisplay:
+                return [DataTypes.INTEGER.name, masterDataGroup.GENERATED];
+            case DataTypes.BOOLEAN.selectionBoxDisplay:
+                return [DataTypes.BOOLEAN.name, masterDataGroup.GENERATED];
+            case procModali18n.i18nRealSep:
+                return [DataTypes.REAL_SEP.name, masterDataGroup.GENERATED];
+            case procModali18n.i18nEuRealSep:
+                return [DataTypes.EU_REAL_SEP.name, masterDataGroup.GENERATED];
+            case DataTypes.REAL.selectionBoxDisplay:
+                return [DataTypes.REAL.name, masterDataGroup.GENERATED];
             default:
-                return col;
+                return [DataTypes.STRING.name, masterDataGroup.GENERATED];
         }
     }
 }

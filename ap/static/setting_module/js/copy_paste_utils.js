@@ -1,5 +1,3 @@
-const TAB_CHAR = '\t';
-const NEW_LINE_CHAR = '\n';
 const getTRDataValues = (tr) => {
     const children = [...(tr?.querySelectorAll('td:not(.d-none)') ?? [])];
     return children.map((td) => {

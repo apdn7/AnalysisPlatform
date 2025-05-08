@@ -1,20 +1,22 @@
 import colorsys
 import logging
+import warnings
 
 import numpy as np
 import pandas as pd
 from group_lasso import GroupLasso, LogisticGroupLasso
-from sklearn.linear_model import Ridge, RidgeClassifier
+from sklearn.exceptions import ConvergenceWarning
+from sklearn.linear_model import LassoCV, LogisticRegressionCV, Ridge, RidgeClassifier
 from sklearn.metrics import (
     accuracy_score,
     auc,
+    log_loss,
     precision_recall_curve,
     precision_score,
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +39,12 @@ def preprocess_skdpage(
     colname_y: str,
     cat_cols=[],
     penalty_factors=[0.0, 10.0, 20.0, 50.0],
+    strengthen_selection=False,
     max_datapoints=5000,
     verbose=False,
     colids_x=[],
     nominal_variables=[],
+    objective_var_shown_name='',
 ):
     """
     Main function to generate data for SkD page (with group lasso)
@@ -62,11 +66,14 @@ def preprocess_skdpage(
         A list of sensor names of categorical values.
     penalty_factors : list
         Reguralization factor for group lasso.
+    strengthen_selection: True/False
+        If True, search appropriate parameter for L1 penalty for more variable selection
     max_datapoints : int
         If X.shape[0] exceeds this value, take random samples from X to save time.
     verbose : True/False
         If True, print info
-
+    objective_var_shown_name : str
+        Example: MagazineNo
     Returns
     ----------
     dic_skd : dict
@@ -80,78 +87,315 @@ def preprocess_skdpage(
     idx: 1d NumpyArray
         Index of rows used for training the model
     """
-    # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
-    np.random.seed(1)  # noqa: NPY002
+    np.random.default_rng(1)
 
-    # prepare group information
+    # detect categorical data
+    y = y.flatten()
+    is_categorical = is_categorical_objective(y)
+    if is_categorical:
+        logger.info('Fitting logistic regression model')
+
+    # sub-sampling
+    # - regression: random sampling
+    # - classification: adjust imbalance
+    idx = subsample_for_skd(y, is_categorical, max_datapoints)
+    X = X.iloc[idx, :].reset_index(drop=True)
+    y = y[idx]
+
+    # group lasso and ridge regression
+    ## prepare group information
     uniq_grps, idx_grps = np.unique(groups, return_inverse=True)
     dic_groups = {
-        'colnames_x': colnames_x,
-        'colids_x': colids_x,
+        'colnames_x': np.array(colnames_x),
+        'colids_x': np.array(colids_x),
         'colname_y': colname_y,
         'cat_cols': cat_cols,
+        'nominal_variables': nominal_variables,
         'groups': groups,  # group names (raw)
         'idx_grps': idx_grps,  # group names (int)
         'uniq_grps': uniq_grps,  # unique group names
         'num_grps': len(uniq_grps),
-    }  # number of unique groups
+        'classes': None,
+        'objective': objective_var_shown_name,
+    }
+    if is_categorical:
+        dic_groups['classes'] = np.unique(y).tolist()
 
-    # detect binary data
-    is_binary = False
-    y = y.flatten()
-    uniq_vals = np.unique(y)
-    if np.issubdtype(type(y[0]), np.integer) and len(uniq_vals) == 2:
-        is_binary = True
-        y = y.astype(np.int64)
-        logger.info('Detected integer with 2 values. Fitting logistic regression model')
-
-    # resample data if exceed max_datapoints
-    # - stratified sampling when binary
-    # - store sample indices
-    idx = np.arange(X.shape[0])
-    if X.shape[0] > max_datapoints:
-        if is_binary:
-            _, _, _, _, _, idx = train_test_split(
-                X.copy(),
-                y,
-                idx,
-                test_size=max_datapoints,
-                stratify=y,
-            )
-        else:
-            _, _, _, _, _, idx = train_test_split(
-                X.copy(),
-                y,
-                idx,
-                test_size=max_datapoints,
-            )
-        idx = np.sort(idx.flatten())
-        X = X.iloc[idx, :].reset_index(drop=True)
-        y = y[idx]
-        if verbose:
-            logger.info(f'Number of data points exceeded {max_datapoints}. Data is automatically resampled. ')
-    y = y.reshape(-1, 1)
-
-    # group lasso and ridge regression
-    coef, group_order, fitted_values, fitted_probs, r2 = calc_coef_and_group_order(
+    ## fit models
+    coef, group_order, fitted_values, fitted_probs = calc_coef_and_group_order(
         X,
         y,
         dic_groups,
         penalty_factors,
-        is_binary,
+        is_categorical,
+        strengthen_selection,
         verbose=verbose,
         nominal_variables=nominal_variables,
     )
 
-    # skd data
+    ## calculate statistics
+    if is_categorical:
+        dic_tbl = calc_classification_stats(y, fitted_values, fitted_probs)
+    else:
+        dic_tbl = calc_regression_stats(y, fitted_values, coef)
+
+    # prepare data for plotly
     processor = GroupSankeyDataProcessor(coef, dic_groups, group_order, max_vars=20, verbose=verbose)
     dic_skd, dic_bar = processor.gen_dicts()
-    dic_scp = {'actual': y.flatten(), 'fitted': fitted_values}
-    if is_binary:
-        dic_tbl = calc_classification_stats(y.flatten(), fitted_values, fitted_probs, uniq_vals)
+    dic_scp = {'actual': y, 'fitted': fitted_values}
+    cat_cols_in_col_x = [col for col in dic_groups['cat_cols'] if col in X]
+    cat_cols_high_cardinality = get_high_cardinality_var(X.loc[:, cat_cols_in_col_x])
+    msg = gen_summary_text_skd(dic_groups, dic_bar, cat_cols_high_cardinality)
+    return is_categorical, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg
+
+
+def is_categorical_objective(y: np.array) -> bool:
+    """Determine if the datatype of the objective is categorical or not"""
+    is_int = np.issubdtype(y.dtype, np.integer)
+    is_real = np.issubdtype(y.dtype, np.floating)
+    is_obj = (not is_int) and (not is_real)
+    is_binary = False
+    if is_int:
+        uniq_vals = np.unique(y)
+        is_binary = len(uniq_vals) == 2
+    is_categorical = is_binary or is_obj
+    return is_categorical
+
+
+def subsample_for_skd(y: np.array, is_categorical: bool, max_datapoints=10000) -> np.array:
+    """Subsampling for SkD objective variable"""
+    idx = np.arange(len(y))
+    if is_categorical:
+        _, idx = subsample_for_classification(y, n_max=max_datapoints)
+    elif len(y) > max_datapoints:
+        idx = create_subsampling_index(idx, max_datapoints)
+    idx = np.sort(idx.flatten())
+    return idx
+
+
+def subsample_for_classification(
+    x,
+    n_max=10_000,
+    keep_topk_class=5,
+    ratio_ignore_under=0.001,
+    imbalance_ratio=10,
+) -> np.array:
+    """Apply subsampling for classification: categorical objective value"""
+    rowidx = np.arange(len(x))
+    classes, n_per_class = np.unique(x, return_counts=True)
+
+    if len(classes) > 2:
+        # if multiclass, drop classes with small datapoints
+        drop_classes = get_classes_with_small_datapoints(classes, n_per_class, keep_topk_class)
+        rowidx = np.array([idx for idx, x in enumerate(x) if x not in drop_classes])
+        classes, n_per_class = np.unique(x[rowidx], return_counts=True)
+        logger.info(f'dropoed classes: {drop_classes}')
+
+    # get classes to undersample
+    n_subsample = calc_subsample_datapoints(classes, n_per_class, ratio_ignore_under, imbalance_ratio)
+    if len(rowidx) > n_max:
+        n_subsample = np.min([n_subsample, int(n_max / len(classes))])
+    classes_to_undersample = classes[n_per_class > n_subsample]
+    logger.info(f'classes_to_undersample: {classes_to_undersample}, to n={n_subsample}')
+
+    # subsampling
+    if len(classes_to_undersample) > 0:
+        rowidx_sub = []
+        for i, cls in enumerate(classes):
+            rowidx_cls = rowidx[x[rowidx] == cls]
+            if n_per_class[i] > n_subsample:
+                rowidx_cls = rowidx_cls[create_subsampling_index(rowidx_cls, n_subsample)]
+            rowidx_sub.append(rowidx_cls)
+        rowidx_sub = np.hstack(rowidx_sub)
+        rowidx_sub = np.sort(rowidx_sub)
+        x = x[rowidx_sub]
+        print_class_ratios(x)
     else:
-        dic_tbl = calc_regression_stats(y, fitted_values, r2, coef)
-    return is_binary, dic_skd, dic_bar, dic_scp, dic_tbl, idx
+        rowidx_sub = rowidx
+    return x, rowidx_sub
+
+
+def get_classes_with_small_datapoints(classes: np.array, n_per_class: np.array, keep_topk=10) -> np.array:
+    """Return classes with small number of samples (under keep_topk classes)"""
+    classes = classes[np.argsort(n_per_class)[::-1][(keep_topk):]]
+    return classes
+
+
+def calc_subsample_datapoints(
+    classes: np.array,
+    n_per_class: np.array,
+    ratio_ignore_under=0.001,
+    imbalance_ratio=10,
+) -> int:
+    """Calculate the number of datapoints after subsampling"""
+    ratio_per_class = n_per_class / np.sum(n_per_class)
+    n_minimum = (
+        np.min(n_per_class)
+        if len(classes) == 2
+        else np.min(
+            n_per_class[ratio_per_class > ratio_ignore_under],
+        )
+    )  # minimum datapoints of a class that exceeds ratio
+    n_classes = len(classes)
+    return int(np.floor(imbalance_ratio * n_minimum / (n_classes - 1)))
+
+
+def create_subsampling_index(x: np.array, n: int) -> np.array:
+    """
+    Create sequence of integers with length n that starts with 0 and ends with len(x)-1 with almost equal intervals
+    """
+    idx = np.linspace(0, len(x) - 1, num=n)
+    idx = idx.astype(int)
+    return idx
+
+
+def print_class_ratios(x: np.array):
+    """Print number of data points and ratios for each datapoints"""
+    classes, n_per_class = np.unique(x, return_counts=True)
+    rate_per_class = n_per_class / len(x)
+    logger.info('class = n (rate)')
+    for cls, cnt, rate in zip(classes, n_per_class, rate_per_class):
+        logger.info(f'{cls} = {cnt} ({rate:.4f})')
+
+
+def get_high_cardinality_var(df, threshold=0.5) -> np.array:
+    """Determine variables with high cardinality"""
+    nrows = df.shape[0]
+    uniq_cnts = df.nunique()
+    cols_high_cardinality = df.columns.to_numpy()[uniq_cnts > threshold * nrows]
+    return cols_high_cardinality
+
+
+def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinality: np.array) -> list:
+    '''
+    Generate summary text for SkD
+
+    Parameters
+    ----------
+    dic_groups: dict
+        A dictionary with group information. This function will use items colids_x and cat_cols
+    dic_bar: dict
+        A dictionary with
+    cat_cols_high_cardinality: np.array
+        An array with columns with high cardinality
+
+    Returns
+    ----------
+    msg: list
+        A list with a dictionary in each element.
+        For example: [{"message": {"en": "message1", "ja": "message2"}},
+        {"message": {"en": "message3", "ja": "message4"}}]
+    '''
+
+    # Number of variables selected
+    # Variable with highest coefficient
+    # List of categorical variables
+    # Too strong correlation
+    # Too many variables selected -> Jump to ScP
+    # Variables with high cardinality
+
+    msg = []
+    cat_cols = dic_groups['cat_cols']
+    colids_x = dic_groups['colids_x']
+
+    # Number of variables
+    if len(dic_bar['sensor_names']) < len(colids_x):
+        msg_varnum = {
+            'message': {
+                'en': f"From {len(colids_x)} variables, top {len(dic_bar['sensor_names'])} are shown",
+                'ja': f"計{len(colids_x)}個の変数のうち、上位{len(dic_bar['sensor_names'])}個が表示されています",
+            },
+        }
+        msg.append(msg_varnum)
+
+    # Variable with highest coefficient
+    top1_sensor = dic_bar['sensor_names'][np.argsort(np.abs(dic_bar['coef']))[-1]]
+    msg_top1 = {
+        'message': {
+            'en': f"Variable with strongest relationship with {dic_groups['objective']}: {top1_sensor}",
+            'ja': f"{dic_groups['objective']}に対して最も強い関係性をもつ変数: {top1_sensor}",
+        },
+    }
+    msg.append(msg_top1)
+
+    # Categorical Variables
+    selected_cat_cols = [str(x) for x, y in zip(dic_bar['sensor_names'], dic_bar['sensor_ids']) if y in cat_cols]
+    if len(selected_cat_cols) > 0:
+        msg_catcols = {
+            'message': {
+                'en': f"Categorical variables: {', '.join(selected_cat_cols)} is selected. "
+                f"Consider analyzing them using PCP/StP/etc.",
+                # fmt: off
+                'ja': f"カテゴリ型の変数: {', '.join(selected_cat_cols)} が選択されました。"
+                f"PCPやStPなどを用いてカテゴリ別の傾向を分析することを検討しましょう",
+                # fmt: on
+            },
+        }
+        msg.append(msg_catcols)
+
+    # Too many variables selected -> Jump to ScP
+    if len(dic_bar['sensor_names']) > 20:
+        # fmt: off
+        msg_manyvars = {
+            'message':
+            {
+                'en': f"Many variables are selected. {dic_bar['objective']} might be a complex phenomenon."
+                f"Consider visualizing PCP/ScP and check if cluster exists",
+                'ja': f"多くの変数が選択されました。{dic_bar['objective']} は複雑な現象である可能性があります。"
+                f"PCPやScPなどで可視化を行い、クラスタ構造がないかを確認しましょう",
+            },
+        }
+        # fmt: on
+        msg.append(msg_manyvars)
+
+    # Variables with high cardinality
+    selected_cols_high_cardinality = [
+        str(x) for x, y in zip(dic_bar['sensor_names'], dic_bar['sensor_ids']) if y in cat_cols_high_cardinality
+    ]
+    if len(cat_cols_high_cardinality) > 0:
+        # fmt: off
+        msg_nuniques = {
+            'message':
+            {
+                'en': f"Columns with large number of unique values have detected: {', '.join(selected_cols_high_cardinality)}." # noqa: E501
+                f"If you are not interested in the differences such as serial numbers or lot numbers, exclude them from the analysis", # noqa: E501
+                'ja': f"値の種類が非常に多いカラムを検知しました: {', '.join(selected_cols_high_cardinality)}。"
+                f"シリアル番号やロット番号など、その差に興味がない場合は分析から外しましょう",
+            },
+        }
+        # fmt: on
+        msg.append(msg_nuniques)
+
+    # Too strong correlation
+    if len(dic_bar['sensor_names']) > 1:
+        threshold = 0.8
+        coef = np.abs(np.array(dic_bar['coef']))
+        is_coef_over_sum = coef > threshold * np.sum(coef)
+        if np.any(is_coef_over_sum):
+            col_coef_over_sum = dic_bar['sensor_names'][is_coef_over_sum][0]  # 1 sensor is detected at maximum
+            # fmt: off
+            msg_ratio = {
+                'message':
+                {
+                    'en': f"{col_coef_over_sum} has high relationship to {dic_bar['objective']} compared with others. If this relationship is obvious, consider removing {col_coef_over_sum}.", # noqa: E501
+                    'ja': f"{col_coef_over_sum} は他と比較して、{dic_bar['objective']}に対して非常に高い関係性をもっています。この関係性が自明である場合、{col_coef_over_sum} を分析から外しましょう。", # noqa: E501
+                },
+            }
+            # fmt: on
+            msg.append(msg_ratio)
+
+    # Next Step
+    msg_next = {
+        # fmt: off
+        'message':
+        {
+            'en': 'Next step: Keeping in mind the estimated relationships, use PCP/StP/etc. to analyze selected variables', # noqa: E501
+            'ja': '次のステップ: 推定された関係性を念頭におき、PCP/Stp などを使用して選択された変数をより詳しく分析しましょう', # noqa: E501
+        },
+        # fmt: on
+    }
+    msg.append(msg_next)
+    return msg
 
 
 def calc_coef_and_group_order(
@@ -159,7 +403,8 @@ def calc_coef_and_group_order(
     y,
     dic_groups,
     penalty_factors=[0, 0.5, 1.0, 5.0],
-    is_binary=False,
+    is_categorical=False,
+    strengthen_selection=False,
     verbose=False,
     nominal_variables=[],
 ):
@@ -177,8 +422,10 @@ def calc_coef_and_group_order(
         A dictionary with group information
     penalty_factors : list
         Reguralization factor for group lasso.
-    is_binary : bool
+    is_categorical : bool
         if True, fit Logistic regression.
+    strengthen_selection: True/False
+        If True, search appropriate parameter for L1 penalty for more variable selection
     verbose : True/False
 
     Returns
@@ -193,34 +440,39 @@ def calc_coef_and_group_order(
         R square value
     """
 
-    coef = np.zeros(X.shape[1])
+    coef = np.zeros((X.shape[1], 1))
+    if is_categorical and len(dic_groups['classes']) > 2:
+        coef = np.zeros((X.shape[1], len(np.unique(y))))
+
     group_order = np.arange(dic_groups['num_grps'])
-    y_scaler = StandardScaler()
 
     # preprocessing
-    for col in X.columns:
-        if col in dic_groups['cat_cols']:
-            is_nominal_scale = col in nominal_variables
-            X[col] = labelencode_by_stat(
-                X[col].astype('string').to_numpy().flatten(),
-                y.flatten(),
-                is_nominal_scale=is_nominal_scale,
-            )
-        X.loc[:, col] = StandardScaler().fit_transform(X[col].to_numpy().astype(float).reshape(-1, 1))
-
-    if is_binary is False:
-        y = y_scaler.fit_transform(y)
-    X = X.to_numpy()
+    # Categoricals: labelencode with stats (similar to target encoding)
+    # Others: Standardization
+    # X_preprocessor = SkdXPreprocessor(dic_groups["cat_cols"], nominal_variables)
+    # X = X_preprocessor.fit_transform(X, y)
+    # y_preprocessor = SkdYPreprocessor(is_categorical)
+    # y = y_preprocessor.fit_transform(y)
 
     # groups lasso (if 2 or more groups are given)
-    idx_for_ridge = np.arange(X.shape[1])
+    # this is to determine group order
+    idx_for_lasso = np.arange(X.shape[1])
     if dic_groups['num_grps'] > 1:
         # fit group lasso with various penalty factors (no L1 penalty)
-        coef_history, bic = fit_grplasso(X, y.flatten(), dic_groups['idx_grps'], penalty_factors, is_binary, verbose)
+        coef_history, bic = fit_grplasso(X.copy(), y.copy(), dic_groups, penalty_factors, is_categorical, verbose)
         # determine order of groups
         group_order = determine_group_order(coef_history, dic_groups)
         # use selected columns ffor ridge regression
-        idx_for_ridge = np.where(np.abs(coef_history[np.argmin(bic), :]) > 0.0)[0]
+        idx_for_lasso = np.where(np.abs(coef_history[np.argmin(bic), :]) > 0.0)[0]
+
+    if len(idx_for_lasso) == 0:
+        idx_for_lasso = np.arange(X.shape[1])
+
+    # L1 penalty for further variable selection
+    if strengthen_selection:
+        idx_for_ridge = idx_for_lasso[fit_lasso(X.iloc[:, idx_for_lasso], y, dic_groups, is_categorical=is_categorical)]
+    else:
+        idx_for_ridge = idx_for_lasso
 
     # re-calculate coefficients with ridge regression
     if len(idx_for_ridge) == 0:
@@ -228,10 +480,11 @@ def calc_coef_and_group_order(
         idx_for_ridge = np.arange(X.shape[1])
 
     # re-calculate coefficients with ridge regression
-    coef[idx_for_ridge], fitted_values, fitted_probs, r2 = fit_ridge(
-        X[:, idx_for_ridge],
-        y.flatten(),
-        is_binary=is_binary,
+    coef[idx_for_ridge, :], fitted_values, fitted_probs = fit_ridge(
+        X.iloc[:, idx_for_ridge],
+        y,
+        dic_groups,
+        is_categorical=is_categorical,
     )
 
     if verbose:
@@ -244,9 +497,43 @@ Coef: {coef}
 ''',
         )
 
-    if is_binary is False:
-        fitted_values = y_scaler.inverse_transform(fitted_values.reshape(1, -1))[0]
-    return coef, group_order, fitted_values, fitted_probs, r2
+    return coef, group_order, fitted_values, fitted_probs
+
+
+class SkdXPreprocessor:
+    def __init__(self, cat_cols, nominal_variables):
+        self.cat_cols = cat_cols
+        self.nominal_variables = nominal_variables
+
+    def fit_transform(self, X, y):
+        for col in X.columns.to_numpy():
+            if col in self.cat_cols:
+                is_nominal_scale = col in self.nominal_variables
+                X.loc[:, col] = labelencode_by_stat(
+                    X[col].astype(str).to_numpy().flatten(),
+                    y.flatten(),
+                    is_nominal_scale=is_nominal_scale,
+                )
+            X.loc[:, col] = StandardScaler().fit_transform(X[col].to_numpy().astype(float).reshape(-1, 1))
+        X = X.to_numpy()
+        return X
+
+
+class SkdYPreprocessor:
+    def __init__(self, is_categorical):
+        self.is_categorical = is_categorical
+        self.scaler = None
+
+    def fit_transform(self, y):
+        if self.is_categorical is False:
+            self.scaler = StandardScaler()
+            y = self.scaler.fit_transform(y.reshape((-1, 1)))
+        return y.flatten()
+
+    def inverse_transform(self, y):
+        if self.is_categorical is False:
+            y = self.scaler.inverse_transform(y.reshape((-1, 1)))
+        return y
 
 
 def labelencode_by_stat(x, y, how='mean', is_nominal_scale=True):
@@ -269,7 +556,7 @@ def labelencode_by_stat(x, y, how='mean', is_nominal_scale=True):
     return x_encoded.to_numpy()
 
 
-def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_binary=False, verbose=False):
+def fit_grplasso(X, y, dic_groups, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_categorical=False, verbose=False):
     """
     Fit group lasso in each penalty factor.
 
@@ -279,11 +566,11 @@ def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_b
         Explanatory variables.
     y : 1d NumpyArray
         Objective variable.
-    grps : 1d NumpyArray
-        Group ID assigned to each explanatory variable.
+    dic_groups : dict
+        A dictionary with group information
     penalty_factors : list
         Lasso reguralization factor for group lasso.
-    is_binary : bool
+    is_categorical : bool
         if True, fit Logistic regression.
 
     Returns
@@ -298,7 +585,7 @@ def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_b
     coef_history = np.empty((len(penalty_factors), X.shape[1]))
 
     params = {
-        'groups': grps,
+        'groups': dic_groups['idx_grps'],
         'l1_reg': 0.003,
         'scale_reg': 'inverse_group_size',
         'supress_warning': True,
@@ -307,15 +594,34 @@ def fit_grplasso(X, y, grps, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0], is_b
     }
 
     for i, rho in enumerate(penalty_factors):
-        if is_binary:
-            gl = LogisticGroupLasso(group_reg=rho, **params)
-            gl.fit(X, y)
-            coef_history[i, :] = gl.coef_[:, 1].flatten() - gl.coef_[:, 0].flatten()
+        if is_categorical:
+            y_ohe = OneHotEncoder(sparse_output=False, categories=[dic_groups['classes']]).fit_transform(
+                y.reshape(-1, 1),
+            )
+            y_fit = np.zeros_like(y_ohe)
+            coef = np.zeros((X.shape[1], len(dic_groups['classes'])))
+            for cls in range(len(dic_groups['classes'])):
+                X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(
+                    X,
+                    y_ohe[:, cls],
+                )
+                y_train = SkdYPreprocessor(is_categorical).fit_transform(y_ohe[:, cls])
+                gl = LogisticGroupLasso(group_reg=rho, **params)
+                gl.fit(X_train, y_train)
+                y_fit[:, cls] = gl.predict_proba(X_train)[:, 1]
+                coef[:, cls] = gl.coef_[:, 1] - gl.coef_[:, 0]
+            coef_history[i, :] = np.sum(np.abs(coef), axis=1)
+            bic[i] = calc_bic(y_fit, y_ohe, coef_history[i, :], is_categorical)
+
         else:
+            X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(X, y)
+            scaler = StandardScaler().fit(y.reshape((-1, 1)))
+            y_train = scaler.transform(y.reshape((-1, 1)))
             gl = GroupLasso(group_reg=rho, frobenius_lipschitz=False, **params)
-            gl.fit(X, y)
+            gl.fit(X_train, y_train)
             coef_history[i, :] = gl.coef_.flatten()
-        bic[i] = calc_bic(gl.predict(X).flatten(), y, gl.coef_)
+            y_fit = gl.predict(X_train).flatten()
+            bic[i] = calc_bic(y_fit, y_train.flatten(), gl.coef_, is_categorical)
 
         if verbose:
             logger.info(
@@ -330,7 +636,7 @@ Number of dropped columns: {np.sum(coef_history[i, :] == 0.0)}
     return coef_history, bic
 
 
-def calc_bic(y_est, y_true, coef):
+def calc_bic(y_est, y_true, coef, is_categorical):
     # calc_bic(mse, sample_size, coef):
     """
     Calculate Bayesian Information Criteria (BIC).
@@ -343,6 +649,8 @@ def calc_bic(y_est, y_true, coef):
         Number of data points.
     coef : 1d NumpyArray
         Coefficients of linear regression.
+    is_categorical: True/False
+        If true, y_est and y_true are one hot encoded.
 
     Returns
     ----------
@@ -350,16 +658,21 @@ def calc_bic(y_est, y_true, coef):
         Calculated BIC. Smaller the better.
     """
 
-    # from sklearn
-    # https://github.com/scikit-learn/scikit-learn/blob/0d378913b/sklearn/linear_model/_least_angle.py#L1957
     n_samples = len(y_est)
-    resid = y_est - y_true
-    mean_squared_error = np.mean(resid**2)
-    sigma2 = np.var(y_true)
-    eps64 = np.finfo('float64').eps
-    K = np.log(n_samples)
     df = np.sum(np.abs(coef) > 0.0)
-    bic = n_samples * mean_squared_error / (sigma2 + eps64) + K * df
+    if is_categorical:
+        # negative log-likelihood
+        nloglik = log_loss(y_true, y_est)
+        bic = 2 * n_samples * nloglik + df * np.log(n_samples)
+    else:
+        # from sklearn
+        # https://github.com/scikit-learn/scikit-learn/blob/0d378913b/sklearn/linear_model/_least_angle.py#L1957
+        resid = y_est - y_true
+        mean_squared_error = np.mean(resid**2)
+        sigma2 = np.var(y_true)
+        eps64 = np.finfo('float64').eps
+        K = np.log(n_samples)
+        bic = n_samples * mean_squared_error / (sigma2 + eps64) + K * df
     return bic
 
 
@@ -406,7 +719,61 @@ def determine_group_order(coef_history, dic_groups):
     return np.array(group_order)[::-1]
 
 
-def fit_ridge(X, y, alpha=0.05, is_binary=False):
+def fit_lasso(X, y, dic_groups, is_categorical=False):
+    """
+    Fit lasso regression. Only returns index of selected variables
+
+    Parameters
+    ----------
+    X : 2d NumpyArray
+        Explanatory variables.
+    y : 1d NumpyArray
+        Objective variable.
+    dic_groups : dict
+        A dictionary with group information
+    is_categorical : bool
+        if True, fit Logistic regression.
+
+    Returns
+    ----------
+    coef : 1d numpy array
+        regression coefficients.
+    """
+    warnings.filterwarnings('ignore', category=ConvergenceWarning, module='sklearn')
+
+    if is_categorical:
+        y_ohe = OneHotEncoder(sparse_output=False, categories=[dic_groups['classes']]).fit_transform(y.reshape(-1, 1))
+        coef = np.zeros((X.shape[1], len(dic_groups['classes'])))
+        for cls in range(len(dic_groups['classes'])):
+            X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(
+                X,
+                y_ohe[:, cls],
+            )
+            y_train = SkdYPreprocessor(is_categorical).fit_transform(y_ohe[:, cls])
+
+            # LogisticRegression with L1 penalty takes time to converge
+            model = LogisticRegressionCV(penalty='l1', solver='saga', max_iter=100)
+            model.fit(X_train, y_train)
+            coef[:, cls] = model.coef_.flatten()
+
+        if len(dic_groups['classes']) == 2:
+            coef = np.abs(coef[:, 1].reshape((-1, 1)))
+        else:
+            coef = np.min(np.abs(coef), axis=1).reshape((-1, 1))
+        idx_selected_vars = np.where(coef > 0.0)[0]
+    else:
+        X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(X, y)
+        scaler = StandardScaler().fit(y.reshape((-1, 1)))
+        y_train = scaler.transform(y.reshape((-1, 1)))
+
+        model = LassoCV()
+        model.fit(X_train, y_train.ravel())
+        coef = model.coef_.reshape((-1, 1))
+        idx_selected_vars = np.where(np.abs(coef) > 0.0)[0]
+    return idx_selected_vars
+
+
+def fit_ridge(X, y, dic_groups, alpha=0.05, is_categorical=False):
     """
     Fit ridge regression
 
@@ -418,7 +785,7 @@ def fit_ridge(X, y, alpha=0.05, is_binary=False):
         Objective variable.
     alpha: float
         Regularization parameter for L2
-    is_binary : bool
+    is_categorical : bool
         if True, fit Logistic regression.
 
     Returns
@@ -433,15 +800,38 @@ def fit_ridge(X, y, alpha=0.05, is_binary=False):
         R square value
     """
 
-    model = RidgeClassifier(alpha=alpha) if is_binary else Ridge(alpha=alpha)
-    model.fit(X, y)
-    fitted_values = model.predict(X).flatten()
-    coef = model.coef_.flatten()
-    r2 = model.score(X, y)
-    fitted_probs = fitted_values
-    if is_binary:
-        fitted_probs = model._predict_proba_lr(X)[:, 1].flatten()
-    return coef, fitted_values, fitted_probs, r2
+    if is_categorical:
+        y_ohe = OneHotEncoder(sparse_output=False, categories=[dic_groups['classes']]).fit_transform(y.reshape(-1, 1))
+        fitted_probs = np.zeros_like(y_ohe)
+        coef = np.zeros((X.shape[1], len(dic_groups['classes'])))
+        for cls in range(len(dic_groups['classes'])):
+            X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(
+                X,
+                y_ohe[:, cls],
+            )
+            y_train = SkdYPreprocessor(is_categorical).fit_transform(y_ohe[:, cls])
+
+            model = RidgeClassifier(alpha=alpha)
+            model.fit(X_train, y_train)
+
+            fitted_probs[:, cls] = model._predict_proba_lr(X_train)[:, 1]
+            coef[:, cls] = model.coef_.flatten()
+        fitted_values = np.array([dic_groups['classes'][x] for x in np.argmax(fitted_probs, axis=1)])
+        if len(dic_groups['classes']) == 2:
+            coef = coef[:, 1].reshape((-1, 1))
+    else:
+        X_train = SkdXPreprocessor(dic_groups['cat_cols'], dic_groups['nominal_variables']).fit_transform(X, y)
+        scaler = StandardScaler().fit(y.reshape((-1, 1)))
+        y_train = scaler.transform(y.reshape((-1, 1)))
+
+        model = Ridge(alpha=alpha)
+        model.fit(X_train, y_train)
+
+        fitted_values = model.predict(X_train).flatten()
+        fitted_values = scaler.inverse_transform(fitted_values.reshape((-1, 1))).flatten()
+        coef = model.coef_.reshape((-1, 1))
+        fitted_probs = fitted_values
+    return coef, fitted_values, fitted_probs
 
 
 def calc_adjusted_r2(r2, n, df):
@@ -466,11 +856,11 @@ def calc_adjusted_r2(r2, n, df):
     return adjusted_r2
 
 
-def calc_regression_stats(y_true, y_pred, r2, coef) -> dict:
+def calc_regression_stats(y_true, y_pred, coef) -> dict:
     """Calculate statistics for the regression"""
     num_vars = np.count_nonzero(coef)
     mae = np.round(np.mean(np.abs(y_true.flatten() - y_pred)), 2)
-
+    r2 = np.corrcoef(y_true.flatten(), y_pred.flatten())[0, 1] ** 2
     adjusted_r2 = r2
     # skip to compute adjust_r2 in case of small dataset
     if len(y_true) - num_vars != 1:
@@ -479,10 +869,17 @@ def calc_regression_stats(y_true, y_pred, r2, coef) -> dict:
     return dic_stats
 
 
-def calc_classification_stats(y_true, y_pred, y_prob, uniq_vals) -> dict:
+def calc_classification_stats(y_true, y_pred, y_prob) -> dict:
     """Calculate statistics for the classification"""
-    y_true_ = (y_true - uniq_vals[0]) / (uniq_vals[1] - uniq_vals[0])
-    y_pred_ = (y_pred - uniq_vals[0]) / (uniq_vals[1] - uniq_vals[0])
+
+    encoder = LabelEncoder().fit(y_true)
+    y_true_ = encoder.transform(y_true)
+    y_pred_ = encoder.transform(y_pred)
+
+    # TODO: Implement stats for multiclass
+    y_true_[y_true_ != 1] = 0  # force stats for label 0/1
+    y_pred_[y_pred_ != 1] = 0  # force stats for label 0/1
+    y_prob = y_prob[:, 1]
 
     precision, recall, _ = precision_recall_curve(y_true_, y_prob)
 
@@ -510,6 +907,18 @@ class GroupSankeyDataProcessor:
         limits_groups={'xmin': 0.75, 'xmax': 0.40, 'ymin': 0.00, 'ymax': 1.00},
         verbose=False,
     ):
+        if coef.shape[1] == 1:
+            self.task = 'regression'
+            coef = coef.flatten()
+        elif coef.shape[1] == 2:
+            self.task = 'binary'
+            coef = coef.flatten()
+            # coef = (coef[:, 1] - coef[:, 0]).flatten()
+        else:
+            self.task = 'multiclass'
+            self.coef_labels = coef
+            coef = np.sum(np.abs(coef), axis=1)
+
         # limit the number of variables to show
         idx_remove = np.argsort(np.abs(coef))[:-max_vars]
         coef[idx_remove] = 0.0
@@ -524,6 +933,8 @@ class GroupSankeyDataProcessor:
         self.num_grp_remained = len(self.idx_grp_remained)
         self.num_col_remained = len(self.idx_col_remained)
         self.coef_remained = coef[self.idx_col_remained]
+        if self.task == 'multiclass':
+            self.coef_labels_remained = self.coef_labels[self.idx_col_remained, :]
 
         # parameters for visualization
         self.color_y = color_y
@@ -567,11 +978,25 @@ class GroupSankeyDataProcessor:
     def _gen_barchart_data(self):
         # Barchart data. y-axis corresponds to sankey diagram.
         ord_sort = np.argsort(self.dic_skd['node_y'][: self.num_col_remained])
-        # ord_sort = np.concatenate([ord_sort[:np.sum(self.coef_raw == 0.0)], ord_sort[np.sum(self.coef_raw == 0.0):]])
-        colors = [self.color_link_negative if x < 0 else self.color_link_positive for x in self.coef_remained[ord_sort]]
-        # from IPython.core.debugger import Pdb; Pdb().set_trace()
+        if self.task == 'multiclass':
+            coefs = self.coef_labels_remained[ord_sort, :]
+            # y_columns = self.dic_groups['colnames_x'][self.idx_col_remained][ord_sort]
+            # name_labels = self.dic_groups["classes"]
+            coef = []
+            colors = []
+            for i in np.arange(coefs.shape[1]):
+                coef.append(coefs[:, i])
+                colors.append(np.tile(self.dic_groups['classes'][i], len(coef[i])))
+        else:
+            colors = [
+                self.color_link_negative if x < 0 else self.color_link_positive for x in self.coef_remained[ord_sort]
+            ]
+            coef = self.coef_remained[ord_sort]
+
         dic_bar = {
-            'coef': self.coef_remained[ord_sort],
+            'task': self.task,
+            'objective': self.dic_groups['colname_y'],
+            'coef': coef,
             'sensor_names': self.dic_groups['colnames_x'][self.idx_col_remained][ord_sort],
             'bar_colors': colors,
             'sensor_ids': self.dic_groups['colids_x'][self.idx_col_remained][ord_sort],
@@ -624,7 +1049,7 @@ class GroupSankeyDataProcessor:
 
     def _sensor_id_to_sensor_node_id(self, sensor_id):
         node_id = np.where(self.idx_col_remained == sensor_id)[0]
-        return int(node_id)
+        return int(node_id[0])
 
     def _sensor_node_id_to_group_node_id(self, node_id):
         group_id = self.dic_groups['idx_grps'][self.idx_col_remained[node_id]]
@@ -633,7 +1058,7 @@ class GroupSankeyDataProcessor:
 
     def _group_id_to_group_node_id(self, group_id):
         node_id = self.num_col_remained + np.where(self.idx_grp_remained == group_id)[0]
-        return int(node_id)
+        return int(node_id[0])
 
     def _add_node_position(self):
         # Add node positon

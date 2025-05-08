@@ -555,6 +555,7 @@ const saveDataSource = (dsCode, dsConfig) => {
                     );
                 }
             }
+            handleChangeSelectToInputForDBType();
         })
         .catch((json) => {
             displayRegisterMessage('#alert-msg-db', json.flask_message);
@@ -592,6 +593,10 @@ const saveV2DataSource = (dsConfig) => {
                 currentDSTR.find(`input[name="${itemName}"]`).val(dbs.name);
                 currentDSTR.find('textarea[name="comment"]').val(dbs.comment);
                 currentDSTR.find('select[name="type"]').val(dbs.type);
+
+                // change select to input
+                handleChangeSelectToInputForDBType();
+
                 if (index < dataSources.length) {
                     currentDSTR = addDBConfigRow();
                 }
@@ -644,22 +649,29 @@ const handleCloseDBConfigModal = (ele) => {
             $('#modifyConfirmationModal').modal('show');
             return;
         }
-        $(ele).closest('.modal').modal('hide');
     }
+    $(ele).closest('.modal').modal('hide');
 };
 
 const handleCloseProcConfigModal = (ele) => {
-    if ($(ele).closest('.modal').data(DATA_DISCARD_CHANGE)) {
-        $(ele).closest('.modal').modal('hide');
+    // Use jspreadsheet to handle history inside process column table.
+    // Because they have better history operation for excel, they will keep track for us
+    // with proper undo + redo operation as well.
+
+    const changedFromProcColumnsTable = spreadsheetProcConfig(procModalElements.procConfigTableName).isHasChange();
+    const changedFromFunctionColumnsTable = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER).isHasChange();
+
+    // Still use mutationObserver for outer changes.
+    const changedFromMutationObserver =
+        typeof inputMutationObserver !== 'undefined' &&
+        inputMutationObserver.nodeStatus.filter((node) => node.modifyStatus).length > 0;
+
+    if (changedFromProcColumnsTable || changedFromFunctionColumnsTable || changedFromMutationObserver) {
+        $('#modifyConfirmationModal').modal('show');
         return;
     }
-    if (typeof inputMutationObserver !== 'undefined') {
-        if (inputMutationObserver.nodeStatus.filter((node) => node.modifyStatus).length) {
-            $('#modifyConfirmationModal').modal('show');
-            return;
-        }
-        $(ele).closest('.modal').modal('hide');
-    }
+
+    $(ele).closest('.modal').modal('hide');
 
     isV2ProcessConfigOpening = false;
     isClickPreviewMergeMode = false;
@@ -886,7 +898,14 @@ const saveCSVInfo = async () => {
 // DBInfoの入力をチェックする
 const validateDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]').val().toLowerCase();
+    let dbType;
+    // existing data source
+    if (typeof dbItemId !== 'undefined') {
+        dbType = currentDSTR.find('input[name=type]').attr('data-db-type');
+    } else {
+        // new data source
+        dbType = currentDSTR.find('select[name="type"]').val();
+    }
     const dbTypePrefix = dbType.toLowerCase();
     const dbItem = {};
     // Get DB Information
@@ -928,7 +947,14 @@ const validateDBInfo = () => {
 // DBInfoを生成する。
 const genDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]').val();
+    let dbType;
+    // existing data source
+    if (typeof dbItemId !== 'undefined') {
+        dbType = currentDSTR.find('input[name=type]').attr('data-db-type');
+    } else {
+        // new data source
+        dbType = currentDSTR.find('select[name="type"]').val();
+    }
     const domDBPrefix = dbType.toLowerCase();
 
     // Get DB Information
@@ -955,6 +981,23 @@ const genDBInfo = () => {
     };
 
     return dictDataSrc;
+};
+
+// change select2 to input element for DB Type
+const handleChangeSelectToInputForDBType = () => {
+    const $selectDBType = currentDSTR.find('select[name="type"]');
+    const $selectDisplayName = $selectDBType.find('option:selected').text();
+    const DBTypeValue = $selectDBType.val();
+    const $newInputEl = $('<input>', {
+        'type': 'text',
+        'name': 'type',
+        'class': 'form-control',
+        'value': $selectDisplayName,
+        'data-db-type': DBTypeValue,
+        'disabled': true,
+    });
+
+    $($selectDBType).replaceWith($newInputEl);
 };
 
 // DBInfoの保存を実施する。
@@ -1255,116 +1298,6 @@ const updateSubmitBtn = () => {
     // hide err msg
     $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
 };
-const parseDataType = (ele, idx) => {
-    // change background color
-    changeBackgroundColor(ele);
-
-    const value = ele.getAttribute('raw-data-type');
-    const dataColumn = $(ele).closest('tr').find('input[type=checkbox]');
-    // do not parse `datetime`, `date`, and `time` here.
-    if (value === DataTypes.DATETIME.name || value === DataTypes.DATE.name || value === DataTypes.TIME.name) {
-        const dataType = Object.entries(DataTypes).find(([dtype, definition]) => definition.name === value);
-        if (dataType !== null) {
-            const dataTypeName = dataType[1].name;
-            showProcDatetimeFormatSampleData({
-                colIdx: idx,
-                dataType: dataTypeName,
-            });
-            dataColumn.attr('raw-data-type', dataTypeName);
-        }
-        return;
-    }
-
-    const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${idx}) .sample-data`)].map((el) =>
-        $(el),
-    );
-
-    const attrName = 'data-original';
-
-    switch (ele.getAttribute('value')) {
-        case DataTypes.INTEGER.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                const isBigInt = !!+e.attr('is-big-int');
-                if (!isBigInt) {
-                    val = parseIntData(val);
-                }
-                e.html(val);
-            }
-            break;
-        case DataTypes.REAL.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.DATETIME.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseDatetimeStr(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.DATE.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseDatetimeStr(val, true);
-                e.html(val);
-            }
-            break;
-        case DataTypes.TIME.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseTimeStr(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.REAL_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.INTEGER_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseIntData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.EU_REAL_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.EU_INTEGER_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseIntData(val);
-                e.html(val);
-            }
-            break;
-        default:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = trimBoth(String(val));
-                e.html(val);
-            }
-            break;
-    }
-    // changeSelectedColumnRaw(ele, idx);
-    updateSubmitBtn();
-};
 
 const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
     // Clear message
@@ -1596,7 +1529,8 @@ const loadDetail = (self) => {
     // save current data source tr element
     currentDSTR = $(self).closest('tr');
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dsType = currentDSTR.find('select[name="type"]').val();
+    const dsType =
+        currentDSTR.find('input[name="type"]').data('db-type') || currentDSTR.find('select[name="type"]').val();
     // When click (+) to create blank item
     if (dataSrcId === null || dataSrcId === undefined) {
         let jsonDictDataSrc = {};

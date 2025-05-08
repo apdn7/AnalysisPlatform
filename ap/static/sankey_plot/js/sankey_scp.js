@@ -129,7 +129,7 @@ const drawScatterPlot = (canvasID, props, showLine = false) => {
         const xValue = applySignificantDigit(dataPoint.data.x[dpIndex]);
         const yValue = applySignificantDigit(dataPoint.data.y[dpIndex]);
         const datetime = dataPoint.data.customdata ? formatDateTime(dataPoint.data.customdata.datetime[dpIndex]) : '';
-        const serials = getSerialsText(dpIndex, dataPoint.data.customdata.serials);
+        const serials = getSerialsText(dpIndex, dataPoint.data.customdata?.serials);
         const isHideX = props.hideX;
         const hoverData = [];
         if (!isHideX) {
@@ -376,4 +376,31 @@ const showScatterPlot = (dicScp) => {
         drawConfusionMatrix('actual-fitted-scp', cmProps);
     }
     drawScatterPlot('index-residuals-scp', indexResidualsProps);
+};
+
+const showSummaryInfo = (summaryMsg) => {
+    // show only en or ja (S.254#09)
+    const currentLocale = docCookies.getLocale();
+    const summaryLocale = currentLocale === 'ja' ? 'ja' : 'en';
+
+    $('#skd-summary').html('');
+
+    // add text-summary
+    summaryMsg?.forEach((msg) => {
+        $('#skd-summary').append(`<p class="mb-0 pl-3">• ${msg.message[summaryLocale]}</p>`);
+    });
+};
+
+const handleClickNav = (e) => {
+    const currentTab = $(e).find('a').attr('href').replace('#', '');
+    $('.tab-pane').hide();
+    $(`#${currentTab}`).show();
+
+    // scroll to button
+    $('html, body').animate(
+        {
+            scrollTop: $(document).height(),
+        },
+        500,
+    );
 };

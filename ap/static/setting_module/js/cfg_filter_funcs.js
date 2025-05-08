@@ -288,7 +288,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                     <option value="${conditionFormula.regex}" ${regexSelected}>${options[4]}</option>
                 </select>
             </td>
-            <td class="text-center button-column" name="startDigit">
+            <td class="text-center button-column" name="startDigitEle">
                 <div class="${showStartFrom}" id="${startFromSelectPrefix}StartDigit">
                     <select class="form-control select2-selection--single" name="startDigit" id="${startFromSelectPrefix}StartFromSelect">
                         ${startDigitOptionsHTML}
@@ -1113,7 +1113,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             if (inputEl != null) {
                 return inputEl.value.trim();
             }
-            const isStartDigit = td.getAttribute('name') === 'startDigit';
+            const isStartDigit = td.getAttribute('name') === 'startDigitEle';
             const selectEl = isStartDigit
                 ? td.querySelector('div:not(.d-none)')?.querySelector('option:checked')
                 : td.querySelector('option:checked');

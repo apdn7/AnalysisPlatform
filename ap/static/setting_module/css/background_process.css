@@ -64,8 +64,8 @@ table#jobErrorDetailTable thead tr th {
     text-align: center !important;
 }
 
-#jobDataTable {
-    overflow-x: hidden;
+#jobDataTable .fixed-table-container {
+    overflow-x: auto;
 }
 
 #jobErrorDetailTable pre {

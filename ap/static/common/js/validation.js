@@ -101,6 +101,12 @@ function updateStyleButtonByCheckingValid() {
     } else {
         btn.addClass('btn-primary valid-show-graph');
         btn.removeClass('btn-secondary');
+        // update validation message after reselect an objective variable
+        const $endProcDiv = $('.end-proc');
+        const isInvalidMsgShown = $endProcDiv.hasClass('invalid');
+        if (isInvalidMsgShown) {
+            $endProcDiv.removeClass('invalid').removeClass('invalid-message');
+        }
     }
 }
 
@@ -111,7 +117,13 @@ function onchangeRequiredInput() {
         setTimeout(() => {
             updateStyleButtonByCheckingValid();
             const dataIdToEnableCTTime = $(formElements.showCT_Time).data('target-id-to-enable-ct');
-            if (dataIdToEnableCTTime && el.currentTarget?.id === dataIdToEnableCTTime) {
+            // First condition: check for individual checkboxes
+            // Second condition: when all checkboxes are checked, only the event for check-all checkbox occurs
+            // TODO: Can we refactor this?
+            if (
+                (dataIdToEnableCTTime && el.currentTarget?.id === dataIdToEnableCTTime) ||
+                el.currentTarget?.id.includes('checkbox-all-end-proc-val')
+            ) {
                 enableCycleTimeAnalysis();
             }
         }, 300);

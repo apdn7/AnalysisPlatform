@@ -18,6 +18,7 @@ let selectedHref = '';
 let excludeSensors = [];
 let jumpCheckedAllSensors = [];
 let objectiveId = null;
+const ALLOW_TIME_TO_MIGRATE_SETTING_USER_NAME = 60; // 1 minutes
 
 const settingModals = {
     common: '#saveUserSettingModal',
@@ -610,6 +611,15 @@ const saveLoadUserInput = (
             }
 
             if (data.id === 'datetimeRangePicker' && data.name === 'DATETIME_RANGE_PICKER') {
+                const $divideElm = $('select[name=compareType]');
+                const DivisionVal = $divideElm.val();
+                // Fix for case copy from page has divide and paste to page no divide
+                // divideOptions.var, divideOptions.category have `Date range` is `datetimeRangePicker`
+                if (DivisionVal && ![divideOptions.var, divideOptions.category].includes(DivisionVal)) {
+                    data.value =
+                        $('input[name=DATETIME_RANGE_PICKER]:visible').first().val() ||
+                        $('#datetimeRangeShowValue').text();
+                }
                 if (divideOption === divideOptions.cyclicTerm) {
                     // assign new data
                     serializeData.push({
@@ -1391,7 +1401,8 @@ const showUserSettingsToModal = (userSettings) => {
     const currentUser = localStorage.getItem('settingCommonUserName');
     let idx = 1;
     for (const setting of userSettings) {
-        const isShowSetting = !currentUser || (currentUser && setting.created_by === currentUser) || setting.share_info;
+        const isShowSetting =
+            !currentUser || (currentUser && setting.hashed_owner === currentUser) || setting.share_info;
 
         if (isShowSetting) {
             const isCurrentSetting = currentLoadSetting ? setting.id == currentLoadSetting.id : false;
@@ -1779,6 +1790,8 @@ const createOrUpdateSetting = (settingDat, inplace = true, excludeColumns = []) 
             isSettingChanged = false;
             resetChangeSettingMark();
             saveStateAndShowLabelSetting(res.data, inplace);
+            // set userName in localStorage at first time
+            getOrSetUserName(res.data.hashed_owner);
         },
     });
 };
@@ -2051,9 +2064,6 @@ $(document).ready(() => {
 
         // retrieve data from setting forms
         const settingCommonInfo = getSettingCommonInfo();
-
-        // set userName in localStorage at first time
-        getOrSetUserName(settingCommonInfo.created_by);
 
         const inplaceSetting = !settingCommonInfo.id
             ? true
@@ -2515,6 +2525,40 @@ const handleCloseBookmarkModal = (ele) => {
             $('#modifyConfirmationModal').modal('show');
             return;
         }
-        $(ele).closest('.modal').modal('hide');
     }
+    $(ele).closest('.modal').modal('hide');
 };
+
+// update settingCommonUserName to hash S257#07 - Start
+const isAppStartedWithinFirstAllowMinutes = () => {
+    const appStartupTime = moment.utc(appContext.app_startup_time).local();
+    const now = moment();
+    // Check if the application has started within the first ALLOW_TIME_TO_MIGRATE_SETTING_USER_NAME second
+    // as check new version
+    return (appStartupTime - now) / 1000 + ALLOW_TIME_TO_MIGRATE_SETTING_USER_NAME > 0;
+};
+const migrateSettingCommonUserNameToHashKey = () => {
+    const lSKey = 'settingCommonUserName';
+    const currentUser = localStorage.getItem(lSKey);
+
+    if (!isAppStartedWithinFirstAllowMinutes() || !currentUser) return;
+
+    fetchData('/ap/api/setting/user_settings', {})
+        .then((res) => {
+            const userSettings = res.data;
+            const isHashCurrentUser = userSettings.some((setting) => setting?.hashed_owner === currentUser);
+            const currentUserInUserSettings = userSettings.find((setting) => setting?.created_by === currentUser);
+
+            // if currentUser is not hashed
+            if (!isHashCurrentUser) {
+                if (currentUserInUserSettings) {
+                    localStorage.setItem(lSKey, currentUserInUserSettings?.hashed_owner);
+                } else {
+                    localStorage.removeItem(lSKey);
+                }
+            }
+        })
+        .catch((error) => console.log('error', error));
+};
+migrateSettingCommonUserNameToHashKey();
+// update settingCommonUserName - End

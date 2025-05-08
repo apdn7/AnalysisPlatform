@@ -117,6 +117,7 @@ from ap.common.constants import (
     START_DATE,
     START_PROC,
     START_TM,
+    STRENGTHEN_SELECTION,
     STRING_COL_IDS,
     TBLS,
     TEMP_CAT_EXP,
@@ -236,6 +237,7 @@ common_startwith_keys = (
     REQUEST_PARAMS,
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
+    STRENGTHEN_SELECTION,
 )
 
 

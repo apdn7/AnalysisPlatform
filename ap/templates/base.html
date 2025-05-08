@@ -12,12 +12,19 @@
             href="{{ url_for('static', filename = 'common/icons/favicon.ico') }}"
             type="image/x-icon"
         />
+        <!-- prettier-ignore-start -->
+        <script>
+            // get app context object before import js funcs
+            const appContext = {{ app_context|safe }};
+        </script>
+        <!-- prettier-ignore-end -->
         {% assets "js_all" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
         {% assets "css_all" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets %}
+        <script type="module" src="/static/common/js/cookieconsent-config.js"></script>
         <script>
             //Dictionaryを生成する。
             let objTitle = {
@@ -137,20 +144,8 @@
                 function gtag() {
                     dataLayer.push(arguments);
                 }
-                gtag('js', new Date());
-                gtag('config', GA_TRACKING_ID);
-
-                const user_group = docCookies.getItem(keyPort('user_group'));
-                const app_source = docCookies.getItem(keyPort('app_location'));
-                let app_version = docCookies.getItem(keyPort('app_version'));
-                app_version = app_version.split('.').slice(0, -1).join('.');
-
-                gtag('event', 'apdn7_events_tracking', {
-                    dn_app_version: app_version,
-                    dn_app_source: app_source,
-                    dn_app_group: user_group,
-                    dn_app_show_graph_mode: 'None', // have not clicked show_graph yet
-                    dn_app_show_graph_method: 'None',
+                $(() => {
+                    sendGtagConfigAndTracking();
                 });
             </script>
         {% endif %}
@@ -189,26 +184,17 @@
                 </div>
             {% endblock %}
             <script type="text/javascript">
-                // hide setting page
-                const hideSettingPage = docCookies.getItem(keyPort('hide_setting_page'));
-                const useDefaultLogLevel = docCookies.getItem(keyPort('log_level'));
-                if (hideSettingPage === 'True') {
-                    $('#settingPageMenu').css('display', 'none');
-                }
-                $('header.main-header').removeClass('green-header');
-                if (useDefaultLogLevel === 'False') {
-                    $('header.main-header').addClass('green-header');
-                }
+                $(() => {
+                    // app version
+                    const version = appContext.app_version;
+                    $('#appVersion').text(version);
 
-                // app version
-                const version = docCookies.getItem(keyPort('app_version'));
-                $('#appVersion').text(version);
-
-                // app Location
-                const appLocation = docCookies.getItem(keyPort('app_location'));
-                if (appLocation) {
-                    $('#appLocation').text(appLocation);
-                }
+                    // app Location
+                    const appLocation = appContext.app_source;
+                    if (appLocation) {
+                        $('#appLocation').text(appLocation);
+                    }
+                });
 
                 // collapse sidebar when loading page
                 sidebarCollapse();
@@ -218,6 +204,40 @@
             </div>
             <div class="cross v right">
                 <div class="cross h right"></div>
+            </div>
+        </div>
+        <div class="cookie-banner-container">
+            <div class="cookie-banner-flex">
+                <div class="cookie-banner-content alert alert-dark text-center mb-0" role="alert">
+                    <div>
+                        <p id="cb-cookie-banner">
+                            {{ _('Cookie banner content') }} <br />
+                            <a
+                                href="{{ url_for('setting_module.cookie_policy') }}"
+                                class="go-to-page"
+                                aria-label="More information about your privacy"
+                                >{{ _('Cookie Policy') }}</a
+                            >
+                        </p>
+                    </div>
+                    <div class="cookie-banner-group-btn">
+                        <button
+                            type="button"
+                            class="btn btn-link"
+                            style="text-decoration: underline; white-space: nowrap"
+                            data-cc="show-preferencesModal"
+                        >
+                            {{ _('Cookies Settings') }}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn btn-primary data-cc-accept-all"
+                            style="white-space: nowrap"
+                        >
+                            {{ _('Accept All Cookies') }}
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </body>

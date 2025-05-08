@@ -5,13 +5,10 @@
  * @author Duong Quoc Khanh <khanhdq13@fpt.com>
  */
 
+const FUNCTION_TABLE_CONTAINER = 'processColumnsTable_functionTable';
 const SEPARATOR_CHAR = ',';
 const DEFAULT_VALUE_PREFIX = 'default-value-';
 const REQUIRED_VALUE_PREFIX = 'required-';
-const TAB_CHAR = '\t';
-const NEW_LINE_CHAR = '\n';
-const BORDER_RED_CLASS = 'column-name-invalid';
-const DATA_ORIGIN_ATTR = 'data-origin';
 const IS_NUMBER_ATTR = 'is-number';
 
 const CLASSES_FUNCTION = 'sample-data show-raw-text';
@@ -27,6 +24,7 @@ const NUMERIC_TYPES = [
     DataTypes.EU_INTEGER_SEP.name,
 ];
 let selectedFunctionColumnInfo = null;
+let mainSerialFunctionColumnInfo = null;
 let dbFunctionCols = [];
 let /** @type {function(): void} */ removeAllSyncEvents;
 
@@ -89,8 +87,8 @@ const functionConfigElements = {
     helperMessageElement: document.getElementById('functionMessageHelper'),
     /** @type {HTMLTableElement & {result: string[]}} */
     sampleDataElement: document.getElementById('functionSampleData'),
-    /** @type HTMLTableElement */
-    functionTableElement: document.getElementById('functionTable'),
+    /** @type {function(): HTMLTableElement | null} */
+    functionTableElement: () => document.querySelector('#processColumnsTable_functionTable table.jexcel'),
     /** @type HTMLSpanElement */
     totalCheckedFunctionColumnsElement: document.getElementById('totalCheckedFunctionColumns'),
     /** @type HTMLSpanElement */
@@ -156,8 +154,8 @@ const functionConfigElements = {
     deleteFunctionColumnTableBody: document.getElementById('deleteFunctionColumn'),
     deleteFunctionColumnTableElement: document.getElementById('deleteFunctionColumnTable'),
     removeInputSearch: document.getElementsByClassName('function-remove-search'),
-    /** @type HTMLTableElement: tBodies */
-    functionTableBody: document.querySelector('#functionSetting table[id=functionTable] tbody'),
+    /** @type HTMLBodyElement */
+    functionTableBody: document.querySelector('#processColumnsTable_functionTable table.jexcel tbody'),
 };
 
 /**
@@ -170,6 +168,39 @@ function htmlToElement(html) {
     template.innerHTML = html.trim();
     return template.content.firstElementChild;
 }
+
+/**
+ * @typedef {Object} FunctionInfoDict
+ * @property {string} functionName - name of function
+ * @property {string} output - data type of function column
+ * @property {string} systemName - function name by system
+ * @property {string} japaneseName - function name by japanese
+ * @property {string} localName - function name by local
+ * @property {string} varXName - name of X column
+ * @property {string} varYName - name of Y column
+ * @property {string} coeANS - argument of a, n, s
+ * @property {string} coeBK - argument of b, k
+ * @property {string} coeCT - argument of c, t
+ * @property {string} a - argument of a
+ * @property {string} b - argument of b
+ * @property {string} c - argument of c
+ * @property {string} n - argument of n
+ * @property {string} k - argument of k
+ * @property {string} s - argument of s
+ * @property {string} t - argument of t
+ * @property {string} note - note of function
+ * @property {string[]} sampleDatas - sample data
+ * @property {?boolean} isChecked - true: function is checked, otherwise
+ * @property {?boolean} isMainSerialNo - true: function is main::Serial, otherwise
+ * @property {?boolean} isMeFunction - true: function is me function, otherwise
+ * @property {?string} shownName - shown name of function column
+ * @property {?number|string} processColumnId - id of process column
+ * @property {?number|string} functionColumnId - id of function column
+ * @property {?number|string} functionId - id of function
+ * @property {{processColumnId: ?number|string, functionColumnId: ?number|string}} varX - id of X column
+ * @property {?{processColumnId: ?number|string, functionColumnId: ?number|string}} varY - id of Y column
+ * @property {?number|string} index - row Index in Function Table
+ */
 
 /**
  * @class
@@ -218,30 +249,11 @@ class FunctionInfo {
 
     /**
      * Constructor
-     * @param {{
-     *    functionName: string,
-     *    output: string,
-     *    systemName: string,
-     *    japaneseName: string,
-     *    localName: string,
-     *    varXName: string,
-     *    varYName: string,
-     *    coeANS: string,
-     *    coeBK: string,
-     *    coeCT: string,
-     *    note: string,
-     *    sampleDatas: string[],
-     *    isChecked: ?boolean,
-     *    processColumnId: ?number|string,
-     *    functionColumnId: ?number|string,
-     *    functionId: ?number|string,
-     *    varX: {processColumnId: ?number|string, functionColumnId: ?number|string},
-     *    varY: {processColumnId: ?number|string, functionColumnId: ?number|string},
-     *    index: ?number|string,
-     * }} functionInfo - function information
+     * @param {FunctionInfoDict | {}} functionInfoDict - function information
      * @constructor
+     * @return {FunctionInfo}
      */
-    constructor(functionInfo = {}) {
+    constructor(functionInfoDict = {}) {
         const {
             functionName = '',
             output = '',
@@ -264,7 +276,7 @@ class FunctionInfo {
             varY = null,
             index = null,
             shownName = '',
-        } = functionInfo;
+        } = functionInfoDict;
 
         this.functionName = functionName;
         this.isMainSerialNo = String(isMainSerialNo) === 'true';
@@ -374,33 +386,6 @@ class FunctionInfo {
     }
 
     /**
-     * Compare this function object is equal to selected function object, do not check column name and note
-     * @return {boolean} true is equal, otherwise
-     */
-    isEqualWithSelectedFunctionColumn() {
-        // sometimes, varX and varY is missing, we need to manually convert them here
-        const convertVar = (functionVar) =>
-            FunctionInfo.parseObjectValuesToInt({
-                processColumnId: functionVar.processColumnId,
-                functionColumnId: functionVar.functionColumnId,
-            });
-        return (
-            this.functionName === selectedFunctionColumnInfo.functionName &&
-            // we don't check output because this is not something user can modify
-            // this.output === functionInfo.output &&
-            this.coeANS === selectedFunctionColumnInfo.coeANS &&
-            this.coeBK === selectedFunctionColumnInfo.coeBK &&
-            this.coeCT === selectedFunctionColumnInfo.coeCT &&
-            this.isMeFunction === selectedFunctionColumnInfo.isMeFunction &&
-            this.processColumnId === selectedFunctionColumnInfo.processColumnId &&
-            this.functionColumnId === selectedFunctionColumnInfo.functionColumnId &&
-            this.functionId === selectedFunctionColumnInfo.functionId &&
-            _.isEqual(convertVar(this.varX), convertVar(selectedFunctionColumnInfo.varX)) &&
-            _.isEqual(convertVar(this.varY), convertVar(selectedFunctionColumnInfo.varY))
-        );
-    }
-
-    /**
      * Collect all input data of function
      * @return {FunctionInfo} - a dictionary that contain function information
      */
@@ -496,61 +481,9 @@ class FunctionInfo {
      * @return {FunctionInfo} a function info object
      */
     static collectFunctionInfoByRow(rowElement) {
-        const index = rowElement.dataset.index;
-        const columnFunctionName = rowElement.querySelector(`td.column-function-name`);
-        const processColumnId = columnFunctionName.dataset.processColumnId;
-        const functionColumnId = columnFunctionName.dataset.functionColumnId;
-        const functionId = columnFunctionName.dataset.functionId;
-        const functionName = columnFunctionName.querySelector('label').textContent.trim();
-        const isChecked = columnFunctionName.querySelector('input').checked;
-        const systemName = rowElement.querySelector(`td.column-system-name input`).value.trim();
-        const japaneseName = rowElement.querySelector(`td.column-japanese-name input`).value.trim();
-        const localName = rowElement.querySelector(`td.column-local-name input`).value.trim();
-        const columnVarX = rowElement.querySelector(`td.column-var-x`);
-        const varXName = columnVarX.textContent.trim();
-        const varX = {
-            processColumnId: columnVarX.dataset.varXProcessColumnId,
-            functionColumnId: columnVarX.dataset.varXFunctionColumnId,
-        };
-        const columnVarY = rowElement.querySelector(`td.column-var-y`);
-        const varYName = columnVarY.textContent.trim();
-        const varY = {
-            processColumnId: columnVarY.dataset.varYProcessColumnId,
-            functionColumnId: columnVarY.dataset.varYFunctionColumnId,
-        };
-        const coeANS = rowElement.querySelector('td.column-coe-ans input').value.trim();
-        const coeBK = rowElement.querySelector('td.column-coe-bk input').value.trim();
-        const coeCT = rowElement.querySelector('td.column-coe-ct input').value.trim();
-        const note = rowElement.querySelector('td.column-note input').value.trim();
-        const columnOutput = rowElement.querySelector(`td.column-output`);
-        const output = columnOutput.dataset.rawDataType;
-        const isMainSerialNo = this.isMainSerial(columnOutput.textContent.trim());
-        const sampleDatas = [...rowElement.querySelectorAll('td.column-sample-data')].map((cell) =>
-            cell.textContent.trim(),
-        );
-
-        return new FunctionInfo({
-            functionName,
-            output,
-            isMainSerialNo,
-            systemName,
-            japaneseName,
-            localName,
-            varXName,
-            varYName,
-            coeANS,
-            coeBK,
-            coeCT,
-            note,
-            sampleDatas,
-            isChecked,
-            processColumnId,
-            functionColumnId,
-            functionId,
-            varX,
-            varY,
-            index,
-        });
+        const spreadSheetFunctionConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const spreadSheetFunctionData = spreadSheetFunctionConfig.table.getRowDataByIndex(rowElement.dataset.y);
+        return SpreadSheetFunctionConfig.convertToFunctionInfo(spreadSheetFunctionData);
     }
 
     /**
@@ -574,11 +507,6 @@ class FunctionInfo {
         functionConfigElements.coeCTElement.value = String(this.coeCT);
         functionConfigElements.noteElement.value = String(this.note);
         functionConfigElements.isMainSerialCheckboxElement.checked = String(this.isMainSerialNo) === 'true';
-        // update mutation value for isMainSerial checkbox
-        functionConfigElements.isMainSerialCheckboxElement.setAttribute(
-            'data-observer',
-            String(this.isMainSerialNo) === 'true',
-        );
     }
 
     /**
@@ -630,7 +558,7 @@ class FunctionInfo {
     static clearSampleData() {
         functionConfigElements.sampleDataElement.lastElementChild.querySelectorAll('td:first-child').forEach((td) => {
             td.textContent = '';
-            td.setAttribute(DATA_ORIGIN_ATTR, '');
+            td.setAttribute(DATA_ORIGINAL_ATTR, '');
             td.setAttribute(IS_NUMBER_ATTR, false);
         });
     }
@@ -645,15 +573,13 @@ class FunctionInfo {
 
         removeAllSyncEvents();
         if (previousRowElement != null) {
-            previousRowElement.classList.remove('selected');
+            previousRowElement.classList.remove(ROW_SELECTED_CLASS_NAME);
         }
 
-        rowElement.classList.add('selected');
+        rowElement.classList.add(ROW_SELECTED_CLASS_NAME);
         const functionInfo = FunctionInfo.collectFunctionInfoByRow(rowElement);
-        selectedFunctionColumnInfo = functionInfo;
         functionInfo.fillInputFunctionInfo();
         FunctionInfo.resetInvalidStatus();
-        FunctionInfo.hideChangeMark();
 
         // reset flag to allow call api to calculate sample data
         setTimeout(() => {
@@ -661,21 +587,21 @@ class FunctionInfo {
         }, 50);
     }
 
+    static getSelectedRow() {
+        return functionConfigElements.functionTableElement().lastElementChild.querySelector('tr.row-selected');
+    }
+
     /**
-     * Fill sample data to selected function row
+     * Fill sample data to function row
      * @param {string[]} sampleData - a list of data
      * @param {boolean} isNumber - a boolean of data type is number
+     * @param {HTMLTableRowElement} rowElement - row of table
      */
-    static fillSampleDataToSelectedFunctionRow(sampleData, isNumber) {
-        const selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
-        if (!selectedRow) {
-            return;
-        }
-
-        const tableSampleDataNodes = selectedRow.querySelectorAll('td.column-sample-data ');
+    static fillSampleDataToFunctionRow(sampleData, isNumber, rowElement) {
+        const tableSampleDataNodes = rowElement.querySelectorAll('td.column-sample-data ');
         tableSampleDataNodes.forEach((node, index) => {
             node.innerHTML = formatSignifiValue(sampleData[index], isNumber) ?? '';
-            node.setAttribute(DATA_ORIGIN_ATTR, sampleData[index]);
+            node.setAttribute(DATA_ORIGINAL_ATTR, sampleData[index]);
             node.setAttribute(IS_NUMBER_ATTR, isNumber);
         });
     }
@@ -691,7 +617,7 @@ class FunctionInfo {
         /** @type HTMLTableRowElement */
         const rowElement = event.currentTarget;
         /** @type HTMLTableRowElement */
-        const selectedRowElement = rowElement.parentElement.querySelector('tr.selected');
+        const selectedRowElement = rowElement.parentElement.querySelector('tr.row-selected');
         if (selectedRowElement === rowElement) {
             // in case re-select row, do nothing
         } else if (selectedRowElement != null) {
@@ -705,8 +631,8 @@ class FunctionInfo {
             }
 
             // show confirmation dialog to change editing other row
-            functionConfigElements.confirmSwitchEditingRow.dataset.index = rowElement.dataset.index;
-            functionConfigElements.confirmSwitchEditingRow.dataset.previousIndex = selectedRowElement.dataset.index;
+            functionConfigElements.confirmSwitchEditingRow.dataset.index = rowElement.dataset.y;
+            functionConfigElements.confirmSwitchEditingRow.dataset.previousIndex = selectedRowElement.dataset.y;
             $(functionConfigElements.functionConfigConfirmSwitchEditingRowModal).modal('show');
         } else {
             // in case non-exist select row
@@ -766,9 +692,9 @@ class FunctionInfo {
         return [
             ...new Set(
                 [
-                    ...functionConfigElements.functionTableElement.lastElementChild.querySelectorAll(
-                        '.row-invalid, .column-name-invalid',
-                    ),
+                    ...functionConfigElements
+                        .functionTableElement()
+                        .lastElementChild.querySelectorAll('.row-invalid, .column-name-invalid'),
                 ].map((invalidTarget) =>
                     invalidTarget instanceof HTMLTableRowElement ? invalidTarget : invalidTarget.closest('tr'),
                 ),
@@ -784,9 +710,9 @@ class FunctionInfo {
     static updateStatusErrorCheckbox() {
         const invalidRows = FunctionInfo.getInvalidRows();
         const invalidCheckedRows = invalidRows.filter((r) => r.querySelector('input[name="columnName"]').checked);
-        const allCheckedRows = functionConfigElements.functionTableElement.lastElementChild.querySelectorAll(
-            'input[name="columnName"]:checked',
-        );
+        const allCheckedRows = functionConfigElements
+            .functionTableElement()
+            .lastElementChild.querySelectorAll('input[name="columnName"]:checked');
         functionConfigElements.selectErrorFunctionColumns.checked =
             invalidRows.length === invalidCheckedRows.length &&
             invalidRows.length !== 0 &&
@@ -797,71 +723,6 @@ class FunctionInfo {
      * Add a new row into Function table
      */
     addNewFunctionRow() {
-        const { hasANS, hasBK, hasCT } = FunctionInfo.hasParams(this.functionId);
-        const index = this.index;
-        const newSampleData = this.sampleDatas;
-        const isNumber = NUMERIC_TYPES.includes(this.output);
-
-        const { processColumnId: xProcessColumnId, functionColumnId: xFunctionColumnId } = this.varX;
-        const { processColumnId: yProcessColumnId, functionColumnId: yFunctionColumnId } = this.varY;
-
-        const newRowHtml =
-            `<tr data-index="${index}" checked="${this.isChecked ? 'checked' : ''}">` +
-            `<td class="column-order text-center show-raw-text row-item" data-column-title="index">${index}</td>` +
-            '<td class="column-function-name show-raw-text" data-column-title="is_checked"' +
-            ` data-process-column-id="${this.processColumnId ?? ''}"` +
-            ` data-function-column-id="${this.functionColumnId ?? ''}"` +
-            ` data-function-id="${this.functionId ?? ''}">` +
-            '<div class="custom-control custom-checkbox">' +
-            '<input type="checkbox" class="check-item custom-control-input col-checkbox already-convert-hankaku"' +
-            ` name="columnName" id="checkbox-column-${index}" ${this.isChecked ? 'checked' : ''}>` +
-            `<label class="custom-control-label row-item for-search" for="checkbox-column-${index}"` +
-            ` >${this.functionName ?? ''}</label>` +
-            '</div>' +
-            '</td>' +
-            `<td class="column-system-name row-item" data-column-title="name_en">` +
-            `<input type="text" name="name_en" class="form-control row-item" value="${this.systemName ?? ''}" ${this.isMeFunction ? 'disabled' : ''} data-observer="${this.systemName ?? ''}">` +
-            '</td>' +
-            '<td class="column-japanese-name row-item" data-column-title="name_jp">' +
-            `<input type="text" name="name_jp" class="form-control row-item" value="${this.japaneseName ?? ''}" ${this.isMeFunction ? 'disabled' : ''} data-observer="${this.japaneseName ?? ''}">` +
-            '</td>' +
-            '<td class="column-local-name row-item" data-column-title="name_local">' +
-            `<input type="text" name="name_local" class="form-control row-item" value="${this.localName ?? ''}" ${this.isMeFunction ? 'disabled' : ''} data-observer="${this.localName ?? ''}">` +
-            '</td>' +
-            `<td class="column-var-x row-item show-raw-text" data-column-title="x" data-var-x-process-column-id="${xProcessColumnId ?? ''}" data-var-x-function-column-id="${xFunctionColumnId ?? ''}">${this.varXName ?? ''}</td>` +
-            `<td class="column-var-y row-item show-raw-text" data-column-title="y" data-var-y-process-column-id="${yProcessColumnId ?? ''}" data-var-y-function-column-id="${yFunctionColumnId ?? ''}">${this.varYName ?? ''}</td>` +
-            `<td class="column-coe-ans row-item" data-column-title="a_n_s">` +
-            `<input type="text" name="a_n_s" class="form-control row-item" value="${this.coeANS ?? ''}" ${!hasANS ? 'disabled' : ''} data-observer="${this.coeANS ?? ''}">` +
-            '</td>' +
-            `<td class="column-coe-bk row-item" data-column-title="b_k">` +
-            `<input type="text" name="b_k" class="form-control row-item" value="${this.coeBK ?? ''}" ${!hasBK ? 'disabled' : ''} data-observer="${this.coeBK ?? ''}">` +
-            '</td>' +
-            `<td class="column-coe-ct row-item" data-column-title="c_t">` +
-            `<input type="text" name="c_t" class="form-control row-item" value="${this.coeCT ?? ''}" ${!hasCT ? 'disabled' : ''} data-observer="${this.coeCT ?? ''}">` +
-            '</td>' +
-            `<td class="column-note row-item" data-column-title="note">` +
-            `<input type="text" name="note" class="form-control row-item" value="${this.note ?? ''}" data-observer="${this.note ?? ''}">` +
-            '</td>' +
-            `<td class="column-output row-item show-raw-text" data-column-title="output" data-raw-data-type="${this.output ?? ''}">${FunctionInfo.getLabelRawDataType(this.output ?? '', this.isMainSerialNo)}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[0] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[0], isNumber)}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[1] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[1], isNumber)}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[2] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[2], isNumber)}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[3] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[3], isNumber)}</td>` +
-            `<td class="column-sample-data row-item show-raw-text" data-origin="${newSampleData[4] ?? ''}" is-number="${isNumber}" data-column-title="sample_data">${formatSignifiValue(newSampleData[4], isNumber)}</td>` +
-            '</tr>';
-
-        /** @type HTMLTableRowElement */
-        const rowElement = htmlToElement(newRowHtml);
-        rowElement.addEventListener('click', FunctionInfo.rowClickEvent);
-        rowElement
-            .querySelector('input[name="columnName"]')
-            .addEventListener('change', FunctionInfo.changeSelectionStatusEvent);
-        rowElement
-            .querySelectorAll('td')
-            .forEach((cell) => cell.addEventListener('mouseover', FunctionInfo.hoverTableCellEvent));
-
-        functionConfigElements.functionTableElement.lastElementChild.append(rowElement);
-
         // Set number of total records
         const totalColumns = parseInt(functionConfigElements.totalFunctionColumnsElement.textContent, 10);
         functionConfigElements.totalFunctionColumnsElement.textContent = String(totalColumns + 1);
@@ -869,99 +730,47 @@ class FunctionInfo {
         //Update prc PreviewDataOfFunctionColumn
         setPreviewDataForFunctionColumns(this.functionColumnId, this.sampleDatas);
 
-        // Trigger change event
-        if (this.isChecked) {
-            setTimeout(() => {
-                rowElement.querySelector('input[name="columnName"]').dispatchEvent(new Event('change'));
-            });
-        }
+        // Add row into JSpreadSheet table
+        const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const spreadsheetData = SpreadSheetFunctionConfig.convertToSpreadSheetData(this);
+        spreadsheetConfig.table.addNewRow(spreadsheetData);
     }
 
     /**
      * Update a function row into Function table
+     * @param {boolean} isMainSerial
      */
-    updateFunctionRow() {
-        const { hasANS, hasBK, hasCT } = FunctionInfo.hasParams(this.functionId);
-        const rowElement = functionConfigElements.functionTableElement.lastElementChild.querySelector(
-            `tr[data-index="${this.index}"]`,
-        );
-        const columnFunctionName = rowElement.querySelector(`td.column-function-name`);
-        columnFunctionName.dataset.processColumnId = this.processColumnId;
-        columnFunctionName.dataset.functionColumnId = this.functionColumnId;
-        columnFunctionName.dataset.functionId = this.functionId;
-        columnFunctionName.querySelector('label').textContent = this.functionName;
-
-        rowElement.querySelector('td.column-system-name input').value = this.systemName;
-        rowElement.querySelector('td.column-japanese-name input').value = this.japaneseName;
-        rowElement.querySelector('td.column-local-name input').value = this.localName;
-
-        const columnVarX = rowElement.querySelector(`td.column-var-x`);
-        columnVarX.dataset.varXProcessColumnId = this.varX.processColumnId;
-        columnVarX.dataset.varXFunctionColumnId = this.varX.functionColumnId;
-        columnVarX.textContent = this.varXName;
-        const columnVarY = rowElement.querySelector(`td.column-var-y`);
-        columnVarY.dataset.varYProcessColumnId = this.varY.processColumnId;
-        columnVarY.dataset.varYFunctionColumnId = this.varY.functionColumnId;
-        columnVarY.textContent = this.varYName;
-
-        const inputANS = rowElement.querySelector(`td.column-coe-ans input`);
-        inputANS.disabled = !hasANS;
-        inputANS.value = this.coeANS;
-
-        const inputBK = rowElement.querySelector(`td.column-coe-bk input`);
-        inputBK.disabled = !hasBK;
-        inputBK.value = this.coeBK;
-
-        const inputCT = rowElement.querySelector(`td.column-coe-ct input`);
-        inputCT.disabled = !hasCT;
-        inputCT.value = this.coeCT;
-
-        rowElement.querySelector(`td.column-note input`).value = this.note;
-        const columnOutput = rowElement.querySelector(`td.column-output`);
-        columnOutput.dataset.rawDataType = this.output;
-        columnOutput.textContent = FunctionInfo.getLabelRawDataType(this.output, this.isMainSerialNo);
-        const isNumber = NUMERIC_TYPES.includes(this.output);
-
-        /** @type {NodeListOf<HTMLTableCellElement>} */
-        const sampleCells = rowElement.querySelectorAll(`td.column-sample-data`);
-
-        sampleCells.forEach((cell, index) => {
-            console.log('this.sampleDatas[index]', this.sampleDatas[index]);
-            if (this.sampleDatas[index]) {
-                cell.setAttribute(DATA_ORIGIN_ATTR, this.sampleDatas[index]);
-                cell.setAttribute(IS_NUMBER_ATTR, isNumber);
-                cell.textContent = formatSignifiValue(this.sampleDatas[index], isNumber);
-            } else {
-                cell.textContent = '';
-                cell.setAttribute(DATA_ORIGIN_ATTR, '');
-                cell.setAttribute(IS_NUMBER_ATTR, '');
-            }
-        });
-
-        // this.sampleDatas.forEach((data, index) => {
-        //     if(sampleCells[index]) {
-        //         sampleCells[index].textContent = data
-        //     }
-        // });
-
+    updateFunctionRow(isMainSerial = false) {
         // update prc PreviewDataOfFunctionColumn
         setPreviewDataForFunctionColumns(this.functionColumnId, this.sampleDatas);
+
+        // Update row into JSpreadSheet table
+        const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const spreadsheetData = SpreadSheetFunctionConfig.convertToSpreadSheetData(this);
+        const updateRow = isMainSerial ? spreadsheetConfig.mainSerialRow() : spreadsheetConfig.selectedRow();
+        const selectedRowIndex = updateRow[SpreadSheetFunctionConfig.ColumnNames.IsChecked].rowIndex;
+        spreadsheetConfig.table.updateRow(selectedRowIndex, spreadsheetData);
     }
 
     /**
      * Remove a function row on table
-     * @param {HTMLTableRowElement} rowElement - a function row HTML
+     * @param {HTMLTableRowElement} rowElement
+     * @param {number} functionColumnId
      */
-    static deleteFunctionRow(rowElement) {
+    static deleteFunctionRow(rowElement, functionColumnId) {
+        if (rowElement.classList.contains(ROW_SELECTED_CLASS_NAME)) {
+            FunctionInfo.resetStatusOfEditingFunction(rowElement);
+        }
+
         // Remove all events
-        rowElement.removeEventListener('click', FunctionInfo.rowClickEvent);
-        const checkboxElement = rowElement.querySelector('input[name="columnName"]');
-        checkboxElement.removeEventListener('change', FunctionInfo.changeSelectionStatusEvent);
+        const speedSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const deleteRowData = speedSheet.getRowDataByFunctionColumnId(functionColumnId);
+        speedSheet.table.removeRowById(deleteRowData.index.rowIndex);
 
         // Update number of checked records and total records
         const totalColumns = parseInt(functionConfigElements.totalFunctionColumnsElement.textContent, 10) - 1;
         functionConfigElements.totalFunctionColumnsElement.textContent = String(totalColumns < 0 ? 0 : totalColumns);
-        if (checkboxElement.checked) {
+        if (deleteRowData[SpreadSheetFunctionConfig.ColumnNames.IsChecked].data) {
             const selectedColumns =
                 parseInt(functionConfigElements.totalCheckedFunctionColumnsElement.textContent, 10) - 1;
             functionConfigElements.totalCheckedFunctionColumnsElement.textContent = String(
@@ -979,14 +788,9 @@ class FunctionInfo {
             functionConfigElements.selectAllFunctionColumns.checked = false;
         }
 
-        if (rowElement.classList.contains('selected')) {
-            FunctionInfo.resetStatusOfEditingFunction(rowElement);
-        }
-
-        const columnFunctionName = rowElement.querySelector(`td.column-function-name`);
         const dropDownOptionValue = FunctionInfo.setDropDownOptionValue({
-            processColumnId: columnFunctionName.dataset.processColumnId,
-            functionColumnId: columnFunctionName.dataset.functionColumnId,
+            processColumnId: deleteRowData[SpreadSheetFunctionConfig.ColumnNames.ProcessColumnId].data,
+            functionColumnId: functionColumnId,
         });
 
         // Remove in X & Y select boxes
@@ -997,22 +801,19 @@ class FunctionInfo {
                 $(selectElement).val('').change();
             }
         });
-
-        // Remove row
-        rowElement.remove();
     }
 
     /**
      * Get params info of function
      * @param {number} functionId - function Id
-     * @return {{hasANS: boolean, hasBK: boolean, hasCT: boolean}}
+     * @return {{hasANS: boolean, hasBK: boolean, hasCT: boolean, funcDef: FunctionDefinition}}
      */
     static hasParams(functionId) {
         const funcDef = allMasterFunction.find((func) => func.id === functionId);
         const hasANS = ARRAY_ANS.some((c) => funcDef.coefs.includes(c));
         const hasBK = ARRAY_BK.some((c) => funcDef.coefs.includes(c));
         const hasCT = ARRAY_CT.some((c) => funcDef.coefs.includes(c));
-        return { hasANS, hasBK, hasCT };
+        return { hasANS, hasBK, hasCT, funcDef };
     }
 
     /**
@@ -1021,15 +822,15 @@ class FunctionInfo {
      * @return {FunctionInfo[]} - a list of FunctionInfo objects
      */
     static collectAllFunctionRows(isCollectOnlyCheckedRows = false) {
-        const result = [];
-        [...functionConfigElements.functionTableElement.lastElementChild.children].forEach((row) => {
-            const functionInfo = FunctionInfo.collectFunctionInfoByRow(row);
-            if (!isCollectOnlyCheckedRows || functionInfo.isChecked) {
-                result.push(functionInfo);
-            }
-        });
-
-        return result;
+        const speadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        let functionRows = speadsheet.table.collectDataTable();
+        if (isCollectOnlyCheckedRows) {
+            functionRows = functionRows.map((row) => row.is_checked);
+        }
+        const functionInfos = functionRows.map((functionRow) =>
+            SpreadSheetFunctionConfig.convertToFunctionInfo(functionRow),
+        );
+        return functionInfos;
     }
 
     /**
@@ -1045,36 +846,7 @@ class FunctionInfo {
      * Call api to backend to get all function infos of target process
      * @param {number|string} processId - a process id
      * @param {number[]} colIds - a list of column ids
-     * @return {Promise<{
-     *    functionName: string,
-     *    output: string,
-     *    isMainSerialNo: boolean,
-     *    systemName: string,
-     *    japaneseName: string,
-     *    localName: string,
-     *    varXName: string,
-     *    varYName: string,
-     *    a: string,
-     *    b: string,
-     *    c: string,
-     *    n: string,
-     *    k: string,
-     *    s: string,
-     *    t: string,
-     *    note: string,
-     *    sampleDatas: string[],
-     *    isChecked: ?boolean,
-     *    processColumnId: ?number|string,
-     *    functionColumnId: ?number|string,
-     *    functionId: ?number|string,
-     *    varX: ?number|string,
-     *    varY: ?number|string,
-     *    index: ?number|string,
-     *    dataType: ?number|string,
-     *    coeANS: string,
-     *    coeBK: string,
-     *    coeCT: string,
-     * }[]>} - A response object
+     * @return {Promise<FunctionInfoDict[]>} - A response object
      */
     static getAllFunctionInfosApi(processId, colIds) {
         const dictSampleData = {};
@@ -1100,7 +872,7 @@ class FunctionInfo {
                 prcPreviewDataOfFunctionColumn = {};
                 return response;
             })
-            .then((/** @type {{functionData: {}}} */ responseData) =>
+            .then((/** @type {{functionData: FunctionInfoDict[]}} */ responseData) =>
                 responseData.functionData?.map((funcData) => {
                     // add functionInfo data to prc-PreviewDataOfFunctionColumn with a key is functionColumnId
                     const { functionColumnId, sampleDatas } = funcData;
@@ -1117,39 +889,57 @@ class FunctionInfo {
 
     /**
      * Load function list on table & load function list
-     * @param {Array.<Object>} functionData - list of functionData objects from functionInfosAPI
+     * @param {Array.<FunctionInfoDict>} functionData - list of functionData objects from functionInfosAPI
      */
     static loadFunctionListTableAndInitDropDown(functionData) {
         dbFunctionCols = functionData;
         // show modal confirm if exist main::Serial in process config
         const isExitsMainSerial = isSelectedMainSerialInProcessConfig();
         if (isExitsMainSerial) {
-            const mainSerialFuncCol = functionData.find((col) => col.isMainSerialNo);
+            const mainSerialFuncCol = functionData?.find((col) => col.isMainSerialNo);
             if (mainSerialFuncCol) {
                 $(functionConfigElements.confirmReloadFunctionColumnModal).modal('show');
                 return;
             }
         }
         FunctionInfo.removeAllFunctionRows();
-        functionData
-            ?.map((data) => new FunctionInfo(data))
-            ?.forEach((functionInfo) => functionInfo.addNewFunctionRow());
         FunctionInfo.initDropdownFunctionName();
         if (typeof inputMutationObserver !== 'undefined') {
             // inject events for process table's input
             inputMutationObserver.injectEvents();
         }
+
+        // Convert to Spreadsheet data before init table
+        spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER).table.destroyTable();
+        const spreadsheetData = functionData.map((data) => SpreadSheetFunctionConfig.convertToSpreadSheetData(data));
+        const spreadsheet = SpreadSheetFunctionConfig.create(FUNCTION_TABLE_CONTAINER, spreadsheetData);
+        mainSerialFunctionColumnInfo = spreadsheetData.find((data) => data.isMainSerialNo);
+        spreadsheet.table.takeSnapshotForTracingChanges(SpreadSheetFunctionConfig.trackingHeaders());
+    }
+
+    /**
+     * Destroy Function table
+     */
+    static destroyTable() {
+        const spreadSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadSheet.table.destroyTable();
     }
 
     /**
      * Remove all rows of Function table
      */
     static removeAllFunctionRows() {
-        [...functionConfigElements.functionTableElement.lastElementChild.children].forEach(
+        const excelTable = functionConfigElements.functionTableElement();
+        if (excelTable == null) return;
+        [...excelTable.lastElementChild.children].forEach(
             /**
              * Remove event listener and row
              * @param {HTMLTableRowElement} row - a function row HTML
-             */ (row) => FunctionInfo.deleteFunctionRow(row),
+             */ (row) => {
+                const functionColumnIdElement = row.querySelector('td.column-function-column-id');
+                const functionColumnId = parseInt(functionColumnIdElement.textContent);
+                FunctionInfo.deleteFunctionRow(row, functionColumnId);
+            },
         );
     }
 
@@ -1159,8 +949,6 @@ class FunctionInfo {
     static showChangeMark() {
         if (functionConfigElements.settingChangeMark().classList.contains('d-none')) {
             functionConfigElements.settingChangeMark().classList.remove('d-none');
-            // update data-mutation
-            functionConfigElements.settingChangeMark().setAttribute('data-mutation', true);
         }
     }
 
@@ -1170,8 +958,6 @@ class FunctionInfo {
     static hideChangeMark() {
         if (!functionConfigElements.settingChangeMark().classList.contains('d-none')) {
             functionConfigElements.settingChangeMark().classList.add('d-none');
-            // update data-mutation
-            functionConfigElements.settingChangeMark().setAttribute('data-mutation', false);
         }
     }
 
@@ -1224,12 +1010,11 @@ class FunctionInfo {
         functionConfigElements.noteElement.value = '';
         functionConfigElements.sampleDataElement.lastElementChild.querySelectorAll('td').forEach((td) => {
             td.textContent = '';
-            td.setAttribute(DATA_ORIGIN_ATTR, '');
+            td.setAttribute(DATA_ORIGINAL_ATTR, '');
         });
 
         $(functionConfigElements.varXElement).empty();
         $(functionConfigElements.varYElement).empty();
-        FunctionInfo.hideChangeMark();
     }
 
     /**
@@ -1240,13 +1025,12 @@ class FunctionInfo {
         removeAllSyncEvents();
         FunctionInfo.resetInputFunctionInfo(false, false);
         if (selectedRow == null) {
-            selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
+            selectedRow = this.getSelectedRow();
         }
 
         if (selectedRow != null) {
-            selectedRow.classList.remove('selected');
+            selectedRow.classList.remove(ROW_SELECTED_CLASS_NAME);
         }
-        selectedFunctionColumnInfo = null;
     }
 
     /**
@@ -1445,8 +1229,7 @@ class FunctionInfo {
         });
 
         // ignore currently clicked row
-        const currentlyClickedFunctionRow =
-            functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
+        const currentlyClickedFunctionRow = this.getSelectedRow();
         if (currentlyClickedFunctionRow) {
             const currentlyClickedFunctionInfo = FunctionInfo.collectFunctionInfoByRow(currentlyClickedFunctionRow);
             if (!currentlyClickedFunctionInfo.isMeFunction) {
@@ -1577,43 +1360,6 @@ class FunctionInfo {
     }
 
     /**
-     * Get raw data type
-     * @param {string} label - a label of data type
-     * @return {string} - a raw data type
-     */
-    static getRawDataTypeByLabel(label) {
-        let rawDataType = '';
-        switch (label) {
-            case document.getElementById(DataTypes.BIG_INT.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.BIG_INT.bs_value;
-                break;
-            case document.getElementById(DataTypes.INTEGER.exp).textContent.trim():
-                rawDataType = DataTypes.INTEGER.bs_value;
-                break;
-            case document.getElementById(DataTypes.SMALL_INT.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.SMALL_INT.bs_value;
-                break;
-            case document.getElementById(DataTypes.TEXT.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.TEXT.bs_value;
-                break;
-            case document.getElementById(DataTypes.REAL.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.REAL.bs_value;
-                break;
-            case document.getElementById(DataTypes.DATETIME.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.DATETIME.bs_value;
-                break;
-            case document.getElementById(DataTypes.CATEGORY.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.CATEGORY.bs_value;
-                break;
-            case document.getElementById(DataTypes.BOOLEAN.i18nLabelID).textContent.trim():
-                rawDataType = DataTypes.BOOLEAN.bs_value;
-                break;
-        }
-
-        return rawDataType;
-    }
-
-    /**
      * Set label for output data type of selected function
      * @param {string} rawDataType - a raw data type string
      * @param {boolean} isMainSerialNo - is main serial
@@ -1628,16 +1374,7 @@ class FunctionInfo {
             functionConfigElements.isMainSerialCheckboxElement.checked = false;
             functionConfigElements.isMainSerialCheckboxElement.disabled = true;
         }
-    }
-
-    /**
-     * Set label for output data type of selected function
-     * @param {string} labelDataType - a label data type string
-     * @deprecated
-     */
-    static setOutputDataTypeByLabel(labelDataType) {
-        functionConfigElements.outputElement.innerHTML = labelDataType;
-        functionConfigElements.outputElement.dataset.rawDataType = FunctionInfo.getRawDataTypeByLabel(labelDataType);
+        functionConfigElements.outputElement.dispatchEvent(new Event('change'));
     }
 
     /**
@@ -1714,7 +1451,7 @@ class FunctionInfo {
      * Update index and order of all function columns in table
      */
     static updateIndexRowsInTable() {
-        [...functionConfigElements.functionTableElement.lastElementChild.children].forEach((tr, i) => {
+        [...functionConfigElements.functionTableElement().lastElementChild.children].forEach((tr, i) => {
             const index = i + 1;
             tr.dataset.index = index;
             tr.firstElementChild.textContent = String(index);
@@ -1727,35 +1464,25 @@ class FunctionInfo {
  * @param {KeyboardEvent} event
  */
 function searchInputHandler(event) {
-    /** @type HTMLTableRowElement[] */
-    const rows = [...functionConfigElements.functionTableElement.lastElementChild.children];
-    searchByValueOfTable(event, rows);
+    const spreadSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const searchValue = stringNormalization(event.currentTarget.value.trim().toLowerCase());
+    spreadSheet.handleSearchInput(searchValue, event.key);
 }
 
 /**
  * Handle select rows that shown in filter
- * @param {PointerEvent} event - an event
- * @param {?boolean} isChecked - a flag to set status for checkboxes
  */
-function setFilterButtonHandler(event, isChecked = true) {
-    [...functionConfigElements.functionTableElement.lastElementChild.children].forEach((row) => {
-        if (!row.classList.contains('gray')) {
-            const checkBox = row.querySelector('input[name="columnName"]');
-            if (checkBox.checked === isChecked) return; // do nothing if no changes
-
-            checkBox.checked = isChecked;
-            setTimeout(() => checkBox.dispatchEvent(new Event('change')));
-        }
-    });
+function setFilterButtonHandler() {
+    const spreadSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadSheet.handleSearchSetButton();
 }
 
 /**
  * Handle unselect rows that shown in filter
- * @param {PointerEvent} event - an event
- * @param {?boolean} isChecked - a flag to set status for checkboxes
  */
-function resetButtonHandler(event, isChecked = false) {
-    setFilterButtonHandler(event, isChecked);
+function resetButtonHandler() {
+    const spreadSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadSheet.handleSearchResetButton();
 }
 
 /**
@@ -1777,11 +1504,10 @@ function addOrUpdateFunctionInfo(event) {
     } else {
         hideAlertMessages();
     }
-    selectedFunctionColumnInfo = null;
 
-    const selectedFunction = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
+    const selectedFunction = FunctionInfo.getSelectedRow();
     if (selectedFunction == null) {
-        inputFunctionInfo.index = functionConfigElements.functionTableElement.lastElementChild.childElementCount + 1;
+        inputFunctionInfo.index = functionConfigElements.functionTableElement().lastElementChild.childElementCount + 1;
 
         inputFunctionInfo.isChecked = functionConfigElements.selectAllFunctionColumns.checked;
 
@@ -1793,7 +1519,7 @@ function addOrUpdateFunctionInfo(event) {
         inputFunctionInfo.addNewFunctionRow();
     } else {
         inputFunctionInfo.updateFunctionRow();
-        selectedFunction.classList.remove('selected');
+        selectedFunction.classList.remove(ROW_SELECTED_CLASS_NAME);
     }
     // change data type of column if me.type_convert()
     if (inputFunctionInfo.isMeFunction && inputFunctionInfo.functionId === 172) {
@@ -1804,13 +1530,6 @@ function addOrUpdateFunctionInfo(event) {
         }
     }
     FunctionInfo.resetInputFunctionInfo(false, false);
-
-    if (typeof inputMutationObserver !== 'undefined') {
-        // // update function table marker
-        functionConfigElements.functionTableBody.setAttribute('data-mutation', true);
-        // inject events for process table's input
-        inputMutationObserver.injectEvents();
-    }
 }
 
 /**
@@ -1859,7 +1578,12 @@ const validateFunctionColumnName = (inputFunctionInfo) => {
         return false;
     }
 
-    let [systemNames, japaneseNames, localNames] = getCheckedRowValues();
+    const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+    const checkedRows = spreadsheet.checkedRows();
+    let systemNames = checkedRows.map((cell) => cell[PROCESS_COLUMNS.name_en].data);
+    let japaneseNames = checkedRows.map((cell) => cell[PROCESS_COLUMNS.name_jp].data);
+    let localNames = checkedRows.map((cell) => cell[PROCESS_COLUMNS.name_local].data);
+
     FunctionInfo.collectAllFunctionRows()
         .filter(
             (functionInfo) =>
@@ -1906,7 +1630,6 @@ const copyFunctionHandle = (el) => {
     functionInfo.note = $(el).find('td[name="note"]').text().trim();
     functionInfo.fillInputFunctionInfo();
     FunctionInfo.resetInvalidStatus();
-    FunctionInfo.showChangeMark();
     $(functionConfigElements.functionUserSettingTableModal).modal('hide');
 };
 
@@ -1995,9 +1718,9 @@ function showDeleteFunctionConfirmation(event) {
 function genFunctionErrorMessage(errorResponses) {
     const setErrorMsgs = new Set();
     for (const [functionColumnId, rowErrors] of Object.entries(errorResponses)) {
-        const row = functionConfigElements.functionTableElement.lastElementChild.querySelector(
-            `tr td[data-function-column-id='${functionColumnId}']`,
-        ).parentNode;
+        const speadSheetFunctionColumn = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const errorRowData = speadSheetFunctionColumn.getRowDataByFunctionColumnId(Number(functionColumnId));
+        const row = errorRowData[SpreadSheetFunctionConfig.ColumnNames.IsChecked].td.closest('tr');
 
         // Reset the 'invalid' status from each element
         FunctionInfo.resetInvalidStatus(row);
@@ -2006,19 +1729,22 @@ function genFunctionErrorMessage(errorResponses) {
         for (const rowError of rowErrors) {
             let fieldName = rowError['field'];
             if (ARRAY_ANS.includes(fieldName)) {
-                fieldName = 'a_n_s';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.CoeAns;
             } else if (ARRAY_BK.includes(fieldName)) {
-                fieldName = 'b_k';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.CoeBk;
             } else if (ARRAY_CT.includes(fieldName)) {
-                fieldName = 'c_t';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.CoeCt;
             }
             let errorMsg;
             if (fieldName === 'name_jp') {
                 errorMsg = $(procModali18n.duplicatedJapaneseName).text() || '';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.JapaneseName;
             } else if (fieldName === 'name_en') {
                 errorMsg = $(procModali18n.duplicatedSystemName).text() || '';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.SystemName;
             } else if (fieldName === 'name_local') {
                 errorMsg = $(procModali18n.duplicatedLocalName).text() || '';
+                fieldName = SpreadSheetFunctionConfig.ColumnNames.LocalName;
             } else {
                 errorMsg = rowError['msg'];
             }
@@ -2027,8 +1753,8 @@ function genFunctionErrorMessage(errorResponses) {
             if (!fieldName) {
                 $(row).addClass('row-invalid');
             } else {
-                const inputEle = row.querySelector(`input[name="${fieldName}"]`);
-                FunctionInfo.setInvalidStatus(inputEle);
+                const tdEle = errorRowData[fieldName].td;
+                FunctionInfo.setInvalidStatus(tdEle);
             }
             setErrorMsgs.add(errorMsg);
         }
@@ -2049,19 +1775,50 @@ function genFunctionErrorMessage(errorResponses) {
  * @return {string} - a string contains all function info
  */
 function collectAllFunctionInfo() {
-    const headerText = [...functionConfigElements.functionTableElement.firstElementChild.firstElementChild.children]
-        .map((th) => {
-            const columnName = th.innerText.trim();
-            if (th.getAttribute('colspan') == null) {
+    const shownColumnClasses = [
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.FunctionName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SystemName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.JapaneseName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.LocalName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.VarXName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.VarYName],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.CoeAns],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.CoeBk],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.CoeCt],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.Note],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.Output],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SampleData1],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SampleData2],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SampleData3],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SampleData4],
+        SpreadSheetFunctionConfig.ColumnClasses[SpreadSheetFunctionConfig.ColumnNames.SampleData5],
+    ];
+    const predicateFilter = (td) => {
+        const matched = shownColumnClasses.find((value) => td.classList.contains(value));
+        return matched != null;
+    };
+
+    const headerText = [
+        ...functionConfigElements.functionTableElement().querySelector('thead').firstElementChild.children,
+    ]
+        .filter(predicateFilter)
+        .map((td) => {
+            const columnName = td.innerText.trim();
+            if (td.getAttribute('colspan') == null) {
                 return columnName;
             }
 
-            const quantity = parseInt(th.getAttribute('colspan'), 10);
+            const quantity = parseInt(td.getAttribute('colspan'), 10);
             return Array(quantity).fill(columnName).join(TAB_CHAR);
         })
         .join(TAB_CHAR);
-    const bodyText = [...functionConfigElements.functionTableElement.lastElementChild.children]
-        .map((tr) => getTRDataValues(tr).join(TAB_CHAR))
+    const bodyText = [...functionConfigElements.functionTableElement().querySelector('tbody').children]
+        .map((tr) =>
+            [...tr.children]
+                .filter(predicateFilter)
+                .map((td) => td.innerText.trim())
+                .join(TAB_CHAR),
+        )
         .join(NEW_LINE_CHAR);
     return [headerText, bodyText].join(NEW_LINE_CHAR);
 }
@@ -2071,7 +1828,8 @@ function collectAllFunctionInfo() {
  * @param {PointerEvent} event
  */
 function downloadAllFunctionInfo(event) {
-    const text = collectAllFunctionInfo();
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const text = spreadsheet.table.tableText();
     const processName = document.getElementById('processName').value.trim();
     const fileName = `${processName}_FunctionSampleData.tsv`;
     downloadText(fileName, text);
@@ -2083,8 +1841,8 @@ function downloadAllFunctionInfo(event) {
  * @param {PointerEvent} event
  */
 function copyAllFunctionInfo(event) {
-    const text = collectAllFunctionInfo();
-    navigator.clipboard.writeText(text).then(showToastCopyToClipboardSuccessful, showToastCopyToClipboardFailed);
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadsheet.table.copyAll();
 }
 
 /**
@@ -2111,6 +1869,7 @@ function pasteAllFunctionInfo(event) {
     };
     const funcInfos = FunctionInfo.collectAllFunctionRows();
     FunctionInfo.removeAllFunctionRows();
+    FunctionInfo.resetStatusOfEditingFunction();
     const dicFuncs = {};
     const dicCols = {};
     for (const colRec of currentProcDataCols) {
@@ -2124,21 +1883,37 @@ function pasteAllFunctionInfo(event) {
     for (const funRec of allMasterFunction) {
         dicFuncs[funRec.function_type] = funRec.id;
     }
-    const mapColumnNameDict = {};
-    functionConfigElements.functionTableElement.querySelectorAll('thead > tr:first-child > th').forEach((th) => {
-        mapColumnNameDict[th.innerText.trim()] = th.dataset.columnName;
-    });
-
+    const columnNames = [
+        'isChecked',
+        SpreadSheetFunctionConfig.ColumnNames.FunctionName,
+        SpreadSheetFunctionConfig.ColumnNames.SystemName,
+        SpreadSheetFunctionConfig.ColumnNames.JapaneseName,
+        SpreadSheetFunctionConfig.ColumnNames.LocalName,
+        SpreadSheetFunctionConfig.ColumnNames.VarXName,
+        SpreadSheetFunctionConfig.ColumnNames.VarYName,
+        SpreadSheetFunctionConfig.ColumnNames.CoeAns,
+        SpreadSheetFunctionConfig.ColumnNames.CoeBk,
+        SpreadSheetFunctionConfig.ColumnNames.CoeCt,
+        SpreadSheetFunctionConfig.ColumnNames.Note,
+        SpreadSheetFunctionConfig.ColumnNames.Output,
+        'sampleDatas',
+        'sampleDatas',
+        'sampleDatas',
+        'sampleDatas',
+        'sampleDatas',
+    ];
+    const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
     const handleError = (errorMessage) => {
         FunctionInfo.removeAllFunctionRows();
-        funcInfos.forEach((funcInfo) => funcInfo.addNewFunctionRow());
+        funcInfos.forEach((funcInfo, rowIndex) => {
+            funcInfo.addNewFunctionRow();
+            spreadsheetConfig.handleChangeCell(0, rowIndex, funcInfo.isChecked, undefined);
+        });
         showToastPasteFromClipboardFailed(errorMessage);
     };
 
     navigator.clipboard.readText().then(function (text) {
-        const table = functionConfigElements.functionTableElement;
         let index = 0;
-        let newColumnIndex = 0;
         const records = text.replace(/\r\n+$/, '').split('\r\n');
         const rows = [];
         for (const rec of records) {
@@ -2154,36 +1929,11 @@ function pasteAllFunctionInfo(event) {
             return;
         }
 
-        // validate header row
-        const headerRow = rows[0];
-        let isHeaderRowValid = true;
-        let errorMessage = null;
-        const noHeaderMessage = 'There is no header in copied text, Please also copy header!';
-        const wrongHeaderMessage = 'Copied text is wrong format, Please correct header!';
-        if (headerRow.length === 0) {
-            errorMessage = noHeaderMessage;
-            isHeaderRowValid = false;
-        }
-        let hasHeader = false;
-        for (const columnName of headerRow) {
-            if (mapColumnNameDict[columnName] == null) {
-                errorMessage = hasHeader ? wrongHeaderMessage : noHeaderMessage;
-                isHeaderRowValid = false;
-                break;
-            }
-
-            hasHeader = true;
-        }
-        if (!isHeaderRowValid) {
-            handleError(errorMessage);
-            return;
-        }
-
         prcPreviewDataOfFunctionColumn = {};
         const pastedFunctions = [];
         let hasInvalidFunction = false;
         // paste text to table
-        for (const row of rows.slice(1)) {
+        rows.forEach((row) => {
             const params = {
                 functionName: '',
                 output: '',
@@ -2206,24 +1956,26 @@ function pasteAllFunctionInfo(event) {
                 index: null,
             };
 
-            for (let columnIndex = 0; columnIndex < headerRow.length; columnIndex++) {
-                const columnName = headerRow[columnIndex];
-                if (mapColumnNameDict[columnName] === 'sampleDatas') {
-                    params[mapColumnNameDict[columnName]].push(row[columnIndex]);
+            for (let columnIndex = 0; columnIndex < columnNames.length; columnIndex++) {
+                const columnName = columnNames[columnIndex];
+                if (columnName === 'sampleDatas') {
+                    params[columnName].push(row[columnIndex]);
                 } else {
-                    params[mapColumnNameDict[columnName]] = row[columnIndex];
+                    params[columnName] = row[columnIndex];
                 }
             }
 
-            params.functionId = dicFuncs[params.functionName];
-            if (params.functionId === undefined) {
-                // In case input function is invalid, skip this row
-                hasInvalidFunction = true;
-                continue;
-            }
-
+            // Only allow pasting non-readonly cells on old rows
             const existFunctionInfo = funcInfos[index];
-            if (existFunctionInfo !== undefined) {
+            if (existFunctionInfo != null) {
+                // keep value of readonly cells for old rows
+                params.functionName = existFunctionInfo.functionName;
+                params.output = existFunctionInfo.output;
+                params.varXName = existFunctionInfo.varXName;
+                params.varYName = existFunctionInfo.varYName;
+                params.sampleDatas = existFunctionInfo.sampleDatas;
+                params.index = existFunctionInfo.index;
+
                 // Set previous id (exist id) to new row, this logic serve modify exist function column instead
                 //  removing the old one to create new one
                 params.functionColumnId = existFunctionInfo.functionColumnId;
@@ -2237,42 +1989,60 @@ function pasteAllFunctionInfo(event) {
                 }
             }
 
-            // In case if there are some disable params cells -> not allow to paste value in those cells
-            const { hasANS, hasBK, hasCT } = FunctionInfo.hasParams(params.functionId);
-            if (!hasANS) {
-                params.coeANS =
-                    existFunctionInfo && params.functionId === existFunctionInfo.functionId
-                        ? existFunctionInfo.coeANS
-                        : null;
-            }
-            if (!hasBK) {
-                params.coeBK =
-                    existFunctionInfo && params.functionId === existFunctionInfo.functionId
-                        ? existFunctionInfo.coeBK
-                        : null;
-            }
-            if (!hasCT) {
-                params.coeCT =
-                    existFunctionInfo && params.functionId === existFunctionInfo.functionId
-                        ? existFunctionInfo.coeCT
-                        : null;
+            params.functionId = dicFuncs[params.functionName];
+            if (params.functionId === undefined) {
+                // In case input function is invalid, skip this row
+                hasInvalidFunction = true;
+                return true;
             }
 
-            index++;
+            // In case if there are some disable params cells -> not allow to paste value in those cells
+            const { hasANS, hasBK, hasCT, funcDef } = FunctionInfo.hasParams(params.functionId);
+            let [isValidANS, isValidBK, isValidCT] = [true, true, true];
+            if (!hasANS) {
+                params.coeANS = null;
+            } else {
+                // validate 【a/n/s】 cell
+                if (funcDef.coefs.includes('a')) {
+                    isValidANS = isNumberOrInf(params.coeANS);
+                } else if (funcDef.coefs.includes('n')) {
+                    isValidANS = isInteger(params.coeANS);
+                }
+            }
+            if (!hasBK) {
+                params.coeBK = null;
+            } else {
+                // validate 【b/k】 cell
+                if (funcDef.coefs.includes('b')) {
+                    isValidBK = isNumberOrInf(params.coeBK);
+                } else if (funcDef.coefs.includes('k')) {
+                    isValidBK = isInteger(params.coeBK);
+                }
+            }
+            if (!hasCT) {
+                params.coeCT = null;
+            } else {
+                // validate 【c/t】 cell
+                if (funcDef.coefs.includes('c')) {
+                    isValidCT = isNumberOrInf(params.coeCT);
+                }
+            }
+
+            const newId = index + 1; // increase to avoid case of negative zero
             if (!dicCols[params.systemName]) {
                 // In case process column not exist
-                dicCols[params.systemName] = -index;
-                params.functionColumnId = -index;
-                params.processColumnId = -index;
+                dicCols[params.systemName] = -newId;
+                params.functionColumnId = -newId;
+                params.processColumnId = -newId;
             } else if (params.functionName.startsWith('me.')) {
                 // In case me function, always set new id
-                params.functionColumnId = -index;
+                params.functionColumnId = -newId;
                 params.processColumnId = dicCols[params.varXName];
             } else if (params.processColumnId == null) {
                 // In case process column exist and this is new function row, get process column id and
                 //  set new function column id
                 params.processColumnId = dicCols[params.systemName];
-                params.functionColumnId = -index;
+                params.functionColumnId = -newId;
             }
 
             params.index = index;
@@ -2288,7 +2058,7 @@ function pasteAllFunctionInfo(event) {
             });
             if (params.output.length) {
                 let isMainSerialNo = false;
-                params.output = Object.keys(rawDataTypeTitle).find((key) => {
+                Object.keys(rawDataTypeTitle).find((key) => {
                     if (rawDataTypeTitle[key].includes(params.output.trim())) {
                         if (FunctionInfo.isMainSerial(params.output)) {
                             isMainSerialNo = true;
@@ -2303,10 +2073,36 @@ function pasteAllFunctionInfo(event) {
 
             const inputFunctionInfo = new FunctionInfo(params);
             inputFunctionInfo.addNewFunctionRow();
-            FunctionInfo.resetStatusOfEditingFunction();
-            pastedFunctions.push(inputFunctionInfo);
-        }
+            // Trigger checkbox event
+            spreadsheetConfig.handleChangeCell(columnNames.indexOf('isChecked'), index, params.isChecked, undefined);
+            // Add border red to invalid cells
+            [
+                {
+                    columnIndex: columnNames.indexOf(SpreadSheetFunctionConfig.ColumnNames.CoeAns),
+                    isValid: isValidANS,
+                },
+                {
+                    columnIndex: columnNames.indexOf(SpreadSheetFunctionConfig.ColumnNames.CoeBk),
+                    isValid: isValidBK,
+                },
+                {
+                    columnIndex: columnNames.indexOf(SpreadSheetFunctionConfig.ColumnNames.CoeCt),
+                    isValid: isValidCT,
+                },
+            ].forEach(({ columnIndex, isValid }) => {
+                if (isValid) return true;
+                const targetCell = spreadsheetConfig.table.table.rows[index].querySelector(
+                    `td[data-x="${columnIndex}"]`,
+                );
+                targetCell.classList.add(BORDER_RED_CLASS);
+            });
 
+            pastedFunctions.push(inputFunctionInfo);
+            showResultFunctionWithoutDelay(index);
+            index += 1;
+        });
+
+        updateCheckedFunctionColumn();
         showToastPasteFromClipboardSuccessful();
         if (hasInvalidFunction) {
             message = 'There are some invalid functions in copied text!';
@@ -2343,16 +2139,19 @@ const handleDeleteFunctionColumns = () => {
         const functionColumnId = numberCell.dataset.functionColumnId;
         deleteFunctionSampleData(functionColumnId);
 
-        functionConfigElements.functionTableElement.lastElementChild
-            .querySelectorAll(`tr td[data-function-column-id='${functionColumnId}']`)
-            .forEach((columnFunctionName) => {
-                const rowElement = columnFunctionName.parentElement;
-                FunctionInfo.deleteFunctionRow(rowElement);
-                FunctionInfo.updateIndexRowsInTable();
+        functionConfigElements
+            .functionTableElement()
+            .lastElementChild.querySelectorAll('tr td.column-function-column-id')
+            .forEach((td) => {
+                if (td.innerText !== `${functionColumnId != null ? functionColumnId : ''}`) return;
+                FunctionInfo.deleteFunctionRow(td.parentElement, Number(functionColumnId));
             });
     });
     // update table mutation in records
-    if (functionConfigElements.deleteFunctionColumnTableBody.children.length) {
+    if (
+        functionConfigElements.deleteFunctionColumnTableBody.children.length &&
+        functionConfigElements.functionTableBody
+    ) {
         functionConfigElements.functionTableBody.setAttribute('data-mutation', true);
     }
 
@@ -2364,30 +2163,22 @@ const closeDelFunctionColsModal = () => {
 };
 
 /**
- * Set check/uncheck row
- * @param {HTMLTableRowElement} row - a row HTML object
- * @param {boolean} isChecked - status of checkbox
- */
-function changeRowSelectStatus(row, isChecked) {
-    const element = row.querySelector('td.column-function-name input');
-    if (element.checked === isChecked) return;
-    element.checked = isChecked;
-    // Trigger change event
-    setTimeout(() => {
-        element.dispatchEvent(new Event('change'));
-    });
-}
-
-/**
  * Handle checking/unchecking all function columns
  * @param {Event} event - checkbox HTML object
  */
 function handleCheckAllFunctionColumns(event) {
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+
     /** @type {HTMLInputElement} */
     const el = event.currentTarget;
-    /** @type {HTMLTableRowElement[]} */
-    const allRows = [...functionConfigElements.functionTableElement.lastElementChild.children];
-    allRows.forEach((row) => changeRowSelectStatus(row, el.checked));
+    const needChangedRows = el.checked ? spreadsheet.uncheckedRows() : spreadsheet.checkedRows();
+    const checkboxes = $(
+        needChangedRows.map((row) =>
+            row[SpreadSheetFunctionConfig.ColumnNames.IsChecked].td.querySelector('input[type=checkbox]'),
+        ),
+    );
+
+    checkboxes.prop('checked', el.checked).trigger('change');
 }
 
 /**
@@ -2395,25 +2186,28 @@ function handleCheckAllFunctionColumns(event) {
  * @param {Event} event - checkbox HTML object
  */
 function handleCheckErrorFunctionColumns(event) {
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const erroredRows = spreadsheet.erroredRows();
+
     /** @type {HTMLInputElement} */
     const el = event.currentTarget;
-    const invalidRows = FunctionInfo.getInvalidRows();
-    [...functionConfigElements.functionTableElement.lastElementChild.children].forEach((row) => {
-        if (invalidRows.includes(row)) {
-            changeRowSelectStatus(row, el.checked);
-        } else if (el.checked) {
-            changeRowSelectStatus(row, false);
-        }
-    });
+
+    const needChangedRows = erroredRows.filter(
+        (row) => row[SpreadSheetFunctionConfig.ColumnNames.IsChecked].data !== el.checked,
+    );
+    const checkboxes = $(
+        needChangedRows.map((row) =>
+            row[SpreadSheetFunctionConfig.ColumnNames.IsChecked].td.querySelector('input[type=checkbox]'),
+        ),
+    );
+
+    checkboxes.prop('checked', el.checked).trigger('change');
 }
 
 /**
- * Handle checking/unchecking error function columns
- * @param {Event} event - checkbox HTML object
+ * @param {Event} event
  */
-const handleShowResultData = delay((event) => {
-    checkAnyChanges(event);
-
+const handleShowResultData = delay(() => {
     // check all input fill
     const isValid = FunctionInfo.validateInputFunctionInfo(undefined);
     if (isValid && !showResultFunction.disabled) {
@@ -2423,48 +2217,99 @@ const handleShowResultData = delay((event) => {
     }
 }, 100);
 
-/**
- * Replace characters which are not alphabet
- * @param {string} name - a name
- * @return {string} - a name without special characters
- */
-const correctEnglishName = (name) => (name == null ? name : name.replace(/[^\w-]+/g, ''));
-
-/**
- * 1. Replace characters which are not alphabet
- * 2. Check there is any changes between the input function & the exist function
- * @param {Event} event
- */
-const handleChangeSystemName = (event) => {
-    /** @type HTMLInputElement */
-    const targetInput = event.currentTarget;
-    targetInput.value = correctEnglishName(targetInput.value);
-    checkAnyChanges(event);
+const handleChangeFunctionNameOrVarXY = () => {
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadsheet.handleChangeMark();
+    handleShowResultData();
 };
 
 /**
- * Check any changes in function info.
- * If there are some changes, change icon will be shown. Otherwise
- * @param {Event} event - checkbox HTML object
+ * Change table output based on function output
  */
-const checkAnyChanges = (event) => {
-    const selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
-    if (selectedRow != null) {
-        const inputFunction = FunctionInfo.collectInputFunctionInfo();
-        const selectedFunction = FunctionInfo.collectFunctionInfoByRow(selectedRow);
-        if (inputFunction.isEqual(selectedFunction)) {
-            FunctionInfo.hideChangeMark();
-        } else {
-            FunctionInfo.showChangeMark();
+const handleChangeFunctionOutput = (rowIndex = null, rawDataType = null) => {
+    // if has rowIndex get data in table
+    rawDataType = rawDataType !== null ? rawDataType : functionConfigElements.outputElement.dataset.rawDataType;
+    const isMainSerialNo = rowIndex !== null ? false : functionConfigElements.isMainSerialCheckboxElement.checked;
+
+    const dataType = FunctionInfo.getLabelRawDataType(rawDataType, isMainSerialNo);
+
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.RawOutput, rawDataType, {
+        recordHistory: false,
+        force: true,
+        rowIndex: rowIndex,
+    });
+    spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.Output, dataType, {
+        recordHistory: false,
+        force: true,
+        rowIndex: rowIndex,
+    });
+};
+
+/**
+ * Change function input for coefficient elements.
+ * @param {string} columnName - column name for changing coef input, from {@link SpreadSheetFunctionConfig.ColumnNames}
+ * @returns {(function(Event): void)}
+ */
+const handleChangeFunctionConfigCoeInput = (columnName) => {
+    const changeInputFunction = handleChangeFunctionConfigInput(columnName);
+
+    return (event) => {
+        // Call `handleChangeFunctionConfigInput` to sync data
+        changeInputFunction(event);
+
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const isValid = spreadsheet.allCoeCellAndInputsAreValid();
+        // if editing selected row, when sync data -> handleShowResultData
+        const selectedRow = spreadsheet.selectedRow();
+        if (isValid && !selectedRow) {
+            handleShowResultData();
         }
-    } else {
-        const inputFunction = FunctionInfo.collectInputFunctionInfo();
-        if (inputFunction.isEmpty()) {
-            FunctionInfo.hideChangeMark();
-        } else {
-            FunctionInfo.showChangeMark();
+    };
+};
+
+/**
+ * Change function config element should sync to correct input box.
+ * @param {string} columnName - column name for changing input, from {@link SpreadSheetFunctionConfig.ColumnNames}
+ * @returns {(function(Event): void)}
+ */
+const handleChangeFunctionConfigInput = (columnName) => {
+    /**
+     * Some value need to be pre-process here.
+     * @param {string} value
+     * @return {string}
+     */
+    const preProcessValue = (value) => {
+        let preProcessedValue = value;
+        if (columnName === SpreadSheetFunctionConfig.ColumnNames.SystemName) {
+            preProcessedValue = correctEnglishName(preProcessedValue);
         }
-    }
+        return preProcessedValue;
+    };
+
+    return (event) => {
+        /** @type HTMLInputElement */
+        const targetInput = event.currentTarget;
+        targetInput.value = preProcessValue(targetInput.value);
+        if (
+            mainSerialFunctionColumnInfo &&
+            [
+                SpreadSheetFunctionConfig.ColumnNames.CoeAns,
+                SpreadSheetFunctionConfig.ColumnNames.CoeBk,
+                SpreadSheetFunctionConfig.ColumnNames.CoeCt,
+            ].includes(columnName)
+        ) {
+            showModalAnyChangesInDefinitionMainSerialFunctionColumn(columnName, targetInput.value, true);
+        }
+        // Remove invalid border incase this input was marked as error before.
+        FunctionInfo.removeInvalidStatus(targetInput);
+
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(columnName, targetInput.value);
+
+        // explicitly handle change mark, incase we don't select any row, but changing for new function column.
+        spreadsheet.handleChangeMark();
+    };
 };
 
 /**
@@ -2586,35 +2431,28 @@ const changeFunctionNameEvent = (event) => {
     functionConfigElements.helperMessageElement.title = fullLengthMsg;
 };
 
-const validateCoeInput = (event) => {
-    const inputValue = event.target.value;
-    const coeLabel = event.target.parentElement.parentElement.querySelector('label').textContent[0];
+/**
+ * Check if coefficient input is invalid
+ * @param {HTMLInputElement} coeElement
+ * @returns {boolean} - true if valid otherwise false
+ */
+const isValidCoeInput = (coeElement) => {
+    const inputValue = coeElement.value;
     let isValid = true;
+
+    const coeLabel = coeElement.parentElement.parentElement.querySelector('label').textContent[0];
     if (['a', 'b', 'c'].includes(coeLabel)) {
         isValid = isNumberOrInf(inputValue);
     } else if (['n', 'k'].includes(coeLabel)) {
         isValid = isInteger(inputValue);
-    } else if (['s', 't'].includes(coeLabel)) {
-        // since `s` and `t` are string, we might assume they are not valid
-        // we also need to check other element (`t` in case `s` or `s` in case `t`)
-        // that it needs to be validated as well because there are cases (such as `lookup`)
-        // that required both `s` and `t` to be valid
-        const otherElement =
-            coeLabel === 't' ? functionConfigElements.coeANSElement : functionConfigElements.coeCTElement;
-        const otherElementInvalid = otherElement.required && otherElement.value === '';
-        if (!otherElementInvalid) {
-            FunctionInfo.removeInvalidStatus(otherElement);
-        }
     }
-    if (event.target.required && inputValue === '') {
+
+    // input is required
+    if (coeElement.required && inputValue === '') {
         isValid = false;
     }
-    if (isValid) {
-        FunctionInfo.removeInvalidStatus(event.target);
-        handleShowResultData(event);
-    } else {
-        FunctionInfo.setInvalidStatus(event.target);
-    }
+
+    return isValid;
 };
 
 const isNumberOrInf = (inputValue) => {
@@ -2622,7 +2460,7 @@ const isNumberOrInf = (inputValue) => {
     if (['', '-inf', 'inf'].includes(inputValue)) {
         return true;
     }
-    return !isNaN(inputValue);
+    return !isNaN(Number(inputValue));
 };
 
 /**
@@ -2632,7 +2470,7 @@ const isNumberOrInf = (inputValue) => {
  */
 function generateFunctionColumnNames(selectedColumn, selectedFunction) {
     // Set default system name if it is new function column (not editing mode)
-    const selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
+    const selectedRow = FunctionInfo.getSelectedRow();
     if (
         selectedRow == null &&
         functionConfigElements.systemNameElement.dataset.originGeneratedName ===
@@ -2649,13 +2487,11 @@ function generateFunctionColumnNames(selectedColumn, selectedFunction) {
         const selectedColumnJapaneseName = selectedColumn.getAttribute('name-jp').trim();
         const selectedColumnLocalName = selectedColumn.getAttribute('name-local').trim();
         const searchName = `${selectedColumnSystemName}_${selectedFunctionNameEn}`.replaceAll(' ', '_');
-        const sameColumnNames = [
-            ...functionConfigElements.functionTableElement.lastElementChild.querySelectorAll(
-                `td.column-system-name input`,
-            ),
-        ]
-            .filter((input) => input.value.includes(searchName))
-            .map((input) => input.value.trim());
+        const spreadSheetFunctionColumn = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        const systemColumnNames = spreadSheetFunctionColumn.table.getColumnDataByHeaderName(
+            SpreadSheetFunctionConfig.ColumnNames.SystemName,
+        );
+        const sameColumnNames = systemColumnNames.filter((systemColumnName) => systemColumnName.includes(searchName));
         const prefix = `${searchName}_`;
         const validSameColumnNames = sameColumnNames
             .filter((name) => name.includes(prefix) && name.replace(prefix, '').match(/^\d{2}$/) != null)
@@ -2700,7 +2536,8 @@ const changeFunctionColumnName = (el, colTableIdx) => {
     const columnType = selectedColumn.getAttribute('column-type');
     const selectedFunction = functionConfigElements.functionNameElement.selectedOptions[0];
     const isMeFunction = selectedFunction.text.startsWith('me.');
-    const isFunctionColSelected = $(functionConfigElements.functionTableElement).find('tr.selected').length > 0;
+    const isFunctionColSelected =
+        $(functionConfigElements.functionTableElement()).find(`tr.${ROW_SELECTED_CLASS_NAME}`).length > 0;
 
     if (isMeFunction) {
         functionConfigElements.systemNameElement.value = selectedColumn.getAttribute('name-sys');
@@ -2898,7 +2735,7 @@ const renderDataToFunctionSampleData = ({ renderData, originalData, dataType, co
     const isNumber = NUMERIC_TYPES.includes(dataType);
     _.zip(elements, renderData, originalData).forEach(([ele, value, originalData]) => {
         $(ele).html(formatSignifiValue(value, isNumber));
-        $(ele).attr(DATA_ORIGIN_ATTR, originalData);
+        $(ele).attr(DATA_ORIGINAL_ATTR, originalData);
         $(ele).attr(IS_NUMBER_ATTR, isNumber);
     });
 };
@@ -2968,7 +2805,7 @@ const collectEquationOriginSampleData = (idx) => {
     const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(${idx})`);
     let sampleDataValues = [];
     for (const e of elements) {
-        sampleDataValues.push(e.getAttribute(DATA_ORIGIN_ATTR));
+        sampleDataValues.push(e.getAttribute(DATA_ORIGINAL_ATTR));
     }
     return sampleDataValues;
 };
@@ -2976,9 +2813,9 @@ const collectEquationOriginSampleData = (idx) => {
 /**
  * Show sample datas base on function inputs
  */
-const showResultFunction = delay(() => {
-    const getValues = (element) => {
-        const selection = FunctionInfo.getDropDownOptionValue(element.value);
+const showResultFunctionWithoutDelay = (rowIndex = null) => {
+    const getValues = (element, selection = {}) => {
+        selection = element ? FunctionInfo.getDropDownOptionValue(element.value) : selection;
         const sampleDatas =
             getSampleDataByFunctionColumnIdOrColumnId({
                 ...selection,
@@ -2986,16 +2823,51 @@ const showResultFunction = delay(() => {
             }) ?? [];
         return sampleDatas.map((v) => String(v ?? ''));
     };
-    // TODO(khanhdq): use getSampleDataX() and getSampleDataY() here
-    const xRawValues = getValues(functionConfigElements.varXElement);
-    const yRawValues = getValues(functionConfigElements.varYElement);
-    const xDataType = $(functionConfigElements.varXElement).find(':selected').attr('raw-data-type');
-    const yDataType = $(functionConfigElements.varYElement).find(':selected').attr('raw-data-type');
-    const selectedFunction = $(functionConfigElements.functionNameElement).find(':selected');
-    const equationId = selectedFunction.val();
+    let data = {};
+    let xRawValues;
+    let yRawValues;
+    let xDataType;
+    let yDataType;
+    let equationId;
+    let coeANS;
+    let coeBK;
+    let coeCT;
+
     // get datetime format to convert
     const datetimeFormat = procModalElements.procDateTimeFormatInput.val().trim();
     const isDatetimeFormat = procModalElements.procDateTimeFormatCheckbox.is(':checked');
+
+    if (rowIndex !== null) {
+        // const rowData = speadSheet.table.getRowDataByIndex(rowIndex);
+        const functionColumns = FunctionInfo.collectAllFunctionRows();
+        const rowData = functionColumns.splice(rowIndex, 1)[0];
+        const processColumns = currentProcDataCols;
+        xRawValues = getValues(null, rowData.varX);
+        yRawValues = getValues(null, rowData.varY);
+        const xColumn =
+            processColumns.find((col) => Number(col.id) === Number(rowData.varX.processColumnId)) ||
+            functionColumns.find((col) => Number(col.varX.processColumnId) === Number(rowData.varX.processColumnId));
+        xDataType = xColumn?.data_type;
+        const yColumn =
+            processColumns.find((col) => Number(col.id) === Number(rowData.varY?.processColumnId)) ||
+            functionColumns.find((col) => Number(col.varY?.processColumnId) === Number(rowData.varY?.processColumnId));
+        yDataType = yColumn?.data_type;
+        equationId = rowData.functionId;
+        coeANS = rowData.coeANS;
+        coeBK = rowData.coeBK;
+        coeCT = rowData.coeCT;
+    } else {
+        // TODO(khanhdq): use getSampleDataX() and getSampleDataY() here
+        xRawValues = getValues(functionConfigElements.varXElement);
+        yRawValues = getValues(functionConfigElements.varYElement);
+        xDataType = $(functionConfigElements.varXElement).find(':selected').attr('raw-data-type');
+        yDataType = $(functionConfigElements.varYElement).find(':selected').attr('raw-data-type');
+        const selectedFunction = $(functionConfigElements.functionNameElement).find(':selected');
+        equationId = selectedFunction.val();
+        coeANS = functionConfigElements.coeANSElement.value;
+        coeBK = functionConfigElements.coeBKElement.value;
+        coeCT = functionConfigElements.coeCTElement.value;
+    }
     const {
         a = null,
         b = null,
@@ -3004,16 +2876,12 @@ const showResultFunction = delay(() => {
         k = null,
         s = null,
         t = null,
-    } = separateArgumentsOfFunction(
-        equationId,
-        functionConfigElements.coeANSElement.value,
-        functionConfigElements.coeBKElement.value,
-        functionConfigElements.coeCTElement.value,
-    );
-    const isAllXValuesEmpty = xRawValues.every((element) => element === '');
-    const isAllYValuesEmpty = yRawValues.every((element) => element === '');
+    } = separateArgumentsOfFunction(equationId, coeANS, coeBK, coeCT);
 
-    const data = {
+    const speadSheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const selectedRow = speadSheet.selectedRow();
+    const selectedRowIndex = selectedRow ? _.first(_.values(selectedRow)).rowIndex : null;
+    data = {
         X: xRawValues,
         x_data_type: xDataType,
         Y: yRawValues,
@@ -3029,6 +2897,8 @@ const showResultFunction = delay(() => {
         datetime_format: datetimeFormat,
         is_datetime_format: isDatetimeFormat,
     };
+    const isAllXValuesEmpty = xRawValues.every((element) => element === '');
+    const isAllYValuesEmpty = yRawValues.every((element) => element === '');
     fetch('/ap/api/setting/function_config/sample_data', {
         method: 'POST',
         headers: {
@@ -3039,45 +2909,71 @@ const showResultFunction = delay(() => {
     })
         .then((response) => response.json())
         .then((data) => {
+            const isChangeConfig = Number(selectedRowIndex) === Number(rowIndex) || !rowIndex; // is input new function or edit function column
             if (Object.prototype.hasOwnProperty.call(data, 'errors')) {
                 loadingHide();
-                FunctionInfo.showErrorField(data.errors);
-                FunctionInfo.clearFunctionOutput();
-            } else {
-                /** @type {string[]} */
-                const sampleData = jsonParse(data.sample_data);
-                // const { xValues, yValues } = getXYValues();
-                const xValues = getSampleDataX({ isRawData: true }) || [];
-                const yValues = getSampleDataY({ isRawData: true }) || [];
-                // Find result of unique X & Y
-                const xYResult = Object.fromEntries(_.zip(_.zip(xValues, yValues), sampleData));
-                const uniqueXYResult = Object.fromEntries(
-                    _.zip(_.zip(collectEquationOriginSampleData(2), collectEquationOriginSampleData(3)), []),
-                );
-                for (const xYKey in uniqueXYResult) {
-                    uniqueXYResult[xYKey] = xYResult[xYKey] ?? '';
-                }
-                const resultValues = Object.values(uniqueXYResult);
-                functionConfigElements.sampleDataElement.result = sampleData;
-
-                FunctionInfo.setOutputDataType(data.output_type);
-                const isNumber = NUMERIC_TYPES.includes(data.output_type);
-                const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(1)`);
-                for (const index of Array(resultValues.length).keys()) {
-                    let val = resultValues[index];
-                    $(elements[index]).attr(DATA_ORIGIN_ATTR, val);
-                    $(elements[index]).attr(IS_NUMBER_ATTR, isNumber);
-                    if (data.output_type === DataTypes.DATETIME.name) {
-                        val = parseDatetimeStr(val);
+                if (isChangeConfig) {
+                    FunctionInfo.showErrorField(data.errors);
+                    FunctionInfo.clearFunctionOutput();
+                } else {
+                    for (const error of data.errors) {
+                        const selectRowExcel = speadSheet.getRowExcelByIndex(rowIndex);
+                        let columnName;
+                        if (ARRAY_ANS.includes(error.field)) {
+                            columnName = SpreadSheetFunctionConfig.ColumnNames.CoeAns;
+                        } else if (ARRAY_BK.includes(error.field)) {
+                            columnName = SpreadSheetFunctionConfig.ColumnNames.CoeBk;
+                        } else if (ARRAY_CT.includes(error.field)) {
+                            columnName = SpreadSheetFunctionConfig.ColumnNames.CoeCt;
+                        }
+                        const cell = selectRowExcel[columnName];
+                        cell.td.classList.add(BORDER_RED_CLASS);
                     }
-                    val = formatSignifiValue(val, isNumber);
-                    $(elements[index]).html(val);
                 }
-                FunctionInfo.fillSampleDataToSelectedFunctionRow(sampleData, isNumber);
-                const isResultsEmpty = resultValues.every((element) => element === null);
+            } else {
+                const sampleData = jsonParse(data.sample_data);
+                const isNumber = NUMERIC_TYPES.includes(data.output_type);
+                if (isChangeConfig) {
+                    // fill data in input
+                    /** @type {string[]} */
+                    // const { xValues, yValues } = getXYValues();
+                    const xValues = getSampleDataX({ isRawData: true }) || [];
+                    const yValues = getSampleDataY({ isRawData: true }) || [];
+                    // Find result of unique X & Y
+                    const xYResult = Object.fromEntries(_.zip(_.zip(xValues, yValues), sampleData));
+                    const uniqueXYResult = Object.fromEntries(
+                        _.zip(_.zip(collectEquationOriginSampleData(2), collectEquationOriginSampleData(3)), []),
+                    );
+                    for (const xYKey in uniqueXYResult) {
+                        uniqueXYResult[xYKey] = xYResult[xYKey] ?? '';
+                    }
+                    const resultValues = Object.values(uniqueXYResult);
+                    functionConfigElements.sampleDataElement.result = sampleData;
 
-                if (isResultsEmpty && (!isAllXValuesEmpty || !isAllYValuesEmpty)) {
-                    showToastrMsg($('#i18nAllResultIsEmpty').text(), MESSAGE_LEVEL.WARN);
+                    FunctionInfo.setOutputDataType(data.output_type);
+                    const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(1)`);
+                    for (const index of Array(resultValues.length).keys()) {
+                        let val = resultValues[index];
+                        $(elements[index]).attr(DATA_ORIGINAL_ATTR, val);
+                        $(elements[index]).attr(IS_NUMBER_ATTR, isNumber);
+                        if (data.output_type === DataTypes.DATETIME.name) {
+                            val = parseDatetimeStr(val);
+                        }
+                        val = formatSignifiValue(val, isNumber);
+                        $(elements[index]).html(val);
+                    }
+                    const isResultsEmpty = resultValues.every((element) => element === null);
+
+                    if (isResultsEmpty && (!isAllXValuesEmpty || !isAllYValuesEmpty)) {
+                        showToastrMsg($('#i18nAllResultIsEmpty').text(), MESSAGE_LEVEL.WARN);
+                    }
+                }
+                // fill in table
+                if (rowIndex !== null || selectedRowIndex) {
+                    const fillRowIndex = selectedRowIndex || rowIndex;
+                    const rowElement = speadSheet.table.getRowElementByIndex(fillRowIndex);
+                    FunctionInfo.fillSampleDataToFunctionRow(sampleData, isNumber, rowElement);
+                    handleChangeFunctionOutput(isChangeConfig ? null : rowIndex, data.output_type);
                 }
             }
         })
@@ -3085,7 +2981,9 @@ const showResultFunction = delay(() => {
             console.log('Error result function');
             // FunctionInfo.showErrorField(res.responseJSON.errors);
         });
-}, 200);
+};
+
+const showResultFunction = delay(showResultFunctionWithoutDelay, 200);
 
 const selectFunction = (el) => {
     const functionId = $(el).find('td[name="functionId"]').text();
@@ -3118,11 +3016,10 @@ const closeFunctionConfirmSwitchEditingRowModal = (element) => {
  * @param {HTMLAnchorElement} element
  */
 const okFunctionConfirmSwitchEditingRowModal = (element) => {
-    const selectRowElement = functionConfigElements.functionTableElement.lastElementChild.querySelector(
-        `tr[data-index="${element.dataset.index}"]`,
-    );
-    const previousSelectedRowElement = functionConfigElements.functionTableElement.lastElementChild.querySelector(
-        `tr[data-index="${element.dataset.previousIndex}"]`,
+    const speadSheetFunctionColumn = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const selectRowElement = speadSheetFunctionColumn.table.getRowElementByIndex(Number(element.dataset.index));
+    const previousSelectedRowElement = speadSheetFunctionColumn.table.getRowElementByIndex(
+        Number(element.dataset.previousIndex),
     );
     FunctionInfo.selectRowHandler(selectRowElement, previousSelectedRowElement);
     closeFunctionConfirmSwitchEditingRowModal(element);
@@ -3136,8 +3033,6 @@ const okFunctionConfirmSwitchEditingRowModal = (element) => {
  */
 const syncInputConfigAndTableEvents = (configInput, tableInput, reload) => {
     function syncTableToConfig() {
-        const isChange = isAnyChangesInDefinitionMainSerialFunctionColumn(tableInput, false);
-        if (isChange) return;
         configInput.value = tableInput.value;
         if (reload) {
             showResultFunction();
@@ -3145,9 +3040,6 @@ const syncInputConfigAndTableEvents = (configInput, tableInput, reload) => {
     }
 
     function syncConfigToTable() {
-        // check edit main serial function column
-        const isChange = isAnyChangesInDefinitionMainSerialFunctionColumn(tableInput, true);
-        if (isChange) return;
         tableInput.value = configInput.value;
         if (reload) {
             showResultFunction();
@@ -3180,7 +3072,7 @@ const syncSelectConfigAndTableEvents = (configSelect, cell) => {
 
     function syncConfigToTable() {
         // check edit main serial function column
-        const isChange = isAnyChangesInDefinitionMainSerialFunctionColumn(null, true);
+        const isChange = showModalAnyChangesInDefinitionMainSerialFunctionColumn(null, true);
         if (isChange) return;
         const option = ele.find('option:checked');
         if (option.length) {
@@ -3339,13 +3231,10 @@ function reloadFunctionInfo(event) {
         .finally(loadingHide);
 
     deleteNewlyAddedFunctionColumnSampleData();
-
-    // update mutation status of function table
-    functionConfigElements.functionTableBody.setAttribute('data-mutation', false);
 }
 
 /**
- * Register change 'class' event for all elements in tbody of {@link functionConfigElements.functionTableElement}.
+ * Register change 'class' event for all elements in tbody of {@link functionConfigElements.functionTableElement()}.
  * Only handle for inject/remove sync input events.
  */
 function syncInputConfigAndTable() {
@@ -3414,38 +3303,16 @@ function syncInputConfigAndTable() {
         }
     });
 
+    if (functionConfigElements.functionTableElement()?.lastElementChild == null) return removeAllSyncEvents;
+
     // only listen for class selected changes
-    observer.observe(functionConfigElements.functionTableElement.lastElementChild, {
+    observer.observe(functionConfigElements.functionTableElement()?.lastElementChild, {
         subtree: true,
         attributeOldValue: true,
         attributeFilter: ['class'],
     });
 
     return removeAllSyncEvents;
-}
-
-/**
- * Allow drag and drop rows in function table
- */
-function enableDragAndDropFunctionTable() {
-    $(functionConfigElements.functionTableElement.lastElementChild).sortable({
-        update: (event, ui) => {
-            // Update index and order of all function columns in table
-            FunctionInfo.updateIndexRowsInTable();
-        },
-    });
-}
-
-/**
- * Disable drag and drop rows in function table
- * @deprecated
- */
-function disableDragAndDropFunctionTable() {
-    try {
-        $(functionConfigElements.functionTableElement.lastElementChild).sortable('destroy');
-    } catch (e) {
-        console.log(e);
-    }
 }
 
 /**
@@ -3468,11 +3335,10 @@ function collectFunctionSampleData() {
 
 /**
  * Show/hide data with format signifi
- * @param {PointerEvent} event
  */
-function applySignifiDataHandler(event) {
+function applySignifiDataHandler() {
     // get row of function column
-    const functionColumnRows = functionConfigElements.functionTableElement.querySelectorAll('tbody tr');
+    const functionColumnRows = functionConfigElements.functionTableElement().querySelectorAll('tbody tr');
     const sampleDataElements = Array.from(functionColumnRows).flatMap((row) =>
         Array.from(row.querySelectorAll('.column-sample-data')),
     );
@@ -3482,7 +3348,7 @@ function applySignifiDataHandler(event) {
     const formatElements = [...sampleDataElements, ...previewSampleDataElements];
     formatElements.forEach((row) => {
         const isNumber = row.getAttribute(IS_NUMBER_ATTR) === 'true';
-        const originValue = row.getAttribute(DATA_ORIGIN_ATTR);
+        const originValue = row.getAttribute(DATA_ORIGINAL_ATTR);
         row.textContent = formatSignifiValue(originValue, isNumber);
     });
 }
@@ -3551,6 +3417,42 @@ const functionConfigResetDefaultValues = () => {
 /**
  *
  */
+const updateCheckedFunctionColumn = () => {
+    showTotalCheckedFunctionColumns(totalFunctionColumns(), totalCheckedFunctionColumns());
+};
+
+/**
+ * @param {number} totalColumns
+ * @param {number} totalCheckedColumn
+ */
+const showTotalCheckedFunctionColumns = (totalColumns, totalCheckedColumn) => {
+    functionConfigElements.totalFunctionColumnsElement.textContent = String(totalColumns);
+    functionConfigElements.totalCheckedFunctionColumnsElement.textContent = String(totalCheckedColumn);
+    functionConfigElements.searchInput.textContent = '';
+};
+
+/**
+ * @return {number}
+ */
+const totalCheckedFunctionColumns = () => {
+    const totalChecked = _.filter(
+        functionConfigElements.functionTableElement().querySelectorAll('tbody tr'),
+        (tr) => tr.querySelector('td.column-is-checked input').checked,
+    ).length;
+    return Number.isNaN(totalChecked) ? 0 : totalChecked;
+};
+
+/**
+ * @return {number}
+ */
+const totalFunctionColumns = () => {
+    const totalColumns = functionConfigElements.functionTableElement().querySelectorAll('tbody tr').length;
+    return Number.isNaN(totalColumns) ? 0 : totalColumns;
+};
+
+/**
+ *
+ */
 (() => {
     // Add events to buttons
     $(functionConfigElements.functionNameElement).on('change', changeFunctionNameEvent);
@@ -3571,16 +3473,38 @@ const functionConfigResetDefaultValues = () => {
     functionConfigElements.reloadBtn.addEventListener('click', reloadFunctionInfo);
     functionConfigElements.selectAllFunctionColumns.addEventListener('change', handleCheckAllFunctionColumns);
     functionConfigElements.selectErrorFunctionColumns.addEventListener('change', handleCheckErrorFunctionColumns);
-    $(functionConfigElements.functionNameElement).on('change', handleShowResultData);
-    $(functionConfigElements.varXElement).on('change', handleShowResultData);
-    $(functionConfigElements.varYElement).on('change', handleShowResultData);
-    functionConfigElements.coeANSElement.addEventListener('change', validateCoeInput);
-    functionConfigElements.coeBKElement.addEventListener('change', validateCoeInput);
-    functionConfigElements.coeCTElement.addEventListener('change', validateCoeInput);
-    functionConfigElements.systemNameElement.addEventListener('change', handleChangeSystemName);
-    functionConfigElements.japaneseNameElement.addEventListener('change', checkAnyChanges);
-    functionConfigElements.localNameElement.addEventListener('change', checkAnyChanges);
-    functionConfigElements.noteElement.addEventListener('change', checkAnyChanges);
+    $(functionConfigElements.functionNameElement).on('change', handleChangeFunctionNameOrVarXY);
+    $(functionConfigElements.varXElement).on('change', handleChangeFunctionNameOrVarXY);
+    $(functionConfigElements.varYElement).on('change', handleChangeFunctionNameOrVarXY);
+    functionConfigElements.outputElement.addEventListener('change', handleChangeFunctionOutput);
+    functionConfigElements.coeANSElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigCoeInput(SpreadSheetFunctionConfig.ColumnNames.CoeAns),
+    );
+    functionConfigElements.coeBKElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigCoeInput(SpreadSheetFunctionConfig.ColumnNames.CoeBk),
+    );
+    functionConfigElements.coeCTElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigCoeInput(SpreadSheetFunctionConfig.ColumnNames.CoeCt),
+    );
+    functionConfigElements.systemNameElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigInput(SpreadSheetFunctionConfig.ColumnNames.SystemName),
+    );
+    functionConfigElements.japaneseNameElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigInput(SpreadSheetFunctionConfig.ColumnNames.JapaneseName),
+    );
+    functionConfigElements.localNameElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigInput(SpreadSheetFunctionConfig.ColumnNames.LocalName),
+    );
+    functionConfigElements.noteElement.addEventListener(
+        'change',
+        handleChangeFunctionConfigInput(SpreadSheetFunctionConfig.ColumnNames.Note),
+    );
     functionConfigElements.searchFunctionNameInput.addEventListener('keyup', searchFunctionNameInputHandler);
     functionConfigElements.existFunctionSearchInput.addEventListener('keyup', searchExistFunctionInputHandler);
     functionConfigElements.downloadSampleDataBtn.addEventListener('click', downloadFunctionSampleDataHandler);
@@ -3588,6 +3512,5 @@ const functionConfigResetDefaultValues = () => {
     functionConfigElements.copySampleDataBtn.addEventListener('click', copyFunctionSampleDataHandler);
 
     removeAllSyncEvents = syncInputConfigAndTable();
-    setTimeout(enableDragAndDropFunctionTable, 100);
     showHideCopyPasteFunctionConfigButtons();
 })();

@@ -30,10 +30,22 @@ const handlerClickIsMainSerialFunctionColumn = (el) => {
             $(functionConfigElements.confirmChangeIsMainSerialFunctionColumnModal).modal('show');
             return;
         }
-        updateEditingMainSerialFunctionColumn();
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo, true, {
+            recordHistory: false,
+            force: true,
+        });
+        if (mainSerialFunctionColumnInfo) mainSerialFunctionColumnInfo.isMainSerialNo = true;
     } else {
-        updateEditingMainSerialFunctionColumn();
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo, '', {
+            recordHistory: false,
+            force: true,
+        });
+        if (mainSerialFunctionColumnInfo) mainSerialFunctionColumnInfo.isMainSerialNo = false;
     }
+
+    handleChangeFunctionOutput();
 };
 /**
  * check function column can check main::Serial
@@ -79,16 +91,31 @@ const isCanCheckMainSerial = () => {
 const handlerConfirmMainSerial = () => {
     changeMainSerialToSerial();
     $(functionConfigElements.confirmCheckIsMainSerialModal).modal('hide');
-    updateEditingMainSerialFunctionColumn();
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo, true, {
+        recordHistory: false,
+        force: true,
+    });
+    handleChangeFunctionOutput();
 };
 
 const changeMainSerialToSerial = () => {
-    // change main::Serial:Int"/"main::Serial:Str in process config-> Serial:Int"/"Serial:St
-    const mainSerialEle = document.querySelector('span[name=dataType][checked][is_main_serial_no=true]');
-    const anotherDataTypeDropdownElement = mainSerialEle.closest('div.config-data-type-dropdown');
-    let dataType = mainSerialEle.getAttribute('value');
-    DataTypeDropdown_Helper.init(anotherDataTypeDropdownElement);
-    $(anotherDataTypeDropdownElement).find(`li[is_serial_no][value=${dataType}]`).trigger('click');
+    // change main::Serial:Int"/"main::Serial:Str in process config-> Serial:Int"/"Serial:Str
+    const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+    const mainSerialRow = spreadsheet.mainSerialRow();
+    if (mainSerialRow) {
+        const shownDataType = DataTypeDropdown_Controller.convertColumnTypeAndDataTypeToShownDataType(
+            masterDataGroup.SERIAL,
+            mainSerialRow[PROCESS_COLUMNS.data_type].data,
+        );
+        const shownDataTypeCell = mainSerialRow[PROCESS_COLUMNS.shown_data_type];
+        spreadsheet.table.setValueFromCoords(
+            shownDataTypeCell.columnIndex,
+            shownDataTypeCell.rowIndex,
+            shownDataType,
+            true,
+        );
+    }
 };
 
 const handlerConfirmChangeMainSerialFunctionCol = () => {
@@ -97,10 +124,17 @@ const handlerConfirmChangeMainSerialFunctionCol = () => {
     if (mainSerialFunctionCol) {
         // change is main serial col to normal col
         mainSerialFunctionCol.isMainSerialNo = false;
-        mainSerialFunctionCol.updateFunctionRow();
+        mainSerialFunctionCol.updateFunctionRow(true);
     }
+    // updateEditingMainSerialFunctionColumn();
+    const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo, true, {
+        recordHistory: false,
+        force: true,
+    });
+    handleChangeFunctionOutput();
+
     $(functionConfigElements.confirmChangeIsMainSerialFunctionColumnModal).modal('hide');
-    updateEditingMainSerialFunctionColumn();
 };
 
 const handlerCancelMainSerial = () => {
@@ -109,43 +143,14 @@ const handlerCancelMainSerial = () => {
 };
 
 const handlerConfirmChangeDefinitionMainSerialFunctionCol = () => {
-    const isSyncConfigToTable =
-        $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).attr(
-            'sync-config-to-table',
-        ) === 'true';
-    let selectedRowInfo;
-    if (isSyncConfigToTable) {
-        // if sync config to table
-        selectedRowInfo = FunctionInfo.collectInputFunctionInfo();
-        selectedRowInfo.updateFunctionRow();
-    } else {
-        // if sync table to config
-        const selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
-        selectedRowInfo = FunctionInfo.collectFunctionInfoByRow(selectedRow);
-        selectedRowInfo.fillInputFunctionInfo();
-    }
     $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).modal('hide');
-    // update selected function column
-    selectedFunctionColumnInfo = selectedRowInfo;
+    // confirm change, reset main serial function column
+    mainSerialFunctionColumnInfo = null;
 };
 const handlerCancelChangeDefinitionMainSerialFunctionCol = () => {
-    const isSyncConfigToTable =
-        $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).attr(
-            'sync-config-to-table',
-        ) === 'true';
-    // update system name, japanese name before rollback
-    const selectedRow = FunctionInfo.collectInputFunctionInfo();
-    selectedFunctionColumnInfo.systemName = selectedRow.systemName;
-    selectedFunctionColumnInfo.japaneseName = selectedRow.japaneseName;
-    selectedFunctionColumnInfo.localName = selectedRow.localName;
-    selectedFunctionColumnInfo.note = selectedRow.note;
-    if (isSyncConfigToTable) {
-        // if sync config to table
-        selectedFunctionColumnInfo.fillInputFunctionInfo();
-    } else {
-        // if sync table to config
-        selectedFunctionColumnInfo.updateFunctionRow();
-    }
+    // Undo
+    const speadSheetFunctionColumn = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    speadSheetFunctionColumn.table.table.undo();
     $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).modal('hide');
 };
 
@@ -162,25 +167,32 @@ const handlerConfirmUncheckMainSerialFunctionCol = () => {
     // function config: uncheck main::Serial
     const mainSerialFunctionCol = FunctionInfo.getMainSerialFunctionColumnRow();
     if (mainSerialFunctionCol) {
-        mainSerialFunctionCol.isMainSerialNo = false;
-        mainSerialFunctionCol.updateFunctionRow();
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo, '', {
+            recordHistory: false,
+            force: true,
+            rowIndex: mainSerialFunctionCol.index - 1,
+        });
+        handleChangeFunctionOutput(mainSerialFunctionCol.index - 1, mainSerialFunctionCol.output);
     }
-    // process config: change to main::Serial
-    const value = functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.getAttribute('change-value');
+    // process config change to main::Serial
     const text = functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.getAttribute('change-text');
-    const columnIdx =
-        functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.getAttribute('change-column-index');
-    const changeRow = document.querySelector(`.column-number:not(:disabled)[data-col-idx="${columnIdx}"]`);
-    const dataTypeDropdownElement = changeRow.closest('tr').querySelector('div.config-data-type-dropdown');
-    const liElement = dataTypeDropdownElement.querySelector(`[value=${value}][is_main_serial_no]`);
-    DataTypeDropdown_Helper.changeDataType(dataTypeDropdownElement, value, text, 'is_main_serial_no', liElement);
+    const rowIndex = Number(
+        functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.getAttribute('change-row-index'),
+    );
+
+    const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+    const columnIndex = spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+    spreadsheet.table.setValueFromCoords(columnIndex, rowIndex, text, true);
     $(functionConfigElements.confirmUncheckMainSerialFunctionColumnModal).modal('hide');
 };
 
 const updateEditingMainSerialFunctionColumn = () => {
     // sign to table config
     const functionColumnInfo = FunctionInfo.collectInputFunctionInfo();
-    const selectedRow = functionConfigElements.functionTableElement.lastElementChild.querySelector('tr.selected');
+    const selectedRow = functionConfigElements
+        .functionTableElement()
+        .lastElementChild.querySelector(`tr.${ROW_SELECTED_CLASS_NAME}`);
     if (selectedRow) {
         const selectedFunctionColumn = FunctionInfo.collectFunctionInfoByRow(selectedRow);
         if (Number(functionColumnInfo.functionColumnId) === Number(selectedFunctionColumn.functionColumnId)) {
@@ -189,23 +201,13 @@ const updateEditingMainSerialFunctionColumn = () => {
     }
 };
 
-const isAnyChangesInDefinitionMainSerialFunctionColumn = (tableInput = null, isSyncConfigToTable = false) => {
-    if (selectedFunctionColumnInfo?.isMainSerialNo && selectedFunctionColumnInfo?.functionColumnId > 0) {
-        let editingFunctionColumnInfo;
-        if (isSyncConfigToTable) {
-            editingFunctionColumnInfo = FunctionInfo.collectInputFunctionInfo();
-        } else {
-            const rowElement = tableInput?.closest('tr');
-            editingFunctionColumnInfo = FunctionInfo.collectFunctionInfoByRow(rowElement);
-        }
-        if (!editingFunctionColumnInfo.isEqualWithSelectedFunctionColumn()) {
-            $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).attr(
-                'sync-config-to-table',
-                isSyncConfigToTable,
-            );
-            $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).modal('show');
-            return true;
-        }
+const showModalAnyChangesInDefinitionMainSerialFunctionColumn = (columnName, newValue) => {
+    const speadSheetFunctionColumn = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const selectedRow = speadSheetFunctionColumn.selectedRow();
+    if (
+        selectedRow?.functionColumnId.data === mainSerialFunctionColumnInfo.functionColumnId &&
+        mainSerialFunctionColumnInfo[columnName] != newValue
+    ) {
+        $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).modal('show');
     }
-    return false;
 };

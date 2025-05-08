@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 import json
 from collections import defaultdict
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 from numpy import quantile
 from pandas import DataFrame, Series
+from pandas.core.dtypes.common import is_datetime64_ns_dtype
 
 from ap import TraceErrKey, dic_request_info
 from ap.api.common.services.show_graph_database import DictToClass, ShowGraphConfigData, gen_dict_procs
@@ -31,6 +33,7 @@ from ap.api.trace_data.services.regex_infinity import (
     validate_data_with_simple_searching,
 )
 from ap.common.common_utils import (
+    DATE_FORMAT_STR_SQLITE,
     add_days,
     as_list,
     convert_time,
@@ -86,6 +89,7 @@ from ap.common.constants import (
     END_PROC,
     END_PROC_ID,
     END_PROC_NAME,
+    END_TIME_COL,
     FACET_ROW,
     FILTER_DATA,
     FILTER_ON_DEMAND,
@@ -135,6 +139,7 @@ from ap.common.constants import (
     SERIAL_ORDER,
     SERIAL_PROCESS,
     SHOW_GRAPH_TEMP_TABLE_NAME,
+    START_TIME_COL,
     STRING_COL_IDS,
     SUB_STRING_COL_NAME,
     SUMMARIES,
@@ -425,6 +430,11 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
     # if group_list has nan, an int64 column will be converted to float64, 1 -> 1.0
     # should be keep original value of these columns, with convert nan to pd.NA first
     for col in group_df:
+        # s261: convert dtype for int column only
+        # rarely case: serial (str) 999..1
+        # will be raised an error since int too big to convert to Int64
+        if col in cate_col_ids:
+            continue
         group_df[col] = group_df[col].astype('Int64', errors='ignore')
 
     # convert np.nan to NA_STR for filter
@@ -1651,32 +1661,53 @@ def get_col_graph_configs(dic_proc_cfgs: Dict[int, CfgProcess], col_id, filter_d
     return get_default_graph_config(dic_proc_cfgs, col_id, start_tm, end_tm)
 
 
-def convert_chart_info_time_range(chart_config, start_proc_times, end_proc_times, query_start_tm, query_end_tm):
-    last_idx = len(end_proc_times) - 1
+def convert_chart_info_time_range(
+    chart_config,
+    start_proc_times,
+    end_proc_times,
+    query_start_tm,
+    query_end_tm,
+    df=None,
+):
     act_from = chart_config.get(ACT_FROM)
     act_to = chart_config.get(ACT_TO)
+    query_start_tm = convert_time(query_start_tm, return_string=False)
+    query_end_tm = convert_time(query_end_tm, return_string=False)
     if act_from:
-        act_from = convert_time(act_from)
+        act_from = convert_time(act_from, return_string=False)
     if act_to:
-        act_to = convert_time(act_to)
+        act_to = convert_time(act_to, return_string=False)
+
+    if df is None:
+        df = pd.DataFrame({START_TIME_COL: pd.Series(start_proc_times), END_TIME_COL: pd.Series(end_proc_times)})
+
+    for col in df.columns:
+        if not is_datetime64_ns_dtype(df[col].dtype):
+            df[col] = pd.to_datetime(df[col])
+
     converted_act_from = None
     converted_act_to = None
+    mask = None
+    if act_from and act_to:
+        mask = (df[END_TIME_COL] >= act_from) & (df[END_TIME_COL] <= act_to)
+    elif act_from:
+        with contextlib.suppress(Exception):
+            mask = df[END_TIME_COL] >= act_from
 
-    mask = pd.Series(True, index=end_proc_times.index)
-    if act_from:
-        mask &= act_from <= end_proc_times
-    if act_to:
-        mask &= end_proc_times <= act_to
+    elif act_to:
+        mask = df[END_TIME_COL] <= act_to
 
-    index = end_proc_times[mask].index
+    if mask is not None and mask.any():
+        if act_from:
+            converted_act_from = query_start_tm if mask.iloc[0] else df[mask][START_TIME_COL].iloc[0]
+        if act_to:
+            converted_act_to = query_end_tm if mask.iloc[-1] else df[mask][START_TIME_COL].iloc[-1]
 
-    if act_from and len(index):
-        # legacy code logic, need to confirm with DuyLSK why we need to compare with `0`
-        converted_act_from = query_start_tm if index[0] == 0 else start_proc_times[index[0]]
+    if converted_act_from is not None:
+        converted_act_from = convert_time(converted_act_from, format_str=DATE_FORMAT_STR_SQLITE)
 
-    if act_to and len(index):
-        # legacy code logic, need to confirm with DuyLSK why we need to compare with `last_idx`
-        converted_act_to = query_end_tm if index[-1] == last_idx else start_proc_times[index[-1]]
+    if converted_act_to is not None:
+        converted_act_to = convert_time(converted_act_to, format_str=DATE_FORMAT_STR_SQLITE)
 
     return converted_act_from, converted_act_to
 
@@ -1695,6 +1726,7 @@ def get_chart_infos(graph_param: DicParam, dic_data=None, start_proc_times=None,
         end_tm = end_of_minute(graph_param.common.end_date, graph_param.common.end_time)
         end_proc = proc.proc_id
         end_proc_times = dic_data[proc.proc_id].get(TIME_COL) if dic_data else pd.Series()
+        df = pd.DataFrame({START_TIME_COL: start_proc_times, END_TIME_COL: end_proc_times})
         for col_id in proc.col_ids:
             orig_graph_cfg, graph_cfg = get_chart_info_detail(
                 graph_param.dic_proc_cfgs,
@@ -1707,6 +1739,7 @@ def get_chart_infos(graph_param: DicParam, dic_data=None, start_proc_times=None,
                 end_tm,
                 start_proc_times,
                 no_convert=no_convert,
+                df=df,
             )
             original_graph_configs[proc.proc_id][col_id] = orig_graph_cfg
             graph_configs[proc.proc_id][col_id] = graph_cfg
@@ -1726,6 +1759,7 @@ def get_chart_info_detail(
     end_tm=None,
     start_proc_times=None,
     no_convert=False,
+    df=None,
 ):
     start_tm = convert_time(start_tm)
     end_tm = convert_time(end_tm)
@@ -1760,6 +1794,7 @@ def get_chart_info_detail(
                 end_proc_times,
                 query_start_tm,
                 query_end_tm,
+                df=df,
             )
             chart_config[ACT_FROM] = act_from
             chart_config[ACT_TO] = act_to
@@ -4032,12 +4067,12 @@ def add_equation_column_to_df(df, function_detail, graph_config_data: ShowGraphC
     column_x = gen_sql_label(cfg_col_x.id, cfg_col_x.column_name) if cfg_col_x else None
     column_y = gen_sql_label(cfg_col_y.id, cfg_col_y.column_name) if cfg_col_y else None
 
-    x_dtype = cfg_col_x.predict_type if cfg_col_x else None
-    y_dtype = cfg_col_y.predict_type if cfg_col_y else None
+    x_dtype = cfg_col_x.raw_data_type if cfg_col_x else None
+    y_dtype = cfg_col_y.raw_data_type if cfg_col_y else None
 
     df = equation.evaluate(df, out_col=column_out, x_col=column_x, y_col=column_y, x_dtype=x_dtype, y_dtype=y_dtype)
     # update data type
-    cfg_col.predict_type = function_detail.return_type
+    cfg_col.raw_data_type = function_detail.return_type
     return df
 
 

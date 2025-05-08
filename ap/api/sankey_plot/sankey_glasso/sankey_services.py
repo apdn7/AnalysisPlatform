@@ -6,6 +6,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import LabelEncoder
 
 from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
@@ -23,22 +24,30 @@ from ap.common.constants import (
     BAR_COLORS,
     CATEGORY_COLS,
     COEF,
+    COMMON,
     COMPLETED_PERCENT,
     DATA_SIZE,
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
     NULL_PERCENT,
     OBJ_VAR,
+    OBJECTIVE,
     REMOVED_OUTLIERS,
     SELECTED_VARS,
     SENSOR_IDS,
     SENSOR_NAMES,
+    STRENGTHEN_SELECTION,
+    SUMMARY_MESSAGE,
+    TASK_KEY,
     TIME_COL,
+    TRUE_MATCH,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
     ZERO_VARIANCE,
     CacheType,
+    DataType,
     ErrorMsg,
+    GrLassoTask,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
@@ -102,8 +111,13 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     # get serials
     serials = []
     objective_var = graph_param.common.objective_var
+    objective_var_shown_name = ''
     for proc in graph_param.array_formval:
         proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id]
+        if proc_cfg.get_col(objective_var) is not None:
+            objective_var_shown_name = proc_cfg.get_col(objective_var).shown_name
+
+        # if objective_var in proc_cfg.col
         serial_ids = []
         for serial in proc_cfg.get_serials(column_name_only=False):
             serial_ids.append(serial.id)
@@ -156,7 +170,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     )
     dic_var_name = None
     dic_null_percent = None
-    dic_var = None
+    err_cols = []
 
     cat_col_details = []
     dic_param['importance_columns_ids'] = None
@@ -164,7 +178,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
         dic_label_id, dic_id_name, dic_col_proc_id = get_sensors_objective_explanation(orig_graph_param)
         df_sensors: pd.DataFrame = df[dic_label_id.keys()]
         df_sensors = df_sensors.rename(columns=dic_label_id)
-        df_sensors, data_clean, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
+        df_sensors, data_clean, errors, err_cols, dic_null_percent = clean_input_data(df_sensors)
         if data_clean and not errors:
             # prepare column names and process names
             y_id = graph_param.common.objective_var
@@ -201,29 +215,34 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
                     cat_col_details.append(col_detail)
 
             nominal_vars = []
+            strengthen_selection = dic_param[COMMON].get(STRENGTHEN_SELECTION) == TRUE_MATCH
             if graph_param.common.is_nominal_scale:
                 # nominal variables are category: string or int which unique value < 128
                 nominal_vars = cat_sensors
             # if re-select from modal
             if graph_param.common.nominal_vars is not None:
                 nominal_vars = graph_param.common.nominal_vars
-            is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = gen_sankey_grouplasso_plot_data(
+            is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg = gen_sankey_grouplasso_plot_data(
                 df_sensors,
                 x_cols,
                 y_col,
                 groups,
                 cat_cols=cat_sensors,
                 nominal_vars=nominal_vars,
+                objective_var_shown_name=objective_var_shown_name,
+                strengthen_selection=strengthen_selection,
             )
 
             # get dic_scp
             dic_scp = dict(**dic_scp, **dic_tbl)
             obj_var_id = graph_param.common.objective_var
             obj_var_name = None
+            is_cat_obj = False
             for proc_id, cfg_proc in graph_param.dic_proc_cfgs.items():
                 for cfg_col in cfg_proc.columns:
                     if cfg_col.id == obj_var_id:
                         obj_var_name = cfg_col.shown_name
+                        is_cat_obj = cfg_col.is_category and cfg_col.data_type != DataType.INTEGER.name
                         break
 
                 if obj_var_name is not None:
@@ -234,7 +253,18 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
 
             dic_scp['fitted_fmt'] = get_fmt_from_array(dic_scp['fitted'])
             dic_scp['actual_fmt'] = get_fmt_from_array(dic_scp['actual'])
-            dic_scp['residuals'] = dic_scp['actual'] - dic_scp['fitted']
+
+            # compute residual for actual and fitted data
+            is_multi_class = dic_bar[TASK_KEY] == GrLassoTask.MULTI_CLASS.value
+            _actual = dic_scp.get('actual')
+            _fitted = dic_scp.get('fitted')
+            if is_multi_class or is_cat_obj:
+                # encoding category variable
+                encoder = LabelEncoder()
+                _y_combination = np.array([dic_scp['actual'], dic_scp['fitted']])
+                _y_encoding = encoder.fit_transform(_y_combination.flatten()).reshape(_y_combination.shape)
+                _actual, _fitted = _y_encoding[0], _y_encoding[1]
+            dic_scp['residuals'] = _actual - _fitted
             dic_scp['residuals_fmt'] = get_fmt_from_array(dic_scp['residuals'])
             dic_scp['index'] = list(range(1, len(dic_scp['residuals']) + 1))
 
@@ -251,19 +281,20 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
                     dic_serials[serial_name] = df[serial_label][idx]
 
             times = df[TIME_COL]
-
             dic_param['plotly_data'] = gen_plotly_data(dic_skd, dic_bar, graph_param.dic_proc_cfgs, dic_col_proc_id)
             dic_param['dic_scp'] = dic_scp
             dic_scp['times'] = times[idx]
             dic_scp['serials'] = dic_serials
             dic_param['importance_columns_ids'] = []
+            dic_param[SUMMARY_MESSAGE] = msg
 
-            # sort by abs of coef from barplot
-            dic_bar_df = pd.DataFrame({'coef': dic_bar['coef'], 'sensor_ids': dic_bar['sensor_ids']})
-            dic_bar_df = dic_bar_df.reindex(dic_bar_df['coef'].abs().sort_values(ascending=False).index)
+            if not is_multi_class:
+                # sort by abs of coef from barplot
+                dic_bar_df = pd.DataFrame({'coef': dic_bar['coef'], 'sensor_ids': dic_bar['sensor_ids']})
+                dic_bar_df = dic_bar_df.reindex(dic_bar_df['coef'].abs().sort_values(ascending=False).index)
 
-            for col_id in dic_bar_df['sensor_ids'].tolist():
-                dic_param['importance_columns_ids'].append(col_id)
+                for col_id in dic_bar_df['sensor_ids'].tolist():
+                    dic_param['importance_columns_ids'].append(col_id)
 
         if errors:
             dic_param['errors'] = errors
@@ -273,7 +304,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
 
     dic_param[DATA_SIZE] = df.memory_usage(deep=True).sum()
     dic_param[NULL_PERCENT] = dic_null_percent
-    dic_param[ZERO_VARIANCE] = dic_var
+    dic_param[ZERO_VARIANCE] = err_cols
     dic_param[SELECTED_VARS] = dic_var_name
     dic_param[CATEGORY_COLS] = cat_col_details
 
@@ -306,7 +337,6 @@ def clean_input_data(df: pd.DataFrame):
     errors = []
     # calculate null percentage and zero variance
     dic_null_percent = (df.isna().sum() * 100 / len(df)).to_dict()
-    dic_var = {}
 
     # if there are greater than 50% Null percent -> remove these columns
     remove_cols = []
@@ -324,32 +354,37 @@ def clean_input_data(df: pd.DataFrame):
     df_drop = df_drop.replace([np.inf, -np.inf], np.nan).dropna(how='any')
     # After dropping NA, int columns will be converted to float
     # convert int columns back to their original datatypes of the dataframe
-    cat_dims = []
     for column in df_drop.columns:
         if original_dtypes.get(column).name == pd.Int64Dtype().name:
             df_drop[column] = df_drop[column].astype(original_dtypes.get(column))
-        if pd.api.types.is_object_dtype(df_drop[column]):
-            cat_dims.append(column)
 
-    is_zero_var, err_cols = zero_variance(df_drop)
+    is_zero_var, error_cols = zero_variance(df_drop)
     if is_zero_var:
         data_clean = False
         errors.append(ErrorMsg.E_ZERO_VARIANCE.name)
-        _drop_df = df_drop.copy()
-        if len(cat_dims):
-            for column in cat_dims:
-                _drop_df[column] = pd.Series(_drop_df[column].astype('category').cat.codes)
-        dic_var = _drop_df.var().to_dict()
+
+    if df_drop.empty:
+        data_clean = False
+        errors.append(ErrorMsg.E_EMPTY_DF.name)
 
     if na_error:
         errors.append(ErrorMsg.E_ALL_NA.name)
 
-    return df_drop, data_clean, errors, err_cols, dic_null_percent, dic_var
+    return df_drop, data_clean, errors, error_cols, dic_null_percent
 
 
 @log_execution_time()
 @abort_process_handler()
-def gen_sankey_grouplasso_plot_data(df: pd.DataFrame, x_cols, y_col, groups, cat_cols, nominal_vars=[]):
+def gen_sankey_grouplasso_plot_data(
+    df: pd.DataFrame,
+    x_cols,
+    y_col,
+    groups,
+    cat_cols,
+    nominal_vars=[],
+    objective_var_shown_name='',
+    strengthen_selection=False,
+):
     # names
     y_col_id, y_col_name = y_col
     x_col_names = np.array(list(x_cols.values()))
@@ -360,7 +395,7 @@ def gen_sankey_grouplasso_plot_data(df: pd.DataFrame, x_cols, y_col, groups, cat
 
     x_col_ids = np.array(x_2d.columns.tolist())
     # please set verbose=False if info should not be printed
-    is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx = preprocess_skdpage(
+    is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg = preprocess_skdpage(
         x_2d,
         y_1d,
         groups,
@@ -368,13 +403,15 @@ def gen_sankey_grouplasso_plot_data(df: pd.DataFrame, x_cols, y_col, groups, cat
         y_col_name,
         cat_cols=cat_cols,
         penalty_factors=[0.0, 0.1, 0.3, 1.0],
+        strengthen_selection=strengthen_selection,
         max_datapoints=10000,
         verbose=True,
         colids_x=x_col_ids,
         nominal_variables=nominal_vars,
+        objective_var_shown_name=objective_var_shown_name,
     )
 
-    return is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx
+    return is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg
 
 
 @abort_process_handler()
@@ -411,6 +448,9 @@ def plot_sankey_grplasso(dic_skd: defaultdict):
 @abort_process_handler()
 def plot_barchart_grplasso(dic_bar: defaultdict, dic_proc_cfgs: dict, dic_col_proc_id: dict):
     sensor_label = []
+    x_data = None
+    y_data = None
+    marker_color = {}
     if len(dic_bar[SENSOR_NAMES]):
         dup_sensor_name = [item for item, count in collections.Counter(dic_bar[SENSOR_NAMES]).items() if count > 1]
         for idx, sensor_name in enumerate(dic_bar[SENSOR_NAMES].tolist()):
@@ -421,13 +461,25 @@ def plot_barchart_grplasso(dic_bar: defaultdict, dic_proc_cfgs: dict, dic_col_pr
                 label = f'{dic_proc_cfgs[dic_col_proc_id[col_id]].shown_name}|{label}'
             sensor_label.append(label)
 
+    if len(sensor_label) and dic_bar[TASK_KEY] == 'multiclass':
+        idx_df = [item[0] for item in dic_bar[BAR_COLORS]]
+        df_group = pd.DataFrame(dic_bar[COEF], columns=sensor_label)
+        df_group.index = idx_df
+        df_group['total'] = df_group.abs().sum(axis=1)
+        df_group_sorted = df_group.sort_values(by='total', ascending=False).drop(columns='total')
+        marker_color = [[idx] * len(df_group_sorted.columns) for idx in df_group_sorted.index]
+        x_data = df_group_sorted.to_numpy()
+        y_data = df_group_sorted.columns.tolist()
+
     bar_trace = {
-        'x': np.abs(dic_bar[COEF]),
-        'y': sensor_label,
+        'x': np.abs(x_data) if x_data is not None else np.abs(dic_bar[COEF]),
+        'y': y_data if y_data is not None else sensor_label,
         'name': None,
         'orientation': 'h',
-        'marker_color': dic_bar[BAR_COLORS],
-        'text': dic_bar[COEF],
+        'marker_color': marker_color if len(marker_color) > 0 else dic_bar[BAR_COLORS],
+        'text': x_data if x_data is not None else dic_bar[COEF],
+        'task': dic_bar[TASK_KEY],
+        'objective': dic_bar[OBJECTIVE],
     }
     return bar_trace
 

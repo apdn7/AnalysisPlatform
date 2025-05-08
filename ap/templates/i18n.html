@@ -269,7 +269,13 @@
     <span id="i18nDataTypeStNoIntHover">{{ _('dataTypeStNoIntHover') }}</span>
     <span id="i18nDataTypeJudgeHover">{{ _('dataTypeJudgeHover') }}</span>
     <span id="i18nNoLinkConfig">{{ _('LinkConfigurationNotExist') }}</span>
-
+    <span id="validateCoefErrMsgNoZero">{{ _("Zero is not allowed") }}</span>
+    <span id="validateNoEnglishName">{{ _("Please fill in English name textbox") }}</span>
+    <span id="validateNoMasterName">{{ _("Please fill in Master name textbox") }}</span>
+    <span id="validateDuplicatedJapaneseName">{{ _("Japanese name is duplicated") }}</span>
+    <span id="validateDuplicatedLocalName">{{ _("Local name is duplicated") }}</span>
+    <span id="validateDuplicatedMaster">{{ _("Show name is duplicated") }}</span>
+    <span id="validateDuplicatedSystem">{{ _("System is duplicated") }}</span>
     <span id="i18nCategoryOutputLabel">{{ _('CategoryOutput') }}</span>
 
     <!-- DB config -->
@@ -318,7 +324,7 @@
     <span id="i18nThCharacter">{{ _("th character") }}</span>
     <span id="i18nCharacterLengthDiff">{{ _("Character length for tracing is different") }}</span>
     <span id="i18nInvalidDigit">{{ _("Invalid digit selection") }}</span>
-    <span id="i18nInvalidDeltaTime">{{ _("Delta time and cut off must be Integer") }}</span>
+    <span id="i18nInvalidDeltaTime">{{ _("Delta time and cut off must be Float") }}</span>
     <span id="i18nEdit">{{ _("Edit") }}</span>
     <span id="i18nDelete">{{ _("Delete") }}</span>
     <span id="i18nBack">{{ _("Back") }}</span>
@@ -383,6 +389,14 @@
     <span id="i18nPrcMax">{{ _("Upper process threshold") }}</span>
     <span id="i18nValidFrom">{{ _("Valid from") }}</span>
     <span id="i18nValidTo">{{ _("Valid to") }}</span>
+    <span id="i18nTarget">{{ _("Target") }}</span>
+    <span id="i18nCondition">{{ _("Condition") }}</span>
+    <span id="i18nControlLine">{{ _("Threshold config") }}</span>
+    <span id="i18nActionLine">{{ _("Process threshold") }}</span>
+    <span id="i18nGraphAxisRange">{{ _("Graph axis range") }}</span>
+    <span id="i18nVariableName">{{ _("Data Name") }}</span>
+    <span id="i18nMinValue">{{ _("Min value") }}</span>
+    <span id="i18nMaxValue">{{ _("Max value") }}</span>
 
     <!-- master_config -->
     <span id="i18nTargetHoverMsg">{{ _("Target hover msg") }}</span>
@@ -390,6 +404,14 @@
     <span id="i18nThresholdConfigHoverMsg">{{ _("Threshold config hover msg") }}</span>
     <span id="i18nProcessThresholdHoverMsg">{{ _("Process threshold hover msg") }}</span>
     <span id="i18nValidHoverMsg">{{ _("Valid hover msg") }}</span>
+
+    <!-- Hover message -->
+    <span id="i18nSearchOptions">{{ _("Search Options") }}</span>
+
+    <!-- Import condition -->
+    <span id="i18nColumnRawName">{{ _("Column Raw Name") }}</span>
+    <span id="i18nFilterType">{{ _("Filter Type") }}</span>
+    <span id="i18nStartingDigit">{{ _("Starting Digit") }}</span>
 
     <!-- background_jobs -->
     <span id="i18nJobId">{{ _('Job ID') }}</span>
@@ -644,6 +666,15 @@
     <span id="i18nOperator">{{ _('Operator') }}</span>
     <span id="i18nCoefHover">{{ _('Coef Hover') }}</span>
     <span id="i18nCoef">{{ _('Coef') }}</span>
+    <span id="i18nSelectAll">{{ _('Select All') }}</span>
+    <span id="i18nAutoSelect">{{ _('Auto Select') }}</span>
+    <span id="i18nFileName">{{ _('File name') }}</span>
+    <span id="i18nFileNameHoverMsg">{{ _('Import the file name without the extension as data.') }}</span>
+    <span id="i18nProcDatetimeFormat">{{ _('ProcDatetimeFormat') }}</span>
+    <span id="i18nProcDatetimeFormatHoverMsg">{{ _('ProcDatetimeFormatHoverMsg') }}</span>
+    <span id="i18nDownloadAllHoverMsg">{{ _('Download All') }}</span>
+    <span id="i18nCopyAllHoverMsg">{{ _('Copy All') }}</span>
+    <span id="i18nPasteAllHoverMsg">{{ _('Paste All') }}</span>
     <span id="i18nSavedSuccessfully">{{ _('Saved successfully') }}</span>
     <span id="i18nAllResultIsEmpty">{{ _('Result is empty, please check input params.') }}</span>
     <span id="i18nJudgementDataTypeHover">{{ _('judgementDataTypeHover') }}</span>
@@ -667,4 +698,45 @@
 
     <!--System-->
     <span id="i18nClearTransactionData">{{ _('Transaction data is deleted.') }}</span>
+
+    <!--Cookie banner-->
+    <span id="i18nCookieBannerContent">{{ _('Cookie banner content') }}</span>
+    <span id="i18nCookiePolicy">{{ _('Cookie Policy') }}</span>
+    <span id="i18nCookiesSettings">{{ _('Cookies Settings') }}</span>
+    <span id="i18nCookiesDetails">{{ _('Cookies Details') }}</span>
+    <span id="i18nCutOff">{{ _('Accept All Cookies') }}</span>
+    <span id="i18nAcceptAllCookies">{{ _('Privacy Preference Center') }}</span>
+    <span id="i18nPrivacyPreferenceCenterContent">{{ _('Privacy Preference Center content') }}</span>
+    <span id="i18nMoreInformation">{{ _('More information') }}</span>
+    <span id="i18nManageConsentPreferences">{{ _('Manage Consent Preferences') }}</span>
+    <span id="i18nStrictlyNecessaryCookies">{{ _('Strictly Necessary Cookies') }}</span>
+    <span id="i18nStrictlyNecessaryCookiesDescription">{{ _('Strictly Necessary Cookies description') }}</span>
+    <span id="i18nTargetingCookies">{{ _('Targeting Cookies') }}</span>
+    <span id="i18nTargetingCookiesDescription">{{ _('Targeting Cookies description') }}</span>
+    <span id="i18nFunctionalCookies">{{ _('Functional Cookies') }}</span>
+    <span id="i18nFunctionalCookiesDescription">{{ _('Functional Cookies description') }}</span>
+    <span id="i18nPerformanceCookies">{{ _('Performance Cookies') }}</span>
+    <span id="i18nPerformanceCookiesDescription">{{ _('Performance Cookies description') }}</span>
+    <span id="i18nConfirmMyChoices">{{ _('Confirm My Choices') }}</span>
+    <span id="i18nAllowAll">{{ _('Allow All') }}</span>
+    <span id="i18Name">{{ _('Name') }}</span>
+    <span id="i18HostName">{{ _('Host name') }}</span>
+    <span id="i18nCookiesType">{{ _('Type') }}</span>
+    <span id="i18nDescription">{{ _("Description") }}</span>
+    <span id="i18nTableList">{{ _("Table List") }}</span>
+    <span id="i18nCookieSettingsBtn">{{ _("Cookie Preferences") }}</span>
+    <span id="i18nCookieRejectAllBtn">{{ _("Reject All") }}</span>
+    <span id="i18nCookieFirstPartyType">{{ _("First Party") }}</span>
+    <span id="i18nCookieThirdPartyType">{{ _("Third Party") }}</span>
+    <span id="i18nCookieLifeSpanDays">{{ _("Days") }}</span>
+    <span id="i18nCookieLifeSpanYears">{{ _("Years") }}</span>
+    <span id="i18nCookieExample">{{ _("Example") }}</span>
+    <span id="i18nlocaleCookieDescription">{{ _("localeCookieDescription") }}</span>
+    <span id="i18nccCookieDescription">{{ _("ccCookieDescription") }}</span>
+    <span id="i18ngaCookieDescription">{{ _("gaCookieDescription") }}</span>
+    <span id="i18ngaxCookieDescription">{{ _("gaxCookieDescription") }}</span>
+
+    <!--Initialize process-->
+    <span id="i18nInitializeProcessSuccess">{{ _('Initialize process config successfully') }}</span>
+    <span id="i18nInitializeProcessError">{{ _('Initialize process config error') }}</span>
 </div>

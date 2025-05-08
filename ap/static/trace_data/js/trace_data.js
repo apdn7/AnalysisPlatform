@@ -748,8 +748,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             catExpBox = COMMON_CONSTANT.NA;
         }
         if (typeof catExpBox === 'object') {
-            catExpBox.map((val) => (val === null ? COMMON_CONSTANT.NA : val));
-            catExpBox = catExpBox.join(' | ');
+            catExpBox = catExpBox.map((val) => (val === null ? COMMON_CONSTANT.NA : val)).join(' | ');
         }
         const isCTCol = isCycleTimeCol(endProcId, sensorId);
 
@@ -1033,8 +1032,7 @@ const drawHistogramsTab = (
                 catExpBox = COMMON_CONSTANT.NA;
             }
             if (typeof catExpBox === 'object') {
-                catExpBox.map((val) => (val === null ? COMMON_CONSTANT.NA : val));
-                catExpBox = catExpBox.join(' | ');
+                catExpBox = catExpBox.map((val) => (val === null ? COMMON_CONSTANT.NA : val)).join(' | ');
             }
 
             // カラム名を取得する。

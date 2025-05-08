@@ -17,8 +17,8 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
         this.onClickEventShowSubMenu(dataTypeDropdownElement);
         this.onClickEventHandleSelectItem(dataTypeDropdownElement);
         this.onFocusEventHandleHoverItem(dataTypeDropdownElement);
-        this.onClickEventHandleCopyToAllBelow(dataTypeDropdownElement);
-        this.onClickEventHandleCopyToFilteredItem(dataTypeDropdownElement);
+        // this.onClickEventHandleCopyToAllBelow(dataTypeDropdownElement);
+        // this.onClickEventHandleCopyToFilteredItem(dataTypeDropdownElement);
     }
 
     /**
@@ -105,33 +105,7 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
         const buttonElement = dataTypeDropdownElement.querySelector('button');
         $(buttonElement)
             .off('click')
-            .on(
-                'click',
-                DataTypeDropdown_Controller.eventWrapper(function (e) {
-                    const dataTypeDropdownElement = /** @type HTMLDivElement */ e.currentTarget.closest(
-                        'div.config-data-type-dropdown',
-                    );
-                    DataTypeDropdown_Controller.init(dataTypeDropdownElement);
-                    DataTypeDropdown_Controller.hideAllDropdownMenu();
-
-                    // Calculate position to show dropdown menu
-                    const dropdown = $(e.currentTarget).siblings('.data-type-selection');
-                    const dropdownHeight = dropdown.height() / 2;
-                    const windowHeight = $(window).height() - 50;
-                    const left = e.clientX;
-                    let top = e.clientY;
-                    if (top + dropdownHeight > windowHeight) {
-                        top -= top + dropdownHeight - windowHeight;
-                    }
-                    dropdown.css({
-                        position: 'fixed',
-                        top: top,
-                        left: left,
-                        display: 'flex',
-                        zIndex: '99999',
-                    });
-                }),
-            );
+            .on('click', DataTypeDropdown_Controller.eventWrapper(DataTypeDropdown_Controller.showDataTypeModal));
     }
 
     /**

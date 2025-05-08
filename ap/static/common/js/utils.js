@@ -1,5 +1,10 @@
 /* eslint-disable no-useless-escape */
 let inputMutationObserver;
+const BORDER_RED_CLASS = 'column-name-invalid';
+const READONLY_CLASS = 'readonly';
+const DATA_ORIGINAL_ATTR = 'data-original';
+const TAB_CHAR = '\t';
+const NEW_LINE_CHAR = '\n';
 
 let xhr = null;
 const SQL_LIMIT = 50000;
@@ -428,12 +433,27 @@ const getValueByIndexes = (indexes, targetArray, atlArray) => {
 
 const setPageTitle = () => {
     // Set sub_title
-    const subTitle = docCookies.getItem(keyPort('sub_title')) || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
+    const subTitle = appContext.sub_title || COMMON_CONSTANT.DEFAULT_SUB_TITLE;
     $('#page-sub-title').text(subTitle);
     const currentPageTitle = $('title').text();
     const fullTitle = `${currentPageTitle} ${subTitle}`;
     // set page title
     $('title').html(fullTitle);
+};
+
+// set hide_setting_page
+const setHideSettingPage = () => {
+    if (appContext.hide_setting_page === 'True') {
+        $('#settingPageMenu').css('display', 'none');
+    }
+};
+
+// set log_level
+const setLogLevel = () => {
+    $('header.main-header').removeClass('green-header');
+    if (appContext.log_level === 'False') {
+        $('header.main-header').addClass('green-header');
+    }
 };
 
 /**
@@ -475,6 +495,10 @@ $(() => {
 
     // Set sub_title and page title
     setPageTitle();
+
+    // set hide_setting and log_level
+    setHideSettingPage();
+    setLogLevel();
 
     // press ESC to collapse floating dropdown
     document.addEventListener('keyup', keyPress);
@@ -1266,9 +1290,11 @@ const stickyHeaders = (() => {
         );
     };
     const $window = $(window);
+    const btnWrapClass = 'btnWrap';
     let $stickies;
 
     const whenScrolling = () => {
+        const prevElms = $stickies.parent().prevAll();
         $stickies.each((i, e) => {
             const $cardParent = $(e).parents().filter('form').parent().parent();
             const $thisSticky = $(e);
@@ -1283,10 +1309,23 @@ const stickyHeaders = (() => {
                 if ($nextSticky.length > 0 && $thisSticky.offset().top >= $nextStickyPosition) {
                     $thisSticky.addClass('absolute').css('top', $nextStickyPosition);
                 }
+                // Recalc margin right for all prev element
+                $(prevElms).each((i, prevElm) => {
+                    const width = $(prevElm)
+                        .nextAll()
+                        .get()
+                        .map((nextElm) => {
+                            if ($(nextElm).hasClass(btnWrapClass)) return +$(nextElm).children().width();
+                            return +$(nextElm).width();
+                        })
+                        .reduce((sum, width) => sum + width, 0);
+                    $(prevElm)[0].style.setProperty('margin-right', `${width + 20}px`, 'important');
+                });
             } else {
                 const $prevSticky = $stickies.eq(i - 1);
 
                 $thisSticky.removeClass('btn-fixed');
+                $(prevElms).css('margin-right', '');
 
                 if (
                     $prevSticky.length > 0 &&
@@ -1301,7 +1340,7 @@ const stickyHeaders = (() => {
         if (typeof stickies === 'object' && stickies instanceof jQuery && stickies.length > 0) {
             let $originWH = $(document).height();
             $stickies = stickies.each((_v, e) => {
-                const $thisSticky = $(e).wrap('<div class="btnWrap">');
+                const $thisSticky = $(e).wrap(`<div class=${btnWrapClass}>`);
 
                 $thisSticky
                     .data('originalPosition', $thisSticky.offset().top)
@@ -4072,8 +4111,8 @@ const genDatetimeRange = (formData, traceTimeName = 'traceTime') => {
         if (timeRange !== '') {
             const [starting, ending] = timeRange.split(seperator);
             if (starting && ending) {
-                const [startDate, startTime] = starting && starting.split(' ');
-                const [endDate, endTime] = ending.split(' ');
+                const [startDate, startTime] = starting.trim().split(' ');
+                const [endDate, endTime] = ending.trim().split(' ');
                 const startUTCDt = toUTCDateTime(startDate, startTime || '00:00');
                 const endUTCDt = toUTCDateTime(endDate, endTime || '00:00');
                 formData.append(timeKeys[0], startUTCDt.date);
@@ -4968,7 +5007,11 @@ const reselectVariablesToShowGraph = () => {
             guiDOM.prop('checked', elStatus).trigger('change');
         }
     });
-    if (reselectCallback) {
+    // revalidate form before call show_graph
+    const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
+    updateStyleOfInvalidElements();
+    if (reselectCallback && isValid) {
+        loadingShow(false, true);
         const jumpKey = getParamFromUrl('jump_key');
         if (jumpKey) {
             const excludedColumns = [...$(domEles.problematicTbl).find('input[name^=selectedVar]:not(:checked)')].map(
@@ -5008,11 +5051,11 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         if (selectedCols) {
             selectedCols.forEach((colID) => {
                 const colName = selectedVars[colID] || selectedVarsTarget[colID] || '';
-                const zeroVar = plotData.train_data.zero_variance.map((i) => String(i)).includes(colID);
+                const zeroVar = plotData.train_data.zero_variance.map((i) => String(i)).includes(String(colID));
                 const naRate = trainDataSensorIDsFromNADict ? applySignificantDigit(nullPercent[colID]) : 100;
                 const selectedTrain = naRate <= 50 && !zeroVar;
 
-                const zeroVarTarget = plotData.target_data.zero_variance.map((i) => String(i)).includes(colID);
+                const zeroVarTarget = plotData.target_data.zero_variance.map((i) => String(i)).includes(String(colID));
                 const naRateTarget = targetDataSensorIDsFromNADict
                     ? applySignificantDigit(nullPercentTarget[colID])
                     : 100;
@@ -5046,7 +5089,7 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         const selectedCols = selectedVars || nullPercent;
         selectedCols.forEach((colID) => {
             const colName = plotData.selected_vars[colID] || '';
-            const zeroVar = plotData.zero_variance.map((i) => String(i)).includes(colID);
+            const zeroVar = plotData.zero_variance.map((i) => String(i)).includes(String(colID));
             const naRate = nullPercent ? applySignificantDigit(plotData.null_percent[colID]) : 0;
             const selected = naRate <= 50 && !zeroVar ? ' checked' : '';
             const rowContent = `<tr>
@@ -5241,6 +5284,8 @@ const jspreadsheetCustomHooks = () => {
 
 const bindNominalSelection = (formData, clearOnFlyFilter) => {
     const nominalScaleInput = $('input[name=is_nominal_scale]');
+    const strengthenSelectionInput = $('input[name=strengthenSelection]');
+
     formData.delete('nominal_vars');
     // check if GUI has nominal input as first item
     if (nominalScaleInput[0]) {
@@ -5259,6 +5304,9 @@ const bindNominalSelection = (formData, clearOnFlyFilter) => {
             });
             formData.set('nominal_vars', JSON.stringify(nominalValues));
         }
+    }
+    if (strengthenSelectionInput.length) {
+        formData.set('strengthen_selection', strengthenSelectionInput.is(':checked'));
     }
     return formData;
 };
@@ -5641,8 +5689,14 @@ const filePathProcessing = (el) => {
 };
 
 const discardAllChanges = () => {
-    if (typeof inputMutationObserver !== 'undefined') {
-        inputMutationObserver.stopObserving();
+    let stoppedFromSpreadsheet = false;
+    if (typeof spreadsheetProcConfig !== 'undefined') {
+        const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+        stoppedFromSpreadsheet = spreadsheet.table.isValid() && spreadsheet.table.resetHistory();
+    }
+    const stoppedFromMutationObserver =
+        typeof inputMutationObserver !== 'undefined' && inputMutationObserver.stopObserving();
+    if (stoppedFromSpreadsheet || stoppedFromMutationObserver) {
         $('.modal').modal('hide');
     }
 };
@@ -5677,3 +5731,52 @@ const saveAllChanges = () => {
         $saveUserSetting.trigger('click');
     }
 };
+
+const getYAxisLabelWidth = (yLabel, fontSize = 12, fontFamily = 'Arial') => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    return ctx.measureText(yLabel.toString()).width;
+};
+const getLegendX = (yLabel, legendLabel) => {
+    const minPosX = -2;
+    const padding = 20;
+    const labelWidth = getYAxisLabelWidth(yLabel);
+    const legendLabelWidth = getYAxisLabelWidth(legendLabel);
+    const graphWidth = document.getElementById('barContainer').offsetWidth;
+    const xPosition = -Math.abs((labelWidth + padding) / (graphWidth - labelWidth - legendLabelWidth - 70));
+    return xPosition < minPosX ? minPosX : xPosition;
+};
+
+/**
+ * Cache value with path inside an object with a default value or callback
+ * @template T
+ * @param {{[key: string]: T}} obj - object to be cached
+ * @param {string} path - path
+ * @param {T | function(): T} defaultValue
+ * @return T
+ */
+const getOrAssign = (obj, path, defaultValue) => {
+    if (!(path in obj)) {
+        if (typeof defaultValue === 'function') {
+            obj[path] = defaultValue();
+        } else {
+            obj[path] = defaultValue;
+        }
+    }
+    return obj[path];
+};
+
+/**
+ * Replace characters which are not alphabet
+ * @param {string} name - a name
+ * @return {string} - a name without special characters
+ */
+const correctEnglishName = (name) => (name == null ? name : name.replace(/[^\w-]+/g, ''));
+
+/**
+ * parse boolean value use for excel data
+ * @param value
+ * @returns {boolean}
+ */
+const parseBool = (value) => value == 1 || value == true || value.toLowerCase() === 'true';

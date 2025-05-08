@@ -1,0 +1,3 @@
+Flask==3.0.3
+pyinstaller
+ruamel.yaml==0.16.5

@@ -5,7 +5,6 @@ import socket
 from ap.common.constants import DiskUsageStatus
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
-from ap.common.services.http_content import json_dumps
 from ap.setting_module.models import CfgConstant
 
 logger = logging.getLogger(__name__)
@@ -171,13 +170,6 @@ def get_disk_capacity_to_load_ui():
     disk_capacity['EdgeServer'] = edge_disk_capacity.to_dict()
 
     return disk_capacity
-
-
-def add_disk_capacity_into_response(response, disk_capacity):
-    render_data = response.get_data()
-    script = f'<script>var disk_capacity = {json_dumps(disk_capacity)};</script>'
-    render_data = render_data.replace(bytes('</html>', 'UTF-8'), bytes(f'{script}</html>', 'UTF-8'))
-    response.set_data(render_data)
 
 
 @log_execution_time()

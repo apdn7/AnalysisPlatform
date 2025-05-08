@@ -17,6 +17,8 @@
 .\start_ap.bat
 .\start_ap.exe
 .\VERSION
+.\about\cookie_policy_en.md
+.\about\cookie_policy_jp.md
 .\about\Endroll.md
 .\about\terms_of_use_en.md
 .\about\terms_of_use_jp.md
@@ -122,6 +124,7 @@
 .\ap\common\datetime_format_utils.py
 .\ap\common\disk_usage.py
 .\ap\common\event_listeners.py
+.\ap\common\ga.py
 .\ap\common\logger.py
 .\ap\common\memoize.py
 .\ap\common\pandas_helper.py
@@ -162,8 +165,7 @@
 .\ap\common\services\error_message_handler.py
 .\ap\common\services\form_env.py
 .\ap\common\services\http_content.py
-.\ap\common\services\import_export_config.py
-.\ap\common\services\import_export_config_data.py
+.\ap\common\services\import_export_config_and_master_data.py
 .\ap\common\services\import_export_config_n_data.py
 .\ap\common\services\jp_to_romaji_utils.py
 .\ap\common\services\normalization.py
@@ -211,6 +213,9 @@
 .\ap\heatmap\controllers.py
 .\ap\heatmap\__init__.py
 .\ap\heatmap\services\__init__.py
+.\ap\import_filter\core.py
+.\ap\import_filter\utils.py
+.\ap\import_filter\__init__.py
 .\ap\multiple_scatter_plot\controllers.py
 .\ap\multiple_scatter_plot\__init__.py
 .\ap\multiple_scatter_plot\services\__init__.py
@@ -258,7 +263,6 @@
 .\ap\script\r_scripts\wrapr\func\pipeline\emd.R
 .\ap\script\user_scripts\py\template.py
 .\ap\setting_module\controllers.py
-.\ap\setting_module\forms.py
 .\ap\setting_module\models.py
 .\ap\setting_module\schemas.py
 .\ap\setting_module\__init__.py
@@ -311,6 +315,7 @@
 .\ap\static\common\css\bootstrap.min.css
 .\ap\static\common\css\bootstrap.min.css.map
 .\ap\static\common\css\components.css
+.\ap\static\common\css\cookieconsent.css
 .\ap\static\common\css\data-finder.css
 .\ap\static\common\css\dataTables.bootstrap4.min.css
 .\ap\static\common\css\dragndrop.css
@@ -363,6 +368,7 @@
 .\ap\static\common\js\column_ordering.js
 .\ap\static\common\js\components.js
 .\ap\static\common\js\config_data_interface.js
+.\ap\static\common\js\cookieconsent-config.js
 .\ap\static\common\js\data-finder.js
 .\ap\static\common\js\database-config.js
 .\ap\static\common\js\data_point_info_table.js
@@ -393,6 +399,7 @@
 .\ap\static\common\js\libs\chartjs-adapter-moment.min.js
 .\ap\static\common\js\libs\chartjs-plugin-annotation-latest.min.js
 .\ap\static\common\js\libs\clipboard.min.js
+.\ap\static\common\js\libs\cookieconsent.umd.js
 .\ap\static\common\js\libs\d3-format.js
 .\ap\static\common\js\libs\dataTables.bootstrap4.min.js
 .\ap\static\common\js\libs\dataTables.fixedHeader.min.js
@@ -481,6 +488,13 @@
 .\ap\static\modules\js-datatables\images\sort_desc_disabled.png
 .\ap\static\modules\js-datatables\lib\jquery.dataTables.min.css
 .\ap\static\modules\js-datatables\lib\jquery.dataTables.min.js
+.\ap\static\modules\jspreadsheet\css\jspreadsheet.css
+.\ap\static\modules\jspreadsheet\js\index.d.ts
+.\ap\static\modules\jspreadsheet\js\index.js
+.\ap\static\modules\jsuites\css\jsuites.css
+.\ap\static\modules\jsuites\css\jsuites.min.css
+.\ap\static\modules\jsuites\js\jsuites.js
+.\ap\static\modules\jsuites\js\jsuites.min.js
 .\ap\static\modules\popper\umd\popper-utils.js
 .\ap\static\modules\popper\umd\popper-utils.js.map
 .\ap\static\modules\popper\umd\popper-utils.min.js
@@ -605,6 +619,7 @@
 .\ap\static\setting_module\css\background_process.css
 .\ap\static\setting_module\css\backup_restore_modal.css
 .\ap\static\setting_module\css\config_view.css
+.\ap\static\setting_module\css\custom_jspreadsheet.css
 .\ap\static\setting_module\css\data_type_dropdown.css
 .\ap\static\setting_module\css\filter_visualization.css
 .\ap\static\setting_module\css\index.css
@@ -641,6 +656,10 @@
 .\ap\static\setting_module\js\function_config_modals.js
 .\ap\static\setting_module\js\function_data_type_dropdown.js
 .\ap\static\setting_module\js\graph_visualization.js
+.\ap\static\setting_module\js\jspreadsheet_filter_config.js
+.\ap\static\setting_module\js\jspreadsheet_function_config.js
+.\ap\static\setting_module\js\jspreadsheet_process_config.js
+.\ap\static\setting_module\js\jspreadsheet_table_utils.js
 .\ap\static\setting_module\js\main_serial_function_column.js
 .\ap\static\setting_module\js\master_config.js
 .\ap\static\setting_module\js\npm.js
@@ -707,6 +726,7 @@
 .\ap\templates\setting_module\about.html
 .\ap\templates\setting_module\background_job.html
 .\ap\templates\setting_module\config.html
+.\ap\templates\setting_module\cookie_policy.html
 .\ap\templates\setting_module\db_config.html
 .\ap\templates\setting_module\db_config_modals.html
 .\ap\templates\setting_module\failed_jobs.html
@@ -868,6 +888,8 @@
 .\sample_data\parts_processing\2_machine_parameter_b\20220311.tsv
 .\sample_data\parts_processing\3_finishing\20220311.tsv
 .\start_ap\builder.spec
+.\start_ap\requirements.txt
+.\start_ap\startup_errors.yaml
 .\start_ap\start_ap.py
 .\start_ap\static\img\AP+DN7.ico
 .\start_ap\static\img\logo.png

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, Mapping, Optional
+
 import marshmallow
 from marshmallow import fields, post_load
 from marshmallow_sqlalchemy.fields import Nested
@@ -15,6 +17,8 @@ from ap.setting_module.models import (
     CfgDataSourceDB,
     CfgFilter,
     CfgFilterDetail,
+    CfgImportFilter,
+    CfgImportFilterDetail,
     CfgOption,
     CfgProcess,
     CfgProcessColumn,
@@ -26,6 +30,19 @@ from ap.setting_module.models import (
 )
 
 EXCLUDE_COLS = ('updated_at', 'created_at')
+
+
+class AnyAsBool(fields.Field):
+    """Field that serializes string to boolean"""
+
+    def _deserialize(
+        self,
+        value: Any,
+        attr: Optional[str],
+        data: Optional[Mapping[str, Any]],
+        **kwargs,
+    ):
+        return bool(value)
 
 
 class BaseSchema(ma.SQLAlchemyAutoSchema):
@@ -129,11 +146,21 @@ class ProcessColumnSchema(BaseSchema):
     # This field to sever store function config of this column
     function_details = fields.Nested('ProcessFunctionColumnSchema', many=True, required=False)
 
+    # import filters
+    import_filters = fields.Nested('ImportFiltersSchema', many=True, required=False)
+
     # This field to sever store previous data type and show it on modal fail convert data
     origin_raw_data_type = fields.String(allow_none=True)
 
     # if new process
     process_id = fields.Integer(allow_none=True)
+
+    # custom serialize to serialize empty string and others to boolean values
+    is_serial_no = AnyAsBool()
+    is_get_date = AnyAsBool()
+    is_auto_increment = AnyAsBool()
+    is_dummy_datetime = AnyAsBool()
+    is_file_name = AnyAsBool()
 
     # hybrid properties go here
     is_main_serial = fields.Boolean(dump_only=True)
@@ -265,6 +292,7 @@ class CfgUserSettingSchema(BaseSchema):
 
     id = fields.Integer(required=False, allow_none=True)
     function = fields.String(required=False, allow_none=True)
+    hashed_owner = fields.String(required=True, allow_none=False)
 
 
 class ShowGraphSchema(BaseSchema):
@@ -303,3 +331,22 @@ class ProcessColumnExternalAPISchema(BaseSchema):
     id = fields.Integer(required=True)
     shown_name = fields.String(required=True, data_key='name')
     data_type = fields.String(required=True)
+
+
+class ImportFilterDetailSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        model = CfgImportFilterDetail
+        exclude = []
+
+    id = fields.Integer(required=False, allow_none=True)
+    filter_id = fields.Integer(required=False, allow_none=True)
+
+
+class ImportFiltersSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        model = CfgImportFilter
+        exclude = []
+
+    id = fields.Integer(required=False, allow_none=True)
+    column_id = fields.Integer(required=False, allow_none=True)
+    filters = Nested('ImportFilterDetailSchema', many=True, required=False)

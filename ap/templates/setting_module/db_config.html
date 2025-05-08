@@ -9,8 +9,8 @@
                                 class="row d-flex align-items-center justify-content-between"
                                 style="padding-top: 5px; padding-bottom: 5px;"
                             >
-                                <div class="col-5">
-                                    <div class="collapse-box header-left">
+                                <div class="col-5 collapse-wrapped-row">
+                                    <div class="collapse-box header-left my-0">
                                         <a
                                             role="button"
                                             class="btn-collapse"
@@ -117,11 +117,7 @@
                                 </thead>
                                 <tbody>
                                     {% for db_info in data_sources %}
-                                        <tr
-                                            name="db-info"
-                                            id="ds_{{ db_info.id.data }}"
-                                            data-ds-id="{{ db_info.id.data }}"
-                                        >
+                                        <tr name="db-info" id="ds_{{ db_info.id }}" data-ds-id="{{ db_info.id }}">
                                             <td class="col-number">{{ loop.index }}</td>
                                             <td>
                                                 <input
@@ -129,83 +125,41 @@
                                                     class="form-control"
                                                     type="text"
                                                     placeholder="{{ _('Data Source Name') }}"
-                                                    value="{{ db_info.name.data }}"
+                                                    value="{{ db_info.name }}"
                                                     disabled="disabled"
                                                     data-order
                                                 />
                                             </td>
                                             <td class="text-center">
-                                                <select name="type" class="form-control">
-                                                    <option
-                                                        value="CSV"
-                                                        {% if db_info.type.data == 'CSV' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeCsvTsvSsv') }}
-                                                    </option>
-                                                    <option
-                                                        value="SQLITE"
-                                                        {% if db_info.type.data == 'SQLITE' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeSqlite') }}
-                                                    </option>
-                                                    <option
-                                                        value="POSTGRESQL"
-                                                        {% if db_info.type.data == 'POSTGRESQL' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypePostgresql') }}
-                                                    </option>
-                                                    <option
-                                                        value="MSSQLSERVER"
-                                                        {% if db_info.type.data == 'MSSQLSERVER' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeMssql') }}
-                                                    </option>
-                                                    <option
-                                                        value="ORACLE"
-                                                        {% if db_info.type.data == 'ORACLE' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeOracle') }}
-                                                    </option>
-                                                    <option
-                                                        value="MYSQL"
-                                                        {% if db_info.type.data == 'MYSQL' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeMysql') }}
-                                                    </option>
-                                                    <option
-                                                        value="V2"
-                                                        {% if db_info.type.data == 'V2' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeV2Csv') }}
-                                                    </option>
-                                                    <option
-                                                        value="SOFTWARE_WORKSHOP"
-                                                        {% if db_info.type.data == 'SOFTWARE_WORKSHOP' %}selected{% endif %}
-                                                    >
-                                                        {{ _('DataSourceTypeSoftwareWorkshop') }}
-                                                    </option>
-                                                </select>
+                                                <input
+                                                    name="type"
+                                                    data-db-type="{{ db_info.type }}"
+                                                    class="form-control"
+                                                    type="text"
+                                                    value="{% if db_info.type == 'CSV' %}{{ _('DataSourceTypeCsvTsvSsv') }}{% elif db_info.type == 'SQLITE' %}{{ _('DataSourceTypeSqlite') }}{% elif db_info.type == 'POSTGRESQL' %}{{ _('DataSourceTypePostgresql') }}{% elif db_info.type == 'MSSQLSERVER' %}{{ _('DataSourceTypeMssql') }}{% elif db_info.type == 'ORACLE' %}{{ _('DataSourceTypeOracle') }}{% elif db_info.type == 'MYSQL' %}{{ _('DataSourceTypeMysql') }}{% elif db_info.type == 'V2' %}{{ _('DataSourceTypeV2Csv') }}{% elif db_info.type == 'SOFTWARE_WORKSHOP' %}{{ _('DataSourceTypeSoftwareWorkshop') }}{% endif %}"
+                                                    disabled="disabled"
+                                                />
                                             </td>
                                             <td class="text-center">
                                                 <button
                                                     class="btn btn-secondary db-file icon-btn"
                                                     type="button"
                                                     onclick="loadDetail(this)"
-                                                    data-item-id="{{ db_info.id.data }}"
+                                                    data-item-id="{{ db_info.id }}"
                                                     title=""
                                                 >
                                                     <i class="fas fa-edit icon-secondary"></i>
                                                 </button>
                                             </td>
                                             <td>
-                                                {% if db_info.comment.data != None %}
+                                                {% if db_info.comment != None %}
                                                     <textarea
                                                         name="comment"
                                                         class="form-control form-data"
                                                         rows="1"
                                                         disabled="disabled"
                                                     >
-{{ db_info.comment.data }}</textarea
+{{ db_info.comment }}</textarea
                                                     >
                                                 {% else %}
                                                     <textarea
@@ -218,7 +172,7 @@
                                             </td>
                                             <td class="text-center">
                                                 <button
-                                                    onclick="deleteRow(this,'{{ db_info.id.data }}')"
+                                                    onclick="deleteRow(this,'{{ db_info.id }}')"
                                                     type="button"
                                                     class="btn btn-secondary icon-btn"
                                                 >

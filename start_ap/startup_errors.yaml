@@ -1,0 +1,57 @@
+!!omap
+- INSUFFICIENT_FREE_SPACE:
+    error_id: 100
+    timeout: 0
+    title: 'Initial State Error'
+    header: 'Insufficient free space\n空き容量不足'
+    message:
+        'Insufficient storage space.\nIf there is less than 10% free storage space, AP+DN7 will stop working. \nPlease use a PC with at least 20% free space.\n\nストレージの空き容量が足りません。\n空き容量が10%ない場合はAP+DN7は動作を停止します。\n20%以上の空き容量があるPCを使用してください。'
+- PORT_NOT_AVAILABLE:
+    error_id: 101
+    timeout: 0
+    title: 'Initial State Error'
+    header: 'Port is not available\nポートが開いていません'
+    message:
+        'Check the port availability.\nStop applications using the same port if you can. \nAlternatively, change the port setting in startup.ini to boot this AP+DN7 on a different port.\n\nポートの空きを確認してください。\n同じポートを使用しているアプリケーションを停止できる場合は、停止してください。\nもしくは、このAP+DN7を別ポートで起動するようにstartup.iniのPort設定を変更してください。'
+- NETWORK_NOT_AVAILABLE:
+    error_id: 102
+    timeout: 0
+    title: 'Initial State Error'
+    header: 'Network is not available\nインターネットにアクセスできません'
+    message:
+        'Internet connection is required only during installation. Please check if the network is enabled (web pages can be accessed). \nIf you have a proxy in your company, please configure it in startup.ini. \nIf you are unable to set up the proxy, please copy and use the AP+DN7 folder that was launched once in an environment where you can connect directly.\n\nインストール時のみインターネット接続が必要です。ネットワークが有効か確認(Webページが閲覧できる状態)してください。\n企業内等でプロキシがある場合はstartup.iniでProxyの設定を行ってください。\nProxyの設定ができない場合は直接接続できる環境で1度立ち上げたAP+DN7のフォルダをコピーしてご利用ください。'
+- PYTHON_EMBEDDED:
+    error_id: 200
+    timeout: 1200
+    title: 'Setup Error'
+    header: 'Python Embedded installation failure\nPython Embeddedのインストール失敗'
+    message:
+        'Failed to install the Python execution environment.\nRestore the initial state and try to install again.\n (Delete folder: ap\\python_embedded_?? )\n\nPythonの実行環境のインストールに失敗しました。\n初期状態に戻して、再度インストールを試みてください。\n(ap\\python_embedded_??フォルダを削除)'
+- PIP_DOWNLOAD:
+    error_id: 201
+    timeout: 1200
+    title: 'Setup Error'
+    header: 'Python pip installation failure\nPython pipのインストール失敗'
+    message:
+        'Failed to install Python libraries.\nRestore the initial state and try to install again.\n (Delete file: ap\\get-pip.py)\n\nPythonのライブラリのインストールに失敗しました。\n初期状態に戻して、再度インストールを試みてください。\n(ap\\get-pip.pyファイルを削除)'
+- PIP_INSTALL:
+    error_id: 202
+    timeout: 1500
+    title: 'Setup Error'
+    header: 'Python library installation failure\nPythonライブラリのインストール失敗'
+    message:
+        'Failed to install Python libraries.\nRestore the initial state and try to install again.\n (Delete folder: ap\\python_embedded_??)\n\nPythonライブラリのインストールに失敗しました。\n初期状態に戻して、再度インストールを試みてください。\n(ap\\python_embedded_??フォルダを削除)'
+- ORACLE_INSTANCE:
+    error_id: 210
+    timeout: 1200
+    title: 'Setup Error'
+    header: 'ORACLE driver installation failure\nORACLEドライバのインストール失敗'
+    message:
+        'ORACLE driver installation failed.\nRestore the initial state and try to install again.\n (Delete folder: ap\\Oracle-Portable folder)\n\nORACLEドライバのインストールに失敗しました。\n初期状態に戻して、再度インストールを試みてください。\n(ap\\Oracle-Portableフォルダを削除)'
+- TIMEOUT:
+    error_id: 999
+    timeout: 0
+    title: 'Setup Error'
+    header: 'Other Errors Occurred\nその他のエラー発生'
+    message:
+        'Startup processing timed out. The installation may have failed. It may work by turning off the command prompt and restarting several times.\nIf communication is extremely slow, it may work if you wait longer, but try to retry in a faster communication environment.\nIf the command prompt is not updating, it is likely that the command has stopped with an error. Please refer to the manual and take appropriate action.\n\n起動処理がタイムアウトしました。インストールが失敗している可能性があります。コマンドプロンプトを消し、数回再起動することで動く場合があります。\n通信が極端に遅い場合はさらに待てば動く可能性はありますが、極力より高速な通信環境でリトライしてください。\nコマンドプロンプトの表示更新が止まっている場合はエラー停止している可能性が高いのでマニュアル等をご参照の上対処ください。'

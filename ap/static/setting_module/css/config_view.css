@@ -350,6 +350,9 @@ td.pr-row {
     border-right: 1px solid #444 !important;
     border-bottom: 1px solid #444 !important;
 }
+.jexcel > tbody > tr > td.column-name-invalid {
+    border: 1px solid red !important;
+}
 
 .jexcel > tbody > tr > td:nth-child(n + 3):nth-child(-n + 5) {
     text-align: center !important;
@@ -438,7 +441,7 @@ td.pr-row {
     justify-content: center;
 }
 #procSettingModal .modal-footer {
-    padding: 0.3rem 1rem;
+    padding: 0 1rem !important;
 }
 
 .process-name-group {
@@ -512,4 +515,10 @@ input#skipHead.form-control {
 
 .import-config-file-row .custom-control {
     padding-left: 1.1rem;
+}
+
+.collapse-wrapped-row {
+    /*align-items: center;*/
+    display: flex;
+    align-items: baseline;
 }

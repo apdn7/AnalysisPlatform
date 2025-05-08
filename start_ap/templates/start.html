@@ -30,6 +30,8 @@
                 HOME_PAGE: 'http://localhost',
                 STAGE_STATUS_PAGE: '/stages',
                 ERROR_PAGE: '/error',
+                TIMEOUT: '/timeout_check',
+                SHUTDOWN: '/shutdown',
             };
         </script>
     </head>
@@ -52,7 +54,7 @@
                 img.style.opacity = !img.style.opacity | 0;
             }, 5000); // every 5 sec
 
-            const get_data = async (url, interval) => {
+            const get_stage = async (url, interval) => {
                 const stageResponse = await fetch(url, { cache: 'no-cache' });
                 if (stageResponse.status === HTTP_RESPONSE_CODE.OK) {
                     const stageData = await stageResponse.json();
@@ -68,14 +70,28 @@
                 }
                 // else wait to server restarting
             };
+            const check_timeout = async (url, interval) => {
+                const res = await fetch(url);
+                if (res.status === HTTP_RESPONSE_CODE.OK) {
+                    const timeoutData = await res.json();
+                    // stage status not null == initiating error occurred
+                    if (timeoutData.status) {
+                        clearInterval(interval); // Stop checking once we have redirected
+                        window.location.href = END_POINTS.ERROR_PAGE;
+                    }
+                }
+            };
             // Get the port number from the query parameters
             const port = window.location.port;
             // Use the port number in the checkURL
             const checkURL = END_POINTS.HOME_PAGE + (port ? ':' + port : '');
             document.getElementById('checkURL').textContent = checkURL;
             const interval = setInterval(function () {
-                get_data(END_POINTS.STAGE_STATUS_PAGE, interval);
+                get_stage(END_POINTS.STAGE_STATUS_PAGE, interval);
             }, 5000); // every 5 sec
+            const timeoutCheckInterval = setInterval(function () {
+                check_timeout(END_POINTS.TIMEOUT, timeoutCheckInterval);
+            }, 1000);
         </script>
     </body>
 </html>

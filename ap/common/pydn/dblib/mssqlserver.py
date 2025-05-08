@@ -370,6 +370,6 @@ self.is_connected: {self.is_connected}
         return False
 
     def get_table(self, table_name):
-        query = f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '%{table_name}%'"
+        query = f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '{table_name}'"
         cols, rows = self.run_sql(query)
         return len(rows) > 0

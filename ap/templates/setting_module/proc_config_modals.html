@@ -33,114 +33,251 @@
     data-backdrop="static"
     data-keyboard="false"
 >
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog process-config-modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="procSettingLabel">{{ _("Process Config") }}</h4>
+                <i id="procSettingChangeMark" class="fa fa-circle fa-sm d-none"></i>
                 <button type="button" class="close" onclick="handleCloseProcConfigModal(this)" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" name="modal-body-input" id="procSettingModalBody">
-                <form id="procCfgForm" onSubmit="return false;">
-                    <div id="processGeneralInfo" name="processGeneralInfo">
-                        <div class="row">
-                            <div class="col-sm-12">{{ macros.alert_message("alertProcessNameErrorMsg") }}</div>
-                            <div class="col-sm-12">{{ macros.alert_message("alertReferenceFileErrorMsg") }}</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                <div class="form-group row">
-                                    <label for="processName" class="col-sm-4 col-form-label label-right">
-                                        <h5>{{ _("Process Name") }}</h5>
-                                    </label>
-                                    <div class="col-sm-8 process-name-group">
-                                        <div class="form-group d-flex align-items-center">
-                                            <label
-                                                class="mr-2 mb-0"
-                                                for="processName"
-                                                title="{{ _('SystemNameHoverMsg') }}"
-                                                ><span class="hint-text">System</span
-                                                ><span style="color: yellow;">*</span></label
-                                            >
-                                            <input
-                                                type="text"
-                                                name="processName"
-                                                class="form-control"
-                                                style="flex: 1"
-                                                id="processName"
-                                                data-observer=""
-                                            />
-                                        </div>
-                                        <div class="form-group d-flex align-items-center">
-                                            <label class="mr-2 mb-0" for="processJapaneseName"
-                                                >{{
-                                                    _('Japanese
-                                                    Name')
-                                                }}</label
-                                            >
-                                            <input
-                                                type="text"
-                                                name="processJapaneseName"
-                                                onchange="handleEmptySystemNameJP(this, procModalElements.procsMasterName)"
-                                                class="form-control"
-                                                style="flex: 1"
-                                                id="processJapaneseName"
-                                                data-observer=""
-                                            />
-                                        </div>
-                                        <div class="form-group d-flex align-items-center">
-                                            <label class="mr-2 mb-0" for="processLocalName"
-                                                >{{ _('Local Name') }}</label
-                                            >
-                                            <input
-                                                type="text"
-                                                name="processLocalName"
-                                                onchange="handleEmptySystemName(this, procModalElements.procsMasterName)"
-                                                class="form-control"
-                                                style="flex: 1"
-                                                id="processLocalName"
-                                                data-observer=""
-                                            />
-                                        </div>
+                <div class="row">
+                    <div class="col-sm-12">{{ macros.alert_message("alertProcessNameErrorMsg") }}</div>
+                    <div class="col-sm-12">{{ macros.alert_message("alertReferenceFileErrorMsg") }}</div>
+                    <div class="col-sm-12">{{ macros.alert_message("alertProcessConfigErrorMsg") }}</div>
+                </div>
+                <div class="d-flex">
+                    <form class="flex-grow-1 mr-4" id="procCfgForm" onSubmit="return false;">
+                        <div id="processGeneralInfo" name="processGeneralInfo">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group row">
+                                        <label for="processName" class="col-sm-4 col-form-label label-right">
+                                            <h5>{{ _("Process Name") }}</h5>
+                                        </label>
+                                        <div class="col-sm-8 process-name-group">
+                                            <div class="form-group d-flex align-items-center">
+                                                <label
+                                                    class="mr-2 mb-0"
+                                                    for="processName"
+                                                    title="{{ _('SystemNameHoverMsg') }}"
+                                                    ><span class="hint-text">System</span
+                                                    ><span style="color: yellow;">*</span></label
+                                                >
+                                                <input
+                                                    type="text"
+                                                    name="processName"
+                                                    class="form-control"
+                                                    style="flex: 1"
+                                                    id="processName"
+                                                    data-observer=""
+                                                />
+                                            </div>
+                                            <div class="form-group d-flex align-items-center">
+                                                <label class="mr-2 mb-0" for="processJapaneseName"
+                                                    >{{
+                                                        _('Japanese
+                                                        Name')
+                                                    }}</label
+                                                >
+                                                <input
+                                                    type="text"
+                                                    name="processJapaneseName"
+                                                    onchange="handleEmptySystemNameJP(this, procModalElements.procsMasterName)"
+                                                    class="form-control"
+                                                    style="flex: 1"
+                                                    id="processJapaneseName"
+                                                    data-observer=""
+                                                />
+                                            </div>
+                                            <div class="form-group d-flex align-items-center">
+                                                <label class="mr-2 mb-0" for="processLocalName"
+                                                    >{{ _('Local Name') }}</label
+                                                >
+                                                <input
+                                                    type="text"
+                                                    name="processLocalName"
+                                                    onchange="handleEmptySystemName(this, procModalElements.procsMasterName)"
+                                                    class="form-control"
+                                                    style="flex: 1"
+                                                    id="processLocalName"
+                                                    data-observer=""
+                                                />
+                                            </div>
 
-                                        <span
-                                            id="processName-error-msg"
-                                            class="error text-danger"
-                                            style="display: none; text-align: left; font-size: smaller;"
-                                            >{{ _("Already registered") }}</span
+                                            <span
+                                                id="processName-error-msg"
+                                                class="error text-danger"
+                                                style="display: none; text-align: left; font-size: smaller;"
+                                                >{{ _("Already registered") }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    {{ macros.input_hidden('processID') }}
+                                    {{ macros.input_hidden('processDsID') }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ macros.input_row('cfgProcComment',_("Comment"),'','text',4,8) }}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    {{ macros.single_selectbox('databaseName',_("Data Source Name"),{},1,4,8) }}
+                                </div>
+                            </div>
+                            <div class="row group-table-dropdown">
+                                <label for="tableName" class="col-sm-4 col-form-label label-right">
+                                    <h5>{{ _("Table Name") }}</h5>
+                                </label>
+                                <div class="col-sm-8">
+                                    <div class="d-flex">
+                                        <div id="dbTableList" style="width: calc((100% - 140px) / 2);">
+                                            <select
+                                                class="form-control select2-selection--single"
+                                                name="tableName"
+                                                id="tableName"
+                                            ></select>
+                                        </div>
+                                        <label
+                                            for="cfgOptionalFunction"
+                                            class="col-form-label label-right ml-3 mr-2"
+                                            style="min-width: 140px"
                                         >
+                                            <h5 title="{{ _('Process config optional function Hover') }}">
+                                                <span class="hint-text">{{ _("Optional function") }}</span>
+                                            </h5>
+                                        </label>
+                                        <div id="optionalFunctionList" style="width: calc((100% - 140px) / 2);">
+                                            <label
+                                                type="button"
+                                                class="btn mb-0 p-md-0 btn-warning-mark"
+                                                style="display: block"
+                                            >
+                                                <i
+                                                    id="optional-func-warning-mark"
+                                                    class="fas fa-triangle-exclamation position-absolute blink"
+                                                    style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                                ></i>
+                                            </label>
+                                            {{ macros.etl_optional_function_dropdown('cfgOptionalFunction', 'cfgOptionalFunction', true, py_etl_scripts) }}
+                                        </div>
                                     </div>
                                 </div>
-                                {{ macros.input_hidden('processID') }}
-                                {{ macros.input_hidden('processDsID') }}
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12 hide" id="fileInputPreview">
+                                    {{ macros.input_and_select_btn('fileName',_("File name"),'',_("ShowPreviewByFile"),'text',4,8, 'filePathProcessing(this)') }}
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                {{ macros.input_row('cfgProcComment',_("Comment"),'','text',4,8) }}
-                            </div>
+                    </form>
+                    <div class=" flex-grow-1">
+                        <div>
+                            <label
+                                class="hint-text"
+                                title="{{ _("Set conditions to narrow down the records to be imported. You can set up to three target columns to specify conditions for.") }}"
+                                >{{ _("Import Condition") }}</label
+                            >
                         </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                {{ macros.single_selectbox('databaseName',_("Data Source Name"),{},1,4,8) }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10" id="dbTableList">
-                                {{ macros.single_selectbox('tableName',_("Table Name"),{},1,4,8, multiple_cols=false) }}
-                            </div>
-                            <div class="col-sm-10 hide" id="fileInputPreview">
-                                {{ macros.input_and_select_btn('fileName',_("File name"),'',_("ShowPreviewByFile"),'text',4,8) }}
-                            </div>
-                            <div class="col-sm-2">
-                                <button name="showRecords" type="button" class="btn btn-secondary">
-                                    {{ _("Show") }}
+                        <div id="importFilterTable" style="width: 100%;" class="jexcel_container"></div>
+                        <table class="d-none table table-borderless" id="tblImportCondition">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">No</th>
+                                    <th scope="col" class="th-lg">{{ _("Column Raw Name") }}</th>
+                                    <th scope="col" class="th-lg">{{ _("Value") }}</th>
+                                    <th scope="col" class="th-lg">
+                                        <label
+                                            class="mb-0"
+                                            style="text-decoration: underline;"
+                                            title="{{ _("Search Options") }}"
+                                            >{{ _("Filter Type") }}</label
+                                        >
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row" class="text-center">1</th>
+                                    <td>
+                                        <div class="div-original-name">
+                                            <select
+                                                name="filterOriginalName"
+                                                id="filterOriginalName"
+                                                class="form-control"
+                                            >
+                                                {#                                                <option value="">---</option>#}
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <input
+                                                name="filterValue"
+                                                id="filterValue"
+                                                class="form-control"
+                                                type="text"
+                                            />
+                                            <select
+                                                name="filterValueSelect2"
+                                                id="filterValueSelect2"
+                                                aria-hidden="true"
+                                                class="form-control convert-h2z select2-hidden-accessible"
+                                            ></select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="">
+                                            <select
+                                                name="filterConditionFormula"
+                                                id="filterConditionFormulaSelect"
+                                                class="form-control"
+                                            >
+                                                <option value="">---</option>
+                                                <option value="AND_SEARCH">{{ _("AND search") }}</option>
+                                                <option value="OR_SEARCH">{{ _("OR search") }}</option>
+                                                <option value="CONTAINS">{{ _("Contains") }}</option>
+                                                <option value="MATCHES" selected>{{ _("Exact match") }}</option>
+                                                <option value="STARTSWITH">{{ _("Starts With") }}<</option>
+                                                <option value="ENDSWITH">{{ _("Ends With") }}</option>
+                                                <option value="REGEX">{{ _("Regular expressions") }}</option>
+                                            </select>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="row" style="padding-top: 5px;">
+                            <div class="col-2">
+                                <button class="btn btn-success icon-btn" name="addImportCondition" type="button">
+                                    <i class="fas fa-plus-circle"></i>
                                 </button>
+                            </div>
+                            <div class="col-6"></div>
+                            <div class="col-4">
+                                <div class="d-flex justify-content-end group-preview-btn">
+                                    <div class="warning-btn hide">
+                                        <label
+                                            type="button"
+                                            class="btn mb-0 p-md-0"
+                                            onclick="showConfigProcessWarning()"
+                                            style="margin: 3px 5px 0 0"
+                                        >
+                                            <i class="fas fa-exclamation-triangle yellow status-i"></i>
+                                        </label>
+                                    </div>
+                                    <button name="showRecords" type="button" class="btn btn-secondary">
+                                        {{ _("Show") }}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
 
                 <div class="row mx-2 d-flex justify-content-between align-items-center mt-2 position-relative">
                     <div class="d-flex justify-content-between align-items-center">
@@ -188,7 +325,6 @@
                                 class="custom-control-input"
                                 name="isShowFileName"
                                 id="isShowFileName"
-                                onchange="handleShowFileNameColumn(this)"
                             />
                             <label
                                 class="custom-control-label hint-text"
@@ -203,7 +339,7 @@
                                 class="custom-control-input"
                                 name="toggleProcDatetimeFormat"
                                 id="toggleProcDatetimeFormat"
-                                onchange="handleProcDatetimeFormatCheckbox()"
+                                onchange="handleProcDatetimeFormatCheckbox(this)"
                                 data-observer=""
                             />
                             <label
@@ -220,7 +356,7 @@
                                 id="procDatetimeFormat"
                                 aria-label="procDatetimeFormat"
                                 data-observer=""
-                                onchange="handleProcDatetimeFormatInput()"
+                                onchange="handleProcDatetimeFormatInput(this)"
                             />
                         </div>
                     </div>
@@ -266,52 +402,8 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Process Cfg Spreadmode -->
-                <div class="editmode-container mt-3 hide">
-                    <div id="prcSM" name="jexcel"></div>
-                </div>
                 <!-- new GUI process config-->
-                <div class="mt-2" id="procSettingContent">
-                    {{ macros.alert_message("alertMsgProcessColumnsTable", True) }}
-                    <div class="table-responsive proc-config-content" style="max-height: calc(100vh - 370px);">
-                        <table
-                            class="table table-hover table-bordered table-fixed table-hover-light"
-                            name="processColumnsTable"
-                            id="processColumnsTable"
-                        >
-                            <thead>
-                                <tr>
-                                    <th class="column-order">*</th>
-                                    <th class="column-raw-name">{{ _('Column Raw Name') }}</th>
-                                    <th class="data-type">{{ _('Data Type') }}</th>
-                                    <th class="system" title="{{ _('SystemNameHoverMsg') }}">
-                                        <span class="hint-text">System</span>
-                                        <span style="color: yellow;">*</span>
-                                    </th>
-                                    <th class="japanese-name">{{ _('Japanese Name') }}</th>
-                                    <th class="local-name">{{ _('Local Name') }}</th>
-                                    <th class="column-unit">{{ _('Unit') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <table
-                            class="table table-hover table-bordered table-fixed table-hover-light"
-                            name="processColumnsTableSampleData"
-                            id="processColumnsTableSampleData"
-                        >
-                            <thead>
-                                <tr>
-                                    <th class="sample-data-column position-relative" colspan="10">
-                                        {{ _('Sample Data') }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div>
+                <div id="processColumnsTable" class="mt-2"></div>
             </div>
             <div class="modal-footer pb-3 pt-0" style="border-top:none;">
                 <label id="validateCoefErrMsgNoZero" class="error-msg hide-msg">{{ _("Zero is not allowed") }}</label>
@@ -338,6 +430,19 @@
                     >{{ _("Show name is duplicated") }}</label
                 >
                 <div class="form-group" style="display: flex;">
+                    <!-- Initialize button S255#02 -->
+                    <button
+                        name="initializeProcess"
+                        id="initializeProcess"
+                        type="button"
+                        class="btn btn-primary mr-2"
+                        data-itemId=""
+                        onclick=""
+                        title=""
+                        data-observer=""
+                    >
+                        {{ _("Initialize process") }}
+                    </button>
                     <button
                         name="reRegisterBtn"
                         id="reRegisterBtn"
@@ -373,8 +478,8 @@
             <!-- Function Column Area -->
             <div class="modal-body" name="modal-body-input">
                 <div id="functionSettingWithCollapse">
-                    <div class="row mx-1">
-                        <div class="collapse-box header-left">
+                    <div class="row mx-1 collapse-wrapped-row">
+                        <div class="collapse-box header-left my-0">
                             <a
                                 role="button"
                                 data-toggle="collapse"
@@ -385,12 +490,7 @@
                             </a>
                         </div>
                         <h5 class="modal-title" id="functionSettingLabel">{{ _("Function") }}</h5>
-                        <i
-                            id="functionSettingChangeMark"
-                            class="fa fa-circle fa-sm d-none"
-                            data-observer="false"
-                            data-mutation="false"
-                        ></i>
+                        <i id="functionSettingChangeMark" class="fa fa-circle fa-sm d-none"></i>
                     </div>
                     <div id="collapseFunctionConfig" class="panel-collapse collapse" role="tabpanel">
                         <div class="row mx-2 d-flex justify-content-end functionSampleDataUtilities">
@@ -438,7 +538,6 @@
                                             name="backCol"
                                             tabindex="-1"
                                             aria-hidden="true"
-                                            data-observer=""
                                         ></select>
                                     </div>
                                 </div>
@@ -467,12 +566,7 @@
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">
                                     <label for="functionColumnSystemName" class="function-config-label"> System </label>
                                     <div class="function-config-value">
-                                        <input
-                                            type="text"
-                                            name="functionColumnSystemName"
-                                            class="form-control"
-                                            data-observer=""
-                                        />
+                                        <input type="text" name="functionColumnSystemName" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnJapaneseName">
@@ -480,12 +574,7 @@
                                         {{ _("Japanese Name") }}
                                     </label>
                                     <div class="function-config-value">
-                                        <input
-                                            type="text"
-                                            name="functionColumnJapaneseName"
-                                            class="form-control"
-                                            data-observer=""
-                                        />
+                                        <input type="text" name="functionColumnJapaneseName" class="form-control" />
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnLocalName">
@@ -493,12 +582,7 @@
                                         {{ _("Local Name") }}
                                     </label>
                                     <div class="function-config-value">
-                                        <input
-                                            type="text"
-                                            name="functionColumnLocalName"
-                                            class="form-control"
-                                            data-observer=""
-                                        />
+                                        <input type="text" name="functionColumnLocalName" class="form-control" />
                                     </div>
                                 </div>
                             </div>
@@ -514,7 +598,6 @@
                                                     onchange="changeFunctionColumnName(this, 2)"
                                                     tabindex="-1"
                                                     aria-hidden="true"
-                                                    data-observer=""
                                                 ></select>
                                             </div>
                                         </div>
@@ -527,7 +610,6 @@
                                                     onchange="changeFunctionColumnName(this, 3)"
                                                     tabindex="-1"
                                                     aria-hidden="true"
-                                                    data-observer=""
                                                 ></select>
                                             </div>
                                         </div>
@@ -539,7 +621,6 @@
                                                     name="functionCoeANS"
                                                     class="form-control already-convert-hankaku"
                                                     required=""
-                                                    data-observer=""
                                                 />
                                             </div>
                                         </div>
@@ -551,7 +632,6 @@
                                                     name="functionCoeBK"
                                                     class="form-control already-convert-hankaku"
                                                     required=""
-                                                    data-observer=""
                                                 />
                                             </div>
                                         </div>
@@ -563,7 +643,6 @@
                                                     name="functionCoeCT"
                                                     class="form-control already-convert-hankaku"
                                                     required=""
-                                                    data-observer=""
                                                 />
                                             </div>
                                         </div>
@@ -588,7 +667,6 @@
                                                     name="note"
                                                     class="form-control already-convert-hankaku"
                                                     cols="125"
-                                                    data-observer=""
                                                 >
                                                 </textarea>
                                             </label>
@@ -711,7 +789,7 @@
                             <i class="fa fa-download"></i>
                         </button>
                         <button
-                            name="copyPage"
+                            name="copyFunctionConfig"
                             type="button"
                             class="btn p-0 ml-1 top-index"
                             data-toggle="tooltip"
@@ -722,7 +800,7 @@
                             <i class="fa fa-copy"></i>
                         </button>
                         <button
-                            name="pastePage"
+                            name="pasteFunctionConfig"
                             type="button"
                             class="btn p-0 ml-1 top-index"
                             data-toggle="tooltip"
@@ -743,60 +821,8 @@
                         </button>
                     </div>
                 </div>
-                <div class="my-4" id="functionSetting">
-                    <div class="proc-config-content" id="functionTableDiv">
-                        <table class="table table-hover table-bordered table-hover-light" id="functionTable">
-                            <thead>
-                                <tr>
-                                    <th class="column-order-header" scope="col" data-column-name="index">*</th>
-                                    <th class="column-function-name-header" scope="col" data-column-name="functionName">
-                                        {{ _("Function") }}
-                                    </th>
-                                    <th class="column-system-name-header" scope="col" data-column-name="systemName">
-                                        <span class="hint-text">System</span>
-                                        <span style="color: yellow;">*</span>
-                                    </th>
-                                    <th class="column-japanese-name-header" scope="col" data-column-name="japaneseName">
-                                        {{ _("Japanese Name") }}
-                                    </th>
-                                    <th class="column-local-name-header" scope="col" data-column-name="localName">
-                                        {{ _("Local Name") }}
-                                    </th>
-                                    <th class="column-var-x-header" scope="col" data-column-name="varXName">
-                                        {{ _("X/me") }}
-                                    </th>
-                                    <th class="column-var-y-header" scope="col" data-column-name="varYName">
-                                        {{ _("Y") }}
-                                    </th>
-                                    <th class="column-coe-ans-header" scope="col" data-column-name="coeANS">
-                                        {{ _("a/n/s") }}
-                                    </th>
-                                    <th class="column-coe-bk-header" scope="col" data-column-name="coeBK">
-                                        {{ _("b/k") }}
-                                    </th>
-                                    <th class="column-coe-ct-header" scope="col" data-column-name="coeCT">
-                                        {{ _("c/t") }}
-                                    </th>
-                                    <th class="column-note-header" scope="col" data-column-name="note">
-                                        {{ _("Note") }}
-                                    </th>
-                                    <th class="column-output-header" scope="col" data-column-name="output">
-                                        {{ _("Output") }}
-                                    </th>
-                                    <th
-                                        class="column-sample-data-header position-relative"
-                                        scope="col"
-                                        colspan="5"
-                                        data-column-name="sampleDatas"
-                                    >
-                                        {{ _("Sample Data") }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody data-mutation="false" data-observer="false"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- new GUI function table -->
+                <div id="processColumnsTable_functionTable" class="mt-2"></div>
             </div>
         </div>
     </div>
@@ -1136,6 +1162,9 @@
                     <div id="parentProcessGeneralInfo" name="processGeneralInfo">
                         <div class="row">
                             <div class="col-sm-12">{{ macros.alert_message("alertProcessNameErrorMsg") }}</div>
+                            <div class="col-sm-12">
+                                {{ macros.alert_message("alertProcessConfigMergeModeErrorMsg") }}
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-sm-10">
@@ -1218,7 +1247,48 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-10" id="dbTableList">
-                                {{ macros.single_selectbox('childTableName',_("Child Process Table Name"),{},1,4,8, multiple_cols=false) }}
+                                <div class="mb-2 row">
+                                    <label for="childTableName" class="col-sm-4 col-form-label label-right">
+                                        <h5>{{ _("Child Process Table Name") }}</h5>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="d-flex">
+                                            <div id="dbTableList" style="width: calc((100% - 140px) / 2);">
+                                                <select
+                                                    class="form-control select2-selection--single"
+                                                    name="childTableName"
+                                                    id="childTableName"
+                                                ></select>
+                                            </div>
+                                            <label
+                                                for="cfgOptionalFunction"
+                                                class="col-form-label label-right ml-3 mr-2"
+                                                style="min-width: 140px"
+                                            >
+                                                <h5 title="{{ _('Process config optional function Hover') }}">
+                                                    <span class="hint-text">{{ _("Optional function") }}</span>
+                                                </h5>
+                                            </label>
+                                            <div
+                                                id="childOptionalFunctionList"
+                                                style="width: calc((100% - 140px) / 2);"
+                                            >
+                                                <label
+                                                    type="button"
+                                                    class="btn mb-0 p-md-0 btn-warning-mark"
+                                                    style="display: block"
+                                                >
+                                                    <i
+                                                        id="optional-func-warning-mark"
+                                                        class="fas fa-triangle-exclamation position-absolute blink"
+                                                        style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                                    ></i>
+                                                </label>
+                                                {{ macros.etl_optional_function_dropdown('cfgOptionalFunctionChild', 'cfgOptionalFunctionChild', true, py_etl_scripts) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

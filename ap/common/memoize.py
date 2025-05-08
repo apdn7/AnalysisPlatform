@@ -123,7 +123,7 @@ class CustomCache:
         'statistics': 0,  # False
         'tag_index': 0,  # False
         'eviction_policy': 'least-recently-stored',
-        'size_limit': 2**30 * 4,  # 4gb
+        'size_limit': 2**30,  # 1gb
         'cull_limit': 10,
         'sqlite_auto_vacuum': 1,  # FULL
         'sqlite_cache_size': 2**13,  # 8,192 pages
@@ -221,7 +221,7 @@ class CustomCache:
 
             # cache missed, recalculate and add to cache
             if result is None:
-                logger.info(f'Cache miss: {fn.__name__}')
+                logger.debug(f'Cache miss: {fn.__name__}')
 
                 result = fn(*args, **kwargs)
                 saved = cls.set(key, result, timeout, save_file=config.save_file)
@@ -230,7 +230,7 @@ class CustomCache:
                 else:
                     logger.error(f'Cannot save cache for function {fn.__name__}')
             else:
-                logger.info(f'Cache hit: {fn.__name__}')
+                logger.debug(f'Cache hit: {fn.__name__}')
 
             # reset cache key to infinity
             if config.use_expired_cache:

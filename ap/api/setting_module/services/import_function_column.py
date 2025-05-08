@@ -92,10 +92,10 @@ def calculate_data_for_main_serial_function_column(
         cfg_col_y: Optional[CfgProcessColumn] = _get_column_by_id(cfg_func_col.var_y) if cfg_func_col.var_y else None
 
         column_x, x_dtype = (
-            (_get_column_name(cfg_col_x), cfg_col_x.predict_type) if cfg_col_x else (None, None)
+            (_get_column_name(cfg_col_x), cfg_col_x.raw_data_type) if cfg_col_x else (None, None)
         )  # type: str
         column_y, y_dtype = (
-            (_get_column_name(cfg_col_y), cfg_col_y.predict_type) if cfg_col_y else (None, None)
+            (_get_column_name(cfg_col_y), cfg_col_y.raw_data_type) if cfg_col_y else (None, None)
         )  # type: Optional[str]
 
         df = _add_missing_column(df, column_x)
@@ -407,7 +407,7 @@ def update_transaction_table_job(
     :param Optional[CfgProcessColumn] old_main_serial_cfg_process_column: old cfg process column as ``main::Serial``
     :return: void
     """
-    process = CfgProcess.get_proc_by_id(process_id)
+    process = CfgProcess.get_proc_by_id(process_id).clone()
     gen = update_transaction_table(process, old_main_serial_cfg_process_column)
     send_processing_info(
         gen,

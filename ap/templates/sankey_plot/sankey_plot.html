@@ -48,105 +48,119 @@
             {{ macros.on_demand_filter() }}
             {{ macros.nominal_scale_setting() }}
             {{ macros.jump_button() }}
+            {{ macros.input_checkbox('strengthenSelection', '', '', _("Strengthen selection"), 'hint-text', _("SkD hover strengthen selection"), '', 'onChangeStrengthenSelection(this)') }}
+            <div class="ml-4 skd-chart-title" style="padding-top: 4px"><span id="legend-title"></span></div>
         </div>
         <div class="card chart-wrapper graph-navi">
             <div class="row dark-bg main-chart m-0">
-                <div class="col-4 pr-0">
+                <div class="col-4 pr-0 bar-container-col">
                     <div>
                         <div id="barContainer" class="graph-container"></div>
                     </div>
                 </div>
-                <div class="col-8 pl-0">
+                <div class="col-8 pl-0 graph-container-col">
                     <div>
                         <div id="graphContainer" class="graph-container"></div>
                     </div>
                 </div>
             </div>
-            <div class="row dark-bg m-0 mt-3 d-flex">
-                <div class="col-4 skd-scp p-0">
-                    <div class="skd-scp-content" id="actual-fitted-scp"></div>
-                </div>
-                <div class="col-4 skd-scp p-0">
-                    <div class="skd-scp-content" id="index-residuals-scp"></div>
-                </div>
-                <div class="col-4 skd-table p-0 mt-3">
-                    <table id="regression-table" class="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <td>{{ _('Target variable') }}</td>
-                                <td id="target-var"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('MAEInfo') }}" class="hint-text blue-decoration"
-                                        >{{ _('Mean absolute error') }} (MAE)</span
-                                    >
-                                </td>
-                                <td id="mae"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('R2Info') }}" class="hint-text blue-decoration"
-                                        >{{ _('Adjusted R2') }}</span
-                                    >
-                                </td>
-                                <td id="adjusted_r2"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table id="classif-table" class="table table-bordered" style="display: none;">
-                        <tbody>
-                            <tr>
-                                <td>{{ _('Target variable') }}</td>
-                                <td id="target_var"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('Accuracy description') }}" class="hint-text blue-decoration"
-                                        >{{ _('Accuracy') }}</span
-                                    >
-                                </td>
-                                <td id="accuracy"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('Precision description') }}" class="hint-text blue-decoration"
-                                        >{{ _('Precision') }}</span
-                                    >
-                                </td>
-                                <td id="precision"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('Recall description') }}" class="hint-text blue-decoration"
-                                        >{{ _('Recall') }}</span
-                                    >
-                                </td>
-                                <td id="recall"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('ROC-AUC description') }}" class="hint-text blue-decoration"
-                                        >{{ _('ROC-AUC') }}</span
-                                    >
-                                </td>
-                                <td id="roc_auc"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <span title="{{ _('PR-AUC description') }}" class="hint-text blue-decoration"
-                                        >{{ _('PR-AUC') }}</span
-                                    >
-                                </td>
-                                <td id="pr_auc"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            <!-- A. For skd-scp-content content - start  -->
+            <!-- A.1 For Summary content  -->
+            <div class="tab-pane sankey-scp-tab-content">
+                <div class="dark-bg mt-1 py-2 px-0" id="skd-summary"></div>
+            </div>
+
+            <!-- A.2 For Metrics content  -->
+            <div class="tab-pane sankey-scp-tab-content">
+                <div class="row dark-bg m-0 mt-1 d-flex">
+                    <div class="col-4 skd-scp p-0">
+                        <div class="skd-scp-content" id="actual-fitted-scp"></div>
+                    </div>
+                    <div class="col-4 skd-scp p-0">
+                        <div class="skd-scp-content" id="index-residuals-scp"></div>
+                    </div>
+                    <div class="col-4 skd-table p-0 mt-3">
+                        <table id="regression-table" class="table table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td>{{ _('Target variable') }}</td>
+                                    <td id="target-var"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('MAEInfo') }}" class="hint-text blue-decoration"
+                                            >{{ _('Mean absolute error') }} (MAE)</span
+                                        >
+                                    </td>
+                                    <td id="mae"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('R2Info') }}" class="hint-text blue-decoration"
+                                            >{{ _('Adjusted R2') }}</span
+                                        >
+                                    </td>
+                                    <td id="adjusted_r2"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table id="classif-table" class="table table-bordered" style="display: none;">
+                            <tbody>
+                                <tr>
+                                    <td>{{ _('Target variable') }}</td>
+                                    <td id="target_var"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('Accuracy description') }}" class="hint-text blue-decoration"
+                                            >{{ _('Accuracy') }}</span
+                                        >
+                                    </td>
+                                    <td id="accuracy"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('Precision description') }}" class="hint-text blue-decoration"
+                                            >{{ _('Precision') }}</span
+                                        >
+                                    </td>
+                                    <td id="precision"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('Recall description') }}" class="hint-text blue-decoration"
+                                            >{{ _('Recall') }}</span
+                                        >
+                                    </td>
+                                    <td id="recall"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('ROC-AUC description') }}" class="hint-text blue-decoration"
+                                            >{{ _('ROC-AUC') }}</span
+                                        >
+                                    </td>
+                                    <td id="roc_auc"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span title="{{ _('PR-AUC description') }}" class="hint-text blue-decoration"
+                                            >{{ _('PR-AUC') }}</span
+                                        >
+                                    </td>
+                                    <td id="pr_auc"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="stContentTab">
-            <div class="setting-inform-content"></div>
+
+            <!-- for skd-scp-content content - end  -->
+            <div id="stContentTab">
+                <div class="setting-inform-content"></div>
+            </div>
         </div>
     </div>
     {{ macros.data_point_info() }}

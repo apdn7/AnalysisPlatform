@@ -1,14 +1,19 @@
 import io
+import logging
 import os.path
 import shutil
+from pathlib import Path
 from time import sleep
-from zipfile import ZipFile
+from typing import Optional
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from flask import current_app
 
 from ap import scheduler
 from ap.common.common_utils import (
     get_config_db_path,
+    get_data_path,
+    get_files,
     get_instance_path,
     get_preview_data_path,
     get_scheduler_db_path,
@@ -16,13 +21,12 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     APP_DB_FILE,
-    CONFIG_DB,
-    PREVIEW_DATA_FOLDER,
-    SCHEDULER_DB,
+    PROCESS_QUEUE_FILE_NAME,
 )
 from ap.common.jobs.jobs import RunningJobStatus
 from ap.common.jobs.utils import kill_all_jobs
 from ap.common.multiprocess_sharing import EventQueue, RunningJobs
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.import_export_config_n_data import (
     download_zip_file,
 )
@@ -43,42 +47,90 @@ from ap.script.migrate_process_file_name_column import (
     migrate_cfg_process_column_add_parent_id,
     migrate_cfg_process_column_change_all_generated_datetime_column_type,
 )
+from ap.setting_module.models import CfgProcess
+from ap.trace_data.transaction_model import TransactionData
 
-INSTANCE_FILE_NAME = 'instance.zip'
+PREVIEW_DATA_FILE_NAME = 'data_preview.zip'
+
+logger = logging.getLogger(__name__)
 
 
-def zip_instance_to_byte() -> io.BytesIO:
+def zip_preview_folder_to_byte() -> Optional[io.BytesIO]:
     """
     returns: zip archive
     """
-    data_folder = get_instance_path()
-    file_name_valid = {CONFIG_DB, SCHEDULER_DB}
-    if not os.path.exists(data_folder):
+    preview_data_path = Path(get_preview_data_path())
+    if not preview_data_path.is_dir():
         return None
 
     archive = io.BytesIO()
-    with ZipFile(archive, 'w') as zip_archive:
-        for root, dirs, files in os.walk(data_folder):
-            if PREVIEW_DATA_FOLDER in dirs:
-                preview_data_path = os.path.join(root, PREVIEW_DATA_FOLDER)
-                for dir_root, dir_dirs, dir_files in os.walk(preview_data_path):
-                    for file in dir_files:
-                        file_path = os.path.join(dir_root, file)
-                        zip_archive.write(file_path, os.path.relpath(file_path, data_folder))
-
-            for file_name in files:
-                if file_name in file_name_valid:
-                    file_path = os.path.join(root, file_name)
-                    zip_archive.write(file_path, os.path.relpath(file_path, data_folder))
+    with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=9) as zip_archive:
+        for file_path in get_files(preview_data_path.__str__(), extension=['json']):
+            _file_path = Path(file_path)
+            with zip_archive.open(os.path.join(_file_path.parent.name, _file_path.name), 'w') as file, _file_path.open(
+                'rb',
+            ) as f:
+                file.write(f.read())
 
     return archive
 
 
-def pause_job_running(remove_scheduler_jobs: bool = True):
-    if scheduler.running:
-        scheduler.pause()
-    if remove_scheduler_jobs:
-        scheduler.remove_all_jobs()
+def export_data():
+    export_dbs = (get_config_db_path(), get_scheduler_db_path())
+    table_data_s = []
+    file_names = []
+    for db_path in export_dbs:
+        _db_path = Path(db_path.__str__())
+        with _db_path.open('rb') as f:
+            table_data_s.append(f.read())
+            file_names.append(_db_path.name)
+
+    # add preview data into zip file
+    zip_preview_byte = zip_preview_folder_to_byte()
+    if zip_preview_byte is not None:
+        table_data_s.append(zip_preview_byte)
+        file_names.append(PREVIEW_DATA_FILE_NAME)
+
+    return download_zip_file('export_file', table_data_s, file_names)
+
+
+def import_config_and_master(file_path):
+    input_zip = ZipFile(file_path)
+
+    file_names = sorted(input_zip.namelist())
+    for name in file_names:
+        if name in [PREVIEW_DATA_FILE_NAME]:
+            with ZipFile(input_zip.open(name)) as file_path:
+                file_path.extractall(get_preview_data_path())
+            continue
+
+        input_zip.extract(name, get_instance_path())
+
+
+def truncate_datatables():
+    trans = [TransactionData(proc.id) for proc in CfgProcess.get_all_ids()]
+    for i, tran_data in enumerate(trans):
+        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id), True) as db_instance:
+            transaction_tbls = [
+                tran_data.table_name,
+                tran_data.data_count_table_name,
+                tran_data.import_history_table_name,
+            ]
+            for tbl_name in transaction_tbls:
+                sql = f'DELETE FROM {tbl_name};'
+                db_instance.run_sql(sql)
+
+    return True
+
+
+def delete_t_process_tables():
+    trans = [TransactionData(proc.id) for proc in CfgProcess.get_all_ids()]
+    for i, tran_data in enumerate(trans):
+        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id), True) as db_instance:
+            sql = f'DELETE FROM {tran_data.table_name};'
+            db_instance.run_sql(sql)
+
+    return True
 
 
 def wait_done_jobs():
@@ -94,6 +146,51 @@ def wait_done_jobs():
         if not has_running_jobs:
             break
         sleep(1)
+
+
+def clear_db_n_data(is_drop_t_process_tables=False):
+    truncate_datatables()
+    if is_drop_t_process_tables:
+        delete_t_process_tables()
+
+
+def pause_job_running(remove_scheduler_jobs: bool = True):
+    if scheduler.running:
+        scheduler.pause()
+    if remove_scheduler_jobs:
+        scheduler.remove_all_jobs()
+
+
+def delete_file_and_folder_by_path(path, ignore_folder=None):
+    is_data_path = path == get_data_path()
+    for root, dirs, files in os.walk(path):
+        if ignore_folder and ignore_folder in root:
+            continue
+
+        for file in files:
+            if is_data_path and PROCESS_QUEUE_FILE_NAME in file:
+                # do not remove process_queue.pkl file, it necessary for multiprocessing management
+                continue
+
+            file_path = os.path.join(root, file)
+            try:
+                os.remove(file_path)
+            except OSError as e:
+                logger.error(f'File could not be deleted. {e}')
+
+        for dir in dirs:
+            dir_path = os.path.join(root, dir)
+            if os.path.basename(dir_path) != ignore_folder:
+                try:
+                    shutil.rmtree(dir_path)
+                except OSError as e:
+                    logger.error(f'Folder data could not be deleted. {e}')
+    return {}, 200
+
+
+def delete_folder_data(ignore_folder='preview'):
+    data_path = get_data_path()
+    delete_file_and_folder_by_path(data_path, ignore_folder=ignore_folder)
 
 
 def clear_event_queue():
@@ -149,25 +246,6 @@ def cleanup_backup_data():
                 os.remove(backup_path)
             else:
                 shutil.rmtree(backup_path)
-
-
-def export_data():
-    table_data_s = []
-    file_names = []
-
-    # zip instance db to byte
-    zip_preview_byte = zip_instance_to_byte()
-    if zip_preview_byte is not None:
-        table_data_s.append(zip_preview_byte)
-        file_names.append(INSTANCE_FILE_NAME)
-
-    return download_zip_file('export_file', table_data_s, file_names)
-
-
-def import_config(file_path):
-    input_zip = ZipFile(file_path)
-    with ZipFile(input_zip.open(INSTANCE_FILE_NAME)) as file_path:
-        file_path.extractall(get_instance_path())
 
 
 def run_migrations():

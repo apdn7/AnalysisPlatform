@@ -17,11 +17,11 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
      * @return {string} - string HTML of dropdown
      */
     static generateHtml(idx = 0, defaultValue = this.DataTypeDefaultObject, getKey, disableDropDownToggle = false) {
-        const text = this.translateDatatypeName(defaultValue, getKey);
-        const setClassForSelectedItem = (itemValue) => (defaultValue.raw_data_type === itemValue ? 'active' : '');
-        const attrKey = getKey
-            ? `${getKey}="true" column_type=${this.DataGroupType[mappingDataGroupType[getKey]]} data-attr-key=${getKey}`
-            : '';
+        const text = defaultValue.text;
+        const attrKey =
+            getKey != null && getKey !== ''
+                ? `${getKey}="true" column_type=${this.DataGroupType[mappingDataGroupType[getKey]]} data-attr-key=${getKey}`
+                : '';
 
         return `
 <div
@@ -39,7 +39,6 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
             value="${defaultValue.value}"
             is-registered-col="${defaultValue.isRegisteredCol}"
             is_get_date="${defaultValue.is_get_date ?? ''}"
-            data-attr-key="${getKey}"
             data-observer="${text}"
             ${attrKey}
             ${defaultValue.checked}
@@ -246,6 +245,7 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
                     >${procModali18n.i18nEuIntSep}</li>
                 </ul>
             </div>
+            <!--
             <div class="data-type-selection-box">
                 <span class="data-type-selection-title">${$(procModali18n.i18nMultiset).text()}</span>
                 <ul>
@@ -253,6 +253,7 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
                     <li class="copyToFiltered copy-item">${$(procModali18n.i18nCopyToFiltered).text()}</li>
                 </ul>
             </div>
+            -->
         </div>
     </div>
 </div>

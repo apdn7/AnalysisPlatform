@@ -42,6 +42,11 @@ call :stopLoadingApp
 start "" start_ap.exe %port%
 echo.
 echo.> %stage_status%
+IF EXIST "%stage_start_time%" (
+    DEL "%stage_start_time%"
+)
+call :saveStartTimeOfStage MAIN
+
 
 : Direct Startup Mode
 if %startup_mode% == 8 (
@@ -57,6 +62,15 @@ if %startup_mode% == 8 (
 )
 
 : _____________________________________________________________________________
+call :checkDiskSpace
+echo:
+if %valid_free_space_check%==False (
+    echo Free disk space is insufficient. Terminating startup process...
+    echo 100> %stage_status%
+    timeout 5
+    exit /b
+)
+
 : Check Network & Proxy
 call :checkPort %port%
 if %valid_port% == 0 (
@@ -200,6 +214,7 @@ powershell if (Test-Path -Path $env:sqlite_dll) { Copy-Item $env:sqlite_dll -Des
 :: copy complied sqlite3.dll to python embedded Scripts folder
 powershell if (Test-Path -Path $env:sqlite_dll) { Copy-Item $env:sqlite_dll -Destination $env:path_python }
 
+call :saveStartTimeOfStage PIP_INSTALL
 CALL %env_path%\Scripts\activate & GOTO INSTALL_PYTHON_AND_R_PACKAGES
 : -----------------------------------------------------------------------------
 
@@ -333,7 +348,8 @@ exit /b
 
 :PYTHON_EMBEDDED
 echo Download python
-powershell -ExecutionPolicy Bypass -Command wget %python39_url% -O %path_python_zip%
+for /f "delims=" %%a in ('powershell get-date -format "{yyyy/MM/dd HH:mm:ss.fff}"') do @set "python_embedded_start_time=%%a"
+powershell -ExecutionPolicy Bypass -Command "echo "$pid-PYTHON_EMBEDDED-'%python_embedded_start_time%'  >> %stage_start_time% ; wget %python39_url% -O %path_python_zip%"
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
@@ -352,8 +368,9 @@ echo:
 GOTO CHECK_EXIST
 
 :PIP_DOWNLOAD
+for /f "delims=" %%a in ('powershell get-date -format "{yyyy/MM/dd HH:mm:ss.fff}"') do @set "pip_download_start_time=%%a"
 echo Download pip
-powershell -ExecutionPolicy Bypass -Command wget %get_pip_url% -O %path_getpip%
+powershell -ExecutionPolicy Bypass -Command "echo "$pid-PIP_DOWNLOAD-'%pip_download_start_time%'  >> %stage_start_time% ; wget %get_pip_url% -O %path_getpip%"
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
@@ -371,11 +388,12 @@ GOTO CHECK_EXIST
 
 :ORACLE_INSTANCE
 echo Download oracle instance
-powershell -ExecutionPolicy Bypass -Command wget %oracle_instance_url% -O %path_oracle_zip%
+for /f "delims=" %%a in ('powershell get-date -format "{yyyy/MM/dd HH:mm:ss.fff}"') do @set "oracle_instance_start_time=%%a"
+powershell -ExecutionPolicy Bypass -Command "echo "$pid-ORACLE_INSTANCE-'%oracle_instance_start_time%'  >> %stage_start_time% ; wget %oracle_instance_url% -O %path_oracle_zip%"
 if %errorlevel% == 35 (
   REM In case CA cert in local machine is expired or disabled --- download CA cert to authenticate
   if exist %ca_cert% (echo Detect ca_cert) else call :CA_CERT
-  powershell -ExecutionPolicy Bypass -Command wget -Certificate %ca_cert% -Uri %oracle_instance_url% -O %path_oracle_zip%
+  powershell -ExecutionPolicy Bypass -Command "echo "$pid-ORACLE_INSTANCE-'%oracle_instance_start_time%'  >> %stage_start_time% ; wget -Certificate %ca_cert% -Uri %oracle_instance_url% -O %path_oracle_zip%"
 )
 if errorlevel 1 (
   echo %esc%[41m Error on Wget Check network connection or use latest Win10 ^>1803 %esc%[0m
@@ -441,7 +459,10 @@ GOTO CHECK_EXIST
   set lib_path=%path_oracle%\instantclient_21_3;%env_path%\Scripts;%env_path%\Lib;%SystemRoot%\System32;
   :: Startup Error log file
   set stage_status=stage_status.log
+  set stage_start_time=stage_start_time.log
   set is_venv_activated=0
+  :: Disk space required to run AP
+  set disk_space_pct_required=10
 
   : links
   set ca_cert_url="https://curl.se/ca/cacert-2023-08-22.pem"
@@ -621,6 +642,7 @@ setlocal
   echo   - flask_debug: %flask_debug% >> %filename%
   echo   - update_R: %update_R% >> %filename%
   echo   - enable_file_log: %enable_file_log% >> %filename%
+  echo   - enable_ga_tracking: %enable_ga_tracking% >> %filename%
 
 endlocal
 exit /b
@@ -659,3 +681,48 @@ set startuptimelabel=%hour%%min%%sec%
 rem Write startup time into log file
 echo %logMsg%:  %hh:~1%%time:~2,1%%mm:~1%%time:~2,1%%ss:~1%%time:~8,1%%cc:~1% >> log/%logFileName%_%startupdatelabel%_%startuptimelabel%.log
 endlocal
+exit /b
+:end
+
+:checkDiskSpace
+@echo off
+setlocal EnableDelayedExpansion
+:: Get the drive letter of the current directory
+set "CurrentDrive=%CD:~0,2%"
+:: Get the free and total disk space for the current drive
+echo === Checking free space of the current drive ===
+for /f "tokens=2 delims==" %%F in ('wmic logicaldisk where "DeviceID='%CurrentDrive%'" get FreeSpace /value 2^>nul') do set "FreeSpace=%Blank%%%F"
+for /f "tokens=2 delims==" %%T in ('wmic logicaldisk where "DeviceID='%CurrentDrive%'" get Size /value 2^>nul') do set "TotalSpace=%Blank%%%T"
+
+:: Calculate the percentage of free space
+for /f %%F in ('powershell -Command "[math]::Floor((%FreeSpace% / 1GB))"') do set FreeSpaceGB=%%F
+for /f %%T in ('powershell -Command "[math]::Floor((%TotalSpace% / 1GB))"') do set TotalSpaceGB=%%T
+for /f %%P in ('powershell -Command "[math]::Floor((%FreeSpace% / 1GB) * 100 / (%TotalSpace% / 1GB))"') do set PercentFree=%%P
+for /f %%R in ('powershell -Command "[math]::Floor((%TotalSpace%/10 + 1GB)/1GB)"') do set RequiredFreeSpaceGB=%%R
+
+echo Free Disk Space: %FreeSpaceGB%
+echo Total Disk Space: %TotalSpaceGB%
+echo Required Free Space: %RequiredFreeSpaceGB%
+echo Free Disk Space Percentage: %PercentFree%%%
+
+set sufficient_space=True
+if %PercentFree% lss %disk_space_pct_required% set sufficient_space=False
+if %FreeSpaceGB% lss %RequiredFreeSpaceGB% set sufficient_space=False
+endlocal & set valid_free_space_check=%sufficient_space%
+exit /b
+:end
+
+: _____________________________________________________________________________
+: Subroutine: Save start time of
+:      In/Out |In %1: Stage code
+:saveStartTimeOfStage
+setlocal
+set stage_name=%1
+for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "WINDOWTITLE eq %app_title%*" ^| find /i "PID:"`) do (
+    set self_pid=%%a
+)
+for /f "delims=" %%a in ('powershell get-date -format "{yyyy/MM/dd HH:mm:ss.fff}"') do @set "start_time=%%a"
+echo %self_pid%-%stage_name%-%start_time% >> %stage_start_time%
+endlocal
+exit /b
+:end

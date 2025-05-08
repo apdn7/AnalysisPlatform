@@ -10,7 +10,7 @@
         const pcaDataDir = '{{ pca_data_dir|safe }}';
         const importErrDir = '{{ import_err_dir|safe }}';
 
-        gtag('config', GA_TRACKING_ID, {
+        gtag('config', appContext.ga_tracking_id, {
             page_title: '{{ _("Config") }}',
         });
     </script>
@@ -35,6 +35,11 @@
         rel="stylesheet"
         type="text/css"
         href="{{ url_for('setting_module.static', filename = 'css/proc_config_modal.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/custom_jspreadsheet.css') }}"
     />
     <link
         rel="stylesheet"

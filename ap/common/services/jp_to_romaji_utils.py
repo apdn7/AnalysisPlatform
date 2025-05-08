@@ -3,14 +3,11 @@ import re
 
 import cutlet
 
-from ap.common.memoize import CustomCache
 from ap.common.services.normalization import normalize_preprocessing, normalize_str
 
-conv = cutlet.Cutlet()
 
-
-@CustomCache.memoize()
 def to_romaji(input_str, convert_irregular_chars=True):
+    conv = cutlet.Cutlet()
     normalized_input = input_str
 
     normalized_input = normalize_preprocessing(normalized_input)
@@ -22,7 +19,7 @@ def to_romaji(input_str, convert_irregular_chars=True):
 
     # convert to romaji
     # normalized_input = p.do(normalized_input)
-    normalized_input = conv.romaji(normalized_input, title=False)
+    normalized_input = conv.romaji(normalized_input, title=False) if conv else normalized_input
 
     # remove space and other elements after converting to romaji
     # cutlet puts space before and after a 'word', so this must be done one more time after romaji conversion

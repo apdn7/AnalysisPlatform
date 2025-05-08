@@ -21,6 +21,13 @@
         type="text/css"
         href="{{ url_for('setting_module.static', filename = 'css/data_type_dropdown.css') }}"
     />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jspreadsheet/css/jspreadsheet.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jsuites/css/jsuites.css') }}" />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/custom_jspreadsheet.css') }}"
+    />
 {% endblock %}
 
 {% block header %}
@@ -103,123 +110,12 @@
                                     {{ macros.input_row('databaseName',_("Data Source Name"),'','text',2,10) }}
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <div class="form-group row">
-                                        <label for="processName" class="col-sm-2 col-form-label label-right">
-                                            <h5>{{ _("Process Name") }}</h5>
-                                        </label>
-                                        <div class="col-sm-10 process-name-group">
-                                            <div class="form-group d-flex align-items-center">
-                                                <label
-                                                    class="mr-2 mb-0"
-                                                    for="processName"
-                                                    title="{{ _('SystemNameHoverMsg') }}"
-                                                    ><span class="hint-text">System</span
-                                                    ><span style="color: yellow;">*</span></label
-                                                >
-                                                <input
-                                                    type="text"
-                                                    name="processName"
-                                                    class="form-control"
-                                                    style="flex: 1"
-                                                    id="processName"
-                                                />
-                                                <input type="hidden" name="processOriginName" id="processOriginName" />
-                                            </div>
-                                            <div class="form-group d-flex align-items-center">
-                                                <label class="mr-2 mb-0" for="processJapaneseName"
-                                                    >{{ _('Japanese Name') }}</label
-                                                >
-                                                <input
-                                                    type="text"
-                                                    name="processJapaneseName"
-                                                    onchange="handleEmptySystemNameJP(this, procModalElements.procsMasterName)"
-                                                    class="form-control"
-                                                    style="flex: 1"
-                                                    id="processJapaneseName"
-                                                />
-                                            </div>
-                                            <div class="form-group d-flex align-items-center">
-                                                <label class="mr-2 mb-0" for="processLocalName"
-                                                    >{{ _('Local Name') }}</label
-                                                >
-                                                <input
-                                                    type="text"
-                                                    name="processLocalName"
-                                                    onchange="handleEmptySystemName(this, procModalElements.procsMasterName)"
-                                                    class="form-control"
-                                                    style="flex: 1"
-                                                    id="processLocalName"
-                                                />
-                                            </div>
-
-                                            <span
-                                                id="processName-error-msg"
-                                                class="error text-danger"
-                                                style="display: none; text-align: left; font-size: smaller;"
-                                                >{{ _("Already registered") }}</span
-                                            >
-                                        </div>
-                                    </div>
-                                    {{ macros.input_hidden('processID') }}
-                                    {{ macros.input_hidden('processDsID') }}
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-        <div class="preview-section position-relative" id="procPreviewSection" style="display: none">
-            <div class="scroll-content">
-                <span id="sampleDataScrollToLeft"><i class="fa fa-angle-double-left"></i></span>
-                <span id="sampleDataScrollToLeftOneStep"><i class="fa fa-angle-left"></i></span>
-                <span id="sampleDataScrollToRightOneStep"><i class="fa fa-angle-right"></i></span>
-                <span id="sampleDataScrollToRight"><i class="fa fa-angle-double-right"></i></span>
-            </div>
-            <!-- new GUI process config-->
-            <div class="mt-2" id="procSettingContent">
-                {{ macros.alert_message("alertMsgProcessColumnsTable", True) }}
-                <div class="table-responsive proc-config-content" style="max-height: calc(100vh - 370px);">
-                    <table
-                        class="table table-hover table-bordered table-fixed table-hover-light"
-                        name="processColumnsTable"
-                        id="processColumnsTable"
-                    >
-                        <thead>
-                            <tr>
-                                <th class="column-order">*</th>
-                                <th class="column-raw-name">{{ _('Column Raw Name') }}</th>
-                                <th class="data-type">{{ _('Data Type') }}</th>
-                                <th class="system" title="{{ _('SystemNameHoverMsg') }}">
-                                    <span class="hint-text">System</span>
-                                    <span style="color: yellow;">*</span>
-                                </th>
-                                <th class="japanese-name">{{ _('Japanese Name') }}</th>
-                                <th class="local-name">{{ _('Local Name') }}</th>
-                                <th class="column-unit">{{ _('Unit') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    <table
-                        class="table table-hover table-bordered table-fixed table-hover-light"
-                        name="processColumnsTableSampleData"
-                        id="processColumnsTableSampleData"
-                    >
-                        <thead>
-                            <tr>
-                                <th class="sample-data-column position-relative" colspan="10">
-                                    {{ _('Sample Data') }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <div class="preview-section position-relative" id="procPreviewSection" style="display: none"></div>
     </div>
 
     {# Start - HTML confirmation modal #}
@@ -261,4 +157,8 @@
     <script src="{{ url_for('setting_module.static', filename = 'js/process_config_section.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/register_from_file.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_table_utils.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_process_config.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jspreadsheet/js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jsuites/js/jsuites.js') }}"></script>
 {% endblock %}

@@ -10,10 +10,16 @@ import numpy as np
 import pandas as pd
 import pydantic
 from dateutil import tz
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import field_validator
 
-from ap.common.constants import EMPTY_STRING, MULTIPLE_VALUES_CONNECTOR, DataTypeEncode, RawDataTypeDB
+from ap.common.constants import (
+    DOUBLE_COLON_CONNECTOR,
+    EMPTY_STRING,
+    MULTIPLE_VALUES_CONNECTOR,
+    DataTypeEncode,
+    RawDataTypeDB,
+)
 from ap.common.memoize import CustomCache
 from ap.equations.error import INVALID_VALUE_MSG, MUST_HAVE_THE_SAME_TYPE_MSG, ErrorField, FunctionFieldError
 from ap.setting_module.models import MFunction
@@ -36,10 +42,10 @@ FUNCTION_TIME_FORMAT = '%H:%M:%S.%f'
 class FunctionInfo(BaseModel):
     id: int
     function_type: str
-    function_name_en: Optional[str]
-    function_name_jp: Optional[str]
-    description_en: Optional[str]
-    description_jp: Optional[str]
+    function_name_en: Optional[str] = None
+    function_name_jp: Optional[str] = None
+    description_en: Optional[str] = None
+    description_jp: Optional[str] = None
     x_types: list[RawDataTypeDB]
     y_types: list[RawDataTypeDB]
     vars: list[str]
@@ -47,16 +53,14 @@ class FunctionInfo(BaseModel):
     required_coefs: list[str]
     optional_coefs: list[str]
     show_serial: bool
-    a: Optional[str]
-    b: Optional[str]
-    c: Optional[str]
-    n: Optional[str]
-    k: Optional[str]
-    s: Optional[str]
-    t: Optional[str]
-
-    class Config:
-        use_enum_values = True
+    a: Optional[str] = None
+    b: Optional[str] = None
+    c: Optional[str] = None
+    n: Optional[str] = None
+    k: Optional[str] = None
+    s: Optional[str] = None
+    t: Optional[str] = None
+    model_config = ConfigDict(use_enum_values=True)
 
 
 def cast_value_based_on_series(series: pd.Series, value: Any) -> tuple[Any, bool]:
@@ -945,7 +949,7 @@ class LogicalAnd(BaseFunction):
 
 class RegexExtraction(BaseFunction):
     s: str
-    t: Optional[str]
+    t: Optional[str] = None
 
     def custom_validate(self):
         try:
@@ -989,7 +993,7 @@ class RegexExtraction(BaseFunction):
 
 class RegexRemoval(BaseFunction):
     s: str
-    t: Optional[str]
+    t: Optional[str] = None
 
     def eval_to_series(
         self,
@@ -1050,12 +1054,33 @@ class Lookup(BaseFunction):
     s: str
     t: str
 
+    def split_multiple_values_connector(self) -> tuple[list[str], str]:
+        multi_parts_connector = self.t.split(MULTIPLE_VALUES_CONNECTOR)
+
+        if DOUBLE_COLON_CONNECTOR in multi_parts_connector[-1]:
+            # split the string at the first occurrence
+            last_part, type_part = multi_parts_connector[-1].split(DOUBLE_COLON_CONNECTOR, 1)
+            multi_parts_connector[-1] = last_part
+            type_part = type_part if type_part else DataTypeEncode.TEXT.value
+        else:
+            type_part = DataTypeEncode.TEXT.value
+
+        return multi_parts_connector, type_part
+
     def custom_validate(self):
         values = self.s.split(MULTIPLE_VALUES_CONNECTOR)
-        replace_values = self.t.split(MULTIPLE_VALUES_CONNECTOR)
+        multi_parts_connector = self.t.split(MULTIPLE_VALUES_CONNECTOR)
+
+        if DOUBLE_COLON_CONNECTOR in multi_parts_connector[-1]:
+            t_value, _ = multi_parts_connector[-1].split(DOUBLE_COLON_CONNECTOR, 1)
+        else:
+            t_value = self.t
+
         error_msg = (
-            f'{self.s} and {self.t} must have the same number of values connected by {MULTIPLE_VALUES_CONNECTOR}'
+            f'{self.s} and {t_value} must have the same number of values connected by {MULTIPLE_VALUES_CONNECTOR}'
         )
+        replace_values, return_type = self.split_multiple_values_connector()
+
         if len(values) != len(replace_values):
             raise FunctionFieldError(INVALID_VALUE_MSG).add_error(
                 ErrorField(function_type=self.function_type(), field='s', msg=error_msg),
@@ -1071,9 +1096,9 @@ class Lookup(BaseFunction):
         self.custom_validate()
 
         values = self.s.split(MULTIPLE_VALUES_CONNECTOR)
-        replace_values = self.t.split(MULTIPLE_VALUES_CONNECTOR)
+        replace_values, output_type_cast = self.split_multiple_values_connector()
         dict_replace = dict(zip(values, replace_values))
-
+        self.set_type_cast(output_type_cast)
         result = series_x.astype(pd.StringDtype())
 
         # handle special boolean case
@@ -1088,9 +1113,11 @@ class Lookup(BaseFunction):
                 result[series_x] = truth_values[0]
             if false_values:
                 result[~series_x] = false_values[0]
-            return result
+        else:
+            result = result.replace(dict_replace)
 
-        return result.replace(dict_replace)
+        type_converter = TypeConvert.from_kwargs(t=self.type_cast)
+        return type_converter.eval_to_series(series_x=result)
 
 
 class TypeConvert(BaseFunction):
@@ -1108,7 +1135,11 @@ class TypeConvert(BaseFunction):
         ]
         if self.t.strip() not in required_ts:
             raise FunctionFieldError(INVALID_VALUE_MSG).add_error(
-                ErrorField(function_type=self.function_type(), field='t', msg=f'Value of t must in {required_ts}'),
+                ErrorField(
+                    function_type=self.function_type(),
+                    field='t',
+                    msg=f'Value of type conversion should be in {required_ts}',
+                ),
             )
 
     def eval_to_series(
@@ -1144,7 +1175,7 @@ class TypeConvert(BaseFunction):
             float_index = (np.floor(casted_x) - casted_x) != 0
             casted_x.loc[float_index] = pd.NA
 
-            return casted_x
+            return casted_x.astype(pd_type)
 
         # dtype is string
         return series_x.astype(pd_type)
