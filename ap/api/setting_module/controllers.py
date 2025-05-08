@@ -16,6 +16,7 @@ from pytz import utc
 
 from ap import background_jobs, close_sessions, dic_config, max_graph_config, scheduler
 from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
+from ap.api.efa.services.etl import ETLException
 from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
@@ -51,6 +52,7 @@ from ap.api.setting_module.services.polling_frequency import (
 from ap.api.setting_module.services.process_delete import (
     del_data_source,
     delete_proc_cfg_and_relate_jobs,
+    initialize_proc_config,
 )
 from ap.api.setting_module.services.save_load_user_setting import map_form, transform_settings
 from ap.api.setting_module.services.show_latest_record import (
@@ -70,6 +72,7 @@ from ap.api.setting_module.services.shutdown_app import shut_down_app
 from ap.api.trace_data.services.proc_link import (
     add_gen_proc_link_job,
     add_restructure_indexes_job,
+    get_first_valid_value_for_proc_link_preview,
     proc_link_count_job,
     show_proc_link_info,
 )
@@ -112,12 +115,15 @@ from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce,
 from ap.common.multiprocess_sharing.events import EventKillJobs
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.http_content import json_dumps, orjson_dumps
-from ap.common.services.import_export_config import (
+from ap.common.services.import_export_config_and_master_data import (
     backup_instance_folder,
     cleanup_backup_data,
+    clear_db_n_data,
     clear_event_queue,
+    delete_file_and_folder_by_path,
+    delete_folder_data,
     export_data,
-    import_config,
+    import_config_and_master,
     pause_event_queue,
     pause_job_running,
     resume_event_queue,
@@ -125,13 +131,10 @@ from ap.common.services.import_export_config import (
     run_migrations,
     wait_done_jobs,
 )
-from ap.common.services.import_export_config_data import (
-    clear_db_n_data,
-)
-from ap.common.services.import_export_config_n_data import delete_file_and_folder_by_path, delete_folder_data
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import remove_non_ascii_chars
 from ap.common.services.sse import MessageAnnouncer
+from ap.import_filter.utils import get_import_filters_from_process
 from ap.setting_module.models import (
     AppLog,
     CfgConstant,
@@ -349,25 +352,15 @@ def show_latest_records():
     process_factid = dic_form.get('processFactId', None)
     master_type = dic_form.get('masterType', None)
     master_type = MasterDBType[master_type] if master_type else None
+    etl_func = dic_form.get('etlFunc', '')
+    response_code = 200
     if current_process_id and current_process_id != 'null' and not file_name:
         # get data from db or csv
-        file_name = get_preview_data_files(data_source_id, table_name, process_factid)
+        file_name = get_preview_data_files(data_source_id, table_name, process_factid, etl_func)
         if file_name:
             with open(file_name, 'r') as file:
                 data = get_latest_record_from_preview_file(file, current_process_id, limit)
             return json_dumps(data)
-
-    latest_rec = get_latest_records(
-        data_source_id,
-        table_name,
-        file_name,
-        folder,
-        limit,
-        current_process_id,
-        process_factid=process_factid,
-        is_convert_datetime=False,
-        master_type=master_type,
-    )
 
     result = {
         'cols': [],
@@ -378,34 +371,57 @@ def show_latest_records():
         'dummy_datetime_idx': None,
         'is_rdb': False,
         'file_name_col_idx': None,
+        'transform_error': False,
     }
-    if latest_rec:
-        (
-            cols_with_types,
-            rows,
-            cols_duplicated,
-            previewed_files,
-            has_ct_col,
-            dummy_datetime_idx,
-            is_rdb,
-            file_name_col_idx,
-        ) = latest_rec
-        dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
-        data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
-        result = {
-            'cols': cols_with_types,
-            'rows': rows,
-            'cols_duplicated': cols_duplicated,
-            'fail_limit': dic_preview_limit,
-            'has_ct_col': has_ct_col,
-            'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
-            'data_group_type': data_group_type,
-            'is_rdb': is_rdb,
-            'file_name_col_idx': file_name_col_idx,
-        }
+    try:
+        latest_rec = get_latest_records(
+            data_source_id,
+            table_name,
+            file_name,
+            folder,
+            limit,
+            current_process_id,
+            process_factid=process_factid,
+            master_type=master_type,
+            etl_func=etl_func,
+        )
+        if latest_rec:
+            (
+                cols_with_types,
+                rows,
+                cols_duplicated,
+                previewed_files,
+                has_ct_col,
+                dummy_datetime_idx,
+                is_rdb,
+                file_name_col_idx,
+            ) = latest_rec
+            dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
+            data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
+            result = {
+                'cols': cols_with_types,
+                'rows': rows,
+                'cols_duplicated': cols_duplicated,
+                'fail_limit': dic_preview_limit,
+                'has_ct_col': has_ct_col,
+                'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
+                'data_group_type': data_group_type,
+                'is_rdb': is_rdb,
+                'file_name_col_idx': file_name_col_idx,
+                'transform_error': False,
+            }
+    except ETLException as e:
+        result['transform_error'] = e.get_message()
+        response_code = e.status_code
     result = json_dumps(result)
-    save_preview_data_file(int(data_source_id), result, table_name=table_name, process_factid=process_factid)
-    return result
+    save_preview_data_file(
+        int(data_source_id),
+        result,
+        table_name=table_name,
+        process_factid=process_factid,
+        etl_func=etl_func,
+    )
+    return result, response_code
 
 
 @api_setting_module_blueprint.route('/get_csv_resources', methods=['POST'])
@@ -440,7 +456,6 @@ def get_csv_resources():
             is_transpose=is_transpose,
             limit=5,
             file_name=folder_url if is_file else None,
-            is_convert_datetime=False,
             is_show_raw_data=False,
         )
     rows = dic_output['content']
@@ -688,6 +703,9 @@ def post_proc_config():
                 # If there are new function columns, add the columns into transaction table first to make show graph
                 # feature work normally
                 add_new_columns_to_transaction_table(process, meta_session=session)
+                parents_and_children_processes = CfgProcess.get_all_parents_and_children_processes(request_process.id)
+                for process in parents_and_children_processes:
+                    CfgProcess.update_is_import(session, process.id, is_import=True)
 
                 # Add UPDATE_TRANSACTION_TABLE job
                 next_run_time = datetime.now().astimezone(utc)
@@ -708,8 +726,7 @@ def post_proc_config():
                 )
 
         # After commit all changes, add jobs
-        if is_new_proc:
-            add_required_jobs_after_update_transaction_table(process, is_new_process=is_new_proc)
+        add_required_jobs_after_update_transaction_table(process, is_new_process=is_new_proc)
 
         return (
             jsonify(
@@ -731,6 +748,16 @@ def post_proc_config():
             ),
             500,
         )
+
+
+@api_setting_module_blueprint.route('/initialize_proc/<process_id>', methods=['POST'])
+def initialize_process(process_id):
+    try:
+        initialize_proc_config(process_id)
+        return jsonify({'message': 'Delete file transaction successfully'}), 200
+    except Exception as e:
+        logger.exception(e)
+        return jsonify({'message': 'Failed to initialize process'}), 500
 
 
 @api_setting_module_blueprint.route('/trace_config', methods=['GET'])
@@ -805,6 +832,7 @@ def get_proc_config(proc_id):
                     'tables': tables,
                     'col_id_in_funcs': col_id_in_funcs,
                     'has_parent_or_children': len(parent_and_child_processes) > 1,
+                    'is_imported': process.get('is_import', True),
                 },
             ),
             200,
@@ -1542,19 +1570,22 @@ def proc_link_preview():
             ) as db_instance:
                 link_cols = trans_data.cfg_process.get_linking_columns()
                 samples = trans_data.get_sample_data(db_instance, columns=link_cols)
-                # drop NA
-                samples = samples.dropna(how='any')
+                samples = get_first_valid_value_for_proc_link_preview(samples)
                 if samples.empty:
                     # get data from preview_data of process
-                    file_name = get_preview_data_files(trans_data.cfg_process.data_source_id)
+                    etl_func = trans_data.cfg_process.etl_func
+                    file_name = get_preview_data_files(trans_data.cfg_process.data_source_id, etl_func=etl_func)
                     if file_name:
                         with open(file_name, 'r') as file:
                             samples = get_latest_record_from_preview_file(file, process_id)
-                            samples = (
-                                get_sample_from_preview_data(samples, link_cols).replace('', pd.NA).dropna(how='any')
-                            )
+                            samples = get_sample_from_preview_data(samples, link_cols).replace('', pd.NA)
+                            samples = get_first_valid_value_for_proc_link_preview(samples)
 
-                samples = samples.iloc[:1].to_dict(orient='records')[0]
+                # after get data from transaction and preview file, if samples is empty => return None for all column
+                if samples.empty:
+                    samples = pd.DataFrame([[None] * len(samples.columns)], columns=samples.columns)
+                else:
+                    samples = samples.iloc[:1].to_dict(orient='records')[0]
         return orjson_dumps({'process_id': process_id, 'data': samples})
     except ValueError:
         pass
@@ -1586,7 +1617,7 @@ def zip_import_database():
         # ↑--- Save uploaded file to export_setting folder ---↑
 
         # ↓--- import data from upload file ---↓
-        import_config(file_path)
+        import_config_and_master(file_path)
         # ↑--- import data from upload file ---↑
 
         # ↓--- Resume scheduler, migrate and clean up ---↓
@@ -1651,3 +1682,13 @@ def reset_transaction_data():
         resume_event_queue()
         EventQueue.put(EventBackgroundAnnounce(data=data, event=AnnounceEvent.CLEAR_TRANSACTION_DATA))
         return {}, http_status
+
+
+@api_setting_module_blueprint.route('/import_filters/<process_id>', methods=['GET'])
+def get_import_filter_from_process(process_id):
+    process = CfgProcess.get_proc_by_id(process_id)
+    if process:
+        import_filters = get_import_filters_from_process(process)
+        return orjson_dumps(data=import_filters), 200
+
+    return {}, 404

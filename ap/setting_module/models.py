@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import unicodedata
 from contextlib import contextmanager
@@ -631,7 +632,6 @@ class CfgProcessColumn(db.Model):
     # TODO: can we remove this?
     raw_data_type: Mapped[Optional[str]] = mapped_column(nullable=True)
     column_type: Mapped[Optional[int]]
-    predict_type: Mapped[Optional[str]]
     is_serial_no: Mapped[bool] = mapped_column(default=False)
     is_get_date: Mapped[bool] = mapped_column(default=False)
     is_dummy_datetime: Mapped[bool] = mapped_column(default=False)
@@ -663,6 +663,11 @@ class CfgProcessColumn(db.Model):
         back_populates='column',
         lazy='joined',
         cascade='all, delete',
+    )
+    import_filters: Mapped[list['CfgImportFilter']] = relationship(
+        back_populates='column',
+        lazy='joined',
+        cascade='all, delete, delete-orphan',
     )
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
@@ -736,6 +741,7 @@ class CfgProcessColumn(db.Model):
         return_cfg_column = CfgProcessColumn(**self.as_dict())
         return_cfg_column.function_details = [function_detail.clone() for function_detail in self.function_details]
         return_cfg_column.parent_column = self.parent_column.clone() if self.parent_column else None
+        return_cfg_column.import_filters = [import_filter.clone() for import_filter in self.import_filters]
         return return_cfg_column
 
     # @classmethod
@@ -926,6 +932,17 @@ class CfgProcessColumn(db.Model):
 
         return cls(**dict_object_modified)  # noqa
 
+    @classmethod
+    def get_import_filters_by_col_id(cls, col_id) -> Union[list, None]:
+        column = cls.query.get(col_id)
+        if not column:
+            return None
+        return column.import_filters
+
+    @hybrid_property
+    def label(self):
+        return self.gen_sql_label()
+
 
 class CfgProcess(db.Model):
     # __bind_key__ = 'app_metadata'
@@ -947,8 +964,10 @@ class CfgProcess(db.Model):
     # `file_name` None indicates that we are not importing from a file
     file_name: Mapped[Optional[str]] = mapped_column(nullable=True)
     process_factid: Mapped[Optional[str]] = mapped_column(nullable=True)
+    etl_func: Mapped[Optional[str]] = mapped_column(nullable=True)
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey(id, ondelete='CASCADE'), nullable=True)
     # parent_process_id : Mapped[int]
+    is_import: Mapped[Optional[bool]] = mapped_column(default=True)
 
     datetime_format: Mapped[Optional[str]] = mapped_column(nullable=True)
     order: Mapped[Optional[int]] = mapped_column(nullable=True)
@@ -1151,17 +1170,21 @@ class CfgProcess(db.Model):
         return datetime_format.date_format
 
     @classmethod
-    def get_all(cls, with_parent=False, session: scoped_session = None):
+    def get_all(cls, is_import: bool = None, with_parent=False, session: scoped_session = None):
         query = session.query(cls) if session else cls.query
         if not with_parent:
             query = query.filter(cls.parent_id == null())
+        if is_import is not None:
+            query = query.filter(cls.is_import == is_import)
         return query.order_by(cls.order).all()
 
     @classmethod
-    def get_all_ids(cls, with_parent=False, session: scoped_session = None):
+    def get_all_ids(cls, is_import: bool = None, with_parent=False, session: scoped_session = None):
         query = session.query(cls) if session else cls.query
         if not with_parent:
             query = query.filter(cls.parent_id == null())
+        if is_import is not None:
+            query = query.filter(cls.is_import == is_import)
         return query.options(load_only(cls.id)).all()
 
     @classmethod
@@ -1309,6 +1332,18 @@ class CfgProcess(db.Model):
         if self.columns:
             return [column for column in self.columns if column.is_linking_column]
         return []
+
+    def get_import_filters(self) -> list[list[CfgImportFilter]]:
+        if self.columns:
+            return [column.import_filters for column in self.columns]
+        return []
+
+    def get_etl_func(self) -> str | None:
+        return self.etl_func or None
+
+    @classmethod
+    def update_is_import(cls, meta_session, process_id, is_import):
+        meta_session.query(cls).filter(cls.id == process_id).update({cls.is_import: is_import})
 
 
 class CfgProcessFunctionColumn(db.Model):
@@ -1937,234 +1972,6 @@ class AppLog(db.Model):
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
 
 
-def insert_or_update_config(
-    meta_session,
-    data: Union[Dict, db.Model],
-    key_names: Union[List, str] = None,
-    model: db.Model = None,
-    parent_obj: db.Model = None,
-    parent_relation_key=None,
-    parent_relation_type=None,
-    exclude_columns=None,
-    autocommit=True,
-):
-    """
-
-    :param exclude_columns:
-    :param meta_session:
-    :param data:
-    :param key_names:
-    :param model:
-    :param parent_obj:
-    :param parent_relation_key:
-    :param parent_relation_type:
-    :param autocommit:
-    :return:
-    """
-    excludes = ['created_at', 'updated_at']
-    if exclude_columns:
-        excludes += exclude_columns
-
-    rec = None
-
-    # get model
-    if not model:
-        model = data.__class__
-
-    # default primary key is id
-    # get primary keys
-    primary_keys = [key.name for key in inspect(model).primary_key]
-
-    if not key_names:
-        key_names = primary_keys
-
-    # convert to list
-    if isinstance(key_names, str):
-        key_names = [key_names]
-
-    # query condition by keys
-    if isinstance(data, db.Model):
-        dict_key = {key: getattr(data, key) for key in key_names}
-    else:
-        dict_key = {key: data[key] for key in key_names}
-
-    # query by key_names
-    if dict_key:
-        rec = meta_session.query(model).filter_by(**dict_key).first()
-
-    # create new record
-    if not rec:
-        rec = model()
-        if not parent_obj:
-            meta_session.add(rec)
-            meta_session.flush()
-        elif parent_relation_type is RelationShip.MANY:
-            objs = getattr(parent_obj, parent_relation_key)
-            if objs is None:
-                setattr(parent_obj, parent_relation_key, [rec])
-            else:
-                objs.append(rec)
-        else:
-            setattr(parent_obj, parent_relation_key, rec)
-
-    dict_data = (
-        {key: getattr(data, key) for key in data.__table__.columns.keys()} if isinstance(data, db.Model) else data
-    )
-
-    for key, val in dict_data.items():
-        # primary keys
-        if key in primary_keys and not val:
-            continue
-
-        # ignore non-data fields
-        if key in excludes:
-            continue
-
-        # check if valid columns
-        if key not in model.__table__.columns.keys():
-            continue
-
-        # avoid update None to primary key_names
-        if key in key_names and not val:
-            continue
-
-        setattr(rec, key, val)
-
-    meta_session.flush()
-    if autocommit:
-        meta_session.commit()
-
-    return rec
-
-
-# def update_record(rec, data, model, primary_keys, excludes=('created_at', 'updated_at'), key_names=[]):
-#     if isinstance(data, db.Model):
-#         dict_data = {key: getattr(data, key) for key in data.__table__.columns.keys()}
-#     else:
-#         dict_data = data
-#
-#     for key, val in dict_data.items():
-#         # primary keys
-#         if key in primary_keys and not val:
-#             continue
-#
-#         # ignore non-data fields
-#         if key in excludes:
-#             continue
-#
-#         # check if valid columns
-#         if key not in model.__table__.columns:
-#             continue
-#
-#         # avoid update None to primary key_names
-#         if key in key_names and not val:
-#             continue
-#
-#         setattr(rec, key, val)
-#
-#     return rec
-
-
-def crud_config(
-    meta_session,
-    data: List[Union[Dict, db.Model]],
-    parent_key_names: Union[List, str] = None,
-    key_names: Union[List, str] = None,
-    model: db.Model = None,
-    parent_obj: db.Model = None,
-    parent_relation_key=None,
-    parent_relation_type=RelationShip.MANY,
-    autocommit=True,
-):
-    """
-
-    :param meta_session:
-    :param data:
-    :param parent_key_names:
-    :param key_names:
-    :param model:
-    :param parent_obj:
-    :param parent_relation_key:
-    :param parent_relation_type:
-    :param autocommit:
-    :return:
-    """
-    # get model
-    if not model:
-        model = data[0].__class__
-
-    # convert to list
-    if isinstance(parent_key_names, str):
-        parent_key_names = [parent_key_names]
-
-    # get primary keys
-    if not key_names:
-        key_names = [key.name for key in inspect(model).primary_key]
-
-    if isinstance(key_names, str):
-        key_names = [key_names]
-
-    key_names = parent_key_names + key_names
-
-    # query condition by keys
-    if parent_key_names:
-        # query by key_names
-        if not data:
-            current_recs = []
-            if parent_relation_key:  # assume that relation key was set in model
-                current_recs = getattr(parent_obj, parent_relation_key)
-        else:
-            if isinstance(data[0], db.Model):
-                dict_key = {key: getattr(data[0], key) for key in parent_key_names}
-            else:
-                dict_key = {key: data[0][key] for key in parent_key_names}
-
-            current_recs = meta_session.query(model).filter_by(**dict_key).all()
-    else:
-        # query all
-        current_recs = meta_session.query(model).all()
-
-    # insert or update data
-    set_active_keys = set()
-
-    # # container
-    # if parent_obj and parent_relation_key:
-    #     setattr(parent_obj, parent_relation_key, [] if parent_relation_type else None)
-
-    for row in data:
-        if parent_obj and parent_relation_key:
-            rec = insert_or_update_config(
-                meta_session,
-                row,
-                key_names,
-                model=model,
-                parent_obj=parent_obj,
-                parent_relation_key=parent_relation_key,
-                parent_relation_type=parent_relation_type,
-                autocommit=autocommit,
-            )
-        else:
-            rec = insert_or_update_config(meta_session, row, key_names, model=model, autocommit=autocommit)
-
-        key = tuple(getattr(rec, key) for key in key_names)
-        set_active_keys.add(key)
-
-    # delete data
-    for current_rec in current_recs:
-        key = tuple(getattr(current_rec, key) for key in key_names)
-        if key in set_active_keys:
-            continue
-
-        meta_session.delete(current_rec)
-        meta_session.flush()
-
-    meta_session.flush()
-    if autocommit:
-        meta_session.commit()
-
-    return True
-
-
 class CfgDataSourceCSV(db.Model):
     # __bind_key__ = 'app_metadata'
     __tablename__ = 'cfg_data_source_csv'
@@ -2238,6 +2045,11 @@ class CfgUserSetting(db.Model):
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    @hybrid_property
+    def hashed_owner(self):
+        created_by = str(self.created_by).encode()
+        return hashlib.md5(created_by).hexdigest()
 
     @classmethod
     def get_all(cls):
@@ -2483,27 +2295,6 @@ class MFunction(db.Model):
         return None
 
 
-def get_models():
-    all_sub_classes = db.Model.__subclasses__()
-    return tuple([_class for _class in all_sub_classes if hasattr(_class, '__tablename__')])
-
-
-def make_f(model):
-    list_of_target = (CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgTrace, CfgTraceKey, CfgVisualization)
-
-    @event.listens_for(model, 'before_insert')
-    def before_insert(_mapper, _connection, target):
-        model_normalize(target)
-        if isinstance(target, list_of_target):
-            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
-
-    @event.listens_for(model, 'before_update')
-    def before_update(_mapper, _connection, target):
-        model_normalize(target)
-        if isinstance(target, list_of_target):
-            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
-
-
 class MUnit(db.Model):
     __tablename__ = 'm_unit'
     __table_args__ = {'sqlite_autoincrement': True}
@@ -2535,6 +2326,306 @@ class MUnit(db.Model):
             result = cls._get_unit_with_unicode_normalize(unit)
 
         return result
+
+
+class CfgImportFilter(CommonModel):
+    __tablename__ = 'cfg_import_filter'
+    __table_args__ = {'sqlite_autoincrement': True}
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
+    filter_function: Mapped[str] = mapped_column(nullable=False, default='MATCHES')
+    filter_from_position: Mapped[Optional[int]] = mapped_column(nullable=True, default=1)
+
+    column: Mapped['CfgProcessColumn'] = relationship(
+        back_populates='import_filters',
+        lazy='joined',
+        cascade='all',
+    )
+
+    filters: Mapped[list['CfgImportFilterDetail']] = relationship(
+        back_populates='filter',
+        lazy='joined',
+        cascade='all, delete, delete-orphan',
+    )
+
+    def clone(self) -> CfgImportFilter:
+        """Make isolated object that not link to SQLAlchemy to avoid changes when DB has commit
+
+        :return: A CfgProcessColumn object without reference to Database
+        """
+        return_cfg_import_filter = CfgImportFilter(**self.as_dict())
+        return_cfg_import_filter.filters = [filter_detail.clone() for filter_detail in self.filters]
+        return return_cfg_import_filter
+
+
+class CfgImportFilterDetail(CommonModel):
+    __tablename__ = 'cfg_import_filter_detail'
+    __table_args__ = {'sqlite_autoincrement': True}
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    value: Mapped[str] = mapped_column(nullable=True)
+    filter_id: Mapped[int] = mapped_column(ForeignKey('cfg_import_filter.id', ondelete='CASCADE'))
+
+    filter: Mapped['CfgImportFilter'] = relationship(
+        back_populates='filters',
+        lazy='joined',
+        cascade='all',
+    )
+
+    def clone(self) -> CfgImportFilterDetail:
+        """Make isolated object that not link to SQLAlchemy to avoid changes when DB has commit
+
+        :return: A CfgProcessColumn object without reference to Database
+        """
+        return CfgImportFilterDetail(**self.as_dict())
+
+
+def insert_or_update_config(
+    meta_session,
+    data: Union[Dict, db.Model],
+    key_names: Union[List, str] = None,
+    model: db.Model = None,
+    parent_obj: db.Model = None,
+    parent_relation_key=None,
+    parent_relation_type=None,
+    exclude_columns=None,
+    autocommit=True,
+):
+    """
+
+    :param exclude_columns:
+    :param meta_session:
+    :param data:
+    :param key_names:
+    :param model:
+    :param parent_obj:
+    :param parent_relation_key:
+    :param parent_relation_type:
+    :param autocommit:
+    :return:
+    """
+    excludes = ['created_at', 'updated_at']
+    if exclude_columns:
+        excludes += exclude_columns
+
+    rec = None
+
+    # get model
+    if not model:
+        model = data.__class__
+
+    # default primary key is id
+    # get primary keys
+    primary_keys = [key.name for key in inspect(model).primary_key]
+
+    if not key_names:
+        key_names = primary_keys
+
+    # convert to list
+    if isinstance(key_names, str):
+        key_names = [key_names]
+
+    # query condition by keys
+    if isinstance(data, db.Model):
+        dict_key = {key: getattr(data, key) for key in key_names}
+    else:
+        dict_key = {key: data[key] for key in key_names}
+
+    # query by key_names
+    if dict_key:
+        rec = meta_session.query(model).filter_by(**dict_key).first()
+
+    # create new record
+    if not rec:
+        rec = model()
+        if not parent_obj:
+            meta_session.add(rec)
+            meta_session.flush()
+        elif parent_relation_type is RelationShip.MANY:
+            objs = getattr(parent_obj, parent_relation_key)
+            if objs is None:
+                setattr(parent_obj, parent_relation_key, [rec])
+            else:
+                objs.append(rec)
+        else:
+            setattr(parent_obj, parent_relation_key, rec)
+
+    dict_data = (
+        {key: getattr(data, key) for key in data.__table__.columns.keys()} if isinstance(data, db.Model) else data
+    )
+
+    for key, val in dict_data.items():
+        # primary keys
+        if key in primary_keys and not val:
+            continue
+
+        # ignore non-data fields
+        if key in excludes:
+            continue
+
+        # check if valid columns
+        if key not in model.__table__.columns.keys():
+            continue
+
+        # avoid update None to primary key_names
+        if key in key_names and not val:
+            continue
+
+        setattr(rec, key, val)
+
+    meta_session.flush()
+    if autocommit:
+        meta_session.commit()
+
+    return rec
+
+
+# def update_record(rec, data, model, primary_keys, excludes=('created_at', 'updated_at'), key_names=[]):
+#     if isinstance(data, db.Model):
+#         dict_data = {key: getattr(data, key) for key in data.__table__.columns.keys()}
+#     else:
+#         dict_data = data
+#
+#     for key, val in dict_data.items():
+#         # primary keys
+#         if key in primary_keys and not val:
+#             continue
+#
+#         # ignore non-data fields
+#         if key in excludes:
+#             continue
+#
+#         # check if valid columns
+#         if key not in model.__table__.columns:
+#             continue
+#
+#         # avoid update None to primary key_names
+#         if key in key_names and not val:
+#             continue
+#
+#         setattr(rec, key, val)
+#
+#     return rec
+
+
+def crud_config(
+    meta_session,
+    data: List[Union[Dict, db.Model]],
+    parent_key_names: Union[List, str] = None,
+    key_names: Union[List, str] = None,
+    model: db.Model = None,
+    parent_obj: db.Model = None,
+    parent_relation_key=None,
+    parent_relation_type=RelationShip.MANY,
+    autocommit=True,
+):
+    """
+
+    :param meta_session:
+    :param data:
+    :param parent_key_names:
+    :param key_names:
+    :param model:
+    :param parent_obj:
+    :param parent_relation_key:
+    :param parent_relation_type:
+    :param autocommit:
+    :return:
+    """
+    # get model
+    if not model:
+        model = data[0].__class__
+
+    # convert to list
+    if isinstance(parent_key_names, str):
+        parent_key_names = [parent_key_names]
+
+    # get primary keys
+    if not key_names:
+        key_names = [key.name for key in inspect(model).primary_key]
+
+    if isinstance(key_names, str):
+        key_names = [key_names]
+
+    key_names = parent_key_names + key_names
+
+    # query condition by keys
+    if parent_key_names:
+        # query by key_names
+        if not data:
+            current_recs = []
+            if parent_relation_key:  # assume that relation key was set in model
+                current_recs = getattr(parent_obj, parent_relation_key)
+        else:
+            if isinstance(data[0], db.Model):
+                dict_key = {key: getattr(data[0], key) for key in parent_key_names}
+            else:
+                dict_key = {key: data[0][key] for key in parent_key_names}
+
+            current_recs = meta_session.query(model).filter_by(**dict_key).all()
+    else:
+        # query all
+        current_recs = meta_session.query(model).all()
+
+    # insert or update data
+    set_active_keys = set()
+
+    # # container
+    # if parent_obj and parent_relation_key:
+    #     setattr(parent_obj, parent_relation_key, [] if parent_relation_type else None)
+
+    for row in data:
+        if parent_obj and parent_relation_key:
+            rec = insert_or_update_config(
+                meta_session,
+                row,
+                key_names,
+                model=model,
+                parent_obj=parent_obj,
+                parent_relation_key=parent_relation_key,
+                parent_relation_type=parent_relation_type,
+                autocommit=autocommit,
+            )
+        else:
+            rec = insert_or_update_config(meta_session, row, key_names, model=model, autocommit=autocommit)
+
+        key = tuple(getattr(rec, key) for key in key_names)
+        set_active_keys.add(key)
+
+    # delete data
+    for current_rec in current_recs:
+        key = tuple(getattr(current_rec, key) for key in key_names)
+        if key in set_active_keys:
+            continue
+
+        meta_session.delete(current_rec)
+        meta_session.flush()
+
+    meta_session.flush()
+    if autocommit:
+        meta_session.commit()
+
+    return True
+
+
+def get_models():
+    all_sub_classes = db.Model.__subclasses__()
+    return tuple([_class for _class in all_sub_classes if hasattr(_class, '__tablename__')])
+
+
+def make_f(model):
+    list_of_target = (CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgTrace, CfgTraceKey, CfgVisualization)
+
+    @event.listens_for(model, 'before_insert')
+    def before_insert(_mapper, _connection, target):
+        model_normalize(target)
+        if isinstance(target, list_of_target):
+            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
+
+    @event.listens_for(model, 'before_update')
+    def before_update(_mapper, _connection, target):
+        model_normalize(target)
+        if isinstance(target, list_of_target):
+            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
 
 
 def add_listen_event():

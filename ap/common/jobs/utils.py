@@ -9,14 +9,18 @@ from ap.common.constants import JobType
 from ap.common.jobs.jobs import RunningJob, RunningJobs
 
 
-def remove_job(job_id: str):
+def remove_job(job_id: str, process_id: Optional[Union[str, int]] = None):
     """Remove a job from scheduler
 
     :param str job_id:
+    :param Optional[Union[str, int]] process_id:
     :return: void
     """
     with contextlib.suppress(JobLookupError):
-        scheduler.remove_job(job_id)
+        all_jobs = scheduler.get_jobs()
+        job_ids = [job_id] if process_id else [job.id for job in all_jobs if job.name == job_id]
+        for jid in job_ids:
+            scheduler.remove_job(jid)
 
 
 @log_execution_time()
@@ -30,7 +34,7 @@ def remove_jobs(job_types: list[JobType], process_id: Optional[int] = None):
     kill_jobs(job_types, process_id=process_id)
     for job_type in job_types:
         job_id = generate_job_id(job_type, process_id)
-        remove_job(job_id)
+        remove_job(job_id, process_id=process_id)
 
 
 def kill_jobs(job_types: list[JobType], process_id: Optional[int] = None):

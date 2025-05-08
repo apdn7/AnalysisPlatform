@@ -1,5 +1,50 @@
 # Releases
 
+## v4.7.9
+
+New features
+
+- (Config)
+  - You can now initialize a process by clicking the "Initialize" button.  
+  This function is used for example, change data types and re-import data.  
+  <img src="https://github.com/user-attachments/assets/f4a41c92-6eb5-42bc-9fbd-799ff81d1f61" alt="479_InitializeProcess" width="600">
+  - Spreadsheet-like editing is now available for filter config, display config and process config.  
+  <img src="https://github.com/user-attachments/assets/847b7cf4-31e3-4938-a951-7a5f6e51fbbe" alt="479_SpreadsheetLikeEditor" width="600">
+- (SkD)
+  - Added a summary section to give summarized information and recommendations on how to proceed  
+  <img src="https://github.com/user-attachments/assets/964905b2-70bd-445e-bae6-5152e27448b4" alt="479_SkDSummary" width="600">
+  - Added "Strengthen selection" checkbox. This will re-draw SkD with strengthened (grid-searched) L1 penalty  
+  <img src="https://github.com/user-attachments/assets/422b3409-9227-4784-a2df-85b3e1faa17d" alt="479_SkDStrengthenSelection" width="600">
+- (Misc)
+  - Added cookie banner / Cookie policy.
+  - Added option `enable_ga_tracking` in startup.ini.  
+  By setting this value to 0, you can force to NOT send telemetry data.  
+  <img src="https://github.com/user-attachments/assets/107b1024-722e-4068-8c55-0c9d1f3b4e28" alt="479_EnableTrackingParam" width="600">
+  - AP now stops the installation of Python embedded, Oracle portable and virtual environment when they exceed a certain amount of time
+  - AP now checks for the amount of free disk space when starting the application.  
+  AP will require that there is at least 10% of total disk space + 1GB of free space.
+
+Improvements
+
+- (Config)
+  - Instead of directly using auto increment column,  
+  AP now groups data using the auto increment column to safely import long format data.
+
+Bug fixes
+
+- (Config)
+  - Fixed a bug where the data source could not be saved in certain case
+  - Fixed an error message when CSV cannot be read with text encoding issue
+  - Fixed a bug where graphs cannot be shown when a mix of Serial and Serial:Str are used
+- (FPP)
+  - Fixed a bug where bar charts in FPP incorrectly occupies multiple ticks
+- (PCP)
+  - Fixed a bug where axis ticks are not displayed correctly when only 1 and NA are present
+- (AgP)
+  - Fixed a bug where AgP fails to show percentage in some cases
+- (Misc)
+  - Fixed a bug where the Ctrl+Enter hotkey opens the sidebar search and shows graph at the same time
+
 ## v4.7.8
 
 New features

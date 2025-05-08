@@ -19,11 +19,11 @@ const registerFromFileEles = {
     refFileUrl: $('input[name=fileName]'),
     progressDisplay: '#progressDisplay',
     registerButton: '#registerDataSourceProcBtn',
-    databaseName: $('input[name=databaseName]'),
-    processEnName: $('input[name=processName]'),
-    processJapaneseName: $('input[name=processJapaneseName]'),
-    processLocalName: $('input[name=processLocalName]'),
-    processOriginName: $('input[name=processOriginName]'),
+    databaseName: 'input[name=databaseName]',
+    processEnName: 'input[name=processName]',
+    processJapaneseName: 'input[name=processJapaneseName]',
+    processLocalName: 'input[name=processLocalName]',
+    processOriginName: 'input[name=processOriginName]',
 };
 
 // override from db_config.js to use generateProcessList function from proc_config_modal.js todo move to common js file
@@ -45,6 +45,16 @@ const i18n = {
     localName: document.getElementById('i18nLocalName').textContent,
     unit: $('#i18nUnit').text(),
     alreadyRegistered: document.getElementById('i18nAlreadyRegistered').textContent,
+    selectAll: document.getElementById('i18nSelectAll').textContent,
+    autoSelect: document.getElementById('i18nAutoSelect').textContent,
+    search: document.getElementById('i18nSearching').textContent,
+    fileName: document.getElementById('i18nFileName').textContent,
+    fileNameHoverMsg: document.getElementById('i18nFileNameHoverMsg').textContent,
+    procDatetimeFormat: document.getElementById('i18nProcDatetimeFormat').textContent,
+    procDatetimeFormatHoverMsg: document.getElementById('i18nProcDatetimeFormatHoverMsg').textContent,
+    downloadAllHoverMsg: document.getElementById('i18nDownloadAllHoverMsg').textContent,
+    copyAllHoverMsg: document.getElementById('i18nCopyAllHoverMsg').textContent,
+    pasteAllHoverMsg: document.getElementById('i18nPasteAllHoverMsg').textContent,
     columnRawName: document.getElementById('i18nColumnRawName').textContent,
     format: document.getElementById('i18nFormat').textContent,
     sampleData: document.getElementById('i18nSampleData').textContent,
@@ -216,45 +226,14 @@ const fillDatasourceName = (url, isFile) => {
     if (params.loadGUIFromUrl) {
         // fill datasource and proc name fields if not provided
         if (!params.dataSourceName) {
-            registerFromFileEles.databaseName.val(folderName);
-            registerFromFileEles.databaseName[0].dataset.originalValue = folderName;
+            $(registerFromFileEles.databaseName).val(folderName);
+            $(registerFromFileEles.databaseName)[0].dataset.originalValue = folderName;
         }
         return;
     }
 
-    registerFromFileEles.databaseName.val(folderName);
-    registerFromFileEles.databaseName[0].dataset.originalValue = folderName;
-};
-
-const fillProcessName = (url, isFile) => {
-    checkOnFocus = false;
-    const folderName = getDbSourceAndProcessNameFromUrl(url, isFile);
-    registerFromFileEles.processOriginName.val(folderName);
-    registerFromFileEles.processEnName[0].dataset.originalValue = folderName;
-    registerFromFileEles.processEnName.val(folderName).trigger('change');
-
-    // loading from external api
-    const params = getRequestParams();
-    if (params.loadGUIFromUrl) {
-        // fill proc name fields if not provided
-        if (isJPLocale && !params.procesNameJp) {
-            registerFromFileEles.processJapaneseName[0].dataset.originalValue = folderName;
-            registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
-        } else if (!isJPLocale && !params.processNameLocal) {
-            registerFromFileEles.processLocalName[0].dataset.originalValue = folderName;
-            registerFromFileEles.processLocalName.val(folderName).trigger('change');
-        }
-        return;
-    }
-
-    // fill data source name
-    if (isJPLocale) {
-        registerFromFileEles.processJapaneseName[0].dataset.originalValue = folderName;
-        registerFromFileEles.processJapaneseName.val(folderName).trigger('change');
-    } else {
-        registerFromFileEles.processLocalName[0].dataset.originalValue = folderName;
-        registerFromFileEles.processLocalName.val(folderName).trigger('change');
-    }
+    $(registerFromFileEles.databaseName).val(folderName);
+    $(registerFromFileEles.databaseName)[0].dataset.originalValue = folderName;
 };
 
 /**
@@ -262,11 +241,11 @@ const fillProcessName = (url, isFile) => {
  * @return {boolean} - true: datasource name is empty, otherwise.
  */
 function isDataSourceNameEmpty() {
-    removeBorderFromInvalidInput(registerFromFileEles.databaseName);
-    const isEmpty = registerFromFileEles.databaseName.val().trim() === '';
+    removeBorderFromInvalidInput($(registerFromFileEles.databaseName));
+    const isEmpty = $(registerFromFileEles.databaseName).val().trim() === '';
     if (isEmpty) {
         addMessengerToProgressBar(registerI18n.i18nDataSourceNameIsEmpty, ICON_STATUS.WARNING);
-        addBorderToInvalidInput(registerFromFileEles.databaseName);
+        addBorderToInvalidInput($(registerFromFileEles.databaseName));
     }
 
     return isEmpty;
@@ -301,8 +280,8 @@ function isProcessNameEmpty() {
  * @return {Promise<boolean>} - true: duplicate with exist data source name in DB, false: unique (not duplicate)
  */
 async function isDataSourceNameDuplicate() {
-    removeBorderFromInvalidInput(registerFromFileEles.databaseName);
-    const dbsName = registerFromFileEles.databaseName.val();
+    removeBorderFromInvalidInput($(registerFromFileEles.databaseName));
+    const dbsName = $(registerFromFileEles.databaseName).val();
 
     let isDuplicate = false;
     const isDuplicatedDbsName = await checkDuplicatedDataSourceName(dbsName);
@@ -310,7 +289,7 @@ async function isDataSourceNameDuplicate() {
         isDuplicate = true;
         // show duplicated dbs msg
         addMessengerToProgressBar(registerI18n.i18nDataSourceNameIsAlreadyRegistered, ICON_STATUS.WARNING);
-        addBorderToInvalidInput(registerFromFileEles.databaseName);
+        addBorderToInvalidInput($(registerFromFileEles.databaseName));
     }
 
     return isDuplicate;
@@ -500,7 +479,7 @@ async function handleResponseData(request) {
         /** @type {ProcessData[]} */
         data.datasourceConfig.master_type !== 'V2' ? await convertStructureData(data) : convertStructureDataV2(data);
     displayPreviewContentData();
-    renderProcessConfig(processConfigs);
+    await renderProcessConfig(processConfigs);
 
     addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.SUCCESS, registerSteps.SCANNING, true);
 }
@@ -561,6 +540,7 @@ function convertStructureDataV2(data) {
                 name_jp: processConfig.name_jp,
                 name_local: processConfig.name_local,
                 shown_name: isShowJapaneseName ? processConfig.name_jp : processConfig.name_en,
+
                 origin_name: processConfig.origin_name,
                 dummy_datetime_idx: processConfig.dummy_datetime_idx,
             },
@@ -573,40 +553,44 @@ function convertStructureDataV2(data) {
  * Render (1-n) Process Config(s) for response data
  * @param {ProcessData[]} data - a response data that contains all process config(s) information
  */
-function renderProcessConfig(data) {
-    data.forEach((processData, index) => {
+async function renderProcessConfig(data) {
+    for (const [index, processData] of data.entries()) {
         // TODO: is_checked attribute must be include in response data.
         processData.data.columns.forEach((processColumnConfig) => (processColumnConfig.is_checked = true));
 
         // This set id logic ONLY APPLY for EDGE SERVER
         processData.data.id = processData.data.id == null ? index : processData.data.id;
 
-        /** @type ProcessConfigSection */
-        let processConfigSectionObj;
-        if (index === 0) {
-            // In case of main section, no need to render
-            processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForMain(
-                processData.data,
-                processData.rows,
-            );
-        } else {
-            // In case of extend section, need to render
-            processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForExtend(
-                processData.data,
-                processData.rows,
-            );
+        await ProcessConfigSection.createProcessConfigSectionForExtend(processData.data, processData.rows);
 
-            processConfigSectionObj.render();
-        }
+        // processConfigSectionObj.render();
+        // if (index === 0) {
+        //     return;
+        //     // In case of main section, no need to render
+        //     generateProcessList(processData.data.columns, processData.rows, true, false, false, false);
+        //     // processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForMain(
+        //     //     processData.data,
+        //     //     processData.rows,
+        //     // );
+        // } else {
+        //     // In case of extend section, need to render
+        //     processConfigSectionObj = ProcessConfigSection.createProcessConfigSectionForExtend(
+        //         processData.data,
+        //         processData.rows,
+        //     );
+        //
+        //     processConfigSectionObj.render();
+        // }
 
-        processConfigSectionObj.injectEvents();
-    });
-
+        // processConfigSectionObj.injectEvents();
+    }
+    // TODO: TuanNH handle uncheck file name
     // Uncheck of Filename in [Register by File] as default
     const elmsInputFileName = $('input[data-is_file_name="true"]');
     elmsInputFileName.each(function () {
         $(this).prop('checked', false).trigger('change');
     });
+    showHideCopyPasteProcessConfigButtons();
 }
 
 const addMessengerToProgressBar = (
@@ -656,10 +640,10 @@ const addMessengerToProgressBar = (
 const resetProgressBar = () => {
     $(registerFromFileEles.progressDisplay).empty();
     [
-        registerFromFileEles.databaseName,
-        registerFromFileEles.processEnName,
-        registerFromFileEles.processJapaneseName,
-        registerFromFileEles.processLocalName,
+        $(registerFromFileEles.databaseName),
+        $(registerFromFileEles.processEnName),
+        $(registerFromFileEles.processJapaneseName),
+        $(registerFromFileEles.processLocalName),
     ].forEach((el) => {
         el.val('');
         removeBorderFromInvalidInput(el);
@@ -745,18 +729,18 @@ function getUrlInfo() {
  * Check there must be a main::Datetime column for each process
  * @return {boolean} - true: main::Datetime is already selected, false: not have main::Datetime in process config
  */
-const isMainDatetimeColumnSelected = () => {
+const isMainDatetimeColumnSelected = (processInfos) => {
     let isSelected = true;
-    const tableBodyElements = document.querySelectorAll('table[name=processColumnsTable] tbody');
-    tableBodyElements.forEach((tableBodyElement) => {
-        const $mainDatetime = $(tableBodyElement).find('td.column-date-type button>span[data-attr-key="is_get_date"]');
-
-        const isExistMainDatetimeColumn = $mainDatetime.length > 0;
-        const isMainDatetimeColumnChecked = $mainDatetime
-            .closest('tr')
-            .find('td.column-raw-name input[type="checkbox"]')
-            .is(':checked');
-        if (!(isExistMainDatetimeColumn && isMainDatetimeColumnChecked)) {
+    processInfos.forEach((processInfo) => {
+        const isExistMainDatetimeColumn = processInfo.columns.find((column) => column.is_get_date);
+        // const $mainDatetime = $(tableBodyElement).find('td.column-date-type button>span[data-attr-key="is_get_date"]');
+        //
+        // const isExistMainDatetimeColumn = $mainDatetime.length > 0;
+        // const isMainDatetimeColumnChecked = $mainDatetime
+        //     .closest('tr')
+        //     .find('td.column-raw-name input[type="checkbox"]')
+        //     .is(':checked');
+        if (!isExistMainDatetimeColumn) {
             isSelected = false;
         }
     });
@@ -774,13 +758,15 @@ const isMainDatetimeColumnSelected = () => {
  */
 function collectProcessConfigInfos() {
     const processConfigs = [];
-    const sectionHTMLObjects = document.querySelectorAll('[id^="procSettingModal"]');
+    const sectionHTMLObjects = document.querySelectorAll('[id^="procSettingModalBody_"]');
     sectionHTMLObjects.forEach((sectionHTMLObject) => {
         const processConfigSection =
             sectionHTMLObject.__object__ != null
                 ? sectionHTMLObject.__object__
                 : new ProcessConfigSection(sectionHTMLObject);
-        const requestProcessConfig = processConfigSection.collectProcessConfig();
+
+        const tableId = ProcessConfigSection.processColumnsTableId(processConfigSection.processId);
+        const requestProcessConfig = processConfigSection.collectProcessConfig(tableId);
         const processConfig = ProcessConfigSection.splitUsedColumnAndUnusedColumn(requestProcessConfig);
         processConfigs.push(processConfig);
     });
@@ -836,10 +822,17 @@ const saveDataSourceAndProc = async () => {
     const isProcNameDuplicate = await isProcessNameDuplicate();
     if (isDSNameDuplicate || isProcNameDuplicate) return;
 
-    // check is_get_date column is already defined
-    const isDatetimeColumnSelected = isMainDatetimeColumnSelected();
-    if (!isDatetimeColumnSelected) return;
-
+    // validate process column
+    const sectionHTMLObjects = document.querySelectorAll(`[id^="${procModalElements.procConfigTableName}"]`);
+    let isValid = true;
+    for (const sectionHTMLObject of sectionHTMLObjects) {
+        const isValidOneProcess = validateProcessColumn(sectionHTMLObject.id);
+        if (!isValidOneProcess) {
+            isValid = false;
+            break;
+        }
+    }
+    if (!isValid) return;
     addMessengerToProgressBar(registerI18n.i18nProcessRegisterStart);
     addMessengerToProgressBar(registerI18n.i18nProgressFolderCheck);
 
@@ -893,7 +886,8 @@ const redirectToPage = async (processIds, page) => {
         processIds: processIds,
     };
     const res = await fetchData(`/ap/api/setting/redirect_to_page`, JSON.stringify(data), 'POST');
-    goToOtherPage(res.url, true);
+    goToOtherPage(res.url, false);
+    location.reload();
 };
 
 /**
@@ -1078,17 +1072,17 @@ const handleLoadGUiFromExternalAPIRequest = () => {
     setTimeout(() => {
         // set data source name
         if (dataSourceName) {
-            registerFromFileEles.databaseName.val(dataSourceName);
+            $(registerFromFileEles.databaseName).val(dataSourceName);
         }
         if (procesNameJp) {
-            registerFromFileEles.processJapaneseName.val(procesNameJp).trigger('change');
+            $(registerFromFileEles.processJapaneseName).val(procesNameJp).trigger('change');
         }
         if (processNameLocal) {
-            registerFromFileEles.processLocalName.val(processNameLocal);
+            $(registerFromFileEles.processLocalName).val(processNameLocal);
         }
 
         if (processNameLocal && !procesNameJp) {
-            registerFromFileEles.processLocalName.trigger('change');
+            $(registerFromFileEles.processLocalName).trigger('change');
         }
     }, 500);
 
@@ -1099,7 +1093,7 @@ function clickRegisterButtonWhenEnabled() {
     // poll until all values are filled and button is enabled
     if (
         Object.prototype.hasOwnProperty.call($(registerFromFileEles.registerButton), 'disabled') ||
-        !$(registerFromFileEles.processEnName).val()
+        !$($(registerFromFileEles.processEnName)).val()
     ) {
         setTimeout(clickRegisterButtonWhenEnabled, 500);
     } else {
@@ -1159,7 +1153,7 @@ const switchToRegisterByFolder = (event) => {
  * Remove all process configs in extend section html
  */
 function removeExtendSections() {
-    document.querySelectorAll('div.section.extend-section').forEach((extendSection) => $(extendSection).remove());
+    document.querySelectorAll('div.extend-section').forEach((extendSection) => $(extendSection).remove());
 }
 
 jQuery(function () {

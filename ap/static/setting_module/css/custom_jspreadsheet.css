@@ -1,0 +1,305 @@
+﻿[id^='processColumnsTable'] .jexcel tbody td {
+    background-color: #222222 !important;
+    text-align: left !important;
+}
+
+[id^='processColumnsTable'] .jexcel td.jexcel_row {
+    text-align: center !important;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr.gray > td.readonly,
+[id^='processColumnsTable'] .jexcel > tbody > tr.gray > td.dummy_datetime_col,
+[id^='processColumnsTable'] .jexcel > tbody > tr.gray > td.readonly.dummy_datetime_col {
+    color: inherit;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr:not(.gray) > td.readonly {
+    color: white;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.disabled {
+    background-color: #444444 !important;
+    overflow: hidden;
+    -webkit-box-shadow: inset 0 0 0 1px #222222 !important;
+    -moz-box-shadow: inset 0 0 0 1px #222222 !important;
+    box-shadow: inset 0 0 0 1px #222222 !important;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr.row-unchecked > td,
+[id^='processColumnsTable'] .jexcel > tbody > tr.row-unchecked > td .config-data-type-dropdown > button > span,
+[id^='processColumnsTable'] .jexcel > tbody > tr.row-unchecked > td.dummy_datetime_col,
+[id^='processColumnsTable'] .jexcel > tbody > tr.row-unchecked > td.readonly.dummy_datetime_col {
+    color: gray;
+}
+[id^='processColumnsTable_functionTable'] .jexcel > tbody > tr.row-unchecked > td {
+    color: white !important; /* function column uncheck not gray*/
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr:not(.gray) > td.dummy_datetime_col,
+[id^='processColumnsTable'] .jexcel > tbody > tr:not(.gray) > td.readonly.dummy_datetime_col {
+    color: orange;
+}
+
+[id^='processColumnsTable'] .jexcel thead .jexcel_freezed,
+[id^='processColumnsTable'] .jexcel > tbody .jexcel_freezed:not(.disabled) {
+    background-color: #303030;
+    box-shadow: 2px 0 0 0 #ccc !important;
+    -webkit-box-shadow: 2px 0 0 0 #ccc !important;
+    -moz-box-shadow: 2px 0 0 0 #ccc !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-top,
+[id^='processColumnsTable'] .jexcel .highlight-top.highlight-left,
+[id^='processColumnsTable'] .jexcel .highlight-left {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.jexcel_row {
+    background-color: #222222 !important;
+}
+
+/* Start - Remove separate border between checkbox and name cells */
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-is-checked:not(.highlight-right):not(.selection-right) {
+    border-right: 1px solid #303030 !important;
+}
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.column-is-checked:not(.highlight-right):not(.selection-right) {
+    border-right: 1px solid transparent !important;
+}
+[id^='processColumnsTable'] .jexcel > tbody > tr.selected > td.column-is-checked.highlight:not(.highlight-right) {
+    border-right: 1px solid #3c3c3c !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-raw-name:not(.highlight-left):not(.selection-left),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-function-name:not(.highlight-left):not(.selection-left) {
+    border-left: 1px solid #303030 !important;
+}
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.column-raw-name:not(.highlight-left):not(.selection-left),
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.column-function-name:not(.highlight-left):not(.selection-left) {
+    border-left: 1px solid transparent !important;
+}
+[id^='processColumnsTable'] .jexcel > tbody > tr.selected > td.column-raw-name:not(.highlight-left),
+[id^='processColumnsTable'] .jexcel > tbody > tr.selected > td.column-function-name:not(.highlight-left) {
+    border-left: 1px solid #3c3c3c !important;
+}
+/* End - Remove separate border between checkbox and name cells */
+
+/* Start - Remove separate border between sample data cells */
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:first-child:not(.highlight-right) {
+    border-right: 1px solid #303030 !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right),
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:not(.highlight-right) {
+    border-right: 1px solid #303030 !important;
+    border-left: 1px solid #303030 !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr > td.column-sample-data:last-child:not(.highlight-right) {
+    border-left: 1px solid #303030 !important;
+}
+/* End - Remove seperate border between sample data cells */
+
+[id^='processColumnsTable'] .jexcel > thead > tr > td.required::after {
+    content: '*';
+    color: yellow;
+    padding-left: 0.2rem;
+}
+
+[id^='processColumnsTable'].jexcel_container {
+    display: block;
+}
+
+[id^='processColumnsTable'].jexcel_container,
+[id^='processColumnsTable'] .jexcel_content {
+    scrollbar-color: #222222 #444 !important;
+}
+
+/* Start - Draw borders for dragging cells */
+[id^='processColumnsTable'] .jexcel .selection-bottom {
+    border-bottom: 1px solid #739ac2 !important;
+}
+[id^='processColumnsTable'] .jexcel .selection-top {
+    border-top: 1px solid #739ac2 !important;
+}
+[id^='processColumnsTable'] .jexcel .selection-right {
+    border-right: 1px solid #739ac2 !important;
+}
+[id^='processColumnsTable'] .jexcel .selection-left {
+    border-left: 1px solid #739ac2 !important;
+}
+/* End - Draw borders for dragging cells */
+
+/* No display dropdown icon for dataTypeSelection */
+[id^='processColumnsTable'] .config-data-type-dropdown .dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Start - Custom style for checkboxes to same with bootstrap's checkbox */
+[id^='processColumnsTable'] .jexcel .custom-control-label::before,
+[id^='processColumnsTable'] .jexcel .custom-control-label::after {
+    top: -8px !important;
+    left: -2px !important;
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input {
+    display: none;
+    width: unset;
+    margin-top: unset;
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:checked ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+}
+[id^='processColumnsTable'] .jexcel .custom-control-label::before {
+    border-radius: 0.25rem;
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:checked ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3e%3c/svg%3e");
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:indeterminate ~ .custom-control-label::before {
+    border-color: #375a7f;
+    background-color: #375a7f;
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:indeterminate ~ .custom-control-label::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3e%3cpath stroke='%23fff' d='M0 2h4'/%3e%3c/svg%3e");
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: rgba(55, 90, 127, 0.5);
+}
+[id^='processColumnsTable'] .jexcel .custom-control-input:disabled:indeterminate ~ .custom-control-label::before {
+    background-color: rgba(55, 90, 127, 0.5);
+}
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.readonly > label.custom-control-label {
+    pointer-events: none;
+    opacity: 0.5;
+}
+/* End - Custom style for checkboxes to same with bootstrap's checkbox */
+
+[id^='processColumnsTable'] .jexcel {
+    background-color: #444 !important;
+    border: none !important;
+}
+
+[id^='processColumnsTable'] .jexcel td {
+    background-color: #303030;
+}
+
+[id^='processColumnsTable'] .jexcel > thead > tr > td {
+    background-color: #303030 !important;
+}
+
+[id^='processColumnsTable'] .jexcel > div > table {
+    border: none !important;
+}
+
+[id^='processColumnsTable'] .editmode-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-bottom.highlight-right {
+    /*border-bottom: 1px solid #739ac2 !important;*/
+    box-shadow: 1px 1px #375a7f40 !important;
+    -webkit-box-shadow: 1px 1px #375a7f40 !important;
+    -moz-box-shadow: 1px 1px #375a7f40 !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-bottom {
+    border-bottom: 1px solid #739ac2 !important;
+    box-shadow: 0px 1px #375a7f40 !important;
+    -webkit-box-shadow: 0px 1px #375a7f40 !important;
+    -moz-box-shadow: 0px 1px #375a7f40 !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-right {
+    border-right: 1px solid #739ac2 !important;
+    box-shadow: 1px 0px #375a7f40 !important;
+    -webkit-box-shadow: 1px 0px #375a7f40 !important;
+    -moz-box-shadow: 1px 0px #375a7f40 !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-left {
+    border-left: 1px solid #739ac2 !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight-top {
+    border-top: 1px solid #739ac2 !important;
+}
+
+[id^='processColumnsTable'] .jexcel .highlight {
+    background-color: #3c3c3c !important;
+}
+
+[id^='processColumnsTable'] .jexcel > div > table > thead > tr > td {
+    font-size: 16px;
+}
+
+[id^='processColumnsTable'] .jexcel tbody td {
+    vertical-align: middle !important;
+}
+
+[id^='processColumnsTable'] .jexcel thead td {
+    vertical-align: middle !important;
+    text-align: center !important;
+    font-weight: bolder;
+}
+
+/* Start - Make table cell border thinner*/
+[id^='processColumnsTable'] .jexcel > thead > tr > td,
+[id^='processColumnsTable'] .jexcel > tbody > tr > td {
+    border-top: 1px solid #444 !important;
+    border-left: 1px solid #444 !important;
+    border-right: 1px solid #444 !important;
+    border-bottom: 1px solid #444 !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr > td,
+[id^='processColumnsTable'] .jexcel > tbody > tr > td:not(.highlight):not(.selection):not(.column-name-invalid) {
+    border-top: 1px solid transparent !important;
+    border-left: 1px solid transparent !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr > td:first-child,
+[id^='processColumnsTable']
+    .jexcel
+    > tbody
+    > tr
+    > td:first-child:not(.highlight):not(.selection):not(.column-name-invalid) {
+    border-left: 1px solid #444 !important;
+}
+[id^='processColumnsTable'] .jexcel > thead > tr:first-child > td {
+    border-top: 1px solid #444 !important;
+}
+/* End - Make table cell border thinner*/
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.column-name-invalid {
+    border: 1px solid red !important;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td.jexcel_dropdown {
+    background-position: top 50% right 0;
+}
+
+[id^='processColumnsTable'] .jexcel .editor > input {
+    color: white;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td .config-data-type-dropdown {
+    height: auto;
+}
+
+[id^='processColumnsTable'] .jexcel > tbody > tr > td .config-data-type-dropdown button {
+    height: 23px;
+    padding: 0 4px 0 4px;
+}
+/*remove sort jexcel, use custom sort*/
+.jexcel > thead > tr > td.arrow-up {
+    background-image: none !important;
+    text-decoration: none !important;
+}
+
+.jexcel > thead > tr > td.arrow-down {
+    background-image: none !important;
+    text-decoration: none !important;
+}

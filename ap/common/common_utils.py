@@ -67,12 +67,13 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.services.normalization import unicode_normalize
+from ap.common.services.normalization import normalize_str, unicode_normalize
 
 logger = logging.getLogger(__name__)
 
 TXT_FILE_TYPE = '.txt'
 DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
+DATE_FORMAT_STR_SQLITE = '%Y-%m-%dT%H:%M:%S.%fZ'
 DATE_FORMAT_SQLITE_STR = '%Y-%m-%dT%H:%M:%S'
 DATE_FORMAT_QUERY = '%Y-%m-%dT%H:%M:%S.%f'
 DATE_FORMAT_STR_CSV = '%Y-%m-%d %H:%M:%S.%f'
@@ -130,9 +131,9 @@ def dict_deep_merge(source, destination):
     """
     Deep merge two dictionary to one.
 
-    >>> a = { 'first' : { 'all_rows' : { 'pass' : 'dog', 'number' : '1' } } }
-    >>> b = { 'first' : { 'all_rows' : { 'fail' : 'cat', 'number' : '5' } } }
-    >>> dict_deep_merge(b, a) == { 'first' : { 'all_rows' : { 'pass' : 'dog', 'fail' : 'cat', 'number' : '5' } } }
+    >>> a = {'first': {'all_rows': {'pass': 'dog', 'number': '1'}}}
+    >>> b = {'first': {'all_rows': {'fail': 'cat', 'number': '5'}}}
+    >>> assert dict_deep_merge(b, a) == {'first': {'all_rows': {'pass': 'dog', 'fail': 'cat', 'number': '5'}}}
     """
     if source:
         for key, value in source.items():
@@ -301,11 +302,11 @@ def universal_db_exists():
 # convert time before save to database YYYY-mm-DDTHH:MM:SS.NNNNNNZ
 def convert_time(
     time: object = None,
-    format_str: object = DATE_FORMAT_STR,
-    return_string: object = True,
-    only_millisecond: object = False,
-    remove_ms: object = False,
-) -> object:
+    format_str: str = DATE_FORMAT_STR,
+    return_string: bool = True,
+    only_millisecond: bool = False,
+    remove_ms: bool = False,
+) -> Union[datetime, str]:
     if not time:
         time = datetime.utcnow()
     elif isinstance(time, str):
@@ -680,6 +681,15 @@ def get_terms_of_use_md_file(current_locale):
     """
     folder_name = 'about'
     file_name = 'terms_of_use_jp.md' if current_locale.language == 'ja' else 'terms_of_use_en.md'
+    return resource_path(folder_name, file_name, level=AbsPath.SHOW)
+
+
+def get_cookie_policy_md_file(current_locale):
+    """
+    get about markdown file path
+    """
+    folder_name = 'about'
+    file_name = 'cookie_policy_jp.md' if current_locale.language == 'ja' else 'cookie_policy_en.md'
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
 
 
@@ -1178,20 +1188,23 @@ def get_debug_data(key):
 
 @log_execution_time()
 def zero_variance(df: DataFrame):
-    is_zero_var = False
+    """
+    check zero variance for all columns from df
+    zero_variance means number of uniques is equal to 1, or
+    all items are np.nan
+    eg.:
+        var([1,1,1]) = 0 # numeric data
+        var(['text','text','text']) = 0 # categorical data
+        var([np.nan, np.nan]) = nan # na data
+    """
     err_cols = []
     for col in df.columns:
-        if pd.api.types.is_numeric_dtype(df[col]):
-            variance = df[col].replace([np.inf, -np.inf], np.nan).var()
-            if pd.isna(variance) or variance == 0:
-                is_zero_var = True
-                err_cols.append(col)
-        if pd.api.types.is_categorical_dtype(df[col]) or pd.api.types.is_string_dtype(df[col]):
-            df_category = pd.Series(df[col].astype('category').cat.codes)
-            variance = df_category.replace([np.inf, -np.inf], np.nan).var()
-            if pd.isna(variance) or variance == 0:
-                is_zero_var = True
-                err_cols.append(col)
+        _series = df[col].to_numpy()
+        is_constant = _series.shape[0] == 0 or (_series[0] == _series).all()
+        if is_constant:
+            err_cols.append(col)
+
+    is_zero_var = len(err_cols) > 0
     return is_zero_var, err_cols
 
 
@@ -1562,15 +1575,31 @@ def find_duplicate_values(key_value_dict: dict[Any, str]) -> dict[str, Any]:
 def add_suffix_for_same_column_name(key_value_dict: dict[Any, str]):
     """Add suffix for duplicate names in dictionary
 
+    For example:
+        list columns from input: [テキスト,ﾃｷｽﾄ,ﾃｷｽﾄ]
+        list columns from output (after add suffix)
+              OK: [テキスト,ﾃｷｽﾄ_01,ﾃｷｽﾄ_02]
+              NG: [テキスト,ﾃｷｽﾄ,ﾃｷｽﾄ_01]
+
     Args:
         key_value_dict: dictionary with duplicate names
 
     Returns:
         dictionary with unique names (added suffix for duplicate names)
-    """
 
-    output = copy.deepcopy(key_value_dict)
-    duplicate_value_item = find_duplicate_values(key_value_dict)
+    >>> col_as_dict = {
+    ...     'TEXT01': 'テキスト',
+    ...     'TEXT02': 'ﾃｷｽﾄ',
+    ...     'TEXT03': 'ﾃｷｽﾄ'
+    ... }
+    >>> add_suffix_for_same_column_name(col_as_dict)
+    {'TEXT01': 'テキスト', 'TEXT02': 'ﾃｷｽﾄ_01', 'TEXT03': 'ﾃｷｽﾄ_02'}
+    """
+    # Use normalized_cols to check for duplicates, but do not include them in the output.
+    # The output should be the original key_value_dict with the suffix appended.
+    normalized_cols = {k: normalize_str(v) for k, v in key_value_dict.items()}
+    output = copy.copy(key_value_dict)
+    duplicate_value_item = find_duplicate_values(normalized_cols)
     for duplicate_value, keys in duplicate_value_item.items():
         suffix_index = 1
         for key in keys[1:]:  # skip first element in list

@@ -30,7 +30,7 @@ class InputChangeObserver {
         const config = {
             attributes: true, // Monitor attribute changes
             subtree: true, // Observe all descendants of the target node
-            attributeFilter: ['value', 'checked', 'selected', 'data-mutation'], // Observe value and checked attributes
+            attributeFilter: ['value', 'checked', 'selected', 'data-mutation', 'data-observer'], // Observe value and checked attributes
             attributeOldValue: true, // Pass old data to callback
         };
 
@@ -66,6 +66,11 @@ class InputChangeObserver {
                 break;
             case 'SELECT':
                 modifyStatus = target.value !== target.dataset.observer;
+                break;
+            case 'BUTTON':
+                if (target.name === 'initializeProcess') {
+                    modifyStatus = target.getAttribute('data-observer') === 'initialized';
+                }
                 break;
             default:
                 // input
@@ -159,7 +164,10 @@ class InputChangeObserver {
         this.attachSelectListener();
     }
 
-    // Stop observing and remove all event listeners
+    /**
+     * Stop observing and remove all event listeners
+     * @returns {boolean}
+     */
     stopObserving() {
         if (this.observer) {
             this.observer.disconnect();
@@ -169,5 +177,7 @@ class InputChangeObserver {
 
         // Remove attached event listeners
         this.removeEvents();
+
+        return true;
     }
 }

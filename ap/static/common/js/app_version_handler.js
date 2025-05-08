@@ -3,6 +3,9 @@
  * @author Pham Minh Hoang <hoangpm6@fpt.com>
  */
 
+const ANNOUNCE_UPDATE_TIME = 60;
+const LIMIT_CHECKING_NEWER_VERSION_TIME = 60;
+
 /**
  * Get value by key name in Cookie
  * @param name - a key name in cookie
@@ -58,7 +61,7 @@ function getLatestRelease() {
  */
 function getCurrentVersionInfo() {
     const [appVersion, version, sprintNumber, commitHash] = /^(v.*)\.(\d+)\.([A-Za-z0-9]+)/g.exec(
-        getCookie('app_version'),
+        appContext.app_version,
     );
     return {
         appVersion,
@@ -84,7 +87,6 @@ async function isCurrentVersionInUpdate() {
  * blink icon and change name of option in 1 minutes, then revert to normal stage automatically.
  */
 function announceNewVersion() {
-    const announceUpdateTime = parseInt(getCookie('announce_update_time'));
     const tourButtonElement = document.getElementById('tour-btn');
     const autolinkElement = document.getElementById('githubLink');
     const previousQuestionIconHTML = tourButtonElement.innerHTML;
@@ -100,7 +102,7 @@ function announceNewVersion() {
     setTimeout(() => {
         tourButtonElement.innerHTML = previousQuestionIconHTML;
         autolinkElement.innerHTML = previousAutolinkContentHTML;
-    }, announceUpdateTime * 1000);
+    }, ANNOUNCE_UPDATE_TIME * 1000);
 }
 
 /**
@@ -110,13 +112,12 @@ function announceNewVersion() {
  * @return {Promise<void>}
  */
 async function checkNewVersion() {
-    const appStartupTime = moment.utc(getCookie('app_startup_time')).local();
-    const limitCheckingNewerVersionTime = parseInt(getCookie('limit_checking_newer_version_time'));
+    const appStartupTime = moment.utc(appContext.app_startup_time).local();
     const now = moment();
 
     // calculate the time from startup to now is many seconds through
     const passingTime = (now - appStartupTime) / 1000;
-    if (passingTime < limitCheckingNewerVersionTime) {
+    if (passingTime < LIMIT_CHECKING_NEWER_VERSION_TIME) {
         // in case of out update
         if (await isCurrentVersionInUpdate()) {
             console.info('Application is IN UPDATE');
@@ -131,8 +132,3 @@ async function checkNewVersion() {
         //  or announce new version
     }
 }
-
-(() => {
-    // Wait for document ready to check new version
-    setTimeout(() => checkNewVersion().catch((e) => console.warn(e)), 200);
-})();

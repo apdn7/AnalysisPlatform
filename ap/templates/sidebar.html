@@ -33,7 +33,7 @@
                 <i class="fas fa-chart-bar"></i><span class="nav-text">{{ _('Data Visualization') }}</span></a
             >
             <ul class="list-unstyled collapse" id="traceDataSubmenu">
-                <li data-search="FPP Full-points Plot{{ _('Full-points Plot') }}">
+                <li data-search="FPP Full-points Plot {{ _('Full-points Plot') }}">
                     <a
                         href="{{ url_for('trace_data.trace_data') }}"
                         class="go-to-page"
@@ -43,7 +43,7 @@
                         <span class="nav-text hint-text">{{ _('Full-points Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="StP Stratified Plot{{ _('Stratified Plot') }}">
+                <li data-search="StP Stratified Plot {{ _('Stratified Plot') }}">
                     <a
                         href="{{ url_for('categorical_plot.categorical_plot') }}"
                         class="go-to-page"
@@ -53,7 +53,7 @@
                         <span class="nav-text hint-text">{{ _('Stratified Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="RLP Ridgeline Plot{{ _('Ridgeline Plot') }}">
+                <li data-search="RLP Ridgeline Plot {{ _('Ridgeline Plot') }}">
                     <a
                         href="{{ url_for('ridgeline_plot.ridgeline_plot') }}"
                         title="{{ _('RidgeLine Plot Hover') }}"
@@ -63,7 +63,7 @@
                         <span class="nav-text hint-text">{{ _('Ridgeline Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="CHM Calendar Heat Map{{ _('Calendar Heat Map') }}">
+                <li data-search="CHM Calendar Heat Map {{ _('Calendar Heat Map') }}">
                     <a
                         href="{{ url_for('calendar_heatmap.index') }}"
                         class="go-to-page"
@@ -73,23 +73,23 @@
                         <span class="nav-text hint-text">{{ _('Calendar Heat Map') }}</span>
                     </a>
                 </li>
-                <li data-search="AgP Aggregation Plot{{ _('Aggregation Plot') }}">
+                <li data-search="AgP Aggregation Plot {{ _('Aggregation Plot') }}">
                     <a href="{{ url_for('agp.index') }}" class="go-to-page" title="{{ _('Aggregation Plot info') }}">
                         <span class="page-character">AgP</span>
                         <span class="nav-text hint-text">{{ _('Aggregation Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="MSP Multi Scatter Plot{{ _('Multi Scatter Plot') }}">
+                <li data-search="MSP Multi Scatter Plot {{ _('Multi Scatter Plot') }}">
                     <a
                         href="{{ url_for('multiple_scatter_plot.index') }}"
                         class="go-to-page"
                         title="{{ _('Displays a scatter chart matrix. You can create a matrix between up to four target variables.') }}"
                     >
                         <span class="page-character">MSP</span>
-                        <span class="nav-text hint-text">{{ _('Multi Scatter Plot') }}</span>
+                        <span class="nav-text hint-text"> {{ _('Multi Scatter Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="ScP Scatter Plot{{ _('Scatter Plot') }}">
+                <li data-search="ScP Scatter Plot {{ _('Scatter Plot') }}">
                     <a
                         href="{{ url_for('scatter_plot.index') }}"
                         class="go-to-page"
@@ -99,7 +99,7 @@
                         <span class="nav-text hint-text">{{ _('Scatter Plot') }}</span></a
                     >
                 </li>
-                <li data-search="HMp Heatmap Plot{{ _('Heatmap Plot Page Title') }}">
+                <li data-search="HMp Heatmap Plot {{ _('Heatmap Plot Page Title') }}">
                     <a
                         href="{{ url_for('heatmap.index') }}"
                         class="go-to-page"
@@ -109,7 +109,7 @@
                         <span class="nav-text hint-text">{{ _('Heatmap Plot Page Title') }}</span></a
                     >
                 </li>
-                <li data-search="PCP Parallel Coordinates Plot{{ _('Parallel Coordinates Plot') }}">
+                <li data-search="PCP Parallel Coordinates Plot {{ _('Parallel Coordinates Plot') }}">
                     <a
                         href="{{ url_for('parallel_plot.index') }}"
                         class="go-to-page"
@@ -119,7 +119,7 @@
                         <span class="nav-text hint-text">{{ _('Parallel Coordinates Plot') }}</span>
                     </a>
                 </li>
-                <li data-search="SkD Sankey Diagram{{ _('Sankey Diagram') }}">
+                <li data-search="SkD Sankey Diagram {{ _('Sankey Diagram') }}">
                     <a
                         href="{{ url_for('sankey_plot.index') }}"
                         class="go-to-page"
@@ -129,7 +129,7 @@
                         <span class="nav-text hint-text">{{ _('Sankey Diagram') }}</span>
                     </a>
                 </li>
-                <li data-search="COG Co-occurrence Graph{{ _('Co-occurrence Graph') }}">
+                <li data-search="COG Co-occurrence Graph {{ _('Co-occurrence Graph') }}">
                     <a
                         href="{{ url_for('co_occurrence.index') }}"
                         class="go-to-page"
@@ -161,7 +161,7 @@
                         ><span class="nav-text">{{ _('Anomaly Detection') }}</span></a
                     >
                     <ul class="list-unstyled collapse" id="anomalyDetectionMn">
-                        <li data-search="PCA Principal Component Analysis{{ _('Principal Component Analysis') }}">
+                        <li data-search="PCA Principal Component Analysis {{ _('Principal Component Analysis') }}">
                             <a
                                 href="{{ url_for('analyze.pca') }}"
                                 class="go-to-page"
@@ -183,7 +183,7 @@
                         ><span class="nav-text">{{ _('Structure Learning') }}</span></a
                     >
                     <ul class="list-unstyled collapse" id="structureLearningMn">
-                        <li data-search="GL Graphical Lasso{{ _('Graphical Lasso') }}">
+                        <li data-search="GL Graphical Lasso {{ _('Graphical Lasso') }}">
                             <a href="{{ url_for('analyze.gl') }}" class="go-to-page" title="{{ _('GL Page Title') }}">
                                 <span class="page-character">GL</span>
                                 <span class="nav-text hint-text">{{ _('Graphical Lasso') }}</span>
@@ -203,27 +203,27 @@
                 ><i class="fas fa-cog"></i><span class="nav-text">{{ _('Config') }}</span></a
             >
             <ul class="list-unstyled collapse show" id="pageSubmenu">
-                <li data-search="Data Source Config{{ _('Data Source Config') }}">
+                <li data-search="Data Source Config {{ _('Data Source Config') }}">
                     <a href="{{ url_for('setting_module.config_screen') }}#data_source" class="go-to-page"
                         ><span class="nav-text">{{ _('Data Source Config') }}</span></a
                     >
                 </li>
-                <li data-search="Process Config{{ _('Process Config') }}">
+                <li data-search="Process Config {{ _('Process Config') }}">
                     <a href="{{ url_for('setting_module.config_screen') }}#process" class="go-to-page"
                         ><span class="nav-text">{{ _('Process Config') }}</span></a
                     >
                 </li>
-                <li data-search="Data Link Config{{ _('Data Link Config') }}">
+                <li data-search="Data Link Config {{ _('Data Link Config') }}">
                     <a href="{{ url_for('setting_module.config_screen') }}#data_link" class="go-to-page"
                         ><span class="nav-text">{{ _('Data Link Config') }}</span></a
                     >
                 </li>
-                <li data-search="Filter Config{{ _('Filter Config') }}">
+                <li data-search="Filter Config {{ _('Filter Config') }}">
                     <a href="{{ url_for('setting_module.filter_config') }}" class="go-to-page"
                         ><span class="nav-text">{{ _('Filter Config') }}</span></a
                     >
                 </li>
-                <li data-search="Display Config{{ _('Threshold/Graph Config') }}">
+                <li data-search="Display Config {{ _('Threshold/Graph Config') }}">
                     <a
                         href="{{ url_for('setting_module.master_config') }}"
                         title="{{ _('Master Config Hover') }}"
@@ -232,14 +232,14 @@
                         <span class="nav-text hint-text">{{ _("Threshold/Graph Config") }}</span></a
                     >
                 </li>
-                <li data-search="Job list{{ _('Job list') }}">
+                <li data-search="Job list {{ _('Job list') }}">
                     <a href="{{ url_for('setting_module.background_process') }}" class="go-to-page"
                         ><span class="nav-text">{{ _("Job list") }}</span></a
                     >
                 </li>
             </ul>
         </li>
-        <li class="menu-group-item go-to-page" data-search="Table Viewer{{ _('Table Viewer') }}">
+        <li class="menu-group-item go-to-page" data-search="Table Viewer {{ _('Table Viewer') }}">
             <a class="nav-link" href="{{ url_for('table_viewer.index') }}"
                 ><i class="fas fa-table"></i><span class="nav-text">{{ _('Table Viewer') }}</span></a
             >

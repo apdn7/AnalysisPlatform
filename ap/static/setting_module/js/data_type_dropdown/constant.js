@@ -71,19 +71,19 @@ class DataTypeDropdown_Constant {
      * A list of attributes that be limited to select only one 1 column / process
      */
     static AllowSelectOneAttrs = Object.freeze([
-        'is_get_date',
-        'is_main_date',
-        'is_main_time',
-        'is_main_serial_no',
-        'is_line_name',
-        'is_line_no',
-        'is_eq_name',
-        'is_eq_no',
-        'is_part_name',
-        'is_part_no',
-        'is_st_no',
-        'is_judge',
-        'is_auto_increment',
+        masterDataGroup.MAIN_DATETIME,
+        masterDataGroup.MAIN_SERIAL,
+        masterDataGroup.DATETIME_KEY,
+        masterDataGroup.MAIN_DATE,
+        masterDataGroup.MAIN_TIME,
+        masterDataGroup.LINE_NAME,
+        masterDataGroup.LINE_NO,
+        masterDataGroup.EQ_NAME,
+        masterDataGroup.EQ_NO,
+        masterDataGroup.PART_NAME,
+        masterDataGroup.PART_NO,
+        masterDataGroup.ST_NO,
+        masterDataGroup.JUDGE,
     ]);
 
     /**
@@ -152,7 +152,6 @@ class DataTypeDropdown_Constant {
     static DataTypeOrder = Object.freeze([
         DataTypes.JUDGE.name,
         DataTypes.BOOLEAN.name,
-        DataTypes.INTEGER.name,
         DataTypes.INTEGER.name,
         DataTypes.INTEGER_SEP.name,
         DataTypes.EU_INTEGER_SEP.name,

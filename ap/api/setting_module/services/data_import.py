@@ -57,6 +57,7 @@ from ap.common.services.csv_content import read_data
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_df, normalize_str
 from ap.common.timezone_utils import calc_offset_between_two_tz
+from ap.import_filter.utils import import_filter_from_df
 from ap.setting_module.models import (
     CfgConstant,
     CfgDataSource,
@@ -120,7 +121,9 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 
 
 @log_execution_time('[DATA IMPORT]')
-def import_data(df, cfg_process: CfgProcess, get_date_col, job_info=None):
+def import_data(df, target_cfg_process: CfgProcess, get_date_col, job_info=None, child_cfg_proc=None):
+    df = import_filter_from_df(df, target_cfg_process)
+
     cycles_len = len(df)
     if not cycles_len:
         return 0
@@ -132,14 +135,18 @@ def import_data(df, cfg_process: CfgProcess, get_date_col, job_info=None):
 
     # insert cycles
     # get cycle and sensor columns for insert sql
-    dic_cfg_cols = {cfg_col.column_name: cfg_col for cfg_col in cfg_process.get_transaction_process_columns()}
-    table_name = gen_transaction_table_name(cfg_process.id)
+    dic_cfg_cols = {cfg_col.column_name: cfg_col for cfg_col in target_cfg_process.get_transaction_process_columns()}
+    table_name = gen_transaction_table_name(target_cfg_process.id)
     dic_col_with_type = {dic_cfg_cols[col].bridge_column_name: dic_cfg_cols[col].data_type for col in df.columns}
     col_names = dic_col_with_type.keys()
 
     sql_params = get_insert_params(col_names)
     sql_insert = gen_bulk_insert_sql(table_name, *sql_params)
-    with DbProxy(gen_data_source_of_universal_db(cfg_process.id), True, immediate_isolation_level=True) as db_instance:
+    with DbProxy(
+        gen_data_source_of_universal_db(target_cfg_process.id),
+        True,
+        immediate_isolation_level=True,
+    ) as db_instance:
         # add new column name if not exits
         TransactionData.add_columns(db_instance, table_name, dic_col_with_type)
 
@@ -147,12 +154,15 @@ def import_data(df, cfg_process: CfgProcess, get_date_col, job_info=None):
         insert_data(db_instance, sql_insert, insert_vals)
 
         # insert data count
-        save_proc_data_count(db_instance, df, cfg_process.id, get_date_col)
+        save_proc_data_count(db_instance, df, target_cfg_process.id, get_date_col)
 
     # update actual imported rows
     job_info.committed_count = df.shape[0]
     # insert import history
-    save_import_history(cfg_process.id, job_info=job_info)
+    if child_cfg_proc:
+        save_import_history(child_cfg_proc.id, job_info=job_info)
+    else:
+        save_import_history(target_cfg_process.id, job_info=job_info)
 
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
@@ -438,7 +448,7 @@ def gen_duplicate_output_df(
     new_row = ('',)
     df_output = add_row_to_df(df_output, columns, new_row)
 
-    new_row = [dic_use_cols[col_name].predict_type for col_name in columns if col_name in dic_use_cols]
+    new_row = [dic_use_cols[col_name].raw_data_type for col_name in columns if col_name in dic_use_cols]
     df_output = add_row_to_df(df_output, columns, new_row)
 
     new_row = ('data type',)
@@ -742,7 +752,6 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
 
     # string + object + category
     float_cols = df.select_dtypes(include=['float32', 'float64']).columns.tolist()
-    int_cols = df.select_dtypes(include=['int32', 'int64']).columns.tolist()
     for col_name in df.columns:
         if col_name in exclude_cols:
             continue
@@ -750,13 +759,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
         if col_name not in dic_use_cols:
             continue
 
-        # do nothing with int column
-        if col_name in int_cols:
-            continue
-
         # data type that user chose
         user_data_type = dic_use_cols[col_name].data_type
-        d_type = dic_use_cols[col_name].predict_type
+        raw_data_type = dic_use_cols[col_name].raw_data_type
 
         if col_name in float_cols:
             if user_data_type == DataType.INTEGER.name:
@@ -781,13 +786,13 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             df[col_name] = df[col_name].astype(pd.StringDtype()).str.lower()
 
         # convert K sep Int|Real data type
-        if d_type and DataType[d_type] in [
+        if raw_data_type and DataType[raw_data_type] in [
             DataType.REAL_SEP,
             DataType.INTEGER_SEP,
             DataType.EU_REAL_SEP,
             DataType.EU_INTEGER_SEP,
         ]:
-            df = convert_eu_decimal(df, col_name, d_type)
+            df = convert_eu_decimal(df, col_name, raw_data_type)
 
         if user_data_type in [DataType.INTEGER.name, DataType.REAL.name, DataType.BOOLEAN.name]:
             numeric_data, non_numeric_data = convert_numeric_by_type(df[col_name], user_data_type)

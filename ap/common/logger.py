@@ -395,6 +395,7 @@ def get_log_handlers(
             record_max_bytes=RECORD_MAX_BYTE,
             flush_interval=WRITE_BY_TIME,
         )
+        memory_handler.setLevel(log_level)
 
         # handle rotate log file by file-size
         handlers.append(memory_handler)

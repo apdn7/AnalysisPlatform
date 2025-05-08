@@ -1,4 +1,5 @@
-.config-data-type-dropdown button {
+.config-data-type-dropdown button,
+.jexcel > tbody > tr > td .config-data-type-dropdown button {
     width: 100%;
     padding: 0 15px 0 4px;
     text-align: left;
@@ -7,15 +8,24 @@
 }
 
 .gray .config-data-type-dropdown button,
-.gray .config-data-type-dropdown button span {
+.gray .config-data-type-dropdown button span,
+.jexcel > tbody > tr > td .gray .config-data-type-dropdown button,
+.jexcel > tbody > tr > td .gray .config-data-type-dropdown button span {
     color: gray;
 }
 
-.config-data-type-dropdown {
+.config-data-type-dropdown,
+.jexcel > tbody > tr > td .config-data-type-dropdown {
     height: 25px;
 }
 
-.data-type-selection {
+.jexcel > tbody > tr > td.readonly .config-data-type-dropdown,
+.jexcel > tbody > tr.row-unchecked td .config-data-type-dropdown {
+    color: white;
+}
+
+.data-type-selection,
+.jexcel > tbody > tr > td .data-type-selection {
     background-color: #222222;
     flex-direction: row;
     width: fit-content;
@@ -24,16 +34,19 @@
     border: 1px solid #444444;
 }
 
-.data-type-selection.dropdown-menu.show {
+.data-type-selection.dropdown-menu.show,
+.jexcel > tbody > tr > td .data-type-selection.dropdown-menu.show {
     display: flex !important;
 }
 
-.data-type-selection-content {
+.data-type-selection-content,
+.jexcel > tbody > tr > td .data-type-selection-content {
     display: flex;
     flex-direction: column;
 }
 
-.data-type-selection-title {
+.data-type-selection-title,
+.jexcel > tbody > tr > td .data-type-selection-title {
     text-align: left;
     padding: 4px 4px 0;
     font-weight: bold;
@@ -43,34 +56,45 @@
     width: 100%;
 }
 
-.data-type-selection-box ul {
+.data-type-selection-box ul,
+.jexcel > tbody > tr > td .data-type-selection-box ul {
     list-style: none;
     padding: 0;
     margin-bottom: 4px;
 }
 
-.data-type-selection-box ul li {
+.data-type-selection-box ul li,
+.jexcel > tbody > tr > td .data-type-selection-box ul li {
     padding: 0 8px;
     cursor: pointer;
 }
 
-.data-type-selection-box ul li:is([disabled='disabled']) {
+.data-type-selection-box ul li:is([disabled='disabled']),
+.jexcel > tbody > tr > td .data-type-selection-box ul li:is([disabled='disabled']) {
     color: grey !important;
     cursor: default;
 }
 
-.data-type-selection-box ul li.active {
+.data-type-selection-box ul li.active,
+.jexcel > tbody > tr > td .data-type-selection-box ul li.active {
     background-color: dodgerblue;
 }
 
-.gray .data-type-selection-content li {
+.gray .data-type-selection-content li,
+.jexcel > tbody > tr > td .gray .data-type-selection-content li {
     color: white !important;
 }
 
-.data-type-selection-box ul li:not([disabled='disabled']):hover {
+.data-type-selection-box ul li:not([disabled='disabled']):hover,
+.jexcel > tbody > tr > td .data-type-selection-box ul li:not([disabled='disabled']):hover {
     background-color: dodgerblue;
 }
 
 .copy-item {
     padding: 0 8px;
+}
+
+.jexcel > tbody > tr > td .config-data-type-dropdown {
+    line-height: normal;
+    text-align: left;
 }

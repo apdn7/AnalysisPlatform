@@ -248,7 +248,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     # sensors
     df_sensors: DataFrame = df[cols]
 
-    _, _, errors, err_cols, dic_null_percent, dic_var = clean_input_data(df_sensors)
+    _, _, errors, err_cols, dic_null_percent = clean_input_data(df_sensors)
 
     # use column id instead of label
     err_cols = [ids[col] for col in err_cols] if len(err_cols) else []
@@ -555,7 +555,7 @@ class PCA:
         covmat = np.cov(X.T)
 
         # note that eig() does not return eigen values in descending order
-        eig_vals, eig_vecs = np.linalg.eig(covmat)
+        eig_vals, eig_vecs = np.linalg.eigh(covmat)
         idx_desc = np.argsort(eig_vals)[::-1]
         eig_vals = eig_vals[idx_desc]
         eig_vecs = eig_vecs[:, idx_desc]

@@ -81,27 +81,29 @@ const parseJudgeData = (v) => {
 
 /**
  * Parse Data Type for sample data in row
- * @param {HTMLLIElement} ele - a li HTML element object
+ * @param {SpreadSheetProcessConfig} spreadsheet - spreadsheet
+ * @param {dataType} ele - dataType
  * @param {number|string?} idx - index of row in table's body
+ * @param {string} columnType - column type of row in table's body
  * @param {HTMLDivElement?} dataTypeDropdownElement - a div HTML object of datatype dropdown menu
  */
-const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
+const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, dataTypeDropdownElement = null) => {
     // change background color
-    changeBackgroundColor(ele);
+    // changeBackgroundColor(ele);
 
-    const vals = [...procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${idx}) .sample-data`)].map((el) =>
+    const vals = [...$(`#${spreadsheet.table.table.el.id}`).find(`tr:eq(${Number(idx) + 1}) .sample-data`)].map((el) =>
         $(el),
     );
     const getParamsForFormatDatetime = () => {
         return {
-            dataType: ele.getAttribute('value'),
-            colIdx: idx,
-            dataTypeDropdownElement: dataTypeDropdownElement ?? ele.closest('.config-data-type-dropdown'),
+            dataType: dataType,
+            rowIdx: idx,
+            isGeneratedMainDatetimeColumn: false, // TODO: Check isGeneratedMainDatetimeColumn
         };
     };
-    const attrName = 'data-original';
+    const attrName = DATA_ORIGINAL_ATTR;
 
-    switch (ele.getAttribute('value')) {
+    switch (dataType) {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
@@ -112,70 +114,11 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
                 e.html(val);
             }
             break;
-        case DataTypes.REAL.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.DATETIME.name:
-            showProcDatetimeFormatSampleData(getParamsForFormatDatetime());
-            // for (const e of vals) {
-            //     let val = e.attr(attrName);
-            //     val = parseDatetimeStr(val);
-            //     e.html(val);
-            // }
-            break;
-        case DataTypes.DATE.name:
-            showProcDatetimeFormatSampleData(getParamsForFormatDatetime());
-            // for (const e of vals) {
-            //     let val = e.attr(attrName);
-            //     val = parseDatetimeStr(val, true);
-            //     e.html(val);
-            // }
-            break;
-        case DataTypes.TIME.name:
-            showProcDatetimeFormatSampleData(getParamsForFormatDatetime());
-            // for (const e of vals) {
-            //     let val = e.attr(attrName);
-            //     val = parseTimeStr(val);
-            //     e.html(val);
-            // }
-            break;
-        case DataTypes.BOOLEAN.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                if ($(ele).is('[is_judge]')) {
-                    val = parseJudgeData(val);
-                } else {
-                    val = parseBooleanData(val);
-                }
-                e.html(val);
-            }
-            break;
-        case DataTypes.REAL_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseFloatData(val);
-                e.html(val);
-            }
-            break;
         case DataTypes.INTEGER_SEP.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
                 val = val.replaceAll(',', '');
                 val = parseIntData(val);
-                e.html(val);
-            }
-            break;
-        case DataTypes.EU_REAL_SEP.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseFloatData(val);
                 e.html(val);
             }
             break;
@@ -188,6 +131,51 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
                 e.html(val);
             }
             break;
+        case DataTypes.REAL.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.REAL_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll(',', '');
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.EU_REAL_SEP.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                val = val.replaceAll('.', '');
+                val = val.replaceAll(',', '.');
+                val = parseFloatData(val);
+                e.html(val);
+            }
+            break;
+        case DataTypes.DATETIME.name:
+            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
+            break;
+        case DataTypes.DATE.name:
+            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
+            break;
+        case DataTypes.TIME.name:
+            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
+            break;
+        case DataTypes.BOOLEAN.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                if (columnType === masterDataGroup.JUDGE) {
+                    val = parseJudgeData(val);
+                } else {
+                    val = parseBooleanData(val);
+                }
+                e.html(val);
+            }
+            break;
+
         default:
             for (const e of vals) {
                 let val = e.attr(attrName);
@@ -196,22 +184,19 @@ const parseDataTypeProc = (ele, idx, dataTypeDropdownElement = null) => {
             }
             break;
     }
-    // changeSelectedColumnRaw(ele, idx);
-    // updateSubmitBtn();
 };
 
 const parseProcDatetimeFormatSampleData = async (dataType, values) => {
     const condition = displayDatetimeFormatCondition();
-
+    const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
     if (condition.showRawData) {
         return values;
     } else {
-        return await parseProcDatetimeInputFormat(dataType, values);
+        return await parseProcDatetimeInputFormat(inputFormat, dataType, values);
     }
 };
 
-const parseProcDatetimeInputFormat = async (dataType, values, isGeneratedMainDatetimeColumn = false) => {
-    const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
+const parseProcDatetimeInputFormat = async (inputFormat, dataType, values, isGeneratedMainDatetimeColumn = false) => {
     const clientTimezone = detectLocalTimezone();
     const formattedData = await fetch('/ap/api/setting/datetime_format', {
         method: 'POST',

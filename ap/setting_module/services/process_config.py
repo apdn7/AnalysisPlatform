@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_all_process(with_parent=True):
-    process = CfgProcess.get_all(with_parent) or []
+    process = CfgProcess.get_all(with_parent=with_parent) or []
     return process
 
 
@@ -56,7 +56,7 @@ def get_all_functions():
 
 def get_all_process_no_nested(with_parent=True):
     process_only_schema = ProcessOnlySchema(many=True)
-    processes = CfgProcess.get_all(with_parent) or []
+    processes = CfgProcess.get_all(with_parent=with_parent) or []
     return process_only_schema.dump(processes, many=True)
 
 
@@ -115,6 +115,15 @@ def create_or_update_process_cfg(
         for function_col in column.function_details:
             if function_col.id and function_col.id < 0:
                 function_col.id = None
+
+        # import filters
+        for import_filter in column.import_filters:
+            if import_filter.id and import_filter.id < 0:
+                import_filter.id = None
+
+            for filter_detail in import_filter.filters:
+                if filter_detail.id and filter_detail.id < 0:
+                    filter_detail.id = None
 
     # merge to get `process.id`
     process = meta_session.merge(process)
@@ -287,3 +296,8 @@ def get_ct_range(proc_id, columns):
         return ct_range
     except Exception:
         return []
+
+
+def update_is_import_column(process_id, is_import):
+    with make_session() as meta_session:
+        CfgProcess.update_is_import(meta_session, process_id, is_import)

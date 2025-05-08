@@ -33,6 +33,7 @@ from ap.common.constants import (
     TIME_COL,
 )
 from ap.common.logger import log_execution_time
+from ap.common.services.data_type import na_values
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.statistics import calc_summaries
 from ap.common.timezone_utils import get_datetime_from_str
@@ -164,14 +165,14 @@ def extract_cycle(df: pd.DataFrame, cycle_id):
     else:
         df = df[df.index == cycle_id].reset_index()
 
-    return df.replace({np.nan: ''})
+    return df
 
 
 def extract_serial(df: pd.DataFrame, serial_cols, serial_value):
     serial_col = serial_cols[0]
     df = df[df[serial_col] == serial_value].reset_index()
 
-    return df.replace({np.nan: ''})
+    return df
 
 
 def get_serial_cols(cfg_proc):
@@ -266,7 +267,7 @@ def gen_stats_table(
 
             # Value
             col_label = gen_sql_label(col_id, col_name)
-            col_val = df.loc[0][col_label] if not df.empty else ''
+            col_val = parse_column_value(df, col_label)
             row.append(col_val)
 
             # Datetime
@@ -487,7 +488,7 @@ def gen_list_table(graph_param, df, client_timezone):
 
             # Value
             col_label = gen_sql_label(cfg_col.id, cfg_col.column_name)
-            col_val = df.loc[0][col_label] if not df.empty else ''
+            col_val = parse_column_value(df, col_label)
             if cfg_col.is_get_date and not pd.isna(time_val) and time_val:
                 time_val = convert_and_format(time_val, client_timezone, DATE_FORMAT_STR_CSV)
             else:
@@ -559,3 +560,18 @@ def build_graph_param(graph_param, paths=None):
             proc.add_cols(col_ids)
 
     return graph_param
+
+
+def parse_column_value(df: pd.DataFrame, col_label: str):
+    """
+    parses column value for plotview
+    :param df: input df
+    :param col_label: sql label of column
+    :return: value of column, should be an empty string if it is NA or df is empty
+    """
+    value = (
+        df.loc[0][col_label]
+        if not (df.empty or df.loc[0][col_label] is pd.NA or df.loc[0][col_label] in na_values)
+        else ''
+    )
+    return value

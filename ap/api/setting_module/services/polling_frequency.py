@@ -44,7 +44,7 @@ def change_polling_all_interval_jobs(interval_sec=None, run_now=False, is_user_r
 
     # add new jobs with new interval
     # need to call list map, so that we can load all params data, otherwise the data will be staled
-    params = list(map(add_import_job_params, CfgProcess.query.all()))
+    params = list(map(add_import_job_params, CfgProcess.get_all(is_import=True)))
     for param in params:
         add_import_job(
             process_id=param.process_id,
@@ -146,7 +146,7 @@ def idle_monitoring():
     # delete unused processes
     # add_del_proc_job()
 
-    processes = CfgProcess.get_all(with_parent=True)
+    processes = CfgProcess.get_all(is_import=True, with_parent=True)
     # need to call list map, so that we can load all params data, otherwise the data will be staled
     params = list(map(add_import_job_params, processes))
     for param in params:

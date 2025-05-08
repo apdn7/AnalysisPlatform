@@ -4,6 +4,7 @@
             "common/js/libs/jquery.js",
             "common/js/libs/jquery-ui.min.js",
             "common/js/libs/datepicker.js",
+            "common/js/libs/cookieconsent.umd.js",
             "modules/popper/umd/popper.min.js",
             "common/js/libs/bootstrap.min.js",
             "common/js/libs/all.min.js",
@@ -78,7 +79,8 @@
             "common/css/pagination.css",
             "common/css/graph_nav.css",
             "common/css/jump_function.css",
-            "tile_interface/css/tile_interface.css"
+            "tile_interface/css/tile_interface.css",
+            "common/css/cookieconsent.css"
         ]
     },
     "fpp": {

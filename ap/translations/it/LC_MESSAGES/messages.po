@@ -380,6 +380,103 @@ msgstr "Già registrato"
 msgid "Fill in process name"
 msgstr "Inserisci il nome del processo"
 
+msgid "Cookie banner content"
+msgstr ""
+"This website uses cookies to improve your experience on our website. By "
+"clicking “Accept All Cookies”, you consent to our use of cookies. You can"
+" read more in our"
+
+msgid "Cookie Policy"
+msgstr "Cookie Policy"
+
+msgid "Cookies Settings"
+msgstr "Cookies Settings"
+
+msgid "Cookies Details"
+msgstr "Cookies Details"
+
+msgid "Accept All Cookies"
+msgstr "Accept All Cookies"
+
+msgid "Privacy Preference Center"
+msgstr "Privacy Preference Center"
+
+msgid "Privacy Preference Center content"
+msgstr ""
+"When you visit any website, it may store or retrieve information on your "
+"browser, mostly in the form of cookies. This information might be about "
+"you, your preferences or your device and is mostly used to make the site "
+"work as you expect it to. The information does not usually directly "
+"identify you, but it can give you a more personalized web experience. "
+"Because we respect your right to privacy, you can choose not to allow "
+"some types of cookies. Click on the different category headings to find "
+"out more and change our default settings. However, blocking some types of"
+" cookies may impact your experience of the site and the services we are "
+"able to offer."
+
+msgid "More information"
+msgstr "More information"
+
+msgid "Manage Consent Preferences"
+msgstr "Manage Consent Preferences"
+
+msgid "Strictly Necessary Cookies"
+msgstr "Strictly Necessary Cookies"
+
+msgid "Strictly Necessary Cookies description"
+msgstr ""
+"These cookies are necessary for the website to function and cannot be "
+"switched off in our systems. They are usually only set in response to "
+"actions made by you which amount to a request for services, such as "
+"setting your privacy preferences, logging in or filling in forms. You can"
+" set your browser to block or alert you about these cookies, but some "
+"parts of the site will not then work. These cookies do not store any "
+"personally identifiable information."
+
+msgid "Targeting Cookies"
+msgstr "Targeting Cookies"
+
+msgid "Targeting Cookies description"
+msgstr ""
+"These cookies may be set through our site by our advertising partners. "
+"They may be used by those companies to build a profile of your interests "
+"and show you relevant adverts on other sites. They do not store directly "
+"personal information, but are based on uniquely identifying your browser "
+"and internet device. If you do not allow these cookies, you will "
+"experience less targeted advertising."
+
+msgid "Functional Cookies"
+msgstr "Functional Cookies"
+
+msgid "Functional Cookies description"
+msgstr ""
+"These cookies enable the website to provide enhanced functionality and "
+"personalisation. They may be set by us or by third party providers whose "
+"services we have added to our pages. If you do not allow these cookies "
+"then some or all of these services may not function properly."
+
+msgid "Performance Cookies"
+msgstr "Performance Cookies"
+
+msgid "Performance Cookies description"
+msgstr ""
+"These cookies allow us to count visits and traffic sources so we can "
+"measure and improve the performance of our site. They help us to know "
+"which pages are the most and least popular and see how visitors move "
+"around the site. All information these cookies collect is aggregated and "
+"therefore anonymous. If you do not allow these cookies we will not know "
+"when you have visited our site, and will not be able to monitor its "
+"performance."
+
+msgid "Confirm My Choices"
+msgstr "Confirm My Choices"
+
+msgid "Allow All"
+msgstr "Allow All"
+
+msgid "Cookie List"
+msgstr "Cookie List"
+
 #: ap/templates/filter_visualization.html
 msgid "Filter/Graph"
 msgstr "Filtro/grafico"
@@ -756,8 +853,8 @@ msgid "Invalid digit selection"
 msgstr "Selezione delle cifre non valida"
 
 # ap/templates/setting_module/trace_config.html
-msgid "i18nInvalidDeltaTime"
-msgstr "Delta time and cut off must be Integer"
+msgid "Delta time and cut off must be Float"
+msgstr "Delta time and cut off must be Float"
 
 # ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
@@ -1516,10 +1613,10 @@ msgstr "Trama Ridgeline"
 #: ap/template/base.html
 msgid "Confirm Shutdown App"
 msgstr ""
-"Arrestare l'applicazione (server Edge). Se ti fermi, anche qualsiasi "
-"altro utente non sarà in grado di utilizzare, quindi si prega di "
-"contattare l'amministratore. <br> Nel caso di End Normal, Annulla qui e "
-"chiudi il browser."
+"If you want to stop the application, click OK. If blue messages appear in"
+" the bottom right of the screen, the operation was successful. Finally, "
+"close the browser.<br><br>*If this application is shared with other "
+"users, we recommend stopping it to check if there are any problems."
 
 #: ap/template/base.html
 msgid "Jobs Stopped"
@@ -2059,6 +2156,12 @@ msgstr ""
 "È possibile selezionare le opzioni per importare i dati dal file CSV/TSV "
 "che richiede una gestione speciale, come la conversione delle strutture "
 "di dati."
+
+#: ap/templates/templates/i18n.html
+msgid "Process config optional function Hover"
+msgstr ""
+"When you import data from the target table, you can select options if you"
+" need special handling, such as data structure conversion."
 
 #: ap/templates/templates/i18n.html
 msgid "Specify datatype of columns Hover"
@@ -4095,6 +4198,21 @@ msgid "SkD hover plot hover process"
 msgstr "Process"
 
 #: ap/templates/templates/macros.html
+msgid "Strengthen selection"
+msgstr "Strengthen selection"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover strengthen selection"
+msgstr ""
+"Automatically removes more variables that have small effect on the "
+"objective.\n"
+"This is effective when a large number of variables are selected.\n"
+"Note that categorical variables such as Machine and PartNo are likely to "
+"be removed.\n"
+"If variables that has originally high coefficient are removed,\n"
+"they may have a strong correlation with the selected variables."
+
+#: ap/templates/templates/macros.html
 #, fuzzy
 msgid "GL target variable"
 msgstr "Target variable"
@@ -4497,6 +4615,18 @@ msgstr "Copy to filtered"
 #: ap/templates/i18n.html
 msgid "Column Raw Name"
 msgstr "Column Raw Name"
+
+#: ap/templates/i18n.html
+msgid "Import Condition"
+msgstr "Import Condition"
+
+#: ap/templates/i18n.html
+msgid ""
+"Set conditions to narrow down the records to be imported. You can set up "
+"to three target columns to specify conditions for."
+msgstr ""
+"Set conditions to narrow down the records to be imported.\n"
+"You can set up to three target columns to specify conditions for."
 
 #: ap/templates/i18n.html
 msgid "All imported data will be permanently deleted. Do you want to continue?"
@@ -5322,4 +5452,69 @@ msgid "invalidFilePathMsg"
 msgstr ""
 "The file cannot be referenced from the file path you entered. Please "
 "check the file path."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process"
+msgstr "Initialize"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid ""
+"Initialized process will make Imported data for the target process will "
+"be deleted"
+msgstr ""
+"Imported data for the target process will be deleted.<br>(Filter "
+"settings, graph settings and bookmarks will remain.)<br>Do you want to "
+"proceed?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process config successfully"
+msgstr "Initialize process config successfully."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process config error"
+msgstr "Initialize process config error."
+
+#: ap/templates/i18n.html
+msgid "Cookie Preferences"
+msgstr "Cookie Preferences"
+
+#: ap/templates/i18n.html
+msgid "First Party"
+msgstr "First Party"
+
+#: ap/templates/i18n.html
+msgid "Third Party"
+msgstr "Third Party"
+
+#: ap/templates/i18n.html
+msgid "Days"
+msgstr "Days"
+
+#: ap/templates/i18n.html
+msgid "Reject All"
+msgstr "Reject All"
+
+#: ap/templates/i18n.html
+msgid "cookieHeaderExample"
+msgstr "Example"
+
+msgid "localeCookieDescription"
+msgstr "Used for switching language shown in UI"
+
+msgid "ccCookieDescription"
+msgstr "This cookie is used to manage cookie settings"
+
+msgid "gaCookieDescription"
+msgstr ""
+"This cookie, related to Google Universal Analytics, identifies unique "
+"users with a randomly generated number. It helps calculate visitor, "
+"session, and campaign data in site analysis reports."
+
+msgid "gaxCookieDescription"
+msgstr ""
+"This cookie is related to Google Universal Analytics.It is used to "
+"collect statistics on how users interact with the web application."
+
+msgid "Years"
+msgstr "years"
 

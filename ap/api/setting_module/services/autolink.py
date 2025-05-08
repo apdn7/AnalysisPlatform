@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import csv
 import logging
+import os
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal, Optional
 
@@ -315,7 +316,12 @@ class AutolinkCSV(BaseModel):
         main_serial_col = autolink_data.main_serial_col
         if not main_datetime_col or not main_serial_col:
             return [autolink_data]
-        files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+
+        files = []
+        if os.path.isdir(self.path):
+            files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+        elif os.path.isfile(self.path):
+            files = [self.path]
 
         def _read_file(
             filename: str,
@@ -437,7 +443,11 @@ class AutolinkV2(BaseModel):
         for idx in self.process_ids:
             autolink_data_dictionary[idx] = AutolinkDataProcess(idx)
 
-        files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+        files = []
+        if os.path.isdir(self.path):
+            files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+        elif os.path.isfile(self.path):
+            files = [self.path]
         for file in files:
             self.read_v2_file(file, self.process_ids, autolink_data_dictionary)
 

@@ -21,10 +21,10 @@ logger = logging.getLogger(__name__)
 class JobKwargs(BaseModel):
     """Optional parameters for verifying submitting and removing job"""
 
-    job_id: Optional[str] = Field(alias='_job_id')
-    job_name: Optional[str] = Field(alias='_job_name')
+    job_id: Optional[str] = Field(None, alias='_job_id')
+    job_name: Optional[str] = Field(None, alias='_job_name')
     job_added_at: datetime = Field(alias='_job_added_at', default_factory=lambda: datetime.now(utc))
-    proc_id: Optional[int] = Field(alias='process_id')
+    proc_id: Optional[int] = Field(None, alias='process_id')
 
     @classmethod
     def verify(cls, job: Job) -> 'JobKwargs':

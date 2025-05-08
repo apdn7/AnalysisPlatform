@@ -1,5 +1,5 @@
 import os
-from json import dumps
+from json import dumps, loads
 
 from flask import Blueprint, render_template
 from flask_babel import get_locale
@@ -7,6 +7,7 @@ from flask_babel import gettext as _
 
 from ap.common.common_utils import (
     get_about_md_file,
+    get_cookie_policy_md_file,
     get_data_path,
     get_error_trace_path,
     get_files,
@@ -18,8 +19,8 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import DEFAULT_POLLING_FREQ, CfgConstantType
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.setting_module.forms import DataSourceForm
 from ap.setting_module.models import CfgConstant, CfgDataSource
+from ap.setting_module.schemas import DataSourceSchema
 from ap.setting_module.services.about import markdown_to_html
 from ap.setting_module.services.process_config import (
     convert2serialize,
@@ -43,9 +44,11 @@ setting_module_blueprint = Blueprint(
 @setting_module_blueprint.route('/config')
 def config_screen():
     data_sources = CfgDataSource.get_all()
-    data_source_forms = [DataSourceForm(obj=ds) for ds in data_sources]
+    ds_schema = DataSourceSchema(many=True)
 
     all_datasource = [convert2serialize(ds) for ds in data_sources]
+    dump_data = ds_schema.dumps(data_sources)
+    data_source_list = loads(dump_data)
     import_err_dir = get_error_trace_path().replace('\\', '/')
 
     # get polling frequency
@@ -66,7 +69,7 @@ def config_screen():
         'procs': sort_processes_by_parent_children_relationship(all_procs),
         'import_err_dir': import_err_dir,
         'polling_frequency': int(polling_frequency),
-        'data_sources': data_source_forms,
+        'data_sources': data_source_list,
         'all_datasource': dumps(all_datasource),
         'log_path': get_log_path(),
         'data_path': get_data_path(),
@@ -90,6 +93,7 @@ def config_screen():
 
     etl_scripts = r_etl_scripts + py_etl_scripts
     output_dict.update({'etl_scripts': etl_scripts})
+    output_dict.update({'py_etl_scripts': py_etl_scripts})
 
     return render_template('config.html', **output_dict)
 
@@ -129,6 +133,17 @@ def about():
     markdown_file_path = get_about_md_file()
     css, html = markdown_to_html(markdown_file_path)
     return render_template('about.html', css=css, content=html)
+
+
+@setting_module_blueprint.route('/cookie-policy', methods=['GET'])
+def cookie_policy():
+    """
+    about page
+    """
+    current_locale = get_locale()
+    markdown_file_path = get_cookie_policy_md_file(current_locale)
+    css, html = markdown_to_html(markdown_file_path)
+    return render_template('cookie_policy.html', css=css, content=html)
 
 
 @setting_module_blueprint.route('/terms_of_use', methods=['GET'])

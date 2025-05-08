@@ -268,15 +268,37 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button
-                    id="overwriteSaveSettingConfirmed"
-                    class="btn btn-primary"
-                    data-item-id=""
-                    onclick="handleCloseBookmarkModal(this)"
-                >
+                <button id="overwriteSaveSettingConfirmed" class="btn btn-primary" data-item-id="" data-dismiss="modal">
                     {{ _('OK') }}
                 </button>
                 <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modifyGraphConfirmationModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform mb-0" style="white-space: pre-line">{{ _("DiscardChangesMessage") }}</p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    name="saveChangeBtn"
+                    class="btn btn-primary"
+                    onclick="saveGraphConfigAllChanges();"
+                    data-dismiss="modal"
+                >
+                    {{ _('Save') }}
+                </button>
+                <button name="discardChangeBtn" onclick="discardGraphConfigAllChanges();" class="btn btn-secondary">
+                    {{ _('Do not save') }}
+                </button>
+                <button name="cancelBtn" class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
             </div>
         </div>
     </div>
@@ -825,6 +847,27 @@
                 <button id="ok-confirm-support-browser" class="btn btn-primary" data-dismiss="modal">
                     {{ _('OK') }}
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--modal for confirming initialized process S255#02-->
+<div id="confirmInitializedProcess" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body text-nowrap">
+                <p class="modal-inform">
+                    {{ _('Initialized process will make Imported data for the target process will be deleted') }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button name="initProcConfirm" class="btn btn-primary">{{ _('Proceed') }}</button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _("Abort") }}</button>
             </div>
         </div>
     </div>

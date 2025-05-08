@@ -41,6 +41,12 @@ def filter_function_column(df: DataFrame, condition_proc: ConditionProc, end_pro
 
                 if cfg_filter_detail.filter_function in [None, FilterFunc.MATCHES.name]:
                     if data_type == DataType.INTEGER.name:
+                        # todo: handle this case
+                        # input: 1.2, column data-type: INT
+                        # -> int(1.2) = 1
+                        # df[df[col] == 1] NG
+                        # # df[df[col] == 1.2] OK
+                        # todo: handle exception
                         val = int(val)
                     elif data_type == DataType.REAL.name:
                         val = float(val)
@@ -135,7 +141,13 @@ def filter_and(df_col: Series, condition_str):
 
 def filter_or(df_col: Series, condition_str):
     conditions = list(set(condition_str.split()))
-    idxs = df_col.str.contains('|'.join(conditions))
+    idxs = df_col.str.fullmatch('|'.join(conditions))
+    return idxs
+
+
+def filter_or_values(df_col: Series, condition_values):
+    conditions = list(set(condition_values))
+    idxs = df_col.str.fullmatch('|'.join(conditions))
     return idxs
 
 

@@ -337,3 +337,27 @@ h6 {
 #btn-extend-toggle-container:hover #btn-extend-toggle {
     color: gray;
 }
+
+.term-of-use {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+}
+
+.cookie table {
+    border-collapse: collapse;
+    border: 1px solid white;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.cookie th {
+    border: 1px solid white;
+    text-align: center;
+    padding: 9px;
+}
+.cookie td {
+    vertical-align: top;
+    border: 1px solid white;
+    padding: 9px;
+    max-width: 500px;
+}

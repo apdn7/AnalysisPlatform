@@ -1,9 +1,11 @@
 import atexit
 import contextlib
+import json
 import logging
 import os
 import time
 from datetime import datetime
+from sqlite3 import OperationalError
 
 import sqlalchemy as sa
 import wtforms_json
@@ -27,9 +29,9 @@ from ap.common.common_utils import (
     find_babel_locale,
     init_config,
     make_dir,
+    resource_path,
 )
 from ap.common.constants import (
-    ANNOUNCE_UPDATE_TIME,
     APP_DB_FILE,
     DB_SECRET_KEY,
     EXTERNAL_API,
@@ -37,7 +39,6 @@ from ap.common.constants import (
     INIT_APP_DB_FILE,
     INIT_BASIC_CFG_FILE,
     LAST_REQUEST_TIME,
-    LIMIT_CHECKING_NEWER_VERSION_TIME,
     LOG_LEVEL,
     MAIN_THREAD,
     PORT,
@@ -55,11 +56,10 @@ from ap.common.constants import (
     YAML_CONFIG_VERSION,
     YAML_START_UP,
     ApLogLevel,
-    AppGroup,
-    AppSource,
     FlaskGKey,
     MaxGraphNumber,
 )
+from ap.common.ga import GA, GA_TRACKING_ID, VERSION_FILE_NAME
 from ap.common.jobs.scheduler import CustomizeScheduler
 from ap.common.logger import log_execution_time
 from ap.common.services.http_content import json_dumps
@@ -139,7 +139,12 @@ def init_engine(app, uri, **kwargs):
     # By default, sqlalchemy does not overwrite table. Then no need to manually check file exists neither table exists.
     # https://docs.sqlalchemy.org/en/14/core/metadata.html?highlight=create_all#sqlalchemy.schema.MetaData.create_all
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except OperationalError as e:
+            if 'already exists' in str(e):
+                # by pass table already existing error
+                pass
     db_engine = sa.create_engine(uri, **kwargs)
 
     @sa.event.listens_for(db_engine, 'begin')
@@ -312,6 +317,8 @@ def create_app(object_name=None, is_main=False):
 
     lang = start_up_yaml.get_node(['setting_startup', 'language'], None)
     sub_title = start_up_yaml.get_node(['setting_startup', 'subtitle'], '')
+    enable_ga_tracking = start_up_yaml.get_node(['setting_startup', 'enable_ga_tracking'], False)
+    app.config['GA_TRACKING_ID'] = GA_TRACKING_ID if enable_ga_tracking else ''
 
     if lang is None or not lang:
         lang = basic_config_yaml.get_node(['info', 'language'], False)
@@ -332,24 +339,9 @@ def create_app(object_name=None, is_main=False):
 
     Babel(app, locale_selector=get_locale)
 
-    # get app version
-    version_file = app.config.get('VERSION_FILE_PATH') or os.path.join(os.getcwd(), 'VERSION')
-    with open(version_file) as f:
-        rows = f.readlines()
-        rows.reverse()
-        app_ver = rows.pop()
-        if '%%VERSION%%' in app_ver:
-            app_ver = 'v00.00.000.00000000'
-
-        config_ver = rows.pop() if len(rows) else '0'
-
-        dic_yaml_config_file[YAML_CONFIG_VERSION] = config_ver
-
-        app_source = str(rows.pop()).strip('\n') if len(rows) else AppSource.DN.value
-        app_source = app_source if app_source else AppSource.DN.value
-
-        user_group = os.environ.get('group', AppGroup.Dev.value)
-        user_group = get_app_group(app_source, user_group)
+    version_file = resource_path(VERSION_FILE_NAME) or os.path.join(os.getcwd(), VERSION_FILE_NAME)
+    ga_info = GA.get_ga_info(version_file)
+    dic_yaml_config_file[YAML_CONFIG_VERSION] = ga_info.config_version
 
     # Universal DB init
     # init_db(app)
@@ -398,6 +390,40 @@ def create_app(object_name=None, is_main=False):
     def ping():
         return 'Pong!', 200
 
+    @app.context_processor
+    def before_render():
+        from ap.common.disk_usage import (
+            get_disk_capacity_to_load_ui,
+        )
+
+        dict_capacity = get_disk_capacity_to_load_ui()
+        is_admin = int(is_admin_request(request))
+        # "hide_setting_page: true" apply only to ip address/pc address instead of localhost
+        is_hide_setting_page = hide_setting_page and not is_admin_request(request)
+        app_startup_time = (
+            str(app.config.get('app_startup_time').strftime(DATE_FORMAT_STR))
+            if app.config.get('app_startup_time')
+            else 0
+        )
+        return {
+            'app_context': json.dumps(
+                {
+                    'disk_capacity': dict_capacity,
+                    'sub_title': sub_title,
+                    'is_admin': str(is_admin),
+                    'log_level': str(is_default_log_level),
+                    'hide_setting_page': str(is_hide_setting_page),
+                    'app_startup_time': app_startup_time,
+                    'app_group': ga_info.app_group.value,
+                    'app_version': str(ga_info.app_version).strip('\n'),
+                    'app_source': str(ga_info.app_source.value).strip('\n'),
+                    'app_type': ga_info.app_type.value,
+                    'app_os': ga_info.app_os.value,
+                    'ga_tracking_id': app.config['GA_TRACKING_ID'],
+                },
+            ),
+        }
+
     @app.before_request
     def before_request_callback():
         g.request_start_time = time.time()
@@ -432,22 +458,8 @@ def create_app(object_name=None, is_main=False):
         if 'event-stream' in str(request.accept_mimetypes):
             return response
 
-        # In case of text/html request, add information of disk capacity to show up on UI.
-        if 'text/html' in str(request.accept_mimetypes) or 'text/html' in str(response.headers):
-            from ap.common.disk_usage import (
-                add_disk_capacity_into_response,
-                get_disk_capacity_to_load_ui,
-            )
-
-            dict_capacity = get_disk_capacity_to_load_ui()
-            add_disk_capacity_into_response(response, dict_capacity)
-            if not request.cookies.get(key_port('locale')):
-                response.set_cookie(key_port('locale'), lang)
-
-            is_admin = int(is_admin_request(request))
-            response.set_cookie(key_port('is_admin'), str(is_admin))
-            response.set_cookie(key_port('sub_title'), sub_title)
-            response.set_cookie(key_port('user_group'), user_group)
+        if not request.cookies.get(key_port('locale')):
+            response.set_cookie(key_port('locale'), lang)
 
         # close app db session
         close_sessions()
@@ -470,21 +482,7 @@ def create_app(object_name=None, is_main=False):
         resource_type = request.base_url or ''
         is_ignore_content = any(resource_type.endswith(extension) for extension in LOG_IGNORE_CONTENTS)
         if not is_ignore_content:
-            # "hide_setting_page: true" apply only to ip address/pc address instead of localhost
-            is_hide_setting_page = hide_setting_page and not is_admin_request(request)
             bind_user_info(request, response)
-            response.set_cookie(key_port('log_level'), str(is_default_log_level))
-            response.set_cookie(key_port('hide_setting_page'), str(is_hide_setting_page))
-            response.set_cookie(key_port('app_version'), str(app_ver).strip('\n'))
-            response.set_cookie(key_port('app_location'), str(app_source).strip('\n'))
-
-        if app.config.get('app_startup_time'):
-            response.set_cookie(
-                key_port('app_startup_time'),
-                str(app.config.get('app_startup_time').strftime(DATE_FORMAT_STR)),
-            )
-        response.set_cookie(key_port('announce_update_time'), str(ANNOUNCE_UPDATE_TIME))
-        response.set_cookie(key_port('limit_checking_newer_version_time'), str(LIMIT_CHECKING_NEWER_VERSION_TIME))
 
         return response
 
@@ -575,20 +573,6 @@ def get_basic_yaml_obj():
 @log_execution_time()
 def get_start_up_yaml_obj():
     return dic_yaml_config_instance[YAML_START_UP]
-
-
-def get_app_group(app_source, user_group):
-    if user_group and user_group.lower() == AppGroup.Dev.value.lower():
-        user_group = AppGroup.Dev.value
-    elif app_source:
-        if app_source == AppSource.DN.value or user_group.lower() == AppGroup.DN.value.lower():
-            user_group = AppGroup.DN.value
-        else:
-            user_group = AppGroup.Ext.value
-    else:
-        user_group = AppGroup.Dev.value
-
-    return user_group
 
 
 def is_admin_request(request):

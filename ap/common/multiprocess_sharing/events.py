@@ -17,13 +17,13 @@ class SchedulerJobParams(BaseModel):
     '''textual description of the job'''
     func: Callable
     '''callable (or a textual reference to one) to run at the given time'''
-    args: Optional[Union[list, tuple]]
+    args: Optional[Union[list, tuple]] = None
     '''list of positional arguments to call func with'''
     kwargs: dict[str, Any]
     '''dict of keyword arguments to call func with'''
     replace_existing: bool = False
     '''``True`` to replace an existing job with the same ``id`` (but retain the number of runs from the existing one)'''
-    trigger: Any  # cannot infer type for trigger
+    trigger: Any = None  # cannot infer type for trigger
     '''trigger that determines when ``func`` is called'''
     next_run_time: Optional[datetime] = None
     '''when to first run the job, regardless of the trigger (pass ``None`` to add the job as paused)'''
@@ -55,7 +55,7 @@ class EventAddJob(EventBaseFunction):
 
     # scheduler jobs parameters
     replace_existing: bool = False
-    trigger: Any  # cannot infer type for trigger
+    trigger: Any = None  # cannot infer type for trigger
     next_run_time: Optional[datetime] = None
     executor: Optional[str] = None
     max_instances: Optional[int] = None
@@ -151,7 +151,7 @@ class EventExpireCache(BaseModel):
 class EventBackgroundAnnounce(BaseModel):
     """Event for background announcement, this will notify front-end what is happening"""
 
-    data: Any
+    data: Any = None
     event: AnnounceEvent
     job_id: Optional[Any] = None  # FIXME: change to correct type later
     timestamp: datetime = Field(default_factory=datetime.now)

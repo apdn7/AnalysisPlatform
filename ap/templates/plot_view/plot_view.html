@@ -4,7 +4,7 @@
     <link href="{{ url_for('static', filename = 'plot_view/css/plot_view.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename = 'plot_view/js/plot_view.js') }}"></script>
     <script>
-        gtag('config', GA_TRACKING_ID, {
+        gtag('config', appContext.ga_tracking_id, {
             page_title: '{{ _("Plot View") }}',
         });
     </script>

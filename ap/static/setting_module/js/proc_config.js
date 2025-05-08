@@ -3,6 +3,7 @@ const currentProcData = {};
 const IS_CONFIG_PAGE = true;
 let dicOriginDataType = {};
 let dicProcessCols = {};
+let isInitialize = false;
 
 const procElements = {
     tblProcConfig: 'tblProcConfig',
@@ -221,6 +222,7 @@ const getProcInfo = async (procId) => {
             procModalElements.procID.val(res.data.id);
             procModalElements.comment.val(res.data.comment);
             procModalElements.tables.val(res.data.table_name);
+            procModalElements.optionalFunctions.val(res.data.etl_func);
             procModalElements.dsID.val(res.data.data_source_id);
             procModalElements.fileName.val(res.data.file_name);
             procModalElements.isShowFileName.prop('checked', !!res.data.is_show_file_name);
@@ -247,7 +249,6 @@ const getProcInfo = async (procId) => {
             resetDicOriginData();
             let rowHtml = '';
             res.data.columns.forEach((row) => {
-                row['data_type'] = row['predict_type'];
                 dicOriginDataType[row.column_name] = row.data_type;
                 dicProcessCols[row.column_name] = row;
             });
@@ -261,7 +262,7 @@ const getProcInfo = async (procId) => {
                         text: '---',
                     }),
                 );
-                procModalElements.tables.prop('disabled', true);
+                propGroupTableDropdown(true);
             }
             if (res.tables.tables) {
                 const isSoftwareWorkshop = res.tables.ds_type === DB_CONFIGS.SOFTWARE_WORKSHOP.configs.type;
@@ -280,6 +281,9 @@ const getProcInfo = async (procId) => {
 
                     procModalElements.tables.append($('<option/>', options));
                 });
+                if (procId) {
+                    procModalElements.optionalFunctions.prop('disabled', true);
+                }
             }
 
             // handling english name onchange
@@ -291,8 +295,14 @@ const getProcInfo = async (procId) => {
 
             // show warning to reset data link config when change as link id
             validateCheckBoxesAll();
-
-            showHideReRegisterBtn();
+            if (!res.is_imported) {
+                isInitialize = true;
+                enableImportProcessConfig();
+            } else {
+                isInitialize = false;
+                showHideReRegisterBtn();
+                showHideInitialProcBtn();
+            }
 
             // update row number
             updateTableRowNumber(null, $('table[name=processColumnsTable]'));
@@ -331,16 +341,35 @@ const showHideReRegisterBtn = () => {
     }
 };
 
+// Show or hide the initialization process button (S255#02)
+const showHideInitialProcBtn = () => {
+    procModalElements.initializeProcessBtn.css('display', 'none');
+    if (!isAddNewMode()) {
+        procModalElements.initializeProcessBtn.css('display', 'block');
+    }
+};
+
+const enableImportProcessConfig = () => {
+    procModalElements.reRegisterBtn.css('display', 'none');
+    procModalElements.initializeProcessBtn.css('display', 'none');
+    procModalElements.createOrUpdateProcCfgBtn.css('display', 'block');
+    //TODO: Enable checkbox [Datetime Format] allow change [Data Type] same import new process
+};
+
 const isAddNewMode = () => isEmpty(procModalElements.procID.val() || null);
 
 const showProcSettingModal = async (procItem, dbsId = null) => {
-    selectedFunctionColumnInfo = null;
+    procModalElements.etlFuncWarningMark = $('#procSettingModal #optional-func-warning-mark');
     $(functionConfigElements.collapseFunctionConfig).collapse('hide');
+    // remove old table
+    clearProcModalColumnTable(procModalElements.procConfigTableName);
+
     FunctionInfo.resetInputFunctionInfo();
     FunctionInfo.removeAllFunctionRows();
     clearWarning();
     cleanOldData();
     showHideReRegisterBtn();
+    showHideInitialProcBtn();
     prcPreviewDataOfFunctionColumn = {};
 
     currentProcItem = $(procItem).closest('tr');
@@ -358,7 +387,6 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
 
     let modalName = '';
     currentProcDataCols = [];
-    FunctionInfo.loadFunctionListTableAndInitDropDown();
 
     if (procId && !isMergeMode) {
         await getProcInfo(procId);
@@ -370,6 +398,7 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
             procModalElements.procMergeModeModal.modal('show');
         } else if (!isMergeMode) {
             procModalElements.procModal.modal('show');
+            FunctionInfo.loadFunctionListTableAndInitDropDown([]);
         }
         loading.hide();
     }
@@ -394,7 +423,9 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     } else {
         //set attribute for Ok btn
         $(procModalElements.confirmImportDataBtn).attr('data-is-merge-mode', false);
+        $(filterConditionElements.addImportConditionBtn).prop('disabled', false);
         loadProcModal(procId, dataRowID, dbsId);
+        GenerateDefaultImportFilterTable(procId);
         modalName = 'procSettingModal';
     }
 
@@ -754,4 +785,30 @@ const isMergeModeFromProcRow = (dataRowID, procId) => {
     const isDatabaseDSource = !csvAndV2DsType.includes(processDsType);
 
     return !!(isDuplicatedProcessName && !isSameDataSource) || !!(isDuplicatedProcessName && isDatabaseDSource);
+};
+
+const propGroupTableDropdown = (value) => {
+    procModalElements.tables.prop('disabled', value);
+    procModalElements.optionalFunctions.prop('disabled', value);
+};
+
+const showConfigProcessWarning = (elmId, message) => {
+    displayRegisterMessage(elmId, {
+        message: message,
+        is_error: true,
+    });
+};
+
+const showWarningMark = (elmMark, elmMess, messageError) => {
+    procModalElements.btnFuncWarningMark.attr('title', messageError);
+    elmMark.show();
+    elmMark
+        .closest('label.btn-warning-mark')
+        .off('click', () => {
+            showConfigProcessWarning(elmMess, messageError);
+        })
+        .on('click', (e) => {
+            showConfigProcessWarning(elmMess, messageError);
+        });
+    showConfigProcessWarning(elmMess, messageError);
 };

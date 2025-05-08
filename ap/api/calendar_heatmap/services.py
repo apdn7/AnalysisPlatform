@@ -620,18 +620,16 @@ def gen_df_end_col(df_batch, end_col, var_agg_cols):
     """Use separate data frame for each column"""
     end_col_label = gen_sql_label(end_col.id, end_col.column_name)
     if var_agg_cols:
-        df_end_col = df_batch[[TIME_COL, AGG_COL, *var_agg_cols, end_col_label]]
+        if end_col_label in var_agg_cols:
+            df_end_col = df_batch[[TIME_COL, AGG_COL, *var_agg_cols]]
+        else:
+            df_end_col = df_batch[[TIME_COL, AGG_COL, *var_agg_cols, end_col_label]]
         for col in var_agg_cols:
-            df_end_col[col] = df_end_col[col].astype(str)
+            df_end_col[col] = df_end_col[col].astype(pd.StringDtype())
     else:
         df_end_col = df_batch[[TIME_COL, AGG_COL, end_col_label]]
 
-    if var_agg_cols and end_col_label in var_agg_cols:
-        # FIXME: rename column ?
-        c_id = list(df_end_col.columns).index(end_col_label)
-        df_end_col.columns.values[c_id] = end_col.id  # noqa
-    else:
-        df_end_col = df_end_col.rename({end_col_label: end_col.id}, axis=1)
+    df_end_col[end_col.id] = df_end_col[end_col_label]
     return df_end_col
 
 

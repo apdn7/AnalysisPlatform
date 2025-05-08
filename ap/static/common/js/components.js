@@ -842,7 +842,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         if ($(this).is(':checked') === false) {
             $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', $(this).prop('checked'));
             const parentRow = $(this.closest('li.list-group-item.form-check'));
-            parentRow.find('[name=objectiveVar]').prop('checked', false);
+            parentRow.find('[name=objectiveVar]').prop('checked', false).trigger('change');
             if (thresholdBox) {
                 thresholdBox.prop('checked', false);
             }
@@ -1883,14 +1883,22 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
 };
 
 const changeObjectiveVarEvent = () => {
+    const stringColInputElms = $('.is-string-col input');
+    const stringColLabelElms = $('.is-string-col label');
     const hasObjectiveCol = $('input[name=objectiveVar]:checked').length;
     if (!hasObjectiveCol) {
         // reset all Str cols which are already checked
-        $('.is-string-col input').removeClass('show-ele');
-        $('.is-string-col label').removeClass('show-ele');
+        stringColInputElms.removeClass('show-ele');
+        stringColLabelElms.removeClass('show-ele');
+        stringColLabelElms.each(function () {
+            const beforeStyle = window.getComputedStyle(this, '::before');
+            if (beforeStyle && beforeStyle.visibility === 'hidden') {
+                $(this).parent().find('input').prop('checked', false);
+            }
+        });
     } else {
-        $('.is-string-col input').addClass('show-ele');
-        $('.is-string-col label').addClass('show-ele');
+        stringColInputElms.addClass('show-ele');
+        stringColLabelElms.addClass('show-ele');
     }
     compareSettingChange();
 };
@@ -1994,7 +2002,6 @@ const tooltipsToggle = (ele) => {
     // to handle tooltips toggle
     const status = $(ele).is(':checked');
     localStorage.setItem('tooltipsEnabled', status);
-    console.log('tooltips enabled:' + status);
 };
 
 const getLabelAndFilterValues = () => {

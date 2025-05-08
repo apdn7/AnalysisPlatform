@@ -56,7 +56,6 @@ class Config(object):
     SCHEDULER_JOB_DEFAULTS = {'coalesce': True, 'max_instances': 1, 'misfire_grace_time': 2 * 60}
     VERSION_FILE_PATH = resource_path('VERSION')
     BASE_DIR = basedir
-    GA_TRACKING_ID = 'G-9DJ9TV72B5'
 
     COMPRESS_MIMETYPES = [
         'text/html',

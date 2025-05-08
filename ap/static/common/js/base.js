@@ -1,7 +1,6 @@
 // eslint-disable no-undef, no-unused-vars
 // term of use
 validateTerms();
-const GA_TRACKING_ID = 'G-9DJ9TV72B5';
 let scpSelectedPoint = null;
 let scpCustomData = null;
 let loadingProgressBackend = 0;
@@ -45,13 +44,13 @@ const baseEles = {
 
 // for master data group (column types)
 const masterDataGroup = {
-    DATETIME: 1,
+    MAIN_DATETIME: 1,
     MAIN_SERIAL: 2,
     SERIAL: 3,
     DATETIME_KEY: 4,
-
+    MAIN_DATE: 7,
+    MAIN_TIME: 8,
     INT_CATE: 10,
-
     LINE_NAME: 20,
     LINE_NO: 21,
     EQ_NAME: 22,
@@ -60,7 +59,25 @@ const masterDataGroup = {
     PART_NO: 25,
     ST_NO: 26,
     JUDGE: 76,
+    GENERATED: 99,
     GENERATED_EQUATION: 100,
+};
+
+/**
+ * @param {number} columnType
+ * @return {boolean}
+ */
+const isMasterDataColumn = (columnType) => {
+    return [
+        masterDataGroup.PART_NAME,
+        masterDataGroup.PART_NO,
+        masterDataGroup.LINE_NAME,
+        masterDataGroup.LINE_NO,
+        masterDataGroup.EQ_NAME,
+        masterDataGroup.EQ_NO,
+        masterDataGroup.ST_NO,
+        masterDataGroup.JUDGE,
+    ].includes(columnType);
 };
 
 const processOrderForFilterCheck = {
@@ -291,7 +308,7 @@ const checkDiskCapacity = (data) => {
     if (data) {
         showMarqueeMessage(data);
     } else {
-        for (const [key, value] of Object.entries(disk_capacity)) {
+        for (const [key, value] of Object.entries(appContext.disk_capacity)) {
             if (value) showMarqueeMessage(value);
         }
     }
@@ -391,8 +408,7 @@ const baseRightClickHandler = (e) => {
 };
 
 const setUserRule = () => {
-    isAdmin = docCookies.getItem(keyPort(CONST.IS_ADMIN));
-    isAdmin = isAdmin ? parseInt(isAdmin) : false;
+    isAdmin = appContext.is_admin ? parseInt(appContext.is_admin) : false;
 };
 
 const showHideShutDownButton = () => {
@@ -526,6 +542,10 @@ $(async () => {
 
     SetAppEnv();
     getFiscalYearStartMonth();
+
+    // Wait for document ready to check new version
+    // (move from app_version_handler.js due to moving app_startup_time to constant)
+    setTimeout(() => checkNewVersion().catch((e) => console.warn(e)), 200);
 
     // click shutdown event
     $('body').click((e) => {
@@ -1214,7 +1234,7 @@ const initCommonSearchInput = (inputElement, className = '') => {
 
     $('.remove-search').off('click');
     $('.remove-search').on('click', function () {
-        const e = $.Event('input');
+        const e = $.Event('change');
         e.which = KEY_CODE.ENTER;
         e.keyCode = KEY_CODE.ENTER;
         $(this).prev('input').val('').trigger('input').focus().trigger(e);
@@ -1343,7 +1363,11 @@ const cleansingHandling = () => {
 
         // hide single calendar
         if (!e.target.closest('.config-data-type-dropdown') && !e.target.closest('.config-data-type-dropdown button')) {
-            $('.data-type-selection').hide();
+            if (typeof DataTypeDropdown_Controller !== 'undefined') {
+                DataTypeDropdown_Controller.hideAllDropdownMenu();
+            } else {
+                $('.data-type-selection').hide();
+            }
         }
     });
 };
@@ -1441,13 +1465,18 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
     } else {
         showGraphMethod = 'Normal';
     }
-    gtag('event', 'apdn7_events_tracking', {
-        dn_app_version: app_version,
-        dn_app_source: app_source,
-        dn_app_group: user_group,
-        dn_app_show_graph_mode: GAMode,
-        dn_app_show_graph_method: showGraphMethod,
-    });
+
+    if (isUserConsentCookieAndGA()) {
+        gtag('event', 'apdn7_events_tracking', {
+            dn_app_version: appContext.app_version?.split('.').slice(0, -1).join('.'),
+            dn_app_source: appContext.app_source,
+            dn_app_group: appContext.app_group,
+            dn_app_type: appContext.app_type,
+            dn_app_os: appContext.app_os,
+            dn_app_show_graph_mode: GAMode,
+            dn_app_show_graph_method: showGraphMethod,
+        });
+    }
 
     $.ajax({
         ...option,
@@ -1540,7 +1569,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
                         problematicPCAData = {
                             train_data: {
                                 null_percent: resJson.json_errors.train_data.null_percent || {},
-                                zero_variance: resJson.json_errors.train_data.zero_variance || {},
+                                zero_variance: resJson.json_errors.train_data.zero_variance || [],
                                 selected_vars: resJson.json_errors.train_data.selected_vars,
                             },
                             target_data: {
@@ -1991,7 +2020,39 @@ const showHideGraphSetting = (plotData) => {
 };
 
 // create key for cookie by add PORT as a suffix
-const keyPort = (key) => {
+const keyPort = (key = undefined) => {
     const RUNNING_PORT = window.location.port;
-    return `${RUNNING_PORT}_${key}`;
+    return key ? `${RUNNING_PORT}_${key}` : RUNNING_PORT;
+};
+
+// check user's consent cookie and GA
+const isUserConsentCookieAndGA = () => {
+    const cc_cookie = docCookies.getItem(keyPort() + '_cc_cookie');
+    if (cc_cookie) {
+        const consentObj = JSON.parse(cc_cookie);
+        return !!consentObj.categories.includes('performance');
+    }
+    return false;
+};
+
+const sendGtagConfigAndTracking = () => {
+    if (typeof gtag === 'undefined' || !isUserConsentCookieAndGA()) {
+        return;
+    }
+
+    if (appContext.ga_tracking_id?.trim()) {
+        gtag('js', new Date());
+
+        gtag('config', appContext.ga_tracking_id);
+
+        gtag('event', 'apdn7_events_tracking', {
+            dn_app_version: appContext.app_version?.split('.').slice(0, -1).join('.'),
+            dn_app_source: appContext.app_source,
+            dn_app_group: appContext.app_group,
+            dn_app_type: appContext.app_type,
+            dn_app_os: appContext.app_os,
+            dn_app_show_graph_mode: 'None', // have not clicked show_graph yet
+            dn_app_show_graph_method: 'None',
+        });
+    }
 };

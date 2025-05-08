@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <br />
+{% endblock %}
+
+{% block midbody %}
+    {{ css | safe }}
+    <div class="card term-of-use cookie px-4">{{ content | safe }}</div>
+{% endblock %}

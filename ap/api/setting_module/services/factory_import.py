@@ -8,6 +8,7 @@ import pandas as pd
 import pytz
 from pandas import DataFrame
 
+from ap.api.efa.services.etl import df_transform
 from ap.api.setting_module.services.csv_import import remove_duplicates
 from ap.api.setting_module.services.data_import import (
     check_update_time_by_changed_tz,
@@ -26,6 +27,7 @@ from ap.api.setting_module.services.data_import import (
     write_error_import,
     write_error_trace,
 )
+from ap.api.setting_module.services.show_latest_record import get_info_from_db
 from ap.api.setting_module.services.software_workshop_etl_services import (
     get_transaction_data_stmt,
     transform_df_for_software_workshop,
@@ -52,6 +54,7 @@ from ap.common.constants import (
 )
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time
+from ap.common.pandas_helper import check_if_array_is_repeating
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle, sqlite
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
@@ -116,6 +119,7 @@ def import_factory(proc_id):
 
     # get process id in edge db
     proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
+
     if not proc_cfg:
         return
 
@@ -144,8 +148,11 @@ def import_factory(proc_id):
     proc_name = proc_cfg.name
     transaction_columns = proc_cfg.get_transaction_process_columns()
     raw_column_names = [col.column_raw_name for col in transaction_columns if col.is_normal_column]
+    col_name = [col.column_name for col in transaction_columns if col.is_normal_column]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
     dic_use_cols = {col.column_name: col for col in transaction_columns}
+    # get etl from the process
+    etl_func = proc_cfg.get_etl_func()
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
@@ -218,14 +225,26 @@ def import_factory(proc_id):
             # end_time = fac_max_date
             is_import = False
 
-        # get data from factory
-        data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
+        # if it has etl_func get data from factory
+        if etl_func:
+            # get all column from db
+            # TODO: need to change the way of getting cols is db, can SELECT * FROM table in get_factory_data function
+            cols, _, _ = get_info_from_db(
+                data_source=proc_cfg.data_source,
+                table_name=proc_cfg.table_name,
+                process_factid=proc_cfg.process_factid,
+                master_type=proc_cfg.master_type,
+            )
+            data = get_factory_data(proc_cfg, cols, auto_increment_col, start_time, end_time)
+        else:
+            data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
+
         if not data:
             # has_data = False
             break
 
         cols = next(data)
-        cols_normalize = normalize_list(cols)
+        # cols_normalize = normalize_list(cols)
         remain_rows = ()
         error_type = None
         for _rows in data:
@@ -234,9 +253,20 @@ def import_factory(proc_id):
             if not is_import:
                 continue
 
-            # dataframe
-            # has_data = True
-            df = pd.DataFrame(rows, columns=cols_normalize)
+            if etl_func:
+                # apply etl_func for rows
+                df_rows = pd.DataFrame(rows, columns=cols)
+                df_rows = df_transform(df_rows, etl_func)
+
+                # filter columns by raw_column_names in transaction
+                df_rows_filter = df_rows[raw_column_names]
+                rows = tuple(tuple(row) for row in df_rows_filter.to_numpy())
+                # dataframe
+                df = pd.DataFrame(rows, columns=col_name)
+            else:
+                # dataframe
+                df = pd.DataFrame(rows, columns=normalize_list(cols))
+
             # to save into import history
             imported_end_time = str(df[auto_increment_col].max())
             # pivot if this is vertical data
@@ -302,7 +332,9 @@ def import_factory(proc_id):
             target_cfg_process = proc_cfg
             target_get_date_col = get_date_col
             target_cfg_columns = cfg_columns
+            child_cfg_proc = None
             if parent_cfg_proc:
+                child_cfg_proc = proc_cfg
                 target_cfg_process = parent_cfg_proc
                 target_cfg_columns = parent_cfg_columns
                 dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in parent_cfg_columns}
@@ -350,9 +382,8 @@ def import_factory(proc_id):
             if error_type:
                 job_info.status = JobStatus.FAILED.name
                 job_info.err_msg = error_type
-
             df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
-            save_res = import_data(df, target_cfg_process, target_get_date_col, job_info)
+            save_res = import_data(df, target_cfg_process, target_get_date_col, job_info, child_cfg_proc)
             gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
 
             # total row of one job
@@ -695,13 +726,22 @@ def factory_past_data_transform(proc_id):
     proc_name = proc_cfg.name
     cfg_columns = proc_cfg.get_transaction_process_columns()
     raw_column_names = [col.column_raw_name for col in cfg_columns if col.is_normal_column]
+    col_name = [col.column_name for col in cfg_columns if col.is_normal_column]
     auto_increment_col = proc_cfg.get_auto_increment_col_else_get_date()
     dic_use_cols = {col.column_name: col for col in cfg_columns}
+    # get etl from the process
+    etl_func = proc_cfg.get_etl_func()
 
     # get date time column
     get_date_col = proc_cfg.get_date_col()
 
     trans_data = TransactionData(proc_cfg)
+    # get parent process config
+    parent_cfg_proc: Optional[CfgProcess] = None
+    parent_cfg_columns: Optional[list[CfgProcessColumn]] = None
+    if proc_cfg.parent_id:
+        parent_cfg_proc: Optional[CfgProcess] = CfgProcess.get_proc_by_id(proc_cfg.parent_id)
+        parent_cfg_columns: Optional[list[CfgProcessColumn]] = parent_cfg_proc.get_transaction_process_columns()
     with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
         trans_data.create_table(db_instance)
         # last import date
@@ -758,7 +798,19 @@ def factory_past_data_transform(proc_id):
     job_info.target = proc_cfg.name
 
     # get data from factory
-    data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
+    # if it has etl_func get data from factory
+    if etl_func:
+        # get all column from db
+        # TODO: need to change the way of getting cols is db, can SELECT * FROM table in get_factory_data function
+        cols, _, _ = get_info_from_db(
+            data_source=proc_cfg.data_source,
+            table_name=proc_cfg.table_name,
+            process_factid=proc_cfg.process_factid,
+            master_type=proc_cfg.master_type,
+        )
+        data = get_factory_data(proc_cfg, cols, auto_increment_col, start_time, end_time)
+    else:
+        data = get_factory_data(proc_cfg, raw_column_names, auto_increment_col, start_time, end_time)
 
     # there is no data , return
     if not data:
@@ -777,7 +829,6 @@ def factory_past_data_transform(proc_id):
 
     # start import data
     cols = next(data)
-    cols_normalize = normalize_list(cols)
     remain_rows = ()
     inserted_row_count = 0
     has_data = False
@@ -788,8 +839,17 @@ def factory_past_data_transform(proc_id):
         if not is_import:
             continue
 
+        # apply etl_func for rows
+        if etl_func:
+            df_rows = pd.DataFrame(rows, columns=cols)
+            df_rows = df_transform(df_rows, etl_func)
+
+            # filter columns by raw_column_names in transaction
+            df_rows_filter = df_rows[raw_column_names]
+            rows = tuple(tuple(row) for row in df_rows_filter.to_numpy())
+
         # dataframe
-        df = pd.DataFrame(rows, columns=cols_normalize)
+        df = pd.DataFrame(rows, columns=col_name)
         # pivot if this is vertical data
         if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
             df = transform_df_for_software_workshop(
@@ -805,7 +865,7 @@ def factory_past_data_transform(proc_id):
             error_type = DATA_TYPE_ERROR_EMPTY_DATA
             save_failed_import_history(proc_id, job_info, error_type)
             continue
-        # TODO: check merge mode
+
         # Convert UTC time
         for col, cfg_col in dic_use_cols.items():
             dtype = cfg_col.data_type
@@ -844,17 +904,37 @@ def factory_past_data_transform(proc_id):
             write_error_import(df_error, proc_cfg.name)
             error_type = DATA_TYPE_ERROR_MSG
 
+        # merge mode
+        target_cfg_process = proc_cfg
+        target_get_date_col = get_date_col
+        target_cfg_columns = cfg_columns
+        child_cfg_proc = None
+        if parent_cfg_proc:
+            child_cfg_proc = proc_cfg
+            target_cfg_process = parent_cfg_proc
+            target_cfg_columns = parent_cfg_columns
+            dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in parent_cfg_columns}
+            dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
+            dic_rename = {}
+            for col in df.columns:
+                if dic_cols.get(col):
+                    dic_rename[col] = dic_parent_cfg_cols[dic_cols[col]].column_name
+            df = df.rename(columns=dic_rename)
+            orig_df = orig_df.rename(columns=dic_rename)
+            df_error = df_error.rename(columns=dic_rename)
+            target_get_date_col = parent_cfg_proc.get_date_col()
+
         # Handle calculate data for main::Serial function column
-        main_serial_function_col: CfgProcessColumn | None = proc_cfg.get_main_serial_function_col()
+        main_serial_function_col: CfgProcessColumn | None = target_cfg_process.get_main_serial_function_col()
         if main_serial_function_col:
             from ap.api.setting_module.services.import_function_column import (
                 calculate_data_for_main_serial_function_column,
             )
 
-            df = calculate_data_for_main_serial_function_column(df, proc_cfg, main_serial_function_col)
+            df = calculate_data_for_main_serial_function_column(df, target_cfg_process, main_serial_function_col)
 
         # remove duplicate records which exists DB
-        df, df_duplicate = remove_duplicates(df, orig_df, df_error, proc_cfg, get_date_col)
+        df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
         df_duplicate_cnt = len(df_duplicate)
         if df_duplicate_cnt:
             write_duplicate_records_to_file_factory(
@@ -881,8 +961,8 @@ def factory_past_data_transform(proc_id):
             job_info.status = JobStatus.FAILED.name
             job_info.err_msg = error_type
 
-        df = remove_non_exist_columns_in_df(df, [col.column_name for col in cfg_columns])
-        save_res = import_data(df, proc_cfg, get_date_col, job_info)
+        df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
+        save_res = import_data(df, target_cfg_process, get_date_col, job_info, child_cfg_proc=child_cfg_proc)
 
         # update job info
         gen_import_job_info(job_info, save_res, start_time, imported_end_time, err_cnt=df_error_cnt)
@@ -955,19 +1035,19 @@ def gen_import_data(rows, remain_rows, cols, auto_increment_col):
     if len(rows) < FETCH_MANY_SIZE:
         return is_allow_import, remain_rows + rows, []
 
-    rows += remain_rows
-    last_row_idx = len(rows) - 1
-    first_row_idx = max(last_row_idx - 1000, 0)
+    # rows with the largest grp_id of the previous chunk should be at the BEGINNING of the current chunk
+    rows = remain_rows + rows
 
     rows_df = pd.DataFrame(rows, columns=cols)
-    for i in range(last_row_idx, first_row_idx, -1):
-        # difference time
-        if rows_df.iloc[i][auto_increment_col] != rows_df.iloc[i - 1][auto_increment_col]:
-            return is_allow_import, rows[:i], rows[i:]
+    group_ids = rows_df.groupby([auto_increment_col]).ngroup()
+    split_idx = rows_df.index[group_ids.idxmax()]
+    # when all rows have the same grp_id, bring all rows to the next chunk
+    group_ids = group_ids.to_numpy()
+    if check_if_array_is_repeating(group_ids):
+        is_allow_import = False
+        return is_allow_import, [], rows
 
-    # no difference
-    is_allow_import = False
-    return is_allow_import, [], rows
+    return is_allow_import, rows[:split_idx], rows[split_idx:]
 
 
 def write_duplicate_records_to_file_factory(

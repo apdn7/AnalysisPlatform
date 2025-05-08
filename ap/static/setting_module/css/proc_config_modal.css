@@ -13,12 +13,6 @@
     max-height: 219px;
 }
 
-[id^='processColumnsTable'] {
-    position: sticky;
-    left: 0;
-    z-index: 999;
-}
-
 [id^='processColumnsTableSampleData'] {
     position: relative;
     z-index: 0;
@@ -118,7 +112,7 @@
     outline: thin solid white !important;
 }
 
-.row-item:not([checked='checked']) {
+.proc-config-content .row-item:not([checked='checked']) {
     color: gray !important;
 }
 
@@ -147,6 +141,16 @@
     font-size: 18px;
 }
 
+tr.row-unchecked td {
+    color: gray !important;
+}
+
+#procSettingChangeMark {
+    font-size: 12px;
+    padding-top: 1em;
+    padding-left: 1em;
+}
+
 /*editmode css*/
 .editor input,
 .jdropdown-default .jdropdown-content {
@@ -157,10 +161,6 @@
 }
 .jexcel > tbody > tr > td:nth-child(n + 3):nth-child(-n + 5) {
     text-align: left !important;
-}
-
-.jexcel > tbody > tr > td.readonly {
-    color: gray !important;
 }
 
 /* Function Info Table CSS - Start */
@@ -414,6 +414,9 @@
 #functionTable tr.selected td,
 #functionTable tr.selected td input,
 #functionTable tr.selected td span {
+    background-color: steelblue !important;
+}
+#processColumnsTable_functionTable tr.row-selected td {
     background-color: steelblue !important;
 }
 

@@ -199,8 +199,30 @@ button > span {
     background-color: #3c3c3c !important;
 }
 
+.jexcel .selection-bottom {
+    border-bottom: 1px solid #739ac2 !important;
+}
+
+.jexcel .selection-right {
+    border-right: 1px solid #739ac2 !important;
+}
+
+.jexcel .selection-left {
+    border-left: 1px solid #739ac2 !important;
+}
+
+.jexcel .selection-top {
+    border-top: 1px solid #739ac2 !important;
+}
+
 .editor input {
     color: white !important;
+}
+
+.jexcel_filter input {
+    width: 300px;
+    background-color: #222222;
+    color: white;
 }
 
 .jexcel > div > table > thead > tr > td {
@@ -245,14 +267,106 @@ thead.resizable {
     text-align: center !important;
     font-weight: bolder;
 }
+
+#graphConfigTable .jdropdown-container {
+    position: fixed;
+    opacity: 0;
+}
+
+.jdropdown-default .jdropdown-header {
+    background-color: #222222;
+}
+
+.jdropdown-default .jdropdown-content {
+    background-color: #222222;
+}
+
+.jdropdown-focus {
+    background-color: #222222;
+}
+
+.jdropdown-focus input {
+    color: white;
+}
+
+.jdropdown-description {
+    color: white;
+}
+
+.jexcel_container .hint-text {
+    text-decoration: underline;
+}
+
+/*style for jspreadsheet calendar*/
+.jcalendar .jcalendar-selected {
+    border: 1px solid #739ac2 !important;
+}
+
+.jcalendar-content {
+    background-color: #222222 !important;
+}
+
+.jcalendar-reset {
+    color: white !important;
+}
+
+.jcalendar-confirm {
+    color: white !important;
+}
+
+.jcalendar-prev {
+    color: white !important;
+}
+
+.jcalendar-next {
+    color: white !important;
+}
+
+.jcalendar-controls {
+    border-bottom: 1px solid white !important;
+}
+
+.jcalendar-time .jcalendar-select {
+    background-color: #6e6e6e !important;
+    color: white !important;
+}
+
+.jcalendar-update {
+    background-color: #2b4764 !important;
+    color: white !important;
+    border: 0px !important;
+}
+
+#graphConfigTable {
+    overflow: auto;
+    /*resize: horizontal;*/
+    min-width: 120px;
+    max-width: 100%;
+}
+
 .collapse-box {
     margin: 10px 10px;
 }
+
 #mainContent h3,
 h5,
 table {
     color: white !important;
 }
+
 #sidebar {
     z-index: 9999;
+}
+#graphConfigTable .filterCol {
+    height: 25px !important;
+}
+
+@media (max-width: 1140px) {
+    #graphConfigTable {
+        max-width: 100%;
+    }
+}
+
+.cookie-banner-container {
+    z-index: 9998;
 }

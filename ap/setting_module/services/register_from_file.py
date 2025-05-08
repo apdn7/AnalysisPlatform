@@ -231,7 +231,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
         process_configs.append(process_config)
 
         datasource_config['csv_detail']['csv_columns'] = cols_with_types
-
+    process_configs = sorted(process_configs, key=lambda process_config: process_config['name_en'], reverse=True)
     return {
         'processConfigs': process_configs,
         'datasourceConfig': datasource_config,
@@ -274,7 +274,7 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
         max_records=1000,
         file_name=file_name,
         skip_head=skip_head,
-        is_convert_datetime=False,
+        show_file_name_column=True,
     )
 
     dic_preview['is_file_path'] = file_name is not None

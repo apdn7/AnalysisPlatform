@@ -378,6 +378,89 @@ msgstr "既に登録されています"
 msgid "Fill in process name"
 msgstr "プロセス名を入力してください"
 
+msgid "Cookie banner content"
+msgstr "当アプリケーションのよりよい体験・サービス向上のため、ポリシーに基づいたCookieの取得と利用に同意をお願いいたします。"
+
+msgid "Cookie Policy"
+msgstr "Cookieポリシー"
+
+msgid "Cookies Settings"
+msgstr "Cookieの詳細設定"
+
+msgid "Cookies Details"
+msgstr "Cookies Details"
+
+msgid "Accept All Cookies"
+msgstr "同意する"
+
+msgid "Privacy Preference Center"
+msgstr "Privacy Preference Center"
+
+msgid "Privacy Preference Center content"
+msgstr ""
+"ウェブサイトを訪問すると、多くの場合 Cookie を用いて利用者のブラウザに情報を保管したりブラウザから情報を取得したりします。 "
+"取得される情報には、利用者に関するもの、優先設定、デバイスに関する情報が含まれている場合があります。多くの場合、サイトの動作を利用者の期待通りにするために使用されています。取得される情報は、通常、利用者を特定できるようなものではありませんが、ウェブ体験をパーソナライズするのに役立ちます。弊社では利用者のプライバシーを尊重し、一部の"
+" Cookie "
+"を使用しないよう利用者が選択できるようにしています。カテゴリ名をクリックすると詳細情報が表示され、弊社のデフォルト設定を変更できます。Cookie"
+" の種類によっては、ブロックするとサイトの使い勝手や弊社が提供できるサービス内容に影響が出る場合がありますのでご注意ください。"
+
+msgid "More information"
+msgstr "More information"
+
+msgid "Manage Consent Preferences"
+msgstr "プライバシー設定"
+
+msgid "Strictly Necessary Cookies"
+msgstr "必要なCookie"
+
+msgid "Strictly Necessary Cookies description"
+msgstr ""
+"この Cookie "
+"はウェブアプリケーションが正常に機能するために必要なもので、利用者のシステム内でスイッチをオフにすることはできません。これらは通常、プライバシー設定、言語設定など、サービスのリクエストに相当するユーザーのアクションに応じてのみ設定されます。この"
+" Cookie をブロック/警告するようにブラウザを設定することは可能ですが、ウェブアプリケーションの一部が機能しなくなります。この Cookie"
+" が個人を特定できる情報を保存することはありません。"
+
+msgid "Targeting Cookies"
+msgstr "Targeting Cookies"
+
+msgid "Targeting Cookies description"
+msgstr ""
+"These cookies may be set through our site by our advertising partners. "
+"They may be used by those companies to build a profile of your interests "
+"and show you relevant adverts on other sites. They do not store directly "
+"personal information, but are based on uniquely identifying your browser "
+"and internet device. If you do not allow these cookies, you will "
+"experience less targeted advertising."
+
+msgid "Functional Cookies"
+msgstr "Functional Cookies"
+
+msgid "Functional Cookies description"
+msgstr ""
+"These cookies enable the website to provide enhanced functionality and "
+"personalisation. They may be set by us or by third party providers whose "
+"services we have added to our pages. If you do not allow these cookies "
+"then some or all of these services may not function properly."
+
+msgid "Performance Cookies"
+msgstr "パフォーマンスCookie"
+
+msgid "Performance Cookies description"
+msgstr ""
+"この Cookie "
+"により訪問者数と通信トラフィックソースがカウントできるようになり、ウェブアプリケーションのパフォーマンスを判断し改善する際に役立ちます。最も人気があるページ、人気が低いページを確認したり、訪問者がウェブアプリケーション内をどのように移動するかを理解するのに役立ちます。これらの"
+" Cookie が収集するすべての情報はひとつにまとめられるので、匿名性が保たれています。この Cookie "
+"を受け入れなければ、利用者が弊社サイトを訪問しても、弊社にはわかりません。"
+
+msgid "Confirm My Choices"
+msgstr "選択内容を保存する"
+
+msgid "Allow All"
+msgstr "すべて許可する"
+
+msgid "Cookie List"
+msgstr "Cookie List"
+
 #: ap/templates/filter_visualization.html
 msgid "Filter/Graph"
 msgstr "フィルタ／グラフ"
@@ -754,7 +837,7 @@ msgid "Invalid digit selection"
 msgstr "不正な桁指定です。"
 
 # ap/templates/setting_module/trace_config.html
-msgid "i18nInvalidDeltaTime"
+msgid "Delta time and cut off must be Float"
 msgstr "時間紐付とCutOffは実数でなければなりません。"
 
 # ap/templates/setting_module/trace_config.html
@@ -1457,7 +1540,9 @@ msgstr "リッジラインプロット"
 
 #: ap/template/base.html
 msgid "Confirm Shutdown App"
-msgstr "アプリケーション(エッジサーバ)を停止させます。停止した場合は他のユーザも使用できなくなりますので管理者に連絡してください。<br>通常の終了の場合は、ここはキャンセルして、ブラウザを閉じるだけで大丈夫です。"
+msgstr ""
+"アプリケーションを停止したい場合は、OKをクリックしてください。画面右下に青い表示が出れば成功です。最後にブラウザを閉じてください。<br><br>※このアプリケーションをWeb経由で他のユーザと共有している場合は、"
+" 停止して問題ないか確認することを推奨します。"
 
 #: ap/template/base.html
 msgid "Jobs Stopped"
@@ -1890,6 +1975,10 @@ msgstr "リッジラインプロットを日時ごとに表示する際の期間
 #: ap/templates/templates/i18n.html
 msgid "Optional function Hover"
 msgstr "CSV/TSVファイルからデータを読み込む際に、データ構造の変換等の特別な処理が必要な場合にオプションを選択できます。"
+
+#: ap/templates/templates/i18n.html
+msgid "Process config optional function Hover"
+msgstr "対象テーブルからデータを読み込む際に、データ構造の変換等の特別な処理が必要な場合にオプションを選択できます。"
 
 #: ap/templates/templates/i18n.html
 msgid "Specify datatype of columns Hover"
@@ -3656,6 +3745,18 @@ msgid "SkD hover plot hover process"
 msgstr "工程"
 
 #: ap/templates/templates/macros.html
+msgid "Strengthen selection"
+msgstr "変数選択を強める"
+
+#: ap/templates/templates/macros.html
+msgid "SkD hover strengthen selection"
+msgstr ""
+"目的変数への影響が小さい変数をより多く削除します。\n"
+"選択した変数が100以上など非常に多い場合に有効です。 \n"
+"設備や品番といったカテゴリカルな変数は削除されやすいことに注意してください。 \n"
+"元々影響が比較的大きい変数が削除された場合、選択された変数と強く相関している可能性があります。"
+
+#: ap/templates/templates/macros.html
 msgid "GL target variable"
 msgstr ""
 "ここで選択した変数間の偏相関関係を可視化します。\n"
@@ -4032,6 +4133,18 @@ msgid "Column Raw Name"
 msgstr "元の列名"
 
 #: ap/templates/i18n.html
+msgid "Import Condition"
+msgstr "データ読込条件"
+
+#: ap/templates/i18n.html
+msgid ""
+"Set conditions to narrow down the records to be imported. You can set up "
+"to three target columns to specify conditions for."
+msgstr ""
+"データを読み込む対象レコードを絞り込む条件を設定します。\n"
+"条件を指定する対象列を3つまで設定できます。"
+
+#: ap/templates/i18n.html
 msgid "All imported data will be permanently deleted. Do you want to continue?"
 msgstr "All imported data will be permanently deleted. Do you want to continue?"
 
@@ -4087,7 +4200,7 @@ msgstr "`判定"
 msgid "Could not read data"
 msgstr ""
 "以下の理由でファイルの読み込みに失敗しました：<br>・ファイルのヘッダー数とデータ数が異なります<br>・UTF-8とSHIFT-"
-"JISでの文字化が失敗しました"
+"JISのエンコーディングが失敗しました"
 
 #: ap/templates/setting_module/background_job.html
 msgid "Progress"
@@ -4715,15 +4828,64 @@ msgstr "アプリ設定の読み込みが失敗しました．"
 msgid "invalidFilePathMsg"
 msgstr "入力されたファイルパスからファイルを参照できません。ファイルパスを確認してください。"
 
-#~ msgid "Import Condition"
-#~ msgstr "データ読込条件"
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process"
+msgstr "初期化"
 
-#~ msgid ""
-#~ "Set conditions to narrow down the "
-#~ "records to be imported. You can "
-#~ "set up to three target columns to"
-#~ " specify conditions for."
-#~ msgstr ""
-#~ "データを読み込む対象レコードを絞り込む条件を設定します。\n"
-#~ "条件を指定する対象列を3つまで設定できます。"
+#: ap/templates/setting_module/proc_config_modals.html
+msgid ""
+"Initialized process will make Imported data for the target process will "
+"be deleted"
+msgstr "読み込まれている対象プロセスのデータを削除します。<br>(フィルタ設定、グラフ設定やブックマークは残ります。)<br>処理を実行しますか?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process config successfully"
+msgstr "プロセス構成を正常に初期化しました。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize process config error"
+msgstr "初期化プロセス構成エラー。"
+
+#: ap/templates/i18n.html
+msgid "Cookie Preferences"
+msgstr "Cookieの詳細設定"
+
+#: ap/templates/i18n.html
+msgid "First Party"
+msgstr "ファーストパーティ"
+
+#: ap/templates/i18n.html
+msgid "Third Party"
+msgstr "サードパーティ"
+
+#: ap/templates/i18n.html
+msgid "Days"
+msgstr "日"
+
+#: ap/templates/i18n.html
+msgid "Reject All"
+msgstr "すべて拒否する"
+
+#: ap/templates/i18n.html
+msgid "cookieHeaderExample"
+msgstr "Example"
+
+msgid "localeCookieDescription"
+msgstr "表示言語設定のために使用されます"
+
+msgid "ccCookieDescription"
+msgstr "クッキーの設定を管理するために使用されます"
+
+msgid "gaCookieDescription"
+msgstr ""
+"この Cookie は Google Universal Analytics "
+"に関係しています。ランダムな番号で一意のユーザーを識別し、サイト分析レポートの計算に使用されます。"
+
+msgid "gaxCookieDescription"
+msgstr ""
+"この Cookie は Google Universal Analytics "
+"に関係しています。ユーザがウェブアプリケーションをどのように使用するかの統計をとるために使用されます。"
+
+msgid "Years"
+msgstr "年間"
 

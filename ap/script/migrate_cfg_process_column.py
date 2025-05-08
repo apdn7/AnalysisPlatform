@@ -16,6 +16,7 @@ def migrate_cfg_process_column(app_db_src):
     add_column_is_file_name(app_db)
     migrate_column_raw_name(app_db)
     migrate_is_serial_no(app_db)
+    del_column_predict_type(app_db)
     app_db.disconnect()
 
 
@@ -74,3 +75,16 @@ def migrate_is_serial_no(app_db):
         WHERE column_type is {DataColumnType.SERIAL.value};"""
 
         app_db.execute_sql(sql_update)
+
+
+def del_column_predict_type(app_db):
+    is_existing = app_db.is_column_existing(CfgProcessColumn.__table__.name, 'predict_type')
+    if is_existing:
+        app_db.execute_sql(
+            "UPDATE cfg_process_column SET raw_data_type = predict_type WHERE predict_type IN ('REAL_SEP' ,'INTEGER_SEP' ,'EU_REAL_SEP' ,'EU_INTEGER_SEP');"
+        )
+        # migrate cases where raw_data_type is null or empty from v4.7.8
+        app_db.execute_sql(
+            "UPDATE cfg_process_column SET raw_data_type = data_type WHERE raw_data_type is null OR raw_data_type == '';"
+        )
+        app_db.execute_sql("ALTER TABLE cfg_process_column DROP COLUMN predict_type")

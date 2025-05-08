@@ -22,37 +22,42 @@ const initDatetimeFormatCheckboxAndInput = () => {
     procModalElements.procDateTimeFormatCheckbox.prop('disabled', shouldDisable);
 };
 
-const handleProcDatetimeFormatCheckbox = async () => {
-    await showProcDatetimeFormatSampleData();
+const handleProcDatetimeFormatCheckbox = async (element) => {
+    const spreadsheet = getSpreadSheetFromToolsBarElement(element);
+    await showProcDatetimeFormatSampleData(spreadsheet);
 };
 
-const handleProcDatetimeFormatInput = async () => {
+const handleProcDatetimeFormatInput = async (element) => {
     // automatically enable checkbox if it was not enabled
-    const inputValue = procModalElements.procDateTimeFormatInput.val().trim();
+    const inputValue = $(element).val().trim();
+    const procDateTimeFormatCheckbox = getDatetimeFormatCheckboxFromElement(element);
     if (inputValue.length) {
-        procModalElements.procDateTimeFormatCheckbox.prop('checked', true);
+        procDateTimeFormatCheckbox.prop('checked', true);
     }
-    await showProcDatetimeFormatSampleData();
+    const spreadsheet = getSpreadSheetFromToolsBarElement(element);
+    await showProcDatetimeFormatSampleData(spreadsheet);
 };
 
 /**
+ * @param {SpreadSheetProcessConfig} spreadsheet
  * @param {Object.<colIdx: String, dataType: String, dataTypeDropdownElement: HTMLDivElement>} rows
  */
-const showProcDatetimeFormatSampleData = async (...rows) => {
-    const condition = displayDatetimeFormatCondition();
+const showProcDatetimeFormatSampleData = async (spreadsheet, ...rows) => {
+    const el = spreadsheet.table.table.el;
+    const condition = displayDatetimeFormatCondition(el);
     // apply format for all rows if it is undefined
-    const appliedRows = rows.length === 0 ? collectDatetimeRows() : rows;
+    const appliedRows = rows.length === 0 ? collectDatetimeRows(spreadsheet) : rows;
 
     if (condition.showRawData) {
-        showRawFormatDatetimeData(...appliedRows);
+        showRawFormatDatetimeData(spreadsheet, ...appliedRows);
     } else if (condition.showFormatData) {
-        await showInputFormatDatetimeData(...appliedRows);
+        await showInputFormatDatetimeData(spreadsheet, ...appliedRows);
     } else {
         notifyInvalidFormat();
     }
 };
 
-const displayDatetimeFormatCondition = () => {
+const displayDatetimeFormatCondition = (el = null) => {
     // if checkbox is checked:
     //   - if format is provided: show format by input
     //   - if format is not provided: auto format
@@ -63,8 +68,16 @@ const displayDatetimeFormatCondition = () => {
         showRawData: false,
         showFormatData: false,
     };
-    const formatIsChecked = procModalElements.procDateTimeFormatCheckbox.is(':checked');
-    const formatIsEmpty = procModalElements.procDateTimeFormatInput?.val()?.trim().length === 0;
+    let formatIsChecked = false;
+    const procDateTimeFormatCheckbox = el
+        ? getDatetimeFormatCheckboxFromElement(el)
+        : procModalElements.procDateTimeFormatCheckbox;
+    if (procDateTimeFormatCheckbox.length) {
+        formatIsChecked = procDateTimeFormatCheckbox.is(':checked');
+    } else {
+        // register by file show data formated
+        formatIsChecked = true;
+    }
 
     if (!formatIsChecked) {
         result.showRawData = true;
@@ -77,84 +90,72 @@ const displayDatetimeFormatCondition = () => {
 
 /**
  * Collect datetime rows
+ * @param {SpreadSheetProcessConfig} spreadsheet
  * @return {{dataTypeDropdownElement: HTMLDivElement, colIdx: String, dataType: String}[]}
  */
-const collectDatetimeRows = () =>
-    procModalElements.processColumnsTableBody
-        .find('td.column-date-type span[name="dataType"]')
-        .each((_idx, ele) => ele.setAttribute('colidx', _idx))
-        .toArray()
-        .filter((ele) =>
-            [DataTypes.DATETIME.name, DataTypes.DATE.name, DataTypes.TIME.name].includes(ele.getAttribute('value')),
-        )
-        .map((ele, _id) => ({
-            dataType: ele.getAttribute('value'),
-            // colIdx: ele.closest('tr').querySelector('td[title="index"]').dataset.colIdx,
-            colIdx: ele.getAttribute('colidx'),
-            dataTypeDropdownElement: ele.closest('div.config-data-type-dropdown'),
-        }));
+const collectDatetimeRows = (spreadsheet) => {
+    const rows = spreadsheet.rowsByDataTypes(DataTypes.DATETIME.name, DataTypes.TIME.name, DataTypes.DATE.name);
+    return rows.map((row) => ({
+        dataType: row[PROCESS_COLUMNS.data_type].data,
+        rowIdx: row[PROCESS_COLUMNS.data_type].rowIndex,
+        isGeneratedMainDatetimeColumn: row[PROCESS_COLUMNS.is_generated_datetime].data,
+    }));
+};
 
 /**
  * @param {Object.<colIdx: String, dataType: String, dataTypeDropdownElement: HTMLDivElement>} rows
  */
-const showRawFormatDatetimeData = (...rows) => {
-    for (const { colIdx, dataTypeDropdownElement } of rows) {
-        if (dataTypeDropdownElement) {
+const showRawFormatDatetimeData = (spreadsheet, ...rows) => {
+    for (const { rowIdx, dataTypeDropdownElement } of rows) {
+        getSampleDataByIndex(spreadsheet, rowIdx).forEach((e) => {
             // Sprint 245 requirement: Display comma instead of dot
             // E.g: 2024-01-01 01:01:00,123 -> 2024-01-01 01:01:00.123
             // original data should be kept for datetime format
-            getSampleDataByDropdownElement(dataTypeDropdownElement).forEach((e) => {
-                const commaBetweenNumbersRegex = /(?<=\d),(?=\d)/;
-                e.innerText = e.dataset.original.replace(commaBetweenNumbersRegex, '.');
-            });
-        } else {
-            getSampleDataByIndex(colIdx).forEach((e) => (e.innerText = e.dataset.original));
-        }
+            const commaBetweenNumbersRegex = /(?<=\d),(?=\d)/;
+            e.innerText = e.dataset.original.replace(commaBetweenNumbersRegex, '.');
+        });
     }
 };
 
 /**
  * @param {Object.<colIdx: String, dataType: String, dataTypeDropdownElement: HTMLDivElement>} rows
  */
-const showInputFormatDatetimeData = async (...rows) => {
-    let inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
-    let mainDateIdx = '';
-    let mainTimeIdx = '';
+const showInputFormatDatetimeData = async (spreadsheet, ...rows) => {
+    let mainDateRow = rows.find((row) => row.dataType === DataTypes.DATE.name) || '';
+    let mainTimeRow = rows.find((row) => row.dataType === DataTypes.TIME.name) || '';
+    let dateTimeRow = rows.filter((row) => row.dataType === DataTypes.DATETIME.name);
+    const inputFormatEle = getDatetimeFormatInputFromElement(spreadsheet.table.table.el);
+    const inputFormat = inputFormatEle.val().trim();
+    rows = [mainTimeRow, mainDateRow, ...dateTimeRow];
+    let formatRow = dateTimeRow;
+    if (mainDateRow) {
+        formatRow.unshift(mainTimeRow);
+    }
+    if (mainDateRow) {
+        formatRow.unshift(mainDateRow);
+    }
 
-    for (const { dataType, colIdx, dataTypeDropdownElement } of rows) {
-        switch (dataType) {
-            case DataTypes.DATETIME.name:
-                break;
-            case DataTypes.DATE.name:
-                mainDateIdx = colIdx;
-                break;
-            case DataTypes.TIME.name:
-                mainTimeIdx = colIdx;
-                break;
-            default:
-                break;
-        }
-
-        const spanEle = dataTypeDropdownElement.querySelector('button>span[name="dataType"]');
-        const isGeneratedMainDatetimeColumn = spanEle.closest('tr').classList.contains('is-generated-datetime');
-        const sampleDataElements = dataTypeDropdownElement
-            ? getSampleDataByDropdownElement(dataTypeDropdownElement)
-            : getSampleDataByIndex(colIdx);
+    for (const { dataType, rowIdx, isGeneratedMainDatetimeColumn } of rows) {
+        const sampleDataElements = getSampleDataByIndex(spreadsheet, rowIdx);
         let data = [];
         if (isGeneratedMainDatetimeColumn) {
             // get data of main::Date, main::Time
-            if (mainDateIdx && mainTimeIdx) {
-                const mainDateElements = getSampleDataByIndex(mainDateIdx);
+            if (mainDateRow && mainDateRow) {
+                const mainDateElements = getSampleDataByIndex(spreadsheet, mainDateRow.rowIdx);
                 const mainDateData = mainDateElements.map((e) => e.innerText);
-                const mainTimeElements = getSampleDataByIndex(mainTimeIdx);
+                const mainTimeElements = getSampleDataByIndex(spreadsheet, mainTimeRow.rowIdx);
                 const mainTimeData = mainTimeElements.map((e) => e.innerText);
                 data = _.zip(mainDateData, mainTimeData).map(([dateData, timeData]) => dateData + ' ' + timeData);
             }
-            inputFormat = '';
         } else {
             data = sampleDataElements.map((e) => e.dataset.original);
         }
-        const formattedData = await parseProcDatetimeInputFormat(dataType, data, isGeneratedMainDatetimeColumn);
+        const formattedData = await parseProcDatetimeInputFormat(
+            inputFormat,
+            dataType,
+            data,
+            isGeneratedMainDatetimeColumn,
+        );
 
         _.zip(sampleDataElements, formattedData).forEach(([ele, data]) => {
             ele.innerText = data;
@@ -165,10 +166,13 @@ const showInputFormatDatetimeData = async (...rows) => {
 const notifyInvalidFormat = () => showToastrMsg('Invalid datetime format!!!', MESSAGE_LEVEL.ERROR);
 
 /**
+ * @param {SpreadSheetProcessConfig} - spreadsheet
  * @param colIdx
  */
-const getSampleDataByIndex = (colIdx) =>
-    procModalElements.processColumnsSampleDataTableBody.find(`tr:eq(${colIdx}) .sample-data`).toArray();
+const getSampleDataByIndex = (spreadsheet, colIdx) =>
+    $(`#${spreadsheet.table.table.el.id}`)
+        .find(`tr:eq(${colIdx + 1}) .sample-data`)
+        .toArray();
 
 /**
  * @param {HTMLDivElement} dataTypeDropdownElement

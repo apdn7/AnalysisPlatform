@@ -118,7 +118,7 @@ def zip_export():
     """
     dic_form = parse_request_params(request)
     dataset_id = int(dic_form['dataset_id'])
-    user_setting_id = int(dic_form['user_setting_id'])
+    user_setting_id = int(dic_form['bookmark_id'])
     response = export_debug_info(dataset_id, user_setting_id)
 
     return response

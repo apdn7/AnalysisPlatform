@@ -367,3 +367,14 @@ def rename_df_column_for_dict(dict_rename_columns, dic_col_groups_equation):
         )  # re-package
         dict_return[dict_rename_columns[key]] = value
     return dict_return
+
+
+def get_first_valid_value_for_proc_link_preview(df):
+    if df.empty:
+        return
+    # get 1 valid value in column
+    return (
+        df.apply(lambda col: col[col.first_valid_index()] if col.first_valid_index() is not None else None, axis=0)
+        .to_frame()
+        .T
+    )

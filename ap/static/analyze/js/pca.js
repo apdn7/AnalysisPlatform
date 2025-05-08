@@ -152,7 +152,7 @@ const drawPCAPlotList = (res, clickOnChart, sampleNo = null) => {
 
 const reselectPCAData = (fromShowGraphBtn = false, reselectBtn = true) => {
     const formData = collectInputAsFormData();
-
+    loadingHide();
     // warning about integer column has_integer_col
     if (formData.get('has_integer_col') === 'true') {
         $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
@@ -193,6 +193,8 @@ const getPCAPlotsFromBackend = (
         formData,
         REQUEST_TIMEOUT,
         async (res) => {
+            // after show graph
+            loadingHide();
             if (clickOnChart) {
                 hideLoading(eleQCont);
                 hideLoading(eleT2Cont);
