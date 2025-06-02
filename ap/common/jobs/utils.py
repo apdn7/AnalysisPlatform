@@ -62,15 +62,13 @@ def kill_all_jobs():
             job.update(wait_to_kill=True, running_jobs=running_jobs)
 
 
-def is_update_transaction_data_job_completed(process_id: Union[int, str]):
+def get_update_transaction_table_job(process_id: Union[int, str]):
     """
-    Check UPDATE_TRANSACTION_DATA job of process_id is executed completely or not
-
-    A job is completed if and only if it does not exist in scheduled yet.
+    Get UPDATE_TRANSACTION_TABLE job of process_id
 
     :param Union[int, str] process_id: a process id
-    :return: True: the job is executed completely, otherwise False
+    :return: the job, otherwise None
     """
 
     job_id = generate_job_id(JobType.UPDATE_TRANSACTION_TABLE, process_id)
-    return scheduler.get_job(job_id) is None
+    return scheduler.get_job(job_id)

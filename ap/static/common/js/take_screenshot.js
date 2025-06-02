@@ -118,6 +118,7 @@ const takeScreenShot = async (isFullPage = true) => {
 };
 
 const hideInfoContent = () => {
+    console.log('clear content');
     $('#stContentTab .setting-inform-content').html('');
     $('#stContentTab').hide();
 };

@@ -425,7 +425,8 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
         $(procModalElements.confirmImportDataBtn).attr('data-is-merge-mode', false);
         $(filterConditionElements.addImportConditionBtn).prop('disabled', false);
         loadProcModal(procId, dataRowID, dbsId);
-        GenerateDefaultImportFilterTable(procId);
+        // not available from v4.7.10
+        // GenerateDefaultImportFilterTable(procId);
         modalName = 'procSettingModal';
     }
 
@@ -811,4 +812,21 @@ const showWarningMark = (elmMark, elmMess, messageError) => {
             showConfigProcessWarning(elmMess, messageError);
         });
     showConfigProcessWarning(elmMess, messageError);
+};
+
+const getProcessInfo = async (procId) => {
+    let data = null;
+    await $.ajax({
+        url: `api/setting/proc_config/${procId}`,
+        type: 'GET',
+        cache: false,
+        success: (json) => {
+            data = json.data;
+        },
+        error: (e) => {
+            console.log('error', e);
+            data = null;
+        },
+    });
+    return data;
 };

@@ -14,7 +14,7 @@ from pandas import DataFrame, Series
 from pandas.core.dtypes.common import is_datetime64_ns_dtype
 
 from ap import TraceErrKey, dic_request_info
-from ap.api.common.services.show_graph_database import DictToClass, ShowGraphConfigData, gen_dict_procs
+from ap.api.common.services.show_graph_database import gen_dict_procs, get_traces_graph_config_data
 from ap.api.common.services.sql_generator import (
     SQL_GENERATOR_PREFIX,
     SqlProcLink,
@@ -23,7 +23,7 @@ from ap.api.common.services.sql_generator import (
     gen_tracing_cte,
     gen_tracing_cte_with_delta_time_cut_off,
 )
-from ap.api.common.services.utils import TraceGraph, gen_proc_time_label, gen_sql_and_params
+from ap.api.common.services.utils import gen_proc_time_label, gen_sql_and_params
 from ap.api.external_api.services import save_params_and_odf_data_of_request
 from ap.api.trace_data.services.filter_function_condition import filter_function_column
 from ap.api.trace_data.services.regex_infinity import (
@@ -201,7 +201,6 @@ from ap.setting_module.models import (
     insert_or_update_config,
     make_session,
 )
-from ap.setting_module.schemas import TraceSchema
 from ap.trace_data.schemas import CategoryProc, ConditionProc, DicParam, EndProc
 from ap.trace_data.transaction_model import TransactionData
 
@@ -2140,7 +2139,11 @@ def calc_upper_lower_range(array_y: Series):
     return float(lower_range), float(upper_range)
 
 
-def get_filter_detail_ids(dic_proc_cfgs: Dict[int, CfgProcess], proc_ids, column_ids):
+def get_filter_detail_ids(
+    dic_proc_cfgs: Dict[int, CfgProcess],
+    proc_ids: list[int],
+    column_ids: list[int],
+) -> tuple[dict[str, list[tuple[int, str]]], list[int]]:
     """
     get filter detail ids to check if this filter matching dataset of graph
     :param dic_proc_cfgs:
@@ -4038,23 +4041,13 @@ def is_nominal_check(col_id, graph_param):
 @log_execution_time()
 @CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
 def check_path_exist(end_proc_id, start_proc_id):
-    trace_graph = get_trace_configs()
+    trace_graph = get_traces_graph_config_data()
     directed_paths = trace_graph.get_all_paths(start_proc_id, end_proc_id)
     undirected_paths = trace_graph.get_all_paths(start_proc_id, end_proc_id, undirected_graph=True)
     return len(directed_paths) or len(undirected_paths)
 
 
-@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
-def get_trace_configs():
-    proc_trace_schema = TraceSchema(many=True)
-    cfg_traces = CfgTrace.get_all()
-    traces = proc_trace_schema.dump(cfg_traces, many=True)
-    traces = [DictToClass(**trace) for trace in traces]
-    trace_graph = TraceGraph(traces)
-    return trace_graph
-
-
-def add_equation_column_to_df(df, function_detail, graph_config_data: ShowGraphConfigData):
+def add_equation_column_to_df(df, function_detail, graph_config_data: CfgProcess):
     cfg_col = graph_config_data.get_col(function_detail.process_column_id)
     equation_class = get_function_class_by_id(function_detail.function_id)
     equation = equation_class.from_kwargs(**function_detail.as_dict())

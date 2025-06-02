@@ -16,6 +16,11 @@ is_transpose_column = """alter table cfg_data_source_csv add column is_transpose
 is_file_path_column = """alter table cfg_data_source_csv add column is_file_path boolean default false;"""
 is_file_checker = """alter table cfg_data_source_csv add column is_file_checker boolean default false;"""
 
+update_dummy_header_default = "update cfg_data_source_csv set dummy_header = false where dummy_header is null;"
+update_is_transpose_default = "update cfg_data_source_csv set is_transpose = false where is_transpose is null;"
+update_is_file_path_default = "update cfg_data_source_csv set is_file_path = false where is_file_path is null;"
+update_is_file_checker_default = "update cfg_data_source_csv set is_file_checker = false where is_file_checker is null;"
+
 
 def migrate_cfg_data_source_csv(app_db_src):
     app_db = sqlite.SQLite3(app_db_src)
@@ -40,14 +45,22 @@ def migrate_cfg_data_source_csv(app_db_src):
         app_db.execute_sql(process_name_column)
     if not is_dummy_header_existing:
         app_db.execute_sql(dummy_header_column)
+    else:
+        app_db.execute_sql(update_dummy_header_default)
     if not is_n_rows_column_existing:
         app_db.execute_sql(n_rows_column)
     if not is_is_transpose_column_existing:
         app_db.execute_sql(is_transpose_column)
+    else:
+        app_db.execute_sql(update_is_transpose_default)
     if not is_file_path_column_existing:
         app_db.execute_sql(is_file_path_column)
+    else:
+        app_db.execute_sql(update_is_file_path_default)
     if not is_file_checker_existing:
         app_db.execute_sql(is_file_checker)
+    else:
+        app_db.execute_sql(update_is_file_checker_default)
 
     migrate_cfg_process_column(app_db)
     app_db.disconnect()

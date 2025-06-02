@@ -646,12 +646,12 @@ const renderAgPAllChart = (
             if (reCalculateYAxisSum) {
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
-                    const indexOfCurrDiv = trace.x.indexOf(String(currDiv));
+                    const indexOfCurrDiv = trace.x.indexOf(currDiv);
                     sumCountByXAxis(currDiv, trace.y[indexOfCurrDiv], end_col_id);
                 }
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
-                    const indexOfCurrDiv = trace.x.indexOf(String(currDiv));
+                    const indexOfCurrDiv = trace.x.indexOf(currDiv);
                     sumCountByFacet(facetKey, currDiv, trace.y[indexOfCurrDiv]);
                 }
             }

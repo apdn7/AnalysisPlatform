@@ -5451,3 +5451,11 @@ msgstr ""
 msgid "Years"
 msgstr "years"
 
+#: ap/templates/i18n.html
+msgid "Tooltips"
+msgstr "Tooltips"
+
+#: ap/templates/i18n.html
+msgid "Display tooltips"
+msgstr "Enable/Disable tooltips when hovering on graphs"
+

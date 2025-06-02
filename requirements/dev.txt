@@ -13,3 +13,4 @@ vulture==2.9.1
 pytest-rerunfailures
 pytest-timeout
 python-dotenv==1.0.1
+pytest-mock

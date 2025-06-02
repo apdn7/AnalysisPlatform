@@ -5,9 +5,10 @@ import cutlet
 
 from ap.common.services.normalization import normalize_preprocessing, normalize_str
 
+conv = cutlet.Cutlet()
+
 
 def to_romaji(input_str, convert_irregular_chars=True):
-    conv = cutlet.Cutlet()
     normalized_input = input_str
 
     normalized_input = normalize_preprocessing(normalized_input)

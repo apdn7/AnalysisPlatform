@@ -8,28 +8,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# @log_execution_time()
-# def fix_blank_string_port():
-#     """
-#     update blank string port to None
-#     :return:
-#     """
-#     try:
-#         logger.info("------------HOT FIX BLANK PORT: START  ------------")
-#         from ap.setting_module.models import make_session, CfgDataSourceDB
-#
-#         with make_session() as meta_session:
-#             db_details: List[CfgDataSourceDB] = meta_session.query(CfgDataSourceDB).all()
-#             for db_detail in db_details:
-#                 if db_detail.port is None or isinstance(db_detail.port, int):
-#                     continue
-#                 if str(db_detail.port).strip() == "":
-#                     db_detail.port = None
-#         logger.info("------------HOT FIX BLANK PORT: END  ------------")
-#     except Exception:
-#         pass
-
-
 @log_execution_time()
 def unlock_db(db_path):
     """

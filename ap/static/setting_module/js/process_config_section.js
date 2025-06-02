@@ -705,7 +705,6 @@ class ProcessConfigSection {
      */
     static generateDatetimeColumn(table, mainDateData, mainTimeData, generateIndex) {
         const generatedId = -100000;
-        const defaultGeneratedDateTimeColName = procModalElements.generatedDateTimeColumnName;
         const generatedDateTimeColName = addSuffixDatetimeGenerated(table);
         const mainDateSampleData = Object.entries(mainDateData)
             .filter(([key]) => key.startsWith(SAMPLE_DATA_KEY))
@@ -724,9 +723,9 @@ class ProcessConfigSection {
             shown_data_type: $(procModali18n.i18nMainDatetime).text(),
             raw_data_type: DataTypes.DATETIME.name,
             column_type: masterDataGroup.MAIN_DATETIME,
-            name_en: defaultGeneratedDateTimeColName,
-            name_jp: defaultGeneratedDateTimeColName,
-            name_local: defaultGeneratedDateTimeColName,
+            name_en: fixedName[masterDataGroup.MAIN_DATETIME].system,
+            name_jp: fixedName[masterDataGroup.MAIN_DATETIME].japanese,
+            name_local: fixedName[masterDataGroup.MAIN_DATETIME].system,
             unit: null,
             data_type: DataTypes.DATETIME.name,
             is_serial_no: false,
@@ -759,7 +758,7 @@ class ProcessConfigSection {
         ].forEach((name) => {
             const columnIndex = table.getIndexHeaderByName(name);
             const disableCell = table.getCellFromCoords(columnIndex, generateIndex);
-            disableCell.classList.add('readonly', 'disabled');
+            disableCell.classList.add(READONLY_CLASS, 'disabled');
         });
         // move row to first row
         table.moveRow(generateIndex, 0);

@@ -644,20 +644,17 @@ const generateProcessList = async (
     const colTypes = [];
     let checkedTotal = 0;
 
-    // TODO: check generated datetime
-    const generatedDateTime = (key) => rows.some((obj) => Object.keys(obj).includes(key));
-    if (generatedDateTime(procModalElements.generatedDateTimeColumnName)) {
-        updateGeneratedDateTimeSampleData(rows, sortedCols);
-    }
+    const hasMainDate = cols.filter((col) => col.column_type == masterDataGroup.MAIN_DATE).length > 0;
+    const hasMainTime = cols.filter((col) => col.column_type == masterDataGroup.MAIN_TIME).length > 0;
     const dataRows = [];
 
-    sortedCols = _.sortBy(sortedCols, (item) =>
-        item.shown_name === procModalElements.generatedDateTimeColumnName ? 0 : 1,
-    );
+    if (hasMainTime && hasMainDate) {
+        sortedCols = _.sortBy(sortedCols, (item) => !item.is_get_date);
+    }
 
     sortedCols.forEach((col, i) => {
         const column_raw_name = col.column_raw_name;
-        const isGeneratedDatetime = column_raw_name === procModalElements.generatedDateTimeColumnName;
+        const isGeneratedDatetime = hasMainDate && hasMainTime && col.is_get_date;
         // registerCol will be defined when the column already exists in the DB
         const registerCol = dicProcessCols[col.column_name];
         col = fromRegenerate ? col : registerCol || col;
@@ -1156,7 +1153,8 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
 
             initDatetimeFormatCheckboxAndInput();
             // gen import filter table
-            GenerateDefaultImportFilterTable(currentProcItem.data('proc-id'));
+            // not available from v4.7.10
+            // GenerateDefaultImportFilterTable(currentProcItem.data('proc-id'));
             if (isInitialize) {
                 enableDatetimeDataType();
             }
@@ -1516,7 +1514,7 @@ const procColumnsData = (tableId, getAll = false) => {
 
     return (
         procColumnWithoutSampleData
-            .map((column) => {
+            .map((column, index) => {
                 // TODO: Column filename has `column_type` and `is_auto_increment` with empty string.
                 // So we need to manually parse them here. Need to fix this later.
                 let column_type = parseInt(column.column_type, 10);
@@ -1538,7 +1536,7 @@ const procColumnsData = (tableId, getAll = false) => {
                     unit: column.unit || null,
                     // TODO: why would we assign `predict_type = column.data_type` here.
                     predict_type: column.data_type,
-                    order: CfgProcess_CONST.CATEGORY_TYPES.includes(column.data_type) ? 1 : 0,
+                    order: index,
                     function_details: [],
                 };
 
@@ -1588,7 +1586,8 @@ const collectProcCfgData = (getAllCol = false) => {
     const dictFunctionColumns = collectFunctionDatasForRegister();
     // collect import filter config
     const importFilterTable = jspreadsheetTable(filterConditionElements.importFilterTable);
-    const importFilterRows = importFilterTable.collectDataTable();
+    // disable for release
+    const importFilterRows = [];
     // merge function column into normal column
     for (let procColumn of procColumns) {
         if (dictFunctionColumns[procColumn.id]) {
@@ -2317,7 +2316,8 @@ $(() => {
             const dataRowId = currentProcItem.attr('data-rowid');
             loadTables(dsSelected, dataRowId);
         }
-        GenerateDefaultImportFilterTable();
+        // not available from v4.7.10
+        // GenerateDefaultImportFilterTable();
     });
 
     // Databases onchange merge mode
@@ -2662,6 +2662,8 @@ const DataTypeAttrs = [
 ];
 const fixedNameColumnTypes = [
     masterDataGroup.MAIN_DATETIME,
+    masterDataGroup.MAIN_DATE,
+    masterDataGroup.MAIN_TIME,
     masterDataGroup.MAIN_SERIAL,
     masterDataGroup.LINE_NAME,
     masterDataGroup.LINE_NO,
@@ -3062,6 +3064,7 @@ const loadInfoTableWithMergeMode = async (procId, baseProc, tableName) => {
     const formDataChildProc = new FormData(procModalForm[0]);
     const formDataParentProc = new FormData();
     const [_, baseProcColsData] = await getProcessColumnsInfo(baseProc.id);
+    baseProc['columns'] = baseProcColsData;
     let mergedColumns = [];
     let procInfo = null;
     if (procId) {

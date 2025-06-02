@@ -4,13 +4,14 @@ import functools
 import logging
 import os.path
 from datetime import datetime
-from typing import List, Literal
+from typing import Any, Literal, Optional
 
 import numpy as np
 import pandas as pd
 from dateutil import tz
 from pandas import DataFrame, Series
 
+from ap.api.common.services.utils import gen_sql_and_params
 from ap.common.common_utils import (
     DATE_FORMAT_FOR_ONE_HOUR,
     DATE_FORMAT_STR,
@@ -233,11 +234,11 @@ def write_error_trace(df_error: DataFrame, proc_name, file_path=None, ip_address
 
 
 @log_execution_time()
-def write_duplicate_import(df: DataFrame, file_name_elements: List):
+def write_duplicate_import(df: DataFrame, file_name_elements: list[str]):
     if not len(df):
         return df
 
-    file_name = '_'.join([element for element in file_name_elements if element])
+    file_name = '_'.join([str(element) for element in file_name_elements if element])
     export_file_name = f'{file_name}{TXT_FILE_TYPE}'
     full_path = os.path.join(get_error_duplicate_path(), export_file_name)
     # make folder
@@ -1324,17 +1325,34 @@ def get_proc_data_count_df(df, *, get_date_col, decrease: bool, is_db: bool):
 
 @log_execution_time()
 def save_import_history(proc_id, job_info):
-    sql_vals, sql_params = [], []
     if not job_info.dic_imported_row:
         job_info.dic_imported_row = {0: (job_info.target, job_info.committed_count)}
+
+    sql: Optional[str] = None
+    sql_params: list[list[Any]] = []
+
     for _, (target_file, imported_row) in job_info.dic_imported_row.items():
-        import_history = ImportHistoryTable.as_obj()
-        import_history.job_id = job_info.job_id or None
-        import_history.import_type = job_info.import_type or None
-        import_history.status = job_info.status or JobStatus.DONE.name
-        if isinstance(import_history.status, JobStatus):
+        status = (
+            job_info.status.name if isinstance(job_info.status, JobStatus) else job_info.status or JobStatus.DONE.name
+        )
+        import_history = ImportHistoryTable(
+            job_id=job_info.job_id,
+            import_type=job_info.import_type,
+            file_name=None,
+            import_from=None,
+            import_to=None,
+            imported_row=None,
+            status=status,
+            error_msg=job_info.err_msg or None,
+            start_tm=job_info.start_tm or get_current_timestamp(),
+            end_tm=job_info.end_tm or get_current_timestamp(),
+            created_at=get_current_timestamp(),
+            updated_at=get_current_timestamp(),
+        )
+
+        if isinstance(job_info.status, JobStatus):
             # convert to string instead of JobStatus type
-            import_history.status = import_history.status.name
+            import_history.status = job_info.status.name
 
         if not job_info.import_type or job_info.import_type == JobType.CSV_IMPORT.name:
             # for csv import
@@ -1350,20 +1368,14 @@ def save_import_history(proc_id, job_info):
             import_history.import_to = job_info.import_to
             import_history.imported_row = job_info.committed_count
 
-        import_history.error_msg = job_info.err_msg or None
-        import_history.start_tm = job_info.start_tm or get_current_timestamp()
-        import_history.end_tm = job_info.end_tm or get_current_timestamp()
-        import_history.created_at = get_current_timestamp()
-        import_history.updated_at = get_current_timestamp()
+        table = ImportHistoryTable.table(proc_id=proc_id)
+        insert_stmt = table.insert().values(**import_history.model_dump())
+        sql, params = gen_sql_and_params(insert_stmt)
+        sql_params.append(params)
 
-        sql_vals += [import_history.get_values()]
-        if not sql_params:
-            sql_params = get_insert_params(import_history.get_keys())
-
-    sql_insert = gen_bulk_insert_sql(ImportHistoryTable.get_table_name(proc_id), *sql_params)
-
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
-        insert_data(db_instance, sql_insert, sql_vals)
+    if sql is not None:
+        with DbProxy(gen_data_source_of_universal_db(proc_id), True, immediate_isolation_level=True) as db_instance:
+            insert_data(db_instance, sql, sql_params)
 
 
 @log_execution_time()

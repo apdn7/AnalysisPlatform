@@ -38,6 +38,7 @@ from ap.common.constants import (
     COL_DETAIL_NAME,
     COL_TYPE,
     COLOR_COLUMN_TYPE,
+    COLOR_KEY,
     COLOR_NAME,
     COMMON,
     DATA,
@@ -46,10 +47,12 @@ from ap.common.constants import (
     END_COL_ID,
     END_DATE,
     END_DT,
+    END_PROC_NAME,
     END_TM,
     FMT,
     IS_CATEGORY,
     IS_GRAPH_LIMITED,
+    NO_COLOR,
     REMOVED_OUTLIERS,
     RL_CATEGORY,
     RL_DIRECT_TERM,
@@ -156,7 +159,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
             graph_param.common.divide_calendar_labels,
         )
 
-    dic_data, str_cols, is_graph_limited = gen_agp_data_from_df(df, graph_param, max_graph)
+    dic_data, str_cols, is_graph_limited, export_agp_plot_data = gen_agp_data_from_df(df, graph_param, max_graph)
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
@@ -182,7 +185,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
 
     dic_param = get_filter_on_demand_data(dic_param)
 
-    return dic_param, export_data, graph_param
+    return dic_param, export_data, graph_param, export_agp_plot_data
 
 
 def get_df_chunk_cyclic(df, dic_param):
@@ -276,16 +279,14 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
     target_vars = graph_param.common.sensor_cols
 
     str_cols = []
-
-    # early return if dataframe is empty
-    if df.empty:
-        return plot_data, str_cols, is_graph_limited
-
+    agg_plot_data_df = []
+    export_agp_plot_data = {}
+    # same_color_dfs = {}
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
-        if len(plot_data) >= max_graph:
+        if len(plot_data) > max_graph:
             is_graph_limited = True
-            return plot_data, str_cols, is_graph_limited
+            break
 
         general_col_info = graph_param.get_col_info_by_id(target_var)
         # bar chart for category, line chart for real, integer, datetime
@@ -311,6 +312,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             OTHER_KEY,
             OTHER_COL,
         )
+
         df_groupby, dict_agg_cols = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_numeric)
         # get summarized_other_col key, to remove them from agg_df
         other_group = next((key for key, val in dict_agg_cols.items() if val == OTHER_COL), None)
@@ -324,7 +326,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         if general_col_info is None:
             continue
 
-        color_show_name, color_column_type = graph_param.get_color_info(target_var, shown_name=True)
+        color_show_name, color_column_type, color_label = graph_param.get_color_info(target_var, shown_name=True)
 
         agp_obj = {
             COLOR_NAME: color_show_name,
@@ -373,7 +375,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             for facet in facets:
                 if len(plot_data) >= max_graph:
                     is_graph_limited = True
-                    return plot_data, str_cols, is_graph_limited
+                    return plot_data, str_cols, is_graph_limited, export_agp_plot_data
 
                 data, array_y = get_data_for_target_var_without_facets(
                     agg_df.xs(facet),
@@ -402,9 +404,9 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             for facet1 in facets1:
                 sub_df = agg_df.xs(facet1)
                 for facet2 in facets2:
-                    if len(plot_data) >= max_graph:
+                    if len(plot_data) > max_graph:
                         is_graph_limited = True
-                        return plot_data, str_cols, is_graph_limited
+                        break
 
                     array_y = pd.Series([])
                     try:
@@ -432,7 +434,67 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
                     col_info.update(modified_agp_obj)
                     plot_data.append(col_info)
 
-    return plot_data, str_cols, is_graph_limited
+        agg_df = agg_df.reset_index().rename(columns=dict_agg_cols)
+        # remove duplicated columns in df
+        agg_df = agg_df.loc[:, ~agg_df.columns.duplicated()]
+        agg_plot_data_df.append(agg_df)
+        if not color_label:
+            color_label = OTHER_KEY
+
+        if color_label not in export_agp_plot_data:
+            export_agp_plot_data[color_label] = []
+        export_agp_plot_data[color_label].append(
+            {
+                END_PROC_NAME: general_col_info[END_PROC_NAME],
+                COLOR_NAME: color_show_name or None,
+                DATA: agg_df,
+            },
+        )
+
+    export_agp_plot_data = merge_df_by_colors(export_agp_plot_data)
+    return plot_data, str_cols, is_graph_limited, export_agp_plot_data
+
+
+def get_common_columns(list_df):
+    common_columns = set(list_df[0].columns)
+    for df in list_df[1:]:
+        common_columns &= set(df.columns)
+
+    return list(common_columns)
+
+
+def merge_df_by_colors(same_color_dfs):
+    """
+    merge dfs which has same color variable,
+    be used to export into one csv file in zip,
+    and, all targets without color will be merged into one group
+    """
+    return_data = {}
+    for agg_group_dfs in same_color_dfs.values():
+        # get common infor from first item
+        [first_item, *_] = agg_group_dfs
+        color_label = NO_COLOR
+        if first_item[COLOR_NAME] is not None:
+            color_label = f'{COLOR_KEY}_{first_item[COLOR_NAME]}'
+        # make export file name, use proc_shown_name and color_shown_name
+        # todo: handle special symbols in shown_name may lead to subfolder in zip
+        export_file_name = f'{first_item[END_PROC_NAME]}_{color_label}'
+
+        group_df = [group[DATA] for group in agg_group_dfs]
+        common_columns = get_common_columns(group_df)
+        df = merge_full_df_with_common_columns(group_df, common_columns)
+        if export_file_name not in return_data:
+            return_data[export_file_name] = []
+        return_data[export_file_name].append(df)
+
+    return return_data
+
+
+def merge_full_df_with_common_columns(list_df, common_columns):
+    full_df = list_df[0]
+    for df in list_df[1:]:
+        full_df = full_df.merge(df, on=common_columns, how='outer')
+    return full_df
 
 
 def sort_ok_ng(unique_div_vars: list[str]):

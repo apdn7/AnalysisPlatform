@@ -4,7 +4,7 @@ import copy
 import re
 import uuid
 from collections import Counter, defaultdict
-from typing import TYPE_CHECKING, Any, Dict, Iterator, TypeVar
+from typing import TYPE_CHECKING, Any, Iterator, TypeVar, Union
 
 from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import sqlite
@@ -17,6 +17,8 @@ from ap.setting_module.models import CfgProcess
 
 if TYPE_CHECKING:
     from sqlalchemy.sql import Select
+    from sqlalchemy.sql.compiler import SQLCompiler
+    from sqlalchemy.sql.ddl import CreateIndex, CreateTable
 
 T = TypeVar('T')
 
@@ -37,11 +39,14 @@ MUST_EXISTED_COLUMNS_FOR_MASTER_TYPE = {
 }
 
 
-def gen_sql_and_params(stmt: Select) -> tuple[str, list[Any]]:
-    # FIXME: need to set these because sqlalchemy 2.0 use postcompiled, which is incompatible with current dialect
-    compile_kwargs = {'literal_binds': True}
+def gen_sql_compiled_stmt(stmt: Union[Select, CreateTable, CreateIndex]) -> SQLCompiler:
+    compile_kwargs = {'render_postcompile': True}
     compiled_stmt = stmt.compile(dialect=sqlite.dialect(), compile_kwargs=compile_kwargs)
-    # return compiled_stmt.string, compiled_stmt.params
+    return compiled_stmt
+
+
+def gen_sql_and_params(stmt: Select) -> tuple[str, list[Any]]:
+    compiled_stmt = gen_sql_compiled_stmt(stmt)
     position_params = compiled_stmt.positiontup
     dict_params = compiled_stmt.params
     params = [dict_params[pos] for pos in position_params]  # sort params based position
@@ -59,14 +64,14 @@ def gen_proc_time_label(proc_id):
     return f'{TIME_COL}_{str(proc_id)}'
 
 
-def get_col_cfgs(dic_proc_cfgs: Dict[int, CfgProcess], col_ids):
+def get_col_cfgs(dic_proc_cfgs: dict[int, CfgProcess], col_ids):
     all_cols = []
     for proc_id, proc in dic_proc_cfgs.items():
         all_cols += proc.columns
     return [col for col in all_cols if col.id in col_ids]
 
 
-def get_col_cfg(dic_proc_cfgs: Dict[int, CfgProcess], col_id):
+def get_col_cfg(dic_proc_cfgs: dict[int, CfgProcess], col_id):
     all_cols = []
     for proc_id, proc in dic_proc_cfgs.items():
         all_cols += proc.columns

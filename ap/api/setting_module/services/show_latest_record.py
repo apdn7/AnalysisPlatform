@@ -311,7 +311,7 @@ def get_sample_from_preview_data(preview_data, columns):
 
 def get_latest_record_from_preview_file(fp, proc_id, limit=10):
     data = json.load(fp)
-    procCol = get_process_columns(proc_id)
+    proc_cols = get_process_columns(proc_id, show_graph=False)
     dict_data = json.loads(data)
     cols_org = dict_data.get('cols', [])
     rows_org = dict_data.get('rows', [])
@@ -332,7 +332,7 @@ def get_latest_record_from_preview_file(fp, proc_id, limit=10):
     )
     new_cols_name = list(set(org_headers) - set(column_name))
     if new_cols_name:
-        col_add = next((col for col in reversed(procCol) if col.get('column_name') in new_cols_name), None)
+        col_add = next((col for col in reversed(proc_cols) if col.get('column_name') in new_cols_name), None)
         dict_data['cols'].append(col_add)
     dict_data['rows'] = transform_df_to_rows(org_headers, df_data_details, limit)
     return dict_data
@@ -1478,7 +1478,7 @@ def add_dummy_datetime_column(header_names, df_data_details, org_headers, data_t
 
 
 def add_generated_datetime_column(
-    current_process_id: str,
+    current_process_id: int,
     df_data_details,
     org_headers,
     header_names,
@@ -1510,13 +1510,13 @@ def add_generated_datetime_column(
 
             # add sample data for datetime column
             df_data_details[column_name] = None
-            procCol = get_process_columns(current_process_id)
+            proc_col = get_process_columns(current_process_id, show_graph=False)
             column_main_date_name = next(
-                (col['column_name'] for col in procCol if col.get('column_type') == DataColumnType.MAIN_DATE.value),
+                (col['column_name'] for col in proc_col if col.get('column_type') == DataColumnType.MAIN_DATE.value),
                 None,
             )
             column_main_time_name = next(
-                (col['column_name'] for col in procCol if col.get('column_type') == DataColumnType.MAIN_TIME.value),
+                (col['column_name'] for col in proc_col if col.get('column_type') == DataColumnType.MAIN_TIME.value),
                 None,
             )
             if column_main_date_name and column_main_time_name:

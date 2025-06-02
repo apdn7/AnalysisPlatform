@@ -2343,7 +2343,6 @@ const endProcMultiSelectOnChange = async (count, props) => {
         return;
     }
 
-    checkUpdateTransactionDataJobInShowGraph(procId).then();
     const ids = [];
     const vals = [];
     const names = [];
@@ -2455,6 +2454,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     setColorRelativeStartEndProc();
     checkIfProcessesAreLinked();
     initSortIcon('ul.list-group');
+    checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
 };
 
 // add end proc
@@ -4648,7 +4648,8 @@ const bindFilterChangeEvents = (selectedProc) => {
     // if filter condition != start process & startProc == データ紐付なし
     // update: choose any filter cond, change to link data
     // clear noLinkData option
-    if (selectedProc) {
+    // update: if there is loaded from bookmark, do not overwrite start-proc
+    if (selectedProc && !isSettingLoading) {
         changeNoDataLinkSelection(false);
     }
 };
@@ -5542,22 +5543,23 @@ function downloadText(fileName, content) {
 }
 
 /**
- * Call Api to check UPDATE_TRANSACTION_DATA job is completed or not
+ * Call Api to check whether a warning message for updating maim::Serial column must be shown or not
  * @param {string | number} processId
  * @return {Promise<boolean>} - a promise object with result as below
- * - true: the job is completed
+ * - true: must be show a warning message
  * - false: otherwise
  */
-function callApiToCheckUpdateTransactionDataJob(processId) {
-    const apiUrl = `/ap/api/common/is_update_transaction_data_job_completed/${processId}`;
+function callApiToCheckShowingWarningMessageForUpdatingMainSerial(processId) {
+    const apiUrl = `/ap/api/common/is_show_warning_message_update_main_serial/${processId}`;
     return fetch(apiUrl, {
         method: 'GET',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
+        cache: 'no-cache',
     }).then((response) => {
-        let result = true;
+        let result = false;
         if (response.status === 200) {
             result = response.json();
         }
@@ -5567,7 +5569,7 @@ function callApiToCheckUpdateTransactionDataJob(processId) {
 }
 
 /**
- * Check UPDATE_TRANSACTION_DATA job is completed or not for selecting process in link key
+ * Check UPDATE_TRANSACTION_TABLE job is completed or not for selecting process in link key
  *
  * If the job is not executed or running, it will show warning message. Otherwise
  * @param {string | number} fromProcessId
@@ -5576,15 +5578,19 @@ function callApiToCheckUpdateTransactionDataJob(processId) {
  * - false: warning message is shown
  * - true: no warning message
  */
-async function checkUpdateTransactionDataJobInTraceConfig(fromProcessId, toProcessId) {
+async function checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(fromProcessId, toProcessId) {
     const inner = async function inner(processId) {
-        if (processId === '' || processId == null || (await callApiToCheckUpdateTransactionDataJob(processId))) {
-            // In case not select process or selected process does not have any UPDATE_TRANSACTION_DATA job -> do nothing
+        if (
+            processId === '' ||
+            processId == null ||
+            !(await callApiToCheckShowingWarningMessageForUpdatingMainSerial(processId))
+        ) {
+            // In case not select process or selected process does not have any UPDATE_TRANSACTION_TABLE job -> do nothing
             $('#alertMsgCheckUpdateTransactionDataJobTraceConfig').hide();
             return true;
         }
 
-        // In case selected process is waiting or executing UPDATE_TRANSACTION_DATA job
+        // In case selected process is waiting or executing UPDATE_TRANSACTION_TABLE job
         const warningMsg = document.getElementById(
             'i18nWarningUpdateTransactionDataJobNotCompleteInChangingLinkKeyMsg',
         ).textContent;
@@ -5606,7 +5612,7 @@ async function checkUpdateTransactionDataJobInTraceConfig(fromProcessId, toProce
 }
 
 /**
- * Check UPDATE_TRANSACTION_DATA job is completed or not for selecting process in show graph
+ * Check UPDATE_TRANSACTION_TABLE job is completed or not for selecting process in show graph
  *
  * If the job is not executed or running, it will show warning message. Otherwise
  * @param {string | number} processId
@@ -5614,15 +5620,19 @@ async function checkUpdateTransactionDataJobInTraceConfig(fromProcessId, toProce
  * - false: warning message is shown
  * - true: no warning message
  */
-async function checkUpdateTransactionDataJobInShowGraph(processId) {
+async function checkShowingWarningMessageForUpdatingMainSerialInShowGraph(processId) {
     const inner = async function inner(processId) {
-        if (processId === '' || processId == null || (await callApiToCheckUpdateTransactionDataJob(processId))) {
-            // In case not select process or selected process does not have any UPDATE_TRANSACTION_DATA job -> do nothing
+        if (
+            processId === '' ||
+            processId == null ||
+            !(await callApiToCheckShowingWarningMessageForUpdatingMainSerial(processId))
+        ) {
+            // In case not select process or selected process does not have any UPDATE_TRANSACTION_TABLE job -> do nothing
             $('#alertMsgCheckUpdateTransactionDataJobShowGraph').hide();
             return true;
         }
 
-        // In case selected process is waiting or executing UPDATE_TRANSACTION_DATA job
+        // In case selected process is waiting or executing UPDATE_TRANSACTION_TABLE job
         const warningMsg = document.getElementById(
             'i18nWarningUpdateTransactionDataJobNotCompleteInShowGraphMsg',
         ).textContent;

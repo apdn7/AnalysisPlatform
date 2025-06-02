@@ -118,6 +118,36 @@ def calculate_data_for_main_serial_function_column(
     return df[df_columns]
 
 
+def is_main_serial_function_column_changed(
+    old_main_serial_cfg_process_function_column: Optional[CfgProcessColumn] = None,
+    new_main_serial_cfg_process_function_column: Optional[CfgProcessColumn] = None,
+):
+    return (
+        # In case the function column is not main::serial
+        (old_main_serial_cfg_process_function_column is None and new_main_serial_cfg_process_function_column is None)
+        # In case function column is only changed note
+        or (
+            old_main_serial_cfg_process_function_column
+            and new_main_serial_cfg_process_function_column
+            and old_main_serial_cfg_process_function_column.id == new_main_serial_cfg_process_function_column.id
+            and old_main_serial_cfg_process_function_column.function_id
+            == new_main_serial_cfg_process_function_column.function_id
+            and old_main_serial_cfg_process_function_column.var_x == new_main_serial_cfg_process_function_column.var_x
+            and old_main_serial_cfg_process_function_column.var_y == new_main_serial_cfg_process_function_column.var_y
+            and old_main_serial_cfg_process_function_column.a == new_main_serial_cfg_process_function_column.a
+            and old_main_serial_cfg_process_function_column.b == new_main_serial_cfg_process_function_column.b
+            and old_main_serial_cfg_process_function_column.c == new_main_serial_cfg_process_function_column.c
+            and old_main_serial_cfg_process_function_column.n == new_main_serial_cfg_process_function_column.n
+            and old_main_serial_cfg_process_function_column.k == new_main_serial_cfg_process_function_column.k
+            and old_main_serial_cfg_process_function_column.s == new_main_serial_cfg_process_function_column.s
+            and old_main_serial_cfg_process_function_column.t == new_main_serial_cfg_process_function_column.t
+            and old_main_serial_cfg_process_function_column.order == new_main_serial_cfg_process_function_column.order
+            and old_main_serial_cfg_process_function_column.return_type
+            == new_main_serial_cfg_process_function_column.return_type
+        )
+    )
+
+
 @log_execution_time()
 def handle_main_serial_function_column(
     db_instance,
@@ -147,42 +177,22 @@ def handle_main_serial_function_column(
         None,
     )
     # We ignore function 'me' in this case, therefore there is only one function record for a normal function
-    new_main_serial_cfg_function_column: Optional[CfgProcessFunctionColumn] = (
+    new_main_serial_cfg_process_function_column: Optional[CfgProcessFunctionColumn] = (
         (new_main_serial_cfg_process_column.function_details or [None])[0]
         if new_main_serial_cfg_process_column
         else None
     )
 
-    if (
-        # In case function column is not main::serial
-        (old_main_serial_cfg_process_function_column is None and new_main_serial_cfg_function_column is None)
-        # In case function column is only changed note
-        or (
-            old_main_serial_cfg_process_function_column
-            and new_main_serial_cfg_function_column
-            and old_main_serial_cfg_process_function_column.id == new_main_serial_cfg_function_column.id
-            and old_main_serial_cfg_process_function_column.function_id
-            == new_main_serial_cfg_function_column.function_id
-            and old_main_serial_cfg_process_function_column.var_x == new_main_serial_cfg_function_column.var_x
-            and old_main_serial_cfg_process_function_column.var_y == new_main_serial_cfg_function_column.var_y
-            and old_main_serial_cfg_process_function_column.a == new_main_serial_cfg_function_column.a
-            and old_main_serial_cfg_process_function_column.b == new_main_serial_cfg_function_column.b
-            and old_main_serial_cfg_process_function_column.c == new_main_serial_cfg_function_column.c
-            and old_main_serial_cfg_process_function_column.n == new_main_serial_cfg_function_column.n
-            and old_main_serial_cfg_process_function_column.k == new_main_serial_cfg_function_column.k
-            and old_main_serial_cfg_process_function_column.s == new_main_serial_cfg_function_column.s
-            and old_main_serial_cfg_process_function_column.t == new_main_serial_cfg_function_column.t
-            and old_main_serial_cfg_process_function_column.order == new_main_serial_cfg_function_column.order
-            and old_main_serial_cfg_process_function_column.return_type
-            == new_main_serial_cfg_function_column.return_type
-        )
+    if is_main_serial_function_column_changed(
+        old_main_serial_cfg_process_function_column=old_main_serial_cfg_process_function_column,
+        new_main_serial_cfg_process_function_column=new_main_serial_cfg_process_function_column,
     ):
         # Do nothing
         yield 100
         return
 
     # In case change to main::serial normal column or not have main::serial column
-    if new_main_serial_cfg_function_column is None:
+    if new_main_serial_cfg_process_function_column is None:
         # In case main::serial function column is removed
         if old_main_serial_cfg_process_function_column:
             indexes = transaction_obj.get_indexes_by_column_name(
@@ -391,10 +401,43 @@ def update_transaction_table(
             yield job_info
 
 
+def determine_show_warning_message(
+    process: CfgProcess,
+    old_main_serial_cfg_process_column: Optional[CfgProcessColumn] = None,
+):
+    """
+    There is only one case that we need to show a warning message:
+    - main::Serial column is changed or updated.
+
+    :param CfgProcess process:
+    :param Optional[CfgProcessColumn] old_main_serial_cfg_process_column:
+    :return: True if need to show a warning message, otherwise False
+    """
+    new_main_serial_cfg_process_column = process.get_main_serial_column(is_isolation_object=True)
+    new_main_serial_cfg_process_function_column: Optional[CfgProcessFunctionColumn] = (
+        (new_main_serial_cfg_process_column.function_details or [None])[0]
+        if new_main_serial_cfg_process_column
+        else None
+    )
+    if new_main_serial_cfg_process_function_column is None:
+        return False
+
+    old_main_serial_cfg_process_function_column: Optional[CfgProcessFunctionColumn] = (
+        (old_main_serial_cfg_process_column.function_details or [None])[0]
+        if old_main_serial_cfg_process_column
+        else None
+    )
+    return not is_main_serial_function_column_changed(
+        old_main_serial_cfg_process_function_column=old_main_serial_cfg_process_function_column,
+        new_main_serial_cfg_process_function_column=new_main_serial_cfg_process_function_column,
+    )
+
+
 @scheduler_app_context
 def update_transaction_table_job(
     process_id: int,
     old_main_serial_cfg_process_column: Optional[CfgProcessColumn] = None,
+    is_show_warning_message: bool = False,  # DO NOT REMOVE THIS PARAM
 ):
     """
     [Job] Update transaction table by doing some points as below:
@@ -403,6 +446,9 @@ def update_transaction_table_job(
     #. Remove old ``main::Serial`` column and add new one into transaction table
     #. Insert calculated data of ``main::Serial`` column into transaction table
 
+    :param is_show_warning_message: **[PLEASE KEEP IT]**
+    ITEM IS USED FOR ``is_show_warning_message_update_main_serial`` api.
+    A flag to determine whether to show a warning message or not.
     :param int process_id: an id of process
     :param Optional[CfgProcessColumn] old_main_serial_cfg_process_column: old cfg process column as ``main::Serial``
     :return: void

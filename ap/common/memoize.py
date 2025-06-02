@@ -84,7 +84,7 @@ class CacheConfig:
             config.save_file = True
 
         # always save transaction data and jump func on disk
-        if cache_type in [CacheType.TRANSACTION_DATA, CacheType.JUMP_FUNC]:
+        if cache_type in [CacheType.TRANSACTION_DATA, CacheType.JUMP_FUNC, CacheType.CONFIG_DATA]:
             config.save_file = True
 
         # check if we don't want to use cache anymore

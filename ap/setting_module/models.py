@@ -4,6 +4,7 @@ import hashlib
 import json
 import unicodedata
 from contextlib import contextmanager
+from copy import copy
 from functools import wraps
 from typing import Any, Dict, Generator, List, Optional, Union
 
@@ -238,11 +239,9 @@ class ProcLinkCount(db.Model):
 
     process: Mapped['CfgProcess'] = relationship(
         foreign_keys=process_id,
-        lazy='joined',
     )
     target_process: Mapped['CfgProcess'] = relationship(
         foreign_keys=target_process_id,
-        lazy='joined',
     )
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -427,12 +426,10 @@ class CfgDataSource(db.Model):
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
     db_detail: Mapped['CfgDataSourceDB'] = relationship(
         back_populates='cfg_data_source',
-        lazy='subquery',
         cascade='all, delete, delete-orphan',
     )
     csv_detail: Mapped['CfgDataSourceCSV'] = relationship(
         back_populates='cfg_data_source',
-        lazy='subquery',
         cascade='all, delete, delete-orphan',
     )
     processes: DynamicMapped[list['CfgProcess']] = relationship(
@@ -535,7 +532,6 @@ class CfgDataSourceDB(db.Model):
 
     cfg_data_source: Mapped['CfgDataSource'] = relationship(
         back_populates='db_detail',
-        lazy='subquery',
     )
 
     @classmethod
@@ -567,7 +563,6 @@ class CfgCsvColumn(db.Model):
 
     cfg_data_source_csv: Mapped['CfgDataSourceCSV'] = relationship(
         back_populates='csv_columns',
-        lazy='subquery',
     )
 
     def as_dict(self):
@@ -642,13 +637,11 @@ class CfgProcessColumn(db.Model):
     unit: Mapped[Optional[str]] = mapped_column(nullable=True)
     cfg_process: Mapped['CfgProcess'] = relationship(
         back_populates='columns',
-        lazy='joined',
         cascade='all',
     )
     function_details: Mapped[list['CfgProcessFunctionColumn']] = relationship(
         back_populates='cfg_process_column',
         order_by='CfgProcessFunctionColumn.order',
-        lazy='joined',
         cascade='all, delete',
     )
     parent_column: Mapped['CfgProcessColumn'] = relationship(
@@ -661,12 +654,10 @@ class CfgProcessColumn(db.Model):
     )
     cfg_filters: Mapped[list['CfgFilter']] = relationship(
         back_populates='column',
-        lazy='joined',
         cascade='all, delete',
     )
     import_filters: Mapped[list['CfgImportFilter']] = relationship(
         back_populates='column',
-        lazy='joined',
         cascade='all, delete, delete-orphan',
     )
 
@@ -980,24 +971,22 @@ class CfgProcess(db.Model):
 
     columns: Mapped[list['CfgProcessColumn']] = relationship(
         back_populates='cfg_process',
-        lazy='joined',
         cascade='all, delete, delete-orphan',
     )
     unused_columns: Mapped[list['CfgProcessUnusedColumn']] = relationship(
-        lazy='joined',
         cascade='all, delete, delete-orphan',
     )
 
-    traces: DynamicMapped[list['CfgTrace']] = relationship(
+    traces: Mapped[list['CfgTrace']] = relationship(
         back_populates='self_process',
         foreign_keys='CfgTrace.self_process_id',
         cascade='all, delete, delete-orphan',
     )
-    filters: DynamicMapped[list['CfgFilter']] = relationship(
+    filters: Mapped[list['CfgFilter']] = relationship(
         back_populates='cfg_process',
         cascade='all, delete, delete-orphan',
     )
-    visualizations: DynamicMapped[list['CfgVisualization']] = relationship(
+    visualizations: Mapped[list['CfgVisualization']] = relationship(
         back_populates='cfg_process',
         cascade='all, delete, delete-orphan',
     )
@@ -1110,6 +1099,27 @@ class CfgProcess(db.Model):
         """
         return self.get_auto_increment_col(column_name_only) or self.get_date_col(column_name_only)
 
+    def modify_col_name(self, col_id: int, name: str):
+        col = self.get_col(col_id)
+        if col is not None:
+            col.column_name = name
+            # TODO: is this correct?
+            col.name_en = name
+            col.name_jp = name
+            col.name_local = name
+
+    def shallow_copy_and_add_new_col(self, col_id: int, dummy_idx=1000000) -> Optional[CfgProcessColumn]:
+        col = self.get_col(col_id)
+        if col is not None:
+            # since we only modify `column_name`, etc. later, shallow copy is fine.
+            # if we want to modify something nested, such as `filter`, then we need deepcopy.
+            # and since deepcopy doesn't work on sqlalchemy, we need to have another approach ...
+            col = copy(col)
+            col.id = col_id * dummy_idx
+            self.columns.append(col)
+            return col
+        return None
+
     def get_serials(self, column_name_only=True):
         if column_name_only:
             cols = [col.column_name for col in self.columns if col.is_serial_no]
@@ -1118,26 +1128,29 @@ class CfgProcess(db.Model):
 
         return cols
 
-    def get_order_cols(self, column_name_only=True, column_id_only=False):
+    def get_order_cols(
+        self,
+        column_name_only: bool = True,
+        column_id_only: bool = False,
+    ) -> Union[list[str], list[int]]:
         cols = [col for col in self.columns if col.is_serial_no or col.data_type in DataType.order_columns()]
         if column_name_only:
-            cols = [col.column_name for col in cols]
+            return [col.column_name for col in cols]
 
         if column_id_only:
-            cols = [col.id for col in cols]
+            return [col.id for col in cols]
 
         return cols
 
-    def get_cols(self, col_ids=()):
-        cols = [col for col in self.columns if col.id in col_ids]
-        return cols
+    def get_cols(self, col_ids: list[int]) -> list[CfgProcessColumn]:
+        col_ids = set(col_ids)
+        return [col for col in self.columns if col.id in col_ids]
 
-    def get_col(self, col_id):
-        cols = [col for col in self.columns if col.id == col_id]
-        if cols:
-            return cols[0]
-        else:
-            return None
+    def get_col(self, col_id: int) -> Optional[CfgProcessColumn]:
+        for col in self.columns:
+            if col.id == col_id:
+                return col
+        return None
 
     def get_cols_by_data_type(self, data_type: DataType, column_name_only=True):
         """
@@ -1200,6 +1213,56 @@ class CfgProcess(db.Model):
         query = session.query(cls) if session else cls.query
         return query.filter(cls.id == proc_id).first()
 
+    def get_dic_filter_details(self, filter_detail_ids=None) -> dict[int, CfgFilterDetail]:
+        dic_filter_details = {}
+        for cfg_filter in self.filters:
+            for filter_detail in cfg_filter.filter_details:
+                if filter_detail is None or filter_detail_ids is None or filter_detail.id in filter_detail_ids:
+                    filter_detail.column = cfg_filter.column
+                    dic_filter_details[filter_detail.id] = filter_detail
+
+        return dic_filter_details
+
+    def get_filter_cfg_by_col_ids(self, col_ids: list[int]) -> list[CfgFilter]:
+        return [filter_cfg for filter_cfg in self.filters if filter_cfg.column_id in col_ids]
+
+    def get_dic_cols_by_ids(self, col_ids: list[int]) -> dict[int, CfgProcessColumn]:
+        return {col.id: col for col in self.columns if col.id in col_ids}
+
+    def get_sensor_default_chart_info(self, col_id: int, start_tm: str, end_tm: str) -> list[CfgVisualization]:
+        targets = []
+        for cfg_visual in self.visualizations:
+            if (
+                cfg_visual.control_column_id == col_id
+                and cfg_visual.filter_detail_id is None
+                and (cfg_visual.act_from is None or cfg_visual.act_from < end_tm or cfg_visual.act_from == '')
+                and (cfg_visual.act_to is None or cfg_visual.act_to > start_tm or cfg_visual.act_to == '')
+            ):
+                targets.append(cfg_visual)
+
+        targets.sort(key=lambda obj: obj.act_from, reverse=True)
+        return targets
+
+    def get_by_control_n_filter_detail_ids(
+        self,
+        col_id: int,
+        filter_detail_ids: list[int],
+        start_tm: str,
+        end_tm: str,
+    ) -> list[CfgVisualization]:
+        targets = []
+        for cfg_visual in self.visualizations:
+            if (
+                cfg_visual.control_column_id == col_id
+                and cfg_visual.filter_detail_id in filter_detail_ids
+                and (cfg_visual.act_from is None or cfg_visual.act_from < end_tm or cfg_visual.act_from == '')
+                and (cfg_visual.act_to is None or cfg_visual.act_to > start_tm or cfg_visual.act_to == '')
+            ):
+                targets.append(cfg_visual)
+
+        targets.sort(key=lambda obj: obj.act_from, reverse=True)
+        return targets
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -1222,10 +1285,11 @@ class CfgProcess(db.Model):
         return return_cfg_proc
 
     @classmethod
-    def get_parent(cls, proc_id: int) -> CfgProcess | None:
-        proc = cls.query.get(proc_id)
+    def get_parent(cls, proc_id: int, session: scoped_session = None) -> CfgProcess | None:
+        query = session.query(cls) if session else cls.query
+        proc = query.get(proc_id)
         if proc is not None and proc.parent_id is not None:
-            return cls.query.filter(cls.id == proc.parent_id).first()
+            return query.filter(cls.id == proc.parent_id).first()
         return None
 
     @classmethod
@@ -1234,11 +1298,12 @@ class CfgProcess(db.Model):
         return query.filter(cls.parent_id == proc_id).all()
 
     @classmethod
-    def get_all_parents_and_children_processes(cls, proc_id: int) -> list[CfgProcess]:
-        proc = cls.query.get(proc_id)
-        parent = cls.get_parent(proc_id)
-        children = cls.get_children(proc_id)
-        siblings = cls.get_children(parent.id) if parent is not None else []
+    def get_all_parents_and_children_processes(cls, proc_id: int, session: scoped_session = None) -> list[CfgProcess]:
+        query = session.query(cls) if session else cls.query
+        proc = query.get(proc_id)
+        parent = cls.get_parent(proc_id, session=session)
+        children = cls.get_children(proc_id, session=session)
+        siblings = cls.get_children(parent.id, session=session) if parent is not None else []
 
         processes = [proc] + [parent] + children + siblings
         return list({process.id: process for process in processes if process is not None}.values())
@@ -1370,7 +1435,6 @@ class CfgProcessFunctionColumn(db.Model):
 
     cfg_process_column: Mapped['CfgProcessColumn'] = relationship(
         back_populates='function_details',
-        lazy='joined',
     )
 
     @classmethod
@@ -1561,15 +1625,12 @@ class CfgTraceKey(db.Model):
 
     self_column: Mapped['CfgProcessColumn'] = relationship(
         foreign_keys=[self_column_id],
-        lazy='joined',
     )
     target_column: Mapped['CfgProcessColumn'] = relationship(
         foreign_keys=[target_column_id],
-        lazy='joined',
     )
     cfg_trace: Mapped['CfgTrace'] = relationship(
         back_populates='trace_keys',
-        lazy='joined',
         cascade='all',
     )
 
@@ -1615,18 +1676,15 @@ class CfgTrace(db.Model):
 
     trace_keys: Mapped[list['CfgTraceKey']] = relationship(
         back_populates='cfg_trace',
-        lazy='joined',
         cascade='all',
         order_by='asc(CfgTraceKey.self_column_id)',
     )
 
     self_process: Mapped['CfgProcess'] = relationship(
         foreign_keys=[self_process_id],
-        lazy='joined',
     )
     target_process: Mapped['CfgProcess'] = relationship(
         foreign_keys=[target_process_id],
-        lazy='joined',
     )
 
     @classmethod
@@ -1720,11 +1778,9 @@ class CfgFilterDetail(db.Model):
     parent: Mapped['CfgFilterDetail'] = relationship(
         back_populates='cfg_children',
         remote_side=[id],
-        lazy='joined',
     )
     cfg_children: Mapped[list['CfgFilterDetail']] = relationship(
         back_populates='parent',
-        lazy='joined',
     )
     cfg_filter: Mapped['CfgFilter'] = relationship(
         back_populates='filter_details',
@@ -1757,19 +1813,15 @@ class CfgFilter(db.Model):
     parent: Mapped['CfgFilter'] = relationship(
         back_populates='cfg_children',
         remote_side=[id],
-        lazy='joined',
     )
     cfg_children: Mapped[list['CfgFilter']] = relationship(
         back_populates='parent',
-        lazy='joined',
     )
-    column: Mapped['CfgProcessColumn'] = relationship(
+    column: Mapped[Optional['CfgProcessColumn']] = relationship(
         back_populates='cfg_filters',
-        lazy='joined',
     )
     filter_details: Mapped[list['CfgFilterDetail']] = relationship(
         back_populates='cfg_filter',
-        lazy='joined',
         cascade='all, delete, delete-orphan',
     )
     cfg_process: Mapped['CfgProcess'] = relationship(
@@ -1818,13 +1870,11 @@ class CfgVisualization(db.Model):
 
     control_column: Mapped['CfgProcessColumn'] = relationship(
         foreign_keys=[control_column_id],
-        lazy='joined',
     )
     filter_column: Mapped['CfgProcessColumn'] = relationship(
         foreign_keys=[filter_column_id],
-        lazy='joined',
     )
-    filter_detail: Mapped['CfgFilterDetail'] = relationship(lazy='joined')
+    filter_detail: Mapped['CfgFilterDetail'] = relationship()
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -1992,12 +2042,10 @@ class CfgDataSourceCSV(db.Model):
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
     csv_columns: Mapped[list['CfgCsvColumn']] = relationship(
         back_populates='cfg_data_source_csv',
-        lazy='subquery',
         cascade='all, delete, delete-orphan',
     )
     cfg_data_source: Mapped['CfgDataSource'] = relationship(
         back_populates='csv_detail',
-        lazy='subquery',
     )
 
     def get_column_names_with_sorted(self, key=CfgCsvColumn.id.key):
@@ -2201,6 +2249,10 @@ class MFunction(db.Model):
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
+    @hybrid_property
+    def is_me_function(self):
+        return self.function_type.startswith('me.')
+
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
@@ -2338,13 +2390,11 @@ class CfgImportFilter(CommonModel):
 
     column: Mapped['CfgProcessColumn'] = relationship(
         back_populates='import_filters',
-        lazy='joined',
         cascade='all',
     )
 
     filters: Mapped[list['CfgImportFilterDetail']] = relationship(
         back_populates='filter',
-        lazy='joined',
         cascade='all, delete, delete-orphan',
     )
 
@@ -2367,7 +2417,6 @@ class CfgImportFilterDetail(CommonModel):
 
     filter: Mapped['CfgImportFilter'] = relationship(
         back_populates='filters',
-        lazy='joined',
         cascade='all',
     )
 

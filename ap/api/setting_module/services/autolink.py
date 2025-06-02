@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import contextlib
 import csv
 import logging
 import os
+from collections import defaultdict
 from dataclasses import dataclass
-from typing import Annotated, Any, Literal, Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
-import pydantic
 from pandas import DataFrame
 from pandas.errors import ParserError
-from pydantic import BaseModel, BeforeValidator
 
 from ap.api.efa.services.etl import detect_file_path_delimiter
 from ap.api.setting_module.services.csv_import import (
@@ -57,29 +55,38 @@ AUTOLINK_TOTAL_RECORDS_PER_SOURCE = 100000
 class Autolink:
     @classmethod
     @log_execution_time(LOG_PREFIX)
-    def get_autolink_groups(cls, request_params: list[dict[str, Any]]) -> list[list[int]]:
-        autolink_datas = []
+    def get_autolink_groups(cls, process_ids: list[int]) -> list[list[int]]:
+        # each csv process should be in a separated group
+        autolink_csv_data: list[AutolinkDataProcess] = []
+        # each factory process should be in a separated group
+        autolink_db_data: list[AutolinkDataProcess] = []
+        # v2 processes with the same directory should be in a same group by directory (requirement)
+        autolink_v2_data: dict[str, list[AutolinkDataProcess]] = defaultdict(list)
 
-        for param in request_params:
-            # We can abstract this into a single function, but this will not enable type hint
-            # So just write them here to make it easier to debug
-            reader = None
-            with contextlib.suppress(pydantic.ValidationError):
-                reader = AutolinkCSV.model_validate(param)
-                autolink_datas.extend(reader.read())
-            with contextlib.suppress(pydantic.ValidationError):
-                reader = AutolinkV2.model_validate(param)
-                autolink_datas.extend(reader.read())
-            with contextlib.suppress(pydantic.ValidationError):
-                reader = AutolinkDB.model_validate(param)
-                autolink_datas.extend(reader.read())
-            if reader is None:
-                raise ValueError(f'Invalid param for auto link: {param}')
+        for process_id in process_ids:
+            autolink_data = AutolinkDataProcess(process_id)
 
-        autolink_dataframe = pd.concat([data.df for data in autolink_datas])
-        if autolink_dataframe.empty:
+            if not autolink_data.can_run_autolink():
+                continue
+
+            if autolink_data.cfg_process.data_source.type == DBType.V2.name:
+                autolink_v2_data[autolink_data.cfg_process.data_source.csv_detail.directory].append(autolink_data)
+            elif autolink_data.cfg_process.data_source.type == DBType.CSV.name:
+                autolink_csv_data.append(autolink_data)
+            else:
+                autolink_db_data.append(autolink_data)
+
+        autolink_datas: list[CompletedAutolinkDataProcess] = []
+        autolink_datas.extend(map(read_autolink_csv, autolink_csv_data))
+        autolink_datas.extend(map(read_autolink_db, autolink_db_data))
+        for _, data in autolink_v2_data.items():
+            autolink_datas.extend(read_autolink_v2(data))
+
+        dataframe_list = [d.data for d in autolink_datas if not d.data.empty]
+        if not dataframe_list:
             return []
 
+        autolink_dataframe = pd.concat(dataframe_list)
         autolink_dataframe = cls._preprocess(autolink_dataframe)
         autolink_groups = cls._group(autolink_dataframe)
         sorted_groups = [cls._sort(autolink_dataframe, group) for group in autolink_groups]
@@ -180,6 +187,11 @@ class Autolink:
         return sorted_group
 
 
+@dataclass(frozen=True)
+class CompletedAutolinkDataProcess:
+    data: pd.DataFrame
+
+
 class AutolinkDataProcess:
     DATA_TYPES: dict[str, pd.ExtensionDtype] = {
         SERIAL: pd.StringDtype(),
@@ -208,6 +220,24 @@ class AutolinkDataProcess:
                 self.main_datetime_col = column
             elif column.is_serial_no:
                 self.main_serial_col = column
+
+    def can_run_autolink(self) -> bool:
+        """Check whether we can run autolink on this process"""
+        # do not run if this is invalid process
+        if self.cfg_process is None:
+            return False
+
+        # do not run if we don't have serial
+        if self.main_serial_col is None:
+            return False
+
+        # do not run if we don't have main datetime column, or that column is created from dummy datetime
+        if self.main_datetime_col is None:
+            return False
+        if self.main_datetime_col.is_dummy_datetime:
+            return False
+
+        return True
 
     def is_generated_datetime(self) -> bool:
         return self.main_date_col is not None and self.main_time_col is not None
@@ -292,205 +322,170 @@ class AutolinkDataProcess:
     def filter_dict_key_type(cls, columns: list[str] | pd.Index) -> dict[str, pd.ExtensionDtype]:
         return {key: cls.DATA_TYPES[key] for key in columns if key in cls.DATA_TYPES}
 
-
-def validator_dbtype(raw: str) -> DBType:
-    dbtype = DBType.from_str(raw)
-    if dbtype is None:
-        raise ValueError(f'{raw} is not a valid DbType')
-    return dbtype
+    def completed(self) -> CompletedAutolinkDataProcess:
+        return CompletedAutolinkDataProcess(data=self.df)
 
 
-class AutolinkCSV(BaseModel):
-    dbtype: Annotated[
-        Literal[DBType.CSV],
-        BeforeValidator(validator_dbtype),
-    ]
-    process_id: int
-    path: str
+def read_autolink_csv(autolink_data: AutolinkDataProcess) -> CompletedAutolinkDataProcess:
+    # Check self.date_col is generated datetime or not
+    cfg_proc: CfgProcess = autolink_data.cfg_process
+    main_datetime_col = autolink_data.main_datetime_col
+    main_serial_col = autolink_data.main_serial_col
+    if not main_datetime_col or not main_serial_col:
+        return autolink_data.completed()
 
-    def read(self) -> list[AutolinkDataProcess]:
-        autolink_data = AutolinkDataProcess(self.process_id)
-        # Check self.date_col is generated datetime or not
-        cfg_proc: CfgProcess = autolink_data.cfg_process
-        main_datetime_col = autolink_data.main_datetime_col
-        main_serial_col = autolink_data.main_serial_col
-        if not main_datetime_col or not main_serial_col:
-            return [autolink_data]
+    path = cfg_proc.data_source.csv_detail.directory
+    files = []
+    if os.path.isdir(path):
+        files = get_latest_files(path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+    elif os.path.isfile(path):
+        files = [path]
 
-        files = []
-        if os.path.isdir(self.path):
-            files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
-        elif os.path.isfile(self.path):
-            files = [self.path]
+    if main_serial_col.is_main_serial_function_column:
+        # Get component columns that necessary for calculating value
+        relation_column_ids = get_all_normal_columns_for_functions([main_serial_col.id], cfg_proc.columns)
+        relation_columns: list[CfgProcessColumn] = CfgProcessColumn.get_by_ids(relation_column_ids)
+        using_cols = [
+            relation_column.column_raw_name
+            for relation_column in relation_columns
+            if not relation_column.is_function_column
+        ]
+    else:
+        using_cols = [main_serial_col.column_raw_name]
 
-        def _read_file(
-            filename: str,
-            read_params: dict[str, Any],
-        ):
-            with pd.read_csv(filename, **read_params) as reader:
-                for df in reader:
-                    if autolink_data.has_enough_data():
-                        break
-                    df_auto_link = df
-                    if main_serial_col.is_main_serial_function_column:
-                        df_auto_link = autolink_data.calculate_main_serial_function_column(df)
-                        df_auto_link = df_auto_link[
-                            [main_datetime_col.column_raw_name, main_serial_col.column_raw_name]
-                        ]
-
-                    autolink_data.update(df_auto_link)
-
-        if main_serial_col.is_main_serial_function_column:
-            # Get component columns that necessary for calculating value
-            relation_column_ids = get_all_normal_columns_for_functions([main_serial_col.id], cfg_proc.columns)
-            relation_columns: [CfgProcessColumn] = CfgProcessColumn.get_by_ids(relation_column_ids)
-            using_cols = [
-                relation_column.column_raw_name
-                for relation_column in relation_columns
-                if not relation_column.is_function_column
-            ]
-        else:
-            using_cols = [main_serial_col.column_raw_name]
-
-        if autolink_data.is_generated_datetime():
-            using_cols.extend(
-                [autolink_data.main_date_col.column_raw_name, autolink_data.main_time_col.column_raw_name],
-            )
-        else:
-            using_cols.append(main_datetime_col.column_raw_name)
-
-        for file in files:
-            delimiter = detect_file_path_delimiter(file, cfg_proc.data_source.csv_detail.delimiter)
-            encoding = detect_encoding(file)
-            params = {
-                'chunksize': DF_CHUNK_SIZE,
-                'usecols': using_cols,
-                'sep': delimiter,
-                'nrows': AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
-                'encoding': encoding,
-                'na_values': NA_VALUES,
-                'on_bad_lines': 'skip',
-                'skip_blank_lines': True,
-                'index_col': False,
-            }
-            try:
-                _read_file(file, params)
-            except ParserError:
-                params.update({'quoting': csv.QUOTE_NONE})
-                _read_file(file, params)
-
-        return [autolink_data]
-
-
-class AutolinkDB(BaseModel):
-    dbtype: Annotated[
-        Literal[
-            DBType.POSTGRESQL,
-            DBType.MSSQLSERVER,
-            DBType.SQLITE,
-            DBType.ORACLE,
-            DBType.MYSQL,
-            DBType.SOFTWARE_WORKSHOP,
-        ],
-        BeforeValidator(validator_dbtype),
-    ]
-    process_id: int
-
-    def read(self) -> list[AutolinkDataProcess]:
-        autolink_data = AutolinkDataProcess(self.process_id)
-        cfg_process: CfgProcess = autolink_data.cfg_process
-        cfg_data_source: CfgDataSource = cfg_process.data_source
-        main_datetime_col = autolink_data.main_datetime_col
-        main_serial_col = autolink_data.main_serial_col
-        if not main_datetime_col or not main_serial_col:
-            return [autolink_data]
-
-        cols, df, _ = get_info_from_db(
-            cfg_data_source,
-            cfg_process.table_name,
-            sql_limit=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
-            process_factid=cfg_process.process_factid,
-            master_type=MasterDBType[cfg_process.master_type] if cfg_process.master_type else None,
+    if autolink_data.is_generated_datetime():
+        using_cols.extend(
+            [autolink_data.main_date_col.column_raw_name, autolink_data.main_time_col.column_raw_name],
         )
-        if main_serial_col.is_main_serial_function_column:
-            df = autolink_data.calculate_main_serial_function_column(df)
+    else:
+        using_cols.append(main_datetime_col.column_raw_name)
 
-        autolink_data.update(df)
-        # we do not try to loop until getting enough data from factory database ...
-        if not autolink_data.has_enough_data():
-            logger.warning(
-                f'Autolink data for process {self.process_id}'
-                f'does not have {AUTOLINK_TOTAL_RECORDS_PER_SOURCE} records',
+    for file in files:
+        delimiter = detect_file_path_delimiter(file, cfg_proc.data_source.csv_detail.delimiter)
+        encoding = detect_encoding(file)
+        params = {
+            'chunksize': DF_CHUNK_SIZE,
+            'usecols': using_cols,
+            'sep': delimiter,
+            'nrows': AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
+            'encoding': encoding,
+            'na_values': NA_VALUES,
+            'on_bad_lines': 'skip',
+            'skip_blank_lines': True,
+            'index_col': False,
+        }
+        try:
+            _read_autolink_csv_file(autolink_data, file, params)
+        except ParserError:
+            params.update({'quoting': csv.QUOTE_NONE})
+            _read_autolink_csv_file(autolink_data, file, params)
+
+    return autolink_data.completed()
+
+
+def _read_autolink_csv_file(
+    autolink_data: AutolinkDataProcess,
+    filename: str,
+    read_params: dict[str, Any],
+):
+    with pd.read_csv(filename, **read_params) as reader:
+        for df in reader:
+            if autolink_data.has_enough_data():
+                break
+            df_auto_link = df
+            if autolink_data.main_serial_col.is_main_serial_function_column:
+                df_auto_link = autolink_data.calculate_main_serial_function_column(df)
+                df_auto_link = df_auto_link[
+                    [
+                        autolink_data.main_datetime_col.column_raw_name,
+                        autolink_data.main_serial_col.column_raw_name,
+                    ]
+                ]
+
+            autolink_data.update(df_auto_link)
+
+
+def read_autolink_db(autolink_data: AutolinkDataProcess) -> CompletedAutolinkDataProcess:
+    cfg_process: CfgProcess = autolink_data.cfg_process
+    cfg_data_source: CfgDataSource = cfg_process.data_source
+    main_datetime_col = autolink_data.main_datetime_col
+    main_serial_col = autolink_data.main_serial_col
+    if not main_datetime_col or not main_serial_col:
+        return autolink_data.completed()
+
+    cols, df, _ = get_info_from_db(
+        cfg_data_source,
+        cfg_process.table_name,
+        sql_limit=AUTOLINK_TOTAL_RECORDS_PER_SOURCE,
+        process_factid=cfg_process.process_factid,
+        master_type=MasterDBType[cfg_process.master_type] if cfg_process.master_type else None,
+    )
+    if main_serial_col.is_main_serial_function_column:
+        df = autolink_data.calculate_main_serial_function_column(df)
+
+    autolink_data.update(df)
+    # we do not try to loop until getting enough data from factory database ...
+    if not autolink_data.has_enough_data():
+        logger.warning(
+            f'Autolink data for process {autolink_data.process_id}'
+            f'does not have enough {AUTOLINK_TOTAL_RECORDS_PER_SOURCE} records',
+        )
+
+    return autolink_data.completed()
+
+
+def read_autolink_v2(autolink_datas: list[AutolinkDataProcess]) -> list[CompletedAutolinkDataProcess]:
+    if len(autolink_datas) == 0:
+        return []
+
+    cfg_proc: CfgProcess = autolink_datas[0].cfg_process
+    path = cfg_proc.data_source.csv_detail.directory
+    files = []
+    if os.path.isdir(path):
+        files = get_latest_files(path)[:MAXIMUM_PROCESSES_ORDER_FILES]
+    elif os.path.isfile:
+        files = [path]
+
+    for file in files:
+        read_autolink_v2_single_file(file, autolink_datas)
+
+    return [d.completed() for d in autolink_datas]
+
+
+def read_autolink_v2_single_file(file: str, autolink_datas: list[AutolinkDataProcess]):
+    datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(file)
+    if datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
+        return []
+
+    for autolink_data in autolink_datas:
+        if autolink_data.has_enough_data() or not autolink_data.cfg_process:
+            continue
+
+        data_src = autolink_data.cfg_process.data_source.csv_detail
+
+        if datasource_type == DBType.V2_HISTORY:
+            df_one_file = get_df_v2_process_single_file(
+                file,
+                process_name=data_src.process_name,
+                datasource_type=datasource_type,
+                is_abnormal_v2=is_abnormal_v2,
             )
-        return [autolink_data]
+        elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
+            df_one_file = get_vertical_df_v2_process_single_file(
+                file,
+                process_name=data_src.process_name,
+                datasource_type=datasource_type,
+                is_abnormal_v2=is_abnormal_v2,
+                is_en_cols=is_en_cols,
+            )
+        else:
+            raise RuntimeError('invalid data source type')
 
+        if autolink_data.main_serial_col.is_main_serial_function_column:
+            df_one_file = autolink_data.calculate_main_serial_function_column(
+                df_one_file,
+            )
 
-class AutolinkV2(BaseModel):
-    dbtype: Annotated[
-        Literal[
-            DBType.V2,
-            DBType.V2_MULTI,
-            DBType.V2_HISTORY,
-        ],
-        BeforeValidator(validator_dbtype),
-    ]
-    process_ids: list[int]
-    path: str
+        autolink_data.update(df_one_file)
 
-    def read(self) -> list[AutolinkDataProcess]:
-        # there's case where a single process have multiple ids, we need to handle that as well
-        autolink_data_dictionary = {}
-        for idx in self.process_ids:
-            autolink_data_dictionary[idx] = AutolinkDataProcess(idx)
-
-        files = []
-        if os.path.isdir(self.path):
-            files = get_latest_files(self.path)[:MAXIMUM_PROCESSES_ORDER_FILES]
-        elif os.path.isfile(self.path):
-            files = [self.path]
-        for file in files:
-            self.read_v2_file(file, self.process_ids, autolink_data_dictionary)
-
-        return list(autolink_data_dictionary.values())
-
-    def read_v2_file(
-        self,
-        file: str,
-        mapping_process_ids: dict[str, list[int]],
-        autolink_data_dictionary: dict[int, AutolinkDataProcess],
-    ):
-        datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(file)
-        if datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
-            return
-
-        def _read_v2_file(cfg_process: CfgProcess, transformed_file, main_serial_col):
-            data_src = cfg_process.data_source.csv_detail
-            if datasource_type == DBType.V2_HISTORY:
-                df_one_file = get_df_v2_process_single_file(
-                    transformed_file,
-                    process_name=data_src.process_name,
-                    datasource_type=datasource_type,
-                    is_abnormal_v2=is_abnormal_v2,
-                )
-            elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
-                df_one_file = get_vertical_df_v2_process_single_file(
-                    transformed_file,
-                    process_name=data_src.process_name,
-                    datasource_type=datasource_type,
-                    is_abnormal_v2=is_abnormal_v2,
-                    is_en_cols=is_en_cols,
-                )
-            if main_serial_column.is_main_serial_function_column:
-                df_one_file = autolink_data_dictionary[cfg_process.id].calculate_main_serial_function_column(
-                    df_one_file,
-                )
-            return df_one_file
-
-        for mapping_process_id in mapping_process_ids:
-            cfg_process: CfgProcess = autolink_data_dictionary[mapping_process_id].cfg_process
-            main_serial_column = autolink_data_dictionary[mapping_process_id].main_serial_col
-            if autolink_data_dictionary[mapping_process_id].has_enough_data() or not cfg_process:
-                continue
-
-            df = _read_v2_file(cfg_process, str(file), main_serial_column)
-            autolink_data_dictionary[mapping_process_id].update(df)
+    return autolink_datas

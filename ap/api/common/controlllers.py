@@ -16,7 +16,7 @@ from ap.common.constants import (
     UN_AVAILABLE,
     CSVExtTypes,
 )
-from ap.common.jobs.utils import is_update_transaction_data_job_completed
+from ap.common.jobs.utils import get_update_transaction_table_job
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
@@ -127,12 +127,15 @@ def get_jump_cfg(source_page):
     return out_dict, 200
 
 
-@api_common_blueprint.route('/is_update_transaction_data_job_completed/<process_id>', methods=['GET'])
-def is_update_transaction_data_job_completed_api(process_id: Union[int, str]):
+@api_common_blueprint.route('/is_show_warning_message_update_main_serial/<process_id>', methods=['GET'])
+def is_show_warning_message_update_main_serial(process_id: Union[int, str]):
     """
-    Check UPDATE_TRANSACTION_DATA job of process_id is executed completely or not
+    Check UPDATE_TRANSACTION_TABLE job of process_id is executed completely or not
+
     :param process_id:
-    :return: True: the job is executed completely, otherwise False
+    :return: True: need to show a warning message, otherwise no need
     """
-    is_completed = is_update_transaction_data_job_completed(process_id)
-    return orjson_dumps(is_completed), 200
+    job = get_update_transaction_table_job(process_id)
+    is_show_warning_message = False if job is None else job.kwargs.get('is_show_warning_message')
+
+    return orjson_dumps(is_show_warning_message), 200
