@@ -187,7 +187,7 @@ def import_factory(proc_id):
 
     # get current job id
     t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_IMPORT.name)
-    job_id = str(t_job_management.id) if t_job_management else ''
+    job_id = int(t_job_management.id) if t_job_management else None
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
@@ -822,7 +822,7 @@ def factory_past_data_transform(proc_id):
 
     # get current job id
     t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_PAST_IMPORT.name)
-    job_id = str(t_job_management.id) if t_job_management else ''
+    job_id = int(t_job_management.id) if t_job_management else None
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
@@ -841,6 +841,7 @@ def factory_past_data_transform(proc_id):
 
         # apply etl_func for rows
         if etl_func:
+            # apply etl_func for rows
             df_rows = pd.DataFrame(rows, columns=cols)
             df_rows = df_transform(df_rows, etl_func)
 
@@ -848,8 +849,11 @@ def factory_past_data_transform(proc_id):
             df_rows_filter = df_rows[raw_column_names]
             rows = tuple(tuple(row) for row in df_rows_filter.to_numpy())
 
-        # dataframe
-        df = pd.DataFrame(rows, columns=col_name)
+            # dataframe
+            df = pd.DataFrame(rows, columns=col_name)
+        else:
+            # dataframe
+            df = pd.DataFrame(rows, columns=normalize_list(cols))
         # pivot if this is vertical data
         if proc_cfg.data_source.type == DBType.SOFTWARE_WORKSHOP.name:
             df = transform_df_for_software_workshop(

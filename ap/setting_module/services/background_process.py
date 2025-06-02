@@ -3,10 +3,12 @@ import datetime as dt
 import logging
 import math
 import re
-from typing import List
+from typing import List, Optional
+
+from flask_sqlalchemy.pagination import QueryPagination
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
 
 from ap import db
-from ap.api.common.services.show_graph_database import DictToClass
 from ap.common.common_utils import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_FACTORY_DB,
@@ -44,27 +46,47 @@ from ap.setting_module.models import (
     ProcLinkCount,
     make_session,
 )
+from ap.setting_module.schemas import JobManagementSchema
 from ap.trace_data.transaction_model import TransactionData
 
 logger = logging.getLogger(__name__)
 
-JOB_ID = 'job_id'
-JOB_NAME = 'job_name'
-JOB_TYPE = 'job_type'
-DB_CODE = 'db_code'
-PROC_CODE = 'proc_code'
-PROC_ID = 'proc_id'
-DB_MASTER_NAME = 'db_master_name'
-DONE_PERCENT = 'done_percent'
-START_TM = 'start_tm'
-END_TM = 'end_tm'
-DURATION = 'duration'
-STATUS = 'status'
-PROCESS_MASTER_NAME = 'process_master_name'
-DETAIL = 'detail'
-DATA_TYPE_ERR = 'data_type_error'
-ERROR_MSG = 'error_msg'
 previous_disk_status = DiskUsageStatus.Normal
+
+
+class JobSerializedOutput(BaseModel):
+    """Job info to send to front-end"""
+
+    model_config = ConfigDict(coerce_numbers_to_str=True, validate_assignment=True)
+
+    id: int = Field(serialization_alias='job_id')
+    job_type: str = ''
+    db_code: Optional[int]
+    db_name: Optional[str] = Field(serialization_alias='db_master_name')
+    process_id: Optional[int] = Field(serialization_alias='proc_id')
+    process_name: Optional[str] = Field(serialization_alias='proc_code')
+
+    start_tm: str = ''
+    end_tm: Optional[str]
+    status: str = ''
+    done_percent: float = 0.0
+    duration: float = 0.0
+    error_msg: Optional[str]
+    detail: str = ''
+    data_type_error: bool = False
+
+    @field_serializer('duration')
+    def round_duration(self, duration: float) -> float:
+        return round(duration, 2)
+
+    @computed_field
+    def job_name(self) -> str:
+        # get job information and send to UI
+        return generate_job_id(self.job_type, self.process_id)
+
+    @computed_field()
+    def process_master_name(self) -> str:
+        return self.process_name
 
 
 @CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
@@ -73,7 +95,14 @@ def get_all_proc_shown_names():
 
 
 @log_execution_time()
-def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignore_job_types=None, error_page=False):
+def get_background_jobs_service(
+    page=1,
+    per_page=50,
+    sort_by='',
+    order='',
+    ignore_job_types=None,
+    error_page=False,
+) -> tuple[list[JobSerializedOutput], QueryPagination]:
     """
     Get background jobs from JobManagement table
     """
@@ -93,13 +122,9 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
 
     jobs = jobs.paginate(page=page, per_page=per_page, error_out=False)
     dic_procs = get_all_proc_shown_names()
-    rows = []
+    rows: list[JobSerializedOutput] = []
     for _job in jobs.items:
-        dic_job = _job.as_dict()
-        job = DictToClass(**dic_job)
-
-        # get job information and send to UI
-        job_name = generate_job_id(job.job_type, job.process_id)
+        job = JobSerializedOutput.model_validate(_job.as_dict())
 
         if not error_page and job.process_id is not None and job.process_id not in dic_procs:
             # do not show deleted process in job normal page -> show only job error page
@@ -107,25 +132,10 @@ def get_background_jobs_service(page=1, per_page=50, sort_by='', order='', ignor
 
         # get process shown name
         proc_name = dic_procs.get(job.process_id)
-        if not proc_name:
-            proc_name = job.process_name or ''
+        if proc_name:
+            job.process_name = proc_name
 
-        row = {
-            JOB_ID: job.id,
-            JOB_NAME: job_name,
-            JOB_TYPE: job.job_type or '',
-            DB_CODE: job.db_code or '',
-            DB_MASTER_NAME: job.db_name or '',
-            DONE_PERCENT: job.done_percent or 0,
-            START_TM: job.start_tm,
-            END_TM: job.end_tm or '',
-            DURATION: round(job.duration, 2),
-            STATUS: str(job.status),
-            PROCESS_MASTER_NAME: proc_name,
-            DETAIL: '',
-            ERROR_MSG: job.error_msg,
-        }
-        rows.append(row)
+        rows.append(job)
 
     # TODO get more info from jobs ( next_page, prev_page, total_pages...)
     return rows, jobs
@@ -176,42 +186,24 @@ def send_processing_info(
         job.status = str(JobStatus.PROCESSING)
         meta_session.add(job)
         meta_session.flush()
-        job = DictToClass(**job.as_dict())
+        job_output = JobSerializedOutput.model_validate(job.as_dict())
 
     # processing info
-    dic_res = {
-        job.id: {
-            JOB_ID: job.id,
-            JOB_NAME: generate_job_id(job.job_type, job.process_id),
-            JOB_TYPE: job.job_type,
-            DB_CODE: job.db_code or '',
-            PROC_CODE: job.process_name or '',
-            PROC_ID: job.process_id or process_id or '',
-            DB_MASTER_NAME: job.db_name or '',
-            DONE_PERCENT: job.done_percent,
-            START_TM: job.start_tm,
-            END_TM: job.end_tm,
-            DURATION: round(job.duration, 2),
-            STATUS: str(job.status),
-            PROCESS_MASTER_NAME: job.process_name or '',
-            DETAIL: '',
-        },
-    }
-
-    real_job_id = dic_res[job.id][JOB_NAME]
+    dic_res: dict[int, JobSerializedOutput] = {job_output.id: job_output}
+    real_job_id = job_output.job_name
 
     prev_job_info = None
     notify_data_type_error_flg = True
     while True:
         try:
             if is_check_disk:
-                disk_capacity = get_disk_capacity_once(_job_id=job.id)
+                disk_capacity = get_disk_capacity_once(_job_id=job_output.id)
 
                 if disk_capacity:
                     if previous_disk_status != disk_capacity.disk_status:
                         EventQueue.put(
                             EventBackgroundAnnounce(
-                                job_id=job.id,
+                                job_id=job_output.id,
                                 data=disk_capacity.to_dict(),
                                 event=AnnounceEvent.DISK_USAGE,
                             ),
@@ -226,12 +218,11 @@ def send_processing_info(
             # update job details ( csv_import , gen global...)
             if isinstance(job_info, int):
                 # job percent update
-                job.done_percent = job_info
+                job_output.done_percent = job_info
             elif isinstance(job_info, JobInfo):
                 prev_job_info = job_info
                 # job percent update
-                job.done_percent = job_info.percent
-                # update job details (csv_import...)
+                job_output.done_percent = job_info.percent
 
                 # insert import history
                 if not job_info.import_type:
@@ -241,14 +232,14 @@ def send_processing_info(
                     # empty files
                     EventQueue.put(
                         EventBackgroundAnnounce(
-                            job_id=job.id,
+                            job_id=job_output.id,
                             data=job_info.empty_files,
                             event=AnnounceEvent.EMPTY_FILE,
                         ),
                     )
 
                 # job err msg
-                update_job_management_status_n_error(job, job_info)
+                job_output, job_info = update_job_management_status_n_error(job_output, job_info)
 
                 # Check to interrupt generator
                 if job_info.is_safe_interrupt:
@@ -257,18 +248,18 @@ def send_processing_info(
                         if running_job is None:
                             logger.error(f'send_processing_info: {real_job_id} does not exist in `running_jobs`')
                         elif running_job.wait_to_kill:
-                            job.status = JobStatus.KILLED
-                            job = update_job_management(job)
+                            job_output.status = JobStatus.KILLED
+                            job_output = update_job_management(job_output)
                             generator_func.close()
                             logger.info(f'{real_job_id}: killed successfully')
                             break
 
             elif job_type is JobType.GEN_GLOBAL:
                 _, dic_cycle_ids, dic_edge_cnt = job_info
-                save_proc_link_count(job.id, dic_cycle_ids, dic_edge_cnt)
+                save_proc_link_count(job_output.id, dic_cycle_ids, dic_edge_cnt)
 
         except StopIteration:
-            job = update_job_management(job)
+            job_output = update_job_management(job_output)
 
             # emit successful import data
             if prev_job_info and prev_job_info.has_record and after_success_func and after_success_func_kwargs:
@@ -280,48 +271,69 @@ def send_processing_info(
             # update job status
             db.session.rollback()
             message = error_msg_handler.msg_from_exception(exception=e)
-            job = update_job_management(job, message)
+            job_output = update_job_management(job_output, message)
             logger.exception(e)
             break
         finally:
             # notify if data type error greater than 100
             if notify_data_type_error_flg and prev_job_info and prev_job_info.data_type_error_cnt > COMPLETED_PERCENT:
                 EventQueue.put(
-                    EventBackgroundAnnounce(job_id=job.id, data=job.db_name, event=AnnounceEvent.DATA_TYPE_ERR),
+                    EventBackgroundAnnounce(
+                        job_id=job_output.id,
+                        data=job_output.db_name,
+                        event=AnnounceEvent.DATA_TYPE_ERR,
+                    ),
                 )
 
-                dic_res[job.id][DATA_TYPE_ERR] = True
+                dic_res[job_output.id].data_type_error = True
                 notify_data_type_error_flg = False
 
             # emit info
-            dic_res[job.id][DONE_PERCENT] = job.done_percent
-            dic_res[job.id][END_TM] = job.end_tm
-            dic_res[job.id][DURATION] = round((dt.datetime.utcnow() - start_tm).total_seconds(), 2)
-            EventQueue.put(EventBackgroundAnnounce(job_id=job.id, data=dic_res, event=AnnounceEvent.JOB_RUN))
+            dic_res[job_output.id].done_percent = job_output.done_percent
+            dic_res[job_output.id].end_tm = job_output.end_tm
+            dic_res[job_output.id].duration = (dt.datetime.utcnow() - start_tm).total_seconds()
+            EventQueue.put(
+                EventBackgroundAnnounce(
+                    job_id=job_output.id,
+                    data={job_id: output.model_dump(by_alias=True) for job_id, output in dic_res.items()},
+                    event=AnnounceEvent.JOB_RUN,
+                ),
+            )
 
-    dic_res[job.id][STATUS] = str(job.status)
-    EventQueue.put(EventBackgroundAnnounce(job_id=job.id, data=dic_res, event=AnnounceEvent.JOB_RUN))
-    if job.job_type == JobType.CSV_IMPORT.name:
+    dic_res[job_output.id].status = job_output.status
+    EventQueue.put(
+        EventBackgroundAnnounce(
+            job_id=job_output.id,
+            data={job_id: output.model_dump(by_alias=True) for job_id, output in dic_res.items()},
+            event=AnnounceEvent.JOB_RUN,
+        ),
+    )
+    if job_output.job_type == JobType.CSV_IMPORT.name:
         dic_register_progress = {
-            'status': job.status,
-            'process_id': job.process_id,
+            'status': job_output.status,
+            'process_id': job_output.process_id,
             'is_first_imported': False,
         }
         # TODO: change job id?
         EventQueue.put(
-            EventBackgroundAnnounce(job_id=job.id, data=dic_register_progress, event=AnnounceEvent.DATA_REGISTER),
+            EventBackgroundAnnounce(
+                job_id=job_output.id,
+                data=dic_register_progress,
+                event=AnnounceEvent.DATA_REGISTER,
+            ),
         )
 
 
-def update_job_management(job, err=None):
+def update_job_management(job_output: JobSerializedOutput, err=None) -> JobSerializedOutput:
     """update job status
 
     Arguments:
         job {[type]} -- [description]
         done_percent {[type]} -- [description]
     """
+
+    job = JobManagementSchema().load(job_output.model_dump())
     with make_session() as meta_session:
-        job = JobManagement(**job.__dict__)
         if (
             not err
             and not job.error_msg
@@ -341,16 +353,13 @@ def update_job_management(job, err=None):
                 job.status = JobStatus.FAILED.name
             job.error_msg = err or job.error_msg or UNKNOWN_ERROR_TEXT
 
-        job.duration = round(
-            (dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)).total_seconds(),
-            2,
-        )
+        job.duration = (dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)).total_seconds()
         job.end_tm = get_current_timestamp()
 
         job = meta_session.merge(job)
-        job = DictToClass(**job.as_dict())
+        job_output = JobSerializedOutput.model_validate(job.as_dict())
 
-    return job
+    return job_output
 
 
 class JobInfo:
@@ -543,7 +552,10 @@ def save_proc_link_count(job_id, dic_cycle_ids, dic_edge_cnt):
     return True
 
 
-def update_job_management_status_n_error(job, job_info: JobInfo):
+def update_job_management_status_n_error(
+    job: JobSerializedOutput,
+    job_info: JobInfo,
+) -> tuple[JobSerializedOutput, JobInfo]:
     if not job.status or job_info.status.value > JobStatus[job.status].value:
         job.status = job_info.status.name
 

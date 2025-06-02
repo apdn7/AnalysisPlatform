@@ -10,7 +10,7 @@ from flask import current_app, g
 from pandas import DataFrame
 
 from ap.common.common_utils import create_file_path, write_to_pickle
-from ap.common.constants import IS_EXPORT_MODE, MPS, CsvDelimiter, FlaskGKey
+from ap.common.constants import IS_EXPORT_MODE, MPS, TESTING, CsvDelimiter, FlaskGKey
 from ap.common.ga import GTAG_DEFAULT_TIMEOUT
 from ap.common.logger import log_execution_time
 
@@ -211,6 +211,10 @@ def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=Fals
     def _trace_log(fn):
         @wraps(fn)
         def __trace_log(*args, **kwargs):
+            # ignore trace log save for test env
+            if current_app.config.get(TESTING):
+                return fn(*args, **kwargs)
+
             # set attribute first time
             set_log_attr(keys, vals)
             try:

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Mapping, Optional, TypedDict
 
 import marshmallow
-from marshmallow import fields, post_load
+import pydantic
+from marshmallow import fields, post_load, pre_dump
 from marshmallow_sqlalchemy.fields import Nested
+from pydantic.alias_generators import to_camel
 
 from ap import ma
-from ap.common.constants import DataType
+from ap.common.constants import DataColumnType, DataType, DBType
 from ap.common.cryptography_utils import encrypt
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import (
@@ -27,6 +29,7 @@ from ap.setting_module.models import (
     CfgTraceKey,
     CfgUserSetting,
     CfgVisualization,
+    JobManagement,
 )
 
 EXCLUDE_COLS = ('updated_at', 'created_at')
@@ -45,8 +48,16 @@ class AnyAsBool(fields.Field):
         return bool(value)
 
 
+class ContextSchemaDict(TypedDict):
+    show_graph: bool
+
+
 class BaseSchema(ma.SQLAlchemyAutoSchema):
     """Base schema with shared definition"""
+
+    # typehint for dictionary
+    if TYPE_CHECKING:
+        context: ContextSchemaDict
 
     class Meta:
         """Base meta with shared definition"""
@@ -196,13 +207,42 @@ class ProcessColumnSchema(BaseSchema):
 
         return model
 
+    @pre_dump
+    def convert_data_type(self, data: CfgProcessColumn, many, **kwargs):
+        data = data.clone()
+        show_graph = self.context.get('show_graph', False)
+        # convert datatype for show graph
+        if show_graph:
+            # modify data type based on function columns
+            if data.function_details and data.function_details[-1].return_type:
+                function_return_type = data.function_details[-1].return_type
+                data.data_type = function_return_type
+
+            if data.data_type == DataType.BOOLEAN.name and data.column_type != DataColumnType.JUDGE.value:
+                data.column_type = DataColumnType.BOOLEAN.value
+
+            # need to change again, make sure date, time, boolean be converted to text
+            if data.data_type in [
+                DataType.DATE.name,
+                DataType.TIME.name,
+                DataType.BOOLEAN.name,
+            ]:
+                data.data_type = DataType.TEXT.name
+
+            # change data type column from `boolean` or `category` to Int(Cat) (PO requirements)
+            if data.data_type == DataType.CATEGORY.name:
+                data.data_type = DataType.INTEGER.name
+                data.column_type = DataColumnType.INT_CATE.value
+
+        return data
+
 
 class FilterSchema(BaseSchema):
     class Meta(BaseSchema.Meta):
         model = CfgFilter
 
     filter_details = fields.Nested('FilterDetailSchema', many=True)
-    column = fields.Nested('ProcessColumnSchema')
+    column = fields.Nested('ProcessColumnSchema', allow_none=True)
 
 
 class VisualizationSchema(BaseSchema):
@@ -212,8 +252,8 @@ class VisualizationSchema(BaseSchema):
     id = fields.Integer(allow_none=True)
 
     control_column = fields.Nested('ProcessColumnSchema')
-    filter_column = fields.Nested('ProcessColumnSchema')
-    filter_detail = fields.Nested('FilterDetailSchema')
+    filter_column = fields.Nested('ProcessColumnSchema', allow_none=True)
+    filter_detail = fields.Nested('FilterDetailSchema', allow_none=True)
 
 
 class TraceKeySchema(BaseSchema):
@@ -277,6 +317,12 @@ class ProcessVisualizationSchema(BaseSchema):
     filters = fields.Nested('FilterSchema', many=True)
 
 
+class ProcessTraceSchema(ProcessSchema):
+    class Meta(BaseSchema.Meta):
+        model = CfgProcess
+        exclude = ('visualizations', 'filters') + EXCLUDE_COLS  # re-open the params if used
+
+
 class ProcessOnlySchema(BaseSchema):
     class Meta(BaseSchema.Meta):
         model = CfgProcess
@@ -295,21 +341,16 @@ class CfgUserSettingSchema(BaseSchema):
     hashed_owner = fields.String(required=True, allow_none=False)
 
 
-class ShowGraphSchema(BaseSchema):
+class ShowGraphSchema(ProcessSchema):
     class Meta(BaseSchema.Meta):
         model = CfgProcess
-        include_fk = True
-        include_relationships = True
-        exclude = ('traces', 'comment', 'order') + EXCLUDE_COLS
+        exclude = ('comment', 'order') + EXCLUDE_COLS
 
     id = fields.Integer(required=False, allow_none=True)
     columns = Nested(ProcessColumnSchema, many=True)
-    traces = Nested(TraceSchema, many=True, allow_none=None)
     filters = Nested(FilterSchema, many=True)
-    # data_source = Nested(DataSourceSchema, allow_none=None)
     data_source = Nested(DataSourceSchema)
     visualizations = Nested(VisualizationSchema, many=True)
-    shown_name = fields.String(required=True, allow_none=False)
 
 
 class CfgOptionSchema(BaseSchema):
@@ -350,3 +391,95 @@ class ImportFiltersSchema(BaseSchema):
     id = fields.Integer(required=False, allow_none=True)
     column_id = fields.Integer(required=False, allow_none=True)
     filters = Nested('ImportFilterDetailSchema', many=True, required=False)
+
+
+class JobManagementSchema(BaseSchema):
+    class Meta(BaseSchema.Meta):
+        model = JobManagement
+
+
+class BasePydanticModel(pydantic.BaseModel):
+    """using pydantic.BaseModel to have a better autocompletion"""
+
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
+
+class AutolinkInSchema(BasePydanticModel):
+    model_config = pydantic.ConfigDict(alias_generator=to_camel)
+    process_ids: list[int]
+
+
+class VisTraceKeyOutSchema(BasePydanticModel):
+    self_column_id: int
+    target_column_id: int
+    self_column_substr_from: Optional[int]
+    self_column_substr_to: Optional[int]
+    target_column_substr_from: Optional[int]
+    target_column_substr_to: Optional[int]
+    delta_time: Optional[float]
+    cut_off: Optional[float]
+
+
+class VisTraceOutSchema(BasePydanticModel):
+    self_process_id: int
+    target_process_id: int
+    trace_keys: list[VisTraceKeyOutSchema]
+
+
+class VisProcessTraceOutSchema(BasePydanticModel):
+    id: int
+    name: str
+    name_en: Optional[str]
+    name_jp: Optional[str]
+    name_local: Optional[str]
+    shown_name: str
+
+    data_source_id: int
+    table_name: Optional[str]
+    master_type: Optional[str]
+    process_factid: Optional[str]
+    etl_func: Optional[str]
+    traces: list[VisTraceOutSchema]
+
+    # generated data
+    datalink_tree_directory: str = ''
+    serial_column_id: Optional[int] = None
+
+    @pydantic.computed_field
+    @property
+    def master(self) -> str:
+        return self.shown_name
+
+    @pydantic.computed_field
+    @property
+    def label(self) -> str:
+        return self.shown_name
+
+    @pydantic.model_validator(mode='before')
+    @classmethod
+    def add_datalink_tree_category(cls, data: Any):
+        """Group all processes with the same data source id in front-end for viewing in tree directory"""
+        # do not validate if this is not cfg process
+        if not isinstance(data, CfgProcess):
+            return data
+
+        if data.data_source.type == DBType.V2.name:
+            data.datalink_tree_directory = data.data_source.csv_detail.directory
+        else:
+            data.datalink_tree_directory = str(data.data_source_id)
+
+        return data
+
+    @pydantic.model_validator(mode='before')
+    @classmethod
+    def add_serial_column_id(cls, data: Any):
+        """Whether process has main serial column, this use to validate datalink."""
+        # do not validate if this is not cfg process
+        if not isinstance(data, CfgProcess):
+            return data
+
+        serial_column = data.get_main_serial_col() or data.get_main_serial_function_col()
+        if serial_column is not None:
+            data.serial_column_id = serial_column.id
+
+        return data

@@ -2,20 +2,13 @@ from typing import List
 
 from ap.common.logger import log_execution_time
 from ap.setting_module.models import CfgProcess, CfgTrace, CfgTraceKey, make_session
-from ap.setting_module.schemas import ProcessSchema
+from ap.setting_module.schemas import VisProcessTraceOutSchema
 
 
 @log_execution_time()
-def get_all_processes_traces_info():
-    procs = CfgProcess.get_all() or []
-    return dump_json(procs)
-
-
-@log_execution_time()
-def dump_json(procs):
-    proc_schema = ProcessSchema(many=True)
-    proc_jsons = proc_schema.dump(procs, many=True) or {}
-    return proc_jsons
+def get_all_processes_traces_info() -> list[VisProcessTraceOutSchema]:
+    processes = CfgProcess.query.all()
+    return [VisProcessTraceOutSchema.model_validate(p) for p in processes]
 
 
 def save_trace_config_to_db(traces):

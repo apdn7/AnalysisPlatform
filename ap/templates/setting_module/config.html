@@ -4,8 +4,8 @@
     <!-- Common CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('setting_module.static', filename = 'css/index.css') }}" />
     <link rel="stylesheet" href="{{ url_for('setting_module.static', filename = 'css/config_view.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jexcel.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename = 'common/css/jsuites.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jspreadsheet/css/jspreadsheet.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jsuites/css/jsuites.css') }}" />
     <script>
         const pcaDataDir = '{{ pca_data_dir|safe }}';
         const importErrDir = '{{ import_err_dir|safe }}';
@@ -130,6 +130,6 @@
 
     <script src="{{ url_for('static', filename = 'common/js/libs/dom-text.js') }}"></script>
 
-    <script src="{{ url_for('static', filename = 'common/js/libs/jexcel.js') }}"></script>
-    <script src="{{ url_for('static', filename = 'common/js/libs/jsuites.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jspreadsheet/js/index.js') }}"></script>
+    <script src="{{ url_for('static', filename = 'modules/jsuites/js/jsuites.js') }}"></script>
 {% endblock %}

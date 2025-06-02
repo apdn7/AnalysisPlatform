@@ -688,26 +688,33 @@ exit /b
 @echo off
 setlocal EnableDelayedExpansion
 :: Get the drive letter of the current directory
-set "CurrentDrive=%CD:~0,2%"
+set "CurrentDrive=%CD:~0,1%"
 :: Get the free and total disk space for the current drive
 echo === Checking free space of the current drive ===
-for /f "tokens=2 delims==" %%F in ('wmic logicaldisk where "DeviceID='%CurrentDrive%'" get FreeSpace /value 2^>nul') do set "FreeSpace=%Blank%%%F"
-for /f "tokens=2 delims==" %%T in ('wmic logicaldisk where "DeviceID='%CurrentDrive%'" get Size /value 2^>nul') do set "TotalSpace=%Blank%%%T"
-
-:: Calculate the percentage of free space
+for /f %%F in ('powershell -command "(Get-PSDrive %CurrentDrive%).Free"') do set "FreeSpace=%Blank%%%F"
+for /f %%S in ('powershell -command "(Get-PSDrive %CurrentDrive%).Used + (Get-PSDrive %CurrentDrive%).Free"') do set "TotalSpace=%Blank%%%S"
 for /f %%F in ('powershell -Command "[math]::Floor((%FreeSpace% / 1GB))"') do set FreeSpaceGB=%%F
 for /f %%T in ('powershell -Command "[math]::Floor((%TotalSpace% / 1GB))"') do set TotalSpaceGB=%%T
-for /f %%P in ('powershell -Command "[math]::Floor((%FreeSpace% / 1GB) * 100 / (%TotalSpace% / 1GB))"') do set PercentFree=%%P
-for /f %%R in ('powershell -Command "[math]::Floor((%TotalSpace%/10 + 1GB)/1GB)"') do set RequiredFreeSpaceGB=%%R
-
-echo Free Disk Space: %FreeSpaceGB%
-echo Total Disk Space: %TotalSpaceGB%
-echo Required Free Space: %RequiredFreeSpaceGB%
-echo Free Disk Space Percentage: %PercentFree%%%
-
+@rem Check if we have managed to obtain disk space
+set /A testFreeSpace=!FreeSpaceGB! 2>nul
+set /A testTotalSpace=!TotalSpaceGB! 2>nul
+set disk_space_obtained=True
+if "!testFreeSpace!"=="" set disk_space_obtained=False
+if "!testTotalSpace!"=="" set disk_space_obtained=False
 set sufficient_space=True
-if %PercentFree% lss %disk_space_pct_required% set sufficient_space=False
-if %FreeSpaceGB% lss %RequiredFreeSpaceGB% set sufficient_space=False
+if %disk_space_obtained%==False (
+    @rem If we could not get disk space somehow, still allow the user to run the program
+    echo Could not obtain the amount of remaining and total disk space. Skipping disk check...
+) else (
+    @rem If we managed to obtain disk space, continue with the check
+    echo Managed to obtain disk space
+    for /f %%P in ('powershell -Command "[math]::Floor(%FreeSpaceGB% * 100 / %TotalSpaceGB%)"') do set PercentFree=%%P
+    for /f %%R in ('powershell -Command "[math]::Floor(%TotalSpaceGB%/10 + 1)"') do set RequiredFreeSpaceGB=%%R
+    echo Required Free Space: !RequiredFreeSpaceGB!
+    echo Free Disk Space Percentage: !PercentFree!%%
+    if !PercentFree! lss !disk_space_pct_required! set sufficient_space=False
+    if !FreeSpaceGB! lss !RequiredFreeSpaceGB! set sufficient_space=False
+)
 endlocal & set valid_free_space_check=%sufficient_space%
 exit /b
 :end

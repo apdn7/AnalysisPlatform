@@ -26,7 +26,6 @@ from ap.common.constants import (
     RemoveOutlierType,
 )
 from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
-from ap.setting_module.schemas import ProcessColumnSchema
 
 
 class EndProc:
@@ -381,6 +380,11 @@ class DicParam:
         self.trace_graph = trace_graph
         self.dic_card_orders = dic_card_orders
 
+        self.dic_col_cfgs: dict[int, CfgProcessColumn] = {}
+        for proc_id, proc in self.dic_proc_cfgs.items():
+            for col in proc.columns:
+                self.dic_col_cfgs[col.id] = col
+
     def search_end_proc(self, proc_id):
         for idx, proc in enumerate(self.array_formval):
             if proc.proc_id == proc_id:
@@ -432,13 +436,13 @@ class DicParam:
             for cfg_cat_exp in cfg_cat_exps:
                 self.add_proc_to_array_formval(cfg_cat_exp.process_id, cfg_cat_exp.id)
 
-    def add_column_to_array_formval(self, col_ids):
+    def add_column_to_array_formval(self, col_ids: list[int]):
         if col_ids:
             cfg_cols = self.get_col_cfgs(col_ids)
             for cfg_col in cfg_cols:
                 self.add_proc_to_array_formval(cfg_col.process_id, cfg_col.id)
 
-    def get_end_cols(self, proc_id):
+    def get_end_cols(self, proc_id: int):
         col_ids = []
         for idx, proc in enumerate(self.array_formval):
             if proc.proc_id == proc_id:
@@ -534,36 +538,25 @@ class DicParam:
     def get_color_info(self, target_var, shown_name=False):
         color_id = self.get_color_id(target_var)
         if not color_id:
-            return None, None
+            return None, None, None
 
         color_col = self.get_col_info_by_id(color_id)
+        color_label = gen_sql_label(color_id, color_col[END_COL_NAME])
 
         if not shown_name:
-            return color_col[END_COL_NAME] or None, color_col[DATA_GROUP_TYPE]
+            return color_col[END_COL_NAME] or None, color_col[DATA_GROUP_TYPE], color_label
 
-        return color_col[SHOWN_NAME] or None, color_col[DATA_GROUP_TYPE]
+        return color_col[SHOWN_NAME] or None, color_col[DATA_GROUP_TYPE], color_label
 
-    def get_all_col_cfgs(self):
-        all_cols = []
-        for proc_id, proc in self.dic_proc_cfgs.items():
-            all_cols += proc.columns
-        return all_cols
+    def get_col_cfgs(self, col_ids: list[int]) -> list[CfgProcessColumn]:
+        col_ids = filter(lambda x: x is not None, col_ids)
+        col_ids = list(map(int, col_ids))
+        return [self.dic_col_cfgs.get(col_id) for col_id in col_ids if col_id in self.dic_col_cfgs]
 
-    def get_col_cfgs(self, col_ids):
-        return [col for col in self.get_all_col_cfgs() if col.id in col_ids]
+    def get_col_cfg(self, col_id: int) -> CfgProcessColumn | None:
+        return self.dic_col_cfgs.get(int(col_id))
 
-    def get_col_cfg(self, col_id) -> CfgProcessColumn | None:
-        # FIXME: this searching is inefficient
-        for col in self.get_all_col_cfgs():
-            if col.id == col_id:
-                # nested case should be resolved separately because we are parsing `DictToClass`
-                output_col = col.__dict__.copy()
-                output_col['function_details'] = [func.__dict__ for func in col.function_details]
-                return ProcessColumnSchema().load(output_col)
-
-        return None
-
-    def gen_label_from_col_id(self, col_id) -> str | None:
+    def gen_label_from_col_id(self, col_id: int) -> str | None:
         col = self.get_col_cfg(col_id)
         if not col:
             return None

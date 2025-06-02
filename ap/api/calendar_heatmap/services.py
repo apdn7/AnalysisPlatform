@@ -567,10 +567,10 @@ def build_dic_col_func(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicPar
             end_col_ids = graph_param.get_end_cols(proc_id)
             end_cols = proc_config.get_cols(end_col_ids)
             for end_col in end_cols:
-                if DataType[end_col.data_type] in [DataType.REAL, DataType.DATETIME]:
-                    hm_function = HMFunction[graph_param.common.hm_function_real]
-                else:
+                if end_col.is_category:
                     hm_function = HMFunction[graph_param.common.hm_function_cate]
+                else:
+                    hm_function = HMFunction[graph_param.common.hm_function_real]
                 dic_col_func[proc_id][end_col.id] = hm_function
     return dic_col_func
 

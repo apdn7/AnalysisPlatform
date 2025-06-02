@@ -1,5 +1,7 @@
 import copy
 import json
+import re
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -18,20 +20,25 @@ from ap.api.common.services.show_graph_services import get_data_from_db, judge_d
 from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV, gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,
+    COLOR_NAME,
     COMMON,
     COMPARE_TYPE,
     DIC_CAT_FILTERS,
+    DIVIDE_FMT_COL,
     END_DATE,
     END_DT,
     END_TM,
     EXPORT_FROM,
     EXPORT_TERM_FROM,
+    IS_DIVIDE_BY_CATEGORY,
+    NUMERICAL_AGG_METHOD,
     RL_DIRECT_TERM,
     SELECTED,
     START_DATE,
     START_DT,
     START_TM,
     TIME_COL,
+    DataExportMode,
 )
 from ap.common.logger import log_execution_time
 from ap.trace_data.schemas import DicParam
@@ -61,7 +68,7 @@ def gen_csv_data(graph_param, dic_param, delimiter=None, with_terms=False, by_ce
         # chm only
         dic_cat_filters = {}
         graph_param = gen_graph_param(graph_param, dic_param, with_ct_col=True)
-        if dic_param[COMMON][EXPORT_FROM] == 'plot':
+        if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
             dic_cat_filters = (
                 json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
                 if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
@@ -74,7 +81,7 @@ def gen_csv_data(graph_param, dic_param, delimiter=None, with_terms=False, by_ce
             dic_cat_filters,
         )
 
-        if dic_param[COMMON][EXPORT_FROM] == 'plot':
+        if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
             if not delimiter:
                 delimiter = ','
             heatmap_zip_data, csv_list_name = gen_sub_df_from_heatmap(
@@ -128,7 +135,7 @@ def gen_df_export(graph_param, dic_param):
 
     # if export_type = plot -> use filter
     dic_cat_filters = {}
-    if dic_param[COMMON][EXPORT_FROM] == 'plot':
+    if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
         dic_cat_filters = (
             json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
             if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
@@ -183,6 +190,21 @@ def gen_export_col_name(proc_name, col_name):
     return f'{proc_name}|{col_name}'
 
 
+def get_export_options(graph_param) -> dict[str, Any]:
+    """
+    generate options for export data
+    :param graph_param:
+    :return: dict
+    """
+    is_divide_by_category = graph_param.common.div_by_cat or False
+
+    return {
+        IS_DIVIDE_BY_CATEGORY: is_divide_by_category,
+        COLOR_NAME: graph_param.common.agp_color_vars,
+        NUMERICAL_AGG_METHOD: graph_param.common.hm_function_real,
+    }
+
+
 @log_execution_time()
 def to_csv(
     df: DataFrame,
@@ -195,6 +217,7 @@ def to_csv(
     terms=None,
     emd_type=None,
     div_col=None,
+    options=None,
 ):
     df_csv = export_preprocessing(
         df,
@@ -205,6 +228,29 @@ def to_csv(
         terms=terms,
         emd_type=emd_type,
         div_col=div_col,
+        options=options,
+    )
+
+    delimiter = delimiter or ','
+    return df_csv.to_csv(output_path, sep=delimiter, index=False)
+
+
+@log_execution_time()
+def to_csv_export(
+    df: DataFrame,
+    graph_param: DicParam,
+    delimiter=None,
+    client_timezone=None,
+    output_path=None,
+    terms=None,
+    options=None,
+):
+    df_csv = df_export_preprocessing(
+        df,
+        graph_param,
+        client_timezone=client_timezone,
+        terms=terms,
+        options=options,
     )
 
     delimiter = delimiter or ','
@@ -220,6 +266,7 @@ def export_preprocessing(
     terms=None,
     emd_type=None,
     div_col=None,
+    options=None,
 ):
     # rename
     new_headers = []
@@ -246,7 +293,6 @@ def export_preprocessing(
                     new_name = f'{new_name[:-3]}({idx})'
                     idx += 1
                 new_headers.append(new_name)
-
             dic_rename[old_name] = new_name
 
     if SELECTED in df:
@@ -302,6 +348,141 @@ def export_preprocessing(
                 .dt.strftime(DATE_FORMAT_STR_CSV)
             )
     return df_output
+
+
+@log_execution_time()
+def df_export_preprocessing(
+    df: DataFrame,
+    graph_param: DicParam,
+    client_timezone=None,
+    terms=None,
+    options=None,
+):
+    dic_rename = get_new_column_order(df, graph_param, options)
+
+    if DIVIDE_FMT_COL not in dic_rename and options is not None:
+        dic_rename = {DIVIDE_FMT_COL: 'Term', **dic_rename}
+
+    # get only output columns
+    output_cols = None
+
+    if output_cols is None:
+        output_cols = dic_rename.keys()
+
+    df_output = df[output_cols].rename(columns=dic_rename).replace({np.nan: None})
+
+    # timezone
+    if client_timezone:
+        # get date list
+        get_dates = []
+        start_ct_col = None
+        start_proc_term_from = None
+        start_proc_term_to = None
+        for proc_cfg in graph_param.dic_proc_cfgs.values():
+            get_date_col = proc_cfg.get_date_col(column_name_only=False)
+            get_date_name_in_df = gen_export_col_name(proc_cfg.shown_name, get_date_col.shown_name)
+            get_dates.append(get_date_name_in_df)
+            if proc_cfg.id == graph_param.common.start_proc:
+                start_ct_col = get_date_name_in_df
+                if terms:
+                    start_proc_term_from = gen_export_col_name(proc_cfg.shown_name, 'from')
+                    start_proc_term_to = gen_export_col_name(proc_cfg.shown_name, 'to')
+
+        if start_proc_term_from:
+            # add term datetime to df
+            gen_term_cols(df_output, start_ct_col, start_proc_term_from, start_proc_term_to, terms)
+            # extend datetime columns
+            get_dates.extend([start_proc_term_from, start_proc_term_to])
+
+        for col in df_output.columns:
+            if col not in get_dates:
+                continue
+            df_output[col] = (
+                pd.to_datetime(df_output[col], format=DATE_FORMAT_STR, utc=True)
+                .dt.tz_convert(client_timezone)
+                .dt.strftime(DATE_FORMAT_STR_CSV)
+            )
+
+    return df_output
+
+
+@log_execution_time()
+def get_new_column_order(df, graph_param, options):
+    dic_rename = {}
+
+    for proc in graph_param.array_formval:
+        proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id] if proc.proc_id in graph_param.dic_proc_cfgs else None
+
+        if not proc_cfg:
+            continue
+
+        for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+            old_name = gen_sql_label(col_id, col_name)
+
+            if old_name not in df.columns:
+                continue
+
+            new_name = gen_export_col_name(proc_cfg.shown_name, name)
+            # for AgP export from Filtered data
+            if options:
+                # for target variable
+                column_detail = proc_cfg.get_col(col_id)
+                if not column_detail:
+                    continue
+
+                is_in_color_vars = (
+                    (
+                        str(col_id) in graph_param.common.agp_color_vars.values()
+                        or col_id in graph_param.common.agp_color_vars.values()
+                    )
+                    if graph_param.common.agp_color_vars
+                    else False
+                )
+
+                is_in_facets = col_id in graph_param.common.cat_exp if graph_param.common.cat_exp else False
+                is_div_var = col_id == graph_param.common.div_by_cat
+                except_rename_cases = is_in_facets or is_in_color_vars or is_div_var
+                if not except_rename_cases:
+                    if column_detail.is_category:
+                        new_name += '|Count'
+                    else:
+                        new_name += f"|{options['numerical_agg_method']}"
+
+            dic_rename[old_name] = new_name
+
+    return get_order_column(dic_rename, graph_param)
+
+
+def get_column_number(col):
+    match = re.search(r'\d+', col)
+    return int(match.group(0)) if match else None
+
+
+@log_execution_time()
+def get_order_column(dic_rename, graph_param):
+    list_column_order = []
+    id_div_by_cat = graph_param.common.div_by_cat
+
+    if id_div_by_cat is not None:
+        key_prefix_div = f'__{id_div_by_cat}__'
+        matched_key_div = next((key for key in dic_rename if key.startswith(key_prefix_div)), None)
+        list_column_order.append(matched_key_div)
+
+    if len(graph_param.common.cat_exp) > 0:
+        matching_columns = [col for col in dic_rename if get_column_number(col) in graph_param.common.cat_exp]
+        matching_columns.sort(key=lambda col: graph_param.common.cat_exp.index(get_column_number(col)))
+        list_column_order.extend(matching_columns)
+
+    if graph_param.common.agp_color_vars:
+        list_color_columns = [int(col) for col in graph_param.common.agp_color_vars.values()]
+        matching_columns = [col for col in dic_rename if get_column_number(col) in list_color_columns]
+        list_column_order.extend(matching_columns)
+
+    order_dict = {value: idx for idx, value in enumerate(list_column_order)}
+    list_column_order = sorted(dic_rename.keys(), key=lambda x: order_dict.get(x, float('inf')))
+    dic_rename = {key: dic_rename[key] for key in list_column_order if key in dic_rename}
+
+    return dic_rename
 
 
 def find_term(value, terms, is_from):

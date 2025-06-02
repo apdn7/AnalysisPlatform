@@ -11,13 +11,15 @@ from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.common.services.show_graph_services import judge_data_conversion
-from ap.api.trace_data.services.csv_export import to_csv
+from ap.api.trace_data.services.csv_export import get_export_options, to_csv_export
 from ap.common.constants import (
     ARRAY_FORMVAL,
     CLIENT_TIMEZONE,
     COMMON,
     END_PROC,
+    EXPORT_FROM,
     CSVExtTypes,
+    DataExportMode,
     MaxGraphNumber,
 )
 from ap.common.services.csv_content import zip_file_to_response
@@ -117,23 +119,57 @@ def data_export(export_type):
     csv_list_name = []
     for single_dic_param in dic_params:
         graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
-        agp_dat, agp_df, graph_param = gen_agp_data(
+        agp_dat, agp_df, graph_param, agp_plotted_df = gen_agp_data(
             graph_param,
             single_dic_param,
             None,
             max_graph_config[MaxGraphNumber.AGP_MAX_GRAPH.name],
         )
+
         # export original value of judge variable
         judge_columns = graph_param.get_judge_variables()
-        agp_df = judge_data_conversion(agp_df, judge_columns, revert=True)
+
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))
 
         client_timezone = agp_dat[COMMON].get(CLIENT_TIMEZONE)
         client_timezone = pytz.timezone(client_timezone) if client_timezone else tz.tzlocal()
-        csv_df = to_csv(agp_df, graph_param, client_timezone=client_timezone, delimiter=delimiter)
-        agp_dataset.append(csv_df)
+
+        export_options = (
+            get_export_options(graph_param)
+            if single_dic_param.get(COMMON).get(EXPORT_FROM) == DataExportMode.PLOT.value
+            else None
+        )
+
+        delimiter = delimiter or ','
+
+        if dic_param[COMMON]['export_from'] == DataExportMode.PLOT.value:
+            csv_list_name = list(agp_plotted_df.keys())
+            file_type = '.csv' if delimiter == ',' else '.tsv'
+            csv_list_name = [name + file_type for name in csv_list_name]
+            csv_df_list = list(agp_plotted_df.values())
+            agp_list_df = [judge_data_conversion(df[0], judge_columns, revert=True) for df in csv_df_list]
+
+            for i, agp_df in enumerate(agp_list_df):
+                csv_df = to_csv_export(
+                    agp_df,
+                    graph_param,
+                    client_timezone=client_timezone,
+                    delimiter=delimiter,
+                    options=export_options,
+                )
+                agp_dataset.append(csv_df)
+        else:
+            agp_df = judge_data_conversion(agp_df, judge_columns, revert=True)
+            csv_df = to_csv_export(
+                agp_df,
+                graph_param,
+                client_timezone=client_timezone,
+                delimiter=delimiter,
+                options=export_options,
+            )
+            agp_dataset.append(csv_df)
 
     response = zip_file_to_response(agp_dataset, csv_list_name, export_type)
     return response

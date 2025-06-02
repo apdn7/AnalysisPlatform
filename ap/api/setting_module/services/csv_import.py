@@ -278,7 +278,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
     # get current job id
     t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.CSV_IMPORT.name)
-    job_id = str(t_job_management.id) if t_job_management else ''
+    job_id = int(t_job_management.id) if t_job_management else None
     job_info.job_id = job_id
 
     dummy_datetime_from = latest_record
@@ -692,7 +692,7 @@ def set_csv_import_percent(job_info, total_percent, percent_per_chunk):
 
 
 @log_execution_time()
-def get_last_csv_import_info(trans_data, db_instance):
+def get_last_csv_import_info(trans_data, db_instance) -> tuple[dict[str, str], dict[str, str]]:
     """get latest csv import info"""
 
     latest_import_files = trans_data.get_import_history_latest_done_files(db_instance)

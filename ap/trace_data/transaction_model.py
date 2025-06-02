@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import logging
+from collections import namedtuple
 from datetime import datetime
 from typing import List, Optional, Set, Union
 
 import pandas as pd
 import sqlalchemy as sa
 from pandas import DataFrame
+from pydantic import BaseModel
 from sqlalchemy.orm import scoped_session
+from sqlalchemy.sql.ddl import CreateIndex, CreateTable
 
 from ap import log_execution_time
-from ap.api.common.services.show_graph_database import DictToClass
+from ap.api.common.services.utils import gen_sql_and_params, gen_sql_compiled_stmt
 from ap.common.common_utils import (
     DATE_FORMAT_SQLITE_STR,
     gen_data_count_table_name,
@@ -305,23 +308,14 @@ class TransactionData:
         return table_name
 
     def create_import_history_table(self, db_instance, auto_commit: bool = True):
-        dict_col_with_type = ImportHistoryTable.to_dict()
         table_name = self.import_history_table_name
         if table_name in db_instance.list_tables():
             return table_name
 
-        sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
-        sql_col = ''
-        for col_name, data_type in dict_col_with_type.items():
-            sql_col += f'{col_name} {data_type}, '
-        sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
-        sql = f'{sql} ({sql_col})'
+        sql = ImportHistoryTable.create_table_sql(self.process_id)
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
-        # index
-        (index_name, index_cols) = ImportHistoryTable.get_indexes()
-        index_cols = ','.join(index_cols)
-        sql = f'CREATE INDEX IF NOT EXISTS {index_name} ON {table_name}({index_cols})'
+        sql = ImportHistoryTable.create_index_sql(self.process_id)
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         return table_name
@@ -932,52 +926,89 @@ WHERE type = 'index'
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
         return cols, rows
 
-    def get_all_import_history(self, db_instance):
-        sql = f'SELECT * FROM {self.import_history_table_name} ORDER BY {ImportHistoryTable.job_id.name}'
+    def get_all_import_history(self, db_instance) -> list[ImportHistoryTable]:
+        table = ImportHistoryTable.table(self.process_id)
 
+        stmt = table.select().order_by(table.c.job_id)
+
+        sql, params = gen_sql_and_params(stmt)
         _, rows = db_instance.run_sql(sql)
-        return [DictToClass(**dic_row) for dic_row in rows]
+        return list(map(ImportHistoryTable.model_validate, rows))
 
-    def get_import_history_last_fatal(self, db_instance):
-        last_job_sql = f'SELECT MAX(job_id) AS job_id FROM {self.import_history_table_name}'
-        sql = f'SELECT * FROM {self.import_history_table_name}'
-        sql += f' WHERE job_id=({last_job_sql})'
-        sql += f' AND status IN ({SQL_PARAM_SYMBOL}, {SQL_PARAM_SYMBOL});'
-        params = [JobStatus.FATAL.name, JobStatus.PROCESSING.name]
-        _, data = db_instance.run_sql(sql, params=params)
-        data = [DictToClass(**dic_row) for dic_row in data]
-        return data
+    def get_import_history_last_fatal(self, db_instance) -> list[ImportHistoryTable]:
+        table = ImportHistoryTable.table(self.process_id)
 
-    def get_import_history_latest_done_files(self, db_instance):
-        params = [JobStatus.DONE.name, JobStatus.FAILED.name]
-        sql = 'SELECT file_name, MAX(start_tm) AS start_tm, MAX(imported_row) AS imported_row'
-        sql += f' FROM {self.import_history_table_name}'
-        sql += f' WHERE status IN ({SQL_PARAM_SYMBOL}, {SQL_PARAM_SYMBOL})'
-        sql += 'GROUP BY file_name;'
+        stmt = table.select().where(
+            sa.and_(
+                table.c.job_id.in_(sa.select(sa.func.max(table.c.job_id))),
+                table.c.status.in_([JobStatus.FATAL.name, JobStatus.PROCESSING.name]),
+            ),
+        )
 
-        _, data = db_instance.run_sql(sql, params=params)
-        data = [DictToClass(**dic_row) for dic_row in data]
-        return data
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params)
+        return list(map(ImportHistoryTable.model_validate, rows))
 
-    def get_import_history_first_import(self, db_instance, import_type):
-        table_name = self.import_history_table_name
-        sql = f''' SELECT * FROM {table_name}
-        WHERE import_type = {SQL_PARAM_SYMBOL} AND status IN ({SQL_PARAM_SYMBOL}, {SQL_PARAM_SYMBOL})
-        ORDER BY {ImportHistoryTable.created_at.name} ASC LIMIT 1
-        '''
-        params = [import_type, JobStatus.DONE.name, JobStatus.FAILED.name]
-        _, data = db_instance.run_sql(sql, params=params)
-        return DictToClass(**data[0]) if len(data) else None
+    ImportHistoryLatestDone = namedtuple('ImportHistoryLatestDone', ['file_name', 'start_tm', 'imported_row'])
+
+    def get_import_history_latest_done_files(self, db_instance) -> list[ImportHistoryLatestDone]:
+        table = ImportHistoryTable.table(self.process_id)
+
+        stmt = (
+            sa.select(
+                table.c.file_name,
+                sa.func.max(table.c.start_tm).label('start_tm'),
+                sa.func.max(table.c.imported_row).label('imported_row'),
+            )
+            .where(table.c.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]))
+            .group_by(table.c.file_name)
+        )
+
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params)
+        return [self.ImportHistoryLatestDone(**row) for row in rows]
+
+    def get_import_history_first_import(self, db_instance, import_type: str) -> Optional[ImportHistoryTable]:
+        table = ImportHistoryTable.table(self.process_id)
+
+        stmt = (
+            table.select()
+            .where(
+                sa.and_(
+                    table.c.import_type == import_type,
+                    table.c.status.in_([import_type, JobStatus.DONE.name, JobStatus.FAILED.name]),
+                ),
+            )
+            .order_by(sa.asc(table.c.created_at))
+            .limit(1)
+        )
+
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params)
+        if len(rows):
+            return ImportHistoryTable.model_validate(rows[0])
+        return None
 
     def get_import_history_last_import(self, db_instance, import_type):
-        table_name = self.import_history_table_name
-        sql = f''' SELECT * FROM {table_name}
-        WHERE import_type = {SQL_PARAM_SYMBOL} AND status IN ({SQL_PARAM_SYMBOL}, {SQL_PARAM_SYMBOL})
-        ORDER BY {ImportHistoryTable.created_at.name} DESC LIMIT 1
-        '''
-        params = [import_type, JobStatus.DONE.name, JobStatus.FAILED.name]
-        _, data = db_instance.run_sql(sql, params=params)
-        return DictToClass(**data[0]) if len(data) else None
+        table = ImportHistoryTable.table(self.process_id)
+
+        stmt = (
+            table.select()
+            .where(
+                sa.and_(
+                    table.c.import_type == import_type,
+                    table.c.status.in_([import_type, JobStatus.DONE.name, JobStatus.FAILED.name]),
+                ),
+            )
+            .order_by(sa.desc(table.c.created_at))
+            .limit(1)
+        )
+
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params)
+        if len(rows):
+            return ImportHistoryTable.model_validate(rows[0])
+        return None
 
     def get_import_history_error_jobs(self, db_instance, job_id):
         table_name = self.import_history_table_name
@@ -1032,41 +1063,56 @@ class DataCountTable(BaseEnum):
     # DIC_DATA_COUNT_COLUMNS = dict(datetime=DataType.TEXT.name, count=DataType.INTEGER.name)
 
 
-class ImportHistoryTable(BaseEnum):
-    # id = (1, DataType.INTEGER.name)
-    job_id = (1, DataType.INTEGER.name)
+class ImportHistoryTable(BaseModel):
+    job_id: Optional[int]
+    import_type: Optional[str]
     # csv import
-    file_name = (2, DataType.TEXT.name)
+    file_name: Optional[str]
     # factory import
-    import_type = (3, DataType.TEXT.name)
-    import_from = (4, DataType.TEXT.name)
-    import_to = (5, DataType.TEXT.name)
-    start_tm = (6, DataType.TEXT.name)
-    end_tm = (7, DataType.TEXT.name)
-    imported_row = (8, DataType.INTEGER.name)
-    status = (9, DataType.TEXT.name)
-    error_msg = (10, DataType.TEXT.name)
-    created_at = (11, DataType.TEXT.name)
-    updated_at = (12, DataType.TEXT.name)
+    import_from: Optional[str]
+    import_to: Optional[str]
+    imported_row: Optional[int]
+    status: str
+    error_msg: Optional[str]
+    start_tm: str
+    end_tm: str
+    created_at: Optional[str]
+    updated_at: Optional[str]
 
     @classmethod
-    def to_dict(cls):
-        return {col: item.value[1] for col, item in cls.get_items()}
-
-    @classmethod
-    def as_obj(cls, dic_input=None):
-        dic_vals = {key: None for key in cls.get_keys()} if dic_input is None else dic_input
-        output = DictToClass(**dic_vals)
-
-        return output
-
-    @staticmethod
-    def get_table_name(proc_id):
+    def get_table_name(cls, proc_id: int) -> str:
         return gen_import_history_table_name(proc_id)
 
     @classmethod
-    def get_indexes(cls):
-        return (
-            'ix_t_import_history_file_name_created_at',
-            (cls.file_name.name, cls.created_at.name),
+    def table(cls, proc_id: int):
+        return sa.Table(
+            cls.get_table_name(proc_id),
+            sa.MetaData(),
+            sa.Column('job_id', sa.Integer),
+            sa.Column('import_type', sa.Text),
+            sa.Column('file_name', sa.Text),
+            sa.Column('import_from', sa.Text),
+            sa.Column('import_to', sa.Text),
+            sa.Column('start_tm', sa.Text),
+            sa.Column('end_tm', sa.Text),
+            sa.Column('imported_row', sa.Integer),
+            sa.Column('status', sa.Text),
+            sa.Column('error_msg', sa.Text),
+            sa.Column('created_at', sa.Text),
+            sa.Column('updated_at', sa.Text),
         )
+
+    @classmethod
+    def create_table_sql(cls, proc_id: int) -> str:
+        table = cls.table(proc_id)
+        create_table_stmt = CreateTable(table, if_not_exists=True)
+        sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_table_stmt)
+        return sqlite3_compiled_stmt.string
+
+    @classmethod
+    def create_index_sql(cls, proc_id: int) -> str:
+        table = cls.table(proc_id)
+        index = sa.Index('ix_t_import_history_file_name_created_at', table.c.file_name, table.c.created_at)
+        create_index_stmt = CreateIndex(index, if_not_exists=True)
+        sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_index_stmt)
+        return sqlite3_compiled_stmt.string

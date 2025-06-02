@@ -8,6 +8,7 @@ from typing import Dict
 import pandas as pd
 from pandas import Series
 
+from ap import log_execution_time
 from ap.api.common.services.utils import TraceGraph
 from ap.common.common_utils import as_list
 from ap.common.constants import (
@@ -71,9 +72,7 @@ from ap.common.constants import (
     ID,
     IMAGES,
     INDEX_ORDER_COLS,
-    IS_DUMMY_DATETIME,
     IS_EXPORT_MODE,
-    IS_GET_DATE,
     IS_GRAPH_LIMITED,
     IS_IMPORT_MODE,
     IS_NOMINAL_SCALE,
@@ -147,10 +146,9 @@ from ap.common.pandas_helper import append_series
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
+from ap.setting_module.schemas import ProcessOnlySchema
 from ap.setting_module.services.process_config import (
-    get_all_process_no_nested,
     get_all_visualizations,
-    get_process_columns,
 )
 from ap.trace_data.schemas import (
     CategoryProc,
@@ -648,14 +646,26 @@ def bind_dic_param_to_class(
     return out_param
 
 
+@log_execution_time()
 def get_common_config_data(get_visualization_config=True):
-    processes = get_all_process_no_nested(with_parent=False)
+    processes = []
+    process_only_schema = ProcessOnlySchema()
+
     # generate english name for process
-    for proc_data in processes:
-        if not proc_data['name_en']:
-            proc_data['name_en'] = to_romaji(proc_data[NAME])
-        proc_cols = get_process_columns(proc_data[ID])
-        proc_data[IS_USE_DUMMY_DATETIME] = True in [col[IS_GET_DATE] and col[IS_DUMMY_DATETIME] for col in proc_cols]
+    cfg_processes = CfgProcess.get_all(with_parent=False) or []
+    for cfg_process in cfg_processes:
+        if cfg_process is None or cfg_process.parent_id is not None:
+            # ignore children process columns
+            continue
+
+        process_dict = process_only_schema.dump(cfg_process)
+        if not cfg_process.name_en:
+            process_dict['name_en'] = to_romaji(process_dict[NAME])
+        process_dict[IS_USE_DUMMY_DATETIME] = any(
+            col.is_get_date and col.is_dummy_datetime for col in cfg_process.columns
+        )
+
+        processes.append(process_dict)
 
     procs = [(proc.get(ID), proc.get('shown_name'), proc.get('name_en')) for proc in processes]
     graph_filter_detail_ids = []

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
+from ap.api.common.services.show_graph_database import get_traces_graph_config_data
 from ap.api.common.services.show_graph_services import (
     calc_raw_common_scale_y,
     calc_scale_info,
@@ -17,7 +18,6 @@ from ap.api.common.services.show_graph_services import (
     get_filter_on_demand_data,
     get_fmt_str_from_dic_data,
     get_serial_and_datetime_data,
-    get_trace_configs,
     is_nominal_check,
     main_check_filter_detail_match_graph_data,
     set_chart_infos_to_plotdata,
@@ -184,7 +184,7 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
     dic_param[START_PROC] = start_proc_name
     dic_param[CATEGORY_COLS] = category_cols_details
 
-    trace_graph = get_trace_configs()
+    trace_graph = get_traces_graph_config_data()
     all_paths = trace_graph.get_all_paths_in_graph()
     relevant_procs = set([graph_param.common.start_proc] + [end_proc.proc_id for end_proc in graph_param.array_formval])
     # path with the relevant procs

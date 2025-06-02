@@ -298,23 +298,19 @@
     border: 0 !important;
 }
 .jexcel > thead > tr > td {
-    border-top: 1px solid #444 !important;
-    border-left: 1px solid #444 !important;
-    border-right: 1px solid transparent;
-    border-bottom: 1px solid #444 !important;
+    border-top: 2px solid #444 !important;
+    border-left: 2px solid #444 !important;
+    border-right: 2px solid transparent;
+    border-bottom: 2px solid #444 !important;
 }
 .jexcel > tbody > tr > td {
-    border-top: 1px solid #444 !important;
-    border-left: 1px solid #444 !important;
-    border-right: 1px solid transparent;
-    border-bottom: 1px solid transparent;
+    border-top: 2px solid #444 !important;
+    border-left: 2px solid #444 !important;
+    border-right: 2px solid transparent;
+    border-bottom: 2px solid transparent;
 }
 .editor input {
     color: white;
-}
-
-#visualForm {
-    min-height: 100vh;
 }
 
 #sidebar {
@@ -325,4 +321,23 @@
 }
 .blue {
     color: rgb(109, 205, 250);
+}
+
+/* Force CSS for datetimepicker show on JSpreadsheet */
+.jexcel .daterangepicker td.active,
+.daterangepicker td.active:hover {
+    background-color: #357ebd !important;
+    border-color: transparent !important;
+    color: #fff !important;
+}
+
+.jexcel .daterangepicker td.available:hover,
+.daterangepicker th.available:hover {
+    background-color: #357ebd !important;
+    border-color: transparent !important;
+    color: inherit !important;
+}
+
+.jexcel .daterangepicker .ranges li:hover {
+    background-color: #357ebd !important;
 }

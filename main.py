@@ -72,7 +72,7 @@ if is_main:
         send_gtag,
     )
     from ap.script.convert_user_setting import convert_user_setting_url
-    from ap.script.hot_fix.fix_db_issues import unlock_db
+    from ap.script.unlock_db import unlock_db
 
     python_main_start_time = datetime.now()
     multiprocess_sharing.start_sharing_instance_server()

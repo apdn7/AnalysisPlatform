@@ -32,6 +32,7 @@ from ap.common.constants import (
     UNIQUE_SERIAL_TEST,
     UNIQUE_SERIAL_TRAIN,
     CSVExtTypes,
+    DataExportMode,
 )
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
@@ -163,7 +164,7 @@ def data_export(export_type):
         # get data from database
         df, *_ = get_data_from_db(graph_param)
         # if export_type = plot -> use filter
-        if dic_param[COMMON]['export_from'] == 'plot':
+        if dic_param[COMMON]['export_from'] == DataExportMode.PLOT.value:
             dic_cat_filters = (
                 json.loads(dic_param[COMMON].get(DIC_CAT_FILTERS, {}))
                 if isinstance(dic_param[COMMON].get(DIC_CAT_FILTERS, {}), str)
