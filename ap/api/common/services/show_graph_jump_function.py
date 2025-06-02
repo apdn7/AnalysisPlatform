@@ -1,4 +1,4 @@
-from copy import deepcopy
+from copy import copy
 
 import pandas as pd
 
@@ -65,7 +65,8 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
     ng_rate_data = dic_param.get(NG_RATES, None)
     all_col_ids = []
     all_proc_ids = []
-    dic_proc_cfgs = deepcopy(graph_param.dic_proc_cfgs)
+    # shallow copy is fine, since we drop `graph_param.dic_proc_cfgs` anyway
+    dic_proc_cfgs = copy(graph_param.dic_proc_cfgs)
     emd_index = 0
     step = 2 if emd_type == EMDType.both.name else 1
     for i, rlp in enumerate(dic_param[ARRAY_PLOTDATA]):
@@ -78,7 +79,7 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
             index = 0
             col_name = f'{origin_name}|{emd_value}'
             if dic_param[EMD_TYPE] == EMDType.both.name and 'Diff' in emd_value:
-                col = proc_cfg.copy_new_col_cfg(col.id)
+                col = proc_cfg.shallow_copy_and_add_new_col(col.id)
             proc_cfg.modify_col_name(col.id, col_name)
 
             all_col_ids.append(col.id)
@@ -116,7 +117,7 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
             # modify ng_rate column name
             judge_proc_id = judge[END_PROC_ID]
             proc_cfg = dic_proc_cfgs[judge_proc_id]
-            judge_col = proc_cfg.copy_new_col_cfg(judge[END_COL_ID], dummy_idx=1_000_001)
+            judge_col = proc_cfg.shallow_copy_and_add_new_col(judge[END_COL_ID], dummy_idx=1_000_001)
             # reassign id of judge in ng_rates
             judge[END_COL_ID] = judge_col.id
             proc_cfg.modify_col_name(judge_col.id, judge_col_name)

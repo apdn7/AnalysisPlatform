@@ -175,108 +175,116 @@
                             </div>
                         </div>
                     </form>
-                    <div class=" flex-grow-1">
-                        <div>
-                            <label
-                                class="hint-text"
-                                title="{{ _("Set conditions to narrow down the records to be imported. You can set up to three target columns to specify conditions for.") }}"
-                                >{{ _("Import Condition") }}</label
-                            >
-                        </div>
-                        <div id="importFilterTable" style="width: 100%;" class="jexcel_container"></div>
-                        <table class="d-none table table-borderless" id="tblImportCondition">
-                            <thead>
-                                <tr class="text-center">
-                                    <th scope="col">No</th>
-                                    <th scope="col" class="th-lg">{{ _("Column Raw Name") }}</th>
-                                    <th scope="col" class="th-lg">{{ _("Value") }}</th>
-                                    <th scope="col" class="th-lg">
-                                        <label
-                                            class="mb-0"
-                                            style="text-decoration: underline;"
-                                            title="{{ _("Search Options") }}"
-                                            >{{ _("Filter Type") }}</label
-                                        >
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th scope="row" class="text-center">1</th>
-                                    <td>
-                                        <div class="div-original-name">
-                                            <select
-                                                name="filterOriginalName"
-                                                id="filterOriginalName"
-                                                class="form-control"
-                                            >
-                                                {#                                                <option value="">---</option>#}
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <input
-                                                name="filterValue"
-                                                id="filterValue"
-                                                class="form-control"
-                                                type="text"
-                                            />
-                                            <select
-                                                name="filterValueSelect2"
-                                                id="filterValueSelect2"
-                                                aria-hidden="true"
-                                                class="form-control convert-h2z select2-hidden-accessible"
-                                            ></select>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="">
-                                            <select
-                                                name="filterConditionFormula"
-                                                id="filterConditionFormulaSelect"
-                                                class="form-control"
-                                            >
-                                                <option value="">---</option>
-                                                <option value="AND_SEARCH">{{ _("AND search") }}</option>
-                                                <option value="OR_SEARCH">{{ _("OR search") }}</option>
-                                                <option value="CONTAINS">{{ _("Contains") }}</option>
-                                                <option value="MATCHES" selected>{{ _("Exact match") }}</option>
-                                                <option value="STARTSWITH">{{ _("Starts With") }}<</option>
-                                                <option value="ENDSWITH">{{ _("Ends With") }}</option>
-                                                <option value="REGEX">{{ _("Regular expressions") }}</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="row" style="padding-top: 5px;">
-                            <div class="col-2">
-                                <button class="btn btn-success icon-btn" name="addImportCondition" type="button">
-                                    <i class="fas fa-plus-circle"></i>
-                                </button>
-                            </div>
-                            <div class="col-6"></div>
-                            <div class="col-4">
-                                <div class="d-flex justify-content-end group-preview-btn">
-                                    <div class="warning-btn hide">
-                                        <label
-                                            type="button"
-                                            class="btn mb-0 p-md-0"
-                                            onclick="showConfigProcessWarning()"
-                                            style="margin: 3px 5px 0 0"
-                                        >
-                                            <i class="fas fa-exclamation-triangle yellow status-i"></i>
-                                        </label>
-                                    </div>
-                                    <button name="showRecords" type="button" class="btn btn-secondary">
-                                        {{ _("Show") }}
-                                    </button>
-                                </div>
-                            </div>
+                    <!-- not available from v4.7.10 -->
+                    {#                    <div class=" flex-grow-1">#}
+                    {#                        <div>#}
+                    {#                            <label#}
+                    {#                                class="hint-text"#}
+                    {#                                title="{{ _("Set conditions to narrow down the records to be imported. You can set up to three target columns to specify conditions for.") }}"#}
+                    {#                                >{{ _("Import Condition") }}</label#}
+                    {#                            >#}
+                    {#                        </div>#}
+                    {#                        <div id="importFilterTable" style="width: 100%;" class="jexcel_container"></div>#}
+                    {#                        <table class="d-none table table-borderless" id="tblImportCondition">#}
+                    {#                            <thead>#}
+                    {#                                <tr class="text-center">#}
+                    {#                                    <th scope="col">No</th>#}
+                    {#                                    <th scope="col" class="th-lg">{{ _("Column Raw Name") }}</th>#}
+                    {#                                    <th scope="col" class="th-lg">{{ _("Value") }}</th>#}
+                    {#                                    <th scope="col" class="th-lg">#}
+                    {#                                        <label#}
+                    {#                                            class="mb-0"#}
+                    {#                                            style="text-decoration: underline;"#}
+                    {#                                            title="{{ _("Search Options") }}"#}
+                    {#                                            >{{ _("Filter Type") }}</label#}
+                    {#                                        >#}
+                    {#                                    </th>#}
+                    {#                                </tr>#}
+                    {#                            </thead>#}
+                    {#                            <tbody>#}
+                    {#                                <tr>#}
+                    {#                                    <th scope="row" class="text-center">1</th>#}
+                    {#                                    <td>#}
+                    {#                                        <div class="div-original-name">#}
+                    {#                                            <select#}
+                    {#                                                name="filterOriginalName"#}
+                    {#                                                id="filterOriginalName"#}
+                    {#                                                class="form-control"#}
+                    {#                                            >#}
+                    {#                                                <option value="">---</option>#}
+                    {#                                            </select>#}
+                    {#                                        </div>#}
+                    {#                                    </td>#}
+                    {#                                    <td>#}
+                    {#                                        <div>#}
+                    {#                                            <input#}
+                    {#                                                name="filterValue"#}
+                    {#                                                id="filterValue"#}
+                    {#                                                class="form-control"#}
+                    {#                                                type="text"#}
+                    {#                                            />#}
+                    {#                                            <select#}
+                    {#                                                name="filterValueSelect2"#}
+                    {#                                                id="filterValueSelect2"#}
+                    {#                                                aria-hidden="true"#}
+                    {#                                                class="form-control convert-h2z select2-hidden-accessible"#}
+                    {#                                            ></select>#}
+                    {#                                        </div>#}
+                    {#                                    </td>#}
+                    {#                                    <td>#}
+                    {#                                        <div class="">#}
+                    {#                                            <select#}
+                    {#                                                name="filterConditionFormula"#}
+                    {#                                                id="filterConditionFormulaSelect"#}
+                    {#                                                class="form-control"#}
+                    {#                                            >#}
+                    {#                                                <option value="">---</option>#}
+                    {#                                                <option value="AND_SEARCH">{{ _("AND search") }}</option>#}
+                    {#                                                <option value="OR_SEARCH">{{ _("OR search") }}</option>#}
+                    {#                                                <option value="CONTAINS">{{ _("Contains") }}</option>#}
+                    {#                                                <option value="MATCHES" selected>{{ _("Exact match") }}</option>#}
+                    {#                                                <option value="STARTSWITH">{{ _("Starts With") }}<</option>#}
+                    {#                                                <option value="ENDSWITH">{{ _("Ends With") }}</option>#}
+                    {#                                                <option value="REGEX">{{ _("Regular expressions") }}</option>#}
+                    {#                                            </select>#}
+                    {#                                        </div>#}
+                    {#                                    </td>#}
+                    {#                                </tr>#}
+                    {#                            </tbody>#}
+                    {#                        </table>#}
+                    {#                        <div class="row" style="padding-top: 5px;">#}
+                    {#                            <div class="col-2">#}
+                    {#                                <button class="btn btn-success icon-btn" name="addImportCondition" type="button">#}
+                    {#                                    <i class="fas fa-plus-circle"></i>#}
+                    {#                                </button>#}
+                    {#                            </div>#}
+                    {#                            <div class="col-6"></div>#}
+                    {#                            <div class="col-4">#}
+                    {#                                <div class="d-flex justify-content-end group-preview-btn">#}
+                    {#                                    <div class="warning-btn hide">#}
+                    {#                                        <label#}
+                    {#                                            type="button"#}
+                    {#                                            class="btn mb-0 p-md-0"#}
+                    {#                                            onclick="showConfigProcessWarning()"#}
+                    {#                                            style="margin: 3px 5px 0 0"#}
+                    {#                                        >#}
+                    {#                                            <i class="fas fa-exclamation-triangle yellow status-i"></i>#}
+                    {#                                        </label>#}
+                    {#                                    </div>#}
+                    {#                                    <button name="showRecords" type="button" class="btn btn-secondary">#}
+                    {#                                        {{ _("Show") }}#}
+                    {#                                    </button>#}
+                    {#                                </div>#}
+                    {#                            </div>#}
+                    {#                        </div>#}
+                    {#                    </div>#}
+                    <!-- start show preview area: from v4.7.10 -->
+                    <div class="flex-grow-1 d-flex align-items-end mb-1">
+                        <div class="row">
+                            <button name="showRecords" type="button" class="btn btn-secondary">{{ _("Show") }}</button>
                         </div>
                     </div>
+                    <!-- end show preview area -->
                 </div>
 
                 <div class="row mx-2 d-flex justify-content-between align-items-center mt-2 position-relative">

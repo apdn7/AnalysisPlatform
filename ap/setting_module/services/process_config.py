@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import pandas as pd
 from sqlalchemy.orm import scoped_session
 
-from ap.api.common.services.show_graph_database import preprocess_column
 from ap.api.setting_module.services.software_workshop_etl_services import (
     child_equips_table,
     get_processes_stmt,
@@ -32,6 +32,7 @@ from ap.setting_module.models import (
     use_meta_session,
 )
 from ap.setting_module.schemas import (
+    ContextSchemaDict,
     FilterSchema,
     ProcessColumnSchema,
     ProcessOnlySchema,
@@ -68,10 +69,9 @@ def get_process_cfg(proc_id):
     return process_schema.dump(process)
 
 
-def get_process_columns(proc_id):
-    proc_col_schema = ProcessColumnSchema(many=True)
-    columns = CfgProcessColumn.query.filter(CfgProcessColumn.process_id == proc_id).all() or []
-    columns = map(preprocess_column, columns)
+def get_process_columns(proc_id: int, *, show_graph: bool) -> list[dict[str, Any]]:
+    proc_col_schema = ProcessColumnSchema(many=True, context=ContextSchemaDict(show_graph=show_graph))
+    columns = CfgProcessColumn.query.filter(CfgProcessColumn.process_id == proc_id).all()
     return proc_col_schema.dump(columns)
 
 

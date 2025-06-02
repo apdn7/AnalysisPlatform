@@ -19,6 +19,7 @@ from ap.common.constants import (
     TIME_COL,
     TRUE_MATCH,
     CSVExtTypes,
+    DataExportMode,
 )
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one, parse_request_params
@@ -89,7 +90,7 @@ def data_export(export_type):
 
     df = gen_df_export(graph_param, dic_param)
 
-    if dic_param[COMMON][EXPORT_FROM] == 'plot':
+    if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
         mask = generate_mask_from_constraint(json.loads(dic_form[CONSTRAINT_RANGE]), graph_param, df)
 
         selected_index = list(df[mask].index)
@@ -125,7 +126,7 @@ def select_data():
 
     df = gen_df_export(graph_param, dic_param)
 
-    if dic_param[COMMON][EXPORT_FROM] == 'plot':
+    if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
         mask = generate_mask_from_constraint(json.loads(dic_form[CONSTRAINT_RANGE]), graph_param, df)
 
         selected_index = list(df[mask].index)

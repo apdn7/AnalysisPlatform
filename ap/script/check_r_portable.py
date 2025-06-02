@@ -7,7 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from ap import get_basic_yaml_obj
+from ap import get_basic_yaml_obj, log_execution_time
 from ap.common.common_utils import resource_path
 from ap.common.constants import AbsPath, R_PORTABLE, YAML_INFO, YAML_R_PATH, R_LIB_VERSION
 

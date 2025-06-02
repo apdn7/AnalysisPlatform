@@ -180,8 +180,8 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
                 <tr id="job-${row.job_id}">
                 <td class="job-id job-id-col">${row.job_id}</td>
                 <td class="job-name job-name-col">${convertJobName(row.job_name) || ' '}</td>
-                <td class="job-db-name db-name-col">${row.db_master_name}</td>
-                <td class="job-process-name proc-name-col">${row.process_master_name}</td>
+                <td class="job-db-name db-name-col">${row.db_master_name || ''}</td>
+                <td class="job-process-name proc-name-col">${row.process_master_name || ''}</td>
                 <td class="job-start-time duration-col">${moment(row.start_tm).format(DATE_FORMAT_WITHOUT_TZ)}</td>
                 <td class="job-duration duration-col">${row.duration}</td>
                 <td class="job-progress job-progress-col">${progress}</td>
@@ -383,6 +383,7 @@ $(() => {
         pageSize: pageOptions ? pageOptions.pageSize : 50,
         locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
         errorPage: isFailedJobPage(),
+        undefinedText: '', // for null or undefined value, replace to EMPTY_STRING
         // formatShowingRows() {
         //     return sprintf('');
         // },

@@ -25,60 +25,11 @@ const orderProcessInTreeCheckBox = (orderedList) => {
 };
 
 const collectCheckedProcessesForAutoLink = () => {
-    const selectedV2Processes = {};
-    const selectedProcesses = [];
-    let hasV2 = false;
     // get selected v2 data sources
-    const checkedProcess = [...$(`.tree input[name=process]:checked`)];
-    for (const procEl of checkedProcess) {
-        const procId = $(procEl).val();
-        const dbsType = $(procEl).attr('dbs-type');
-        const dbsId = $(procEl).attr('dbs-id');
-        const path = $(procEl).attr('data-path');
-        const proc = processes[procId];
-        if (dbsType === DB_CONFIGS.V2.configs.type) {
-            //  V2
-            if (path in selectedV2Processes) {
-                selectedV2Processes[path].push(proc);
-            } else {
-                selectedV2Processes[path] = [proc];
-            }
-        } else {
-            const datetimeCols = proc.columns.filter((col) => col.is_get_date && !col.is_dummy_datetime);
-            const serialCols = proc.columns.filter((col) => col.is_serial_no);
-            if (datetimeCols.length && serialCols.length) {
-                if (dbsType === DB_CONFIGS.CSV.configs.type) {
-                    // CSV
-                    selectedProcesses.push({
-                        path: proc.data_source.csv_detail.directory,
-                        process_id: proc.id,
-                        dbtype: dbsType,
-                    });
-                } else {
-                    // Factory DB
-                    selectedProcesses.push({
-                        process_id: proc.id,
-                        dbtype: dbsType,
-                    });
-                }
-            }
-        }
-    }
-    for (const path of Object.keys(selectedV2Processes)) {
-        const v2ProcIds = selectedV2Processes[path].map((proc) => proc.id);
-        selectedProcesses.push({
-            path,
-            process_ids: v2ProcIds,
-            dbtype: 'V2',
-        });
-
-        hasV2 = true;
-    }
-    if (!hasV2 && selectedV2Processes.length <= 1) {
-        return [];
-    }
-
-    return selectedProcesses;
+    const selectedProcessIds = $(`.tree input[name=process]:checked`)
+        .map((procId, e) => e.value)
+        .toArray();
+    return selectedProcessIds;
 };
 
 /***
@@ -105,8 +56,10 @@ const linkProcesses = (processList) => {
     // filter serial and remove edge of this proc
     for (const id of processList) {
         const proc = processes[id];
-        const serialCols = proc.columns.filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL);
-        if (!serialCols.length) continue;
+        const serial_column_id = proc.serial_column_id;
+        if (serial_column_id == null) {
+            continue;
+        }
 
         removeLinkedEdge(proc.id);
 
@@ -117,23 +70,16 @@ const linkProcesses = (processList) => {
     for (let i = 0; i < linkProcs.length - 1; i += 1) {
         const fromProc = linkProcs[i];
         const toProc = linkProcs[i + 1];
-        const selfSerial = fromProc.columns
-            .filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL)
-            .map((col) => col.id);
-        const targetSerial = toProc.columns
-            .filter((col) => col.column_type === masterDataGroup.MAIN_SERIAL)
-            .map((col) => col.id);
-
         const edgeData = {
             ...trace,
             from: fromProc.id,
             to: toProc.id,
             target_proc: toProc.id,
             self_proc: fromProc.id,
-            self_col: selfSerial,
-            back_orig_col: selfSerial,
-            target_col: targetSerial,
-            target_orig_col: targetSerial,
+            self_col: [fromProc.serial_column_id],
+            back_orig_col: [fromProc.serial_column_id],
+            target_col: [toProc.serial_column_id],
+            target_orig_col: [toProc.serial_column_id],
             id: create_UUID(),
         };
         mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`] = edgeData;
@@ -151,11 +97,11 @@ const removeLinkedEdge = (procId) => {
 };
 
 const handleAutolinkGroups = async () => {
-    const selectedProcesses = collectCheckedProcessesForAutoLink();
-    if (!selectedProcesses.length) return;
+    const selectedProcessIds = collectCheckedProcessesForAutoLink();
+    if (!selectedProcessIds.length) return;
 
     loading.show();
-    const groupsOrderedProcesses = await getAutolinkGroups(selectedProcesses);
+    const groupsOrderedProcesses = await getAutolinkGroups(selectedProcessIds);
     loading.hide();
 
     // update order of process on tree list
@@ -232,7 +178,7 @@ const generateTreeCheckBoxs = (processObj) => {
                 const proc = procs[i];
                 child += `
                    <li class="custom-control custom-checkbox">
-                        <input type="checkbox" dbs-type="${proc.data_source.type}" dbs-id="${proc.data_source.id}" data-path="${path}" id="${path}-${proc.name_en}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
+                        <input type="checkbox" data-path="${path}" id="${path}-${proc.name_en}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
                         <label for="${path}-${proc.name_en}" class="custom-control-label">${proc.shown_name}</label>
                    </li>
                 `;
@@ -245,9 +191,9 @@ const generateTreeCheckBoxs = (processObj) => {
         groupHtml += `
                <li class="custom-control custom-checkbox ${hasChild ? 'has' : ''}">
                    <span class="tree-plus expanded"></span>
-                   <input type="checkbox" dbs-type="${procs[0].data_source.type}" 
-                        dbs-id="${procs[0].data_source.id}" data-path="${path}" 
-                        db-type="${procs[0].data_source.type}" name="${hasChild ? 'dbSource' : 'process'}" 
+                   <input type="checkbox" 
+                        data-path="${path}" 
+                        name="${hasChild ? 'dbSource' : 'process'}" 
                         ${!hasChild && procs[0].isChecked ? 'checked' : ''} 
                         id="${path}" value="${hasChild ? path : procs[0].id}" 
                         class="custom-control-input ${hasChild ? 'group-input' : ''}">
@@ -335,12 +281,7 @@ const groupProcessesByPath = (processes) => {
     const processObj = {};
     const processState = getProcessState();
     for (const proc of processes) {
-        let key = '';
-        if (['V2'].includes(proc.data_source.type)) {
-            key = proc.data_source.csv_detail.directory;
-        } else {
-            key = proc.data_source.id;
-        }
+        let key = proc.datalink_tree_directory;
         const processName = proc.name;
         proc.isChecked = processState[processName] !== undefined ? processState[processName] : true;
         proc.treeOder = 0;

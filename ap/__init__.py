@@ -264,7 +264,7 @@ def create_app(object_name=None, is_main=False):
     init_engine(app, app.config['SQLALCHEMY_DATABASE_URI'], poolclass=NullPool)
     # reset import history when no universal db
     if should_reset_import_history:
-        from ap.script.hot_fix.fix_db_issues import reset_import_history
+        from ap.script.unlock_db import reset_import_history
 
         reset_import_history(app)
 

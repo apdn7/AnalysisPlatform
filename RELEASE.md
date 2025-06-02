@@ -1,5 +1,20 @@
 # Releases
 
+## v4.7.10
+
+This version fixes the memory issue that occurred in version 4.7.9.
+
+Improvements
+
+- Improved performance of frontend, especially when large amount of Processes/Variables are configured
+
+Bug fixes
+
+- Resolved the memory issue that occurred in version 4.7.9
+- Fixed an issue that occurred in Windows 11, where AP+DN7 may not activate appropriately due to a disk capacity check
+- Fixed an issue in CHM, where "Start point" setting is initialized when loading a bookmark
+- Fixed an issue in CHM, where variables with datatype: Int are processed as categories instead of numbers
+
 ## v4.7.9
 
 New features

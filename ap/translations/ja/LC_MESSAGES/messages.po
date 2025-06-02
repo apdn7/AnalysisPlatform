@@ -4889,3 +4889,11 @@ msgstr ""
 msgid "Years"
 msgstr "年間"
 
+#: ap/templates/i18n.html
+msgid "Tooltips"
+msgstr "ツールチップ"
+
+#: ap/templates/i18n.html
+msgid "Display tooltips"
+msgstr "グラフ上にホバーした際に表示されるツールチップの有効化／無効化を設定することができます"
+

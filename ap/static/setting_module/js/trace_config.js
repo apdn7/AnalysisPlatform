@@ -209,7 +209,7 @@ const layoutOption = () => {
     return {};
 };
 
-const drawVisNetwork = (layout = layoutOption()) => {
+const drawVisNetwork = async (layout = layoutOption()) => {
     destroy();
 
     // create a network
@@ -258,12 +258,12 @@ const drawVisNetwork = (layout = layoutOption()) => {
         manipulation: {
             addNode: false,
             deleteNode: false,
-            addEdge(edgeData, callback) {
-                handleAddEdge(edgeData, callback);
+            async addEdge(edgeData, callback) {
+                await handleAddEdge(edgeData, callback);
             },
             editEdge: {
-                editWithoutDrag(edgeData, callback) {
-                    handleEditEdge(edgeData, callback);
+                async editWithoutDrag(edgeData, callback) {
+                    await handleEditEdge(edgeData, callback);
                     callback(null);
                 },
             },
@@ -302,7 +302,7 @@ const drawVisNetwork = (layout = layoutOption()) => {
             if (e.currentTarget.value) {
                 hierarchicalDirection = e.currentTarget.value;
             }
-            drawVisNetwork();
+            drawVisNetwork().then();
             setTimeout(() => {
                 getNodePositionAndSaveLocal();
                 // disable current layout to avoid to re-select from dropdown menu
@@ -350,10 +350,14 @@ const saveLocalStorage = () => {
     );
 };
 
-const handleEditEdge = (edgeData, callback) => {
+const handleEditEdge = async (edgeData, callback) => {
+    loadingShow();
     // Clear Message
     $('#alertMsgCheckSubStr').hide();
-    checkUpdateTransactionDataJobInTraceConfig(edgeData.from.toString(), edgeData.to.toString()).then();
+    checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(
+        edgeData.from.toString(),
+        edgeData.to.toString(),
+    ).then();
     // get data from external dict
     currentEditEdge = edgeData;
     const edgeDataFull = mapIdFromIdTo2Edge[`${edgeData.from.id}-${edgeData.to.id}`];
@@ -394,11 +398,12 @@ const handleEditEdge = (edgeData, callback) => {
         edgeData.target_proc = '';
     }
 
-    getInforToGenerateColumns(selfProc, targetProc, edgeData);
+    await getInforToGenerateColumns(selfProc, targetProc, edgeData);
     addTraceKey();
 
     // tracingElements.btnAddTraceKey.attr('disabled', false);
 
+    loadingHide();
     $('#modal-edge-popup').modal('show');
 
     onChangeProcs(edgeData);
@@ -411,7 +416,7 @@ const onChangeProcs = (edgeData) => {
     tracingElements.edgeBackProc.off('change');
     tracingElements.edgeBackProc.on('change', (e) => {
         try {
-            setTimeout(() => {
+            setTimeout(async () => {
                 let from = '';
                 let to = '';
                 if (typeof edgeData.to === 'object') edgeData.to = edgeData.to.id;
@@ -419,7 +424,7 @@ const onChangeProcs = (edgeData) => {
                 edgeData.from = e.currentTarget.value;
                 from = edgeData.from.toString();
                 to = edgeData.to.toString();
-                checkUpdateTransactionDataJobInTraceConfig(from, to).then();
+                checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(from, to).then();
 
                 if (from === to) {
                     to = '';
@@ -427,7 +432,7 @@ const onChangeProcs = (edgeData) => {
                 }
 
                 if (from && to) {
-                    getInforToGenerateColumns(from, to, edgeData);
+                    await getInforToGenerateColumns(from, to, edgeData);
                     $('#traceInfoModal').empty();
                     addTraceKey(true);
                 }
@@ -443,7 +448,7 @@ const onChangeProcs = (edgeData) => {
     tracingElements.edgeForwardProc.off('change');
     tracingElements.edgeForwardProc.on('change', (e) => {
         try {
-            setTimeout(() => {
+            setTimeout(async () => {
                 let from = '';
                 let to = '';
                 if (typeof edgeData.to === 'object') edgeData.to = edgeData.to.id;
@@ -451,7 +456,7 @@ const onChangeProcs = (edgeData) => {
                 edgeData.to = e.currentTarget.value;
                 from = edgeData.from.toString();
                 to = edgeData.to.toString();
-                checkUpdateTransactionDataJobInTraceConfig(from, to).then();
+                checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(from, to).then();
                 if (from === to) {
                     from = '';
                     tracingElements.edgeBackProc.val('');
@@ -459,7 +464,7 @@ const onChangeProcs = (edgeData) => {
                 }
 
                 if (from && to) {
-                    getInforToGenerateColumns(from, to, edgeData);
+                    await getInforToGenerateColumns(from, to, edgeData);
                     $('#traceInfoModal').empty();
                     addTraceKey(true);
                 }
@@ -545,14 +550,16 @@ const reOrderLinkCols = (linkingCols) => {
     ];
 };
 
-const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
+const getInforToGenerateColumns = async (selfProcId, targetProcId, edgeData) => {
     if (typeof edgeData.self_col !== 'object') {
         selectedSelfCols = [edgeData.self_col];
     } else {
         selectedSelfCols = [...edgeData.self_col];
     }
+    const selfProcess = await getProcessInfo(selfProcId);
+    const targetProcess = await getProcessInfo(targetProcId);
 
-    const selfSerialColumns = reOrderLinkCols(processes[selfProcId].columns.filter((e) => e.is_linking_column));
+    const selfSerialColumns = reOrderLinkCols(selfProcess.columns.filter((e) => e.is_linking_column));
     selfColCandidates = selfSerialColumns.map((e) => e.id);
     selfColCandidateMasters = selfSerialColumns.map((e) => e.shown_name);
     selfColNames = selfSerialColumns.map((e) => e.name_en);
@@ -564,7 +571,7 @@ const getInforToGenerateColumns = (selfProcId, targetProcId, edgeData) => {
         selectedTargetCols = [...edgeData.target_col];
     }
 
-    const targetSerialColumns = reOrderLinkCols(processes[targetProcId].columns.filter((e) => e.is_linking_column));
+    const targetSerialColumns = reOrderLinkCols(targetProcess.columns.filter((e) => e.is_linking_column));
     targetColCandidates = targetSerialColumns.map((e) => e.id);
     targetColCandidateMasters = targetSerialColumns.map((e) => e.shown_name);
     targetColNames = targetSerialColumns.map((e) => e.name_en);
@@ -592,9 +599,7 @@ const initVisData = (processesArray) => {
     const temp_processes = {}; // wait for get all processes while trace_config_api is running
     for (const key in processesArray) {
         const procCopy = { ...processesArray[key] };
-        procCopy.master = procCopy.shown_name;
         procCopy.font = { multi: 'html' };
-        procCopy.label = `${procCopy.shown_name}`;
         nodes.add(procCopy);
 
         const trace = procCopy.traces;
@@ -619,6 +624,7 @@ const initVisData = (processesArray) => {
             },
             self_proc: trace.self_process_id,
             target_proc: trace.target_process_id,
+            // TODO(lazyload)
             self_col: trace.trace_keys.map((key) => key.self_column_id),
             target_col: trace.trace_keys.map((key) => key.target_column_id),
             self_substr: trace.trace_keys.map((key) => [key.self_column_substr_from, key.self_column_substr_to]),
@@ -1092,14 +1098,23 @@ const saveTraceConfigToDB = () => {
     informLinkingJobStarted();
 };
 
-const getAutolinkGroups = async (data) => {
-    const res = await fetchData('api/setting/get_autolink_groups', JSON.stringify(data), 'POST');
+/**
+ * @param {Number[]} processIds
+ */
+const getAutolinkGroups = async (processIds) => {
+    const res = await fetchData(
+        'api/setting/get_autolink_groups',
+        JSON.stringify({
+            processIds: processIds,
+        }),
+        'POST',
+    );
     return res.groups;
 };
 
 const syncVisData = (procs = []) => {
     initVisData(procs);
-    drawVisNetwork();
+    drawVisNetwork().then();
 };
 
 const updateProcessEditModal = (procs = []) => {
@@ -1131,14 +1146,11 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
         },
     })
         .then((response) => response.clone().json())
-        .then((json) => {
-            // update new data
-            const { procs } = JSON.parse(json.trace_config);
-
+        .then((traceConfigProcess) => {
             // broadcast to another tabs to update process information
             handleSSEMessage({
                 type: serverSentEventType.reloadTraceConfig,
-                data: { procs, isUpdatePosition },
+                data: { procs: traceConfigProcess.traceConfigs, isUpdatePosition },
                 broadcastType: ShouldBroadcast.YES,
             });
         })
@@ -1159,11 +1171,11 @@ function doReloadTraceConfig(procs, isUpdatePosition) {
     // update process list in modal edit
     updateProcessEditModal(procs);
 
-    // calculate proc link count
+    // calculate proc link count and rerender checkbox
     setTimeout(() => {
         realProcLink(isUpdatePosition);
+        treeCheckboxJs();
     }, 500);
-    treeCheckboxJs();
 }
 
 const removeRelation = (colId) => {
@@ -1363,10 +1375,14 @@ const unbindNodes = () => {
     // network.unselectAll();
     hideContextMenu();
 };
-const handleAddEdge = (edgeData, callback) => {
+const handleAddEdge = async (edgeData, callback) => {
+    loadingShow();
     // Clear Message
     $('#alertMsgCheckSubStr').hide();
-    checkUpdateTransactionDataJobInTraceConfig(edgeData.from.toString(), edgeData.to.toString()).then();
+    checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(
+        edgeData.from.toString(),
+        edgeData.to.toString(),
+    ).then();
     // do nothing when adding self edge
     // if (edgeData.from === edgeData.to) {
     //     callback(null);
@@ -1390,18 +1406,18 @@ const handleAddEdge = (edgeData, callback) => {
     // set back proc name
     selfProc = edgeData.from;
     tracingElements.edgeBackProc.select2().val(selfProc);
-    getInforToGenerateColumns(selfProc, targetProc, edgeData);
+    await getInforToGenerateColumns(selfProc, targetProc, edgeData);
     $('#traceInfoModal').empty();
     addTraceKey(true);
     // tracingElements.btnAddTraceKey.attr('disabled', false);
-
+    loadingHide();
     // show modal
     $('#modal-edge-popup').modal('show');
 
     onChangeProcs(edgeData);
     addAttributeToElement();
 };
-const addEdgesFromNode = (e) => {
+const addEdgesFromNode = async (e) => {
     $('#contextMenuTraceCfg').hide();
     const nodeId = $('#contextMenuTraceCfg li').attr('data-node-id');
     const nodeList = Object.keys(processes);
@@ -1412,15 +1428,15 @@ const addEdgesFromNode = (e) => {
     // trigger to add edge to self node
     if (nodeId) {
         // add self trace as default
-        handleAddEdge({ from: nodeId, to: processes[toNodeId].id }, () => {});
+        await handleAddEdge({ from: nodeId, to: processes[toNodeId].id }, () => {});
     }
 };
 
-const editSelectedEdge = (e) => {
+const editSelectedEdge = async (e) => {
     $('#contextMenuTraceCfg').hide();
     const edgeId = $('#contextMenuTraceCfg li').attr('data-edge-id');
     const edgeData = edges.get(edgeId);
-    handleEditEdge(edgeData, () => {});
+    await handleEditEdge(edgeData, () => {});
 };
 
 const removeSelectedEdge = (e) => {
@@ -1560,7 +1576,7 @@ const drawEdgeToGUI = (edgeData) => {
 
 const cancelEditEdge = () => false;
 
-const handleSwitchTraceConfig = (e) => {
+const handleSwitchTraceConfig = async (e) => {
     const edgeData = getEdgeFromUI();
     const keys = Object.keys(edgeData);
     const values = Object.values(edgeData);
@@ -1598,7 +1614,7 @@ const handleSwitchTraceConfig = (e) => {
     replacedKeys.forEach((item, index) => {
         newEdgeData[item] = values[index];
     });
-    handleEditEdge(newEdgeData, () => {});
+    await handleEditEdge(newEdgeData, () => {});
 
     // trigger change trace column
     $('.trace-column-backCol').trigger('change');

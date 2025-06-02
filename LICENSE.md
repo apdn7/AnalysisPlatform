@@ -282,6 +282,17 @@ liability, whether in an action of contract, tort or otherwise, arising
 from, out of or in connection with the software or the use or other dealings
 in the Software.
 
+### cookieconsent.umd.js
+---------------------
+
+* CookieConsent  3.1.0
+* https://github.com/orestbida/cookieconsent
+* Author Orest Bida
+* Released under the MIT License
+
+---------------------
+
+
 ### js/dataTables.fixedHeader.min.js
 ---------------------
 
@@ -370,6 +381,15 @@ PERFORMANCE OF THIS SOFTWARE.
 
 > licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
 
+### js.cookie.min.js
+---------------------
+JavaScript Cookie v3.0.0-beta.0
+
+* Website: https://github.com/js-cookie/js-cookie
+* Description: A simple, lightweight JavaScript API for handling cookies
+* Klaus Hartl, Fagner Brack, And awesome contributors
+* MIT License
+
 ### jquery-ui-timepicker-addon/index.html
 ---------------------
 
@@ -383,10 +403,10 @@ PERFORMANCE OF THIS SOFTWARE.
 
 > licensed under the <a href="http://opensource.org/licenses/MIT">MIT License</a>
 
-### js/jexcel.js
+### jspreadsheet/js/index.js
 ---------------------
 
-* Jspreadsheet v4.7.3
+* Jspreadsheet v4.15.0
 *
 * Website: https://bossanova.uk/jspreadsheet/
 * Description: Create amazing web based spreadsheets.

@@ -35,6 +35,7 @@ from ap.common.constants import (
     RL_DATA,
     RL_DIRECT_TERM,
     CSVExtTypes,
+    DataExportMode,
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
@@ -194,7 +195,7 @@ def export_file(dic_form, export_type=CSVExtTypes.CSV.value):
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
         csv_list_name.append('{}.{}'.format(proc_name, export_type))
 
-        if export_from == 'plot':
+        if export_from == DataExportMode.PLOT.value:
             # find DIV, as string
             has_facet = graph_param.common.cat_exp and len(graph_param.common.cat_exp) > 0
             div_id = dic_param[COMMON][DIV_BY_CAT] if DIV_BY_CAT in dic_param[COMMON] else None

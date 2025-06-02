@@ -42,6 +42,7 @@ from ap.api.setting_module.services.filter_settings import (
 from ap.api.setting_module.services.import_function_column import (
     add_new_columns_to_transaction_table,
     add_required_jobs_after_update_transaction_table,
+    determine_show_warning_message,
     update_transaction_table,
     update_transaction_table_job,
 )
@@ -146,6 +147,7 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import (
+    AutolinkInSchema,
     CfgUserSettingSchema,
     DataSourceSchema,
     ProcessSchema,
@@ -703,9 +705,16 @@ def post_proc_config():
                 # If there are new function columns, add the columns into transaction table first to make show graph
                 # feature work normally
                 add_new_columns_to_transaction_table(process, meta_session=session)
-                parents_and_children_processes = CfgProcess.get_all_parents_and_children_processes(request_process.id)
+                parents_and_children_processes = CfgProcess.get_all_parents_and_children_processes(
+                    request_process.id,
+                    session=session,
+                )
                 for process in parents_and_children_processes:
                     CfgProcess.update_is_import(session, process.id, is_import=True)
+                is_show_warning_message = determine_show_warning_message(
+                    process,
+                    old_main_serial_cfg_process_column=old_main_serial_cfg_process_column,
+                )
 
                 # Add UPDATE_TRANSACTION_TABLE job
                 next_run_time = datetime.now().astimezone(utc)
@@ -715,6 +724,7 @@ def post_proc_config():
                         kwargs={
                             'process_id': process.id,
                             'old_main_serial_cfg_process_column': old_main_serial_cfg_process_column,
+                            'is_show_warning_message': is_show_warning_message,
                         },
                         job_type=JobType.UPDATE_TRANSACTION_TABLE,
                         process_id=process.id,
@@ -766,12 +776,9 @@ def get_trace_configs():
     Returns: 200/500
     """
     try:
-        procs = get_all_processes_traces_info()
-        # generate english name for process
-        for proc_data in procs:
-            if not proc_data['name_en']:
-                proc_data['name_en'] = to_romaji(proc_data['name'])
-        return {'trace_config': json_dumps({'procs': procs})}, 200
+        trace_configs = get_all_processes_traces_info()
+        dumped_trace_configs = [p.model_dump() for p in trace_configs]
+        return orjson_dumps({'traceConfigs': dumped_trace_configs}), 200
     except Exception as e:
         logger.exception(e)
         return jsonify({}), 500
@@ -919,7 +926,7 @@ def get_table_viewer_columns(proc_id):
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>/columns', methods=['GET'])
 def get_proc_column_config(proc_id):
-    columns = get_process_columns(proc_id)
+    columns = get_process_columns(proc_id, show_graph=True)
     if columns:
         return (
             jsonify(
@@ -944,7 +951,7 @@ def get_proc_column_config(proc_id):
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>/get_ct_range', methods=['GET'])
 def get_proc_ct_range(proc_id):
-    columns = get_process_columns(proc_id)
+    columns = get_process_columns(proc_id, show_graph=True)
     ct_range = get_ct_range(proc_id, columns)
     return (
         jsonify(
@@ -1252,8 +1259,8 @@ def check_exist_title_setting():
 @api_setting_module_blueprint.route('/get_autolink_groups', methods=['POST'])
 def get_autolink_groups():
     try:
-        params = json.loads(request.data)
-        groups = Autolink.get_autolink_groups(params)
+        r = AutolinkInSchema.model_validate_json(request.data)
+        groups = Autolink.get_autolink_groups(r.process_ids)
         return jsonify({'status': 'ok', 'groups': groups}), 200
     except Exception as ex:
         logger.exception(ex)
@@ -1285,7 +1292,7 @@ def get_jobs():
 
     dic_jobs = {}
     rows, jobs = get_background_jobs_service(page, per_page, sort, order, ignore_job_types, error_page)
-    dic_jobs['rows'] = rows
+    dic_jobs['rows'] = [row.model_dump(by_alias=True) for row in rows]
     dic_jobs['total'] = jobs.total
 
     return jsonify(dic_jobs), 200
@@ -1428,7 +1435,7 @@ def get_function_infos():
         function_info = {
             'functionName': m_function.function_type,
             'output': function_detail.return_type,
-            'isMainSerialNo': process_col.is_serial_no,
+            'isMainSerialNo': False if m_function.is_me_function else process_col.is_serial_no,
             'systemName': process_col.name_en,
             'japaneseName': process_col.name_jp,
             'localName': process_col.name_local,

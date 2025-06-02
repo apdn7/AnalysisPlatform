@@ -251,9 +251,8 @@
 .\ap\script\migrate_m_unit.py
 .\ap\script\migrate_process_file_name_column.py
 .\ap\script\setup_for_e2e.py
+.\ap\script\unlock_db.py
 .\ap\script\dummy_data\dummy_sql.py
-.\ap\script\dummy_data\insert_efa_oracle.py
-.\ap\script\hot_fix\fix_db_issues.py
 .\ap\script\r_scripts\analytics.r
 .\ap\script\r_scripts\common.r
 .\ap\script\r_scripts\DataDescribe.R
@@ -409,7 +408,6 @@
 .\ap\static\common\js\libs\fSelect.js
 .\ap\static\common\js\libs\gtag.js
 .\ap\static\common\js\libs\html2canvas.min.js
-.\ap\static\common\js\libs\jexcel.js
 .\ap\static\common\js\libs\jquery-ui.js
 .\ap\static\common\js\libs\jquery-ui.min.js
 .\ap\static\common\js\libs\jquery.dataTables.min.js
@@ -420,7 +418,6 @@
 .\ap\static\common\js\libs\jquery.ui.datepicker-ja.min.js
 .\ap\static\common\js\libs\jquery.ui.datepicker-vi.min.js
 .\ap\static\common\js\libs\js.cookie.min.js
-.\ap\static\common\js\libs\jsuites.js
 .\ap\static\common\js\libs\loadingoverlay.min.js
 .\ap\static\common\js\libs\lodash.min.js
 .\ap\static\common\js\libs\moment-with-locales.js
@@ -489,12 +486,15 @@
 .\ap\static\modules\js-datatables\lib\jquery.dataTables.min.css
 .\ap\static\modules\js-datatables\lib\jquery.dataTables.min.js
 .\ap\static\modules\jspreadsheet\css\jspreadsheet.css
+.\ap\static\modules\jspreadsheet\css\jspreadsheet.datatables.css
+.\ap\static\modules\jspreadsheet\css\jspreadsheet.theme.css
 .\ap\static\modules\jspreadsheet\js\index.d.ts
 .\ap\static\modules\jspreadsheet\js\index.js
 .\ap\static\modules\jsuites\css\jsuites.css
 .\ap\static\modules\jsuites\css\jsuites.min.css
 .\ap\static\modules\jsuites\js\jsuites.js
 .\ap\static\modules\jsuites\js\jsuites.min.js
+.\ap\static\modules\jsuites\js\jsuites.webcomponents.js
 .\ap\static\modules\popper\umd\popper-utils.js
 .\ap\static\modules\popper\umd\popper-utils.js.map
 .\ap\static\modules\popper\umd\popper-utils.min.js
@@ -865,7 +865,14 @@
 .\init\app.sqlite3
 .\init\sqlite3.dll
 .\lang\message.pot
+.\migrations\alembic.ini
+.\migrations\env.py
+.\migrations\README
+.\migrations\script.py.mako
+.\migrations\versions\1eb4aa1d0b6a_init_multi_databases.py
+.\migrations\versions\815abcc4f720_job_management.py
 .\migrations\versions\8600fce518a6_add_datetime_format_column_into_cfg_.py
+.\migrations\versions\c8acd55c0872_add_indexs.py
 .\migrations\versions\fd863d0b8735_add_is_file_path_column_into_cfg_data_.py
 .\requirements\common.txt
 .\requirements\dev.txt

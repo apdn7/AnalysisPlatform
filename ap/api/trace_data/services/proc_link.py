@@ -3,6 +3,7 @@ from collections import deque, namedtuple
 from datetime import datetime, timedelta
 from typing import List, Optional
 
+import pandas as pd
 from apscheduler.triggers import date, interval
 from apscheduler.triggers.date import DateTrigger
 from pytz import utc
@@ -371,7 +372,7 @@ def rename_df_column_for_dict(dict_rename_columns, dic_col_groups_equation):
 
 def get_first_valid_value_for_proc_link_preview(df):
     if df.empty:
-        return
+        return pd.DataFrame()
     # get 1 valid value in column
     return (
         df.apply(lambda col: col[col.first_valid_index()] if col.first_valid_index() is not None else None, axis=0)

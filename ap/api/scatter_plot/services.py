@@ -2,7 +2,7 @@ import math
 import re
 from collections import Counter
 from copy import deepcopy
-from typing import List
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -939,8 +939,8 @@ def gen_scatter_data_count(
         facet_keys.append(key)
 
     # serials
-    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
-    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials(column_name_only=False)
+    y_serial_cols = [] if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials(column_name_only=False)
 
     output_graphs = []
     output_times = []
@@ -1045,8 +1045,8 @@ def gen_scatter_by_cyclic(
     ]
 
     # serials
-    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
-    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials(column_name_only=False)
+    y_serial_cols = [] if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials(column_name_only=False)
 
     output_graphs = []
     output_times = []
@@ -1145,8 +1145,8 @@ def gen_scatter_cat_div(
     ]
 
     # serials
-    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
-    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials(column_name_only=False)
+    y_serial_cols = [] if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials(column_name_only=False)
 
     output_graphs = []
     output_times = []
@@ -1239,8 +1239,8 @@ def gen_scatter_by_direct_term(
         key for key, _ in Counter([val for vals in dic_groups.values() for val in vals]).most_common(row_count)
     ]
     # serials
-    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials()
-    y_serial_cols = None if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials()
+    x_serial_cols = dic_proc_cfgs[x_proc_id].get_serials(column_name_only=False)
+    y_serial_cols = [] if y_proc_id == x_proc_id else dic_proc_cfgs[y_proc_id].get_serials(column_name_only=False)
 
     output_graphs = []
     output_times = []
@@ -1380,7 +1380,7 @@ def filter_violin_df(df, cols, most_vals):
 
 @log_execution_time()
 @abort_process_handler()
-def get_proc_serials(df: DataFrame, serial_cols: List[CfgProcessColumn]):
+def get_proc_serials(df: DataFrame, serial_cols: list[CfgProcessColumn]) -> list[dict[str, Any]]:
     if not serial_cols:
         return []
 

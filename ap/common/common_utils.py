@@ -67,6 +67,7 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.logger import log_execution_time
+from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_str, unicode_normalize
 
 logger = logging.getLogger(__name__)
@@ -91,7 +92,7 @@ TERM_FORMAT = {'year': '%Y', 'month': '%Y-%m', 'week': DATE_FORMAT}
 FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
 
 
-def get_current_timestamp(format_str=DATE_FORMAT_STR):
+def get_current_timestamp(format_str=DATE_FORMAT_STR) -> str:
     return datetime.utcnow().strftime(format_str)
 
 
@@ -1367,8 +1368,6 @@ def gen_import_history_table_name(proc_id: int):
 
 
 def gen_bridge_column_name(id, name):
-    from ap.common.services.jp_to_romaji_utils import to_romaji
-
     name = to_romaji(name)
     # clear column name
     name = re.sub(r'[^A-Za-z0-9_]', '_', name)
