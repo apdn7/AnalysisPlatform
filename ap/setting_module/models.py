@@ -12,7 +12,7 @@ import pandas as pd
 import sqlalchemy
 from flask import g
 from flask_babel import get_locale
-from sqlalchemy import ForeignKey, asc, desc, event, func, null, or_
+from sqlalchemy import ForeignKey, asc, desc, func, null, or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import (
@@ -45,7 +45,6 @@ from ap.common.constants import (
     SQL_IN_MAX,
     VAR_X,
     VAR_Y,
-    CacheType,
     CfgConstantType,
     CsvDelimiter,
     CSVExtTypes,
@@ -64,10 +63,9 @@ from ap.common.constants import (
 )
 from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.datetime_format_utils import DateTimeFormatUtils
-from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.common.services.normalization import NORMALIZE_FORM_NFKC, model_normalize
+from ap.common.services.normalization import NORMALIZE_FORM_NFKC
 from ap.common.trace_data_log import Location, LogLevel, ReturnCode
 
 db_timestamp = db.TIMESTAMP
@@ -76,7 +74,7 @@ db_timestamp = db.TIMESTAMP
 @contextmanager
 def make_session() -> Generator[scoped_session]:
     try:
-        session: scoped_session = g.setdefault(FlaskGKey.APP_DB_SESSION, Session())
+        session: scoped_session = g.setdefault(FlaskGKey.APP_DB_SESSION.name, Session())
     except Exception:
         # run without Flask context app
         session = Session()
@@ -169,18 +167,18 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
 
     job_type: Mapped[str]
     # `db_code` is `data_source_id`, but we don't want to make a foreign key for that in the database.
-    db_code: Mapped[Optional[int]] = mapped_column(nullable=True)
-    db_name: Mapped[Optional[str]] = mapped_column(nullable=True)
-    process_id: Mapped[Optional[int]] = mapped_column(nullable=True)
-    process_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    db_code: Mapped[Optional[int]]
+    db_name: Mapped[Optional[str]]
+    process_id: Mapped[Optional[int]]
+    process_name: Mapped[Optional[str]]
 
     start_tm: Mapped[str] = mapped_column(default=get_current_timestamp)
     # end_tm = None: job hasn't done yet
-    end_tm: Mapped[Optional[str]] = mapped_column(nullable=True)
+    end_tm: Mapped[Optional[str]]
     status: Mapped[str]
     done_percent: Mapped[float] = mapped_column(default=0)
     duration: Mapped[float] = mapped_column(default=0)
-    error_msg: Mapped[Optional[str]] = mapped_column(nullable=True)
+    error_msg: Mapped[Optional[str]]
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -239,9 +237,11 @@ class ProcLinkCount(db.Model):
 
     process: Mapped['CfgProcess'] = relationship(
         foreign_keys=process_id,
+        back_populates='proc_link_counts',
     )
     target_process: Mapped['CfgProcess'] = relationship(
         foreign_keys=target_process_id,
+        back_populates='target_proc_link_counts',
     )
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -277,7 +277,7 @@ class CfgConstant(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     type: Mapped[str]
-    name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    name: Mapped[Optional[str]]
     value: Mapped[str]
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
@@ -420,8 +420,8 @@ class CfgDataSource(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]
     type: Mapped[str]
-    comment: Mapped[Optional[str]] = mapped_column(nullable=True)
-    order: Mapped[Optional[int]] = mapped_column(nullable=True)
+    comment: Mapped[Optional[str]]
+    order: Mapped[Optional[int]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
     db_detail: Mapped['CfgDataSourceDB'] = relationship(
@@ -518,13 +518,13 @@ class CfgDataSourceDB(db.Model):
     __table_args__ = {'sqlite_autoincrement': True}
     id: Mapped[int] = mapped_column(ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     # host can be None, when we use sqlite3
-    host: Mapped[Optional[str]] = mapped_column(nullable=True)
+    host: Mapped[Optional[str]]
     # FIXME: Not sure why we save port as string here. Might need migration
-    port: Mapped[Optional[str]] = mapped_column(nullable=True)
+    port: Mapped[Optional[str]]
     dbname: Mapped[str]
-    schema: Mapped[Optional[str]] = mapped_column(nullable=True)
-    username: Mapped[Optional[str]] = mapped_column(nullable=True)
-    password: Mapped[Optional[str]] = mapped_column(nullable=True)
+    schema: Mapped[Optional[str]]
+    username: Mapped[Optional[str]]
+    password: Mapped[Optional[str]]
     hashed: Mapped[bool] = mapped_column(default=False)
     use_os_timezone: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
@@ -548,6 +548,10 @@ class CfgDataSourceDB(db.Model):
         """
         return CfgDataSourceDB(**self.as_dict())
 
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter(cls.id == id).first()
+
 
 class CfgCsvColumn(db.Model):
     # __bind_key__ = 'app_metadata'
@@ -556,8 +560,8 @@ class CfgCsvColumn(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     data_source_id: Mapped[int] = mapped_column(ForeignKey('cfg_data_source_csv.id', ondelete='CASCADE'))
     column_name: Mapped[str]
-    data_type: Mapped[Optional[str]] = mapped_column(nullable=True)
-    order: Mapped[Optional[int]] = mapped_column(nullable=True)
+    data_type: Mapped[Optional[str]]
+    order: Mapped[Optional[int]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -619,13 +623,13 @@ class CfgProcessColumn(db.Model):
     process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
     column_name: Mapped[str]
     # raw name of column, from CSV file or DB table
-    column_raw_name: Mapped[Optional[str]] = mapped_column(nullable=True)
-    name_en: Mapped[Optional[str]] = mapped_column(nullable=True)
-    name_jp: Mapped[Optional[str]] = mapped_column(nullable=True)
-    name_local: Mapped[Optional[str]] = mapped_column(nullable=True)
+    column_raw_name: Mapped[Optional[str]]
+    name_en: Mapped[Optional[str]]
+    name_jp: Mapped[Optional[str]]
+    name_local: Mapped[Optional[str]]
     data_type: Mapped[str]
     # TODO: can we remove this?
-    raw_data_type: Mapped[Optional[str]] = mapped_column(nullable=True)
+    raw_data_type: Mapped[Optional[str]]
     column_type: Mapped[Optional[int]]
     is_serial_no: Mapped[bool] = mapped_column(default=False)
     is_get_date: Mapped[bool] = mapped_column(default=False)
@@ -634,7 +638,10 @@ class CfgProcessColumn(db.Model):
     is_file_name: Mapped[bool] = mapped_column(default=False)
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey(id, ondelete='CASCADE'), nullable=True)
     order: Mapped[Optional[int]]
-    unit: Mapped[Optional[str]] = mapped_column(nullable=True)
+    unit: Mapped[Optional[str]]
+    judge_positive_value: Mapped[Optional[str]]
+    judge_positive_display: Mapped[Optional[str]]
+    judge_negative_display: Mapped[Optional[str]]
     cfg_process: Mapped['CfgProcess'] = relationship(
         back_populates='columns',
         cascade='all',
@@ -942,26 +949,26 @@ class CfgProcess(db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str]  # system_name
-    name_jp: Mapped[Optional[str]] = mapped_column(nullable=True)
-    name_en: Mapped[Optional[str]] = mapped_column(nullable=True)
-    name_local: Mapped[Optional[str]] = mapped_column(nullable=True)
+    name_jp: Mapped[Optional[str]]
+    name_en: Mapped[Optional[str]]
+    name_local: Mapped[Optional[str]]
     data_source_id: Mapped[int] = mapped_column(ForeignKey('cfg_data_source.id', ondelete='CASCADE'))
     # `table_name` None indicates that we are not importing from database table
-    table_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    table_name: Mapped[Optional[str]]
     # flag to determine measurement or history data
-    master_type: Mapped[Optional[str]] = mapped_column(nullable=True)
-    comment: Mapped[Optional[str]] = mapped_column(nullable=True)
+    master_type: Mapped[Optional[str]]
+    comment: Mapped[Optional[str]]
     is_show_file_name: Mapped[Optional[bool]] = mapped_column(default=None, nullable=True)
     # `file_name` None indicates that we are not importing from a file
-    file_name: Mapped[Optional[str]] = mapped_column(nullable=True)
-    process_factid: Mapped[Optional[str]] = mapped_column(nullable=True)
-    etl_func: Mapped[Optional[str]] = mapped_column(nullable=True)
+    file_name: Mapped[Optional[str]]
+    process_factid: Mapped[Optional[str]]
+    etl_func: Mapped[Optional[str]]
     parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey(id, ondelete='CASCADE'), nullable=True)
     # parent_process_id : Mapped[int]
     is_import: Mapped[Optional[bool]] = mapped_column(default=True)
 
-    datetime_format: Mapped[Optional[str]] = mapped_column(nullable=True)
-    order: Mapped[Optional[int]] = mapped_column(nullable=True)
+    datetime_format: Mapped[Optional[str]]
+    order: Mapped[Optional[int]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -989,6 +996,22 @@ class CfgProcess(db.Model):
     visualizations: Mapped[list['CfgVisualization']] = relationship(
         back_populates='cfg_process',
         cascade='all, delete, delete-orphan',
+    )
+
+    target_traces: Mapped[list['CfgTrace']] = relationship(
+        back_populates='target_process',
+        foreign_keys='CfgTrace.target_process_id',
+        cascade='all, delete',
+    )
+    proc_link_counts: Mapped[list['ProcLinkCount']] = relationship(
+        back_populates='process',
+        foreign_keys='ProcLinkCount.process_id',
+        cascade='all, delete',
+    )
+    target_proc_link_counts: Mapped[list['ProcLinkCount']] = relationship(
+        back_populates='target_process',
+        foreign_keys='ProcLinkCount.target_process_id',
+        cascade='all, delete',
     )
 
     @hybrid_property
@@ -1183,13 +1206,15 @@ class CfgProcess(db.Model):
         return datetime_format.date_format
 
     @classmethod
-    def get_all(cls, is_import: bool = None, with_parent=False, session: scoped_session = None):
+    def get_all(cls, is_import: bool = None, with_parent=False, session: scoped_session = None, is_order=True):
         query = session.query(cls) if session else cls.query
         if not with_parent:
             query = query.filter(cls.parent_id == null())
         if is_import is not None:
             query = query.filter(cls.is_import == is_import)
-        return query.order_by(cls.order).all()
+        if is_order:
+            query = query.order_by(cls.order)
+        return query.all()
 
     @classmethod
     def get_all_ids(cls, is_import: bool = None, with_parent=False, session: scoped_session = None):
@@ -1309,45 +1334,6 @@ class CfgProcess(db.Model):
         return list({process.id: process for process in processes if process is not None}.values())
 
     @classmethod
-    def delete(cls, proc_id):
-        # TODO refactor
-        with make_session() as meta_session:
-            proc = meta_session.query(cls).get(proc_id)
-            if not proc:
-                return False
-
-            meta_session.delete(proc)
-
-            # delete traces manually
-            meta_session.query(CfgTrace).filter(
-                or_(CfgTrace.self_process_id == proc_id, CfgTrace.target_process_id == proc_id),
-            ).delete()
-
-            # delete linking prediction manually
-            meta_session.query(ProcLinkCount).filter(
-                or_(ProcLinkCount.process_id == proc_id, ProcLinkCount.target_process_id == proc_id),
-            ).delete()
-
-        return True
-
-    @classmethod
-    def batch_delete(cls, proc_ids):
-        with make_session() as meta_session:
-            meta_session.query(cls).filter(cls.id.in_(proc_ids)).delete(synchronize_session=False)
-            # delete traces manually
-            meta_session.query(CfgTrace).filter(
-                or_(CfgTrace.self_process_id.in_(proc_ids), CfgTrace.target_process_id.in_(proc_ids)),
-            ).delete(
-                synchronize_session=False,
-            )
-            # delete linking prediction manually
-            meta_session.query(ProcLinkCount).filter(
-                or_(ProcLinkCount.process_id.in_(proc_ids), ProcLinkCount.target_process_id.in_(proc_ids)),
-            ).delete(
-                synchronize_session=False,
-            )
-
-    @classmethod
     def update_order(cls, meta_session, process_id, order):
         meta_session.query(cls).filter(cls.id == process_id).update({cls.order: order})
 
@@ -1419,16 +1405,16 @@ class CfgProcessFunctionColumn(db.Model):
     process_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
     function_id: Mapped[int]
     var_x: Mapped[int]
-    var_y: Mapped[Optional[int]] = mapped_column(nullable=True)
+    var_y: Mapped[Optional[int]]
     return_type: Mapped[str]
-    a: Mapped[Optional[str]] = mapped_column(nullable=True)
-    b: Mapped[Optional[str]] = mapped_column(nullable=True)
-    c: Mapped[Optional[str]] = mapped_column(nullable=True)
-    n: Mapped[Optional[str]] = mapped_column(nullable=True)
-    k: Mapped[Optional[str]] = mapped_column(nullable=True)
-    s: Mapped[Optional[str]] = mapped_column(nullable=True)
-    t: Mapped[Optional[str]] = mapped_column(nullable=True)
-    note: Mapped[Optional[str]] = mapped_column(nullable=True)
+    a: Mapped[Optional[str]]
+    b: Mapped[Optional[str]]
+    c: Mapped[Optional[str]]
+    n: Mapped[Optional[str]]
+    k: Mapped[Optional[str]]
+    s: Mapped[Optional[str]]
+    t: Mapped[Optional[str]]
+    note: Mapped[Optional[str]]
     order: Mapped[int] = mapped_column(nullable=False)
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -1481,7 +1467,7 @@ class CfgProcessFunctionColumn(db.Model):
             CfgProcessFunctionColumn.created_at.name,
             CfgProcessFunctionColumn.updated_at.name,
         ]
-        sql = f'''
+        sql = f"""
 SELECT
     pfc.{CfgProcessFunctionColumn.id.name}
     , pfc.{CfgProcessFunctionColumn.process_column_id.name}
@@ -1504,7 +1490,7 @@ FROM {CfgProcessFunctionColumn.get_table_name()} pfc
 INNER JOIN {CfgProcessColumn.get_table_name()} pc ON
     pc.{CfgProcessColumn.id.name} = pfc.{CfgProcessFunctionColumn.process_column_id.name}
 WHERE
-    pc.{CfgProcessColumn.process_id.name} = :1'''
+    pc.{CfgProcessColumn.process_id.name} = :1"""
         params = {'1': process_id}
         rows = session.execute(sql, params=params)
         df = pd.DataFrame(rows, columns=cols)
@@ -1568,7 +1554,7 @@ WHERE
         :return:
         """
         elems = cls.__tablename__.split('_')
-        return f"{'_'.join(elems[1:])}_id"
+        return f'{"_".join(elems[1:])}_id'
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -1611,17 +1597,17 @@ class CfgTraceKey(db.Model):
     trace_id: Mapped[int] = mapped_column(ForeignKey('cfg_trace.id', ondelete='CASCADE'))
     # TODO confirm PO delete
     self_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
-    self_column_substr_from: Mapped[Optional[int]] = mapped_column(nullable=True)
-    self_column_substr_to: Mapped[Optional[int]] = mapped_column(nullable=True)
+    self_column_substr_from: Mapped[Optional[int]]
+    self_column_substr_to: Mapped[Optional[int]]
 
     target_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
-    target_column_substr_from: Mapped[Optional[int]] = mapped_column(nullable=True)
-    target_column_substr_to: Mapped[Optional[int]] = mapped_column(nullable=True)
+    target_column_substr_from: Mapped[Optional[int]]
+    target_column_substr_to: Mapped[Optional[int]]
 
-    delta_time: Mapped[Optional[float]] = mapped_column(nullable=True)
-    cut_off: Mapped[Optional[float]] = mapped_column(nullable=True)
+    delta_time: Mapped[Optional[float]]
+    cut_off: Mapped[Optional[float]]
 
-    order: Mapped[Optional[int]] = mapped_column(nullable=True)
+    order: Mapped[Optional[int]]
 
     self_column: Mapped['CfgProcessColumn'] = relationship(
         foreign_keys=[self_column_id],
@@ -1676,14 +1662,16 @@ class CfgTrace(db.Model):
 
     trace_keys: Mapped[list['CfgTraceKey']] = relationship(
         back_populates='cfg_trace',
-        cascade='all',
+        cascade='all, delete',
         order_by='asc(CfgTraceKey.self_column_id)',
     )
 
     self_process: Mapped['CfgProcess'] = relationship(
+        back_populates='traces',
         foreign_keys=[self_process_id],
     )
     target_process: Mapped['CfgProcess'] = relationship(
+        back_populates='target_traces',
         foreign_keys=[target_process_id],
     )
 
@@ -1771,9 +1759,9 @@ class CfgFilterDetail(db.Model):
     name: Mapped[str]
     filter_condition: Mapped[str]
     filter_function: Mapped[str]
-    filter_from_pos: Mapped[Optional[int]] = mapped_column(nullable=True)
+    filter_from_pos: Mapped[Optional[int]]
 
-    order: Mapped[Optional[int]] = mapped_column(nullable=True)
+    order: Mapped[Optional[int]]
 
     parent: Mapped['CfgFilterDetail'] = relationship(
         back_populates='cfg_children',
@@ -1798,7 +1786,7 @@ class CfgFilter(db.Model):
     __table_args__ = {'sqlite_autoincrement': True}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    name: Mapped[Optional[str]]
     filter_type: Mapped[str]
     process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
     column_id: Mapped[Optional[int]] = mapped_column(
@@ -1848,23 +1836,23 @@ class CfgVisualization(db.Model):
         ForeignKey('cfg_process_column.id', ondelete='CASCADE'),
         nullable=True,
     )
-    filter_value: Mapped[Optional[str]] = mapped_column(nullable=True)
+    filter_value: Mapped[Optional[str]]
     is_from_data: Mapped[bool] = mapped_column(default=False)
     filter_detail_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey('cfg_filter_detail.id', ondelete='CASCADE'),
         nullable=True,
     )
 
-    ucl: Mapped[Optional[float]] = mapped_column(nullable=True)
-    lcl: Mapped[Optional[float]] = mapped_column(nullable=True)
-    upcl: Mapped[Optional[float]] = mapped_column(nullable=True)
-    lpcl: Mapped[Optional[float]] = mapped_column(nullable=True)
-    ymax: Mapped[Optional[float]] = mapped_column(nullable=True)
-    ymin: Mapped[Optional[float]] = mapped_column(nullable=True)
+    ucl: Mapped[Optional[float]]
+    lcl: Mapped[Optional[float]]
+    upcl: Mapped[Optional[float]]
+    lpcl: Mapped[Optional[float]]
+    ymax: Mapped[Optional[float]]
+    ymin: Mapped[Optional[float]]
 
     # TODO check default value, null is OK
-    act_from: Mapped[Optional[str]] = mapped_column(nullable=True)
-    act_to: Mapped[Optional[str]] = mapped_column(nullable=True)
+    act_from: Mapped[Optional[str]]
+    act_to: Mapped[Optional[str]]
 
     order: Mapped[int]
 
@@ -1878,7 +1866,7 @@ class CfgVisualization(db.Model):
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
-    deleted_at: Mapped[Optional[str]] = mapped_column(nullable=True)
+    deleted_at: Mapped[Optional[str]]
 
     cfg_process: Mapped['CfgProcess'] = relationship(
         back_populates='visualizations',
@@ -1972,10 +1960,10 @@ class DataTraceLog(db.Model):
     event_action: Mapped[str]
     target: Mapped[str]
     exe_time: Mapped[int]
-    data_size: Mapped[Optional[int]] = mapped_column(nullable=True)
-    rows: Mapped[Optional[int]] = mapped_column(nullable=True)
-    cols: Mapped[Optional[int]] = mapped_column(nullable=True)
-    dumpfile: Mapped[str]
+    data_size: Mapped[Optional[int]]
+    rows: Mapped[Optional[int]]
+    cols: Mapped[Optional[int]]
+    dumpfile: Mapped[Optional[str]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -2005,7 +1993,7 @@ class AbnormalTraceLog(db.Model):
     location: Mapped[str] = mapped_column(default=Location.PYTHON.value)
     return_code: Mapped[str] = mapped_column(default=ReturnCode.UNKNOWN_ERR.value)
     message: Mapped[str]
-    dumpfile: Mapped[str]
+    dumpfile: Mapped[Optional[str]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -2028,13 +2016,13 @@ class CfgDataSourceCSV(db.Model):
     __table_args__ = {'sqlite_autoincrement': True}
     id: Mapped[int] = mapped_column(ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     directory: Mapped[str]
-    skip_head: Mapped[Optional[int]] = mapped_column(nullable=True)
+    skip_head: Mapped[Optional[int]]
     skip_tail: Mapped[int] = mapped_column(default=0)
-    n_rows: Mapped[Optional[int]] = mapped_column(nullable=True)
+    n_rows: Mapped[Optional[int]]
     is_transpose: Mapped[bool] = mapped_column(default=False)
     delimiter: Mapped[str] = mapped_column(default=CsvDelimiter.CSV.name)
-    etl_func: Mapped[Optional[str]] = mapped_column(nullable=True)
-    process_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    etl_func: Mapped[Optional[str]]
+    process_name: Mapped[Optional[str]]
     dummy_header: Mapped[bool] = mapped_column(default=False)
     is_file_checker: Mapped[bool] = mapped_column(default=False)
     is_file_path: Mapped[bool] = mapped_column(default=False)
@@ -2159,8 +2147,8 @@ class CfgRequest(db.Model):
     __tablename__ = 'cfg_request'
 
     id: Mapped[str] = mapped_column(primary_key=True)
-    params: Mapped[Optional[str]] = mapped_column(nullable=True)
-    odf: Mapped[Optional[str]] = mapped_column(nullable=True)
+    params: Mapped[Optional[str]]
+    odf: Mapped[Optional[str]]
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -2236,16 +2224,16 @@ class MFunction(db.Model):
     description_en: Mapped[str]
     description_jp: Mapped[str]
     x_type: Mapped[str]  # r,i,t is real, int, text
-    y_type: Mapped[Optional[str]] = mapped_column(nullable=True)
+    y_type: Mapped[Optional[str]]
     return_type: Mapped[str]  # r,i,t is real, int, text. 'x' is same as x, 'y' is same as y
     show_serial: Mapped[bool]
-    a: Mapped[Optional[str]] = mapped_column(nullable=True)
-    b: Mapped[Optional[str]] = mapped_column(nullable=True)
-    c: Mapped[Optional[str]] = mapped_column(nullable=True)
-    n: Mapped[Optional[str]] = mapped_column(nullable=True)
-    k: Mapped[Optional[str]] = mapped_column(nullable=True)
-    s: Mapped[Optional[str]] = mapped_column(nullable=True)
-    t: Mapped[Optional[str]] = mapped_column(nullable=True)
+    a: Mapped[Optional[str]]
+    b: Mapped[Optional[str]]
+    c: Mapped[Optional[str]]
+    n: Mapped[Optional[str]]
+    k: Mapped[Optional[str]]
+    s: Mapped[Optional[str]]
+    t: Mapped[Optional[str]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -2354,11 +2342,11 @@ class MUnit(db.Model):
     quantity_jp: Mapped[str]
     quantity_en: Mapped[str]
     unit: Mapped[str]
-    type: Mapped[Optional[str]] = mapped_column(nullable=True)
-    base: Mapped[Optional[int]] = mapped_column(nullable=True)
-    conversion: Mapped[Optional[float]] = mapped_column(nullable=True)
-    denominator: Mapped[Optional[float]] = mapped_column(nullable=True)
-    offset: Mapped[Optional[float]] = mapped_column(nullable=True)
+    type: Mapped[Optional[str]]
+    base: Mapped[Optional[int]]
+    conversion: Mapped[Optional[float]]
+    denominator: Mapped[Optional[float]]
+    offset: Mapped[Optional[float]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
 
@@ -2412,7 +2400,7 @@ class CfgImportFilterDetail(CommonModel):
     __tablename__ = 'cfg_import_filter_detail'
     __table_args__ = {'sqlite_autoincrement': True}
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    value: Mapped[str] = mapped_column(nullable=True)
+    value: Mapped[str]
     filter_id: Mapped[int] = mapped_column(ForeignKey('cfg_import_filter.id', ondelete='CASCADE'))
 
     filter: Mapped['CfgImportFilter'] = relationship(
@@ -2654,33 +2642,3 @@ def crud_config(
         meta_session.commit()
 
     return True
-
-
-def get_models():
-    all_sub_classes = db.Model.__subclasses__()
-    return tuple([_class for _class in all_sub_classes if hasattr(_class, '__tablename__')])
-
-
-def make_f(model):
-    list_of_target = (CfgProcess, CfgProcessColumn, CfgFilter, CfgFilterDetail, CfgTrace, CfgTraceKey, CfgVisualization)
-
-    @event.listens_for(model, 'before_insert')
-    def before_insert(_mapper, _connection, target):
-        model_normalize(target)
-        if isinstance(target, list_of_target):
-            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
-
-    @event.listens_for(model, 'before_update')
-    def before_update(_mapper, _connection, target):
-        model_normalize(target)
-        if isinstance(target, list_of_target):
-            EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
-
-
-def add_listen_event():
-    for model in get_models():
-        make_f(model)
-
-
-# add trigger in CRUD config data
-add_listen_event()

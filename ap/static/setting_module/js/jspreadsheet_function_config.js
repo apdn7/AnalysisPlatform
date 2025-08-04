@@ -789,7 +789,8 @@ class SpreadSheetFunctionConfig {
         rowData[SpreadSheetFunctionConfig.ColumnNames.CoeCt] = functionInfoDict.coeCT;
         rowData[SpreadSheetFunctionConfig.ColumnNames.Note] = functionInfoDict.note;
         rowData[SpreadSheetFunctionConfig.ColumnNames.Output] = FunctionInfo.getLabelRawDataType(
-            functionInfoDict.output,
+            // update output to upper case because when use copy/paste raw out put changed to lower case
+            functionInfoDict.output.toUpperCase(),
             functionInfoDict.isMainSerialNo,
         );
         (functionInfoDict.sampleDatas ?? []).every((sample, idx) => {
@@ -840,7 +841,9 @@ class SpreadSheetFunctionConfig {
         functionInfoDict.coeBK = String(spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.CoeBk]);
         functionInfoDict.coeCT = String(spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.CoeCt]);
         functionInfoDict.note = String(spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.Note]);
-        functionInfoDict.output = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.RawOutput];
+        // update output to upper case because when use copy/paste raw out put changed to lower case
+        functionInfoDict.output =
+            spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.RawOutput].toUpperCase();
         functionInfoDict.sampleDatas = [
             spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.SampleData1],
             spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.SampleData2],

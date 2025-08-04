@@ -226,8 +226,7 @@ class BaseFunction(BaseModel):
         *,
         series_x: pd.Series | None = None,
         series_y: pd.Series | None = None,
-    ) -> pd.Series | np.NDArray:
-        ...
+    ) -> pd.Series | np.NDArray: ...
 
     def get_output_type_cast(self) -> str | None:
         type_cast = self.type_cast if self.type_cast is not None else getattr(self, 't', None)

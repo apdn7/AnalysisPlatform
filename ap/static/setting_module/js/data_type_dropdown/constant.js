@@ -65,7 +65,13 @@ class DataTypeDropdown_Constant {
     /**
      * A list of attributes that be limited to be selected one time
      */
-    static UnableToReselectAttrs = Object.freeze(['is_get_date', 'is_auto_increment', 'is_main_date', 'is_main_time']);
+    static UnableToReselectAttrs = Object.freeze([
+        'is_get_date',
+        'is_auto_increment',
+        'is_main_date',
+        'is_main_time',
+        'is_judge',
+    ]);
 
     /**
      * A list of attributes that be limited to select only one 1 column / process
@@ -143,6 +149,7 @@ class DataTypeDropdown_Constant {
         is_main_serial_no: false,
         is_auto_increment: false,
         is_int_cat: false,
+        is_judge: false,
     });
 
     /**

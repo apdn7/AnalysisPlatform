@@ -282,11 +282,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
 
             // not time value in TSP, this time is time of end proc, not time of start proc
             const plotData = currentTraceData.array_plotdata[dataIndex];
-            const filterCond = plotData.catExpBox
-                ? Array.isArray(plotData.catExpBox)
-                    ? plotData.catExpBox
-                    : [plotData.catExpBox]
-                : null;
+            const filterCond = getFilterConditionsFromPlotData(currentTraceData, plotData);
             const [chartInfos, chartInfosOrg] = getChartInfo(plotData, 'TIME', filterCond);
             const clickedVal = currentTraceData.array_plotdata[dataIndex].array_x[dataPoint.dataIndex];
             const [latestChartInfo] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
@@ -736,7 +732,6 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const chartData = isCatLimited ? [] : plotData;
 
     const pointSize = plotData.length <= CONST.SMALL_DATA_SIZE ? 2.5 : plotData.length < 1000 ? 1.5 : 1;
-
     config.data = {
         labels: yLabels,
         datasets: [
@@ -940,11 +935,7 @@ const updateThresholdsOnClick = (canvasId, clickedIdx) => {
 
     // not time value in TSP, this time is time of end proc, not time of start proc
     const plotData = currentTraceData.array_plotdata[dataIndex];
-    const filterCond = plotData.catExpBox
-        ? Array.isArray(plotData.catExpBox)
-            ? plotData.catExpBox
-            : [plotData.catExpBox]
-        : null;
+    const filterCond = getFilterConditionsFromPlotData(currentTraceData, plotData);
     const [chartInfos, chartInfosOrg] = getChartInfo(plotData, 'TIME', filterCond);
     const clickedVal = currentTraceData.array_plotdata[dataIndex].array_x[clickedIdx];
     const [latestChartInfo, latestIndex] = chooseLatestThresholds(chartInfos, chartInfosOrg, clickedVal);
@@ -1123,7 +1114,7 @@ function timeSeriesOnClick(chart, event) {
     // get data of clicked point
     const datasetIndex = eventElement[0].datasetIndex;
     const yValue = chart.data.datasets[datasetIndex].data[clickPosition];
-    const xValue = chart.data.labels[clickPosition];
+    const xValue = chart.data.labels[clickPosition] || chart.data.datasets[datasetIndex].data[clickPosition].x;
     const canvasId = chart.canvas.id;
     const numDataPoints = graphStore.getCountDataPoint();
 

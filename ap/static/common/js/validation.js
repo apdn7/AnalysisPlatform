@@ -62,7 +62,7 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
         currentFormID = formID;
     }
 
-    requiredInputs = $(currentFormID).find('.required-input');
+    requiredInputs = $(currentFormID).find('.required-input:not(select[name=catExpBox])');
 
     uniqueRequiredArr = getUniqueRequiredArr();
 
@@ -90,11 +90,11 @@ function checkValidations(minMaxNumOfEndproc = null, formID = '') {
     return invalids.length <= 0;
 }
 
-function updateStyleButtonByCheckingValid() {
+function updateStyleButtonByCheckingValid(isExternalValid = undefined) {
     const btn = $(currentFormID).find(':button.show-graph');
     btn.removeAttr('disable');
     btn.removeAttr('style');
-    const isValid = checkValidations();
+    isValid = isExternalValid !== undefined ? isExternalValid : checkValidations();
     if (!isValid) {
         btn.addClass('btn-secondary');
         btn.removeClass('btn-primary valid-show-graph');
@@ -109,6 +109,12 @@ function updateStyleButtonByCheckingValid() {
         }
     }
 }
+
+const checkHasDiv = () => {
+    if (!$('select[name=catExpBox]').hasClass('required-input')) return;
+    const hasDivValue = $('select[name=catExpBox] option:selected').text().includes('Div');
+    updateStyleButtonByCheckingValid(hasDivValue);
+};
 
 function onchangeRequiredInput() {
     requiredInputs = $(currentFormID).find('.required-input');
@@ -126,6 +132,7 @@ function onchangeRequiredInput() {
             ) {
                 enableCycleTimeAnalysis();
             }
+            checkHasDiv();
         }, 300);
     });
 }
@@ -144,6 +151,7 @@ function checkRelatedVariablesOfProcess(name) {
 
 function updateStyleOfInvalidElements() {
     updateStyleButtonByCheckingValid();
+    checkHasDiv();
     $(currentFormID).find('.invalid').removeClass('invalid');
     $(currentFormID).find('.invalid').removeClass('invalid-message');
     for (let i = 0; i < invalids.length; i++) {

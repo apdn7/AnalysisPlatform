@@ -1,4 +1,3 @@
-from ap.common.jobs.jobs import RunningJob, RunningJobs
 from ap.common.multiprocess_sharing.events import (
     Event,
     EventAddJob,
@@ -22,8 +21,6 @@ def stop_sharing_instance_server():
 
 
 __all__ = [
-    'RunningJob',
-    'RunningJobs',
     'Event',
     'EventAddJob',
     'EventRemoveJobs',

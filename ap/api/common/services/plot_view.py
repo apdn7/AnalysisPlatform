@@ -16,12 +16,14 @@ from ap.api.common.services.show_graph_services import (
     get_chart_infos,
     get_data_from_db,
 )
-from ap.common.common_utils import DATE_FORMAT, DATE_FORMAT_STR_CSV, TIME_FORMAT, gen_sql_label
+from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACT_FROM,
     ACT_TO,
     ARRAY_FORMVAL,
     ARRAY_PLOTDATA,
+    DATE_FORMAT,
+    DATE_FORMAT_STR_CSV,
     END_PROC,
     GET02_VALS_SELECT,
     PRC_MAX,
@@ -31,6 +33,7 @@ from ap.common.constants import (
     THRESH_HIGH,
     THRESH_LOW,
     TIME_COL,
+    TIME_FORMAT,
 )
 from ap.common.logger import log_execution_time
 from ap.common.services.data_type import na_values
@@ -90,18 +93,15 @@ def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, po
         df[df.columns] = df[df.columns].to_numpy()
 
     # timezone
-    client_timezone = graph_param.common.client_timezone or tz.tzlocal()
-    client_timezone = pytz.timezone(client_timezone)
+    client_timezone = graph_param.common.client_timezone
+    client_timezone = pytz.timezone(client_timezone) or tz.tzlocal()
 
     # List table
     list_tbl_header, list_tbl_rows = gen_list_table(graph_param, df, client_timezone)
 
     # all paths
     paths = graph_param.trace_graph.get_all_paths(target_proc_id)
-    path_proc_ids = []
-    if paths:
-        path_proc_ids = [proc_id for proc_ids in paths for proc_id in proc_ids]
-
+    path_proc_ids = [proc_id for proc_ids in paths for proc_id in proc_ids] if paths else [target_proc_id]
     # Stats table
     stats_tbl_header, stats_tbl_data = gen_stats_table(
         path_proc_ids,

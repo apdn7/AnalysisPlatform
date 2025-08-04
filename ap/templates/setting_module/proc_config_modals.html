@@ -367,6 +367,43 @@
                                 onchange="handleProcDatetimeFormatInput(this)"
                             />
                         </div>
+                        <div class="ml-3">
+                            <label
+                                class="mb-0 mr-2"
+                                title="{{ _('It is possible to choose between displaying the values of each record or the unique values of each column in the sample data') }}"
+                            >
+                                <span class="hint-text"> {{ _('SampleDataLabel') }} </span>
+                            </label>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="sampleDataRecords"
+                                    name="sampleDataDisplayMode"
+                                    value="records"
+                                    data-observer
+                                    onchange="changeSampleDataDisplayMode(this)"
+                                    checked="checked"
+                                />
+                                <label class="custom-control-label" for="sampleDataRecords"
+                                    >{{ _('RecordsDisplayModeLabel') }}</label
+                                >
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="sampleDataUnique"
+                                    name="sampleDataDisplayMode"
+                                    value="unique"
+                                    data-observer
+                                    onchange="changeSampleDataDisplayMode(this)"
+                                />
+                                <label class="custom-control-label" for="sampleDataUnique"
+                                    >{{ _('UniqueDisplayModeLabel') }}</label
+                                >
+                            </div>
+                        </div>
                     </div>
                     <div id="refactorProcSetting">
                         <div class="scroll-content">
@@ -596,12 +633,12 @@
                             </div>
                             <div class="col-5 config-params-area">
                                 <div class="row no-gutters">
-                                    <div class="col-6 config-params-area-col">
+                                    <div class="col-6 config-params-area-col" id="functionSelectionDiv">
                                         <div class="form-group d-flex align-items-center" id="functionVarX">
                                             <label class="param-label-x"> X: </label>
                                             <div class="param-value-x">
                                                 <select
-                                                    class="form-control select2-selection--single select2-hidden-accessible select-n-columns"
+                                                    class="form-control function-var select2-selection--single select2-hidden-accessible select-n-columns"
                                                     name="functionVarX"
                                                     onchange="changeFunctionColumnName(this, 2)"
                                                     tabindex="-1"
@@ -613,7 +650,7 @@
                                             <label class="param-label-y"> Y: </label>
                                             <div class="param-value-y">
                                                 <select
-                                                    class="form-control select2-selection--single select2-hidden-accessible select-n-columns"
+                                                    class="form-control function-var select2-selection--single select2-hidden-accessible select-n-columns"
                                                     name="functionVarY"
                                                     onchange="changeFunctionColumnName(this, 3)"
                                                     tabindex="-1"

@@ -1,5 +1,8 @@
+import contextlib
+import datetime as dt
 import logging
 import re
+from typing import Optional
 
 import cx_Oracle
 from dateutil import tz
@@ -21,7 +24,7 @@ class Oracle:
 
     def dump(self):
         logger.info(
-            f'''\
+            f"""\
 ===== DUMP RESULT =====
 DB Type: Oracle
 self.host: {self.host}
@@ -30,7 +33,7 @@ self.dbname: {self.dbname}
 self.username: {self.username}
 self.is_connected: {self.is_connected}
 =======================
-''',
+""",
         )
 
     def connect(self):
@@ -76,7 +79,7 @@ self.is_connected: {self.is_connected}
     # テーブル名の配列を取得
     def list_tables(self):
         if not self._check_connection():
-            return False
+            return []
         sql = 'select table_name from user_tables'
         cur = self.connection.cursor()
         cur.execute(sql)
@@ -336,7 +339,33 @@ self.is_connected: {self.is_connected}
         try:
             _, rows = self.run_sql('SELECT DBTIMEZONE FROM DUAL', row_is_dict=False)
             timezone_val = rows[0][0]
-            timezone = tz.gettz(timezone_val)
+            timezone = get_tzinfo_from_timezone_or_offset(timezone_val)
             return timezone
         except Exception:
             return None
+
+
+def get_tzinfo_from_timezone_or_offset(timezone_or_offset: Optional[str]) -> Optional[dt.tzinfo]:
+    """Oracle sometimes return +09:00 without specified timezone name,
+    this would cause timezone_val failed to run.
+    We need to get the _correct_ name for this as well.
+
+    >>> get_tzinfo_from_timezone_or_offset('+09:00')
+    tzstr('UTC+09:00')
+    >>> get_tzinfo_from_timezone_or_offset('Asia/Tokyo')
+    tzfile('Japan')
+    >>> get_tzinfo_from_timezone_or_offset('invalid')
+    """
+    if timezone_or_offset is None:
+        return None
+
+    timezone_val = tz.gettz(timezone_or_offset)
+    if timezone_val is not None:
+        return timezone_val
+
+    # try parse from "%z"
+    with contextlib.suppress(ValueError):
+        time_data = dt.datetime.strptime(timezone_or_offset, '%z')
+        return tz.gettz(time_data.tzname())
+
+    return None

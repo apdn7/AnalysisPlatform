@@ -94,3 +94,8 @@
         - fpp
       unavailable:
         - pca
+    tv:
+      recommends:
+        - fpp
+      unavailable:
+        - pca

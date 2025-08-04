@@ -3,7 +3,6 @@ import datetime as dt
 from apscheduler.triggers import interval
 from pytz import utc
 
-from ap.common.common_utils import get_data_path
 from ap.common.constants import JobType
 from ap.common.logger import (
     CLEAN_ZIP_INTERVAL,
@@ -11,6 +10,7 @@ from ap.common.logger import (
     ZipFileHandler,
 )
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
+from ap.common.path_utils import get_data_path
 
 
 def add_job_zip_all_previous_log_files():

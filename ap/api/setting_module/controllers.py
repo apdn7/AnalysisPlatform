@@ -82,17 +82,14 @@ from ap.common.backup_db import backup_config_db
 from ap.common.clean_expired_request import add_job_delete_expired_request
 from ap.common.common_utils import (
     SQLiteFormatStrings,
-    get_export_setting_path,
-    get_files,
     get_hostname,
-    get_log_path,
     is_none_or_empty,
-    make_dir,
     parse_int_value,
 )
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
     DATA_CACHE_FOLDER,
+    EMPTY_STRING,
     FILE_NAME,
     FISCAL_YEAR_START_MONTH,
     OSERR,
@@ -110,10 +107,12 @@ from ap.common.constants import (
     JobType,
     MasterDBType,
 )
+from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.datetime_format_utils import convert_datetime_format
 from ap.common.memoize import clear_cache
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.multiprocess_sharing.events import EventKillJobs
+from ap.common.path_utils import get_export_setting_path, get_files, get_log_path, make_dir
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_and_master_data import (
@@ -140,6 +139,7 @@ from ap.setting_module.models import (
     AppLog,
     CfgConstant,
     CfgDataSource,
+    CfgDataSourceDB,
     CfgProcess,
     CfgProcessColumn,
     CfgProcessFunctionColumn,
@@ -149,6 +149,7 @@ from ap.setting_module.models import (
 from ap.setting_module.schemas import (
     AutolinkInSchema,
     CfgUserSettingSchema,
+    DataSourcePublicSchema,
     DataSourceSchema,
     ProcessSchema,
     ProcessVisualizationSchema,
@@ -204,8 +205,17 @@ def save_datasource_cfg():
     """
     Expected: ds_config = {"db_0001": {"master-name": name, "host": localhost, ...}}
     """
+
+    params = json.loads(request.data)
+    db_password = (params.get('db_detail') or {}).get('password')
     try:
         data_src: CfgDataSource = DataSourceSchema().load(request.json)
+
+        # have data_src.id and db_detail and empty password => not change password
+        if data_src.db_detail is not None and data_src.id and db_password == EMPTY_STRING:
+            db = CfgDataSourceDB.get_by_id(data_src.id)
+            if db is not None:
+                data_src.db_detail.password = db.password
         with make_session() as meta_session:
             data_src = meta_session.merge(data_src)
 
@@ -218,7 +228,7 @@ def save_datasource_cfg():
 
     ds = None
     if data_src and data_src.id:
-        ds = DataSourceSchema().dumps(data_src)
+        ds = DataSourcePublicSchema().dumps(data_src)
 
     return jsonify(id=data_src.id, data_source=ds, flask_message=message), 200
 
@@ -261,7 +271,7 @@ def save_v2_datasource_cfg():
 @api_setting_module_blueprint.route('/database_tables', methods=['GET'])
 def get_database_tables():
     db_tables = CfgDataSource.get_all()
-    ds_schema = DataSourceSchema(many=True)
+    ds_schema = DataSourcePublicSchema(many=True)
     dump_data = ds_schema.dumps(db_tables)
     list_ds = json.loads(dump_data)
     for ds in list_ds:
@@ -273,7 +283,7 @@ def get_database_tables():
 @api_setting_module_blueprint.route('/database_tables_source', methods=['GET'])
 def get_database_tables_source():
     db_source = CfgDataSource.get_all_db_source()
-    ds_schema = DataSourceSchema(many=True)
+    ds_schema = DataSourcePublicSchema(many=True)
     dump_data = ds_schema.dumps(db_source)
     return dump_data, 200 if db_source else 500
 
@@ -299,14 +309,19 @@ def check_db_connection():
         HTTP Response - (True + OK message) if connection can be established, return (False + NOT OK message) otherwise.
     """
     params = json.loads(request.data).get('db')
+    db_id = params.get('id')
     db_type = params.get('db_type')
     host = params.get('host')
     port = params.get('port')
     dbname = params.get('dbname')
     schema = params.get('schema')
     username = params.get('username')
-    password = params.get('password')
+    password = params.get('password', EMPTY_STRING)
 
+    if db_id is not None and password == EMPTY_STRING:
+        db = CfgDataSourceDB.get_by_id(db_id)
+        if db is not None:
+            password = decrypt_pwd(db.password)
     result = None
     try:
         result = check_db_con(db_type, host, port, dbname, schema, username, password)
@@ -356,14 +371,6 @@ def show_latest_records():
     master_type = MasterDBType[master_type] if master_type else None
     etl_func = dic_form.get('etlFunc', '')
     response_code = 200
-    if current_process_id and current_process_id != 'null' and not file_name:
-        # get data from db or csv
-        file_name = get_preview_data_files(data_source_id, table_name, process_factid, etl_func)
-        if file_name:
-            with open(file_name, 'r') as file:
-                data = get_latest_record_from_preview_file(file, current_process_id, limit)
-            return json_dumps(data)
-
     result = {
         'cols': [],
         'rows': [],
@@ -374,56 +381,80 @@ def show_latest_records():
         'is_rdb': False,
         'file_name_col_idx': None,
         'transform_error': False,
+        'unique_rows_as_category': [],
+        'unique_rows_as_real': [],
+        'unique_rows_as_int': [],
     }
-    try:
-        latest_rec = get_latest_records(
-            data_source_id,
-            table_name,
-            file_name,
-            folder,
-            limit,
-            current_process_id,
+    preview_data = None
+    if current_process_id and current_process_id != 'null' and not file_name:
+        # get data from db or csv
+        preview_file_name = get_preview_data_files(data_source_id, table_name, process_factid, etl_func)
+        if preview_file_name:
+            with open(preview_file_name, 'r') as file:
+                preview_data = get_latest_record_from_preview_file(file, current_process_id, limit)
+
+    if preview_data is None or len(result.keys()) > len(preview_data.keys()):
+        try:
+            latest_rec = get_latest_records(
+                data_source_id,
+                table_name,
+                file_name,
+                folder,
+                limit,
+                current_process_id,
+                process_factid=process_factid,
+                master_type=master_type,
+                etl_func=etl_func,
+            )
+            if latest_rec:
+                (
+                    cols_with_types,
+                    rows,
+                    cols_duplicated,
+                    previewed_files,
+                    has_ct_col,
+                    dummy_datetime_idx,
+                    is_rdb,
+                    file_name_col_idx,
+                    unique_rows_as_category,
+                    unique_rows_as_real,
+                    unique_rows_as_int,
+                    unique_rows_as_int_cat,
+                ) = latest_rec
+                dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
+                data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
+                result = {
+                    'cols': cols_with_types,
+                    'rows': rows,
+                    'cols_duplicated': cols_duplicated,
+                    'fail_limit': dic_preview_limit,
+                    'has_ct_col': has_ct_col,
+                    'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
+                    'data_group_type': data_group_type,
+                    'is_rdb': is_rdb,
+                    'file_name_col_idx': file_name_col_idx,
+                    'transform_error': False,
+                    'unique_rows_as_category': unique_rows_as_category,
+                    'unique_rows_as_real': unique_rows_as_real,
+                    'unique_rows_as_int': unique_rows_as_int,
+                    'unique_rows_as_int_cat': unique_rows_as_int_cat,
+                }
+        except ETLException as e:
+            result['transform_error'] = e.get_message()
+            response_code = e.status_code
+        except (Exception, FileNotFoundError):
+            if preview_data is not None:
+                return json_dumps(preview_data)
+        result = json_dumps(result)
+        save_preview_data_file(
+            int(data_source_id),
+            result,
+            table_name=table_name,
             process_factid=process_factid,
-            master_type=master_type,
             etl_func=etl_func,
         )
-        if latest_rec:
-            (
-                cols_with_types,
-                rows,
-                cols_duplicated,
-                previewed_files,
-                has_ct_col,
-                dummy_datetime_idx,
-                is_rdb,
-                file_name_col_idx,
-            ) = latest_rec
-            dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
-            data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
-            result = {
-                'cols': cols_with_types,
-                'rows': rows,
-                'cols_duplicated': cols_duplicated,
-                'fail_limit': dic_preview_limit,
-                'has_ct_col': has_ct_col,
-                'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
-                'data_group_type': data_group_type,
-                'is_rdb': is_rdb,
-                'file_name_col_idx': file_name_col_idx,
-                'transform_error': False,
-            }
-    except ETLException as e:
-        result['transform_error'] = e.get_message()
-        response_code = e.status_code
-    result = json_dumps(result)
-    save_preview_data_file(
-        int(data_source_id),
-        result,
-        table_name=table_name,
-        process_factid=process_factid,
-        etl_func=etl_func,
-    )
-    return result, response_code
+        return result, response_code
+    return json_dumps(preview_data)
 
 
 @api_setting_module_blueprint.route('/get_csv_resources', methods=['POST'])
@@ -776,7 +807,7 @@ def get_trace_configs():
     Returns: 200/500
     """
     try:
-        trace_configs = get_all_processes_traces_info()
+        trace_configs = get_all_processes_traces_info(with_parent=False)
         dumped_trace_configs = [p.model_dump() for p in trace_configs]
         return orjson_dumps({'traceConfigs': dumped_trace_configs}), 200
     except Exception as e:
@@ -804,7 +835,7 @@ def save_trace_configs():
 
 @api_setting_module_blueprint.route('/ds_load_detail/<ds_id>', methods=['GET'])
 def ds_load_detail(ds_id):
-    ds_schema = DataSourceSchema()
+    ds_schema = DataSourcePublicSchema()
     ds = CfgDataSource.get_ds(ds_id)
     return ds_schema.dumps(ds), 200
 

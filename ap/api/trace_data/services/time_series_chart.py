@@ -62,8 +62,10 @@ from ap.common.constants import (
     IS_CAT_LIMITED,
     IS_GRAPH_LIMITED,
     IS_OVER_UNIQUE_LIMIT,
+    IS_THIN_DATA,
     MAX_CATEGORY_SHOW,
     NA_STR,
+    NEG_CUMSUM,
     NONE_IDXS,
     RANK_COL,
     ROWID,
@@ -81,15 +83,17 @@ from ap.common.constants import (
     TIMES,
     UNIQUE_CATEGORIES,
     CacheType,
+    DataColumnType,
+    NegRatio,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
-from ap.common.services.statistics import calc_summaries
+from ap.common.services.statistics import calc_cumulative_sum, calc_for_neg_ratio, calc_summaries
 from ap.common.trace_data_log import (
     EventAction,
     EventType,
@@ -132,7 +136,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
             dic_param,
             dic_cat_filters,
             rank_value=True,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
     else:
         graph_param_with_cate = graph_param
@@ -198,6 +202,19 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     dic_param = gen_dic_param(graph_param, df, dic_param, dic_data)
     gen_dic_serial_data_from_df(df, dic_proc_cfgs, dic_param)
 
+    # calculate neg_ratio if it has judge in col
+    for sql_label, string_col in dic_str_cols.items():
+        if string_col.column_type == DataColumnType.JUDGE.value and not df.empty:
+            bin_df = calc_for_neg_ratio(df, column_name=sql_label)
+            cumulative_sum = calc_cumulative_sum(df, bin_df[NegRatio.Y.value].max(), sql_label)
+            indexes_of_judge = [
+                index
+                for index, plot in enumerate(dic_param[ARRAY_PLOTDATA])
+                if plot[END_COL_NAME] == string_col.col_name
+            ]
+            for index in indexes_of_judge:
+                dic_param[ARRAY_PLOTDATA][index][NegRatio.NEG_RATIO.value] = bin_df.to_dict(orient='records')
+                dic_param[ARRAY_PLOTDATA][index][NEG_CUMSUM] = cumulative_sum.to_dict(orient='records')
     # calculate_summaries
     calc_summaries(dic_param)
 
@@ -246,6 +263,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     if is_thin_data:
         full_arrays = make_str_full_array_y(dic_param)
         list_summaries = get_summary_infos(dic_param)
+        list_neg_ratio = get_neg_ratio(dic_param)
         dic_cat_exp_labels = None
         if graph_param.common.cat_exp:
             df, dic_cat_exp_labels = gen_thin_df_cat_exp(dic_param)
@@ -254,10 +272,23 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
 
         copy_dic_param_to_thin_dic_param(dic_param, dic_thin_param)
         dic_param = gen_thin_dic_param(graph_param, df, dic_thin_param, dic_cat_exp_labels, dic_ranks)
-        dic_param['is_thin_data'] = is_thin_data
+        dic_param[IS_THIN_DATA] = is_thin_data
 
-        for i, plot in enumerate(dic_param[ARRAY_PLOTDATA]):
-            plot[SUMMARIES] = list_summaries[i]
+        for plot, summary, neg_ratio in zip(dic_param[ARRAY_PLOTDATA], list_summaries, list_neg_ratio):
+            plot[SUMMARIES] = summary
+            # check the index of the list_neg_ratio
+            if neg_ratio is not None:
+                plot[NegRatio.NEG_RATIO.value] = neg_ratio
+                for sql_label, string_col in dic_str_cols.items():
+                    if string_col.column_type == DataColumnType.JUDGE.value and not df.empty:
+                        bin_thin_data_df = calc_for_neg_ratio(df, column_name=sql_label, total_bin=THIN_DATA_CHUNK)
+                        cumulative_sum = calc_cumulative_sum(
+                            df,
+                            bin_thin_data_df[NegRatio.Y.value].max(),
+                            sql_label,
+                            total_bin=THIN_DATA_CHUNK,
+                        )
+                        plot[NEG_CUMSUM] = cumulative_sum.to_dict(orient='records')
     else:
         dic_param = gen_category_info(dic_param, dic_ranks)
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, full_arrays)
@@ -406,6 +437,14 @@ def make_str_full_array_y(dic_param):
 
 def get_summary_infos(dic_param):
     return [plot[SUMMARIES] for plot in dic_param[ARRAY_PLOTDATA]]
+
+
+def get_neg_ratio(dic_param):
+    # if in dict plot have neg_ratio then return neg_ratio if not then return None
+    return [
+        plot[NegRatio.NEG_RATIO.value] if NegRatio.NEG_RATIO.value in plot else None
+        for plot in dic_param[ARRAY_PLOTDATA]
+    ]
 
 
 @log_execution_time()

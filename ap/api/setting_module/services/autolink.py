@@ -28,7 +28,7 @@ from ap.api.setting_module.services.v2_etl_services import (
     get_v2_datasource_type_from_file,
     get_vertical_df_v2_process_single_file,
 )
-from ap.common.common_utils import detect_encoding, get_latest_files
+from ap.common.common_utils import detect_encoding
 from ap.common.constants import (
     DF_CHUNK_SIZE,
     EMPTY_STRING,
@@ -38,6 +38,7 @@ from ap.common.constants import (
     MasterDBType,
 )
 from ap.common.logger import log_execution_time
+from ap.common.path_utils import get_latest_files
 from ap.setting_module.models import CfgDataSource, CfgProcess, CfgProcessColumn
 
 logger = logging.getLogger(__name__)

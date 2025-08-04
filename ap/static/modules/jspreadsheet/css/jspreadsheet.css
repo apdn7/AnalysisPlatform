@@ -4,7 +4,6 @@
 
 .jexcel_container {
     display:inline-block;
-    padding-right:2px;
     box-sizing: border-box;
     overscroll-behavior: contain;
     outline: none;
@@ -37,7 +36,6 @@
 .jexcel_content {
     display:inline-block;
     box-sizing: border-box;
-    padding-right:3px;
     padding-bottom:3px;
     position:relative;
     scrollbar-width: thin;
@@ -113,16 +111,12 @@
 {
     background-repeat:no-repeat;
     background-position:center right 5px;
-    background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0V0z'/%3E%3Cpath d='M7 14l5-5 5 5H7z' fill='gray'/%3E%3C/svg%3E");
-    text-decoration:underline;
 }
 
 .jexcel > thead > tr > td.arrow-down
 {
     background-repeat:no-repeat;
     background-position:center right 5px;
-    background-image: url("data:image/svg+xml,%0A%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='none' d='M0 0h24v24H0V0z'/%3E%3Cpath d='M7 10l5 5 5-5H7z' fill='gray'/%3E%3C/svg%3E");
-    text-decoration:underline;
 }
 
 .jexcel > tbody > tr > td:first-child
@@ -167,9 +161,12 @@
     border-right:1px solid transparent;
     border-bottom:1px solid transparent;
     padding:4px;
-    white-space: nowrap;
     box-sizing: border-box;
     line-height:1em;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap !important;
 }
 
 .jexcel_overflow > tbody > tr > td {
@@ -287,12 +284,11 @@
 
 .jexcel .highlight-top {
     border-top:1px solid #000; /* var(--jexcel-border-color);*/
-    box-shadow: 0px -1px #ccc;
 }
+
 
 .jexcel .highlight-left {
     border-left:1px solid #000; /* var(--jexcel-border-color);*/
-    box-shadow: -1px 0px #ccc;
 }
 
 .jexcel .highlight-right {
@@ -301,12 +297,6 @@
 
 .jexcel .highlight-bottom {
     border-bottom:1px solid #000; /* var(--jexcel-border-color);*/
-}
-
-.jexcel .highlight-top.highlight-left {
-    box-shadow: -1px -1px #ccc;
-    -webkit-box-shadow: -1px -1px #ccc;
-    -moz-box-shadow: -1px -1px #ccc;
 }
 
 .jexcel .highlight-selected
@@ -763,4 +753,18 @@
 .disabled-input {
     pointer-events: none;
     opacity: 0.5;
+}
+/*hide jexcel, user custom button*/
+.jexcel .arrow-down {
+    text-decoration: none !important;
+    background-image: none !important;
+}
+
+.jexcel .arrow-up {
+    text-decoration: none !important;
+    background-image: none !important;
+}
+
+.jexcel .sortCol {
+    display: flex !important;
 }

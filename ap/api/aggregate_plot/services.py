@@ -70,7 +70,7 @@ from ap.common.constants import (
     Y,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -120,13 +120,13 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
                 graph_param,
                 dic_param,
                 dic_cat_filters,
-                use_expired_cache,
+                optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
             )
         else:
             df, actual_number_records, duplicated_serials = get_data_from_db(
                 graph_param,
                 dic_cat_filters,
-                use_expired_cache=use_expired_cache,
+                optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
             )
 
         dic_param[ACTUAL_RECORD_NUMBER] = actual_number_records
@@ -203,7 +203,12 @@ def get_df_chunk_cyclic(df, dic_param):
 
 
 @log_execution_time()
-def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired_cache):
+def gen_df_direct_term(
+    root_graph_param,
+    dic_param,
+    dic_cat_filters,
+    optional_cache_config: OptionalCacheConfig = OptionalCacheConfig(),
+):
     duplicated = 0
     total_record = 0
     terms = gen_time_conditions(dic_param)
@@ -222,9 +227,9 @@ def gen_df_direct_term(root_graph_param, dic_param, dic_cat_filters, use_expired
             root_graph_param,
             term_dic_param,
             dic_cat_filters,
-            _use_expired_cache=use_expired_cache,
+            optional_cache_config=optional_cache_config,
         )
-        judge_columns = root_graph_param.get_judge_variables()
+        judge_columns = root_graph_param.get_judge_cols()
         df_term = judge_data_conversion(df_term, judge_columns)
 
         df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'

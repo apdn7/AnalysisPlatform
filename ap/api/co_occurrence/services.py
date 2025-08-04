@@ -164,11 +164,11 @@ def calc_pareto(df: pd.DataFrame):
     cum_occurrences_ratio = total_occurrences.cumsum() / total_occurrences.sum()
     alarm_names = total_occurrences.index.to_numpy()
     logger.info(
-        f'''\
+        f"""\
 alarm names: {alarm_names[:5]} ...
 total number of alarms: {total_occurrences.to_numpy()[:5]} ...
 cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.to_numpy()[:5]} ...
-''',
+""",
     )
 
     # change color of bar (highlight cumulative ratio <= 80%)

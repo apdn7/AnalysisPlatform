@@ -6,8 +6,8 @@ from urllib.parse import parse_qs, urlencode
 
 from dateutil import tz
 
-from ap.common.common_utils import API_DATETIME_FORMAT
 from ap.common.constants import (
+    API_DATETIME_FORMAT,
     BOOKMARK_DESCRIPTION,
     BOOKMARK_ID,
     BOOKMARK_TITLE,

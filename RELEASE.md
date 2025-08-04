@@ -1,5 +1,59 @@
 # Releases
 
+## 4.8.0
+
+New features
+
+- (Common)
+  - Added keyboard shortcuts
+    - `Ctrl + B` to open Bookmark List
+    - `Ctrl + Enter` to activate Display graph
+    - `Ctrl + /` to open sidebar menu  
+    <img src="https://github.com/user-attachments/assets/abfc4f5c-506d-4aa3-b52e-f37b638bbc9a" alt="480_Shortcuts" width="600">
+  - Bookmark now stores timezone information, thereby ensuring that the result of Show Graph is consistent across different timezones
+  - Now displays a warning when a filter process is specified without data linked to the selected processes in the Display Variable section
+- (Config)
+  - Process Config: Added option `Unique Values`. This will show
+    - Values at every 5th percentile for numeric columns
+    - Most recent 10 unique values for categorical data  
+    <img src="https://github.com/user-attachments/assets/8b5f4b21-ac04-48ab-b76d-93d45bb96dee" alt="480_UniqueSample" width="600">
+  - Process Config: Added Formula option for columns with datatype: Judge.  
+  Now we can define the definition of positive values and configure display values for positive and negative values  
+  <img src="https://github.com/user-attachments/assets/3283e1bb-f749-4099-a11f-bf439e0b2bc9" alt="480_JudgeFormula" width="600">
+- (FPP)
+  - A specialized chart in FPP is now available for datatype: `Judge`.  
+  This chart displays the judge values, NG (Negative) ratio, cumulative sum and density  
+  <img src="https://github.com/user-attachments/assets/5d302672-ce30-4c6a-8a0f-91958f806643" alt="480_FPP-Judge" width="600">
+
+Improvements
+
+- (Config)
+  - Expanded the dropdown list for Function Configuration when selecting variables
+  - Software workshop now automatically merges data of columns when they have the same name
+  - All APIs no longer return Database passwords and Database configuration modal no longer autofills password.  
+  Saved password will be used to check the connection to registered databases when there is no input.
+- (RLP)
+  - Now uses faster Kernel density estimation with binning and Fast Fourier Transformation
+
+Bug fixes
+
+- (Common)
+  - Fixed an issue with data grouping, leading to different results when facet or filter is used
+  - Fixed an issue where empty file alerts are shown repeatedly in Register by File
+- (Config)
+  - Fixed an issue where user is unable to overwrite saved datasources
+  - Fixed an issue where me functions cannot be consistently saved
+  - Fixed an issue where sample data for data link is not shown
+  - Fixed an issue in Merge mode where a child column does not properly inherit properties from its parent
+- (FPP)
+  - Fixed an issue where plot view fails to show for a process that is not linked
+- (RLP)
+  - Fixed an issue where divs are sorted inappropriately
+- (ScP)
+  - Fixed a performance issue due to fontawesome icons
+- (FPP/MSP)
+  - Fixed an issue where PCP and MSP are unable to take screenshots
+
 ## v4.7.10
 
 This version fixes the memory issue that occurred in version 4.7.9.

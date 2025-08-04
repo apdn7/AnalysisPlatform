@@ -99,7 +99,7 @@ from ap.common.constants import (
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -222,7 +222,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                     orig_graph_param,
                     term_dic_param,
                     dic_cat_filters,
-                    _use_expired_cache=use_expired_cache,
+                    optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
                 )
 
                 df_term = convert_datetime_to_ct(df_term, graph_param)
@@ -286,7 +286,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 root_graph_param,
                 dic_param,
                 dic_cat_filters,
-                _use_expired_cache=use_expired_cache,
+                optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
             )
         else:
             graph_param = root_graph_param
@@ -601,7 +601,12 @@ def convert_series_to_list(graph):
 
 @log_execution_time()
 @abort_process_handler()
-def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache=False):
+def gen_df(
+    root_graph_param: DicParam,
+    dic_param,
+    dic_filter,
+    optional_cache_config: OptionalCacheConfig = OptionalCacheConfig(),
+):
     # bind dic_param
     graph_param = bind_dic_param_to_class(
         root_graph_param.dic_proc_cfgs,
@@ -635,7 +640,7 @@ def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache
     df, actual_record_number, is_res_limited = get_data_from_db(
         graph_param,
         dic_filter,
-        use_expired_cache=_use_expired_cache,
+        optional_cache_config=optional_cache_config,
     )
     return df, graph_param, actual_record_number, is_res_limited
 
@@ -1045,7 +1050,7 @@ def gen_scatter_cat_div(
         count_h_key = 0
 
         for v_keys, df_data_ in dic_group.items():
-            df_data = df_data_.drop(index=list_na_indexes)
+            df_data = df_data_.drop(index=list_na_indexes, errors='ignore')
 
             if v_keys not in facet_keys:
                 count_h_key += 1

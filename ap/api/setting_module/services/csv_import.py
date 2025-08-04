@@ -45,17 +45,13 @@ from ap.api.setting_module.services.v2_etl_services import (
 )
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, finished_transaction_import
 from ap.common.common_utils import (
-    DATE_FORMAT,
-    DATE_FORMAT_STR_ONLY_DIGIT,
-    TIME_FORMAT_WITH_SEC,
+    convert_eu_decimal_series,
     convert_time,
     detect_encoding,
     detect_file_encoding,
-    get_basename,
     get_csv_delimiter,
     get_current_timestamp,
     get_file_modify_time,
-    get_files,
 )
 from ap.common.constants import (
     ALMOST_COMPLETE_PERCENT,
@@ -64,6 +60,8 @@ from ap.common.constants import (
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_EMPTY_DATA,
     DATA_TYPE_ERROR_MSG,
+    DATE_FORMAT,
+    DATE_FORMAT_STR_ONLY_DIGIT,
     DATE_TYPE_REGEX,
     DATETIME_DUMMY,
     DATETIME_TYPE_MD,
@@ -72,6 +70,7 @@ from ap.common.constants import (
     EMPTY_STRING,
     FILE_NAME,
     NUM_CHARS_THRESHOLD,
+    TIME_FORMAT_WITH_SEC,
     TIME_TYPE_REGEX,
     AnnounceEvent,
     CSVExtTypes,
@@ -79,11 +78,14 @@ from ap.common.constants import (
     DBType,
     JobStatus,
     JobType,
+    DATE_FORMAT_STR,
+    EMPTY_CHECK_TIME_PERIOD,
 )
 from ap.common.datetime_format_utils import convert_datetime_format
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
+from ap.common.path_utils import get_basename, get_files
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
@@ -188,7 +190,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         trans_data.create_table(db_instance)
 
         # get import files
-        import_targets, no_data_files = get_import_target_files(proc_id, data_src, trans_data, db_instance)
+        import_targets, no_data_files, toast_skip = get_import_target_files(proc_id, data_src, trans_data, db_instance)
 
     # job 100% with zero row
     if not import_targets:
@@ -265,6 +267,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
     # init job information object
     job_info = JobInfo()
+    job_info.import_type = JobType.CSV_IMPORT.name
     job_info.empty_files = []
 
     # file can not transform by R script
@@ -456,6 +459,12 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 if col_name not in default_csv_param['dtype']:
                     default_csv_param['dtype'][col_name] = 'string'
 
+        # add more dtype columns in names
+        if 'names' in default_csv_param:
+            for col_name in default_csv_param['names']:
+                if col_name not in default_csv_param['dtype']:
+                    default_csv_param['dtype'][col_name] = 'string'
+
         if is_v2_datasource:
             datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(transformed_file)
             if datasource_type == DBType.V2_HISTORY:
@@ -507,15 +516,20 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         if proc_cfg.is_import_file_name:
             df_one_file = add_column_file_name(df_one_file, transformed_file, file_name_col=file_name_col)
 
+        # Save history even if the file is empty
+        dic_imported_row[idx] = (csv_file_name, file_record_count)
+
         # no records
         if not file_record_count:
+            # Proceed to read the next file without showing a toast message.
+            if csv_file_name in toast_skip:
+                continue
+
             job_info.status = JobStatus.DONE
             job_info.empty_files = [csv_file_name]
             yield from yield_job_info(job_info, csv_file_name)
             job_info.empty_files = []
             continue
-
-        dic_imported_row[idx] = (csv_file_name, file_record_count)
 
         # add 3 columns machine, line, process for efa 1,2,4
         if is_abnormal and not is_v2_datasource:
@@ -612,6 +626,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         df = pd.DataFrame()
         dic_imported_row = {}
 
+    job_info.dic_imported_row = dic_imported_row
+
     # do last import
     if len(df):
         job_info.dic_imported_row = dic_imported_row
@@ -698,9 +714,18 @@ def get_last_csv_import_info(trans_data, db_instance) -> tuple[dict[str, str], d
     latest_import_files = trans_data.get_import_history_latest_done_files(db_instance)
     dic_imported_file = {rec.file_name: rec.start_tm for rec in latest_import_files}
     csv_fatal_imports = trans_data.get_import_history_last_fatal(db_instance)
+    # error files
     dic_fatal_file = {rec.file_name: rec.start_tm for rec in csv_fatal_imports}
 
     return dic_imported_file, dic_fatal_file
+
+
+def get_file_metadata(file_name, dic_success_file: dict = None) -> tuple[any, any]:
+    _modified_date = get_file_modify_time(file_name)
+    _imported_datetime = dic_success_file.get(file_name)
+    modified_datetime = datetime.strptime(_modified_date, DATE_FORMAT_STR)
+    imported_datetime = datetime.strptime(_imported_datetime, DATE_FORMAT_STR) if _imported_datetime else None
+    return modified_datetime, imported_datetime
 
 
 @log_execution_time()
@@ -718,14 +743,23 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
 
     has_transform_targets = []
     no_transform_targets = []
+    toast_skip = []
     for file_name in all_files:
         if file_name in dic_error_file:
             pass
-        elif file_name in dic_success_file:
-            modified_date = get_file_modify_time(file_name)
-            imported_datetime = dic_success_file[file_name]
+
+        if file_name in dic_success_file:
+            modified_date, imported_datetime = get_file_metadata(file_name, dic_success_file)
             if modified_date <= imported_datetime:
                 continue
+
+            # If a previously failed file is now marked as "modified",
+            # re-read it. Skip toastr message if no new change within 24h.
+            _modify_imported_time_gap = modified_date - imported_datetime
+            if _modify_imported_time_gap < EMPTY_CHECK_TIME_PERIOD:
+                # Do not stop, because empty files should still be read for re-import.
+                # Just skip showing the toast notification if the file remains empty.
+                toast_skip.append(file_name)
 
         # count all rows
         transformed_file = file_name
@@ -738,7 +772,7 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
         else:
             no_transform_targets.append(file_name)
 
-    return has_transform_targets, no_transform_targets
+    return has_transform_targets, no_transform_targets, toast_skip
 
 
 @log_execution_time()
@@ -868,14 +902,10 @@ def get_import_target_files(proc_id, data_src, trans_data, db_instance):
         )
 
     # filter target files
-    has_trans_targets, no_trans_targets = filter_import_target_file(
-        proc_id,
-        csv_files,
-        dic_success_file,
-        dic_error_file,
-        data_src.etl_func,
+    has_trans_targets, no_trans_targets, toast_skip = filter_import_target_file(
+        proc_id, csv_files, dic_success_file, dic_error_file, data_src.etl_func
     )
-    return has_trans_targets, no_trans_targets
+    return has_trans_targets, no_trans_targets, toast_skip
 
 
 def strip_quote(val):
@@ -1029,25 +1059,25 @@ def datetime_transform(datetime_series, date_only=False):
     current_year = datetime.now().strftime('%Y')
 
     def without_year_datetime(m: re.match) -> str:
-        result = f"{current_year}-{m.group('m')}-{m.group('d')}"
+        result = f'{current_year}-{m.group("m")}-{m.group("d")}'
         if not date_only:
             result += ' 00:00:00'
         return result
 
     def full_datetime(m: re.match) -> str:
         if len(m.group('y')) == 4:
-            result = f"{m.group('y')}-{m.group('m')}-{m.group('d')}"
+            result = f'{m.group("y")}-{m.group("m")}-{m.group("d")}'
         else:
             # if there is 2 digit of year, convert to full year
-            result = f"{current_year[0:2]}{m.group('y')}-{m.group('m')}-{m.group('d')}"
+            result = f'{current_year[0:2]}{m.group("y")}-{m.group("m")}-{m.group("d")}'
         if not date_only:
             result += ' 00:00:00'
         return result
 
     def actual_datetime(m: re.match) -> str:
-        result = f"{m.group('y')}-{m.group('m')}-{m.group('d')}"
+        result = f'{m.group("y")}-{m.group("m")}-{m.group("d")}'
         if not date_only:
-            result += f" {m.group('h')}:{m.group('min')}:{m.group('s')}"
+            result += f' {m.group("h")}:{m.group("min")}:{m.group("s")}'
         return result
 
     # convert special datetime string to iso-format
@@ -1167,7 +1197,9 @@ def import_df(
     # Convert UTC time
     for col, cfg_col in dic_use_cols.items():
         dtype = cfg_col.data_type
-        if DataType[dtype] is not DataType.DATETIME and col != get_date_col:
+        # Validation is not done when column does not exist in df
+        # This is necessary for cases where the datetime column only exists in one of the files
+        if DataType[dtype] is not DataType.DATETIME and col != get_date_col or col not in df.columns:
             continue
 
         empty_as_error = col == get_date_col
@@ -1282,12 +1314,7 @@ def convert_csv_timezone(df, get_date_col):
 
 @log_execution_time()
 def convert_eu_decimal(df: DataFrame, df_col, data_type):
-    if data_type in [DataType.REAL_SEP.name, DataType.INTEGER_SEP.name]:
-        df[df_col] = df[df_col].astype(pd.StringDtype()).str.replace(r'\,+', '', regex=True)
-    elif data_type in [DataType.EU_REAL_SEP.name, DataType.EU_INTEGER_SEP.name]:
-        df[df_col] = (
-            df[df_col].astype(pd.StringDtype()).str.replace(r'\.+', '', regex=True).str.replace(r'\,+', '.', regex=True)
-        )
+    df[df_col] = convert_eu_decimal_series(df[df_col], data_type)
     return df
 
 

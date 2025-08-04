@@ -1,6 +1,14 @@
 const HTTP_RESPONSE_CODE_500 = 500;
 const SAMPLE_DATA_KEY = 'sample_data';
 const FALSE_VALUES = new Set(['', 0, '0', false, 'false', 'FALSE', 'f', 'F']);
+const NUMERIC_TYPES = [
+    DataTypes.REAL.name,
+    DataTypes.INTEGER.name,
+    DataTypes.EU_REAL_SEP.name,
+    DataTypes.REAL_SEP.name,
+    DataTypes.INTEGER_SEP.name,
+    DataTypes.EU_INTEGER_SEP.name,
+];
 // current selected process id, data source and table name
 let procModalCurrentProcId = null;
 const currentProcessTableName = null;
@@ -193,6 +201,7 @@ const procModalElements = {
      * @type {function(): HTMLOrSVGElement}
      * */
     settingChangeMark: () => document.getElementById('procSettingChangeMark'),
+    sampleDataDisplayRecordsRadio: $('#sampleDataRecords'),
 };
 
 const procModali18n = {
@@ -230,6 +239,7 @@ const procModali18n = {
     i18nJapaneseName: '#i18nJapaneseName',
     i18nLocalName: '#i18nLocalName',
     i18nUnit: '#i18nUnit',
+    i18nJudgeFormulaTitle: '#i18nJudgeFormulaTitle',
     i18nSampleData: '#i18nSampleData',
     i18nSpecial: '#i18nSpecial',
     i18nFilterSystem: '#i18nFilterSystem',
@@ -282,6 +292,7 @@ const PROCESS_COLUMNS = {
     name_jp: 'name_jp',
     name_local: 'name_local',
     unit: 'unit',
+    judge_formula: 'judge_formula',
     raw_data_type: 'raw_data_type',
     is_serial_no: 'is_serial_no',
     is_get_date: 'is_get_date',
@@ -290,6 +301,8 @@ const PROCESS_COLUMNS = {
     is_dummy_datetime: 'is_dummy_datetime',
     is_generated_datetime: 'is_generated_datetime',
     is_null: 'is_null',
+    is_judge: 'is_judge',
+    judge_available: 'judge_available',
 };
 
 const isJPLocale = docCookies.isJaLocale();
@@ -586,6 +599,10 @@ const generateProcessList = async (
     tableId,
     cols,
     rows,
+    uniqueDataCategory,
+    uniqueDataReal,
+    uniqueDataInt,
+    uniqueDataIntCat,
     { fromRegenerate = false, autoCheckSerial = false, registerByFile = false } = {},
 ) => {
     clearProcModalColumnTable(tableId);
@@ -646,7 +663,11 @@ const generateProcessList = async (
 
     const hasMainDate = cols.filter((col) => col.column_type == masterDataGroup.MAIN_DATE).length > 0;
     const hasMainTime = cols.filter((col) => col.column_type == masterDataGroup.MAIN_TIME).length > 0;
-    const dataRows = [];
+    const uniqueDataCategoryRows = [];
+    const uniqueDataRealRows = [];
+    const uniqueDataIntRows = [];
+    const uniqueDataIntCatRows = [];
+    let dataRows = [];
 
     if (hasMainTime && hasMainDate) {
         sortedCols = _.sortBy(sortedCols, (item) => !item.is_get_date);
@@ -655,9 +676,14 @@ const generateProcessList = async (
     sortedCols.forEach((col, i) => {
         const column_raw_name = col.column_raw_name;
         const isGeneratedDatetime = hasMainDate && hasMainTime && col.is_get_date;
+        // get judge_available result from show_latest_record before col is replaced by registerCol
+        const judge_available = col.judge_available;
+        const judge_formula = col.judge_formula;
         // registerCol will be defined when the column already exists in the DB
         const registerCol = dicProcessCols[col.column_name];
         col = fromRegenerate ? col : registerCol || col;
+        col.judge_available = judge_available;
+        col.judge_formula = judge_formula;
         col.is_show = true;
         // col.id = registerCol ? registerCol.id : i;
         // for a new process, check for is_checked variable (is_checked is only present in unregistered column)
@@ -683,6 +709,8 @@ const generateProcessList = async (
                 col.is_serial_no = true;
             } else if (col.is_serial_no) {
                 col.column_type = masterDataGroup.SERIAL;
+            } else if (col.is_judge) {
+                col.column_type = masterDataGroup.JUDGE;
             }
         }
         if (!col.raw_data_type) {
@@ -719,7 +747,6 @@ const generateProcessList = async (
         }
 
         const sampleDatas = rows.map((row) => row[col.column_name]);
-
         const row = {};
         for (const columnName in PROCESS_COLUMNS) {
             row[columnName] = dataTypeObject[columnName];
@@ -729,7 +756,25 @@ const generateProcessList = async (
         });
         dataRows.push(row);
     });
+
+    // update index for special case
+    dataRows = updateIndexForSpecialRow(dataRows);
+    dataRows.forEach((dataRow) => {
+        uniqueDataCategoryRows.push(uniqueDataCategory.map((data) => data[dataRow.column_name]));
+        uniqueDataRealRows.push(uniqueDataReal.map((data) => data[dataRow.column_name]));
+        uniqueDataIntRows.push(uniqueDataInt.map((data) => data[dataRow.column_name]));
+        uniqueDataIntCatRows.push(uniqueDataIntCat.map((data) => data[dataRow.column_name]));
+    });
+
     const spreadsheet = SpreadSheetProcessConfig.create(tableId, dataRows, { registerByFile });
+    spreadsheet.updateUniqueSampleDataAttributes(
+        uniqueDataCategoryRows,
+        uniqueDataRealRows,
+        uniqueDataIntRows,
+        uniqueDataIntCatRows,
+        ...spreadsheet.table.getRowsByHeadersAndIndexes(),
+    );
+
     spreadsheet.table.takeSnapshotForTracingChanges(SpreadSheetProcessConfig.trackingHeaders());
     // Need this check, so we can know whether we should show change mark for new process.
     spreadsheet.handleChangeMark();
@@ -777,6 +822,11 @@ const setTotalCheckedColumns = (totalCheckedColumnsEle, totalCheckedColumns = 0)
 
 const setTotalColumns = (totalColumns = 0) => {
     procModalElements.totalColumns.text(totalColumns);
+};
+
+const updateIndexForSpecialRow = (dataRows) => {
+    //sort remove index case to top
+    return [...dataRows.filter((row) => checkSpecialRow(row)), ...dataRows.filter((row) => !checkSpecialRow(row))];
 };
 
 const cleanOldData = () => {
@@ -1029,7 +1079,15 @@ const updateCurrentDatasource = () => {
 const showLatestRecordsFromPrc = async (json) => {
     dataGroupType = json.data_group_type;
     // genColumnWithCheckbox(json.cols, json.rows, dummyDatetimeIdx);
-    const speadSheet = await generateProcessList(procModalElements.procConfigTableName, json.cols, json.rows);
+    const speadSheet = await generateProcessList(
+        procModalElements.procConfigTableName,
+        json.cols,
+        json.rows,
+        json.unique_rows_as_category,
+        json.unique_rows_as_real,
+        json.unique_rows_as_int,
+        json.unique_rows_as_int_cat,
+    );
     preventSelectAll(renderedCols);
 
     // update changed datasource
@@ -1682,6 +1740,12 @@ const collectMergeProcCfgData = () => {
                 if (colData.parent_id) {
                     // child col's datatype must match parent col's datatype
                     colData.data_type = originalCol.data_type;
+                    colData.is_serial_no = originalCol.is_serial_no;
+                    colData.is_get_date = originalCol.is_get_date;
+                    colData.is_chain_of_me_functions = originalCol.is_chain_of_me_functions;
+                    colData.is_auto_increment = originalCol.is_auto_increment;
+                    colData.is_dummy_datetime = originalCol.is_dummy_datetime;
+                    colData.is_file_name = originalCol.is_file_name;
                     mergedCols.push(colData);
                 }
             }
@@ -1711,7 +1775,9 @@ const updateProcessConfig = (res) => {
     procModalElements.procMergeModeModal.modal('hide');
     // sync Vis network
     reloadTraceConfigFromDB();
-    isV2ProcessConfigOpening = false;
+    $(procModalElements.procModal).on('hidden.bs.modal', () => {
+        isV2ProcessConfigOpening = false;
+    });
 
     // update GUI
     if (res.status !== HTTP_RESPONSE_CODE_500) {
@@ -2449,6 +2515,7 @@ $(() => {
 
         // Hide warning mark
         procModalElements.etlFuncWarningMark.hide();
+        resetSampleDataDisplayModeRadio();
 
         // reset first datetime checked
         showLatestRecords(formData, clearDataFlg);
@@ -3563,6 +3630,9 @@ const addStateInitialize = () => {
     const columnDataType = $('.column-data-type');
     columnDataType.attr('is-initialize', 'true');
     columnDataType.removeClass('disabled');
+    columnDataType.removeClass(READONLY_CLASS);
+    // enable checkbox
+    $('.column-is-checked').removeClass(READONLY_CLASS);
 };
 
 const enableDummyDateTimeOrDateTimeGeneratedChecked = () => {
@@ -3603,9 +3673,14 @@ const enableDatetimeDataType = () => {
     // reset input
     procModalElements.procDateTimeFormatInput.prop('disabled', false);
     procModalElements.procDateTimeFormatInput.attr('placeholder', DATETIME_FORMAT_PLACE_HOLDER);
+    // reset FileName checkbox
+    if (currentProcess?.data_source.csv_detail) {
+        procModalElements.isShowFileName.prop('disabled', false);
+        procModalElements.isShowFileName.prop('checked', false).trigger('change');
+    }
 
     // Enable "Import condition"
     $(`#${filterConditionElements.importFilterTable} tbody td`).removeClass('disabled-input');
     setStatusButton();
-    // enableDummyDateTimeOrDateTimeGeneratedChecked();
+    enableDummyDateTimeOrDateTimeGeneratedChecked();
 };

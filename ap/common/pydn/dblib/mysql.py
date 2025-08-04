@@ -27,7 +27,7 @@ class MySQL:
 
     def dump(self):
         logger.info(
-            f'''\
+            f"""\
 ===== DUMP RESULT =====
 DB Type: MySQL
 self.host: {self.host}
@@ -36,7 +36,7 @@ self.dbname: {self.dbname}
 self.username: {self.username}
 self.is_connected: {self.is_connected}
 =======================
-''',
+""",
         )
 
     def connect(self):
@@ -85,7 +85,7 @@ self.is_connected: {self.is_connected}
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
         if not self._check_connection():
-            return False
+            return []
 
         sql = 'show tables'
         cur = self.connection.cursor()

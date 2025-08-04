@@ -96,6 +96,17 @@ const formElements = {
     resultSection: $('.result-section'),
 };
 
+const calendarMode = {
+    1: {
+        cycleName: 'daily',
+        stepDOM: formElements.stepMinute,
+    },
+    7: {
+        cycleName: 'weekly',
+        stepDOM: formElements.stepHour,
+    },
+};
+
 // maximum number of processes is 10.
 const procColorPalettes = [
     '#6495ab',
@@ -198,12 +209,20 @@ const bindScaleEvent = () => {
     });
 };
 
-const setDefaultHeatmapCycle = () => {
-    // hide step minute by default
+const setDefaultHeatmapCycle = (mode = 1, stepVal = 15) => {
+    // mode: weekly: 15, daily: 1
+    // steps:
+    //     weekly: [1, 2, 4, 6, 8, 12, 24] hours
+    //     daily: [10, 15, 20, 30, 60, 120, 180] minutes
+    // default: mode = 1 (daily), step = 15 (minute) (s262)
     formElements.stepMinute.css('display', 'none');
-    formElements.stepHour.val(15);
-    formElements.stepHour.css('display', 'block');
-    formElements.stepHour.val(1);
+    formElements.stepHour.css('display', 'none');
+    if (Object.keys(calendarMode).includes(String(mode))) {
+        formElements.mode.val(mode);
+        calendarMode[mode].stepDOM.val(stepVal);
+        calendarMode[mode].stepDOM.css('display', 'block');
+    }
+    // switch cycle and step
     formElements.mode.on('change', () => {
         const currentMode = formElements.mode.val();
         if (`${currentMode}` === '1') {

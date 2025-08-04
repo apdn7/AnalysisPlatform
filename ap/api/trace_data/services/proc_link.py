@@ -11,10 +11,10 @@ from pytz import utc
 from ap import scheduler
 from ap.api.common.services.sql_generator import gen_sql_proc_link_count
 from ap.api.common.services.utils import gen_sql_and_params
-from ap.common.common_utils import gen_sqlite3_file_name
 from ap.common.constants import SUB_STRING_COL_NAME, AnnounceEvent, CacheType, JobType
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventExpireCache, EventQueue
+from ap.common.path_utils import gen_sqlite3_file_name
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import RESCHEDULE_SECONDS, scheduler_app_context
 from ap.setting_module.models import (

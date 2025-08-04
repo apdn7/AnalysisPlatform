@@ -1200,19 +1200,7 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
     if (autoUpdate) {
         return genDatetimeRange(lastUsedFormData);
     }
-    let formData;
-    if (clearOnFlyFilter) {
-        const traceForm = $(formElements.formID);
-        formData = new FormData(traceForm[0]);
-        formData = transformFacetParams(formData);
-        formData = genDatetimeRange(formData);
-        formData = clearEmptyEndProcs(formData);
-        lastUsedFormData = formData;
-    } else {
-        formData = lastUsedFormData;
-        // transform cat label filter
-        formData = transformCatFilterParams(formData);
-    }
+    let formData = getFormData(formElements.formID, clearOnFlyFilter);
 
     // transfer for switch XY
     formData = transformXY(formData);

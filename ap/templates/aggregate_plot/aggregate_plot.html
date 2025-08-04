@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block midbody %}
-    <div class="card">
+    <div class="card monitor-icons">
         <form class="GUIForm" id="traceDataForm">
             {{ macros.calendar_heatmap_end_proc(title=_('AgP target variables'), procs=procs, no_link_data=true, cat_count=false) }}
             {{ macros.data_finder_card() }}
@@ -45,8 +45,9 @@
                     type="button"
                     value="{{ _('Display graph') }}"
                     onClick="showAgP();"
-                    class="btn btn-primary show-graph ml-3"
+                    class="btn btn-primary show-graph ml-3 hotkey-button"
                     title="Shortcut key: Ctrl+Enter"
+                    data-hotkey="Ctrl+Enter"
                 >
                     <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
                 </button>

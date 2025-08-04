@@ -6,8 +6,8 @@ from ap.setting_module.schemas import VisProcessTraceOutSchema
 
 
 @log_execution_time()
-def get_all_processes_traces_info() -> list[VisProcessTraceOutSchema]:
-    processes = CfgProcess.query.all()
+def get_all_processes_traces_info(with_parent=True) -> list[VisProcessTraceOutSchema]:
+    processes = CfgProcess.get_all(is_order=False, with_parent=with_parent)
     return [VisProcessTraceOutSchema.model_validate(p) for p in processes]
 
 

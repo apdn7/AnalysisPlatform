@@ -97,6 +97,8 @@
 .\ap\api\setting_module\services\v2_etl_services.py
 .\ap\api\setting_module\services\__init__.py
 .\ap\api\table_viewer\controllers.py
+.\ap\api\time_vis\controllers.py
+.\ap\api\time_vis\services.py
 .\ap\api\trace_data\controllers.py
 .\ap\api\trace_data\services\csv_export.py
 .\ap\api\trace_data\services\data_count.py
@@ -128,6 +130,7 @@
 .\ap\common\logger.py
 .\ap\common\memoize.py
 .\ap\common\pandas_helper.py
+.\ap\common\path_utils.py
 .\ap\common\pysize.py
 .\ap\common\scheduler.py
 .\ap\common\sigificant_digit.py
@@ -172,7 +175,12 @@
 .\ap\common\services\request_time_out_handler.py
 .\ap\common\services\sse.py
 .\ap\common\services\statistics.py
+.\ap\common\services\trace_graph.py
 .\ap\common\services\__init__.py
+.\ap\common\session\config_changes.py
+.\ap\common\session\listener.py
+.\ap\common\session\meta.py
+.\ap\common\session\__init__.py
 .\ap\config\basic_config.yml
 .\ap\config\tile_interface_analysis_platform.yml
 .\ap\config\tile_interface_dn7.yml
@@ -206,6 +214,8 @@
 .\ap\co_occurrence\__init__.py
 .\ap\co_occurrence\services\utils.py
 .\ap\co_occurrence\services\__init__.py
+.\ap\detect_judge\core.py
+.\ap\detect_judge\__init__.py
 .\ap\equations\core.py
 .\ap\equations\error.py
 .\ap\equations\utils.py
@@ -250,7 +260,6 @@
 .\ap\script\migrate_m_function.py
 .\ap\script\migrate_m_unit.py
 .\ap\script\migrate_process_file_name_column.py
-.\ap\script\setup_for_e2e.py
 .\ap\script\unlock_db.py
 .\ap\script\dummy_data\dummy_sql.py
 .\ap\script\r_scripts\analytics.r
@@ -359,6 +368,7 @@
 .\ap\static\common\images\custom-filter.png
 .\ap\static\common\images\logo.png
 .\ap\static\common\js\app_version_handler.js
+.\ap\static\common\js\ap_plot.js
 .\ap\static\common\js\ap_tour.js
 .\ap\static\common\js\auto-update-common.js
 .\ap\static\common\js\base.js
@@ -660,6 +670,7 @@
 .\ap\static\setting_module\js\jspreadsheet_function_config.js
 .\ap\static\setting_module\js\jspreadsheet_process_config.js
 .\ap\static\setting_module\js\jspreadsheet_table_utils.js
+.\ap\static\setting_module\js\jspreadsheet_visualization_config.js
 .\ap\static\setting_module\js\main_serial_function_column.js
 .\ap\static\setting_module\js\master_config.js
 .\ap\static\setting_module\js\npm.js
@@ -669,6 +680,7 @@
 .\ap\static\setting_module\js\proc_config.js
 .\ap\static\setting_module\js\proc_config_date_time_format.js
 .\ap\static\setting_module\js\proc_config_modals.js
+.\ap\static\setting_module\js\proc_config_unique_sample_data.js
 .\ap\static\setting_module\js\register_from_file.js
 .\ap\static\setting_module\js\system.js
 .\ap\static\setting_module\js\trace_config.js
@@ -684,12 +696,16 @@
 .\ap\static\table_viewer\lang\Japanese.json
 .\ap\static\tile_interface\css\tile_interface.css
 .\ap\static\tile_interface\js\tile_interface.js
+.\ap\static\time_vis\css\time_vis.css
+.\ap\static\time_vis\js\time_vis.js
+.\ap\static\time_vis\js\time_vis_plot.js
 .\ap\static\trace_data\css\trace_data.css
 .\ap\static\trace_data\js\trace_data.js
 .\ap\static\trace_data\js\trace_data_categorical_table.js
 .\ap\static\trace_data\js\trace_data_cross_hair.js
 .\ap\static\trace_data\js\trace_data_histogram.js
 .\ap\static\trace_data\js\trace_data_histogram_with_kde.js
+.\ap\static\trace_data\js\trace_data_judge.js
 .\ap\static\trace_data\js\trace_data_scatter_plot.js
 .\ap\static\trace_data\js\trace_data_step_bar_chart.js
 .\ap\static\trace_data\js\trace_data_summary_table.js
@@ -747,11 +763,15 @@
 .\ap\templates\table_viewer\index.html
 .\ap\templates\tile_interface\tile_dashboard.html
 .\ap\templates\tile_interface\tile_search_by_use.html
+.\ap\templates\time_vis\time_vis.html
 .\ap\templates\trace_data\trace_data.html
 .\ap\tile_interface\controllers.py
 .\ap\tile_interface\__init__.py
 .\ap\tile_interface\services\utils.py
 .\ap\tile_interface\services\__init__.py
+.\ap\time_vis\controllers.py
+.\ap\time_vis\__init__.py
+.\ap\time_vis\services\__init__.py
 .\ap\trace_data\controllers.py
 .\ap\trace_data\database_index.py
 .\ap\trace_data\schemas.py

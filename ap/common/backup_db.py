@@ -10,12 +10,11 @@ from ap import (
     APP_DB_FILE,
     SQLITE_CONFIG_DIR,
     dic_config,
-    make_dir,
 )
-from ap.common.common_utils import copy_file
 from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
+from ap.common.path_utils import copy_file, make_dir
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.services.background_process import send_processing_info
 

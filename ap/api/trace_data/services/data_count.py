@@ -1,7 +1,6 @@
 import pandas as pd
 
-from ap.common.common_utils import DATE_FORMAT_SIMPLE, FREQ_FOR_RANGE, TERM_FORMAT
-from ap.common.constants import CacheType, DataCountType
+from ap.common.constants import DATE_FORMAT_SIMPLE, FREQ_FOR_RANGE, TERM_FORMAT, CacheType, DataCountType
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db

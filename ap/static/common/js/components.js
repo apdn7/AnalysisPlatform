@@ -317,6 +317,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         judge: 7,
         filter: 8,
     };
+    let divSelected = false;
     const isShowColorCheckBox = props ? props.showColor && !props.colorAsDropdown : false;
     const genDetailItem = (
         isHeader = false,
@@ -445,7 +446,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const headerClass = isHeader ? 'keep-header' : '';
 
         const output = `<li class="list-group-item form-check ${headerClass}">
-                            <div class="row style="padding-left: 5px">
+                            <div class="row item-row" style="padding-left: 5px">
                                ${html}
                             </div>
                         </li> `;
@@ -504,8 +505,19 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         let colDataTypeShowName = '';
         let catExpBox = ''; // don't set null , it will show null on screen
         let catExpChkBoxId = null;
+        let autoSelectDiv = '';
         if (props.itemDataTypes) {
             colDataType = DataTypes[props.itemDataTypes[i]].org_type;
+            // auto select div for main serial or serial Time vis
+            if (!hasDivSelection() && !divSelected && props.isDivRequired) {
+                if (props.hasMasterSerial && props.columnInfo[i].columnType === masterDataGroup.MAIN_SERIAL) {
+                    autoSelectDiv = 'selected';
+                    divSelected = true;
+                } else if (props.columnInfo[i].columnType === masterDataGroup.SERIAL) {
+                    autoSelectDiv = 'selected';
+                    divSelected = true;
+                }
+            }
             colDataTypeShowName = props.itemDataTypeShownNames[i];
             catExpChkBoxId = `catExp-${chkBoxId}`;
             if (
@@ -513,11 +525,11 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 [DataTypes.INTEGER.name, DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType)
             ) {
                 catExpBox = `<select name="catExpBox" id="catExpItem-${itemId}" onchange="changeFacetLevel(this);"
-                                data-load-level="2" class="form-control level-select">
+                                data-load-level="2" class="form-control level-select ${autoSelectDiv ? 'auto-selected' : ''} ${props.isDivRequired ? 'required-input' : ''}">
                     <option value="">---</option>
                     <option value="1">Lv1</option>
                     <option value="2">Lv2</option>
-                    ${props.hasDiv ? '<option value="3">Div</option>' : ''}
+                    ${props.hasDiv ? `<option value="3" ${autoSelectDiv}>Div</option>` : ''}
                 </select>`;
             }
         }
@@ -572,8 +584,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         }
 
         const isColorRequired = props.isColorRequired ? requiredInputClass : '';
-        let colorDOM = null;
-        if (props.showColor) {
+        let colorDOM = '';
+        const isShowColor =
+            props.showColor && (props.colorTypes.length === 0 ? true : props.colorTypes.includes(colDataType));
+        if (isShowColor) {
             if (props.colorAsDropdown) {
                 const dropdownColorId = `agp-color-${itemId}`;
                 const colorValSelected = props.colorValsSelected.find((val) => val.id === dropdownColorId);
@@ -1317,6 +1331,7 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                     setTimeout(() => {
                         card.parent().remove();
                         updateSelectedItems(false, $(formElements.condProcSelectedItem));
+                        checkIfProcessesAreLinked();
                     }, 100);
                 }
             }
@@ -1358,7 +1373,7 @@ const getFilterByTypes = (process, filterType) => {
 };
 
 // Condition Line change event
-const condLineOnChange = async (selectedLines, count, prefix = '', isNew = false) => {
+const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = false, is_pca_filter = false } = {}) => {
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (selectedLines.length === 0) {
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'none');
@@ -1371,7 +1386,7 @@ const condLineOnChange = async (selectedLines, count, prefix = '', isNew = false
         const machineVals = [];
         const checkedIds = [];
         const parentId = `${prefix}cond-proc-machine-div-${count}`;
-        const elName = `${prefix}machine_id_multi${count}`;
+        const elName = `${is_pca_filter ? prefix : ''}machine_id_multi${count}`;
         const elId = `${prefix}cond-proc-machine-${count}`;
 
         if (!isEmpty(procInfo)) {
@@ -1445,6 +1460,7 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_fi
     // selected process
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (isEmpty(selectedProc)) {
+        checkIfProcessesAreLinked();
         return;
     }
 
@@ -1485,11 +1501,11 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_fi
             for (let i = 0; i < lineInputs.length; i++) {
                 if (lineInputs[i].checked) selectedLines.push(lineInputs[i].value.toLowerCase());
             }
-            condLineOnChange(selectedLines, count, prefix);
+            condLineOnChange(selectedLines, count, prefix, { is_pca_filter: is_pca_filter });
         });
 
         // default show all machine
-        condLineOnChange(['all'], count, prefix, true);
+        condLineOnChange(['all'], count, prefix, { isNew: true, is_pca_filter: is_pca_filter });
     }
 
     const [partnoIds, partnoVals] = getFilterByTypes(procInfo, filterTypes.PART_NO);
@@ -1538,6 +1554,7 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_fi
     }
     compareSettingChange();
     bindFilterChangeEvents(selectedProc);
+    checkIfProcessesAreLinked();
     // clearNoLinkDataSelection();
 };
 
@@ -1576,7 +1593,8 @@ const addCondProc = (
                         </span>
                         <div class="d-flex align-items-center" id="${prefix}cond-proc-process-div-${count}">
                             <span class="mr-2">${i18nCommon.process}</span>
-                            <div class="w-auto flex-grow-1">
+                            <div class="w-auto flex-grow-1 position-relative">
+                                <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 30px;"></i>
                                 <select name="${is_pca_filter ? prefix : ''}cond_proc${count}" class="form-control select2-selection--single select-n-columns" id="${prefix}cond-proc-process-${count}"
                                     data-gen-btn="${dataGenBtn}" onchange="condProcOnChange(${count},'${prefix}','${parentFormId}', ${is_pca_filter})">
                                     ${itemList.join(' ')}
@@ -1753,6 +1771,12 @@ const resizeListOptionSelect2 = ({
             maxHeight: `calc(100vh - ${top} + ${window.scrollY - 48}px)`,
         });
     }
+
+    // extend width for function select
+    if (select2El.hasClass('function-var')) {
+        $('.select2-search--dropdown').addClass('function-var-dropdown');
+        $('.select2-results').addClass('function-var-dropdown');
+    }
 };
 
 const resetSummaryOption = (name) => {
@@ -1903,7 +1927,7 @@ const changeObjectiveVarEvent = () => {
     compareSettingChange();
 };
 
-const isLinkedWithStartProcess = async (end_proc_id, start_proc_id) => {
+const isLinkedWithProcess = async (end_proc_id, start_proc_id) => {
     const url = `/ap/api/setting/proc_config/${end_proc_id}/traces_with/${start_proc_id}`;
     const res = await fetchData(url, {}, 'GET');
     return res.data;
@@ -1946,55 +1970,119 @@ const checkIfProcessesAreLinked = async () => {
     const startProc = $('select[name=start_proc]');
     const startProcVal = startProc.val();
     const endProcs = $('select[name^=end_proc]');
-    const warningSigns = $('svg[id^=no-link-with-start-proc]');
+    const condProcs = $('select[name^=cond_proc]');
+    const warningSigns = $('svg[id^=no-link-warning-sign]');
     warningSigns.css({ display: 'none' });
     hideAlertMessages();
 
+    const displayNoLinkAlertMessage = (displayProcLinkAlert, displayFilterLinkAlert) => {
+        let messageContent = '';
+        if (displayProcLinkAlert && displayFilterLinkAlert) {
+            messageContent = `${$('#i18nNoLinkConfig').text()}<br>${$('#i18nNoFilterLinkConfig').text()}`;
+            displayRegisterMessage('#alertNoLinkConfig', { message: messageContent, is_error: true });
+        } else if (displayProcLinkAlert) {
+            messageContent = `${$('#i18nNoLinkConfig').text()}`;
+            displayRegisterMessage('#alertNoLinkConfig', { message: messageContent, is_error: true });
+        } else if (displayFilterLinkAlert) {
+            messageContent = `${$('#i18nNoFilterLinkConfig').text()}`;
+            displayRegisterMessage('#alertNoLinkConfig', { message: messageContent, is_error: true });
+        } else {
+            hideAlertMessages();
+        }
+    };
+
+    // Start Proc is not selected
     if (startProcVal === '') {
         const startProcId = $(endProcs[0]).val();
-        let displayAlert = false;
+        let displayProcLinkAlert = false;
+        let displayFilterLinkAlert = false;
         for (const el of endProcs) {
             if ($(el).val() === startProcId || !$(el).val()) {
                 continue;
             }
-            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]');
-            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcId);
+            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
+            const hasLink = await isLinkedWithProcess($(el).val(), startProcId);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
                 warningSign.css({ display: 'block' });
-                displayAlert = true;
+                displayProcLinkAlert = true;
             }
         }
-        if (displayAlert) {
-            displayRegisterMessage('#alertNoLinkConfig', {
-                is_error: true,
-                message: $('#i18nNoLinkConfig').text(),
-            });
-        } else hideAlertMessages();
+        for (const el of condProcs) {
+            if ($(el).val() === startProcId || !$(el).val()) {
+                continue;
+            }
+            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
+            const hasLink = await isLinkedWithProcess($(el).val(), startProcId);
+            if (hasLink) {
+                warningSign.css({ display: 'none' });
+            } else {
+                warningSign.css({ display: 'block' });
+                displayFilterLinkAlert = true;
+            }
+        }
+        displayNoLinkAlertMessage(displayProcLinkAlert, displayFilterLinkAlert);
     }
 
+    // Start Proc is selected
     if (startProcVal && startProcVal !== '0') {
-        let displayAlert = false;
+        let displayProcLinkAlert = false;
+        let displayFilterLinkAlert = false;
         for (const el of endProcs) {
             if (!$(el).val()) {
                 continue;
             }
-            const warningSign = $(el).siblings('svg[id^=no-link-with-start-proc]');
-            const hasLink = await isLinkedWithStartProcess($(el).val(), startProcVal);
+            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
+            const hasLink = await isLinkedWithProcess($(el).val(), startProcVal);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
                 warningSign.css({ display: 'block' });
-                displayAlert = true;
+                displayProcLinkAlert = true;
             }
         }
-        if (displayAlert) {
-            displayRegisterMessage('#alertNoLinkConfig', {
-                is_error: true,
-                message: $('#i18nNoLinkConfig').text(),
-            });
-        } else hideAlertMessages();
+        for (const el of condProcs) {
+            if (!$(el).val()) {
+                continue;
+            }
+            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
+            const hasLink = await isLinkedWithProcess($(el).val(), startProcVal);
+            if (hasLink) {
+                warningSign.css({ display: 'none' });
+            } else {
+                warningSign.css({ display: 'block' });
+                displayFilterLinkAlert = true;
+            }
+        }
+        displayNoLinkAlertMessage(displayProcLinkAlert, displayFilterLinkAlert);
+    }
+
+    // No data link is selected
+    // Each condition proc needs to check with all end procs
+    if (startProcVal === '0') {
+        let displayFilterLinkAlert = false;
+        for (const el of condProcs) {
+            if (!$(el).val()) {
+                continue;
+            }
+            let isLinkedWithEndProc = [];
+            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
+            for (const endProcElement of endProcs) {
+                const endProcId = $(endProcElement).val();
+                const hasLink = await isLinkedWithProcess($(el).val(), endProcId);
+                isLinkedWithEndProc.push(hasLink);
+            }
+            // warning is only displayed when a condition proc is not linked with any end procs
+            isLinkedWithEndProc = isLinkedWithEndProc.filter((isLinked) => isLinked === true);
+            if (isLinkedWithEndProc.length > 0) {
+                warningSign.css({ display: 'none' });
+            } else {
+                warningSign.css({ display: 'block' });
+                displayFilterLinkAlert = true;
+            }
+        }
+        displayNoLinkAlertMessage(false, displayFilterLinkAlert);
     }
 };
 

@@ -44,7 +44,7 @@ class MSSQLServer:
 
     def dump(self):
         logger.info(
-            f'''\
+            f"""\
 ===== DUMP RESULT =====
 DB Type: MS SQL Server
 self.host: {self.host}
@@ -54,7 +54,7 @@ self.username: {self.username}
 self.schema: {self.schema or ''}
 self.is_connected: {self.is_connected}
 ======================='
-''',
+""",
         )
 
     def try_connect(self):
@@ -150,7 +150,7 @@ self.is_connected: {self.is_connected}
     # テーブル名の配列を取得
     def list_tables(self):
         if not self._check_connection():
-            return False
+            return []
         # Only list tables of default schema (default schema name can be got by "SCHEMA_NAME()")
         schema = f"'{self._schema}'" if self._schema else 'SCHEMA_NAME()'
         sql = f"select name from sys.objects where type='U' and SCHEMA_NAME(schema_id)={schema}"
@@ -371,5 +371,8 @@ self.is_connected: {self.is_connected}
 
     def get_table(self, table_name):
         query = f"SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE '{table_name}'"
-        cols, rows = self.run_sql(query)
+        exec_result = self.run_sql(query)
+        if not exec_result:
+            return False
+        cols, rows = exec_result
         return len(rows) > 0

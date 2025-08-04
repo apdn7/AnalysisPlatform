@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block midbody %}
-    <div id="categoryTab" class="card no-top-border">
+    <div id="categoryTab" class="card no-top-border monitor-icons">
         <form id="RLPForm" class="no-top-border GUIForm">
             <!-- Process + sensor -->
             <div class="card-body table-bordered graph-navi no-top-border">
@@ -71,9 +71,10 @@
                     type="button"
                     value="{{ _('Display graph') }}"
                     onClick="showGraph()"
-                    class="btn btn-primary show-graph ml-3"
+                    class="btn btn-primary show-graph ml-3 hotkey-button"
                     data-with-tab="true"
                     title="Shortcut key: Ctrl+Enter"
+                    data-hotkey="Ctrl+Enter"
                 >
                     <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
                 </button>

@@ -11,14 +11,12 @@ import re
 import shutil
 import socket
 import sys
-import zipfile
 from collections import OrderedDict
 from datetime import datetime, timedelta
 from enum import Enum
 from io import IOBase
 from itertools import permutations
-from pathlib import Path
-from typing import IO, Any, List, TextIO, Type, Union
+from typing import Any, Type, Union
 
 import chardet
 import numpy as np
@@ -37,7 +35,9 @@ from sqlalchemy import NullPool, create_engine
 
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
-    CONFIG_DB,
+    DATE_FORMAT_QUERY,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_ONLY_DIGIT,
     EMPTY_STRING,
     ENCODING_ASCII,
     ENCODING_SHIFT_JIS,
@@ -46,20 +46,15 @@ from ap.common.constants import (
     INT64_MAX,
     INT64_MIN,
     LANGUAGES,
-    PREVIEW_DATA_FOLDER,
     SAFARI_SUPPORT_VER,
-    SCHEDULER_DB,
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
     SQL_COL_PREFIX,
-    TRANSACTION_FOLDER,
-    UNIVERSAL_DB_FILE,
     ZERO_FILL_PATTERN,
     ZERO_FILL_PATTERN_2,
     AbsPath,
     AppEnv,
     CsvDelimiter,
-    CSVExtTypes,
     DataType,
     FileExtension,
     FilterFunc,
@@ -67,29 +62,18 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.logger import log_execution_time
+from ap.common.path_utils import (
+    check_exist,
+    get_data_path,
+    make_dir,
+    make_dir_from_file_path,
+    open_with_zip,
+    resource_path,
+)
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_str, unicode_normalize
 
 logger = logging.getLogger(__name__)
-
-TXT_FILE_TYPE = '.txt'
-DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
-DATE_FORMAT_STR_SQLITE = '%Y-%m-%dT%H:%M:%S.%fZ'
-DATE_FORMAT_SQLITE_STR = '%Y-%m-%dT%H:%M:%S'
-DATE_FORMAT_QUERY = '%Y-%m-%dT%H:%M:%S.%f'
-DATE_FORMAT_STR_CSV = '%Y-%m-%d %H:%M:%S.%f'
-DATE_FORMAT_STR_FACTORY_DB = '%Y-%m-%d %H:%M:%S.%f'
-DATE_FORMAT_STR_ONLY_DIGIT = '%Y%m%d%H%M%S.%f'
-DATE_FORMAT = '%Y-%m-%d'
-TIME_FORMAT = '%H:%M'
-TIME_FORMAT_WITH_SEC = '%H:%M:%S'
-RL_DATETIME_FORMAT = '%Y-%m-%dT%H:%M'
-DATE_FORMAT_SIMPLE = '%Y-%m-%d %H:%M:%S'
-DATE_FORMAT_FOR_ONE_HOUR = '%Y-%m-%d %H:00:00'
-API_DATETIME_FORMAT = '%Y-%m-%dT%H:%MZ'
-# for data count
-TERM_FORMAT = {'year': '%Y', 'month': '%Y-%m', 'week': DATE_FORMAT}
-FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
 
 
 def get_current_timestamp(format_str=DATE_FORMAT_STR) -> str:
@@ -164,89 +148,6 @@ def convert_json_to_ordered_dict(json):
         return ordered_json
 
     return json
-
-
-def get_latest_file(root_name):
-    try:
-        latest_files = get_files(
-            root_name,
-            depth_from=1,
-            depth_to=100,
-            extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value],
-        )
-        latest_files.sort()
-        return latest_files[-1].replace(os.sep, '/')
-    except Exception:
-        return ''
-
-
-def get_sorted_files(root_name, is_allow_zip: bool = True) -> List[str]:
-    try:
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
-        if is_allow_zip:
-            extension.append(CSVExtTypes.ZIP.value)
-        latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
-        latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
-        latest_files.sort(reverse=True)
-        return latest_files
-    except Exception:
-        return []
-
-
-@log_execution_time()
-def is_normal_zip(f_name: Union[str, Path]) -> bool:
-    return Path(f_name).suffix == '.zip'
-
-
-def get_largest_files_in_list(files: List[str]) -> List[str]:
-    sorted_files = sorted(files, key=lambda x: os.path.getsize(x))
-    sorted_files.reverse()
-    return sorted_files
-
-
-def get_sorted_files_in_list(files: List[str]) -> List[str]:
-    sorted_files = sorted(files, key=lambda x: (os.path.getsize(x), os.path.getctime(x)))
-    sorted_files.reverse()
-    return sorted_files
-
-
-def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[str]:
-    try:
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
-        if is_allow_zip:
-            extension.append(CSVExtTypes.ZIP.value)
-        files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
-        largest_files = get_largest_files_in_list(files)
-        return largest_files
-    except FileNotFoundError:
-        return []
-
-
-def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True) -> List[str]:
-    try:
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
-        if is_allow_zip:
-            extension.append(CSVExtTypes.ZIP.value)
-        files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
-        largest_files = get_sorted_files_in_list(files)
-        return largest_files
-    except FileNotFoundError:
-        return []
-
-
-def get_latest_files(root_name: Union[Path, str]) -> List[str]:
-    try:
-        files = get_files(
-            str(root_name),
-            depth_from=1,
-            depth_to=100,
-            extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value],
-        )
-        files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
-        files = [f.replace(os.sep, '/') for f in files]
-        return files
-    except FileNotFoundError:
-        return []
 
 
 def start_of_minute(start_date, start_tm, delimiter='T'):
@@ -388,48 +289,6 @@ def add_months(time=datetime.utcnow(), months=0):
     return time + relativedelta(months=months)
 
 
-@log_execution_time()
-def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False):
-    """get files in folder
-
-    Arguments:
-        directory {[type]} -- [description]
-
-    Keyword Arguments:
-        depth_limit {int} -- [description] (default: 2)
-        extension {list} -- [description] (default: [''])
-
-    Returns:
-        [type] -- [description]
-    """
-    output_files = []
-    if not directory:
-        return output_files
-
-    if not check_exist(directory):
-        raise FileNotFoundError('Folder not found!')
-
-    root_depth = directory.count(os.path.sep)
-    for root, _, files in os.walk(directory):
-        # limit depth of recursion
-        current_depth = root.count(os.path.sep) + 1
-        # assume that directory depth is 1, sub folders are 2, 3, ...
-        # default is to just read children sub folder, depth from 1 to 2
-        if (current_depth < root_depth + depth_from) or (current_depth > root_depth + depth_to):
-            continue
-
-        # list files with extension
-        for file in files:
-            # Check file is modified in [in_modified_days] days or not
-            if any(file.lower().endswith(ext) for ext in extension):
-                if file_name_only:
-                    output_files.append(file)
-                else:
-                    output_files.append(os.path.join(root, file))
-
-    return output_files
-
-
 def add_double_quotes(instr: str):
     """add double quotes to a string (column name)
 
@@ -445,29 +304,6 @@ def add_double_quotes(instr: str):
     instr = instr.strip('"')
 
     return f'"{instr}"'
-
-
-def resource_path(*relative_path, level=AbsPath.SHOW):
-    """make absolute path
-
-    Keyword Arguments:
-        level {int} -- [0: auto, 1: user can see folder, 2: user can not see folder(MEIPASS)] (default: {0})
-
-    Returns:
-        [type] -- [description]
-    """
-
-    show_path = os.getcwd()
-    hide_path = getattr(sys, '_MEIPASS', show_path)
-
-    if level is AbsPath.SHOW:
-        basedir = show_path
-    elif level is AbsPath.HIDE or getattr(sys, 'frozen', False):
-        basedir = hide_path
-    else:
-        basedir = show_path
-
-    return os.path.join(basedir, *relative_path)
 
 
 # class RUtils:
@@ -559,20 +395,6 @@ def create_file_path(prefix, suffix='.tsv', dt=None):
     return file_path
 
 
-def copy_file(source, target):
-    """copy file
-
-    Arguments:
-        source {[type]} -- [description]
-        target {[type]} -- [description]
-    """
-    if not check_exist(source):
-        return False
-
-    shutil.copy2(source, target)
-    return True
-
-
 # def path_split_all(path):
 #     """split all part of a path
 #
@@ -593,194 +415,6 @@ def copy_file(source, target):
 #             allparts.insert(0, parts[1])
 #
 #     return allparts
-
-
-def get_data_path(abs=True, is_log=False):
-    """get data folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'data'
-    if is_log:
-        folder_name = 'log'
-    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_log_path(abs=True):
-    """get data folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'log'
-    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_instance_path(abs=True):
-    """get data folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'instance'
-    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_error_trace_path(abs=True):
-    """get import folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = ['error', 'trace']
-    return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_error_cast_path(abs=True):
-    """get error cast folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = ['error', 'cast']
-    return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_error_duplicate_path(abs=True):
-    """get duplicate folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = ['error', 'duplicate']
-    return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_error_import_path(abs=True):
-    """get import folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = ['error', 'import']
-    return resource_path(*folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
-def get_about_md_file():
-    """
-    get about markdown file path
-    """
-    folder_name = 'about'
-    file_name = 'Endroll.md'
-    return resource_path(folder_name, file_name, level=AbsPath.SHOW)
-
-
-def get_terms_of_use_md_file(current_locale):
-    """
-    get about markdown file path
-    """
-    folder_name = 'about'
-    file_name = 'terms_of_use_jp.md' if current_locale.language == 'ja' else 'terms_of_use_en.md'
-    return resource_path(folder_name, file_name, level=AbsPath.SHOW)
-
-
-def get_cookie_policy_md_file(current_locale):
-    """
-    get about markdown file path
-    """
-    folder_name = 'about'
-    file_name = 'cookie_policy_jp.md' if current_locale.language == 'ja' else 'cookie_policy_en.md'
-    return resource_path(folder_name, file_name, level=AbsPath.SHOW)
-
-
-def get_user_scripts_path():
-    folder_names = ['ap', 'script', 'user_scripts']
-    return resource_path(*folder_names, level=AbsPath.SHOW)
-
-
-def get_wrapr_path():
-    """get wrap r folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_names = ['ap', 'script', 'r_scripts', 'wrapr']
-    return resource_path(*folder_names, level=AbsPath.SHOW)
-
-
-def get_temp_path():
-    """get temporaty folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'temp'
-    data_folder = get_data_path()
-    temp_dir = resource_path(data_folder, folder_name, level=AbsPath.SHOW)
-
-    # check if temp dir exists, if not, create it
-    os.makedirs(temp_dir, exist_ok=True)
-
-    return temp_dir
-
-
-def get_cache_path():
-    """get cache folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'cache'
-    data_folder = get_data_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
-
-
-def get_export_path():
-    """get cache folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'export'
-    data_folder = get_data_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
-
-
-def get_view_path():
-    """get view/image folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'view'
-    data_folder = get_data_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
-
-
-def get_etl_path(*sub_paths):
-    """get etl output folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'etl'
-    data_folder = get_data_path()
-
-    return resource_path(data_folder, folder_name, *sub_paths, level=AbsPath.SHOW)
-
-
-def get_backup_data_path():
-    folder_name = 'backup_data'
-    data_folder = get_data_path()
-    return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
-
-
-def get_backup_data_folder(process_id):
-    folder = get_backup_data_path()
-    if not check_exist(folder):
-        os.makedirs(folder)
-    return os.path.join(folder, str(process_id))
 
 
 # def df_chunks(df, size):
@@ -808,20 +442,6 @@ def chunks(lst, size):
 #     it = iter(data)
 #     for i in range(0, len(data), size):
 #         yield {k: data[k] for k in islice(it, size)}
-
-
-def get_base_dir(path, is_file=True):
-    dir_name = os.path.dirname(path) if is_file else path
-    return os.path.basename(dir_name)
-
-
-def make_dir(dir_path):
-    os.makedirs(dir_path, exist_ok=True)
-    return True
-
-
-def get_basename(path):
-    return os.path.basename(path)
 
 
 def strip_all_quote(instr):
@@ -923,36 +543,6 @@ def gen_sql_like_value(val, func: FilterFunc, position=None):
         return ['%' + cond + '%' for cond in val.split()]
 
     return []
-
-
-def make_dir_from_file_path(file_path):
-    dirname = os.path.dirname(file_path)
-    # make dir
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-
-    return dirname
-
-
-def delete_file(file_path):
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-
-def rename_file(src, des):
-    if os.path.exists(src):
-        os.rename(src, des)
-
-
-def check_exist(file_path):
-    return os.path.exists(file_path)
-
-
-def count_file_in_folder(folder_path):
-    if not check_exist(folder_path):
-        return 0
-
-    return len([name for name in os.listdir(folder_path) if name.endswith('.sqlite3')])
 
 
 def calc_overflow_boundary(arr):
@@ -1079,11 +669,6 @@ def replace_str_in_file(file_name, search_str, replace_to_str):
 def get_file_modify_time(file_path):
     file_time = datetime.utcfromtimestamp(os.path.getmtime(file_path))
     return convert_time(file_time)
-
-
-def split_path_to_list(file_path):
-    folders = os.path.normpath(file_path).split(os.path.sep)
-    return folders
 
 
 def gen_abbr_name(name, len_of_col_name=10):
@@ -1281,23 +866,6 @@ def bundle_assets(_app):
             css_bundle.build()
 
 
-def open_with_zip(file_name, mode, encoding=None) -> Union[IO[bytes], TextIO]:
-    """
-    :param file_name:
-    :param mode:
-    :param encoding: not for zip file
-    :return:
-    """
-    if str(file_name).endswith('.zip'):
-        zip_mode = 'w' if 'w' in mode else 'r'
-        zf = zipfile.ZipFile(file_name)
-
-        assert len(zf.namelist()) == 1, "We currently don't support multiple zip file"
-        return zf.open(zf.namelist()[0], zip_mode)
-    else:
-        return open(file_name, mode, encoding=encoding)
-
-
 def get_hostname():
     hostname = socket.gethostname()
     return hostname
@@ -1386,23 +954,6 @@ def gen_end_proc_start_end_time(start_tm, end_tm, return_string: bool = True, bu
     return end_proc_start_tm, end_proc_end_tm
 
 
-def gen_sqlite3_file_name(proc_id=None):
-    from ap import dic_config
-
-    file_name = f't_process_{proc_id}.sqlite3' if proc_id else 'universal.sqlite3'
-    return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
-
-
-def get_dummy_data_path():
-    """Get dummy data folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_names = ['data_files']
-    return resource_path(*folder_names, level=AbsPath.SHOW)
-
-
 def sort_processes_by_parent_children_relationship(processes):
     """
     Sort and group processes based on order and parent-children relationship
@@ -1483,7 +1034,7 @@ def is_string_boolean_series(data: Series) -> Series:
 
 
 def is_only_type(series: Series, data_type: Type) -> bool:
-    return series.apply(lambda x: type(x) == data_type).all()
+    return series.apply(lambda x: isinstance(x, data_type)).all()
 
 
 def is_only_integer(series: Series) -> bool:
@@ -1586,11 +1137,7 @@ def add_suffix_for_same_column_name(key_value_dict: dict[Any, str]):
     Returns:
         dictionary with unique names (added suffix for duplicate names)
 
-    >>> col_as_dict = {
-    ...     'TEXT01': 'テキスト',
-    ...     'TEXT02': 'ﾃｷｽﾄ',
-    ...     'TEXT03': 'ﾃｷｽﾄ'
-    ... }
+    >>> col_as_dict = {'TEXT01': 'テキスト', 'TEXT02': 'ﾃｷｽﾄ', 'TEXT03': 'ﾃｷｽﾄ'}
     >>> add_suffix_for_same_column_name(col_as_dict)
     {'TEXT01': 'テキスト', 'TEXT02': 'ﾃｷｽﾄ_01', 'TEXT03': 'ﾃｷｽﾄ_02'}
     """
@@ -1608,19 +1155,6 @@ def add_suffix_for_same_column_name(key_value_dict: dict[Any, str]):
     return output
 
 
-def get_preview_data_file_folder(data_source_id):
-    folder = get_preview_data_path()
-    if not check_exist(folder):
-        os.makedirs(folder)
-
-    return os.path.join(folder, str(data_source_id))
-
-
-def get_preview_data_path():
-    data_folder = get_instance_path()
-    return resource_path(data_folder, PREVIEW_DATA_FOLDER, level=AbsPath.SHOW)
-
-
 def is_none_or_empty(value: Union[str, int, None]) -> bool:
     return value is None or value == EMPTY_STRING
 
@@ -1630,29 +1164,15 @@ def generate_job_id(job_type: Union[JobType, str], process_id: int | None = None
     return f'{job}_{process_id}' if process_id is not None else f'{job}'
 
 
-def get_transaction_folder_path():
-    return resource_path(get_instance_path(), TRANSACTION_FOLDER, level=AbsPath.SHOW)
-
-
-def get_config_db_path():
-    return resource_path(get_instance_path(), CONFIG_DB, level=AbsPath.SHOW)
-
-
-def get_scheduler_db_path():
-    return resource_path(get_instance_path(), SCHEDULER_DB, level=AbsPath.SHOW)
-
-
-def get_export_setting_path():
-    """get cache folder path
-
-    Returns:
-        [type] -- [description]
-    """
-    folder_name = 'export_setting'
-    return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
-
-
 def create_sa_engine_for_migration(uri):
     # using NullPool until we know how to handle QueuePool
     engine = create_engine(uri, poolclass=NullPool)
     return engine
+
+
+def convert_eu_decimal_series(data: pd.Series, data_type: DataType):
+    if data_type in [DataType.REAL_SEP.name, DataType.INTEGER_SEP.name]:
+        data = data.astype(pd.StringDtype()).str.replace(r'\,+', '', regex=True)
+    elif data_type in [DataType.EU_REAL_SEP.name, DataType.EU_INTEGER_SEP.name]:
+        data = data.astype(pd.StringDtype()).str.replace(r'\.+', '', regex=True).str.replace(r'\,+', '.', regex=True)
+    return data

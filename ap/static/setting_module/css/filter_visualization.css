@@ -126,6 +126,10 @@
     background-color: #222 !important;
 }
 
+.function-var-dropdown {
+    width: 550px;
+}
+
 textarea {
     color: #fff;
 }
@@ -293,7 +297,7 @@ thead.resizable {
     color: white;
 }
 
-.jexcel_container .hint-text {
+#graphConfigTable .hint-text {
     text-decoration: underline;
 }
 
@@ -369,4 +373,9 @@ table {
 
 .cookie-banner-container {
     z-index: 9998;
+}
+.jexcel > thead > tr > td.required::after {
+    content: '*';
+    color: yellow;
+    padding-left: 0.2rem;
 }

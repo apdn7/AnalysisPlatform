@@ -9,7 +9,6 @@ import pandas as pd
 from pandas import Series
 
 from ap import log_execution_time
-from ap.api.common.services.utils import TraceGraph
 from ap.common.common_utils import as_list
 from ap.common.constants import (
     ABNORMAL_COUNT,
@@ -145,6 +144,7 @@ from ap.common.constants import (
 from ap.common.pandas_helper import append_series
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
+from ap.common.services.trace_graph import TraceGraph
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
 from ap.setting_module.schemas import ProcessOnlySchema
 from ap.setting_module.services.process_config import (

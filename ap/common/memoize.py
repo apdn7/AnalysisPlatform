@@ -7,20 +7,20 @@ import logging
 import pickle
 import time
 from functools import wraps
-from typing import Any
+from typing import Any, Optional
 
 import babel
 import cachelib
 import diskcache
 from flask_babel import get_locale
 
-from ap.common.common_utils import get_cache_path
 from ap.common.constants import CacheType, FlaskGKey, MemoizeKey
+from ap.common.path_utils import get_cache_path
 
 logger = logging.getLogger(__name__)
 
-USE_EXPIRED_CACHE_PARAM_NAME = '_use_expired_cache'
 JUMP_KEY_PARAM_NAME = 'jump_key'
+OPTIONAL_CACHE_CONFIG = 'optional_cache_config'
 
 
 def clear_cache():
@@ -68,16 +68,47 @@ def get_cache_attr(key):
 
 
 @dataclasses.dataclass
+class OptionalCacheConfig:
+    """Allow user to change cache behavior for function"""
+
+    override: Optional[bool] = None
+    use_expired_cache: Optional[bool] = None
+    stop_use_cache: Optional[bool] = None
+
+    """**[Note] It is often used in unit test.**.
+    ``force_use_cache`` flag is used to return value from cache of function directly
+    without overriding or re-calculating.
+    """
+    force_use_cache: Optional[bool] = None
+
+
+@dataclasses.dataclass
 class CacheConfig:
     stop_use_cache: bool = False
     use_expired_cache: bool = False
     save_file: bool = False
     custom_key: Any | None = None
     locale: babel.Locale | str | None = None
+    override: bool = False
+    force_use_cache: bool = False
 
     @classmethod
-    def build(cls, force_save_file: bool, cache_type: CacheType, custom_key_arg=None, **kwargs) -> 'CacheConfig':
+    def build(
+        cls,
+        force_save_file: bool,
+        cache_type: CacheType,
+        custom_key_arg=None,
+        optional_cache_config: Optional[OptionalCacheConfig] = None,
+        **kwargs,
+    ) -> 'CacheConfig':
         config = cls()
+
+        # whether user provide runtime cache config
+        if optional_cache_config is not None:
+            if isinstance(optional_cache_config, dict):
+                optional_cache_config = OptionalCacheConfig(**optional_cache_config)
+            if isinstance(optional_cache_config, OptionalCacheConfig):
+                config = config.merge_config(optional_cache_config)
 
         # always save file if user request
         if force_save_file:
@@ -91,24 +122,37 @@ class CacheConfig:
         if get_cache_attr(MemoizeKey.STOP_USING_CACHE) is not None:
             config.stop_use_cache = True
 
-        # continue to use cache even if it is expired
-        is_use_expired = kwargs.get(USE_EXPIRED_CACHE_PARAM_NAME, False)
-        if is_use_expired:
-            config.use_expired_cache = True
-
         # finding custom key, this is use for `jump_key`
         # we set `jump_key` parameter and try to get it from function params
         # where we deliberately cache it without calculating ...
         if custom_key_arg is not None:
             config.custom_key = kwargs.get(custom_key_arg, None)
 
-        # We cache per locale.
-        # When running jobs, which is outside of request context. We cannot get correct locale.
-        # In that cases, just fall back to None.
-        with contextlib.suppress(Exception):
-            config.locale = get_locale()
+        # do not cache by request locale for CONFIG_DATA.
+        # reasons:
+        #   - config data cache will be run periodically in jobs on server
+        #   - config data cache will be re-compute in jobs when user modify config data
+        # because all the computing happen on server, we cannot rely on locale provided by user request
+        # this mean all functions for caching config should never return data computed per locale
+        if cache_type in [CacheType.CONFIG_DATA]:
+            config.locale = None
+        else:
+            with contextlib.suppress(Exception):
+                # We cache per locale fallbacks to none in case of exception
+                config.locale = get_locale()
 
         return config
+
+    def merge_config(self, config: OptionalCacheConfig) -> 'CacheConfig':
+        if config.override is not None:
+            self.override = config.override
+        if config.use_expired_cache is not None:
+            self.use_expired_cache = config.use_expired_cache
+        if config.stop_use_cache is not None:
+            self.stop_use_cache = config.stop_use_cache
+        if config.force_use_cache is not None:
+            self.force_use_cache = config.force_use_cache
+        return self
 
 
 class CustomCache:
@@ -205,11 +249,12 @@ class CustomCache:
                 force_save_file=force_save_file,
                 cache_type=cache_type,
                 custom_key_arg=custom_key_arg,
+                optional_cache_config=kwargs.pop(OPTIONAL_CACHE_CONFIG, None),
                 **kwargs,
             )
 
             # need to pop out invalid parameters here
-            for unused_param_name in [USE_EXPIRED_CACHE_PARAM_NAME, JUMP_KEY_PARAM_NAME, custom_key_arg]:
+            for unused_param_name in [JUMP_KEY_PARAM_NAME, custom_key_arg]:
                 if unused_param_name in kwargs:
                     kwargs.pop(unused_param_name)
 
@@ -217,20 +262,33 @@ class CustomCache:
                 return fn(*args, **kwargs)
 
             key = cls.compute_key(fn, args, kwargs, custom_key=config.custom_key, locale=config.locale)
-            result = cls.get(key)
 
-            # cache missed, recalculate and add to cache
-            if result is None:
-                logger.debug(f'Cache miss: {fn.__name__}')
+            # whether we need to save cache
+            save_cache = False
 
+            if config.override:
+                # compute the cache anyway if we try to override
+                logger.debug(f'Cache override: {fn.__name__}')
                 result = fn(*args, **kwargs)
+                save_cache = True
+            else:
+                # otherwise, we get from cache store
+                result = cls.get(key)
+                if result is None:
+                    if config.force_use_cache:
+                        raise RuntimeError(f'Function: {fn.__name__} - Cache key: {key} not found')
+
+                    logger.debug(f'Cache miss: {fn.__name__}')
+                    result = fn(*args, **kwargs)
+                    save_cache = True
+                else:
+                    logger.debug(f'Cache hit: {fn.__name__}')
+
+            # cache is missing, therefore we need to save it
+            if save_cache:
                 saved = cls.set(key, result, timeout, save_file=config.save_file)
                 if saved:
                     cls.cached_keys[cache_type].append(key)
-                else:
-                    logger.error(f'Cannot save cache for function {fn.__name__}')
-            else:
-                logger.debug(f'Cache hit: {fn.__name__}')
 
             # reset cache key to infinity
             if config.use_expired_cache:

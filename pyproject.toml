@@ -1,7 +1,3 @@
-[tool.black]
-line-length = 120
-skip-string-normalization = 1
-
 [tool.ruff]
 target-version = "py39"
 line-length = 120
@@ -16,6 +12,13 @@ exclude = [
     "tests/integration/*_io.py", # input files for bridge testing
 ]
 
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true
+indent-style = "space"
+
+
+[lint]
 fixable = ["ALL"]
 select = [
     "C4", # comprehensions
@@ -103,16 +106,11 @@ ignore = [
 #]
 
 
-[tool.ruff.extend-per-file-ignores]
+[lint.extend-per-file-ignores]
 "tests/units/*py" = ["E501", "F405", "F403", "PLR0133", "PLR0912", "PLR0915", "PLW"]
 "migrations/*" = ["G", "PLR0912"]
 "manage.py" = ["F403", "F405"]
 "wrapr_utils.py" = ["E501"]
-
-[tool.ruff.flake8-quotes]
-docstring-quotes = "double"
-inline-quotes = "single"
-multiline-quotes = "single"
 
 [tool.vulture]
 exclude = ["env/", "venv/", "migrations","manage.py","config.py", "constants.py"]

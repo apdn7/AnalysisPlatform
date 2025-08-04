@@ -4,7 +4,8 @@ let showOrderModalClick = 0;
 let showOrderModalGraphAreaClick = 0;
 let removeColIds = [];
 let latestSortColIdsJumpPage = [];
-const isScpOrHmpPage = getCurrentPage() === PAGE_NAME.scp || getCurrentPage() === PAGE_NAME.hmp;
+const isScpOrHmpPage =
+    getCurrentPage() === PAGE_NAME.scp || getCurrentPage() === PAGE_NAME.hmp || getCurrentPage() === PAGE_NAME.tv;
 
 const orderingEls = {
     endColOrderTable: '#endColOrderTable',

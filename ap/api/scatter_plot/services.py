@@ -95,7 +95,7 @@ from ap.common.constants import (
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.ana_inf_data import resample_preserve_min_med_max
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -160,17 +160,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         produce_cyclic_terms(dic_param)
         terms = gen_dic_param_terms(dic_param)
 
-    # get x,y,color, levels, cat_div information
-    orig_graph_param = bind_dic_param_to_class(
-        root_graph_param.dic_proc_cfgs,
-        root_graph_param.trace_graph,
-        root_graph_param.dic_card_orders,
-        dic_param,
-    )
-    threshold_filter_detail_ids = orig_graph_param.common.threshold_boxes
+    threshold_filter_detail_ids = root_graph_param.common.threshold_boxes
 
     # get xy info
-    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(orig_graph_param.array_formval, dic_param[COMMON])
+    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(root_graph_param.array_formval, dic_param[COMMON])
 
     x_proc_id = scatter_proc_ids[0]
     y_proc_id = scatter_proc_ids[-1]
@@ -181,9 +174,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     x_label = gen_sql_label(x_id, x_name)
     y_label = gen_sql_label(y_id, y_name)
 
-    color_id = orig_graph_param.common.color_var
-    cat_div_id = orig_graph_param.common.div_by_cat
-    level_ids = cat_exp if cat_exp else orig_graph_param.common.cat_exp
+    color_id = root_graph_param.common.color_var
+    cat_div_id = root_graph_param.common.div_by_cat
+    level_ids = cat_exp if cat_exp else root_graph_param.common.cat_exp
     col_ids = [col for col in list(set([x_id, y_id, color_id, cat_div_id] + level_ids)) if col]
     dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
 
@@ -194,7 +187,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     chart_type = None
     x_category = False
     y_category = False
-    if orig_graph_param.common.compare_type == 'directTerm':
+    if root_graph_param.common.compare_type == 'directTerm':
         matched_filter_ids = []
         unmatched_filter_ids = []
         not_exact_match_filter_ids = []
@@ -215,10 +208,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
                 # query data and gen df
                 df_term, graph_param, record_number, _is_res_limited = gen_df(
-                    orig_graph_param,
+                    root_graph_param,
                     term_dic_param,
                     dic_cat_filters,
-                    _use_expired_cache=use_expired_cache,
+                    optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
                 )
 
                 df_term = convert_datetime_to_ct(df_term, graph_param)
@@ -277,7 +270,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 root_graph_param,
                 dic_param,
                 dic_cat_filters,
-                _use_expired_cache=use_expired_cache,
+                optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
             )
         else:
             graph_param = root_graph_param
@@ -300,7 +293,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             not_exact_match_filter_ids,
         ) = main_check_filter_detail_match_graph_data(graph_param, df)
 
-        if orig_graph_param.common.div_by_data_number:
+        if root_graph_param.common.div_by_data_number:
             output_graphs, output_times = gen_scatter_data_count(
                 root_graph_param.dic_proc_cfgs,
                 matrix_col,
@@ -309,13 +302,13 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 y_proc_id,
                 x_label,
                 y_label,
-                orig_graph_param.common.div_by_data_number,
+                root_graph_param.common.div_by_data_number,
                 color_label,
                 level_labels,
                 recent_flg,
                 chart_type,
             )
-        elif orig_graph_param.common.cyclic_div_num:
+        elif root_graph_param.common.cyclic_div_num:
             output_graphs, output_times = gen_scatter_by_cyclic(
                 root_graph_param.dic_proc_cfgs,
                 matrix_col,
@@ -705,7 +698,12 @@ def convert_series_to_list(graph):
 
 @log_execution_time()
 @abort_process_handler()
-def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache=False):
+def gen_df(
+    root_graph_param: DicParam,
+    dic_param,
+    dic_filter,
+    optional_cache_config: OptionalCacheConfig = OptionalCacheConfig(),
+):
     # bind dic_param
     graph_param = bind_dic_param_to_class(
         root_graph_param.dic_proc_cfgs,
@@ -739,7 +737,7 @@ def gen_df(root_graph_param: DicParam, dic_param, dic_filter, _use_expired_cache
     df, actual_record_number, is_res_limited = get_data_from_db(
         graph_param,
         dic_filter,
-        use_expired_cache=_use_expired_cache,
+        optional_cache_config=optional_cache_config,
     )
     return df, graph_param, actual_record_number, is_res_limited
 
@@ -1155,7 +1153,8 @@ def gen_scatter_cat_div(
         count_h_key = 0
 
         for v_keys, df_data_ in dic_group.items():
-            df_data = df_data_.drop(index=list_na_indexes)
+            # Skip removal if the index is not in the sub-dataframe from div_group split.
+            df_data = df_data_.drop(index=list_na_indexes, errors='ignore')
 
             if v_keys not in facet_keys:
                 count_h_key += 1

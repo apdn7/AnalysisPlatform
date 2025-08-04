@@ -10,9 +10,6 @@ from flask import make_response
 
 from ap.api.common.services.show_graph_database import get_config_data, get_proc_ids_in_graph_param
 from ap.common.common_utils import (
-    delete_file,
-    get_basename,
-    get_export_path,
     read_pickle_file,
     set_debug_data,
 )
@@ -29,6 +26,7 @@ from ap.common.constants import (
     MemoizeKey,
 )
 from ap.common.memoize import set_cache_attr
+from ap.common.path_utils import delete_file, get_basename, get_export_path
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.trace_data_log import EventAction, Target, TraceErrKey, get_log_attr
 from ap.setting_module.models import (

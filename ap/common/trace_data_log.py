@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from flask import current_app, g
 from pandas import DataFrame
 
+from ap import ENABLE_DUMP_TRACE_LOG
 from ap.common.common_utils import create_file_path, write_to_pickle
 from ap.common.constants import IS_EXPORT_MODE, MPS, TESTING, CsvDelimiter, FlaskGKey
 from ap.common.ga import GTAG_DEFAULT_TIMEOUT
@@ -236,7 +237,7 @@ def trace_log(keys=None, vals=None, save_log=True, output_key=None, send_ga=Fals
                 set_log_attr(TraceErrKey.EXE_TIME, exec_time)
 
                 # dumpfile
-                if output_key:
+                if output_key and current_app.config.get(ENABLE_DUMP_TRACE_LOG):
                     set_log_attr(output_key, result)
 
                 # save trace data

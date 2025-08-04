@@ -81,8 +81,7 @@ class ImportFilter(BaseModel):
         return value
 
     @abstractmethod
-    def do_filter(self, series: pd.Series, value):
-        ...
+    def do_filter(self, series: pd.Series, value): ...
 
     def filter_by_combine_conditions(self, df: pd.DataFrame, column_name: str, data_type: str) -> pd.DataFrame:
         series = self.cast_series(df[column_name], data_type=data_type, force_str=self.cast_series_value_to_string)

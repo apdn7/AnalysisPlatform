@@ -16,6 +16,8 @@ from ap.common.constants import (
     SUMMARIES,
     THRESH_HIGH,
     THRESH_LOW,
+    TIME_COL,
+    NegRatio,
 )
 from ap.common.logger import log_execution_time
 from ap.common.sigificant_digit import signify_digit
@@ -344,6 +346,115 @@ def calc_summaries(dic_param):
             plot[SUMMARIES] = calc_summary_elements(plot)
         except Exception:
             plot[SUMMARIES] = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}
+
+
+@log_execution_time()
+def calc_for_neg_ratio(df: pd.DataFrame, column_name: str, total_bin: int = 128) -> pd.DataFrame:
+    """
+    Assign each group in bins by index with len(total_bin=128 (for high speed mode then it will be 4000))
+    Count the number of NG(1) elements in each bin
+    Return list of net_ratio for each bin
+    >>> df = pd.DataFrame(
+    ...     np.array(
+    ...         [
+    ...             [0, '2022-02-28T15:26:27.000000Z'],
+    ...             [1, '2022-02-28T15:37:55.000000Z'],
+    ...             [1, '2022-02-28T16:47:26.000000Z'],
+    ...         ],
+    ...         dtype=object,
+    ...     ),
+    ...     columns=['judge', 'time'],
+    ... )
+    >>> calc_for_neg_ratio(df, 'judge')
+                                   x  ...                     end_date
+    bin                               ...
+    0    2022-02-28T15:26:27.000000Z  ...  2022-02-28T15:26:27.000000Z
+    1    2022-02-28T15:37:55.000000Z  ...  2022-02-28T15:37:55.000000Z
+    2    2022-02-28T16:47:26.000000Z  ...  2022-02-28T16:47:26.000000Z
+    <BLANKLINE>
+    [3 rows x 6 columns]
+    """
+
+    required_columns = [column_name, TIME_COL]
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f'The following columns not exist in the DataFrame: {", ".join(missing_columns)}')
+    if len(df.index) <= total_bin:
+        total_bin = len(df.index)
+    df[NegRatio.BIN.value] = pd.cut(
+        df.index,
+        bins=total_bin,
+        labels=list(range(total_bin)),
+        include_lowest=True,
+    )
+    # Group data by 'bins' and calculate the total count and the count of zeros in the 'judge' column
+    n_in_bin = df.groupby(NegRatio.BIN.value, observed=False)[column_name].count()
+
+    # Calculate the neg_ratio of NG(1) in each bin
+    n_negative = df.groupby(NegRatio.BIN.value, observed=False)[column_name].sum()
+    neg_ratio = n_negative / n_in_bin
+
+    # get start date and end date of each bin
+    start_date_of_bin_df = df.groupby(NegRatio.BIN.value, observed=False)[TIME_COL].min()
+    end_date_of_bin_df = df.groupby(NegRatio.BIN.value, observed=False)[TIME_COL].max()
+    return pd.DataFrame(
+        {
+            NegRatio.X.value: start_date_of_bin_df.astype(pd.StringDtype()),
+            NegRatio.N.value: n_in_bin,
+            NegRatio.N_NEG.value: n_negative,
+            NegRatio.Y.value: neg_ratio,
+            NegRatio.START_DATE.value: start_date_of_bin_df.astype(pd.StringDtype()),
+            NegRatio.END_DATE.value: end_date_of_bin_df.astype(pd.StringDtype()),
+        },
+    )
+
+
+@log_execution_time()
+def calc_cumulative_sum(df: pd.DataFrame, max_neg_ratio: float, column_name: str, total_bin: int = 128) -> pd.DataFrame:
+    """
+    Calculate neg cumulative sum
+    >>> df = pd.DataFrame(
+    ...     np.array(
+    ...         [
+    ...             [0, '2022-02-28T15:26:27.000000Z'],
+    ...             [1, '2022-02-28T15:37:55.000000Z'],
+    ...             [1, '2022-02-28T16:47:26.000000Z'],
+    ...         ],
+    ...         dtype=object,
+    ...     ),
+    ...     columns=['judge', 'time'],
+    ... )
+    >>> calc_cumulative_sum(df, 1.0, 'judge')
+                                 x    y
+    0  2022-02-28T15:26:27.000000Z  0.0
+    1  2022-02-28T15:37:55.000000Z  0.6
+    2  2022-02-28T16:47:26.000000Z  1.2
+    """
+
+    required_columns = [column_name, TIME_COL]
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        raise ValueError(f'The following columns not exist in the DataFrame: {", ".join(missing_columns)}')
+    if len(df.index) <= total_bin:
+        total_bin = len(df.index)
+
+    df[NegRatio.BIN.value] = pd.cut(
+        df.index,
+        bins=total_bin,
+        labels=list(range(total_bin)),
+        include_lowest=True,
+    )
+    y_neg = max_neg_ratio * 1.2
+    bin_df = df.groupby(NegRatio.BIN.value, observed=False)[column_name].sum()
+    total_n_neg = (df[column_name] == 1).sum()
+    # get start date of each bin
+    start_date_of_bin_df = df.groupby(NegRatio.BIN.value, observed=False)[TIME_COL].min()
+    return pd.DataFrame(
+        {
+            'x': start_date_of_bin_df.astype(pd.StringDtype()),
+            'y': (bin_df.cumsum() / total_n_neg) * y_neg,
+        },
+    ).reset_index(drop=True)
 
 
 @log_execution_time()
