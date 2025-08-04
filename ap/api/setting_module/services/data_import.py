@@ -13,36 +13,30 @@ from pandas import DataFrame, Series
 
 from ap.api.common.services.utils import gen_sql_and_params
 from ap.common.common_utils import (
-    DATE_FORMAT_FOR_ONE_HOUR,
-    DATE_FORMAT_STR,
-    DATE_FORMAT_STR_ONLY_DIGIT,
-    TXT_FILE_TYPE,
     convert_numeric_by_type,
     convert_time,
     gen_transaction_table_name,
-    get_basename,
     get_csv_delimiter,
     get_current_timestamp,
-    get_error_cast_path,
-    get_error_duplicate_path,
-    get_error_import_path,
-    get_error_trace_path,
-    make_dir_from_file_path,
     parse_int_value,
-    split_path_to_list,
 )
 from ap.common.constants import (
     CAST_DATA_TYPE_ERROR_MSG,
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_MSG,
+    DATE_FORMAT_FOR_ONE_HOUR,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_ONLY_DIGIT,
     DATETIME,
     EFA_HEADER_FLAG,
     EMPTY_STRING,
+    TXT_FILE_TYPE,
     WR_HEADER_NAMES,
     WR_VALUES,
     CacheType,
     CfgConstantType,
     CsvDelimiter,
+    DataColumnType,
     DataType,
     DBType,
     EFAColumn,
@@ -52,6 +46,15 @@ from ap.common.constants import (
 from ap.common.disk_usage import get_ip_address
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
+from ap.common.path_utils import (
+    get_basename,
+    get_error_cast_path,
+    get_error_duplicate_path,
+    get_error_import_path,
+    get_error_trace_path,
+    make_dir_from_file_path,
+    split_path_to_list,
+)
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import read_data
@@ -124,7 +127,6 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 @log_execution_time('[DATA IMPORT]')
 def import_data(df, target_cfg_process: CfgProcess, get_date_col, job_info=None, child_cfg_proc=None):
     df = import_filter_from_df(df, target_cfg_process)
-
     cycles_len = len(df)
     if not cycles_len:
         return 0
@@ -763,6 +765,7 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
         # data type that user chose
         user_data_type = dic_use_cols[col_name].data_type
         raw_data_type = dic_use_cols[col_name].raw_data_type
+        column_type = dic_use_cols[col_name].column_type
 
         if col_name in float_cols:
             if user_data_type == DataType.INTEGER.name:
@@ -794,6 +797,9 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             DataType.EU_INTEGER_SEP,
         ]:
             df = convert_eu_decimal(df, col_name, raw_data_type)
+
+        if column_type == DataColumnType.JUDGE.value:
+            df[col_name] = convert_judge_values(df[col_name], dic_use_cols[col_name])
 
         if user_data_type in [DataType.INTEGER.name, DataType.REAL.name, DataType.BOOLEAN.name]:
             numeric_data, non_numeric_data = convert_numeric_by_type(df[col_name], user_data_type)
@@ -840,7 +846,8 @@ def validate_data(df: DataFrame, dic_use_cols, na_vals, exclude_cols=None):
             # replace Inf --> None
             if user_data_type == DataType.INTEGER.name:
                 df[col_name] = df[col_name].replace([np.inf, -np.inf], np.nan).astype(pd.Int64Dtype())
-
+        # elif user_data_type == DataType.BOOLEAN.name and column_type == DataColumnType.JUDGE.value:
+        #     df = convert_judge_values(df, dic_use_cols[col_name])
         elif user_data_type == DataType.TEXT.name:
             if pd.api.types.is_object_dtype(df[col_name]):
                 df[col_name] = df[col_name].astype(pd.StringDtype()).str.strip("'").str.strip()
@@ -1075,22 +1082,6 @@ def set_error_col(df: pd.DataFrame, is_error: pd.Series[bool], col_name: str) ->
         df[ERR_COLS_NAME] = df[ERR_COLS_NAME].where(~is_error, err_col_name)
 
     return df
-
-
-# @log_execution_time()
-# def set_cycle_max_id(next_use_id_count):
-#     """get cycle max id to avoid conflict cycle id"""
-#     global csv_import_cycle_max_id
-#     with lock:
-#         # when app start get max id of all tables
-#         if csv_import_cycle_max_id is None:
-#             csv_import_cycle_max_id = 0
-#             max_id = max([cycle_cls.get_max_id() for cycle_cls in CYCLE_CLASSES])
-#         else:
-#             max_id = csv_import_cycle_max_id
-#
-#         csv_import_cycle_max_id = max_id + next_use_id_count
-#     return max_id
 
 
 @log_execution_time()
@@ -1411,3 +1402,13 @@ def calculate_value_counts_per_hours(
         count_df[DataCountTable.count.name] = 0
 
     return count_df
+
+
+@log_execution_time()
+def convert_judge_values(series: pd.Series, col: CfgProcessColumn):
+    judge_positive_value = col.judge_positive_value
+    if col.parent_column is not None:
+        judge_positive_value = col.parent_column.judge_positive_value
+    series = series.apply(lambda x: x if pd.isna(x) else (1 if x == judge_positive_value else 0))
+
+    return series

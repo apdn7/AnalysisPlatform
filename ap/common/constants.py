@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from datetime import timedelta
 from enum import Enum, auto
 from typing import Optional
 
@@ -34,6 +35,9 @@ REMOVED_OUTLIER_NAN_TRAIN = 'removed_outlier_nan_train'
 REMOVED_OUTLIER_NAN_TEST = 'removed_outlier_nan_test'
 REMOVED_OUTLIERS = 'outliers'
 CAST_INF_VALS = 'cast_inf_vals'
+DATA_TYPE_ESTIMATION_LIMIT = 10000
+
+ENABLE_DUMP_TRACE_LOG = 'enable_dump_trace_log'
 
 YAML_CONFIG_BASIC = 'basic'
 YAML_START_UP = 'start_up'
@@ -67,7 +71,7 @@ LOG_LEVEL = 'log_level'
 # fiscal year start month
 FISCAL_YEAR_START_MONTH = 4
 
-MAX_SAFE_INTEGER = 9007199254740992
+MAX_SAFE_INTEGER = 9007199254740992  # 2^53
 DELIMITER_KW = 'sep'
 ENCODING_KW = 'encoding'
 
@@ -88,6 +92,26 @@ SELECTED = 'selected'
 ONLY_EXPORT_DATA_SELECTED = 'only_export_data_selected'
 
 IDLE_MONITORING_INTERVAL = 5 * 60  # 5 minutes
+
+# utils
+TXT_FILE_TYPE = '.txt'
+DATE_FORMAT_STR = '%Y-%m-%dT%H:%M:%S.%fZ'
+DATE_FORMAT_STR_SQLITE = '%Y-%m-%dT%H:%M:%S.%fZ'
+DATE_FORMAT_SQLITE_STR = '%Y-%m-%dT%H:%M:%S'
+DATE_FORMAT_QUERY = '%Y-%m-%dT%H:%M:%S.%f'
+DATE_FORMAT_STR_CSV = '%Y-%m-%d %H:%M:%S.%f'
+DATE_FORMAT_STR_FACTORY_DB = '%Y-%m-%d %H:%M:%S.%f'
+DATE_FORMAT_STR_ONLY_DIGIT = '%Y%m%d%H%M%S.%f'
+DATE_FORMAT = '%Y-%m-%d'
+TIME_FORMAT = '%H:%M'
+TIME_FORMAT_WITH_SEC = '%H:%M:%S'
+RL_DATETIME_FORMAT = '%Y-%m-%dT%H:%M'
+DATE_FORMAT_SIMPLE = '%Y-%m-%d %H:%M:%S'
+DATE_FORMAT_FOR_ONE_HOUR = '%Y-%m-%d %H:00:00'
+API_DATETIME_FORMAT = '%Y-%m-%dT%H:%MZ'
+# for data count
+TERM_FORMAT = {'year': '%Y', 'month': '%Y-%m', 'week': DATE_FORMAT}
+FREQ_FOR_RANGE = {'year': 'M', 'month': 'D', 'week': 'H'}
 
 
 class ApLogLevel(Enum):
@@ -360,8 +384,11 @@ END_PROC_NAME = 'end_proc_name'
 END_COL_ID = 'end_col_id'
 END_COL_NAME = 'end_col_name'
 END_COL_SHOW_NAME = 'end_col_show_name'
+END_COL_COLUMN_TYPE = 'end_col_column_type'
 RANK_COL = 'before_rank_values'
 SUMMARIES = 'summaries'
+JUDGE_DATA = 'judge_data'
+NEG_CUMSUM = 'neg_cumsum'
 IS_RESAMPLING = 'is_resampling'
 CAT_DISTRIBUTE = 'category_distributed'
 CAT_SUMMARY = 'cat_summary'
@@ -453,6 +480,14 @@ SCP_HMP_X_AXIS = 'SCP_HMP_X_AXIS'
 SCP_HMP_Y_AXIS = 'SCP_HMP_Y_AXIS'
 
 STRENGTHEN_SELECTION = 'strengthen_selection'
+
+EN_DASH = '–'
+EMD_DRIFT = 'EMD|Drift'
+EMD_DIFF = 'EMD|Diff'
+DATETIME_RANGE_PICKER = 'DATETIME_RANGE_PICKER'
+DATETIME_PICKER = 'DATETIME_PICKER'
+
+EMPTY_CHECK_TIME_PERIOD = timedelta(hours=24)
 
 
 class HMFunction(Enum):
@@ -1857,6 +1892,12 @@ class JobType(Enum):
     CLEAN_EXPIRED_REQUEST = 16
     PROCESS_COMMUNICATE = 17
     UPDATE_TRANSACTION_TABLE = 18
+    COMPUTE_PROCESS_CACHE = 19
+    COMPUTE_ALL_PROCESS_IDS_CACHE = 20
+    COMPUTE_ALL_TRACES_CACHE = 21
+    PERIODICALLY_COMPUTE_PROCESS_CACHE = 22
+    PERIODICALLY_COMPUTE_ALL_PROCESSES_CACHE = 23
+    PERIODICALLY_COMPUTE_ALL_TRACES_CACHE = 24
 
 
 class ListenNotifyType(BaseEnum):
@@ -2037,3 +2078,18 @@ class GrLassoTask(BaseEnum):
     REGRESSION = 'regression'
     BINARY = 'binary'
     MULTI_CLASS = 'multiclass'
+
+
+class NegRatio(BaseEnum):
+    N_NEG = 'n_neg'
+    N = 'n'
+    START_DATE = 'start_date'
+    END_DATE = 'end_date'
+    BIN = 'bin'
+    ID = 'rowid'
+    NEG_RATIO = 'neg_ratio'
+    NEG_DENSITY = 'neg_density'
+    X = 'x'
+    Y = 'y'
+    JUDGE_OK = 'OK'
+    JUDGE_NG = 'NG'

@@ -13,7 +13,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="CSVSelectedLabel">{{ _("CSV Import Config") }}</h4>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDBConfigModal(this)">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -245,7 +245,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDBConfigModal((this))">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -297,7 +297,7 @@
                 >
                     Advanced
                 </button>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -356,7 +356,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -388,7 +388,7 @@
                 >
                     Advanced
                 </button>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -412,6 +412,8 @@
                     {{ macros.input_row("mssqlserver_password", _("Password"), type='password') }}
 
                     {{ macros.input_hidden("mssqlserver_use_os_timezone", "", "mssqlserver_use_os_timezone") }}
+
+                    {{ macros.input_hidden("mssqlserver_id", "", "mssqlserver_id") }}
                 </form>
             </div>
             <div class="modal-footer">
@@ -426,7 +428,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -480,6 +482,8 @@
                     {{ macros.input_row("postgresql_password", _("Password"), type='password') }}
 
                     {{ macros.input_hidden("postgresql_use_os_timezone", "", "postgresql_use_os_timezone") }}
+
+                    {{ macros.input_hidden("postgresql_id", "", "postgresql_id") }}
                 </form>
             </div>
 
@@ -529,7 +533,7 @@
                 >
                     Advanced
                 </button>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -551,6 +555,8 @@
                     {{ macros.input_row("oracle_password", _("Password"), type='password') }}
 
                     {{ macros.input_hidden("oracle_use_os_timezone", "", "oracle_use_os_timezone") }}
+
+                    {{ macros.input_hidden("oracle_id", "", "oracle_id") }}
                 </form>
             </div>
             <div class="modal-footer">
@@ -565,7 +571,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -597,7 +603,7 @@
                 >
                     Advanced
                 </button>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -619,6 +625,8 @@
                     {{ macros.input_row("mysql_password", _("Password"), type='password') }}
 
                     {{ macros.input_hidden("mysql_use_os_timezone", "", "mysql_use_os_timezone") }}
+
+                    {{ macros.input_hidden("mysql_id", "", "mysql_id") }}
                 </form>
             </div>
             <div class="modal-footer">
@@ -633,7 +641,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>
@@ -664,7 +672,7 @@
                 >
                     Advanced
                 </button>
-                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -688,6 +696,8 @@
                     {{ macros.input_row("software_workshop_password", _("Password"), type='password') }}
 
                     {{ macros.input_hidden("software_workshop_use_os_timezone", "", "software_workshop_use_os_timezone") }}
+
+                    {{ macros.input_hidden("software_workshop_id", "", "software_workshop_id") }}
                 </form>
             </div>
 
@@ -704,7 +714,7 @@
                 >
                     {{ _("OK") }}
                 </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this);">
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}
                 </button>
             </div>

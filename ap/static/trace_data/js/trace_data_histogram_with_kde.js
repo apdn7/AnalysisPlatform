@@ -85,8 +85,13 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     let categoryIds = [];
     if (beforeRankValues && !isCatLimited) {
         categoryIds = [...beforeRankValues[0]];
+        const zeroIsInArray = beforeRankValues[0].includes(0);
         beforeRankValues[0].forEach((catId, idx) => {
-            categoryLabels[catId - 1] = beforeRankValues[1][idx];
+            if (zeroIsInArray) {
+                categoryLabels[catId] = beforeRankValues[1][idx];
+            } else {
+                categoryLabels[catId - 1] = beforeRankValues[1][idx];
+            }
         });
         categoryLabels.reverse();
         categoryIds.sort().reverse(); // 4321

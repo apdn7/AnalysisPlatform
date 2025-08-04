@@ -4,14 +4,21 @@ from typing import TYPE_CHECKING, Any, Mapping, Optional, TypedDict
 
 import marshmallow
 import pydantic
-from marshmallow import fields, post_load, pre_dump
+from marshmallow import fields, post_dump, post_load, pre_dump, pre_load
 from marshmallow_sqlalchemy.fields import Nested
 from pydantic.alias_generators import to_camel
 
 from ap import ma
-from ap.common.constants import DataColumnType, DataType, DBType
+from ap.common.constants import IS_JUDGE, DataColumnType, DataType, DBType
 from ap.common.cryptography_utils import encrypt
 from ap.common.services.jp_to_romaji_utils import to_romaji
+from ap.detect_judge.core import (
+    JUDGE_FORMULA,
+    JUDGE_NEGATIVE_DISPLAY,
+    JUDGE_POSITIVE_DISPLAY,
+    JUDGE_POSITIVE_VALUE,
+    JudgeFormula,
+)
 from ap.setting_module.models import (
     CfgCsvColumn,
     CfgDataSource,
@@ -113,6 +120,11 @@ class DataSourceDbSchema(BaseSchema):
         return model
 
 
+class DataSourceDbPublicSchema(DataSourceDbSchema):
+    class Meta(DataSourceDbSchema.Meta):
+        exclude = DataSourceDbSchema.Meta.exclude + ('password',)
+
+
 class DataSourceCsvSchema(BaseSchema):
     class Meta(BaseSchema.Meta):
         model = CfgDataSourceCSV
@@ -131,6 +143,10 @@ class DataSourceSchema(BaseSchema):
 
     csv_detail = fields.Nested('DataSourceCsvSchema', allow_none=True)
     db_detail = fields.Nested('DataSourceDbSchema', allow_none=True)
+
+
+class DataSourcePublicSchema(DataSourceSchema):
+    db_detail = fields.Nested('DataSourceDbPublicSchema', allow_none=True)
 
 
 class FilterDetailSchema(BaseSchema):
@@ -187,6 +203,9 @@ class ProcessColumnSchema(BaseSchema):
     is_judge = fields.Boolean(dump_only=True)
     is_me_function_column = fields.Boolean(dump_only=True)
     is_chain_of_me_functions = fields.Boolean(dump_only=True)
+    judge_positive_value: fields.String(allow_none=True)
+    judge_positive_display: fields.String(allow_none=True)
+    judge_negative_display: fields.String(allow_none=True)
 
     @post_load
     def make_instance(self, data, **kwargs):
@@ -206,6 +225,17 @@ class ProcessColumnSchema(BaseSchema):
             model.data_type = DataType.INTEGER.name
 
         return model
+
+    @pre_load
+    def load_judge_formula_to_save(self, data, **kwargs):
+        if JUDGE_FORMULA in data.keys() and data[JUDGE_FORMULA] and data[IS_JUDGE]:
+            formula = JudgeFormula.from_formula(data.pop(JUDGE_FORMULA))
+            data[JUDGE_POSITIVE_VALUE] = formula.positive
+            data[JUDGE_POSITIVE_DISPLAY] = formula.positive_display
+            data[JUDGE_NEGATIVE_DISPLAY] = formula.negative_display
+        elif JUDGE_FORMULA in data.keys() and not data[JUDGE_FORMULA] and not data[IS_JUDGE]:
+            data.pop(JUDGE_FORMULA)
+        return data
 
     @pre_dump
     def convert_data_type(self, data: CfgProcessColumn, many, **kwargs):
@@ -234,6 +264,16 @@ class ProcessColumnSchema(BaseSchema):
                 data.data_type = DataType.INTEGER.name
                 data.column_type = DataColumnType.INT_CATE.value
 
+        return data
+
+    @post_dump
+    def get_judge_formula(self, data, **kwargs):
+        if data.get(IS_JUDGE):
+            data[JUDGE_FORMULA] = JudgeFormula(
+                positive=data.get(JUDGE_POSITIVE_VALUE),
+                positive_display=data.get(JUDGE_POSITIVE_DISPLAY),
+                negative_display=data.get(JUDGE_NEGATIVE_DISPLAY),
+            ).get_formula()
         return data
 
 
@@ -291,6 +331,10 @@ class ProcessSchema(BaseSchema):
     # hybrid properties go here
     shown_name = fields.String(dump_only=True)
     is_check_datetime_format = fields.Boolean(dump_only=True)
+
+
+class ProcessPublicSchema(ProcessSchema):
+    data_source = fields.Nested('DataSourcePublicSchema')
 
 
 class ProcessFullSchema(BaseSchema):

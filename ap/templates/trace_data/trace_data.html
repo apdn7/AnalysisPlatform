@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block midbody %}
-    <div class="card">
+    <div class="card monitor-icons">
         <form class="GUIForm" id="traceDataForm" onSubmit="return false;">
             {{ macros.end_proc(procs,'', traceData=true, title=_('Enter target item of data (quantitative variable like measurement value) to be plotted on the graph. Select the process and item you want to plot on the graph.')) }}
             {{ macros.data_finder_card() }}
@@ -46,8 +46,9 @@
                     value="{{ _('Display graph') }}"
                     onClick="traceDataWithDBChecking('TRACE-DATA');"
                     id="showTraceDataGraph"
-                    class="btn btn-primary show-graph ml-3"
+                    class="btn btn-primary show-graph ml-3 hotkey-button"
                     title="Shortcut key: Ctrl+Enter"
+                    data-hotkey="Ctrl+Enter"
                 >
                     <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
                 </button>

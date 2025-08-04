@@ -267,7 +267,7 @@ def get_high_cardinality_var(df, threshold=0.5) -> np.array:
 
 
 def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinality: np.array) -> list:
-    '''
+    """
     Generate summary text for SkD
 
     Parameters
@@ -285,7 +285,7 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
         A list with a dictionary in each element.
         For example: [{"message": {"en": "message1", "ja": "message2"}},
         {"message": {"en": "message3", "ja": "message4"}}]
-    '''
+    """
 
     # Number of variables selected
     # Variable with highest coefficient
@@ -302,8 +302,8 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
     if len(dic_bar['sensor_names']) < len(colids_x):
         msg_varnum = {
             'message': {
-                'en': f"From {len(colids_x)} variables, top {len(dic_bar['sensor_names'])} are shown",
-                'ja': f"計{len(colids_x)}個の変数のうち、上位{len(dic_bar['sensor_names'])}個が表示されています",
+                'en': f'From {len(colids_x)} variables, top {len(dic_bar["sensor_names"])} are shown',
+                'ja': f'計{len(colids_x)}個の変数のうち、上位{len(dic_bar["sensor_names"])}個が表示されています',
             },
         }
         msg.append(msg_varnum)
@@ -312,8 +312,8 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
     top1_sensor = dic_bar['sensor_names'][np.argsort(np.abs(dic_bar['coef']))[-1]]
     msg_top1 = {
         'message': {
-            'en': f"Variable with strongest relationship with {dic_groups['objective']}: {top1_sensor}",
-            'ja': f"{dic_groups['objective']}に対して最も強い関係性をもつ変数: {top1_sensor}",
+            'en': f'Variable with strongest relationship with {dic_groups["objective"]}: {top1_sensor}',
+            'ja': f'{dic_groups["objective"]}に対して最も強い関係性をもつ変数: {top1_sensor}',
         },
     }
     msg.append(msg_top1)
@@ -323,29 +323,24 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
     if len(selected_cat_cols) > 0:
         msg_catcols = {
             'message': {
-                'en': f"Categorical variables: {', '.join(selected_cat_cols)} is selected. "
-                f"Consider analyzing them using PCP/StP/etc.",
-                # fmt: off
-                'ja': f"カテゴリ型の変数: {', '.join(selected_cat_cols)} が選択されました。"
-                f"PCPやStPなどを用いてカテゴリ別の傾向を分析することを検討しましょう",
-                # fmt: on
+                'en': f'Categorical variables: {", ".join(selected_cat_cols)} is selected. '
+                f'Consider analyzing them using PCP/StP/etc.',
+                'ja': f'カテゴリ型の変数: {", ".join(selected_cat_cols)} が選択されました。'
+                f'PCPやStPなどを用いてカテゴリ別の傾向を分析することを検討しましょう',
             },
         }
         msg.append(msg_catcols)
 
     # Too many variables selected -> Jump to ScP
     if len(dic_bar['sensor_names']) > 20:
-        # fmt: off
         msg_manyvars = {
-            'message':
-            {
-                'en': f"Many variables are selected. {dic_bar['objective']} might be a complex phenomenon."
-                f"Consider visualizing PCP/ScP and check if cluster exists",
-                'ja': f"多くの変数が選択されました。{dic_bar['objective']} は複雑な現象である可能性があります。"
-                f"PCPやScPなどで可視化を行い、クラスタ構造がないかを確認しましょう",
+            'message': {
+                'en': f'Many variables are selected. {dic_bar["objective"]} might be a complex phenomenon.'
+                f'Consider visualizing PCP/ScP and check if cluster exists',
+                'ja': f'多くの変数が選択されました。{dic_bar["objective"]} は複雑な現象である可能性があります。'
+                f'PCPやScPなどで可視化を行い、クラスタ構造がないかを確認しましょう',
             },
         }
-        # fmt: on
         msg.append(msg_manyvars)
 
     # Variables with high cardinality
@@ -353,17 +348,14 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
         str(x) for x, y in zip(dic_bar['sensor_names'], dic_bar['sensor_ids']) if y in cat_cols_high_cardinality
     ]
     if len(cat_cols_high_cardinality) > 0:
-        # fmt: off
         msg_nuniques = {
-            'message':
-            {
-                'en': f"Columns with large number of unique values have detected: {', '.join(selected_cols_high_cardinality)}." # noqa: E501
-                f"If you are not interested in the differences such as serial numbers or lot numbers, exclude them from the analysis", # noqa: E501
-                'ja': f"値の種類が非常に多いカラムを検知しました: {', '.join(selected_cols_high_cardinality)}。"
-                f"シリアル番号やロット番号など、その差に興味がない場合は分析から外しましょう",
+            'message': {
+                'en': f'Columns with large number of unique values have detected: {", ".join(selected_cols_high_cardinality)}.'  # noqa: E501
+                f'If you are not interested in the differences such as serial numbers or lot numbers, exclude them from the analysis',  # noqa: E501
+                'ja': f'値の種類が非常に多いカラムを検知しました: {", ".join(selected_cols_high_cardinality)}。'
+                f'シリアル番号やロット番号など、その差に興味がない場合は分析から外しましょう',
             },
         }
-        # fmt: on
         msg.append(msg_nuniques)
 
     # Too strong correlation
@@ -373,26 +365,20 @@ def gen_summary_text_skd(dic_groups: dict, dic_bar: dict, cat_cols_high_cardinal
         is_coef_over_sum = coef > threshold * np.sum(coef)
         if np.any(is_coef_over_sum):
             col_coef_over_sum = dic_bar['sensor_names'][is_coef_over_sum][0]  # 1 sensor is detected at maximum
-            # fmt: off
             msg_ratio = {
-                'message':
-                {
-                    'en': f"{col_coef_over_sum} has high relationship to {dic_bar['objective']} compared with others. If this relationship is obvious, consider removing {col_coef_over_sum}.", # noqa: E501
-                    'ja': f"{col_coef_over_sum} は他と比較して、{dic_bar['objective']}に対して非常に高い関係性をもっています。この関係性が自明である場合、{col_coef_over_sum} を分析から外しましょう。", # noqa: E501
+                'message': {
+                    'en': f'{col_coef_over_sum} has high relationship to {dic_bar["objective"]} compared with others. If this relationship is obvious, consider removing {col_coef_over_sum}.',  # noqa: E501
+                    'ja': f'{col_coef_over_sum} は他と比較して、{dic_bar["objective"]}に対して非常に高い関係性をもっています。この関係性が自明である場合、{col_coef_over_sum} を分析から外しましょう。',  # noqa: E501
                 },
             }
-            # fmt: on
             msg.append(msg_ratio)
 
     # Next Step
     msg_next = {
-        # fmt: off
-        'message':
-        {
-            'en': 'Next step: Keeping in mind the estimated relationships, use PCP/StP/etc. to analyze selected variables', # noqa: E501
-            'ja': '次のステップ: 推定された関係性を念頭におき、PCP/Stp などを使用して選択された変数をより詳しく分析しましょう', # noqa: E501
+        'message': {
+            'en': 'Next step: Keeping in mind the estimated relationships, use PCP/StP/etc. to analyze selected variables',  # noqa: E501
+            'ja': '次のステップ: 推定された関係性を念頭におき、PCP/Stp などを使用して選択された変数をより詳しく分析しましょう',  # noqa: E501
         },
-        # fmt: on
     }
     msg.append(msg_next)
     return msg
@@ -489,12 +475,12 @@ def calc_coef_and_group_order(
 
     if verbose:
         logger.info(
-            f'''\
+            f"""\
 ==========
-Group order: {dic_groups["uniq_grps"][group_order]}
+Group order: {dic_groups['uniq_grps'][group_order]}
 Index used for ridge: {idx_for_ridge}
 Coef: {coef}
-''',
+""",
         )
 
     return coef, group_order, fitted_values, fitted_probs
@@ -625,12 +611,12 @@ def fit_grplasso(X, y, dic_groups, penalty_factors=[0.01, 0.1, 1.0, 10.0, 100.0]
 
         if verbose:
             logger.info(
-                f'''\
+                f"""\
 ==========
 penalty: {rho}
 BIC={np.round(bic[i], 2)}
 Number of dropped columns: {np.sum(coef_history[i, :] == 0.0)}
-''',
+""",
             )
 
     return coef_history, bic
@@ -1118,9 +1104,9 @@ class GroupSankeyDataProcessor:
 
         if self.verbose:
             logger.info(
-                f'''\
+                f"""\
 num_nodes: {num_nodes}'
 Node x, y positions in Skd:
 {np.vstack([self.dic_skd['node_labels'], np.round(node_x, 2), np.round(node_y, 2)]).T}
-''',
+""",
             )

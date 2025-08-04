@@ -206,7 +206,19 @@ const layoutOption = () => {
         };
     }
 
-    return {};
+    return {
+        physics: {
+            enabled: true,
+            repulsion: {
+                damping: 1,
+                springConstant: 100,
+            },
+            timestep: 0.1,
+            stabilization: {
+                enabled: true,
+            },
+        },
+    };
 };
 
 const drawVisNetwork = async (layout = layoutOption()) => {
@@ -288,7 +300,16 @@ const drawVisNetwork = async (layout = layoutOption()) => {
     container.addEventListener('contextmenu', networkRightClickHandler);
     container.addEventListener('click', unbindNodes);
 
+    network.on('dragStart', () => {
+        if (isStarType()) {
+            network.setOptions({ physics: { ...layout?.physics, enabled: true } });
+        }
+    });
+
     network.on('dragEnd', () => {
+        if (isStarType()) {
+            network.stopSimulation();
+        }
         getNodePositionAndSaveLocal();
     });
 
@@ -325,6 +346,13 @@ const drawVisNetwork = async (layout = layoutOption()) => {
         moveToOptions.position = network.getViewPosition();
         saveLocalStorage();
     });
+
+    // re-set physics to false in "Star" mode to prevent "simulation moving the nodes and edges" continuously
+    if (isStarType()) {
+        setTimeout(() => {
+            network.setOptions({ physics: { ...layout?.physics, enabled: false } });
+        }, 1000);
+    }
 };
 
 const getNodePosition = () => {
@@ -690,9 +718,13 @@ const handleChangePreAndPostVar = () => {
 };
 
 const initPreviewData = () => {
-    // get last item to highlight its preview data
-    highlightPreviewData($('.trace-column-backCol').last());
-    highlightPreviewData($('.trace-column-forwardCol').last());
+    // show preview for all link keys
+    $('.trace-column-backCol').each((_i, ele) => {
+        highlightPreviewData($(ele));
+    });
+    $('.trace-column-forwardCol').each((_i, ele) => {
+        highlightPreviewData($(ele));
+    });
 };
 // handle highlight preview-data
 const highlightPreviewData = (ele) => {

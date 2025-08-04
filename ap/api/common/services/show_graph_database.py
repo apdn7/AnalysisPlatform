@@ -1,74 +1,75 @@
 import json
 from typing import TYPE_CHECKING, Any
 
-from ap.api.common.services.utils import TraceGraph
 from ap.common.constants import (
-    ID,
     CacheType,
     CfgConstantType,
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
-from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace
+from ap.common.services.trace_graph import TraceGraph
+from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace, make_session
 from ap.setting_module.schemas import ContextSchemaDict, ShowGraphSchema, TraceSchema
 
 if TYPE_CHECKING:
     from ap.trace_data.schemas import DicParam
 
 
+@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
+def get_all_process_ids() -> list[int]:
+    with make_session() as session:
+        rows = CfgProcess.get_all_ids(with_parent=True, session=session)
+        return [r.id for r in rows]
+
+
 @log_execution_time()
 @CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
-def get_cached_traces_config_data() -> list[dict[str, Any]]:
-    trace_schema = TraceSchema()
-    cfg_traces = CfgTrace.get_all()
-    return trace_schema.dump(cfg_traces, many=True)
+def get_config_process_and_card_order_per_process(process_id: int) -> tuple[CfgProcess, dict[Any, Any]]:
+    show_graph_schema = ShowGraphSchema(context=ContextSchemaDict(show_graph=True))
+    cfg_process = CfgProcess.query.get(process_id)
+
+    # dump process to remove unneeded keys, and detach session
+    process = show_graph_schema.dump(cfg_process)
+
+    # load again to have enough keys
+    cfg_process = show_graph_schema.load(process)
+
+    card_order = CfgConstant.get_value_by_type_name(
+        type=CfgConstantType.TS_CARD_ORDER.name,
+        name=process_id,
+        parse_val=json.loads,
+    )
+
+    return cfg_process, card_order
 
 
 @log_execution_time()
+@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
 def get_traces_graph_config_data() -> TraceGraph:
-    traces = get_cached_traces_config_data()
-    traces = TraceSchema().load(traces, many=True)
+    trace_schema = TraceSchema(many=True)
+    cfg_traces = CfgTrace.get_all()
+
+    # dumps to remove unneeded keys, and detach session
+    traces = trace_schema.dump(cfg_traces)
+
+    # load again to have enough keys
+    traces = trace_schema.load(traces)
+
     return TraceGraph(traces)
 
 
 @log_execution_time()
-@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
-def get_cached_processes_config_data() -> list[dict[str, Any]]:
-    # TODO: because we use this function for show graph function, so many processes between start and end will be used.
-    # TODO: so currently , get all processes may better and easy , but there is an issue of caching and performance.
-    # TODO: remove below code if we found better solution
-    show_graph_schema = ShowGraphSchema(context=ContextSchemaDict(show_graph=True))
-    cfg_processes = CfgProcess.get_all()
-    return show_graph_schema.dump(cfg_processes, many=True)
+def get_config_data() -> tuple[dict[int, CfgProcess], TraceGraph, dict[int, dict[Any, Any]]]:
+    process_ids = get_all_process_ids()
 
-
-@log_execution_time()
-@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
-def get_processes_config_data() -> list[CfgProcess]:
-    processes = get_cached_processes_config_data()
-    return ShowGraphSchema().load(processes, many=True)
-
-
-@log_execution_time()
-@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
-def get_dic_card_orders() -> dict[int, str]:
-    processes = get_cached_processes_config_data()
-    proc_ids = [p[ID] for p in processes]
-    dic_card_orders = {}
-    for cfg_const in CfgConstant.get_value_by_type_names(const_type=CfgConstantType.TS_CARD_ORDER.name, names=proc_ids):
-        dic_card_orders[int(cfg_const.name)] = json.loads(cfg_const.value)
-    return dic_card_orders
-
-
-@log_execution_time()
-def get_config_data() -> tuple[dict[int, CfgProcess], TraceGraph, dict[int, str]]:
-    processes = get_processes_config_data()
     dic_procs: dict[int, CfgProcess] = {}
-    for proc in processes:
-        dic_procs[proc.id] = proc
+    dic_card_orders: dict[int, dict[Any, Any]] = {}
+    for process_id in process_ids:
+        process, card_order = get_config_process_and_card_order_per_process(process_id)
+        dic_procs[process_id] = process
+        dic_card_orders[process_id] = card_order
 
     trace_graph = get_traces_graph_config_data()
-    dic_card_orders = get_dic_card_orders()
 
     return dic_procs, trace_graph, dic_card_orders
 

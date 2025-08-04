@@ -10,7 +10,6 @@ from pandas import DataFrame, Series
 from pandas.errors import ParserError
 from sqlalchemy.orm import scoped_session
 
-from ap.common.common_utils import open_with_zip
 from ap.common.constants import (
     ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS,
     ABNORMAL_V2_COLS,
@@ -35,6 +34,7 @@ from ap.common.constants import (
     v2_PART_NO_REGEX,
 )
 from ap.common.logger import log_execution_time
+from ap.common.path_utils import open_with_zip
 from ap.common.services.csv_content import get_metadata
 from ap.common.services.csv_header_wrapr import add_suffix_if_duplicated
 from ap.common.services.data_type import gen_data_types
@@ -45,7 +45,6 @@ from ap.setting_module.models import (
     CfgProcess,
     CfgProcessColumn,
     CfgProcessUnusedColumn,
-    crud_config,
     make_session,
     use_meta_session,
 )
@@ -69,25 +68,14 @@ def add_process_columns(cfg_proc: CfgProcess, column_data: list):
     proc_column_schemas = ProcessColumnSchema()
     with make_session() as meta_session:
         current_columns = CfgProcessColumn.get_all_columns(process_id)
-        sensors = set()
         for column in column_data:
             proc_column = proc_column_schemas.load(column)
             # proc_column.english_name = to_romaji(proc_column.column_name)
             proc_column.name_en = to_romaji(proc_column.column_name)
             proc_column.process_id = process_id
+            meta_session.add(proc_column)
+            meta_session.flush()
             current_columns.append(proc_column)
-            sensors.add((process_id, proc_column.column_name, DataType[proc_column.data_type].value))
-
-        # todo: remove above code: old method to save new columns
-        # resolved by `current_columns.append`
-        # save columns
-        crud_config(
-            meta_session=meta_session,
-            data=current_columns,
-            parent_key_names=CfgProcessColumn.process_id.key,
-            key_names=CfgProcessColumn.column_name.key,
-            model=CfgProcessColumn,
-        )
 
     # update columns in static cfg_proc
     cfg_proc.columns = [col.clone() for col in current_columns]

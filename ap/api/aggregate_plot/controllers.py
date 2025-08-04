@@ -127,7 +127,7 @@ def data_export(export_type):
         )
 
         # export original value of judge variable
-        judge_columns = graph_param.get_judge_variables()
+        judge_columns = graph_param.get_judge_cols()
 
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name

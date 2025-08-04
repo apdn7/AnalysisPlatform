@@ -15,12 +15,12 @@ from sqlalchemy.sql.ddl import CreateIndex, CreateTable
 from ap import log_execution_time
 from ap.api.common.services.utils import gen_sql_and_params, gen_sql_compiled_stmt
 from ap.common.common_utils import (
-    DATE_FORMAT_SQLITE_STR,
     gen_data_count_table_name,
     gen_import_history_table_name,
     get_type_all_columns,
 )
 from ap.common.constants import (
+    DATE_FORMAT_SQLITE_STR,
     SEQUENCE_CACHE,
     SQL_LIMIT,
     SQL_PARAM_SYMBOL,
@@ -148,21 +148,21 @@ class TransactionData:
         return cols, rows
 
     def create_table(self, db_instance, table_name: Optional[str] = None, auto_commit: bool = True):
-        dict_col_with_type = {column.bridge_column_name: column.data_type for column in self.cfg_process_columns}
+        dict_col_with_types = self.get_cols_with_types()
         table_name = table_name or self.table_name
         if table_name in db_instance.list_tables():
             new_columns = self.get_new_columns(db_instance, table_name=table_name)
             if new_columns:
                 dict_new_col_with_type = {column.bridge_column_name: column.data_type for column in new_columns}
                 self.add_columns(db_instance, self.table_name, dict_new_col_with_type, auto_commit=auto_commit)
-            # TODO: update data type error
-            self.update_data_types(db_instance, dict_col_with_type, auto_commit=auto_commit)
+            # TODO: Update data-type only when needed (add condition)
+            self.update_data_types(db_instance, dict_col_with_types, auto_commit=auto_commit)
             return table_name
 
         # self.__create_sequence_table(db_instance)
         sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
         sql_col = ''
-        for col_name, _data_type in dict_col_with_type.items():
+        for col_name, _data_type in dict_col_with_types.items():
             data_type = (
                 DataType.TEXT.name
                 if _data_type in [DataType.DATETIME.name, DataType.DATE.name, DataType.TIME.name]
@@ -321,12 +321,12 @@ class TransactionData:
         return table_name
 
     def __create_sequence_table(self, db_instance):
-        sql = f'''
+        sql = f"""
             CREATE SEQUENCE IF NOT EXISTS {self.table_name}_id_seq
             START WITH 1
             INCREMENT BY 1
             CACHE {SEQUENCE_CACHE};
-        '''
+        """
         db_instance.execute_sql(sql)
 
     def delete_sequence_table(self, db_instance, table_name: str | None = None, auto_commit: bool = True):
@@ -370,11 +370,11 @@ class TransactionData:
         #     WHERE schemaname = 'public' and tablename = '{self.table_name}'
         #     ORDER BY indexdef;
         #     '''
-        sql = f'''
+        sql = f"""
             SELECT sql
             FROM sqlite_master
             WHERE type = 'index' AND tbl_name = '{self.table_name}';
-        '''
+        """
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
         table_indexes: Set[MultipleIndexes] = set()
         for col_dat in rows:
@@ -453,12 +453,12 @@ class TransactionData:
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def get_indexes_by_column_name(self, db_instance, column_name: str):
-        sql = f'''SELECT name
+        sql = f"""SELECT name
 FROM sqlite_master
 WHERE type = 'index'
   and tbl_name = '{self.table_name}'
   and sql like '%{column_name}%';
-'''
+"""
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
         return [row[0] for row in rows] if rows else []
 
@@ -613,8 +613,9 @@ WHERE type = 'index'
         for column_name, data_type in dict_col_with_type.items():
             current_data_type = current_dict_col_with_type.get(column_name)
             new_data_type = data_type if data_type != DataType.DATETIME.name else DataType.TEXT.name
+            datetime_col_name = self.getdate_column.bridge_column_name if self.getdate_column else None
             if (
-                column_name != self.getdate_column.bridge_column_name and new_data_type != current_data_type
+                column_name and column_name != datetime_col_name and new_data_type != current_data_type
             ):  # can not update for column get_date
                 new_data_type = DataType.correct_data_type(new_data_type)
                 new_data_types[column_name] = new_data_type
@@ -622,7 +623,7 @@ WHERE type = 'index'
         if new_data_types:
             self.purge_index(db_instance, auto_commit=auto_commit)
             for column_name, new_data_type in new_data_types.items():
-                new_column_name = f"{column_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                new_column_name = f'{column_name}_{datetime.now().strftime("%Y%m%d%H%M%S")}'
                 self.add_column(db_instance, self.table_name, new_column_name, new_data_type, auto_commit=auto_commit)
                 self.update_and_cast_date_type(
                     db_instance,
@@ -642,9 +643,9 @@ WHERE type = 'index'
 
     @staticmethod
     def add_column(db_instance, table_name: str, new_column_name: str, data_type: str, auto_commit: bool = True):
-        sql = f'''
+        sql = f"""
         ALTER TABLE {table_name} ADD COLUMN {new_column_name} {data_type}
-        '''
+        """
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def update_and_cast_date_type(
@@ -659,9 +660,9 @@ WHERE type = 'index'
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def rename_column_name(self, db_instance, old_column_name, new_column_name, auto_commit: bool = True):
-        sql = f'''
+        sql = f"""
         ALTER TABLE {self.table_name} RENAME COLUMN {old_column_name} TO {new_column_name};
-        '''
+        """
         db_instance.execute_sql(sql, auto_commit=auto_commit)
 
     def delete_process(self, db_instance):
@@ -672,12 +673,12 @@ WHERE type = 'index'
             db_instance.connection.commit()
 
     def remove_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time):
-        sql = f'''
+        sql = f"""
             DELETE
             FROM {self.table_name}
             WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
                 AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
-        '''
+        """
         params = [start_time, end_time]
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
         df = pd.DataFrame(rows, columns=cols, dtype='object')
@@ -774,8 +775,8 @@ WHERE type = 'index'
         return cols, rows
 
     def get_datetime_value(self, db_instance: Union[PostgreSQL, SQLite3]):
-        sql = f'''SELECT {self.getdate_column.bridge_column_name}
-        FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} DESC'''
+        sql = f"""SELECT {self.getdate_column.bridge_column_name}
+        FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} DESC"""
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
         return list(sum(rows, ()))
 
@@ -849,8 +850,8 @@ WHERE type = 'index'
 
     def update_timezone(self, db_instance, tz_offset):
         col = self.getdate_column.bridge_column_name
-        sql = f'''UPDATE {self.table_name}
-        SET {col} = strftime("{DATE_FORMAT_SQLITE_STR}",DATETIME({col},"{tz_offset}")) || SUBSTR({col},-8) '''
+        sql = f"""UPDATE {self.table_name}
+        SET {col} = strftime("{DATE_FORMAT_SQLITE_STR}",DATETIME({col},"{tz_offset}")) || SUBSTR({col},-8) """
         db_instance.execute_sql(sql)
 
     def select_distinct_data(self, db_instance, col_name, limit=1000):
@@ -892,13 +893,13 @@ WHERE type = 'index'
         yield from data
 
     def get_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time, limit=1_000_000):
-        sql = f'''
+        sql = f"""
             SELECT *
             FROM {self.table_name}
             WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
                 AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
             LIMIT {limit};
-        '''
+        """
         params = [start_time, end_time]
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
         df = pd.DataFrame(rows, columns=cols, dtype='object')
@@ -949,7 +950,7 @@ WHERE type = 'index'
         _, rows = db_instance.run_sql(sql, params=params)
         return list(map(ImportHistoryTable.model_validate, rows))
 
-    ImportHistoryLatestDone = namedtuple('ImportHistoryLatestDone', ['file_name', 'start_tm', 'imported_row'])
+    ImportHistoryLatestDone = namedtuple('ImportHistoryLatestDone', ['file_name', 'start_tm', 'imported_row', 'status'])
 
     def get_import_history_latest_done_files(self, db_instance) -> list[ImportHistoryLatestDone]:
         table = ImportHistoryTable.table(self.process_id)
@@ -959,6 +960,7 @@ WHERE type = 'index'
                 table.c.file_name,
                 sa.func.max(table.c.start_tm).label('start_tm'),
                 sa.func.max(table.c.imported_row).label('imported_row'),
+                sa.func.max(table.c.status).label('status'),
             )
             .where(table.c.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]))
             .group_by(table.c.file_name)
@@ -1032,15 +1034,18 @@ WHERE type = 'index'
         link_cols = '*'
         if columns:
             link_cols = ','.join([f'{col.bridge_column_name} as "{col.id}"' for col in columns])
-        sql = f'''
+        sql = f"""
             SELECT {link_cols}
             FROM {self.table_name}
             ORDER BY {self.getdate_column.bridge_column_name} DESC
             LIMIT {limit};
-        '''
+        """
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
         df = pd.DataFrame(rows, columns=cols, dtype='object')
         return df
+
+    def get_cols_with_types(self):
+        return {column.bridge_column_name: column.data_type for column in self.cfg_process_columns}
 
 
 class DataCountTable(BaseEnum):

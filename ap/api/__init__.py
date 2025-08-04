@@ -15,6 +15,7 @@ def create_module(app, **kwargs):
     from .scatter_plot.controllers import api_scatter_blueprint
     from .setting_module.controllers import api_setting_module_blueprint
     from .table_viewer.controllers import api_table_viewer_blueprint
+    from .time_vis.controllers import api_tv_blueprint
     from .trace_data.controllers import api_trace_data_blueprint
 
     app.register_blueprint(api_setting_module_blueprint)
@@ -34,3 +35,4 @@ def create_module(app, **kwargs):
     app.register_blueprint(api_agp_blueprint)
     app.register_blueprint(api_gl_blueprint)
     app.register_blueprint(external_api_v1_blueprint)
+    app.register_blueprint(api_tv_blueprint)

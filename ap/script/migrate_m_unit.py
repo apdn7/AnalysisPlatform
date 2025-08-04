@@ -5,9 +5,11 @@ import pandas as pd
 import unicodedata
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import Session
+
+from ap.common.path_utils import get_dummy_data_path
 from ap.common.pydn.dblib import sqlite
 
-from ap.common.common_utils import get_dummy_data_path, create_sa_engine_for_migration
+from ap.common.common_utils import create_sa_engine_for_migration
 from ap.common.services.normalization import NORMALIZE_FORM_NFKC
 
 

@@ -65,13 +65,14 @@ def assign_group_labels_for_dataframe(
     But it is much safer, as it also check datatype of `df[by]` and `bins`
     as well as the length of `bins` and `labels`
 
-    >>> df = pd.DataFrame({'x': [1,2,3,4,5,6]})
-    >>> assign_group_labels_for_dataframe(df,
-    ...    by='x',
-    ...    label_column='label',
-    ...    bins=[1, 3, 5, 7],
-    ...    labels=['1 to 3', '3 to 5', '5 to 7'],
-    ...    )
+    >>> df = pd.DataFrame({'x': [1, 2, 3, 4, 5, 6]})
+    >>> assign_group_labels_for_dataframe(
+    ...     df,
+    ...     by='x',
+    ...     label_column='label',
+    ...     bins=[1, 3, 5, 7],
+    ...     labels=['1 to 3', '3 to 5', '5 to 7'],
+    ... )
        x   label
     0  1  1 to 3
     1  2  1 to 3

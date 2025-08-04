@@ -68,7 +68,7 @@ from ap.common.constants import (
     CacheType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -121,7 +121,7 @@ def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
         dic_param[UNIQUE_SERIAL] = unique_serial
@@ -391,11 +391,11 @@ def calc_2d_hist(x, y, num_bins):
 
     # range of x and y
 
-    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation="midpoint")  # noqa
+    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
     min_x, q1_x, q3_x, max_x = qx[:4]
     iqr_x = q3_x - q1_x
 
-    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation="midpoint")  # noqa
+    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
     min_y, q1_y, q3_y, max_y = qy[:4]
     iqr_y = q3_y - q1_y
 

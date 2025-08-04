@@ -16,7 +16,6 @@ from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.common.services.show_graph_services import get_filter_on_demand_data
 from ap.api.trace_data.services.csv_export import gen_csv_data
-from ap.common.common_utils import resource_path
 from ap.common.constants import (
     CATEGORICAL,
     COMMON,
@@ -29,6 +28,7 @@ from ap.common.constants import (
     CSVExtTypes,
     MaxGraphNumber,
 )
+from ap.common.path_utils import resource_path
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,

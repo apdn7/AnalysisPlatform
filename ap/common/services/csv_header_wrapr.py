@@ -263,7 +263,7 @@ def read_first_nrows_as_array(fpath: str, nrows: int, ncols: int, sep_str: str, 
 
 
 def _remove_newline_str(x: list, newline_str='\n') -> list:
-    x = [x.rstrip(newline_str).strip('\"') for x in x]
+    x = [x.rstrip(newline_str).strip('"') for x in x]
     return x
 
 
@@ -665,7 +665,7 @@ def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_origin
                 if (digit - 1) > 0:
                     # the rest of the column name except for the suffix
                     s = '_'.join(matched[0:-1])
-                    col_names.append(f'{s}.{digit-1}')
+                    col_names.append(f'{s}.{digit - 1}')
                 else:
                     # case a_01 -> a
                     col_names.append('_'.join(matched[0:-1]))
@@ -910,7 +910,7 @@ def guess_na_str(arr_dat) -> dict:
     sorted_items = sorted_items[idx]
 
     # remove non-na characters
-    nas = [re.sub('([ ,;:]|\\[.*\\]|\\(.*\\)|[^\x01-\x7E])', '', x) for x in sorted_items]
+    nas = [re.sub('([ ,;:]|\\[.*\\]|\\(.*\\)|[^\x01-\x7e])', '', x) for x in sorted_items]
     nas = [re.sub('( |\\d{1,2}/\\d|-?\\d*\\.?\\d+$)', '', x) for x in nas]
     nas = [re.sub('(^[a-z]+$|^[A-Z]{3,}$)', '', x) for x in nas]
     nas = [x for x in nas if x != '']

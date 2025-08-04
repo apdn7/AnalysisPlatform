@@ -1,7 +1,7 @@
 <!-- Sidebar  https://bootsnipp.com/snippets/Q0dAX -->
 <nav id="sidebar">
     <div class="sidebar-header">
-        <button type="button" id="sidebarCollapse" class="btn navbar-btn">
+        <button type="button" id="sidebarCollapse" class="btn navbar-btn hotkey-button" data-hotkey="Ctrl + /">
             <i class="fas fa-bars "></i>
         </button>
         <a href="/" class="navbar-left"
@@ -109,6 +109,18 @@
                         <span class="nav-text hint-text">{{ _('Heatmap Plot Page Title') }}</span></a
                     >
                 </li>
+                <!-- unavailable on v4.8.0
+{#                <li data-search="Tv TimeVis {{ _('TimeVis') }}">#}
+{#                    <a#}
+{#                        href="{{ url_for('time_vis.index') }}"#}
+{#                        class="go-to-page"#}
+{#                        title="{{ _('TV Page title description') }}"#}
+{#                    >#}
+{#                        <span class="page-character">TV</span>#}
+{#                        <span class="nav-text hint-text">{{ _('TimeVis') }}</span></a#}
+{#                    >#}
+{#                </li>#}
+                -->
                 <li data-search="PCP Parallel Coordinates Plot {{ _('Parallel Coordinates Plot') }}">
                     <a
                         href="{{ url_for('parallel_plot.index') }}"

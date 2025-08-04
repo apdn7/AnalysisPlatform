@@ -17,7 +17,7 @@ import pandas as pd
 from flask import Response
 
 from ap.api.efa.services.etl import detect_file_stream_delimiter
-from ap.common.common_utils import detect_encoding, is_normal_zip, open_with_zip
+from ap.common.common_utils import detect_encoding
 from ap.common.constants import (
     CP932,
     DELIMITER_KW,
@@ -32,6 +32,7 @@ from ap.common.constants import (
     CSVExtTypes,
 )
 from ap.common.logger import log_execution_time
+from ap.common.path_utils import is_normal_zip, open_with_zip
 from ap.common.services.normalization import normalize_list
 
 logger = logging.getLogger(__name__)
@@ -120,12 +121,15 @@ def read_data(
     is_transpose: bool = False,
     delimiter=',',
     do_normalize=True,
+    encoding: str | None = 'utf-8',
 ):
     nrows = get_number_of_reading_lines(n_rows, limit)
 
     normalize_func = normalize_list if do_normalize else lambda x: x
 
-    _delimiter, encoding = get_delimiter_encoding(f_name, skip_head=skip_head)
+    _delimiter, _encoding = get_delimiter_encoding(f_name, skip_head=skip_head)
+    if encoding is not None:
+        encoding = _encoding
     # prioritize provided delimiter
     if delimiter is None or delimiter == 'Auto':
         delimiter = _delimiter

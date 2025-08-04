@@ -436,7 +436,14 @@ class ProcessConfigSection {
      * @param {{}[]} sampleDataRows - a list of sample data
      * @return ProcessConfigSection - a process config section object
      */
-    static async createProcessConfigSectionForExtend(processConfig, sampleDataRows) {
+    static async createProcessConfigSectionForExtend(
+        processConfig,
+        sampleDataRows,
+        uniqueDataCategory,
+        uniqueDataReal,
+        uniqueDataInt,
+        uniqueDataIntCat,
+    ) {
         const mainEle = document.getElementById('procPreviewSection');
 
         const extendSectionDivHTML = this.#generateProcessConfigHeaderHTML(processConfig);
@@ -459,11 +466,20 @@ class ProcessConfigSection {
             };
         });
 
-        await generateProcessList(tableId, columns, sampleDataRows, {
-            fromRegenerate: true,
-            autoCheckSerial: true,
-            registerByFile: true,
-        });
+        await generateProcessList(
+            tableId,
+            columns,
+            sampleDataRows,
+            uniqueDataCategory,
+            uniqueDataReal,
+            uniqueDataInt,
+            uniqueDataIntCat,
+            {
+                fromRegenerate: true,
+                autoCheckSerial: true,
+                registerByFile: true,
+            },
+        );
         preventSelectAll(renderedCols);
 
         // update select all check box after update column checkboxes
@@ -644,6 +660,41 @@ class ProcessConfigSection {
                                 data-observer=""
                                 onchange="handleProcDatetimeFormatInput(this)"
                             />
+                        </div>
+                        <div class="ml-3">
+                            <label
+                                class="mb-0 mr-2"
+                                title="{{ _('It is possible to choose between displaying the values of each record or the unique values of each column in the sample data') }}"
+                            >
+                                <span class="hint-text">${i18n.sampleDataLabel}</span>
+                            </label>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="sampleDataRecords"
+                                    name="sampleDataDisplayMode"
+                                    value="records"
+                                    data-observer
+                                    onchange="changeSampleDataDisplayMode(this)"
+                                    checked="checked"
+                                />
+                                <label class="custom-control-label" for="sampleDataRecords">${i18n.recordsDisplayModeLabel}</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="sampleDataUnique"
+                                    name="sampleDataDisplayMode"
+                                    value="unique"
+                                    data-observer
+                                    onchange="changeSampleDataDisplayMode(this)"
+                                />
+                                <label class="custom-control-label" for="sampleDataUnique"
+                                    >${i18n.uniqueDisplayModeLabel}</label
+                                >
+                            </div>
                         </div>
                     </div>
                     <div id="refactorProcSetting">

@@ -12,7 +12,7 @@ from typing import Any
 
 import filelock
 
-from ap.common.common_utils import get_data_path
+from ap.common.path_utils import get_data_path
 
 logger = logging.getLogger(__name__)
 

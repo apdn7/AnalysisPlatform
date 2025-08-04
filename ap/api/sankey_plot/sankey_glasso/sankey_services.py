@@ -50,7 +50,7 @@ from ap.common.constants import (
     GrLassoTask,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -130,7 +130,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number

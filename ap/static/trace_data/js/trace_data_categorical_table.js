@@ -773,6 +773,8 @@ const initIndexModal = () => {
             bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, name.serial);
             disableUnselectedOption(selectedSerials, name.serial);
             disableUnselectedOption(selectedProcess, name.process);
+            // click ok in case of load first time of user setting
+            if (clearOnFlyFilter) $(formElements.okOrderIndexModal).trigger('click');
 
             $(formElements.btnAddSerial2).unbind('click');
             $(formElements.btnAddSerial2).on('click', () => {

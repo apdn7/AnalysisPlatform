@@ -9,12 +9,15 @@ from contextlib import suppress
 from itertools import islice
 from typing import List
 
+import numpy as np
 import pandas as pd
 from flask_babel import get_locale
 
-from ap import check_exist
 from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter, df_transform
-from ap.api.setting_module.services.csv_import import convert_csv_timezone, gen_dummy_header
+from ap.api.setting_module.services.csv_import import (
+    convert_csv_timezone,
+    gen_dummy_header,
+)
 from ap.api.setting_module.services.data_import import (
     PANDAS_DEFAULT_NA,
     strip_special_symbol,
@@ -39,24 +42,23 @@ from ap.api.setting_module.services.v2_etl_services import (
     rename_sub_part_no,
 )
 from ap.common.common_utils import (
-    DATE_FORMAT_SIMPLE,
     add_suffix_for_same_column_name,
+    convert_eu_decimal_series,
+    convert_numeric_by_type,
     get_csv_delimiter,
-    get_files,
-    get_preview_data_file_folder,
-    get_sorted_files,
-    get_sorted_files_by_size,
-    get_sorted_files_by_size_and_time,
-    make_dir_from_file_path,
 )
 from ap.common.constants import (
+    DATA_TYPE_ESTIMATION_LIMIT,
+    DATE_FORMAT_SIMPLE,
     DATETIME_DUMMY,
     EMPTY_STRING,
     FILE_NAME,
     HALF_WIDTH_SPACE,
+    IS_JUDGE,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     PREVIEW_DATA_TIMEOUT,
     REVERSED_WELL_KNOWN_COLUMNS,
+    SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_PREFIX,
     SUB_PART_NO_SUFFIX,
     WR_HEADER_NAMES,
@@ -70,6 +72,15 @@ from ap.common.constants import (
 )
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.path_utils import (
+    check_exist,
+    get_files,
+    get_preview_data_file_folder,
+    get_sorted_files,
+    get_sorted_files_by_size,
+    get_sorted_files_by_size_and_time,
+    make_dir_from_file_path,
+)
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services import csv_header_wrapr as chw
@@ -80,7 +91,6 @@ from ap.common.services.csv_content import (
     read_data,
 )
 from ap.common.services.csv_header_wrapr import (
-    _translate_wellknown_jp2en,
     convert_wellknown_col_name,
     gen_colsname_for_duplicated,
 )
@@ -93,6 +103,7 @@ from ap.common.services.normalization import (
     unicode_normalize,
 )
 from ap.common.timezone_utils import gen_dummy_datetime, gen_dummy_datetime_data
+from ap.detect_judge.core import JUDGE_AVAILABLE, JUDGE_FORMULA, get_judge_formula
 from ap.setting_module.models import (
     CfgDataSource,
     CfgProcess,
@@ -172,7 +183,7 @@ def get_latest_records(
                 delimiter,
                 limit,
                 return_df=True,
-                max_records=1000,
+                max_records=DATA_TYPE_ESTIMATION_LIMIT,
                 file_name=file_name,
                 skip_head=skip_head,
                 n_rows=n_rows,
@@ -189,7 +200,7 @@ def get_latest_records(
         dummy_datetime_idx = dic_preview.get('dummy_datetime_idx')
         file_name_col_idx = dic_preview.get('file_name_col_idx')
         same_values = dic_preview.get('same_values')
-        is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY
+        is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY.value
         is_gen_cols = dic_preview.get('is_gen_cols')
         if headers and data_types:
             cols_with_types = gen_cols_with_types(
@@ -217,6 +228,7 @@ def get_latest_records(
             table_name,
             process_factid=process_factid,
             master_type=master_type,
+            sql_limit=DATA_TYPE_ESTIMATION_LIMIT,
         )
         if etl_func:
             df_rows = df_transform(df_rows, etl_func)
@@ -260,13 +272,57 @@ def get_latest_records(
     #     has_ct_col = False
 
     rows = []
+    unique_rows_as_category = []
+    unique_rows_as_real = []
+    unique_rows_as_int = []
+    unique_rows_as_int_cat = []
+    df_unique_as_category = pd.DataFrame()
+    df_unique_as_real = pd.DataFrame()
+    df_unique_as_int = pd.DataFrame()
+    df_unique_as_int_cat = pd.DataFrame()
+    # TODO: This function should use normalize in a consistent manner
+    df_rows.columns = normalize_list(cols)
+    normalized_cols = normalize_list(cols)
+    df_unique_sample_processing = df_rows.copy()
     if is_valid_list(df_rows):
+        # check is judge
+        is_has_judge_col = False
+        for index, col in enumerate(df_rows.columns):
+            judge_formula = get_judge_formula(df_rows[col])
+            if judge_formula is not None:
+                cols_with_types[index][JUDGE_AVAILABLE] = True
+                cols_with_types[index][JUDGE_FORMULA] = judge_formula.get_formula()
+                cols_with_types[index][IS_JUDGE] = is_has_judge_col is False
+                is_has_judge_col = True
+            else:
+                cols_with_types[index][JUDGE_AVAILABLE] = False
+
         data_type_by_cols = {}
         for col_data in cols_with_types:
             data_type_by_cols[col_data['column_name']] = col_data['data_type']
         # convert to correct dtypes
         for col in df_rows.columns:
             try:
+                if data_type_by_cols[col] in [
+                    DataType.INTEGER_SEP.name,
+                    DataType.EU_INTEGER_SEP.name,
+                    DataType.REAL_SEP.name,
+                    DataType.EU_REAL_SEP.name,
+                ]:
+                    df_unique_sample_processing[col] = convert_eu_decimal_series(
+                        df_unique_sample_processing[col],
+                        data_type_by_cols[col],
+                    )
+                df_unique_as_category[col] = parse_unique_as_category(df_unique_sample_processing[col])
+                df_unique_as_real[col] = parse_unique_as_real(
+                    df_unique_sample_processing[col],
+                )
+                df_unique_as_int[col] = parse_unique_as_int(
+                    df_unique_sample_processing[col],
+                )
+                df_unique_as_int_cat[col] = parse_unique_as_int_cat(
+                    df_unique_sample_processing[col],
+                )
                 if data_type_by_cols[col] == DataType.INTEGER.name:
                     df_rows[col] = df_rows[col].astype('float64').astype('Int64')
 
@@ -278,11 +334,21 @@ def get_latest_records(
                         df_rows[col] = df_rows[col].str.lower()
                     # fill na to '' for string column
                     df_rows[col] = df_rows[col].fillna('')
-
             except Exception:
                 continue
-        rows = transform_df_to_rows(cols, df_rows, limit)
 
+        rows = transform_df_to_rows(normalized_cols, df_rows, limit)
+        if is_csv_or_v2 and directory and (file_name_col_idx is not None):
+            file_name_data = pd.Series([os.path.basename(path) for path in get_sorted_files(directory)])
+            file_name_col_name = normalized_cols[file_name_col_idx]
+            df_unique_as_category[file_name_col_name] = parse_unique_as_category(file_name_data)
+            df_unique_as_real[file_name_col_name] = parse_unique_as_real(file_name_data)
+            df_unique_as_int[file_name_col_name] = parse_unique_as_int(file_name_data)
+            df_unique_as_int_cat[file_name_col_name] = parse_unique_as_int_cat(file_name)
+        unique_rows_as_category = transform_df_to_rows(normalized_cols, df_unique_as_category, 10)
+        unique_rows_as_real = transform_df_to_rows(normalized_cols, df_unique_as_real, 10)
+        unique_rows_as_int = transform_df_to_rows(normalized_cols, df_unique_as_int, 10)
+        unique_rows_as_int_cat = transform_df_to_rows(normalized_cols, df_unique_as_int_cat, 10)
     is_rdb = not is_csv_or_v2
     return (
         cols_with_types,
@@ -293,6 +359,10 @@ def get_latest_records(
         dummy_datetime_idx,
         is_rdb,
         file_name_col_idx,
+        unique_rows_as_category,
+        unique_rows_as_real,
+        unique_rows_as_int,
+        unique_rows_as_int_cat,
     )
 
 
@@ -761,8 +831,6 @@ def preview_csv_data(
             #     df_data_details = df_data_details.sort_values(col)
             #     first_datetime_col_idx = header_names.index(col)
 
-        df_data_details = df_data_details[0:limit]
-
         if DataType.DATETIME.value not in data_types:
             (
                 header_names,
@@ -970,6 +1038,10 @@ def preview_v2_data(
                 break
 
     org_headers = header_names.copy()
+
+    if datasource_type == DBType.V2_HISTORY:
+        org_headers = [org_header.split(SUB_PART_NO_DEFAULT_SUFFIX)[0] for org_header in org_headers]
+
     # normalization
     header_names = normalize_list(header_names)
 
@@ -1167,18 +1239,46 @@ def gen_cols_with_types(
     if not column_raw_name:
         column_raw_name = cols
     column_raw_name_normalize = [normalize_str(col) for col in column_raw_name.copy()]
-    cols_raw_name_added_suffix, _ = gen_colsname_for_duplicated(column_raw_name_normalize)
+
+    # see: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/merge_requests/6875
+    # we move this logic out of the loop so that we can add suffix AFTER extract unit
+    if is_v2_history:
+        # v2_history: name_jp use short name　子部品品番　ー＞子１品番
+        mapped_col_names = cols
+    else:
+        mapped_col_names = []
+        for normalized_col, col_name, is_gen_col in zip(column_raw_name_normalize, cols, is_gen_cols):
+            # when stripped col_raw_name is empty, use col_name (which are generated headers)
+            mapped_col_name = col_name if is_gen_col else normalized_col
+            mapped_col_names.append(mapped_col_name)
+
+    # extract units before adding suffix
+    extracted_col_names, units = [], []
+    for mapped_col_name in mapped_col_names:
+        column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
+        if unit:
+            # if unit extracted by regex, verify unit by m_unit data again
+            valid_unit = MUnit.get_by_unit(unit)
+
+            # if not valid, string normalization applied for column name
+            if not valid_unit:
+                # set unit be empty
+                unit = ''
+                column_name_extracted = mapped_col_name
+        extracted_col_names.append(column_name_extracted)
+        units.append(unit)
+
+    extracted_col_names_with_suffix, _ = gen_colsname_for_duplicated(extracted_col_names)
+
     idx = 0
-    serial_name_jp = 'シリアル'
-    datetime_name_jp = '日時'
     for (
         col_name,
         col_raw_name,
-        col_raw_name_added_suffix,
+        column_name_extracted,
+        unit,
         data_type,
         same_value,
-        is_gen_col,
-    ) in zip(cols, column_raw_name, cols_raw_name_added_suffix, data_types, same_values, is_gen_cols):
+    ) in zip(cols, column_raw_name, extracted_col_names_with_suffix, units, data_types, same_values):
         is_date = False if has_is_get_date_col else DataType(data_type) is DataType.DATETIME
         is_serial_no = (
             DataType(data_type) in [DataType.TEXT, DataType.INTEGER]
@@ -1198,47 +1298,17 @@ def gen_cols_with_types(
 
         # add to output
         if col_name:
-            # when stripped col_raw_name is empty, use col_name (which are generated headers)
-            # TODO: should normalize_str() be used?
-            mapped_col_name = col_raw_name_added_suffix if (col_raw_name.strip() and not is_gen_col) else col_name
-            column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
-            if unit:
-                # if unit extracted by regex, verify unit by m_unit data again
-                valid_unit = MUnit.get_by_unit(unit)
-
-                # if not valid, string normalization applied for column name
-                if not valid_unit:
-                    # set unit be empty
-                    unit = ''
-                    column_name_extracted = mapped_col_name
-
             if ja_locale:
                 name_local = ''
-                if is_date:
-                    name_jp = datetime_name_jp
-                    name_en = _translate_wellknown_jp2en([datetime_name_jp])[0]
-                elif is_main_serial_no:
-                    name_jp = serial_name_jp
-                    name_en = _translate_wellknown_jp2en([serial_name_jp])[0]
-                else:
-                    name_jp = column_name_extracted
-                    name_en, is_wellknown_col = convert_wellknown_col_name(name_jp)
-                    if not is_wellknown_col:
-                        name_en = (
-                            to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
-                        )
+                name_jp = column_name_extracted
+                name_en, is_wellknown_col = convert_wellknown_col_name(name_jp)
+                if not is_wellknown_col:
+                    name_en = to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
             else:
                 name_jp = ''
-                if is_date:
-                    name_en = _translate_wellknown_jp2en([datetime_name_jp])[0]
-                elif is_main_serial_no:
-                    name_en = _translate_wellknown_jp2en([serial_name_jp])[0]
-                else:
-                    name_en, is_wellknown_col = convert_wellknown_col_name(column_name_extracted)
-                    if not is_wellknown_col:
-                        name_en = (
-                            to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
-                        )
+                name_en, is_wellknown_col = convert_wellknown_col_name(column_name_extracted)
+                if not is_wellknown_col:
+                    name_en = to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
                 name_local = name_en
 
             romaji = name_en
@@ -1369,6 +1439,24 @@ def retrieve_data_from_several_files(
                 skip_head=skip_head,
                 n_rows=n_rows,
                 is_transpose=is_transpose,
+            )
+            header_names = next(data)
+            # strip special symbols
+            if i == 0:
+                data = strip_special_symbol(data)
+
+            data_details += list(islice(data, max_record))
+        except UnicodeDecodeError:
+            delimiter, encoding = get_delimiter_encoding(csv_file, preview=True)
+            csv_delimiter = csv_delimiter or delimiter
+            data = read_data(
+                csv_file,
+                delimiter=csv_delimiter,
+                do_normalize=False,
+                skip_head=skip_head,
+                n_rows=n_rows,
+                is_transpose=is_transpose,
+                encoding=None,
             )
             header_names = next(data)
             # strip special symbols
@@ -1579,3 +1667,58 @@ def gen_latest_record_result_file_path(data_source_id, table_name=None, process_
         file_name = f'{data_source_id}.json'
     sample_data_file = os.path.join(sample_data_path, file_name)
     return sample_data_file
+
+
+def parse_unique_as_category(data):
+    """
+    Calculate unique values as category (string)
+    :param data: Pandas Series
+    :return: Series with maximum 10 unique string values
+    """
+    try:
+        data = pd.Series(data.astype(pd.StringDtype()).unique())
+        return data.reindex(range(10), fill_value='')
+    except Exception:
+        return pd.Series()
+
+
+def parse_unique_as_real(data):
+    """
+    Calculate percentile as real, must convert to numeric according to AP's rules
+    :param data: Pandas Series
+    :return: Series with 5 percentile values
+    """
+    try:
+        data, _ = convert_numeric_by_type(data, DataType.REAL.name)
+        data = data.dropna()
+        return pd.Series(np.percentile(data.astype(pd.Float64Dtype()), [0, 25, 50, 75, 100]))
+    except Exception:
+        return pd.Series()
+
+
+def parse_unique_as_int(data):
+    """
+    Calculate percentile as integer, must convert to numeric according to AP's rules (1.1 -> NA)
+    :param data: Pandas Series
+    :return: Series with 5 percentile values
+    """
+    try:
+        data, _ = convert_numeric_by_type(data, DataType.INTEGER.name)
+        data = data.dropna()
+        return pd.Series(np.percentile(data.astype(pd.Int64Dtype()), [0, 25, 50, 75, 100]))
+    except Exception:
+        return pd.Series()
+
+
+def parse_unique_as_int_cat(data):
+    """
+    Calculate unique values as category integer
+    :param data: Pandas Series
+    :return: Series with maximum 10 unique int cat values
+    """
+    try:
+        data, _ = convert_numeric_by_type(data, DataType.INTEGER.name)
+        data = pd.Series(data.astype(pd.Int64Dtype()).unique())
+        return data.reindex(range(10), fill_value=np.nan)
+    except Exception:
+        return pd.Series()

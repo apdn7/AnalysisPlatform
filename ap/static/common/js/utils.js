@@ -3,6 +3,16 @@ let inputMutationObserver;
 const BORDER_RED_CLASS = 'column-name-invalid';
 const READONLY_CLASS = 'readonly';
 const DATA_ORIGINAL_ATTR = 'data-original';
+const DATA_ORIGINAL_TYPE_ATTR = 'data-type-original';
+const UNIQUE_CATEGORY_DATA_ATTR = 'unique-category-data';
+const UNIQUE_REAL_DATA_ATTR = 'unique-real-data';
+const UNIQUE_INT_DATA_ATTR = 'unique-int-data';
+const UNIQUE_INT_CAT_DATA_ATTR = 'unique-int-cat-data';
+const SAMPLE_DATA_DISPLAY_MODES = {
+    RECORDS: 'records',
+    UNIQUE: 'unique',
+};
+const JUDGE_PATTERN_VALIDATION = /^Pos~([^|]+)\|Neg=([^|]+)\|([^|]+)$/;
 const TAB_CHAR = '\t';
 const NEW_LINE_CHAR = '\n';
 
@@ -185,6 +195,7 @@ const CONST = {
     WHITE: '#ffffff',
     YELLOW: 'yellow',
     BGR_COLOR: '#222222',
+    JUDGE_DENSITY: 'green',
 
     COLORBAR: {
         fontsize: 13,
@@ -823,13 +834,13 @@ const displayRegisterMessage = (alertID, flaskMessage = { message: '', is_error:
     alert.removeClass('alert-danger');
     alert.removeClass('alert-warning');
     if (flaskMessage.is_warning) {
-        alert.css('display', 'block');
+        alert.css('display', 'flex');
         alert.addClass('show alert-warning');
     } else if (!flaskMessage.is_error) {
-        alert.css('display', 'block');
+        alert.css('display', 'flex');
         alert.addClass('show alert-success');
     } else if (flaskMessage.is_error) {
-        alert.css('display', 'block');
+        alert.css('display', 'flex');
         alert.addClass('show alert-danger');
     }
     // setTimeout(() => {
@@ -932,7 +943,7 @@ const sidebarCollapse = () => {
 
                 if (event.ctrlKey && event.key === 'Enter') {
                     const url = sidebarNavLinks[0].href;
-                    window.open(url, '_blank');
+                    openNewTab(url);
                 } else if (event.key === 'Enter') {
                     event.preventDefault();
                     sidebarNavLinks[0].click();
@@ -2325,6 +2336,10 @@ function genHistCounts(histLabels, arrayVals, labelMin, labelMax) {
     return histCounts;
 }
 
+const hasDivSelection = () => {
+    return $('select[name=catExpBox] option:selected').text().includes('Div');
+};
+
 const endProcMultiSelectOnChange = async (count, props) => {
     const selectedProc = $(`#end-proc-process-${count}`);
     if (selectedProc.length === 0) {
@@ -2339,6 +2354,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     $(`#end-proc-val-div-${count}`).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
     if (procInfo == null) {
+        checkIfProcessesAreLinked();
         updateSelectedItems();
         return;
     }
@@ -2412,6 +2428,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
         const availableColorVars = procColumns.filter((col) =>
             [DataTypes.STRING.name, DataTypes.INTEGER.name, DataTypes.TEXT.name].includes(col.data_type),
         );
+
+        const hasMasterSerial = columnInfo.some((col) => col.columnType === masterDataGroup.MAIN_SERIAL);
         const listGroupProps = {
             checkedIds,
             name: `GET02_VALS_SELECT${count}`,
@@ -2444,6 +2462,10 @@ const endProcMultiSelectOnChange = async (count, props) => {
             dataFilterSystem,
             isSelectColorBySelect2: props.isSelectColorBySelect2 || false,
             colorValsSelected: props.colorValsSelected,
+            colorTypes: props.colorTypes || [],
+            isDivRequired: props.isDivRequired || false,
+            hasMasterSerial,
+            columnInfo,
         };
         addGroupListCheckboxWithSearch(parentId, `end-proc-val-${count}`, '', ids, vals, listGroupProps);
     }
@@ -2457,8 +2479,32 @@ const endProcMultiSelectOnChange = async (count, props) => {
     checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
 };
 
+const endProcessProps = {
+    showDataType: false,
+    showCatExp: false,
+    isRequired: false,
+    showColor: false,
+    hasDiv: false,
+    showFilter: false,
+    hideStrVariable: false,
+    disableSerialAsObjective: false,
+    optionalObjective: false,
+    showStrColumn: false,
+    allowObjectiveForRealOnly: false,
+    colorAsDropdown: false,
+    isSelectColorBySelect2: false,
+    showObjective: false,
+    objectiveHoverMsg: '',
+    hideRealVariable: false,
+    hideCTCol: false,
+    judge: false,
+    showLabel: false,
+    colorTypes: [],
+    isDivRequired: false,
+};
+
 // add end proc
-const addEndProcMultiSelect = (procIds, procVals, props) => {
+const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
     let count = 1;
     const innerFunc = (
         onChangeCallbackFunc = null,
@@ -2488,7 +2534,7 @@ const addEndProcMultiSelect = (procIds, procVals, props) => {
                         <div class="d-flex align-items-center" id="end-proc-process-div-${count}">
                             <span class="mr-2 text-nowrap">${i18nCommon.process}</span>
                             <div class="w-auto flex-grow-1 position-relative min-width-0">
-                                <i id="no-link-with-start-proc-${count}" class="fas fa-triangle-exclamation position-absolute blink" style="top: 10px; right: 60px; z-index: 1; display: none; color:yellow;"></i>
+                                <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 50px;"></i>
                                 <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
                                 <select class="form-control select2-selection--single
                                     ${props.isRequired ? 'required-input' : ''}
@@ -5790,3 +5836,25 @@ const correctEnglishName = (name) => (name == null ? name : name.replace(/[^\w-]
  * @returns {boolean}
  */
 const parseBool = (value) => value == 1 || value == true || value.toLowerCase() === 'true';
+
+/**
+ * get filter conditions from the traceData object and the current plotdata
+ * @param traceData
+ * @param plotData
+ * @returns {string[]}
+ */
+const getFilterConditionsFromPlotData = (traceData, plotData) => {
+    const catExpValue = plotData.catExpBox;
+    const catExpBoxCols = [traceData.COMMON.catExpBox1, traceData.COMMON.catExpBox2].filter((c) => c);
+    const filterCond = catExpBoxCols.length > 0 ? catExpValue.toString().split(' | ') : null;
+    return filterCond;
+};
+
+const checkSpecialRow = (row) => {
+    return row.is_dummy_datetime || row.is_file_name || row.is_generated_datetime;
+};
+
+const scrollToEle = (eleID) => {
+    const elePosition = getOffsetTopDisplayGraph(`#${eleID}`);
+    $('html,body').animate({ scrollTop: elePosition }, 1000);
+};

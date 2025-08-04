@@ -14,6 +14,7 @@ const StepBarChart = ($, paramObj) => {
     const valMax = setParam('maxY', yMax);
     const xAxisOption = setParam('xAxisOption', 'TIME');
     const isCatLimited = setParam('isCatLimited', false);
+    const isJudge = setParam('isJudge', false);
 
     let tickConfig = {
         pad: 11,
@@ -97,6 +98,30 @@ const StepBarChart = ($, paramObj) => {
         );
     };
 
+    const yScaleConfig = (isJudgeChart = false) => {
+        return isJudgeChart
+            ? {
+                  display: true,
+                  position: 'left',
+                  grid: {
+                      color: CONST.GRID,
+                  },
+                  ticks: {
+                      color: CONST.TICK,
+                  },
+              }
+            : {
+                  display: false,
+                  position: 'left',
+                  grid: {
+                      color: CONST.GRID,
+                  },
+                  afterFit(scaleInstance) {
+                      scaleInstance.width = 20;
+                  },
+              };
+    };
+
     const config = {
         type: 'bar',
         data,
@@ -164,16 +189,7 @@ const StepBarChart = ($, paramObj) => {
                     //     }
                     // },
                 },
-                y: {
-                    display: false,
-                    position: 'left',
-                    grid: {
-                        color: CONST.GRID,
-                    },
-                    afterFit(scaleInstance) {
-                        scaleInstance.width = 20;
-                    },
-                },
+                y: yScaleConfig(isJudge),
             },
             events: ['click', 'mousemove'],
             onClick(event) {

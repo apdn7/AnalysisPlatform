@@ -24,6 +24,10 @@ DIC_IGNORE_NORMALIZATION = {
 
 
 def convert_irregular(char):
+    """
+    except cases:
+        ① - ⑩ (9312 - 9321)
+    """
     char_code = ord(char)
     shift_number = 10053
     # convert ➊ to 1
@@ -37,9 +41,9 @@ def convert_irregular(char):
     if char_code in irregular_number_1:
         return chr(char_code - shift_number)
     if char_code in irregular_number_2:
-        return chr(char_code - shift_number + 10)
+        return chr(char_code - shift_number - 10)
     if char_code in irregular_number_3:
-        return chr(char_code - shift_number + 20)
+        return chr(char_code - shift_number - 20)
     if char_code in irregular_number_4:
         return '10'
     if char_code in irregular_number_5:
@@ -79,7 +83,7 @@ def normalize_preprocessing(input_str):
     # special case for vietnamese: đ letter
     normalized_input = re.sub(r'[đĐ]', 'd', normalized_input)
     # remove space and tab
-    normalized_input = re.sub(r"[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]", '', normalized_input)
+    normalized_input = re.sub(r'[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]', '', normalized_input)
     return normalized_input
 
 
@@ -155,11 +159,11 @@ def normalize_big_rows(rows, headers=None, strip_quote=True, return_dataframe=Tr
         series = convert_df_str_to_others(df[col])
         series_type = series.dtypes.name
         if series_type == 'object':
-            df[col] = df[col].fillna('')
-            df[col] = df[col].astype(str)
+            # df[col] = df[col].fillna('')
+            df[col] = df[col].astype(pd.StringDtype())
             implement_flag = True
         elif series_type == 'string':
-            df[col] = df[col].fillna('')
+            # df[col] = df[col].fillna('')
             implement_flag = True
         else:
             # df[col] = series

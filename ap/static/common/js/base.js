@@ -6,6 +6,7 @@ let scpCustomData = null;
 let loadingProgressBackend = 0;
 let formDataQueried = null;
 let clearOnFlyFilter = false;
+let ctrlPressed = false;
 
 let problematicData = null;
 let problematicPCAData = null;
@@ -40,6 +41,7 @@ const baseEles = {
     i18nCommonErrorMsg: '#i18nCommonErrorMsg',
     showGraphBtn: 'button.show-graph',
     tooltipsEnableBtn: '#tooltipsEnableBtn',
+    sidebarSearchVisible: '#sidebar-searchbox:visible',
 };
 
 // for master data group (column types)
@@ -78,6 +80,34 @@ const isMasterDataColumn = (columnType) => {
         masterDataGroup.ST_NO,
         masterDataGroup.JUDGE,
     ].includes(columnType);
+};
+
+const isIntCategoryColumnType = (columnType) => {
+    return [
+        masterDataGroup.INT_CATE,
+        masterDataGroup.MAIN_SERIAL,
+        masterDataGroup.SERIAL,
+        masterDataGroup.LINE_NO,
+        masterDataGroup.EQ_NO,
+        masterDataGroup.PART_NO,
+        masterDataGroup.ST_NO,
+    ].includes(columnType);
+};
+
+const isIntCategory = (dataType, columnType) => {
+    return (
+        (dataType === DataTypes.INTEGER.name && isIntCategoryColumnType(columnType)) ||
+        (columnType === masterDataGroup.GENERATED_EQUATION && dataType === DataTypes.CATEGORY.name)
+    );
+};
+
+// similar to is_category in backend
+const isCategory = (dataType, columnType) => {
+    return (
+        [DataTypes.DATETIME.name, DataTypes.STRING.name, DataTypes.BOOLEAN.name, DataTypes.JUDGE.name].includes(
+            dataType,
+        ) || isIntCategory(dataType, columnType)
+    );
 };
 
 const processOrderForFilterCheck = {
@@ -208,6 +238,28 @@ const divideOptions = {
     dataNumberTerm: 'dataNumberTerm',
     cyclicCalender: 'cyclicCalender',
 };
+
+const SHORTCUTKEYS_EVENT_CONST = {
+    ENTER_SHOWGRAPH: 'ShortcutShowGraph',
+    B_OPENBOOKMARK: 'ShortcutOpenBookmark',
+    SLASH_OPENSIDEBAR: 'ShortcutOpenSidebar',
+};
+
+// pages with fontawesome watch disabled
+const PARTIAL_ICON_WATCH_PAGES = [
+    // 'fpp', // TODO: FPP is still using anchor icon. We might need to use direct svg instead
+    // 'rlp', // same as FPP
+    'scp', // number of points is large, massive performance drop because all attribute changes are caught by fontawesome
+    'agp', // not using fontawesome icons for graph area
+    'msp', // same as agp, but performance difference can be large
+    'chm', // same as agp, but performance difference can be large
+    'skd', // same as agp
+    'pcp', // same as agp
+    'gl', // same as agp
+    'pca', // same as agp
+    'hmp', // same as scp
+    'tv',
+];
 
 function handleError(data) {
     if (data) {
@@ -477,6 +529,17 @@ const sidebarCollapseHandle = () => {
 
 // Trigger sidebar search menu when pressing Ctrl + "/"
 $(document).on('keydown', function (event) {
+    if (event.ctrlKey) {
+        ctrlPressed = true;
+        displayShortcutHints();
+    }
+    // prevent show graph when sidebarSearch is visible
+    if (event.ctrlKey && event.key == 'Enter' && !$(baseEles.sidebarSearchVisible).length) {
+        $(baseEles.showGraphBtn).click();
+        clearLoadingSetting();
+        hideShortcutHints();
+        sendGAForShortcutUsage(SHORTCUTKEYS_EVENT_CONST.ENTER_SHOWGRAPH);
+    }
     if (event.ctrlKey && event.key === '/') {
         // if modal overlaps sidebar
         const modalZIdx = parseInt($('.modal:visible').css('z-index'));
@@ -495,8 +558,57 @@ $(document).on('keydown', function (event) {
             // focus to searchBox
             $(sidebarEles.searchBox).focus();
         }
+        hideShortcutHints();
+        sendGAForShortcutUsage(SHORTCUTKEYS_EVENT_CONST.SLASH_OPENSIDEBAR);
+    }
+    if (event.ctrlKey && event.key === 'b') {
+        loadAllUserSetting();
+        hideShortcutHints();
+        sendGAForShortcutUsage(SHORTCUTKEYS_EVENT_CONST.B_OPENBOOKMARK);
     }
 });
+
+$(document).on('keyup', function (event) {
+    if (!event.ctrlKey) {
+        ctrlPressed = false;
+        hideShortcutHints();
+    }
+});
+
+// Hide div when tab loses focus
+window.addEventListener('blur', () => {
+    if (ctrlPressed) {
+        ctrlPressed = false;
+        hideShortcutHints();
+    }
+});
+
+// Hide div when page visibility changes (e.g. switch tab)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && ctrlPressed) {
+        ctrlPressed = false;
+        hideShortcutHints();
+    }
+});
+
+const sendGAForShortcutUsage = (shortcutKey) => {
+    gtag('event', 'apdn7_events_tracking', {
+        dn_app_version: appContext.app_version?.split('.').slice(0, -1).join('.'),
+        dn_app_source: appContext.app_source,
+        dn_app_group: appContext.app_group,
+        dn_app_type: appContext.app_type,
+        dn_app_os: appContext.app_os,
+        dn_app_shortcut_used: shortcutKey,
+    });
+};
+
+const displayShortcutHints = () => {
+    document.querySelectorAll('.hotkey-button').forEach((btn) => btn.classList.add('show-hint'));
+};
+
+const hideShortcutHints = () => {
+    document.querySelectorAll('.hotkey-button').forEach((btn) => btn.classList.remove('show-hint'));
+};
 
 // mark as call page from tile interface, do not apply user setting
 const useTileInterface = (storageKey = 'isLoadingFromTitleInterface') => {
@@ -515,6 +627,22 @@ const useTileInterface = (storageKey = 'isLoadingFromTitleInterface') => {
     return { set, get, reset };
 };
 
+/**
+ * Opens a new browser tab or window with the specified URL and optional configurations.
+ *
+ * @param {string} url - The URL to be opened in the new tab or window.
+ * @param {string?} [target='_blank'] - Specifies where to open the new URL {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open#target}. Typically, '_blank' for a new tab.
+ * @param {string?} [windowFeatures='noreferrer'] - A comma-separated list of window features {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open#windowfeatures}. By default, includes 'noreferrer' for security.
+ * @return {Window | null} - A reference to the newly created window, or null if the operation fails.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open}
+ */
+function openNewTab(url, target = '_blank', windowFeatures = 'noreferrer') {
+    if (!windowFeatures.includes('noreferrer')) {
+        windowFeatures = `${windowFeatures},noreferrer`;
+    }
+    return window.open(url, target, windowFeatures);
+}
+
 const openNewPage = () => {
     let currentPageName = window.location.pathname;
     const exceptPage = ['config', 'job', 'about'];
@@ -522,18 +650,36 @@ const openNewPage = () => {
         currentPageName = '/';
     }
     useTileInterface().set();
-    window.open(currentPageName);
+    openNewTab(currentPageName);
 };
 
 const isLoadingFromTitleInterface = useTileInterface().get();
 const isUseLatestSetting = useTileInterface('useLatestSetting').get();
+
+/**
+ * Selective dom watching for icon elements (replacing <i> with <svg>)
+ */
+const setIconMonitoring = () => {
+    const currentPage = getCurrentPage();
+    const monitorIconRoots = document.getElementsByClassName('monitor-icons');
+    if (PARTIAL_ICON_WATCH_PAGES.includes(currentPage) && monitorIconRoots.length) {
+        monitorIconRoots.forEach((rootEle) => {
+            FontAwesome.dom.watch({
+                autoReplaceSvgRoot: rootEle,
+                observeMutationsRoot: rootEle,
+            });
+        });
+    } else {
+        FontAwesome.dom.watch();
+    }
+};
 
 $(async () => {
     isDirectFromJumpFunction = !!(getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey));
     isLoadingUserSetting = !!localStorage.getItem('loadingSetting');
     // hide userBookmarkBar
     $('#userBookmarkBar').hide();
-
+    setIconMonitoring();
     overrideUiSortable();
 
     updateI18nCommon();
@@ -696,14 +842,6 @@ $(async () => {
     clipboardInit();
 
     initShowGraphCommon();
-
-    // showGraph ctrl+Enter
-    document.addEventListener('keydown', (event) => {
-        if (event.ctrlKey && event.key == 'Enter') {
-            $(baseEles.showGraphBtn).click();
-            clearLoadingSetting();
-        }
-    });
 
     initCustomSelect();
 
@@ -1222,7 +1360,7 @@ const handleSelectedPlotView = () => {
 
 const showPlotView = (queryString) => {
     // open new tab
-    window.open(`/ap/api/common/plot_view?${queryString}`, '_blank');
+    openNewTab(`/ap/api/common/plot_view?${queryString}`);
     return false;
 };
 
@@ -1363,9 +1501,7 @@ const cleansingHandling = () => {
 
         // hide single calendar
         if (!e.target.closest('.config-data-type-dropdown') && !e.target.closest('.config-data-type-dropdown button')) {
-            if (typeof DataTypeDropdown_Controller !== 'undefined') {
-                DataTypeDropdown_Controller.hideAllDropdownMenu();
-            } else {
+            if (typeof DataTypeDropdown_Controller === 'undefined') {
                 $('.data-type-selection').hide();
             }
         }

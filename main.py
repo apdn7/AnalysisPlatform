@@ -8,6 +8,7 @@ from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED, EVENT_JOB_MI
 
 from ap import SHUTDOWN, create_app, dic_config, get_basic_yaml_obj, get_start_up_yaml_obj, max_graph_config
 from ap.common import multiprocess_sharing
+from ap.common.cache.handler import CacheHandler
 from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT
 from ap.common.event_listeners import EventListener
 from ap.common.jobs.executor import mark_finished_job_done
@@ -202,6 +203,9 @@ if is_main:
 
     # clear cache
     clear_cache()
+
+    with app.app_context():
+        CacheHandler.compute(compute_process=True, compute_process_ids=True, compute_traces=True, periodic=True)
 
     # bundle assets
     with app.app_context():

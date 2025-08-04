@@ -12,31 +12,31 @@ from ap.common.multiprocess_sharing.event_base import EventBaseFunction
 
 class SchedulerJobParams(BaseModel):
     id: str
-    '''explicit identifier for the job (for modifying it later)'''
+    """explicit identifier for the job (for modifying it later)"""
     name: str
-    '''textual description of the job'''
+    """textual description of the job"""
     func: Callable
-    '''callable (or a textual reference to one) to run at the given time'''
+    """callable (or a textual reference to one) to run at the given time"""
     args: Optional[Union[list, tuple]] = None
-    '''list of positional arguments to call func with'''
+    """list of positional arguments to call func with"""
     kwargs: dict[str, Any]
-    '''dict of keyword arguments to call func with'''
+    """dict of keyword arguments to call func with"""
     replace_existing: bool = False
-    '''``True`` to replace an existing job with the same ``id`` (but retain the number of runs from the existing one)'''
+    """``True`` to replace an existing job with the same ``id`` (but retain the number of runs from the existing one)"""
     trigger: Any = None  # cannot infer type for trigger
-    '''trigger that determines when ``func`` is called'''
+    """trigger that determines when ``func`` is called"""
     next_run_time: Optional[datetime] = None
-    '''when to first run the job, regardless of the trigger (pass ``None`` to add the job as paused)'''
+    """when to first run the job, regardless of the trigger (pass ``None`` to add the job as paused)"""
     executor: Optional[str] = None
-    '''alias of the executor to run the job with'''
+    """alias of the executor to run the job with"""
     max_instances: Optional[int] = None
-    '''maximum number of concurrently running instances allowed for this job'''
+    """maximum number of concurrently running instances allowed for this job"""
     coalesce: Optional[bool] = None
-    '''run once instead of many times if the scheduler determines that the job should be run more than once in
-     succession'''
+    """run once instead of many times if the scheduler determines that the job should be run more than once in
+     succession"""
     misfire_grace_time: Optional[int] = None
-    '''seconds after the designated runtime that the job is still allowed to be run (or ``None`` to allow the job to
-     run no matter how late it is)'''
+    """seconds after the designated runtime that the job is still allowed to be run (or ``None`` to allow the job to
+     run no matter how late it is)"""
 
 
 class EventAddJob(EventBaseFunction):
@@ -97,6 +97,7 @@ class EventAddJob(EventBaseFunction):
                 'data_source_id': self.data_source_id,
                 'process_id': self.process_id,
                 'process_name': self.process_name,
+                'job_type': self.job_type,
             },
         )
 
@@ -126,7 +127,7 @@ class EventRescheduleJob(EventBaseFunction):
 
     job_id: str
     reschedule_seconds: Optional[int] = None
-    '''Delay in seconds from datetime now'''
+    """Delay in seconds from datetime now"""
 
 
 class EventRemoveJobs(BaseModel):

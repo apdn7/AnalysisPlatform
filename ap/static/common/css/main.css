@@ -8,7 +8,7 @@ header {
     border: none;
     border-radius: 0;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-    height: 65px;
+    min-height: 65px;
 }
 header.green-header {
     background-color: rgb(55, 127, 64) !important;
@@ -591,7 +591,7 @@ ul#traceDataSubmenu li a.sidebar-is-searching {
 
 .hint-text {
     padding-bottom: 1px;
-    border-bottom: 1px solid white;
+    border-bottom: 1px solid white !important;
 }
 
 .blue-color + .select2-container--default .select2-selection--single {
@@ -1976,9 +1976,10 @@ span.deleteicon input {
 .icon-btn-xs {
     display: inline-flex;
     justify-content: center;
+    align-items: center;
     width: 20px;
     height: 20px;
-    padding-top: 3px;
+    padding: 0;
 }
 
 .icon-btn svg {
@@ -2003,11 +2004,11 @@ span.deleteicon input {
     width: calc(100% - 50px);
     top: 0;
     height: 64px;
-    padding-top: 20px;
 }
 
 .custom-selection-section {
     position: relative;
+    min-width: 200px;
 }
 
 .custom-selection-content {
@@ -2565,11 +2566,12 @@ svg.svg-inline--fa.fa-circle-right {
     width: unset !important;
     top: unset !important;
     margin-bottom: unset !important;
+    padding-top: 12px;
+    align-items: center;
 }
 
 .multi-alert-message-area > div > button {
     top: unset !important;
-    margin-top: -12px;
 }
 
 @media (min-width: 960px) {
@@ -2728,3 +2730,33 @@ table#tblImportCondition td {
     white-space: nowrap;
 }
 /* End - CSS Cookie panner*/
+.hotkey-button {
+    position: relative;
+}
+
+.hotkey-button::after {
+    content: attr(data-hotkey);
+    position: absolute !important;
+    bottom: -1.2em;
+    left: 25%;
+    color: white;
+    background-color: black;
+    padding: 2px 4px;
+    font-size: 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0s;
+    z-index: 999;
+    min-width: 80px;
+    font-weight: bold;
+    border: 1px white;
+    border-style: solid;
+}
+
+.hotkey-button.show-hint::after {
+    opacity: 1;
+}
+
+.modal-msg {
+    white-space: pre-line;
+}

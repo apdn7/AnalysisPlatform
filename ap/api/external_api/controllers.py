@@ -14,8 +14,8 @@ from ap.api.external_api.services import (
     get_values_by_parameter_name,
 )
 from ap.api.setting_module.services.common import save_user_settings
-from ap.common.common_utils import API_DATETIME_FORMAT
 from ap.common.constants import (
+    API_DATETIME_FORMAT,
     BOOKMARK_DESCRIPTION,
     BOOKMARK_ID,
     BOOKMARK_TITLE,
@@ -75,7 +75,7 @@ from ap.setting_module.schemas import (
     CfgOptionSchema,
     CfgUserSettingSchema,
     ProcessColumnExternalAPISchema,
-    ProcessSchema,
+    ProcessPublicSchema,
 )
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ def get_list_of_processes():
     """
 
     processes = CfgProcess.get_list_of_process()
-    process_schema = ProcessSchema(many=True)
+    process_schema = ProcessPublicSchema(many=True)
     processes = process_schema.dump(processes)
 
     return Response(json_dumps({PROCESSES: processes}), mimetype='application/json')

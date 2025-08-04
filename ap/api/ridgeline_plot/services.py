@@ -116,7 +116,7 @@ from ap.common.constants import (
     Y,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series
 from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -212,7 +212,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
     df, actual_record_number, unique_serial = get_data_from_db(
         graph_param,
         dic_cat_filters,
-        use_expired_cache=use_expired_cache,
+        optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
     )
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
@@ -1150,7 +1150,7 @@ def get_ng_true_value(df, compare_by, condition, compare_value):
 
 @log_execution_time()
 def cast_data_type(ng_condition_val, data_type):
-    if data_type == object:
+    if pd.api.types.is_object_dtype(data_type):
         return ng_condition_val
 
     data_type = str(data_type).lower()

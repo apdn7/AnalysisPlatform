@@ -137,7 +137,6 @@ $(() => {
                 filterElements.loading.hide();
                 filterElements.detailCards.css('visibility', 'visible');
                 handleSearchFilterInTable(filterElements.graphCfgTableName);
-                sortColumnGraphConfig();
             }, 50);
         } else {
             filterElements.loading.hide();

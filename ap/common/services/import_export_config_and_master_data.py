@@ -10,7 +10,14 @@ from zipfile import ZIP_DEFLATED, ZipFile
 from flask import current_app
 
 from ap import scheduler
-from ap.common.common_utils import (
+from ap.common.constants import (
+    APP_DB_FILE,
+    PROCESS_QUEUE_FILE_NAME,
+)
+from ap.common.jobs.jobs import RunningJobs, RunningJobStatus
+from ap.common.jobs.utils import kill_all_jobs
+from ap.common.multiprocess_sharing import EventQueue
+from ap.common.path_utils import (
     get_config_db_path,
     get_data_path,
     get_files,
@@ -19,13 +26,6 @@ from ap.common.common_utils import (
     get_scheduler_db_path,
     get_transaction_folder_path,
 )
-from ap.common.constants import (
-    APP_DB_FILE,
-    PROCESS_QUEUE_FILE_NAME,
-)
-from ap.common.jobs.jobs import RunningJobStatus
-from ap.common.jobs.utils import kill_all_jobs
-from ap.common.multiprocess_sharing import EventQueue, RunningJobs
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.import_export_config_n_data import (
     download_zip_file,
@@ -67,9 +67,12 @@ def zip_preview_folder_to_byte() -> Optional[io.BytesIO]:
     with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=9) as zip_archive:
         for file_path in get_files(preview_data_path.__str__(), extension=['json']):
             _file_path = Path(file_path)
-            with zip_archive.open(os.path.join(_file_path.parent.name, _file_path.name), 'w') as file, _file_path.open(
-                'rb',
-            ) as f:
+            with (
+                zip_archive.open(os.path.join(_file_path.parent.name, _file_path.name), 'w') as file,
+                _file_path.open(
+                    'rb',
+                ) as f,
+            ):
                 file.write(f.read())
 
     return archive

@@ -6,6 +6,9 @@ delete_operator_column = """ALTER TABLE cfg_process_column DROP COLUMN operator"
 delete_coef_column = """ALTER TABLE cfg_process_column DROP COLUMN coef"""
 add_unit_column = """ALTER TABLE cfg_process_column ADD COLUMN unit TEXT;"""
 add_is_file_name_column = """ALTER TABLE cfg_process_column ADD COLUMN is_file_name BOOLEAN default false;"""
+add_judge_positive_value_column = """ALTER TABLE cfg_process_column ADD COLUMN judge_positive_value TEXT;"""
+add_judge_positive_display_column = """ALTER TABLE cfg_process_column ADD COLUMN judge_positive_display TEXT;"""
+add_judge_negative_display_column = """ALTER TABLE cfg_process_column ADD COLUMN judge_negative_display TEXT;"""
 
 
 def migrate_cfg_process_column(app_db_src):
@@ -17,6 +20,8 @@ def migrate_cfg_process_column(app_db_src):
     migrate_column_raw_name(app_db)
     migrate_is_serial_no(app_db)
     del_column_predict_type(app_db)
+    add_judge_columns(app_db)
+    migrate_judge_properties(app_db)
     app_db.disconnect()
 
 
@@ -88,3 +93,30 @@ def del_column_predict_type(app_db):
             "UPDATE cfg_process_column SET raw_data_type = data_type WHERE raw_data_type is null OR raw_data_type == '';"
         )
         app_db.execute_sql("ALTER TABLE cfg_process_column DROP COLUMN predict_type")
+
+
+def add_judge_columns(app_db):
+    is_judge_positive_value_col_existing = app_db.is_column_existing(
+        CfgProcessColumn.__table__.name, 'judge_positive_value'
+    )
+    is_judge_positive_display_col_existing = app_db.is_column_existing(
+        CfgProcessColumn.__table__.name, 'judge_positive_display'
+    )
+    is_judge_negative_display_col_existing = app_db.is_column_existing(
+        CfgProcessColumn.__table__.name, 'judge_negative_display'
+    )
+
+    if not is_judge_positive_value_col_existing:
+        app_db.execute_sql(add_judge_positive_value_column)
+    if not is_judge_positive_display_col_existing:
+        app_db.execute_sql(add_judge_positive_display_column)
+    if not is_judge_negative_display_col_existing:
+        app_db.execute_sql(add_judge_negative_display_column)
+
+
+def migrate_judge_properties(app_db):
+    sql_update = f"""UPDATE cfg_process_column
+     SET judge_positive_value = 1, judge_positive_display = 'OK', judge_negative_display = 'NG' 
+     WHERE column_type = {DataColumnType.JUDGE.value} AND parent_id IS NULL
+     AND judge_positive_value IS NULL AND judge_positive_display IS NULL and judge_negative_display IS NULL;"""
+    app_db.execute_sql(sql_update)

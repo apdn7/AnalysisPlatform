@@ -30,7 +30,7 @@ class PostgreSQL:
 
     def dump(self):
         logger.info(
-            f'''\
+            f"""\
 ===== DUMP RESULT =====
 DB Type: PostgreSQL
 self.host: {self.host}
@@ -39,7 +39,7 @@ self.dbname: {self.dbname}
 self.username: {self.username}
 self.is_connected: {self.is_connected}
 ======================='
-''',
+""",
         )
 
     def connect(self):
@@ -101,7 +101,7 @@ self.is_connected: {self.is_connected}
     # テーブル名を配列として返す
     def list_tables(self):
         if not self._check_connection():
-            return False
+            return []
         sql = 'select table_name from information_schema.tables '
         sql += "where table_type = 'BASE TABLE' and table_schema = '{0:s}'".format(self.schema)
         cur = self.connection.cursor()

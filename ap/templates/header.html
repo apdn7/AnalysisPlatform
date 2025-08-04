@@ -37,6 +37,7 @@
         </div>
 
         <div class="d-flex align-items-center ml-auto py-1 flex-wrap">
+            <span class="mr-2">{{ _('HotkeyHintText') }}</span>
             <div class="dropdown mr-2 load-setting-common">
                 <div class="user-setting-btn">
                     <button
@@ -44,8 +45,9 @@
                         onclick="loadAllUserSetting()"
                         data-toggle="modal"
                         data-target="#loadUserSettingModal"
-                        class="btn btn-setting bookmark-button"
+                        class="btn btn-setting bookmark-button hotkey-button"
                         style="padding-right: 12px"
+                        data-hotkey="Ctrl + B"
                     >
                         <span id="bookmark-title" title="Bookmark">&#x2606;</span>
                         <span title="" class="sub-label" id="currentLoadSettingLbl"></span>
@@ -95,12 +97,13 @@
             <button
                 type="button"
                 id="loadSettingBtn"
-                class="btn header-btn btn-setting mx-1 load-setting-tile-page"
+                class="btn header-btn btn-setting mx-1 load-setting-tile-page hotkey-button"
                 title="Bookmark"
                 data-toggle="modal"
                 data-target="#loadUserSettingModal"
                 onclick="loadAllUserSetting()"
                 style="display: none"
+                data-hotkey="Ctrl + B"
             >
                 <span>&#x2606;</span>
             </button>

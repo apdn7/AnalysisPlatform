@@ -15,14 +15,6 @@ const CLASSES_FUNCTION = 'sample-data show-raw-text';
 const ARRAY_ANS = ['a', 'n', 's'];
 const ARRAY_BK = ['b', 'k'];
 const ARRAY_CT = ['c', 't'];
-const NUMERIC_TYPES = [
-    DataTypes.REAL.name,
-    DataTypes.INTEGER.name,
-    DataTypes.EU_REAL_SEP.name,
-    DataTypes.REAL_SEP.name,
-    DataTypes.INTEGER_SEP.name,
-    DataTypes.EU_INTEGER_SEP.name,
-];
 let selectedFunctionColumnInfo = null;
 let mainSerialFunctionColumnInfo = null;
 let dbFunctionCols = [];
@@ -823,7 +815,11 @@ class FunctionInfo {
      */
     static collectAllFunctionRows(isCollectOnlyCheckedRows = false) {
         const speadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
-        let functionRows = speadsheet.table.collectDataTable();
+        let functionRows = speadsheet.table.collectDataTable().map((functionRow, index) => {
+            // add row index for missing index
+            functionRow.index = index + 1;
+            return functionRow;
+        });
         if (isCollectOnlyCheckedRows) {
             functionRows = functionRows.map((row) => row.is_checked);
         }
@@ -1144,11 +1140,13 @@ class FunctionInfo {
                 'name-sys': col.name_en,
                 'name-jp': col.name_jp || '',
                 'name-local': col.name_local || '',
-                'title': col.name_en || '',
+                'title': col.name_en || col.column_raw_name,
             };
 
             updateOptions(col.id, col.function_column_id, col.data_type, $varXElement, xTypes, options, 'varXElement');
             updateOptions(col.id, col.function_column_id, col.data_type, $varYElement, yTypes, options, 'varYElement');
+            // update select2 to show 2 columns name
+            setSelect2Selection('#functionSelectionDiv');
         });
 
         shouldIgnoreDropDowns.forEach((c) => {
@@ -1752,7 +1750,7 @@ function genFunctionErrorMessage(errorResponses) {
             // Set class invalid to border red error targets
             if (!fieldName) {
                 $(row).addClass('row-invalid');
-            } else {
+            } else if (errorRowData[fieldName]) {
                 const tdEle = errorRowData[fieldName].td;
                 FunctionInfo.setInvalidStatus(tdEle);
             }
@@ -1873,7 +1871,12 @@ function pasteAllFunctionInfo(event) {
     const dicFuncs = {};
     const dicCols = {};
     for (const colRec of currentProcDataCols) {
-        dicCols[colRec.shown_name] = colRec.id;
+        // when paste function do not have shown_name use column_name instead
+        if (!colRec.shown_name) {
+            dicCols[colRec.column_name] = colRec.id;
+        } else {
+            dicCols[colRec.shown_name] = colRec.id;
+        }
     }
     for (const funcInfo of funcInfos) {
         if (funcInfo.functionColumnId > 0) {
@@ -2956,9 +2959,6 @@ const showResultFunctionWithoutDelay = (rowIndex = null) => {
                         let val = resultValues[index];
                         $(elements[index]).attr(DATA_ORIGINAL_ATTR, val);
                         $(elements[index]).attr(IS_NUMBER_ATTR, isNumber);
-                        if (data.output_type === DataTypes.DATETIME.name) {
-                            val = parseDatetimeStr(val);
-                        }
                         val = formatSignifiValue(val, isNumber);
                         $(elements[index]).html(val);
                     }

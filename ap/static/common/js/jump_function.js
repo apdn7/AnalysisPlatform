@@ -1,6 +1,6 @@
 const JUMP_API = '/ap/api/common/jump_cfg';
 
-const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp'];
+const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp', 'tv'];
 
 const PAGE_NAME = {
     fpp: 'fpp',
@@ -15,6 +15,7 @@ const PAGE_NAME = {
     gl: 'gl',
     pca: 'pca',
     hmp: 'hmp',
+    tv: 'tv',
 };
 
 const MAX_JUMP_SENSOR_NUMBER = 20;

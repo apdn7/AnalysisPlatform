@@ -53,7 +53,7 @@ from ap.common.constants import (
     DataType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -90,8 +90,8 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
             with_categorized_real=True,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
         dic_param[UNIQUE_SERIAL] = unique_serial

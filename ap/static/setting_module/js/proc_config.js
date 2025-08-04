@@ -356,6 +356,10 @@ const enableImportProcessConfig = () => {
     //TODO: Enable checkbox [Datetime Format] allow change [Data Type] same import new process
 };
 
+const resetSampleDataDisplayModeRadio = () => {
+    procModalElements.sampleDataDisplayRecordsRadio.prop('checked', true);
+};
+
 const isAddNewMode = () => isEmpty(procModalElements.procID.val() || null);
 
 const showProcSettingModal = async (procItem, dbsId = null) => {
@@ -370,6 +374,7 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     cleanOldData();
     showHideReRegisterBtn();
     showHideInitialProcBtn();
+    resetSampleDataDisplayModeRadio();
     prcPreviewDataOfFunctionColumn = {};
 
     currentProcItem = $(procItem).closest('tr');

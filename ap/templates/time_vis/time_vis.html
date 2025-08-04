@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block header %}
+    {{ macros.page_title(key='TV', title=_('Time Vis'), hint=_('Time Vis Description'), hasAction=true) }}
+{% endblock %}
+{% block midbody %}
+    <div class="card monitor-icons">
+        <form id="traceDataForm" class="GUIForm">
+            {{ macros.scatter_end_proc(procs,'', title=_('TV show value description'), isShowMinMax=false) }}
+            {{ macros.data_finder_card() }}
+            {{ macros.start_proc(procs,'', traceData=false, showDataFinder=True) }}
+            {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.')) }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{
+                    macros.switch_button(
+                    id='tooltipsEnableBtn',
+                    name='tooltipsEnableBtn',
+                    label=_("Tooltips"),
+                    title=_('Display tooltips'),
+                    cl='mr-3',
+                    onChange='tooltipsToggle(this)',
+                    defaultVal=True)
+                }}
+                <!-- order xy outside chart -->
+                {{ macros.order_btn() }}
+                {{ macros.preprocess_options() }}
+                <button
+                    id="scatter-btn"
+                    type="button"
+                    value="{{ _('Display graph') }}"
+                    onClick="tvTracing();"
+                    class="btn btn-primary show-graph ml-3 hotkey-button"
+                    title="Shortcut key: Ctrl+Enter"
+                    data-hotkey="Ctrl+Enter"
+                >
+                    <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
+                </button>
+                {{ macros.export_gui() }}
+            </div>
+            <br />
+            <!-- x-y setting modal -->
+            {{ macros.end_col_order_modal(isSwitchXY=true) }}
+            {{ macros.end_col_order_modal(graphArea='1', isSwitchXY=true) }}
+        </form>
+        {{ macros.cat_label_filter_modal() }}
+        {{ macros.jump_modal() }}
+    </div>
+    <br />
+    <div class="row" id="timeVisSettingGrp" style="display: none;">
+        <div class="col d-flex justify-content-end">
+            <div class="mr-auto d-flex flex-wrap" id="graph-settings-area">
+                {{ macros.info_i_mark() }}
+                {{ macros.on_demand_filter() }}
+
+                <!-- setting x_y axis -->
+                {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSubmit(false);}') }}
+
+                {{ macros.jump_button() }}
+                {{ macros.scale_option(name='yScaleOption', label=_('Y axis'), onChange='setGraphSetting(this)',  className='mr-4 ml-4') }}
+            </div>
+        </div>
+    </div>
+    <div
+        class="card graph-navi plot-content text-center position-relative mt-3 p-1"
+        id="card-parent"
+        style="width: inherit; display: none; height: auto;"
+    >
+        <div id="tvContentTab">
+            <div class="setting-inform-content"></div>
+        </div>
+    </div>
+
+    <div>
+        <ul id="contextMenuTimeSeries" class="context-menu" style="display:none;" name="contextMenu">
+            <li class="menu-item" onclick="handleSelectedPlotView()">{{ _("Plot View") }}</li>
+            <li class="menu-item" onclick="goToGraphConfigPage('{{ url_for('setting_module.master_config') }}')">
+                {{ _("Threshold/Graph Config") }}
+            </li>
+        </ul>
+    </div>
+
+    <div class=" loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+    {{ macros.data_point_info() }}
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <!-- prettier-ignore-start -->
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails= {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons){
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <!-- prettier-ignore-end -->
+    {% assets "js_tv" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_tv" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %}
+{% endblock %}

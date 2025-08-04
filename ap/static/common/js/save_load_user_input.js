@@ -906,8 +906,12 @@ const saveLoadUserInput = (
 
             let input = null;
 
-            if (isDateTimePickerEl(v.name) && v.value.trim().length > 16) {
-                v.value = convertDatetimePickerSeparator(v.value);
+            if (isDateTimePickerEl(v.name)) {
+                if (v.value.trim().length > 20) {
+                    v.value = convertDatetimePickerSeparator(v.value);
+                } else {
+                    v.value = convertUTCToLocaltimeDatetimePicker(v.value);
+                }
             }
             try {
                 let eleSelector = buildEleSelector(v.name, null, v.id);
@@ -1366,7 +1370,7 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
         	<button name="showGraphNow" class="btn-success btn" data-setting-id="${setting.id}" data-setting-page="${setting.page}">${pageTitle}</button>
         	<span class="hide">${pageTitle}</span>
 		</td>
-        <td class="action col-with-button"><button class="btn-primary btn"
+        <td class="action col-with-button"><button class="btn-primary btn" name="useUserSetting"
         	onclick="handleUseUserSetting(${setting.id})"><i class="fas fa-file-import"></i></button></td>
         <td class="action col-with-button"><button class="btn-orange btn"
         	onclick="editSettings(${setting.id})"><i class="far fa-edit"></i></button></td>
@@ -1474,6 +1478,7 @@ const deleteUserSetting = (e) => {
 
 const clearLoadingSetting = () => {
     localStorage.removeItem('loadingSetting');
+    isSettingLoading = false;
 };
 
 const setExportMode = (isExport) => (isExportMode = isExport);
@@ -1497,7 +1502,7 @@ const goToSettingPage = (userSettingId, settingPage, isImportMode = false, isBla
     }
 
     if (settingPage && isBlank) {
-        window.open(settingPage, '_blank');
+        openNewTab(settingPage);
     }
 };
 
@@ -1943,6 +1948,7 @@ const getSettingCommonInfo = () => {
 
         formSettingDat['graphSetting'] = graphSettings;
         formSettingDat['filter'] = getOnDemandFilterInput();
+        formSettingDat['timezone'] = detectLocalTimezone();
 
         // update column ordering by user clicked
         formSettingDat.column_ordering = latestSortColIds;
@@ -1970,8 +1976,26 @@ const hasIndexOrderInGraphSetting = (graphSettings = []) => {
 };
 
 const convertDatetimePickerSeparator = (value) => {
-    const temp = value;
+    const temp = convertUTCToLocaltimeDatetimePicker(value);
     return temp.substr(0, 16) + DATETIME_PICKER_SEPARATOR + temp.substr(19);
+};
+
+const convertUTCToLocaltimeDatetimePicker = (timeValue) => {
+    if (timeValue.includes('Z')) {
+        if (timeValue.includes(DATETIME_PICKER_SEPARATOR)) {
+            let [startDateTime, endDateTime] = timeValue.split(DATETIME_PICKER_SEPARATOR);
+            if (!startDateTime && !endDateTime) return '';
+            if (!endDateTime) return formatDateTime(startDateTime, DATE_TIME_FMT);
+            if (startDateTime && endDateTime) {
+                startDateTime = formatDateTime(startDateTime, DATE_TIME_FMT);
+                endDateTime = formatDateTime(endDateTime, DATE_TIME_FMT);
+                return startDateTime + DATETIME_PICKER_SEPARATOR + endDateTime;
+            }
+        }
+        return formatDateTime(timeValue, DATE_TIME_FMT);
+    } else {
+        return timeValue;
+    }
 };
 
 const checkExistTitleSetting = async (title) => {
@@ -2067,9 +2091,16 @@ $(document).ready(() => {
 
         const inplaceSetting = !settingCommonInfo.id
             ? true
-            : currentLoadSetting && settingCommonInfo
-              ? Number(currentLoadSetting.id) === Number(settingCommonInfo.id)
-              : true;
+            : currentLoadSetting && settingCommonInfo && Number(currentLoadSetting.id) === Number(settingCommonInfo.id)
+              ? true
+              : false;
+
+        if (!inplaceSetting) {
+            // Don't update 'settings' column
+            excludeColumns = ['settings'];
+        }
+
+        // neu truong hop bookmark dang mo khac voi book edit thi khong luu setting moi
         createOrUpdateSetting(settingCommonInfo, inplaceSetting, excludeColumns);
     });
 
@@ -2250,10 +2281,11 @@ const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '', u
     if (inplace) {
         showSettingChangeModalHandler(() => {
             resetChangeSettingMark();
-            window.location.assign(href);
+            // assign current tab
+            openNewTab(href, '_self');
         });
     } else {
-        window.open(href, '_blank');
+        openNewTab(href);
     }
 };
 
@@ -2283,7 +2315,7 @@ const handleCopyUrlToClipBoard = async (e, userSettingId) => {
     let page = '';
     if (res.status === 200) {
         page = res.data.page;
-        let url = `${window.location.host}${page}?bookmark_id=${res.data.id}`;
+        let url = `http://${window.location.host}${page}?bookmark_id=${res.data.id}`;
         const serverMachineName = '';
         url = url.replace(/localhost|127.0.0.1/, res.hostname);
         $('#copyClipboardContent').show();
@@ -2349,7 +2381,6 @@ const loadGraphSettings = (isFirstTime = false) => {
         const graphArea = $('#graph-settings-area');
         let el = null;
         let selectorStr = '';
-        if (setting === 'XAxisOrder') continue;
         if (setting.name) {
             selectorStr = `[name=${setting.name}]`;
         } else {
@@ -2562,3 +2593,22 @@ const migrateSettingCommonUserNameToHashKey = () => {
 };
 migrateSettingCommonUserNameToHashKey();
 // update settingCommonUserName - End
+
+// get form data
+const getFormData = (formEleID, clearOnFlyFilter = null) => {
+    let formData;
+    if (clearOnFlyFilter) {
+        const traceForm = $(formEleID);
+        formData = new FormData(traceForm[0]);
+        formData = transformFacetParams(formData);
+        formData = genDatetimeRange(formData);
+
+        formData = clearEmptyEndProcs(formData);
+        lastUsedFormData = formData;
+    } else {
+        formData = lastUsedFormData;
+        // transform cat label filter
+        formData = transformCatFilterParams(formData);
+    }
+    return formData;
+};

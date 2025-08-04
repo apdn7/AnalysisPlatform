@@ -410,7 +410,7 @@ const openTour = (url = undefined, showTour = true) => {
         const tour = tryTourInterface();
         tour.set(tour.keys.TRY_TOUR, true);
     }
-    window.open(goToPage);
+    openNewTab(goToPage);
 };
 $(() => {
     const tour = tryTourInterface();

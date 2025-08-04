@@ -14,16 +14,15 @@ from ap.api.setting_module.services.show_latest_record import (
 )
 from ap.api.setting_module.services.v2_etl_services import get_preview_processes_v2
 from ap.common.common_utils import (
-    API_DATETIME_FORMAT,
     add_months,
     convert_time,
     get_month_diff,
-    get_sorted_files,
 )
 from ap.common.constants import (
+    API_DATETIME_FORMAT,
+    DATA_TYPE_ESTIMATION_LIMIT,
     FILE_NAME,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
-    CacheType,
     DataColumnType,
     DataType,
     DBType,
@@ -32,7 +31,7 @@ from ap.common.constants import (
     PagePath,
     max_graph_number,
 )
-from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
+from ap.common.path_utils import get_sorted_files
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.jp_to_romaji_utils import to_romaji
 
@@ -210,6 +209,10 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             dummy_datetime_idx,
             is_rdb,
             file_name_col_idx,
+            unique_rows_as_category,
+            unique_rows_as_real,
+            unique_rows_as_int,
+            unique_rows_as_int_cat,
         ) = latest_rec
         dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
         data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
@@ -227,6 +230,10 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             'data_group_type': data_group_type,
             'is_rdb': is_rdb,
             'file_name_col_idx': file_name_col_idx,
+            'unique_rows_as_category': unique_rows_as_category,
+            'unique_rows_as_real': unique_rows_as_real,
+            'unique_rows_as_int': unique_rows_as_int,
+            'unique_rows_as_int_cat': unique_rows_as_int_cat,
         }
         process_configs.append(process_config)
 
@@ -239,7 +246,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
 
 
 def proc_config_infos_for_v2(dic_preview: dict) -> dict:
-    [cols_with_types, _, _, _, _, _, _] = get_latest_records(None, 0)
+    cols_with_types, *_ = get_latest_records(None, 0)
     is_file_path = dic_preview['is_file_path']
     data_src_dict = {
         'name': datetime.datetime.utcnow().timestamp().__str__(),
@@ -271,7 +278,7 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
         delimiter,
         limit,
         return_df=True,
-        max_records=1000,
+        max_records=DATA_TYPE_ESTIMATION_LIMIT,
         file_name=file_name,
         skip_head=skip_head,
         show_file_name_column=True,
@@ -298,7 +305,9 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
 def generate_process_config(meta_session: scoped_session, proc_config, data_source_id: int) -> CfgProcess:
     process_schema = ProcessSchema()
     request_process_config = proc_config.get('proc_config')
-    request_unused_columns = []  # process not register, do need remove unused column
+    # process not register, do need remove unused column
+    request_unused_columns = proc_config.get('unused_columns', {}).get('columns', [])
+    request_unused_columns_raw = [item['column_raw_name'] for item in request_unused_columns]
     request_process_config['data_source_id'] = data_source_id
     process: CfgProcess = process_schema.load(request_process_config)
     # New process, set id = None
@@ -306,7 +315,7 @@ def generate_process_config(meta_session: scoped_session, proc_config, data_sour
     # check is show file name
     process.is_show_file_name = any(col.column_raw_name == FILE_NAME for col in process.columns)
 
-    return create_or_update_process_cfg(process, request_unused_columns, meta_session=meta_session)
+    return create_or_update_process_cfg(process, request_unused_columns_raw, meta_session=meta_session)
 
 
 def handle_importing_by_one_click(request):
@@ -333,8 +342,6 @@ def handle_importing_by_one_click(request):
             # Do gen process config
             process = generate_process_config(meta_session, request_proc_config, cfg_data_source.id)
             processes.append(process)
-
-    EventQueue.put(EventExpireCache(cache_type=CacheType.CONFIG_DATA))
 
     # get process ids before importing, this can make data stale
     # need to call list map, so that we can load all params data, otherwise the data will be staled

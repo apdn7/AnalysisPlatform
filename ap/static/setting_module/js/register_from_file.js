@@ -62,6 +62,9 @@ const i18n = {
     operator: document.getElementById('i18nOperator').textContent,
     coefHover: document.getElementById('i18nCoefHover').textContent,
     coef: document.getElementById('i18nCoef').textContent,
+    sampleDataLabel: document.getElementById('i18nSampleDataLabel').textContent,
+    recordsDisplayModeLabel: document.getElementById('i18nRecordsDisplayModeLabel').textContent,
+    uniqueDisplayModeLabel: document.getElementById('i18nUniqueDisplayModeLabel').textContent,
 };
 
 const registerI18n = {
@@ -172,6 +175,9 @@ async function validateInputUrlAndFile() {
  * @return {Promise<void>}
  */
 const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
+    // clear content before updating
+    $(procModalElements.procPreviewSection).html('');
+
     // remove add red border
     [registerFromFileEles.folderUrl, registerFromFileEles.refFileUrl].forEach((el) => {
         filePathProcessing(el);
@@ -518,6 +524,10 @@ async function convertStructureData(data) {
         {
             data: procData,
             rows: otherData.rows,
+            unique_rows_as_category: otherData.unique_rows_as_category,
+            unique_rows_as_real: otherData.unique_rows_as_real,
+            unique_rows_as_int: otherData.unique_rows_as_int,
+            unique_rows_as_int_cat: otherData.unique_rows_as_int_cat,
         },
     ];
 }
@@ -545,6 +555,10 @@ function convertStructureDataV2(data) {
                 dummy_datetime_idx: processConfig.dummy_datetime_idx,
             },
             rows: processConfig.rows,
+            unique_rows_as_category: processConfig.unique_rows_as_category,
+            unique_rows_as_real: processConfig.unique_rows_as_real,
+            unique_rows_as_int: processConfig.unique_rows_as_int,
+            unique_rows_as_int_cat: processConfig.unique_rows_as_int_cat,
         };
     });
 }
@@ -561,7 +575,14 @@ async function renderProcessConfig(data) {
         // This set id logic ONLY APPLY for EDGE SERVER
         processData.data.id = processData.data.id == null ? index : processData.data.id;
 
-        await ProcessConfigSection.createProcessConfigSectionForExtend(processData.data, processData.rows);
+        await ProcessConfigSection.createProcessConfigSectionForExtend(
+            processData.data,
+            processData.rows,
+            processData.unique_rows_as_category,
+            processData.unique_rows_as_real,
+            processData.unique_rows_as_int,
+            processData.unique_rows_as_int_cat,
+        );
 
         // processConfigSectionObj.render();
         // if (index === 0) {

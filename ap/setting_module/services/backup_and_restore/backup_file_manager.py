@@ -9,11 +9,11 @@ import pandas as pd
 from pydantic import BaseModel
 
 from ap.common.common_utils import (
-    get_backup_data_folder,
     read_parquet_file,
     write_parquet_file,
 )
 from ap.common.constants import UNDER_SCORE, CsvDelimiter, FileExtension
+from ap.common.path_utils import get_backup_data_folder
 
 
 class BackupKey(BaseModel):
