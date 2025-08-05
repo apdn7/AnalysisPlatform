@@ -5419,6 +5419,14 @@ msgid "Initialize process config error"
 msgstr "Initialize process config error."
 
 #: ap/templates/i18n.html
+msgid "Tooltips"
+msgstr "Tooltips"
+
+#: ap/templates/i18n.html
+msgid "Display tooltips"
+msgstr "Enable/Disable tooltips when hovering on graphs"
+
+#: ap/templates/i18n.html
 msgid "Cookie Preferences"
 msgstr "Cookie Preferences"
 
@@ -5462,11 +5470,71 @@ msgstr ""
 msgid "Years"
 msgstr "years"
 
-#: ap/templates/i18n.html
-msgid "Tooltips"
-msgstr "Tooltips"
+#: ap/templates/setting_module/i18n.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "SampleDataLabel"
+msgstr "Sample Data"
+
+#: ap/templates/setting_module/i18n.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "RecordsDisplayModeLabel"
+msgstr "Records"
+
+#: ap/templates/setting_module/i18n.html
+msgid "UniqueDisplayModeLabel"
+msgstr "Unique Values"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid ""
+"It is possible to choose between displaying the values of each record or "
+"the unique values of each column in the sample data"
+msgstr ""
+"It is possible to choose between displaying the values of each record or "
+"the unique values of each column in the sample data."
+
+#: ap/templates/header.html
+msgid "HotkeyHintText"
+msgstr "Hold Ctrl for hotkeys hints"
 
 #: ap/templates/i18n.html
-msgid "Display tooltips"
-msgstr "Enable/Disable tooltips when hovering on graphs"
+msgid "NoDataLinkFilterProcMsg"
+msgstr ""
+"A process that has not been set for data link is set in the filter "
+"conditions."
+
+#: ap/templates/i18n.html
+msgid "PlaceholderHidden"
+msgstr "hidden"
+
+#: ap/templates/i18n.html
+msgid "HoverConversationJudgeMsg"
+msgstr ""
+"Enter the unit. It will be displayed in the plot area, etc. Only units "
+"defined in the system can be registered.\n"
+"If the DataType is a judgment, the conversion formula Pos~p0|Neg=p1|n1 "
+"will be displayed.\n"
+"p0 is the original data value of the positive example judge value, p1 and"
+" n1 are the display values for the positive and negative examples, "
+"respectively (e.g., OK and NG for products)."
+
+#: ap/templates/i18n.html
+msgid "SelectJudgeDatatypeModalMsg"
+msgstr ""
+"Undefined judge value or more than three judge values found, automatic "
+"setting failed. Do you force it to be 'Judge'? (If so, please modify the "
+"conversion formula as appropriate)"
+
+#: ap/templates/i18n.html
+msgid "InvalidInputJudgeMsg"
+msgstr "Invalid input detected, reverting to original value."
+
+#: ap/templates/i18n.html
+msgid "InvalidInputImportedJudgeMsg"
+msgstr ""
+"Import setting cannot be changed, reverting to original value. Please "
+"reset to initial setting status to modify it."
+
+#: ap/templates/i18n.html
+msgid "JudgeFormulaTitle"
+msgstr "Formula"
 

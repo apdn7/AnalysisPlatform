@@ -1,7 +1,7 @@
-from ap.common.common_utils import delete_file, gen_sqlite3_file_name
 from ap.common.constants import JobType
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventQueue, EventRemoveJobs
+from ap.common.path_utils import delete_file, gen_sqlite3_file_name
 from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
 from ap.setting_module.services.process_config import update_is_import_column
 
@@ -43,24 +43,27 @@ from ap.setting_module.services.process_config import update_is_import_column
 
 @log_execution_time()
 def delete_proc_cfg_and_relate_jobs(proc_id):
-    # get all processes to be deleted
-    deleting_processes = CfgProcess.get_all_parents_and_children_processes(proc_id)
-    # get ids incase sqlalchemy session is dead
-    deleting_process_ids = [proc.id for proc in deleting_processes]
-    # stop all jobs before deleting
-    target_jobs = [
-        JobType.CSV_IMPORT,
-        JobType.FACTORY_IMPORT,
-        JobType.FACTORY_PAST_IMPORT,
-        JobType.RESTRUCTURE_INDEXES,
-        JobType.USER_BACKUP_DATABASE,
-        JobType.USER_RESTORE_DATABASE,
-        JobType.UPDATE_TRANSACTION_TABLE,
-    ]
-    for proc_id in deleting_process_ids:
-        EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
+    with make_session() as meta_session:
+        # get all processes to be deleted
+        deleting_processes = CfgProcess.get_all_parents_and_children_processes(proc_id, session=meta_session)
+        # get ids incase sqlalchemy session is dead
+        deleting_process_ids = [proc.id for proc in deleting_processes]
 
-    CfgProcess.batch_delete(deleting_process_ids)
+        # stop all jobs before deleting
+        target_jobs = [
+            JobType.CSV_IMPORT,
+            JobType.FACTORY_IMPORT,
+            JobType.FACTORY_PAST_IMPORT,
+            JobType.RESTRUCTURE_INDEXES,
+            JobType.USER_BACKUP_DATABASE,
+            JobType.USER_RESTORE_DATABASE,
+            JobType.UPDATE_TRANSACTION_TABLE,
+        ]
+        for proc_id in deleting_process_ids:
+            EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=proc_id))
+
+        for cfg_process in deleting_processes:
+            meta_session.delete(cfg_process)
 
     for proc_id in deleting_process_ids:
         delete_transaction_db_file(proc_id)

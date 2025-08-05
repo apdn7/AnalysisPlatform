@@ -17,12 +17,14 @@ from ap.api.categorical_plot.services import (
     produce_cyclic_terms,
 )
 from ap.api.common.services.show_graph_services import get_data_from_db, judge_data_conversion
-from ap.common.common_utils import DATE_FORMAT_STR, DATE_FORMAT_STR_CSV, gen_sql_label
+from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,
     COLOR_NAME,
     COMMON,
     COMPARE_TYPE,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_CSV,
     DIC_CAT_FILTERS,
     DIVIDE_FMT_COL,
     END_DATE,
@@ -146,7 +148,7 @@ def gen_df_export(graph_param, dic_param):
     df, *_ = get_data_from_db(graph_param, dic_cat_filters)
 
     # export original value of judge variable
-    judge_columns = graph_param.get_judge_variables()
+    judge_columns = graph_param.get_judge_cols()
     df = judge_data_conversion(df, judge_columns, revert=True)
     return df
 
@@ -446,7 +448,7 @@ def get_new_column_order(df, graph_param, options):
                     if column_detail.is_category:
                         new_name += '|Count'
                     else:
-                        new_name += f"|{options['numerical_agg_method']}"
+                        new_name += f'|{options["numerical_agg_method"]}'
 
             dic_rename[old_name] = new_name
 

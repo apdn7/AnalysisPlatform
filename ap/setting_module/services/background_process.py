@@ -10,8 +10,6 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field, field_seriali
 
 from ap import db
 from ap.common.common_utils import (
-    DATE_FORMAT_STR,
-    DATE_FORMAT_STR_FACTORY_DB,
     convert_time,
     generate_job_id,
     get_current_timestamp,
@@ -19,22 +17,22 @@ from ap.common.common_utils import (
 from ap.common.constants import (
     ALMOST_COMPLETE_PERCENT,
     COMPLETED_PERCENT,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_FACTORY_DB,
     ID,
     UNKNOWN_ERROR_TEXT,
     AnnounceEvent,
-    CacheType,
     DiskUsageStatus,
     JobStatus,
     JobType,
 )
 from ap.common.disk_usage import get_disk_capacity_once
+from ap.common.jobs.jobs import RunningJobs
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
 from ap.common.multiprocess_sharing import (
     EventBackgroundAnnounce,
     EventQueue,
     EventRunFunction,
-    RunningJobs,
 )
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.services.error_message_handler import ErrorMessageHandler
@@ -89,7 +87,6 @@ class JobSerializedOutput(BaseModel):
         return self.process_name
 
 
-@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
 def get_all_proc_shown_names():
     return {proc.id: proc.shown_name for proc in CfgProcess.get_all(with_parent=True)}
 

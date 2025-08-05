@@ -32,7 +32,7 @@ class SpreadSheetProcessConfig {
      * @param {boolean} registerByFile - is this register by file?
      * @returns {SpreadSheetProcessConfig}
      */
-    static create(tableId, data, { registerByFile = false } = {}) {
+    static create(tableId, data, { registerByFile = false, sampleDataDisplayMode = 'records' } = {}) {
         const options = SpreadSheetProcessConfig.options({ registerByFile });
         const table = JspreadSheetTable.createTable(
             tableId,
@@ -48,7 +48,9 @@ class SpreadSheetProcessConfig {
         // parse sample data by datatype
         const shownDataTypes = spreadsheet.table.getColumnDataByHeaderName(PROCESS_COLUMNS.shown_data_type);
         shownDataTypes.forEach((shownDataType, index) => {
-            spreadsheet.changeShownDataType(index, shownDataType, { isFirstLoad: true });
+            spreadsheet.changeShownDataType(index, shownDataType, SAMPLE_DATA_DISPLAY_MODES.RECORDS, {
+                isFirstLoad: true,
+            });
         });
 
         return spreadsheet;
@@ -177,6 +179,26 @@ class SpreadSheetProcessConfig {
     }
 
     /**
+     * @return {ExcelTableRow | null}
+     */
+    judgeRow() {
+        return _.first(
+            this.table.findRows({
+                [PROCESS_COLUMNS.is_judge]: (cell) => cell.data,
+            }),
+        );
+    }
+
+    /**
+     * @return {ExcelTableRow[]}
+     */
+    judgeAvailableRows() {
+        return this.table.findRows({
+            [PROCESS_COLUMNS.judge_available]: (cell) => cell.data,
+        });
+    }
+
+    /**
      * Get rows by data type.
      * @param {...string} dataTypes
      * @returns {ExcelTableRow[]}
@@ -259,10 +281,9 @@ class SpreadSheetProcessConfig {
      */
     handleChangeCell(columnIndex, rowIndex, newValue, oldValue) {
         const cell = this.table.getCellFromCoords(columnIndex, rowIndex);
-        // remove invalid marker
         cell.classList.remove(BORDER_RED_CLASS);
-
         const header = this.table.getHeaderByIndex(columnIndex);
+
         if (header.name === PROCESS_COLUMNS.name_jp) {
             this.handleSyncNameJpToEmptyNameEn(rowIndex, newValue);
         } else if (header.name === PROCESS_COLUMNS.name_local) {
@@ -327,6 +348,53 @@ class SpreadSheetProcessConfig {
     }
 
     /**
+     * Validate judge formation by regex ^Pos~[^|~=]+\|Neg=[^|~=]+\|[^|~=]+*$ ex: Pos~OK|Neg=OK|NG
+     * @param {number} rowIndex
+     * @param {string} newValue
+     * @param {string} oldValue
+     * @return {boolean} - valid or invalid
+     */
+    validateJudgeFormulation(rowIndex, newValue, oldValue) {
+        const data = this.table.getRowDataByIndex(rowIndex);
+        if (!data.judge_available) return true; // TODO: Move — this function only validates the formulation.
+        const regex = JUDGE_PATTERN_VALIDATION;
+        const invalidMsg = document.getElementById('i18nInvalidInputJudgeMsg').textContent;
+        const invalidMsgOfImportedJudge = document.getElementById('i18nInvalidInputImportedJudgeMsg').textContent;
+
+        hideAlertMessages();
+        const isRegisteredData = data.id > 0;
+        if (!regex.test(newValue)) {
+            // show messenger and return old value
+            this.showErrorMsg(invalidMsg);
+            this.table.table.undo();
+            return false; // old value is valid
+        }
+
+        // The DL settings have changed (the part before “=” in the conversion formula has changed). --> Only accept changing display value of formula
+        if (isRegisteredData) {
+            const positiveValue = newValue.split('|')[0];
+            if (oldValue && oldValue.split('|')[0] !== positiveValue) {
+                this.showErrorMsg(invalidMsgOfImportedJudge);
+                this.table.table.undo();
+                return false; // old value is valid
+            }
+        }
+        return true;
+    }
+
+    showErrorMsg(msgStr) {
+        const isRegisterFilePage = window.location.href.includes('register_by_file');
+        if (isRegisterFilePage) {
+            addMessengerToProgressBar(msgStr, ICON_STATUS.WARNING);
+        } else {
+            displayRegisterMessage(procModalElements.alertProcessNameErrorMsg, {
+                message: msgStr,
+                is_error: true,
+            });
+        }
+    }
+
+    /**
      * Convert to ascii if english name is empty.
      * @param {number} rowIndex
      * @param {any} value
@@ -336,7 +404,7 @@ class SpreadSheetProcessConfig {
         const englishNameCell = this.table.getCellByHeaderAndIndex(PROCESS_COLUMNS.name_en, rowIndex);
         if (englishNameCell.data.length === 0) {
             convertNonAscii([value]).then((asciiName) => {
-                this.table.setValueFromCoords(englishNameCell.columnIndex, rowIndex, asciiName[0]);
+                this.table.setValueFromCoords(englishNameCell.columnIndex, rowIndex, asciiName[0], true);
             });
         }
     }
@@ -441,6 +509,12 @@ class SpreadSheetProcessConfig {
         systemCell.setAttribute('title', hoverTitle);
         systemCell.classList.add('required'); // add * symbol css class
         systemCell.innerHTML = `<span class="hint-text">${systemCell.innerText}</span>`;
+
+        const judgeHoverMsg = document.getElementById('i18nHoverConversationJudgeMsg').textContent;
+        const judgeCell = this.table.getTableHeaderElement(PROCESS_COLUMNS.judge_formula);
+        judgeCell.setAttribute('title', judgeHoverMsg);
+        judgeCell.classList.add('required'); // add * symbol css class
+        judgeCell.innerHTML = `<span class="hint-text">${judgeCell.innerText}</span>`;
         // add icon sort
         const headerSort = [
             PROCESS_COLUMNS.column_raw_name,
@@ -465,6 +539,33 @@ class SpreadSheetProcessConfig {
         // Do not show shadow border
         const tableContent = this.table.getTableContentElement();
         tableContent.style.removeProperty('box-shadow');
+    }
+
+    addJudgeFormulationClass() {
+        const rows = this.judgeAvailableRows();
+
+        if (!rows.length) {
+            return;
+        }
+
+        rows.forEach((row) => {
+            const cell = row[PROCESS_COLUMNS.judge_formula].td;
+            cell.classList.add('formula');
+        });
+    }
+    hideJudgeFormulationForRowNotJudgeRow() {
+        const rows = this.judgeAvailableRows();
+
+        if (!rows.length) {
+            return;
+        }
+
+        rows.forEach((row) => {
+            if (!row[PROCESS_COLUMNS.is_judge].data) {
+                const cell = row[PROCESS_COLUMNS.judge_formula].td;
+                cell.classList.add(READONLY_CLASS, 'disabled', 'text-hide');
+            }
+        });
     }
 
     loadIsShowFileNameCheckbox() {
@@ -502,12 +603,10 @@ class SpreadSheetProcessConfig {
             }
         }
         // is shown file name checkbox is active, bind events.
-        else {
-            isShowFileName.on('change', (e) => {
-                inputCheckboxCell.checked = e.target.checked;
-                inputCheckboxCell.dispatchEvent(new Event('change'));
-            });
-        }
+        isShowFileName.on('change', (e) => {
+            inputCheckboxCell.checked = e.target.checked;
+            inputCheckboxCell.dispatchEvent(new Event('change'));
+        });
 
         // add attr for check column file name of test
         checkboxCell.setAttribute('is-file-name', 'true');
@@ -519,12 +618,7 @@ class SpreadSheetProcessConfig {
      */
     updateOriginalValueSampleData(...rows) {
         for (const row of rows) {
-            const sampleDataCells = _.map(
-                _.pickBy(row, (cell, headerName) => {
-                    return headerName.startsWith(SAMPLE_DATA_KEY);
-                }),
-                (value) => value,
-            );
+            const sampleDataCells = this.table.getSampleDataCellsOfRow(row);
 
             // set class for dummy column
             const isDummyColumn =
@@ -541,6 +635,44 @@ class SpreadSheetProcessConfig {
                 }
             }
         }
+    }
+
+    updateUniqueSampleDataAttributes(uniqueDataCategory, uniqueDataReal, uniqueDataInt, uniqueDataIntCat, ...rows) {
+        if (!uniqueDataCategory.length && !uniqueDataReal.length && !uniqueDataInt.length) return; // old preview data without fields
+        rows.forEach((row, i) => {
+            const rowDataCategory = uniqueDataCategory[i];
+            const rowDataReal = uniqueDataReal[i];
+            const rowDataInt = uniqueDataInt[i];
+            const rowDataIntCat = uniqueDataIntCat[i];
+            const sampleDataCells = this.table.getSampleDataCellsOfRow(row);
+            // set unique value attributes for sample data
+            sampleDataCells.forEach((cell, i) => {
+                const td = cell.td;
+                td.setAttribute(
+                    UNIQUE_CATEGORY_DATA_ATTR,
+                    rowDataCategory[i] === null || rowDataCategory[i] === undefined ? '' : rowDataCategory[i],
+                );
+                td.setAttribute(
+                    UNIQUE_REAL_DATA_ATTR,
+                    rowDataReal[i] === null || rowDataReal[i] === undefined ? '' : rowDataReal[i],
+                );
+                td.setAttribute(
+                    UNIQUE_INT_DATA_ATTR,
+                    rowDataInt[i] === null || rowDataInt[i] === undefined ? '' : rowDataInt[i],
+                );
+                td.setAttribute(
+                    UNIQUE_INT_CAT_DATA_ATTR,
+                    rowDataIntCat[i] === null || rowDataIntCat[i] === undefined ? '' : rowDataIntCat[i],
+                );
+            });
+        });
+    }
+
+    updateSampleDataByDisplayMode(spreadsheet, displayMode) {
+        const shownDataTypes = spreadsheet.table.getColumnDataByHeaderName(PROCESS_COLUMNS.shown_data_type);
+        shownDataTypes.forEach((shownDataType, index) => {
+            spreadsheet.changeShownDataType(index, shownDataType, displayMode, { isFirstLoad: true });
+        });
     }
 
     /**
@@ -643,8 +775,15 @@ class SpreadSheetProcessConfig {
      * @param {string} shownDataType
      * @param {boolean} isChangeHiddenColumn - check change datatype, column type
      */
-    changeShownDataType(rowIndex, shownDataType, { isFirstLoad = false } = {}) {
-        DataTypeDropdown_Controller.changeShownDataType(this, rowIndex, shownDataType, { isFirstLoad });
+    changeShownDataType(
+        rowIndex,
+        shownDataType,
+        sampleDataDisplayMode = SAMPLE_DATA_DISPLAY_MODES.RECORDS,
+        { isFirstLoad = false } = {},
+    ) {
+        DataTypeDropdown_Controller.changeShownDataType(this, rowIndex, shownDataType, sampleDataDisplayMode, {
+            isFirstLoad,
+        });
     }
 
     /**
@@ -653,10 +792,10 @@ class SpreadSheetProcessConfig {
      * @return {boolean}
      */
     isHasChange() {
-        if (!currentProcess) {
-            // New process, always mark as "has changes"
-            return true;
-        }
+        // if (!currentProcess) {
+        //     // New process, always mark as "has changes"
+        //     return true;
+        // }
 
         return this.table.isHasChange(SpreadSheetProcessConfig.trackingHeaders());
     }
@@ -674,6 +813,7 @@ class SpreadSheetProcessConfig {
             PROCESS_COLUMNS.name_jp,
             PROCESS_COLUMNS.name_local,
             PROCESS_COLUMNS.unit,
+            PROCESS_COLUMNS.judge_formula,
         ];
     }
 
@@ -772,7 +912,8 @@ class SpreadSheetProcessConfig {
                 cell.innerHTML = value;
                 const rowIndex = Number(cell.dataset.y);
                 const spreadsheet = spreadsheetProcConfig(cell);
-                spreadsheet.changeShownDataType(rowIndex, value);
+                const sampleDataDisplayMode = getSampleDataDisplayModeElement(spreadsheet.table.table.el).val();
+                spreadsheet.changeShownDataType(rowIndex, value, sampleDataDisplayMode);
             },
         };
     }
@@ -828,6 +969,12 @@ class SpreadSheetProcessConfig {
                 width: '100',
                 name: PROCESS_COLUMNS.unit,
                 title: $(procModali18n.i18nUnit).text(),
+            },
+            {
+                type: 'text',
+                width: '100',
+                name: PROCESS_COLUMNS.judge_formula,
+                title: $(procModali18n.i18nJudgeFormulaTitle).text(),
             },
             {
                 type: 'text',
@@ -951,6 +1098,14 @@ class SpreadSheetProcessConfig {
                 type: 'hidden',
                 name: PROCESS_COLUMNS.process_id,
             },
+            {
+                type: 'hidden',
+                name: PROCESS_COLUMNS.judge_available,
+            },
+            {
+                type: 'hidden',
+                name: PROCESS_COLUMNS.is_judge,
+            },
         ];
 
         // get first index of sample data
@@ -974,6 +1129,8 @@ class SpreadSheetProcessConfig {
                 spreadsheet.loadHeaderStatus();
                 spreadsheet.table.sortInHeaderColumn();
                 spreadsheet.loadCSS();
+                spreadsheet.hideJudgeFormulationForRowNotJudgeRow();
+                spreadsheet.addJudgeFormulationClass();
 
                 spreadsheet.updateOriginalValueSampleData(...allRows);
                 spreadsheet.updateColumnClassName(...allRows);
@@ -1000,10 +1157,25 @@ class SpreadSheetProcessConfig {
             onafterchanges: (instance, records) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 for (const record of records) {
-                    const { x: columnIndex, y: rowIndex } = record;
+                    const { x: columnIndex, y: rowIndex, newValue: newValue, oldValue: oldValue } = record;
                     const cell = spreadsheet.table.getCellFromCoords(columnIndex, rowIndex);
                     spreadsheet.table.closeTransaction(cell);
+                    const header = spreadsheet.table.getHeaderByIndex(columnIndex);
+                    if (header.name === PROCESS_COLUMNS.judge_formula) {
+                        const isValidPattern = spreadsheet.validateJudgeFormulation(rowIndex, newValue, oldValue);
+                        const sampleDataDisplayMode = getSampleDataDisplayModeElement(spreadsheet.table.table.el).val();
+                        parseDataTypeProc(
+                            spreadsheet,
+                            DataTypes.BOOLEAN.name,
+                            rowIndex,
+                            masterDataGroup.JUDGE,
+                            sampleDataDisplayMode,
+                            isValidPattern ? newValue : oldValue,
+                        );
+                    }
                 }
+                spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
+                spreadsheet.hideJudgeFormulationForRowNotJudgeRow();
             },
 
             oninsertrow: (instance, rowNumber, numOfRows, rowRecords, insertBefore) => {
@@ -1041,6 +1213,29 @@ class SpreadSheetProcessConfig {
                 if (historyRecord) {
                     spreadsheet.handleChangeMark();
                 }
+            },
+
+            /**
+             * Do some check on row moving
+             * @param {jspreadsheet.JspreadsheetInstanceElement} instance
+             * @param {string} oldIndex
+             */
+            onmoverow: (instance, oldIndex, newIndex) => {
+                const spreadsheet = jspreadsheetTable(instance);
+                const { data } = spreadsheet.table.getConfig();
+
+                // return because event insert row also trigger onmoverow
+                if (Number(oldIndex) >= data.length - 1) {
+                    return;
+                }
+                // compare oldIndex with special row index if match then undo
+                const row = spreadsheet.getRowDataByIndex(newIndex);
+
+                if (checkSpecialRow(row)) {
+                    spreadsheet.table.undo();
+                }
+
+                spreadsheet.reIndexForSpecialRow(spreadsheet);
             },
         };
 
@@ -1165,4 +1360,10 @@ const sortColumnGraphConfig = (containerSelector = 'table') => {
         const table = jspreadsheetTable(procModalElements.procConfigTableName);
         table.sortBy(Number(idx));
     });
+};
+
+const getSampleDataDisplayModeElement = (element) => {
+    const processSectionElement = element.closest(`[id^="procSettingModalBody"]`);
+    const sampleDataDisplayModeElement = processSectionElement.querySelector(`[name="sampleDataDisplayMode"]:checked`);
+    return $(sampleDataDisplayModeElement);
 };

@@ -5,7 +5,8 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
-from ap.common.common_utils import get_dummy_data_path, create_sa_engine_for_migration
+from ap.common.common_utils import create_sa_engine_for_migration
+from ap.common.path_utils import get_dummy_data_path
 from ap.common.pydn.dblib import sqlite
 
 

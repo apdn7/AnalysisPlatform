@@ -30,14 +30,14 @@ class SQLite3:
 
     def dump(self):
         logger.info(
-            f'''\
+            f"""\
 ===== DUMP RESULT =====
 DB Type: SQLite3'
 self.dbname: {self.dbname}
-self.isolation_level: {"IMMEDIATE" if self.isolation_level else None}
+self.isolation_level: {'IMMEDIATE' if self.isolation_level else None}
 self.is_connected: {self.is_connected}
 =======================
-''',
+""",
         )
 
     def connect(self):
@@ -96,7 +96,7 @@ self.is_connected: {self.is_connected}
     # 作成済みのテーブルを配列として返す
     def list_tables(self):
         if not self._check_connection():
-            return False
+            return []
 
         # https://monjudoh.hatenablog.com/entry/20090916/1253104594
         sql = "select name from sqlite_master where type = 'table'"

@@ -8,7 +8,7 @@ const redirectPage = (tile) => {
     if (target) {
         if (isOpenNewTab) {
             isOpenNewTab = false;
-            window.open(target);
+            openNewTab(target);
         } else {
             window.location.assign(target);
         }

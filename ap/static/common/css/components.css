@@ -179,7 +179,7 @@ h6 {
 
 .level-select:disabled {
     width: 60px;
-    min-width: 60px;
+    min-width: unset;
 }
 
 .level-select:focus {
@@ -308,6 +308,15 @@ h6 {
     50% {
         opacity: 0;
     }
+}
+
+.no-link-warning-sign {
+    top: 50%;
+    position: absolute;
+    z-index: 1;
+    display: none;
+    color: yellow;
+    transform: translate(-50%, -50%);
 }
 
 .blink {

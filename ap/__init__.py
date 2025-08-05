@@ -22,18 +22,16 @@ from sqlalchemy import NullPool
 from sqlalchemy.orm import DeclarativeBase, create_session, scoped_session
 
 from ap.common.common_utils import (
-    DATE_FORMAT_STR,
     NoDataFoundException,
     check_exist,
-    count_file_in_folder,
     find_babel_locale,
     init_config,
-    make_dir,
-    resource_path,
 )
 from ap.common.constants import (
     APP_DB_FILE,
+    DATE_FORMAT_STR,
     DB_SECRET_KEY,
+    ENABLE_DUMP_TRACE_LOG,
     EXTERNAL_API,
     HTML_CODE_304,
     INIT_APP_DB_FILE,
@@ -62,6 +60,7 @@ from ap.common.constants import (
 from ap.common.ga import GA, GA_TRACKING_ID, VERSION_FILE_NAME
 from ap.common.jobs.scheduler import CustomizeScheduler
 from ap.common.logger import log_execution_time
+from ap.common.path_utils import count_file_in_folder, make_dir, resource_path
 from ap.common.services.http_content import json_dumps
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
 from ap.common.trace_data_log import TraceErrKey, get_log_attr
@@ -147,17 +146,11 @@ def init_engine(app, uri, **kwargs):
                 pass
     db_engine = sa.create_engine(uri, **kwargs)
 
-    @sa.event.listens_for(db_engine, 'begin')
-    def do_begin(dbapi_conn):
-        dbapi_conn.execute(sa.text('BEGIN IMMEDIATE'))
+    from ap.common.session.listener import SessionListener
 
-    @sa.event.listens_for(db_engine, 'commit')
-    def do_expire(dbapi_conn):
-        """
-        Expire all objects in `db.session` everytime meta session perform a commit.
-        This makes `db.session` removes all cached and queries to database again to get the newest objects
-        """
-        db.session.expire_all()
+    SessionListener.make_core_events(db, db_engine)
+    # add trigger in CRUD config data
+    SessionListener.add_listen_events(db)
 
     return db_engine
 
@@ -177,7 +170,7 @@ def close_sessions():
 
     # close app db session
     try:
-        session = g.get(FlaskGKey.APP_DB_SESSION)
+        session = g.get(FlaskGKey.APP_DB_SESSION.name)
         if session:
             session.rollback()
             session.close()
@@ -186,7 +179,7 @@ def close_sessions():
 
     # Flask g
     with contextlib.suppress(Exception):
-        g.pop(FlaskGKey.APP_DB_SESSION)
+        g.pop(FlaskGKey.APP_DB_SESSION.name)
 
 
 # ##########################################################
@@ -226,6 +219,7 @@ def create_app(object_name=None, is_main=False):
     from .setting_module import create_module as setting_create_module
     from .table_viewer import create_module as table_viewer_create_module
     from .tile_interface import create_module as tile_interface_create_module
+    from .time_vis import create_module as time_vis_create_module
     from .trace_data import create_module as trace_data_create_module
 
     app = Flask(__name__)
@@ -305,6 +299,8 @@ def create_app(object_name=None, is_main=False):
     multiple_scatter_create_module(app)
     tile_interface_create_module(app)
     agp_create_module(app)
+    time_vis_create_module(app)
+
     app.add_url_rule('/', endpoint='tile_interface.tile_interface')
 
     basic_config_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_CONFIG_BASIC])
@@ -318,7 +314,9 @@ def create_app(object_name=None, is_main=False):
     lang = start_up_yaml.get_node(['setting_startup', 'language'], None)
     sub_title = start_up_yaml.get_node(['setting_startup', 'subtitle'], '')
     enable_ga_tracking = start_up_yaml.get_node(['setting_startup', 'enable_ga_tracking'], False)
+    enable_dump_trace_log = start_up_yaml.get_node(['setting_startup', ENABLE_DUMP_TRACE_LOG], False)
     app.config['GA_TRACKING_ID'] = GA_TRACKING_ID if enable_ga_tracking else ''
+    app.config[ENABLE_DUMP_TRACE_LOG] = bool(enable_dump_trace_log)
 
     if lang is None or not lang:
         lang = basic_config_yaml.get_node(['info', 'language'], False)
@@ -381,9 +379,9 @@ def create_app(object_name=None, is_main=False):
 
     # Shut down the scheduler when exiting the app
     atexit.register(
-        lambda: scheduler.shutdown()
-        if scheduler.state != STATE_STOPPED
-        else logger.info('Scheduler is already shutdown'),
+        lambda: (
+            scheduler.shutdown() if scheduler.state != STATE_STOPPED else logger.info('Scheduler is already shutdown')
+        ),
     )
 
     @app.route('/ping')

@@ -147,6 +147,7 @@ const i18nDBCfg = {
     couldNotReadData: $('#i18nCouldNotReadData'),
     dummyHeader: $('#i18nDummyHeader'),
     partialDummyHeader: $('#i18nPartialDummyHeader'),
+    hiddenPlaceholder: $('#i18nPlaceholderHidden').text(),
 };
 
 const triggerEvents = {
@@ -617,19 +618,18 @@ const saveV2DataSource = (dsConfig) => {
         });
 };
 
-const showAllV2ProcessConfigModal = (dbsIds) => {
-    let index = 1;
-    v2ImportInterval = setInterval(async () => {
+const showAllV2ProcessConfigModal = (dbsIds, index = 1) => {
+    setTimeout(async () => {
         if (index > dbsIds.length) {
-            clearInterval(v2ImportInterval);
             isV2ProcessConfigOpening = false;
+            return;
         }
-
         if (!isV2ProcessConfigOpening) {
             resetIsShowFileName();
             await showV2ProcessConfigModal(dbsIds[index - 1]);
             index++;
         }
+        showAllV2ProcessConfigModal(dbsIds, index);
     }, 1000);
 };
 
@@ -641,16 +641,6 @@ const disableIsShowFileName = () => {
 const resetIsShowFileName = () => {
     procModalElements.isShowFileName.prop('disabled', false);
     procModalElements.isShowFileName.prop('checked', false);
-};
-
-const handleCloseDBConfigModal = (ele) => {
-    if (typeof inputMutationObserver !== 'undefined') {
-        if (inputMutationObserver.nodeStatus.filter((node) => node.modifyStatus).length) {
-            $('#modifyConfirmationModal').modal('show');
-            return;
-        }
-    }
-    $(ele).closest('.modal').modal('hide');
 };
 
 const handleCloseProcConfigModal = (ele) => {
@@ -773,7 +763,7 @@ const validateCsvInfo = (isV2) => {
 // gen csv info
 const genCsvInfo = async () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dbType = currentDSTR.find('select[name="type"]').val();
+    const dbType = getDbType(dbItemId);
     const directory = $(csvResourceElements.folderUrlInput).val();
     // set default skipHead and skipTail
     const skipHead = $(csvResourceElements.skipHead).val() || null;
@@ -898,14 +888,7 @@ const saveCSVInfo = async () => {
 // DBInfoの入力をチェックする
 const validateDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    let dbType;
-    // existing data source
-    if (typeof dbItemId !== 'undefined') {
-        dbType = currentDSTR.find('input[name=type]').attr('data-db-type');
-    } else {
-        // new data source
-        dbType = currentDSTR.find('select[name="type"]').val();
-    }
+    const dbType = getDbType(dbItemId);
     const dbTypePrefix = dbType.toLowerCase();
     const dbItem = {};
     // Get DB Information
@@ -947,14 +930,7 @@ const validateDBInfo = () => {
 // DBInfoを生成する。
 const genDBInfo = () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    let dbType;
-    // existing data source
-    if (typeof dbItemId !== 'undefined') {
-        dbType = currentDSTR.find('input[name=type]').attr('data-db-type');
-    } else {
-        // new data source
-        dbType = currentDSTR.find('select[name="type"]').val();
-    }
+    const dbType = getDbType(dbItemId);
     const domDBPrefix = dbType.toLowerCase();
 
     // Get DB Information
@@ -1445,6 +1421,7 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             }
 
             // Todo: Refactor Modal's inputs ID
+            $(`#${domModalPrefix}_id`).val(dictDataSrc.id);
             $(`#${domModalPrefix}_dbsourcename`).val(dictDataSrc.name);
             $(`#${domModalPrefix}_comment`).val(dictDataSrc.comment);
             $(`#${domModalPrefix}_host`).val(dictDataSrc.db_detail.host);
@@ -1452,7 +1429,12 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             $(`#${domModalPrefix}_dbname`).val(dictDataSrc.db_detail.dbname);
             $(`#${domModalPrefix}_schema`).val(dictDataSrc.db_detail.schema);
             $(`#${domModalPrefix}_username`).val(dictDataSrc.db_detail.username);
-            $(`#${domModalPrefix}_password`).val(dictDataSrc.db_detail.password);
+            $(`#${domModalPrefix}_password`).val('');
+            if (dictDataSrc.id) {
+                $(`#${domModalPrefix}_password`).attr('placeholder', `<${i18nDBCfg.hiddenPlaceholder}>`);
+            } else {
+                $(`#${domModalPrefix}_password`).attr('placeholder', '');
+            }
             $(`#${domModalPrefix}_use_os_timezone`).val(dictDataSrc.db_detail.use_os_timezone);
             $(eles.useOSTZOption).prop('checked', dictDataSrc.db_detail.use_os_timezone);
             $(eles.useOSTZOption).data('previous-value', dictDataSrc.db_detail.use_os_timezone);
@@ -1501,7 +1483,11 @@ const checkDBConnection = (dbType, html, msgID) => {
     } else {
         dbName = $(`#modal-db-${dbType} input[name="${dbType}_dbname"]`).val();
     }
+    let db_id = null;
+    const db_id_val = $(`#modal-db-${dbType} input[name="${dbType}_id"]`).val();
+    if (db_id_val) db_id = parseInt(db_id_val);
     Object.assign(data.db, {
+        id: db_id,
         host: $(`#modal-db-${dbType} input[name="${dbType}_host"]`).val(),
         port: $(`#modal-db-${dbType} input[name="${dbType}_port"]`).val(),
         schema: $(`#modal-db-${dbType} input[name="${dbType}_schema"]`).val(),
@@ -1529,8 +1515,7 @@ const loadDetail = (self) => {
     // save current data source tr element
     currentDSTR = $(self).closest('tr');
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dsType =
-        currentDSTR.find('input[name="type"]').data('db-type') || currentDSTR.find('select[name="type"]').val();
+    const dsType = getDbType(dataSrcId);
     // When click (+) to create blank item
     if (dataSrcId === null || dataSrcId === undefined) {
         let jsonDictDataSrc = {};
@@ -1765,3 +1750,11 @@ $(() => {
     sortableTable('tblDbConfig', [0, 1, 2, 4], 510, true);
     sortableTable('tblProcConfig', [0, 1, 2, 3, 5], 510, true);
 });
+
+const getDbType = (dbItemId) => {
+    if (typeof dbItemId !== 'undefined') {
+        return currentDSTR.find('input[name=type]').attr('data-db-type');
+    }
+    // new data source
+    return currentDSTR.find('select[name="type"]').val();
+};

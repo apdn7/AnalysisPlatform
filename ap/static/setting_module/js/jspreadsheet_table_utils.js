@@ -210,6 +210,7 @@ class JspreadSheetTable {
             allowManualDeleteRow: false,
             allowManualDeleteColumn: false,
             parseFormulas: false,
+            rows: data,
         };
         const options = {
             ...defaultOptions,
@@ -217,6 +218,19 @@ class JspreadSheetTable {
         };
         const events = {
             ...(customEvents ?? {}),
+            /**
+             * Custom onload event to check if the table has changes.
+             * while our table also needs to check for `readonly` columns as well.
+             * @template T
+             * @param {jspreadsheet.JspreadsheetInstanceElement} instance
+             */
+            onload: (instance) => {
+                const spreadsheet = jspreadsheetTable(instance);
+                if (customEvents.onload != null) {
+                    customEvents.onload(instance);
+                }
+                spreadsheet.handleOneClickDropDown();
+            },
             /**
              * Custom onchange event to check if the table has changes.
              * We need this because jspreadsheet does not save history for `readonly` columns,
@@ -232,7 +246,6 @@ class JspreadSheetTable {
             onchange: (instance, records, c, r, newValue, oldValue) => {
                 const spreadsheet = jspreadsheetTable(instance);
                 spreadsheet.recordTracingChanges({ x: c, y: r });
-
                 if (customEvents.onchange != null) {
                     customEvents.onchange(instance, records, c, r, newValue, oldValue);
                 }
@@ -257,7 +270,10 @@ class JspreadSheetTable {
                     const tr = rowRecords[0][0].closest('tr');
                     instance.jexcel.tbody.append(tr);
                 }
+                const spreadsheet = jspreadsheetTable(instance);
+                spreadsheet.handleOneClickDropDown();
             },
+
             /**
              * Do some checks before pasting into our table.
              * - ignore `ignorePaste` columns
@@ -325,7 +341,7 @@ class JspreadSheetTable {
              */
             onundo: (instance, historyRecord) => {
                 const spreadsheet = jspreadsheetTable(instance);
-                if (historyRecord) {
+                if (historyRecord && historyRecord.records) {
                     spreadsheet.recordTracingChanges(...historyRecord.records);
                 }
 
@@ -394,6 +410,16 @@ class JspreadSheetTable {
                 handleRowCheckedClass(rowElement, checkBoxElement.checked);
             };
         }
+    }
+
+    reIndexForSpecialRow(spreadsheet) {
+        let tableDataRows = spreadsheet.table.getJson();
+        tableDataRows = updateIndexForSpecialRow(tableDataRows);
+
+        const numberOfSpecialRows = tableDataRows.filter((row) => checkSpecialRow(row)).length;
+        spreadsheet.table.rows.forEach((row, index) => {
+            row.cells[0].textContent = checkSpecialRow(tableDataRows[index]) ? '' : index - numberOfSpecialRows + 1;
+        });
     }
 
     /**
@@ -1244,8 +1270,39 @@ class JspreadSheetTable {
             const otherSortCols = $(`#${tableId}`).find(`td:not([data-x=${idx}]) .sortCol`);
             otherSortCols.removeAttr('clicked');
             otherSortCols.removeClass('asc desc');
-            this.sortBy(Number(idx));
+            if (this.collectDataTable().length) {
+                this.sortBy(Number(idx));
+            }
         });
+    }
+
+    handleOneClickDropDown() {
+        const dropdowns = this.table.el.querySelectorAll('.jexcel_dropdown');
+        dropdowns.forEach(function (el) {
+            el.addEventListener('click', function (event) {
+                // Call event dblclick
+                const dblClickEvent = new MouseEvent('dblclick', {
+                    bubbles: true,
+                    cancelable: true,
+                });
+                el.dispatchEvent(dblClickEvent);
+            });
+        });
+    }
+
+    /**
+     * Gets the sample data cells of a row
+     * @param {ExcelTableRow} row
+     * @returns {{ExcelTableCell}[]}
+     */
+    getSampleDataCellsOfRow(row) {
+        const sampleDataCells = _.map(
+            _.pickBy(row, (cell, headerName) => {
+                return headerName.startsWith(SAMPLE_DATA_KEY);
+            }),
+            (value) => value,
+        );
+        return sampleDataCells;
     }
 }
 

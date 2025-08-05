@@ -21,9 +21,6 @@ from ap.api.common.services.show_graph_services import (
     main_check_filter_detail_match_graph_data,
 )
 from ap.common.common_utils import (
-    DATE_FORMAT_QUERY,
-    DATE_FORMAT_STR,
-    DATE_FORMAT_STR_CSV,
     end_of_minute,
     gen_sql_label,
     start_of_minute,
@@ -38,6 +35,9 @@ from ap.common.constants import (
     CELL_SUFFIX,
     COL_DATA_TYPE,
     DATA_SIZE,
+    DATE_FORMAT_QUERY,
+    DATE_FORMAT_STR,
+    DATE_FORMAT_STR_CSV,
     END_COL,
     END_COL_SHOW_NAME,
     END_PROC_ID,
@@ -65,7 +65,7 @@ from ap.common.constants import (
     MaxGraphNumber,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
 from ap.common.services.request_time_out_handler import (
@@ -124,7 +124,7 @@ def gen_heatmap_data(root_graph_param, dic_param, df=None):
         cat_exp,
         cat_procs,
         df,
-        use_expired_cache,
+        optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
     )
 
     # gen plotly data + gen array_plotdata from here
@@ -545,9 +545,7 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
             & (df['to_temp'].astype(str).str[5:7].astype(int) > df[TIME_COL_LOCAL].astype(str).str[5:7].astype(int))
         ),
         'to',
-    ] = (
-        df[TIME_COL_LOCAL].astype(str).str[:8] + df[TIME_COL_LOCAL].dt.strftime('%d %a ') + '24:00'
-    )
+    ] = df[TIME_COL_LOCAL].astype(str).str[:8] + df[TIME_COL_LOCAL].dt.strftime('%d %a ') + '24:00'
     df.loc[df['to_temp'].astype(str).str[11:16] != '00:00', 'to'] = df['to_temp'].dt.strftime(
         time_fmt,
     )
@@ -794,7 +792,7 @@ def gen_heatmap_data_as_dict(
     cat_exp=[],
     cat_procs=[],
     df=None,
-    use_expired_cache=False,
+    optional_cache_config: OptionalCacheConfig = OptionalCacheConfig(),
 ):
     hm_mode = int(graph_param.common.hm_mode)
     hm_step = int(graph_param.common.hm_step)
@@ -835,7 +833,7 @@ def gen_heatmap_data_as_dict(
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=optional_cache_config,
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number

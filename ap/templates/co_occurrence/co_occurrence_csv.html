@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block midbody %}
-    <div class="card">
+    <div class="card monitor-icons">
         <div class="card-body">
             <form id="coOccurrenceCsv" onsubmit="return false;">
                 <div class="form-group row">
@@ -213,6 +213,7 @@
                         value="{{ _('Display graph') }}"
                         class="btn btn-primary"
                         title="Shortcut key: Ctrl+Enter"
+                        data-hotkey="Ctrl+Enter"
                     >
                         <i class="fas fa-chart-bar"></i>
                         {{ _('Display graph') }}

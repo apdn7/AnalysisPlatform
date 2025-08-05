@@ -1,5 +1,5 @@
 from ap.script.r_scripts.wrapr import wrapr_utils
-from ap.common.common_utils import get_data_path, get_wrapr_path
+from ap.common.path_utils import get_data_path, get_wrapr_path
 
 
 def call_r_process():

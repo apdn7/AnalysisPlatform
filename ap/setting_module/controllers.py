@@ -6,6 +6,10 @@ from flask_babel import get_locale
 from flask_babel import gettext as _
 
 from ap.common.common_utils import (
+    sort_processes_by_parent_children_relationship,
+)
+from ap.common.constants import DEFAULT_POLLING_FREQ, CfgConstantType
+from ap.common.path_utils import (
     get_about_md_file,
     get_cookie_policy_md_file,
     get_data_path,
@@ -15,12 +19,10 @@ from ap.common.common_utils import (
     get_terms_of_use_md_file,
     get_user_scripts_path,
     get_wrapr_path,
-    sort_processes_by_parent_children_relationship,
 )
-from ap.common.constants import DEFAULT_POLLING_FREQ, CfgConstantType
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgConstant, CfgDataSource
-from ap.setting_module.schemas import DataSourceSchema
+from ap.setting_module.schemas import DataSourcePublicSchema
 from ap.setting_module.services.about import markdown_to_html
 from ap.setting_module.services.process_config import (
     convert2serialize,
@@ -44,7 +46,7 @@ setting_module_blueprint = Blueprint(
 @setting_module_blueprint.route('/config')
 def config_screen():
     data_sources = CfgDataSource.get_all()
-    ds_schema = DataSourceSchema(many=True)
+    ds_schema = DataSourcePublicSchema(many=True)
 
     all_datasource = [convert2serialize(ds) for ds in data_sources]
     dump_data = ds_schema.dumps(data_sources)

@@ -32,17 +32,10 @@ from ap.api.trace_data.services.time_series_chart import (
     gen_dic_data_from_df,
 )
 from ap.common.common_utils import (
-    DATE_FORMAT,
-    DATE_FORMAT_STR,
-    RL_DATETIME_FORMAT,
-    TIME_FORMAT,
     convert_time,
     create_file_path,
     end_of_minute,
     gen_sql_label,
-    get_basename,
-    get_view_path,
-    make_dir_from_file_path,
     start_of_minute,
 )
 from ap.common.constants import (
@@ -62,6 +55,8 @@ from ap.common.constants import (
     CYCLIC_TERMS,
     CYCLIC_WINDOW_LEN,
     DATA_SIZE,
+    DATE_FORMAT,
+    DATE_FORMAT_STR,
     DIC_STR_COLS,
     END_COL,
     END_COL_NAME,
@@ -77,6 +72,7 @@ from ap.common.constants import (
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
     REMOVED_OUTLIERS,
+    RL_DATETIME_FORMAT,
     SCALE_AUTO,
     SCALE_COMMON,
     SCALE_FULL,
@@ -87,6 +83,7 @@ from ap.common.constants import (
     START_TM,
     TIME_COL,
     TIME_CONDS,
+    TIME_FORMAT,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
     Y_MAX,
@@ -98,8 +95,9 @@ from ap.common.constants import (
     DBType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import to_string_with_na_adjust
+from ap.common.path_utils import get_basename, get_view_path, make_dir_from_file_path
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -188,7 +186,7 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
         dic_param[UNIQUE_SERIAL] = unique_serial
@@ -652,13 +650,16 @@ def gen_plotdata_without_group_by(df, end_cols):
 
 def gen_plotdata_with_group_by(df, end_cols, group_by_cols) -> tuple[dict[Any, Any], list[str]]:
     dic_output = {}
-    df_group = df.groupby(group_by_cols)
+    df_groupby = df.groupby(
+        group_by_cols,
+        dropna=False,
+    )  # dropna must be False to include groups with NA when looping directly through group dfs
     limit_cols = end_cols
-    group_names: set[str] = set()
+    group_names: list[str] = []
 
     for end_col in limit_cols:
         dic_cate = defaultdict(dict)
-        for _group_name, idxs in df_group.groups.items():
+        for _group_name, _df in df_groupby:
             if isinstance(_group_name, (list, tuple)):
                 group_name = ' | '.join(map(to_string_with_na_adjust, _group_name))
                 div_group = to_string_with_na_adjust(_group_name[-1])
@@ -666,17 +667,13 @@ def gen_plotdata_with_group_by(df, end_cols, group_by_cols) -> tuple[dict[Any, A
                 group_name = to_string_with_na_adjust(_group_name)
                 div_group = group_name
 
-            rows = df.loc[idxs, end_col]
-
-            group_names.add(div_group)
+            group_names.append(div_group)
             dic_cate[group_name] = {
-                ARRAY_X: df.loc[idxs, TIME_COL],
-                ARRAY_Y: rows,
+                ARRAY_X: _df[TIME_COL],
+                ARRAY_Y: _df[end_col],
             }
-
         dic_output[end_col] = dic_cate
-
-    return dic_output, list(group_names)
+    return dic_output, group_names
 
 
 def gen_plotdata_for_var(dic_proc_cfgs, dic_data, cat_exp_box_cols):
@@ -835,7 +832,7 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
         df, actual_record_number, unique_serial = get_data_from_db(
             graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
@@ -952,7 +949,7 @@ def gen_graph_term(graph_param, dic_param, max_graph=None, df=None):
         df, actual_record_number, unique_serial = get_data_from_db(
             show_graph_param,
             dic_cat_filters,
-            use_expired_cache=use_expired_cache,
+            optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
         )
         dic_param[UNIQUE_SERIAL] = unique_serial
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number

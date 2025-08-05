@@ -10,7 +10,7 @@ from ap.setting_module.models import CfgConstant
 logger = logging.getLogger(__name__)
 
 # Workaround for unnecessarily failing gethostbyname from a worker thread (https://bugs.python.org/issue29288)
-u''.encode('idna')
+''.encode('idna')
 
 
 class DiskUsageInterface:

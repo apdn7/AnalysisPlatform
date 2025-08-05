@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from typing import Dict, List, Optional
 
-from ap.api.common.services.utils import TraceGraph, get_col_cfg
+from ap.api.common.services.utils import get_col_cfg
 from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
@@ -25,6 +25,7 @@ from ap.common.constants import (
     DuplicateSerialShow,
     RemoveOutlierType,
 )
+from ap.common.services.trace_graph import TraceGraph
 from ap.setting_module.models import CfgFilterDetail, CfgProcess, CfgProcessColumn
 
 
@@ -601,15 +602,10 @@ class DicParam:
         query_variables = self.get_col_cfgs(query_variables)
         return query_variables
 
-    def get_judge_variables(self) -> list[str]:
-        # get all target variables
+    def get_judge_cols(self) -> [CfgProcessColumn]:
         query_variables = self.get_query_variables()
-        judge_labels = [
-            self.gen_label_from_col_id(col.id)
-            for col in query_variables
-            if col.column_type == DataColumnType.JUDGE.value
-        ]
-        return judge_labels
+        judge_cols = [col for col in query_variables if col.column_type == DataColumnType.JUDGE.value]
+        return judge_cols
 
     def get_boolean_variables(self) -> list[str]:
         # get all target variables

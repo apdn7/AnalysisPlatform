@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block midbody %}
-    <div class="card">
+    <div class="card monitor-icons">
         <form class="GUIForm" id="traceDataForm">
             {{ macros.end_proc_paracords_real(procs,title=_('Enter target item of quantitative variable (like measurement value) in data to visualize the correlation between variables. This data is plotted on the graph.')) }}
             {{ macros.data_finder_card() }}
@@ -38,8 +38,9 @@
                     type="button"
                     value="{{ _('Display graph') }}"
                     onClick="parallelTraceDataWithDBChecking('TRACE-DATA', true);"
-                    class="btn btn-primary show-graph ml-3"
+                    class="btn btn-primary show-graph ml-3 hotkey-button"
                     title="Shortcut key: Ctrl+Enter"
+                    data-hotkey="Ctrl+Enter"
                 >
                     <i class="fas fa-chart-bar"></i> {{ _('Display graph') }}
                 </button>

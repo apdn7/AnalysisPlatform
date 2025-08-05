@@ -65,29 +65,35 @@ const parseBooleanData = (v) => {
 /**
  * Parse to boolean data
  * @param {number|boolean|string} v
+ * @param {string} formula - available for judge columns, default is 'Pos~OK|Neg=OK|NG'
  * @return {string} - a parsed value or empty in case cannot be parsed
  */
-const parseJudgeData = (v) => {
-    let val = trimBoth(String(v));
-    if (val === '1' || val === 1) {
-        val = 'OK';
-    } else if (val === '0' || val === 0) {
-        val = 'NG';
-    } else {
-        val = '';
+const parseJudgeData = (v, formula = undefined) => {
+    if (v && formula) {
+        const match = formula.match(JUDGE_PATTERN_VALIDATION);
+        if (!match) {
+            return v;
+        }
+        const [, pos, posDisplay, negDisplay] = match;
+        if (String(v) === pos) {
+            return posDisplay;
+        }
+        return negDisplay;
     }
-    return val;
+    return trimBoth(String(v));
 };
 
 /**
  * Parse Data Type for sample data in row
  * @param {SpreadSheetProcessConfig} spreadsheet - spreadsheet
- * @param {dataType} ele - dataType
+ * @param dataType
  * @param {number|string?} idx - index of row in table's body
- * @param {string} columnType - column type of row in table's body
+ * @param {number} columnType - column type of row in table's body
+ * @param sampleDataDisplayMode
+ * @param formula
  * @param {HTMLDivElement?} dataTypeDropdownElement - a div HTML object of datatype dropdown menu
  */
-const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, dataTypeDropdownElement = null) => {
+const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, sampleDataDisplayMode = null, formula = null) => {
     // change background color
     // changeBackgroundColor(ele);
 
@@ -101,78 +107,119 @@ const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, dataTypeDropd
             isGeneratedMainDatetimeColumn: false, // TODO: Check isGeneratedMainDatetimeColumn
         };
     };
-    const attrName = DATA_ORIGINAL_ATTR;
+
+    const getAttributeName = (sampleDataDisplayMode, dataType, columnType) => {
+        if (sampleDataDisplayMode === SAMPLE_DATA_DISPLAY_MODES.RECORDS) {
+            return DATA_ORIGINAL_ATTR;
+        } else {
+            if (!isCategory(dataType, columnType)) {
+                return CfgProcess_CONST.REAL_TYPES.includes(dataType) ? UNIQUE_REAL_DATA_ATTR : UNIQUE_INT_DATA_ATTR;
+            } else {
+                return columnType === masterDataGroup.INT_CATE ? UNIQUE_INT_CAT_DATA_ATTR : UNIQUE_CATEGORY_DATA_ATTR;
+            }
+        }
+    };
+
+    const attrName = getAttributeName(sampleDataDisplayMode, dataType, columnType);
+
+    // calculation results for percentiles should not be parsed
+    const isRequireParsing = ![UNIQUE_INT_DATA_ATTR, UNIQUE_REAL_DATA_ATTR].includes(attrName);
 
     switch (dataType) {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
                 const isBigInt = !!+e.attr('is-big-int');
-                if (!isBigInt) {
-                    val = parseIntData(val);
-                }
-                e.html(val);
+                if (!isBigInt || isRequireParsing) val = parseIntData(val);
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.INTEGER_SEP.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseIntData(val);
-                e.html(val);
+                if (isRequireParsing) {
+                    val = val.replaceAll(',', '');
+                    val = parseIntData(val);
+                }
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.EU_INTEGER_SEP.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseIntData(val);
-                e.html(val);
+                if (isRequireParsing) {
+                    val = val.replaceAll('.', '');
+                    val = val.replaceAll(',', '.');
+                    val = parseIntData(val);
+                }
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.REAL.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                val = parseFloatData(val);
-                e.html(val);
+                if (isRequireParsing) {
+                    val = parseFloatData(val);
+                }
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.REAL_SEP.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                val = val.replaceAll(',', '');
-                val = parseFloatData(val);
-                e.html(val);
+                if (isRequireParsing) {
+                    val = val.replaceAll(',', '');
+                    val = parseFloatData(val);
+                }
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.EU_REAL_SEP.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
-                val = val.replaceAll('.', '');
-                val = val.replaceAll(',', '.');
-                val = parseFloatData(val);
-                e.html(val);
+                if (isRequireParsing) {
+                    val = val.replaceAll('.', '');
+                    val = val.replaceAll(',', '.');
+                    val = parseFloatData(val);
+                }
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
         case DataTypes.DATETIME.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                spreadsheet.table.updateCell(e[0], val, true);
+            }
             showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.DATE.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                spreadsheet.table.updateCell(e[0], val, true);
+            }
             showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.TIME.name:
+            for (const e of vals) {
+                let val = e.attr(attrName);
+                spreadsheet.table.updateCell(e[0], val, true);
+            }
             showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.BOOLEAN.name:
             for (const e of vals) {
                 let val = e.attr(attrName);
                 if (columnType === masterDataGroup.JUDGE) {
-                    val = parseJudgeData(val);
+                    if (!formula) {
+                        formula = $(`#${spreadsheet.table.table.el.id}`)
+                            .find(`tr:eq(${Number(idx) + 1}) .formula`)
+                            .text();
+                    }
+                    val = parseJudgeData(val, formula);
                 } else {
                     val = parseBooleanData(val);
                 }
-                e.html(val);
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
 
@@ -180,7 +227,7 @@ const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, dataTypeDropd
             for (const e of vals) {
                 let val = e.attr(attrName);
                 val = trimBoth(String(val));
-                e.html(val);
+                spreadsheet.table.updateCell(e[0], val, true);
             }
             break;
     }

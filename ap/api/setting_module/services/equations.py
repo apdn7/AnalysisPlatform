@@ -160,8 +160,6 @@ def validate_functions_calculation(
         var_y = function.var_y
 
         function_column_id = function.id
-        raw_data_type = function.return_type
-        raw_data_types[process_column_id] = raw_data_type
         dict_func_col = function.as_dict()
         equation_sample_data = EquationSampleData(
             equation_id=function_id,

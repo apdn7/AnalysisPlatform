@@ -7,7 +7,6 @@
             "common/js/libs/cookieconsent.umd.js",
             "modules/popper/umd/popper.min.js",
             "common/js/libs/bootstrap.min.js",
-            "common/js/libs/all.min.js",
             "common/js/libs/jquery.ui.datepicker-ja.min.js",
             "common/js/libs/moment-with-locales.js",
             "common/js/libs/loadingoverlay.min.js",
@@ -98,7 +97,8 @@
             "trace_data/js/trace_data_whisker_plot.js",
             "common/js/cat_facet_label_filter_modal.js",
             "trace_data/js/trace_data.js",
-            "trace_data/js/trace_data_histogram_with_kde.js"
+            "trace_data/js/trace_data_histogram_with_kde.js",
+            "trace_data/js/trace_data_judge.js"
         ],
         "css": ["trace_data/css/trace_data.css"]
     },
@@ -148,6 +148,15 @@
             "common/js/cat_facet_label_filter_modal.js"
         ],
         "css": ["scatter_plot/css/scatter_plot.css"]
+    },
+    "tv": {
+        "js": [
+            "common/js/ap_plot.js",
+            "time_vis/js/time_vis_plot.js",
+            "time_vis/js/time_vis.js",
+            "common/js/cat_facet_label_filter_modal.js"
+        ],
+        "css": ["time_vis/css/time_vis.css"]
     },
     "hmp": {
         "js": [

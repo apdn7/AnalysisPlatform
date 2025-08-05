@@ -112,7 +112,8 @@ const showRawFormatDatetimeData = (spreadsheet, ...rows) => {
             // E.g: 2024-01-01 01:01:00,123 -> 2024-01-01 01:01:00.123
             // original data should be kept for datetime format
             const commaBetweenNumbersRegex = /(?<=\d),(?=\d)/;
-            e.innerText = e.dataset.original.replace(commaBetweenNumbersRegex, '.');
+            const newValue = e.dataset.original.replace(commaBetweenNumbersRegex, '.');
+            spreadsheet.table.updateCell(e, newValue, true);
         });
     }
 };
@@ -158,7 +159,7 @@ const showInputFormatDatetimeData = async (spreadsheet, ...rows) => {
         );
 
         _.zip(sampleDataElements, formattedData).forEach(([ele, data]) => {
-            ele.innerText = data;
+            spreadsheet.table.updateCell(ele, data, true);
         });
     }
 };

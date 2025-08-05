@@ -4,6 +4,8 @@ from itertools import zip_longest
 
 import numpy as np
 
+from ap.common.constants import DATETIME_RANGE_PICKER
+
 
 class UserSettingDetail:
     def __init__(self, dic_vals):
@@ -125,7 +127,7 @@ def group_by_name(vals):
             if setting.name == 'cat_filter':
                 continue
             dic_checkboxes[setting.name.lower()].append(setting)
-        elif setting.name == 'DATETIME_RANGE_PICKER':
+        elif setting.name == DATETIME_RANGE_PICKER:
             dic_datetime_picker[setting.id].append(setting)
         else:
             short_name, _ = split_str_and_last_number(setting.name)

@@ -6,5 +6,5 @@ call npm run format
 
 echo:
 echo =================== format python files ===================
-ruff . --fix
-black .
+ruff check --fix --unsafe-fixes
+ruff format

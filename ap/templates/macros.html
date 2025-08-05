@@ -55,10 +55,8 @@
                 type="{{ type }}"
                 name="{{ name }}"
                 class="form-control"
-                value="{{ value | escape }}"
                 id="{{ id or name }}"
-                data-observer="{{ value | escape }}"
-                {% if type == 'password' %}autocomplete=on{% endif %}
+                {% if type == 'password' %}autocomplete=on{% else %}data-observer{% endif %}
             />
             <span
                 id="{{ id or name }}-error-msg"
@@ -854,10 +852,10 @@
                             <span id="catExpBoxTitle" class="cat-title">{{ _('Facet') }}</span>
                             <div id="catExpBox" class="d-flex"></div>
                         </div>
-                        <!--                        <div class="mr-2 cats-exp-box">-->
-                        <!--							<span id="divTitle" class="cat-title">Div</span>-->
-                        <!--							<div id="divBox" class="d-flex"></div>-->
-                        <!--						</div>-->
+                        <div class="mr-2 cats-exp-box">
+                            <span id="divTitle" class="cat-title">Div</span>
+                            <div id="divBox" class="d-flex"></div>
+                        </div>
                         <div class="mr-2 cats-exp-box">
                             <span id="colorTitle" class="cat-title">Color</span>
                             <div id="colorBox" class="d-flex"></div>

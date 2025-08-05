@@ -113,6 +113,8 @@ const i18n = {
     attribute: $('#i18nAttribute').text(),
     limit: $('#i18nLimit').text(),
     procLimit: $('#i18nProcLimit').text(),
+    from: $('#i18nFrom').text(),
+    to: $('#i18nTo').text(),
 };
 
 const updateIndexInforTable = () => {
@@ -694,13 +696,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
 
         const [dictIdx2YValue, arrayYTS] = buildMapIndex2OutlierYValue(data.array_plotdata[i], scaleInfo);
         const categoryDistributed = beforeRankValues ? data.array_plotdata[i].category_distributed : null;
-
-        // get latest thresholds -> show thresholds in scatter, histogram, summary
-        const filterCond = data.array_plotdata[i].catExpBox
-            ? Array.isArray(data.array_plotdata[i].catExpBox)
-                ? data.array_plotdata[i].catExpBox
-                : [data.array_plotdata[i].catExpBox]
-            : null;
+        const filterCond = getFilterConditionsFromPlotData(data, plotData);
         const [chartInfos, chartInfosOrg] = getChartInfo(data.array_plotdata[i], xAxisOption, filterCond);
         const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(
             chartInfos,
@@ -828,6 +824,9 @@ const traceDataChart = (data, clearOnFlyFilter) => {
         // build HTML for each card & append to plot area
         $(formElements.tsPlotCards).append(cardHtml);
 
+        // judge column's density
+        const negDensity = scaleInfo?.kde_data;
+
         const chartParamObj = {
             canvasId: chartOption.tsCanvasId,
             procId: chartOption.procId,
@@ -858,6 +857,12 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             outlierIdxs,
             negOutlierIdxs,
             isCatLimited,
+            judgeData: plotData.judge_data,
+            negRatioData: plotData.neg_ratio,
+            negDensity: negDensity,
+            negCumsum: plotData.neg_cumsum,
+            NGLabel: plotData.judge_negative_display,
+            OKLabel: plotData.judge_positive_display,
         };
 
         const histParamObj = {
@@ -879,23 +884,35 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             categoryDistributed,
             xAxisOption,
             isCatLimited,
+            isJudge: plotData.end_col_column_type === masterDataGroup.JUDGE,
         };
 
         // 今回はAjaxでupdateが必要が無いのでオブジェクトを返さない
         const chartLabels = data.ARRAY_FORMVAL.map((fv) => `${procConfigs[fv.end_proc].name} ${columnName}`);
-
-        const tsChartObject = YasuTsChart(
-            $,
-            chartParamObj,
-            chartLabels,
-            tabID,
-            (xaxis = xAxisOption),
-            (isStepChart = beforeRankValues),
-        );
-
-        const hist = beforeRankValues ? StepBarChart($, histParamObj) : YasuHistogram($, histParamObj);
+        let tsChartObject;
+        let hist;
+        if (plotData.end_col_column_type === masterDataGroup.JUDGE) {
+            tsChartObject = judgeChart(
+                $,
+                chartParamObj,
+                chartLabels,
+                tabID,
+                (xaxis = xAxisOption),
+                (isStepChart = beforeRankValues),
+            );
+            hist = StepBarChart($, histParamObj);
+        } else {
+            tsChartObject = YasuTsChart(
+                $,
+                chartParamObj,
+                chartLabels,
+                tabID,
+                (xaxis = xAxisOption),
+                (isStepChart = beforeRankValues),
+            );
+            hist = beforeRankValues ? StepBarChart($, histParamObj) : YasuHistogram($, histParamObj);
+        }
         histObjs.push(hist.histObj); // TODO need to add comment
-
         // store just been created graph objects to graph storage
         graphStore.addHistogramObj(chartOption.histCanvasId, hist.chartObject);
 
@@ -1010,11 +1027,8 @@ const drawHistogramsTab = (
                 continue;
             }
 
-            const filterCond = data.array_plotdata[i].catExpBox
-                ? Array.isArray(data.array_plotdata[i].catExpBox)
-                    ? data.array_plotdata[i].catExpBox
-                    : [data.array_plotdata[i].catExpBox]
-                : null;
+            const catExpBoxCols = [data.COMMON.catExpBox1, data.COMMON.catExpBox2].filter((c) => c);
+            const filterCond = getFilterConditionsFromPlotData(data, plotdata);
             const [chartInfos, chartInfosOrg] = getChartInfo(data.array_plotdata[i], 'TIME', filterCond);
             const [latestChartInfo, latestChartInfoIdx] = chooseLatestThresholds(chartInfos, chartInfosOrg);
 
@@ -1062,8 +1076,6 @@ const drawHistogramsTab = (
                 beforeRankValues,
                 stepChartSummary,
             );
-
-            const catExpBoxCols = [data.COMMON['catExpBox1'], data.COMMON['catExpBox2']].filter((c) => c);
 
             const chartTitle = buildSummaryChartTitle(
                 catExpBox,

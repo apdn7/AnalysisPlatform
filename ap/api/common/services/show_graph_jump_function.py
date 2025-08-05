@@ -8,6 +8,8 @@ from ap.common.constants import (
     ARRAY_PLOTDATA,
     COMMON,
     COMPARE_TYPE,
+    EMD_DIFF,
+    EMD_DRIFT,
     EMD_TYPE,
     END_COL_ID,
     END_PROC_ID,
@@ -61,7 +63,7 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
         div_col = graph_param.get_col_cfg(div)
     rlp_emd = {}
     emd_type = dic_param[EMD_TYPE] or EMDType.drift.name
-    emd_values = ['EMD|Diff' if diff is True else 'EMD|Drift' for diff in EMDType[emd_type].value]
+    emd_values = [EMD_DIFF if diff is True else EMD_DRIFT for diff in EMDType[emd_type].value]
     ng_rate_data = dic_param.get(NG_RATES, None)
     all_col_ids = []
     all_proc_ids = []

@@ -3,12 +3,11 @@ from __future__ import annotations
 import pandas as pd
 import sqlalchemy as sa
 
-from ap.common.common_utils import add_suffix_for_same_column_name
 from ap.common.constants import TABLE_PROCESS_NAME, UNDER_SCORE, BaseEnum, MasterDBType
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.db_proxy import DbProxy
-from ap.setting_module.models import CfgDataSource
+from ap.setting_module.models import CfgDataSource, CfgProcess
 
 factory_table = sa.Table(
     'fctries',
@@ -61,6 +60,7 @@ quality_measurements_table = sa.Table(
     sa.Column('quality_measurement_id', sa.BIGINT),
     sa.Column('child_equip_id', sa.TEXT),
     sa.Column('event_time', sa.TIMESTAMP),
+    sa.Column('created_at', sa.TIMESTAMP),
     sa.Column('part_no', sa.TEXT),
     sa.Column('lot_no', sa.TEXT),
     sa.Column('tray_no', sa.TEXT),
@@ -91,6 +91,7 @@ quality_traceabilities_table = sa.Table(
     sa.Column('quality_traceability_id', sa.BIGINT),
     sa.Column('child_equip_id', sa.TEXT),
     sa.Column('event_time', sa.TIMESTAMP),
+    sa.Column('created_at', sa.TIMESTAMP),
     sa.Column('part_no', sa.TEXT),
     sa.Column('lot_no', sa.TEXT),
     sa.Column('tray_no', sa.TEXT),
@@ -189,6 +190,7 @@ def get_master_data_stmt(
     process_factid: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    cfg_process: CfgProcess = None,
     limit: int | None = 2000,
     is_measurement: bool = True,
 ):
@@ -220,14 +222,18 @@ def get_master_data_stmt(
     conditions = []
     if process_factid is not None:
         conditions.append(target_table.c.child_equip_id == process_factid)
+    if cfg_process:
+        auto_increment_col_name = cfg_process.get_auto_increment_col_else_get_date()
+        auto_increment_col = sa.Column(auto_increment_col_name, sa.TIMESTAMP)
     if start_date is not None:
-        conditions.append(target_table.c.event_time > start_date)
+        conditions.append(auto_increment_col > start_date)
     if end_date is not None:
-        conditions.append(target_table.c.event_time <= end_date)
+        conditions.append(auto_increment_col <= end_date)
 
     stmt = sa.select(
         target_table.c.quality_measurement_id if is_measurement else target_table.c.quality_traceability_id,
         target_table.c.event_time,
+        target_table.c.created_at,
         target_table.c.part_no,
         target_table.c.lot_no,
         target_table.c.tray_no,
@@ -253,6 +259,7 @@ def get_transaction_data_stmt(
     process_factid: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    cfg_process: CfgProcess = None,
     limit: int | None = None,
     master_type: MasterDBType = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT,
 ):
@@ -261,6 +268,7 @@ def get_transaction_data_stmt(
             process_factid=process_factid,
             start_date=start_date,
             end_date=end_date,
+            cfg_process=cfg_process,
             limit=limit,
         )
     elif master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY:
@@ -268,6 +276,7 @@ def get_transaction_data_stmt(
             process_factid=process_factid,
             start_date=start_date,
             end_date=end_date,
+            cfg_process=cfg_process,
             limit=limit,
         )
 
@@ -276,9 +285,10 @@ def get_measurement_transaction_data_stmt(
     process_factid: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    cfg_process: CfgProcess = None,
     limit: int | None = None,
 ):
-    cte = get_master_data_stmt(process_factid, start_date, end_date, limit).cte('master_data')
+    cte = get_master_data_stmt(process_factid, start_date, end_date, cfg_process, limit).cte('master_data')
 
     measurements_stmt = sa.select(
         cte,
@@ -317,9 +327,17 @@ def get_history_transaction_data_stmt(
     process_factid: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    cfg_process: CfgProcess = None,
     limit: int | None = None,
 ):
-    cte = get_master_data_stmt(process_factid, start_date, end_date, limit, is_measurement=False).cte('master_data')
+    cte = get_master_data_stmt(
+        process_factid,
+        start_date,
+        end_date,
+        cfg_process=cfg_process,
+        limit=limit,
+        is_measurement=False,
+    ).cte('master_data')
 
     stmt = sa.select(
         cte,
@@ -376,6 +394,7 @@ def transform_measurement_transaction_data_to_horizontal(software_workshop_verti
     horizontal_columns = [
         quality_measurements_table.c.lot_no.name,
         quality_measurements_table.c.tray_no.name,
+        quality_measurements_table.c.created_at.name,
     ]
 
     # all required columns from those columns above. We use this hack to preserve order
@@ -464,14 +483,10 @@ def transform_df_for_software_workshop(
     rename_columns: dict[str, str] = None,
 ) -> pd.DataFrame:
     if master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT:
-        df = transform_measurement_transaction_data_to_horizontal(df)
+        df = df.sort_values(by='code', ascending=False)
         code_name_mapping = get_code_name_mapping(data_source_id, process_factid)
-        code_name_mapping = add_suffix_for_same_column_name(code_name_mapping)
-        for code in code_name_mapping:
-            if code not in df:
-                df[code] = None
-
-        df = df.rename(columns=code_name_mapping)
+        df[measurements_table.c.code.name] = df[measurements_table.c.code.name].map(code_name_mapping)
+        df = transform_measurement_transaction_data_to_horizontal(df)
     elif master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY:
         df = transform_history_transaction_data_to_horizontal(df)
 

@@ -219,7 +219,7 @@ def check_data_type_series(orig_series: Series):
     series_type = str(series.dtypes.name).lower()
 
     # series is Decimal number
-    is_decimal = False not in [type(value) == decimal.Decimal for value in orig_series]
+    is_decimal = all(isinstance(value, decimal.Decimal) for value in orig_series)
     # issue raised in s255b6
     # because of MSSQL return Decimal number, it should be detected as REAL instead of INT
     if is_decimal:

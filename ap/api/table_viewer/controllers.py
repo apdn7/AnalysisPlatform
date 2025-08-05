@@ -5,8 +5,9 @@ from flask import Blueprint, request
 
 from ap.api.efa.services.etl import detect_file_path_delimiter
 from ap.api.setting_module.services.show_latest_record import get_csv_data_from_files
-from ap.common.common_utils import get_csv_delimiter, get_latest_files
+from ap.common.common_utils import get_csv_delimiter
 from ap.common.constants import DBType
+from ap.common.path_utils import get_latest_files
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy import DbProxy
 from ap.common.services.csv_header_wrapr import add_suffix_if_duplicated

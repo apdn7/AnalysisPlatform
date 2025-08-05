@@ -36,7 +36,7 @@ from ap.setting_module.schemas import (
     FilterSchema,
     ProcessColumnSchema,
     ProcessOnlySchema,
-    ProcessSchema,
+    ProcessPublicSchema,
     ProcessVisualizationSchema,
 )
 from ap.trace_data.transaction_model import TransactionData
@@ -62,7 +62,7 @@ def get_all_process_no_nested(with_parent=True):
 
 
 def get_process_cfg(proc_id):
-    process_schema = ProcessSchema()
+    process_schema = ProcessPublicSchema()
     process = CfgProcess.query.get(proc_id) or {}
     if process and not process.name_en:
         process.name_en = to_romaji(process.name_jp)
@@ -204,7 +204,7 @@ def query_database_tables_core(data_source: CfgDataSource, table_prefix):
         return output
 
     updated_at = data_source.db_detail.updated_at
-    tables = get_list_tables_and_views(data_source, updated_at)
+    tables = get_list_tables_and_views(data_source.id, updated_at)
     partitions = None
     # Edge server does not have logic of EFA
     # if data_source.master_type == MasterDBType.EFA.name:
@@ -222,7 +222,7 @@ def query_database_tables_core(data_source: CfgDataSource, table_prefix):
 
 
 @CustomCache.memoize(duration=300)
-def get_list_tables_and_views(data_source_id, updated_at=None):
+def get_list_tables_and_views(data_source_id: int, updated_at=None):
     # updated_at only for cache
     logger.info(f'database config updated_at: {updated_at} so cache can not be used')
     with DbProxy(data_source_id) as db_instance:

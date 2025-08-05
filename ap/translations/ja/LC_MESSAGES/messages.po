@@ -4847,6 +4847,14 @@ msgid "Initialize process config error"
 msgstr "初期化プロセス構成エラー。"
 
 #: ap/templates/i18n.html
+msgid "Tooltips"
+msgstr "ツールチップ"
+
+#: ap/templates/i18n.html
+msgid "Display tooltips"
+msgstr "グラフ上にホバーした際に表示されるツールチップの有効化／無効化を設定することができます"
+
+#: ap/templates/i18n.html
 msgid "Cookie Preferences"
 msgstr "Cookieの詳細設定"
 
@@ -4889,11 +4897,58 @@ msgstr ""
 msgid "Years"
 msgstr "年間"
 
-#: ap/templates/i18n.html
-msgid "Tooltips"
-msgstr "ツールチップ"
+#: ap/templates/setting_module/i18n.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "SampleDataLabel"
+msgstr "サンプルデータ"
+
+#: ap/templates/setting_module/i18n.html
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "RecordsDisplayModeLabel"
+msgstr "レコード"
+
+#: ap/templates/setting_module/i18n.html
+msgid "UniqueDisplayModeLabel"
+msgstr "ユニーク値"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid ""
+"It is possible to choose between displaying the values of each record or "
+"the unique values of each column in the sample data"
+msgstr "サンプルデータに各レコードの値を表示するか、列毎のユニーク値(出現する値)を表示するかを選べます。"
+
+#: ap/templates/header.html
+msgid "HotkeyHintText"
+msgstr "Ctrlを押すとホットキーのヒントが表示されます"
 
 #: ap/templates/i18n.html
-msgid "Display tooltips"
-msgstr "グラフ上にホバーした際に表示されるツールチップの有効化／無効化を設定することができます"
+msgid "NoDataLinkFilterProcMsg"
+msgstr "紐付設定がされていない工程がフィルタ条件に設定されています。"
+
+#: ap/templates/i18n.html
+msgid "PlaceholderHidden"
+msgstr "非表示"
+
+#: ap/templates/i18n.html
+msgid "HoverConversationJudgeMsg"
+msgstr ""
+"交換式を入力します。プロットエリアなどに表示されます。\n"
+"DataTypeが判定の場合は、変換式Pos~p0|Neg=p1|n1が表示されます。\n"
+"p0は正例の判定値の元データの値、p1は正例の表示値(製品の場合OK)、n1は負例の表示値(製品の場合NG)になります。"
+
+#: ap/templates/i18n.html
+msgid "SelectJudgeDatatypeModalMsg"
+msgstr "未定義の判定値か、3つ以上の判定値があり、自動設定に失敗しました。強制して判定値にしますか？(その場合変換式を適宜修正してください)"
+
+#: ap/templates/i18n.html
+msgid "InvalidInputJudgeMsg"
+msgstr "無効な入力があるため、元の値に戻します。"
+
+#: ap/templates/i18n.html
+msgid "InvalidInputImportedJudgeMsg"
+msgstr "データの取込設定は変更できないため元の値に戻します。修正する場合は一度初期設定状態に戻してください"
+
+#: ap/templates/i18n.html
+msgid "JudgeFormulaTitle"
+msgstr "交換式"
 

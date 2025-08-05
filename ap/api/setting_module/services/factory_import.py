@@ -34,7 +34,6 @@ from ap.api.setting_module.services.software_workshop_etl_services import (
 )
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, finished_transaction_import
 from ap.common.common_utils import (
-    DATE_FORMAT_STR_ONLY_DIGIT,
     add_days,
     add_double_quotes,
     add_years,
@@ -44,6 +43,7 @@ from ap.common.constants import (
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_EMPTY_DATA,
     DATA_TYPE_ERROR_MSG,
+    DATE_FORMAT_STR_ONLY_DIGIT,
     DATETIME_DUMMY,
     PAST_IMPORT_LIMIT_DATA_COUNT,
     DataType,
@@ -344,6 +344,8 @@ def import_factory(proc_id):
                     if dic_cols.get(col):
                         dic_rename[col] = dic_parent_cfg_cols[dic_cols[col]].column_name
                 df = df.rename(columns=dic_rename)
+                # remove column do not merge
+                df = df[dic_rename.values()]
                 orig_df = orig_df.rename(columns=dic_rename)
                 df_error = df_error.rename(columns=dic_rename)
                 target_get_date_col = parent_cfg_proc.get_date_col()
@@ -455,7 +457,7 @@ def calc_sql_range_days():
         # day range for next time import
 
         logger.debug(
-            f'''\
+            f"""\
 == factory import info ==
 cur_day_cnt: {cur_day_cnt}
 cur_record_cnt: {cur_record_cnt}
@@ -464,7 +466,7 @@ limit_max_day: {limit_max_day}
 limit_min_day: {limit_min_day}
 next time range: day_cnt: {day_cnt}
 == end of factory import info ==
-''',
+""",
         )
 
         return day_cnt
@@ -565,6 +567,7 @@ def get_data_by_range_time(
             proc_cfg.process_factid,
             start_time,
             end_time,
+            cfg_process=proc_cfg,
             limit=SOFTWARE_WORKSHOP_FACTORY_LIMIT,
             master_type=MasterDBType[proc_cfg.master_type],
         )
@@ -848,7 +851,6 @@ def factory_past_data_transform(proc_id):
             # filter columns by raw_column_names in transaction
             df_rows_filter = df_rows[raw_column_names]
             rows = tuple(tuple(row) for row in df_rows_filter.to_numpy())
-
             # dataframe
             df = pd.DataFrame(rows, columns=col_name)
         else:

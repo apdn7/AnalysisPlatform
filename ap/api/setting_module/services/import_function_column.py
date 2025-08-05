@@ -91,12 +91,8 @@ def calculate_data_for_main_serial_function_column(
         cfg_col_x: CfgProcessColumn = _get_column_by_id(cfg_func_col.var_x)
         cfg_col_y: Optional[CfgProcessColumn] = _get_column_by_id(cfg_func_col.var_y) if cfg_func_col.var_y else None
 
-        column_x, x_dtype = (
-            (_get_column_name(cfg_col_x), cfg_col_x.raw_data_type) if cfg_col_x else (None, None)
-        )  # type: str
-        column_y, y_dtype = (
-            (_get_column_name(cfg_col_y), cfg_col_y.raw_data_type) if cfg_col_y else (None, None)
-        )  # type: Optional[str]
+        column_x, x_dtype = (_get_column_name(cfg_col_x), cfg_col_x.raw_data_type) if cfg_col_x else (None, None)  # type: str
+        column_y, y_dtype = (_get_column_name(cfg_col_y), cfg_col_y.raw_data_type) if cfg_col_y else (None, None)  # type: Optional[str]
 
         df = _add_missing_column(df, column_x)
         df = _add_missing_column(df, column_y)
@@ -364,11 +360,14 @@ def update_transaction_table(
     job_info.percent = 0
     yield job_info
 
-    with DbProxy(
-        gen_data_source_of_universal_db(process.id),
-        True,
-        immediate_isolation_level=True,
-    ) as db_instance, job_info.interruptible() as job_info:
+    with (
+        DbProxy(
+            gen_data_source_of_universal_db(process.id),
+            True,
+            immediate_isolation_level=True,
+        ) as db_instance,
+        job_info.interruptible() as job_info,
+    ):
         auto_commit = False
         trans_data = TransactionData(process, meta_session=meta_session)
         trans_data.create_table(db_instance, auto_commit=auto_commit)

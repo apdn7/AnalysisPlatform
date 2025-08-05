@@ -330,7 +330,7 @@
 </div>
 <!-- load saved information -->
 <div
-    class="modal fade db-modal"
+    class="modal fade db-modal monitor-icons"
     id="loadUserSettingModal"
     tabindex="-1"
     role="dialog"
@@ -868,6 +868,25 @@
             <div class="modal-footer">
                 <button name="initProcConfirm" class="btn btn-primary">{{ _('Proceed') }}</button>
                 <button class="btn btn-secondary" data-dismiss="modal">{{ _("Abort") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--modal for confirming change datatype of judge type S269#01-->
+<div id="selectJudgeDataTypeConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body text-nowrap">
+                <p class="modal-inform modal-msg">{{ _('SelectJudgeDatatypeModalMsg') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button name="OK" class="btn btn-primary">{{ _('OK') }}</button>
+                <button name="Cancel" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
             </div>
         </div>
     </div>

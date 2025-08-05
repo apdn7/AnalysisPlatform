@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Union
 
-from ap.common.common_utils import add_seconds, gen_sqlite3_file_name, set_sqlite_params
+from ap.common.common_utils import add_seconds, set_sqlite_params
 from ap.common.constants import MSG_DB_CON_FAILED, MSG_NOT_SUPPORT_DB, DBType
 from ap.common.cryptography_utils import decrypt_pwd
+from ap.common.path_utils import gen_sqlite3_file_name
 from ap.common.pydn.dblib import sqlite
 from ap.common.pydn.dblib.mssqlserver import MSSQLServer
 from ap.common.pydn.dblib.mysql import MySQL

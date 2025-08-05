@@ -21,6 +21,11 @@
         {% assets "js_all" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
+        <script
+            type="text/javascript"
+            src="{{ url_for('static', filename = 'common/js/libs/all.min.js') }}"
+            data-observe-mutations="false"
+        ></script>
         {% assets "css_all" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets %}
@@ -119,6 +124,10 @@
                 '/ap/register_by_file': {
                     title: 'Register by File',
                     icon: 'Config.ico',
+                },
+                '/ap/tv': {
+                    title: 'TV',
+                    icon: 'favicon.ico',
                 },
             };
 

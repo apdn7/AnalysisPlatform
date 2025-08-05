@@ -37,7 +37,7 @@ from ap.common.constants import (
     DataType,
 )
 from ap.common.logger import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pysize import get_size
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -311,7 +311,7 @@ def get_trace_data(graph_param, dic_cat_filters, use_expired_cache):
     df, actual_record_number, unique_serial = get_data_from_db(
         graph_param,
         dic_cat_filters,
-        use_expired_cache=use_expired_cache,
+        optional_cache_config=OptionalCacheConfig(use_expired_cache=use_expired_cache),
     )
 
     return df, actual_record_number, unique_serial
