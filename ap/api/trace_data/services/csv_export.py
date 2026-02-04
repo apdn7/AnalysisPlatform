@@ -16,7 +16,7 @@ from ap.api.categorical_plot.services import (
     gen_graph_param,
     produce_cyclic_terms,
 )
-from ap.api.common.services.show_graph_services import get_data_from_db, judge_data_conversion
+from ap.api.common.services.show_graph_services import get_data_from_db
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,
@@ -48,7 +48,7 @@ from ap.trace_data.schemas import DicParam
 
 @log_execution_time()
 def gen_csv_data(graph_param, dic_param, delimiter=None, with_terms=False, by_cells=False):
-    """tracing data to show csv
+    """Tracing data to show csv
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
@@ -129,12 +129,11 @@ def gen_csv_data(graph_param, dic_param, delimiter=None, with_terms=False, by_ce
 @log_execution_time()
 def gen_df_export(graph_param, dic_param):
     """
-        get data from db to export csv/tsv
+        Get data from db to export csv/tsv
     :param graph_param:
     :param dic_param:
     :return: df
     """
-
     # if export_type = plot -> use filter
     dic_cat_filters = {}
     if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
@@ -147,9 +146,6 @@ def gen_df_export(graph_param, dic_param):
     # get data from database
     df, *_ = get_data_from_db(graph_param, dic_cat_filters)
 
-    # export original value of judge variable
-    judge_columns = graph_param.get_judge_cols()
-    df = judge_data_conversion(df, judge_columns, revert=True)
     return df
 
 
@@ -194,7 +190,7 @@ def gen_export_col_name(proc_name, col_name):
 
 def get_export_options(graph_param) -> dict[str, Any]:
     """
-    generate options for export data
+    Generate options for export data
     :param graph_param:
     :return: dict
     """
@@ -279,7 +275,7 @@ def export_preprocessing(
         if not proc_cfg:
             continue
 
-        for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             old_name = gen_sql_label(col_id, col_name)
             if old_name not in df.columns:
                 continue
@@ -307,7 +303,7 @@ def export_preprocessing(
             # keep From, To in terms of RLP export
             output_cols = df.columns.to_list()
         if div_col:
-            output_cols = [div_col] + df.columns.to_list()
+            output_cols = [div_col, *df.columns.to_list()]
 
     if output_cols is None:
         output_cols = dic_rename.keys()
@@ -418,7 +414,7 @@ def get_new_column_order(df, graph_param, options):
         if not proc_cfg:
             continue
 
-        for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             old_name = gen_sql_label(col_id, col_name)
 
             if old_name not in df.columns:

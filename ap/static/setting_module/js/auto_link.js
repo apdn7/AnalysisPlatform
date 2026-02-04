@@ -105,17 +105,23 @@ const handleAutolinkGroups = async () => {
     const selectedProcessIds = collectCheckedProcessesForAutoLink();
     if (!selectedProcessIds.length) return;
 
-    loading.show();
-    const groupsOrderedProcesses = await getAutolinkGroups(selectedProcessIds);
-    loading.hide();
+    try {
+        const loadingObj = loadingHandler();
+        loadingObj.show();
+        const groupsOrderedProcesses = await getAutolinkGroups(selectedProcessIds);
+        loadingObj.hide();
 
-    // update order of process on tree list
-    orderProcessInTreeCheckBox(groupsOrderedProcesses);
+        // update order of process on tree list
+        orderProcessInTreeCheckBox(groupsOrderedProcesses);
 
-    // link process
-    const goodGroups = groupsOrderedProcesses.filter((group) => group.length >= 1);
-    for (const group of goodGroups) {
-        linkProcesses(group);
+        // link process
+        const goodGroups = groupsOrderedProcesses.filter((group) => group.length >= 1);
+        for (const group of goodGroups) {
+            linkProcesses(group);
+        }
+    } catch (e) {
+        console.error(e);
+        loading.hide();
     }
 };
 
@@ -153,34 +159,41 @@ const handleCheckTreeCheckbox = (e) => {
     _this.siblings('ul').find("input[type='checkbox']").prop('checked', checked);
     _this.parentsUntil('.tree').children("input[type='checkbox']").prop('checked', checked);
     e.stopPropagation();
+    handleAllCheckInput(_this);
 };
 
 /**
- *
+ * @description Generate check box of all processes inside of network visualization.
  * @param processObj {
  *     path: processesList[{id: 1, name: '', isChecked: true|false}]
  * }
  */
 const generateTreeCheckBoxs = (processObj) => {
     let groupHtml = '';
-    // for all selection
-    groupHtml += `<li class="custom-control custom-checkbox ">
-           <span class="tree-plus expanded"></span>
-           <input type="checkbox" id="checkAll" class="custom-control-input" onchange="handleSelectAllNodes(this);">
-           <label class="custom-control-label move no-tree" for="checkAll">${i18nCommon.allSelection || 'All'}</label>
-       </li>`;
+
+    let itemCount = 0;
+    let checkedItemCount = 0;
 
     for (const path of Object.keys(processObj)) {
         let child = '';
         let hasChild = false;
         const procs = processObj[path];
+        let checkedItemInGroupCount = 0;
         if (procs.length > 1) {
             hasChild = true;
             child += `
                     <ul class="tree-ui-sortable">
                 `;
+
             for (const i in procs) {
                 const proc = procs[i];
+                // do not show checkbox when hidden
+                if (proc.hidden) continue;
+                itemCount++;
+                if (proc.isChecked) {
+                    checkedItemInGroupCount++;
+                    checkedItemCount++;
+                }
                 child += `
                    <li class="custom-control custom-checkbox">
                         <input type="checkbox" data-path="${path}" id="${path}-${proc.name_en}" ${proc.isChecked ? 'checked' : ''} name="process" class="custom-control-input" value="${proc.id}">
@@ -190,16 +203,24 @@ const generateTreeCheckBoxs = (processObj) => {
             }
 
             child += '</ul>';
+        } else {
+            // do not show checkbox when hidden
+            if (procs[0].hidden) continue;
+            itemCount++;
+            if (procs[0].isChecked) {
+                checkedItemCount++;
+            }
         }
 
         // multi tree
+        const isTreeChecked = hasChild && checkedItemInGroupCount == procs.length;
         groupHtml += `
                <li class="custom-control custom-checkbox ${hasChild ? 'has' : ''}">
                    <span class="tree-plus expanded"></span>
                    <input type="checkbox" 
                         data-path="${path}" 
                         name="${hasChild ? 'dbSource' : 'process'}" 
-                        ${!hasChild && procs[0].isChecked ? 'checked' : ''} 
+                        ${!hasChild && procs[0].isChecked ? 'checked' : isTreeChecked ? 'checked' : ''} 
                         id="${path}" value="${hasChild ? path : procs[0].id}" 
                         class="custom-control-input ${hasChild ? 'group-input' : ''}">
                    <label class="custom-control-label move ${!hasChild ? 'no-tree' : ''}" for="${path}">${hasChild ? '' : procs[0].shown_name}</label>
@@ -208,11 +229,22 @@ const generateTreeCheckBoxs = (processObj) => {
          `;
     }
 
-    $('#tree-checkbox-list').html(groupHtml);
+    const isAllChecked = itemCount == checkedItemCount;
+
+    // for all selection
+    const allCheckBoxHtml = `<li class="custom-control custom-checkbox ">
+               <span class="tree-plus expanded"></span>
+               <input type="checkbox" id="checkAll" name="checkAll" class="custom-control-input" onchange="handleSelectAllNodes(this);" ${isAllChecked ? 'checked' : ''}>
+               <label class="custom-control-label move no-tree" for="checkAll">${i18nCommon.allSelection || 'All'}</label>
+      </li>`;
+
+    keepNodeStatus(processObj);
+
+    $('#tree-checkbox-list').html(allCheckBoxHtml + groupHtml);
     // bind uncheck and checked node to show and hide nodes
     $('#tree-checkbox-list input[type=checkbox]').off('change', handleOnChangeProcess);
     $('#tree-checkbox-list input[type=checkbox]').on('change', handleOnChangeProcess);
-    $('#tree-checkbox-list input[name=process]').change();
+
     $('#tree-checkbox-list').sortable({
         containment: 'parent',
         handle: '.move',
@@ -228,19 +260,40 @@ const generateTreeCheckBoxs = (processObj) => {
     });
 };
 
-const handleOnChangeProcess = (e) => {
-    setTimeout(() => {
-        handleHideNodes();
-    }, 200);
+/**
+ * @description Keep the status shown | hidden or process when reload. The process state be save in localstorage.
+ * @param processObj
+ */
+const keepNodeStatus = (processObj) => {
+    for (const path of Object.keys(processObj)) {
+        const procs = processObj[path];
+        if (procs.length > 1) {
+            for (const i in procs) {
+                const proc = procs[i];
+                const isHidden = proc.hidden || !proc.isChecked;
+                updateProcessState(proc.id, proc.datalink_tree_directory, proc.isChecked, proc.id);
+                toggleNodeById(proc.id, isHidden);
+            }
+        } else {
+            const proc = procs[0];
+            const isHidden = proc.hidden || !proc.isChecked;
+            updateProcessState(proc.id, proc.datalink_tree_directory, proc.isChecked, proc.id);
+            toggleNodeById(proc.id, isHidden);
+        }
+    }
+};
 
-    // modify process tree list and save localStore;
-    const _this = $(e.currentTarget);
-    const id = Number(_this.val());
-    const path = _this.attr('data-path');
+/**
+ * @description Update process state when click check box.
+ * @param procId
+ * @param path
+ * @param isChecked
+ * @param elementId
+ */
+
+const updateProcessState = (procId, path, isChecked, elementId) => {
     const processState = getProcessState();
-
-    if (_this.attr('id') === 'checkAll') {
-        const isChecked = _this.prop('checked');
+    if (elementId === 'checkAll') {
         for (const path of Object.keys(processesTree)) {
             for (const proc of processesTree[path]) {
                 processState[proc.name] = isChecked;
@@ -252,9 +305,8 @@ const handleOnChangeProcess = (e) => {
     if (path) {
         // if click to id = Str -> get all subCheckbox and modify;
         for (const proc of processesTree[path]) {
-            const isChecked = _this.prop('checked');
-            if (!_.isNaN(id)) {
-                if (proc.id === id) {
+            if (!_.isNaN(procId)) {
+                if (proc.id === procId) {
                     processState[proc.name] = isChecked;
                     proc.isChecked = isChecked;
                     break;
@@ -267,6 +319,24 @@ const handleOnChangeProcess = (e) => {
     }
 
     saveProcessState(processState);
+};
+
+const handleOnChangeProcess = (e) => {
+    // modify process tree list and save localStore;
+    const _this = $(e.currentTarget);
+    const id = Number(_this.val());
+    const name = _this.attr('name');
+    const path = _this.attr('data-path');
+    const eleId = _this.attr('id');
+    const isChecked = _this.prop('checked');
+
+    updateProcessState(id, path, isChecked, eleId);
+
+    if (['checkAll', 'dbSource'].includes(name)) {
+        toggleNodes(name, path, !isChecked);
+    } else {
+        toggleNodeById(id, !isChecked);
+    }
 
     // allCheck input handling
     handleAllCheckInput(_this);
@@ -300,45 +370,64 @@ const groupProcessesByPath = (processes) => {
     return processObj;
 };
 
-const handleHideNodes = () => {
-    const hiddenIds = [];
-    const checkEls = [...$('.tree input[name=process]')];
+/**
+ * @description Toggle show or hide the node by nodeId (processId) and show or hide the edge of this node.
+ * @param nodeId
+ * @param isHidden
+ */
 
-    // hide uncheck nodes and show checked nodes
-    for (const el of checkEls) {
-        const id = Number($(el).val());
-        const isHiddenNode = $(el).prop('checked') ? false : true;
-        const node = nodes.get(id);
-        nodes.update({
-            ...node,
-            hidden: isHiddenNode,
-        });
-        if (isHiddenNode) {
-            hiddenIds.push(id);
-        }
-    }
+const toggleNodeById = (nodeId, isHidden) => {
+    const node = nodes.get(nodeId);
+    nodes.update({
+        ...node,
+        hidden: isHidden,
+    });
 
-    // show all edges
+    // hide id of hidden node
     for (const edgeId of edges.getIds()) {
         const edgeData = edges.get(edgeId);
-        edges.update({
-            ...edgeData,
-            hidden: false,
-        });
-    }
-
-    // hide edge of hidden nodes
-    for (const id of hiddenIds) {
-        for (const edgeId of edges.getIds()) {
-            const edgeData = edges.get(edgeId);
-            const { from, to } = edgeData;
-            if (Number(from) === id || Number(to) === id) {
+        const { from, to } = edgeData;
+        if (isHidden) {
+            if (Number(from) === nodeId || Number(to) === nodeId) {
                 edges.update({
                     ...edgeData,
                     hidden: true,
                 });
             }
+        } else {
+            // show edge if from and to node is shown
+            const fromNode = nodes.get(Number(from));
+            const toNode = nodes.get(Number(to));
+            if (fromNode && !fromNode.hidden && toNode && !toNode.hidden) {
+                edges.update({
+                    ...edgeData,
+                    hidden: false,
+                });
+            }
         }
+    }
+};
+
+/**
+ * @description: show or hide all processes when check all check or the group of tree checkbox
+ * @param group checkAll | dbSource
+ * @param dbSourceId
+ */
+const toggleNodes = (group = '', dbSourceId, isHidden) => {
+    let checkEls = [];
+    if (group == 'checkAll') {
+        // toggle all nodes
+        checkEls = [...$('.tree input[name=process]')];
+    }
+
+    if (group == 'dbSource') {
+        // toggle group of this dbSource
+        checkEls = [...$(`.tree input[name=process][data-path=${dbSourceId}]`)];
+    }
+
+    for (const el of checkEls) {
+        const id = Number($(el).val());
+        toggleNodeById(id, isHidden);
     }
 };
 

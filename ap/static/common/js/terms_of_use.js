@@ -23,14 +23,7 @@ const setAcceptTerms = () => {
 
 const getAPVersion = () => {
     try {
-        return decodeURIComponent(
-            document.cookie.replace(
-                new RegExp(
-                    `(?:(?:^|.*;)\\s*${encodeURIComponent(`${window.location.port}_app_version`).replace(/[-.+*]/g, '\\$&')}\\s*\\=\\s*([^;]*).*$)|^.*$`,
-                ),
-                '$1',
-            ),
-        );
+        return appContext.app_version;
     } catch (e) {
         return '';
     }

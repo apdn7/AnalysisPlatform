@@ -62,6 +62,7 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
                 yMax: plotData[chartScale ?? chartScales[1]]['y-max'],
                 yFmt: res.y_fmt,
                 xFmt: res.x_fmt,
+                judgeColor: res.judge_color,
             });
             // waveform_plot draw chart
             waveform.draw();

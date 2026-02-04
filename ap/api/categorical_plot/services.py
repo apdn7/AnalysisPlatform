@@ -167,7 +167,7 @@ def gen_graph_param(graph_param, dic_param, with_ct_col=False):
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
@@ -323,10 +323,9 @@ def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None, df=None):
 @abort_process_handler()
 @MessageAnnouncer.notify_progress(75)
 def gen_trace_data_by_cyclic_common(graph_param, dic_param, max_graph=None, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     filter by condition points that between start point and end_point
     """
-
     produce_cyclic_terms(dic_param)
     terms = gen_dic_param_terms(dic_param)
 
@@ -362,7 +361,7 @@ def gen_dic_param_terms(dic_param):
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_term(graph_param, dic_param, max_graph=None, df_cache=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     filter by condition points that between start point and end_point
     """
     is_graph_limited = False
@@ -482,7 +481,10 @@ def gen_time_conditions(dic_param):
         and len(start_dates) == len(start_times) == len(end_dates) == len(end_times)
     ):
         names = [START_DATE, START_TM, END_DATE, END_TM]
-        lst_datetimes = [dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)]
+        lst_datetimes = [
+            dict(zip(names, row, strict=False))
+            for row in zip(start_dates, start_times, end_dates, end_times, strict=False)
+        ]
         for idx, time_cond in enumerate(lst_datetimes):
             start_dt = start_of_minute(time_cond.get(START_DATE), time_cond.get(START_TM))
             end_dt = end_of_minute(time_cond.get(END_DATE), time_cond.get(END_TM))
@@ -546,7 +548,7 @@ def gen_kde_data_cate_var(dic_param, dic_array_full=None):
 @log_execution_time()
 @abort_process_handler()
 def split_data_by_condition(dic_data, graph_param, max_graph=None):
-    """split data by condition
+    """Split data by condition
 
     Arguments:
         data {[type]} -- [description]
@@ -742,7 +744,7 @@ def gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols=[]):
 def save_input_data_to_gen_images(df: DataFrame, graph_param):
     dic_rename_columns = {}
     for proc in graph_param.array_formval:
-        col_ids_names = sorted(zip(proc.col_ids, proc.col_names))
+        col_ids_names = sorted(zip(proc.col_ids, proc.col_names, strict=False))
         for col_id, col_name in col_ids_names:
             sql_label = gen_sql_label(col_id, col_name)
             if sql_label in df.columns:
@@ -802,12 +804,11 @@ def category_bind_dic_param_to_class(graph_param, dic_param):
 
 @log_execution_time()
 def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
     """
-
     (
         dic_param,
         cat_exp,
@@ -912,12 +913,11 @@ def gen_graph_cyclic(graph_param, dic_param, terms, max_graph=None, df=None):
 @abort_process_handler()
 @log_execution_time()
 def gen_graph_term(graph_param, dic_param, max_graph=None, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
     """
-
     (
         dic_param,
         cat_exp,
@@ -1013,7 +1013,7 @@ def produce_cyclic_terms(dic_param):  # TODO reverse when interval is negative
     window_len = float(dic_param[COMMON][CYCLIC_WINDOW_LEN])
     start_date = dic_param[COMMON][START_DATE]
     start_time = dic_param[COMMON][START_TM]
-    start_datetime = '{}T{}'.format(start_date, start_time)  # '2020/11/01T00:00'
+    start_datetime = f'{start_date}T{start_time}'  # '2020/11/01T00:00'
 
     cyclic_terms = []
     prev_start = datetime.strptime(start_datetime, RL_DATETIME_FORMAT)
@@ -1073,8 +1073,8 @@ def gen_direct_terms(dic_param):
             start_time = dic_param[COMMON][START_TM][k]
             end_date = dic_param[COMMON][END_DATE][k]
             end_time = dic_param[COMMON][END_TM][k]
-            start_datetime = '{}T{}'.format(start_date, start_time)  # '2020/11/01T00:00'
-            end_datetime = '{}T{}'.format(end_date, end_time)
+            start_datetime = f'{start_date}T{start_time}'  # '2020/11/01T00:00'
+            end_datetime = f'{end_date}T{end_time}'
             prev_start = datetime.strptime(start_datetime, RL_DATETIME_FORMAT)
             start_utc_str = datetime.strftime(prev_start.replace(tzinfo=tz.tzutc()), DATE_FORMAT_STR)
             prev_end = datetime.strptime(end_datetime, RL_DATETIME_FORMAT)

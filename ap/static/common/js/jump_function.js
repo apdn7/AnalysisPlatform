@@ -125,11 +125,13 @@ $(() => {
     });
 });
 
+const checkIsSkDPage = (page) => page === PAGE_NAME.skd;
+
 const showJumpModal = async () => {
     // reset jump err message
     resetJumpErrMsg();
     const page = getCurrentPage();
-    const isSkDPage = page === 'skd';
+    const isSkDPage = checkIsSkDPage(page);
     const isSkDSelectChecked = $(jumpEls.jumpVariableSetting).prop('checked');
     bindVariableOrderingToModal(isSkDPage && isSkDSelectChecked, !isSkDPage);
     $(jumpEls.jumpModal).modal('show');
@@ -273,12 +275,14 @@ const disableJumpObjective = (objectiveElem) => {
     objectiveElem.prop('disabled', true);
 };
 
+const getObjectiveVal = () => {
+    const currentTraceDat = graphStore.getTraceData();
+    return currentTraceDat.COMMON.objectiveVar ? Number(currentTraceDat.COMMON.objectiveVar[0]) : undefined;
+};
+
 const enableJumpObjective = (objectiveElem) => {
     objectiveElem.prop({ checked: '', disabled: false });
-    const currentTraceDat = graphStore.getTraceData();
-    const objectiveVal = currentTraceDat.COMMON.objectiveVar
-        ? Number(currentTraceDat.COMMON.objectiveVar[0])
-        : undefined;
+    const objectiveVal = getObjectiveVal();
     const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
     const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(getTargetPage()[0]);
     const elemObjectiveVal = jumpEls.jumpObjectiveEls;
@@ -319,10 +323,11 @@ const buildJumpTbl = (varOrdering, dfMode = true) => {
         $(jumpEls.jumpTblBody).find('*').off().empty().html('');
         let tblContent = '';
         varOrdering.ordering.forEach((variable, i) => {
+            const shortDataType = genColTypeForJumpTbl(variable);
             const variableChecked = checkedJumpVariableByLatestSortCol(variable.id, varOrdering.orderingID);
             const objectiveChecked = false;
             tblContent += `<tr data-proc-id="${variable.proc_id}"
-                data-col-id="${variable.id}" data-type="${DataTypes[variable.type].short}"
+                data-col-id="${variable.id}" data-type="${DataTypes[variable.type].short}" data-is-category="${variable.is_category}"
                 data-org-col-id="${variable.org_id || variable.id}">
                 <td style="width: 30px">
                     <div class="custom-control custom-checkbox">
@@ -342,7 +347,7 @@ const buildJumpTbl = (varOrdering, dfMode = true) => {
                 <td class="jump-order">${i + 1}</td>
                 <td style="text-align: left">${variable.proc_name}</td>
                 <td style="text-align: left">${variable.name}</td>
-                <td>${genColTypeForJumpTbl(variable)}</td>
+                <td>${shortDataType}</td>
             </tr>`;
         });
         $(jumpEls.jumpTblBody).html(tblContent);
@@ -361,10 +366,7 @@ const checkedDefaultJumpObjective = () => {
     const currentPage = getCurrentPage();
     const targetPage = getTargetPage()[0];
     const isJumpToSkd = targetPage === PAGE_NAME.skd;
-    const currentTrace = graphStore.traceDataResult;
-    const objectiveVariable = currentTrace.COMMON.objectiveVar
-        ? Number(currentTrace.COMMON.objectiveVar[0])
-        : undefined;
+    const objectiveVariable = getObjectiveVal();
     const currentPageHasObjective = HAS_OBJECTIVE_PAGE.includes(currentPage);
     const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
     if (!isJumpToSkd && (!currentPageHasObjective || !currentPageObjectiveVal.length)) {
@@ -629,6 +631,22 @@ const handleClickOKJumpButton = (e) => {
             type: 'radio',
             value: originColID,
         });
+    }
+
+    // Change objective to facet
+    if (checkIsSkDPage(page) && rootPageHasObjective && !targetPageHasObjective) {
+        const originObjectiveVal = getObjectiveVal();
+        const originObjectiveRow = $(`${jumpEls.jumpTblBody} tr[data-col-id=${originObjectiveVal}]`);
+        const isCategory = originObjectiveRow.attr('data-is-category') === 'true';
+        if (isCategory) {
+            dumpedUserSetting.push({
+                id: `catExpItem-${originObjectiveVal}`,
+                level: 1,
+                name: 'catExpBox',
+                type: 'select-one',
+                value: '1',
+            });
+        }
     }
 
     if (rootPageHasDivideOption && !targetPageHasDivideOption) {

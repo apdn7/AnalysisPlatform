@@ -62,35 +62,41 @@
                         aria-expanded="false"
                     ></button>
                     <div class="dropdown-menu" aria-labelledby="Bookmark">
-                        <a class="dropdown-item" href="#" onclick="openNewPage()">{{ _('New') }}</a>
+                        {% if app_context.is_authorized == '1' %}
+                            <a class="dropdown-item" href="#" onclick="openNewPage()">{{ _('New') }}</a>
+                        {% endif %}
+
                         <a class="dropdown-item" href="#" onclick="showSettingChangeModalHandler(loadAllUserSetting)"
                             >{{ _('Open') }}</a
                         >
-                        <a
-                            class="dropdown-item"
-                            href="#"
-                            onclick="showOverwriteConfirmModel()"
-                            id="overwriteSaveSettingBtn"
-                            style="display: none"
-                            >{{ _('Overwrite Save Setting Info') }}</a
-                        >
-                        <a
-                            class="dropdown-item"
-                            href="#"
-                            data-toggle="modal"
-                            id="saveUserSetting"
-                            data-target="#saveUserSettingModal"
-                            onclick="autoFillUserSetting()"
-                            >{{ _('Save Setting Info') }}</a
-                        >
-                        <a
-                            class="dropdown-item"
-                            href="#"
-                            onclick="showSettingChangeModalHandler(editUserSetting)"
-                            id="editSettingBtn"
-                            style="display: none"
-                            >{{ _('Edit') }}</a
-                        >
+
+                        {% if app_context.is_authorized == '1' %}
+                            <a
+                                class="dropdown-item"
+                                href="#"
+                                onclick="showOverwriteConfirmModel()"
+                                id="overwriteSaveSettingBtn"
+                                style="display: none"
+                                >{{ _('Overwrite Save Setting Info') }}</a
+                            >
+                            <a
+                                class="dropdown-item"
+                                href="#"
+                                data-toggle="modal"
+                                id="saveUserSetting"
+                                data-target="#saveUserSettingModal"
+                                onclick="autoFillUserSetting()"
+                                >{{ _('Save Setting Info') }}</a
+                            >
+                            <a
+                                class="dropdown-item"
+                                href="#"
+                                onclick="showSettingChangeModalHandler(editUserSetting)"
+                                id="editSettingBtn"
+                                style="display: none"
+                                >{{ _('Edit') }}</a
+                            >
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -139,6 +145,26 @@
                         {{ _('Github') }}
                         <i class="fa fa-external-link-alt"></i>
                     </a>
+                </div>
+            </div>
+            <div class="mr-2 filter-labels-group custom-selection-section-event">
+                <button
+                    id="filterLabelsButon"
+                    class="btn btn-setting filter-label-btn-event custom-selection-event"
+                    title="Filter labels of processes"
+                    data-position="header-bar"
+                    type="button"
+                >
+                    <i class="fa fas fa-filter"></i>
+                </button>
+                <div
+                    class="label-modal label-modal-top custom-selection-content-event"
+                    id="filterLabelsModal"
+                    style="display: none;"
+                >
+                    <div class="process-label-list">
+                        <button type="button" class="clear-label-btn">Clear All</button>
+                    </div>
                 </div>
             </div>
             <div style="width: 180px" class="ml-auto d-flex align-items-center">

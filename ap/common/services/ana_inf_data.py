@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import numpy.typing as npt
@@ -113,35 +113,70 @@ def calc_judge_kde(judge_df, bins, neg_value):
     return kde
 
 
-@log_execution_time()
-def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y: pd.Series | None = None):
+def _prepare_kde_data(data: pd.Series, is_log_scale_mode: bool = False) -> npt.NDArray | None:
+    """Prepare and validate data for KDE calculation.
+
+    Handles log scale filtering, type conversion, and numpy conversion.
+
+    Args:
+        data: Input pandas Series
+        is_log_scale_mode: If True, filter out non-positive values
+
+    Returns:
+        Numpy array with float64 dtype, or None if data is invalid
     """
-    :param plotdata:
-    :param bins:
-    :param height:
-    :param full_array_y:
-    :return:
+    # Handle log scale mode - filter out non-positive values
+    if is_log_scale_mode:
+        data = data.apply(lambda x: np.nan if x and x <= 0 else x)
+
+    # Clean and convert data types
+    data = data.dropna().convert_dtypes()
+
+    # Validate data
+    if not len(data) or pd.api.types.is_object_dtype(data):
+        return None
+
+    # Convert to numeric and remove non-finite values
+    data = convert_series_to_number(data)
+    data = data[np.isfinite(data)]
+
+    if not len(data):
+        return None
+
+    # Convert to numpy with correct dtype
+    # numpy doesn't understand `Float64` or `Int64`, so we convert them to `np.float64`
+    np_dtype = np.float64 if pd.api.types.is_numeric_dtype(data) else None
+    return data.to_numpy(dtype=np_dtype)
+
+
+@log_execution_time()
+def calculate_kde_trace_data(
+    plotdata, bins=128, height=1, full_array_y: pd.Series | None = None, is_log_scale_mode=False
+):
+    """Calculate KDE for trace data across multiple scales.
+
+    Args:
+        plotdata: Dictionary containing plot data
+        bins: Number of histogram bins
+        height: Height scaling factor for KDE
+        full_array_y: Optional full array Y data. If None, uses plotdata[ARRAY_Y]
+        is_log_scale_mode: If True, filter out non-positive values
+
+    Returns:
+        List of KDE results for each scale
     """
     kde_list = []
     scales = [SCALE_SETTING, SCALE_COMMON, SCALE_THRESHOLD, SCALE_AUTO, SCALE_FULL]
 
-    data = full_array_y
-    if full_array_y is None or full_array_y.empty:
-        data = plotdata[ARRAY_Y]
+    # Select data source
+    data = full_array_y if full_array_y is not None and not full_array_y.empty else plotdata[ARRAY_Y]
 
-    data = data.dropna().convert_dtypes()
-
-    if not len(data) or pd.api.types.is_object_dtype(data):
+    # Prepare and validate data
+    data = _prepare_kde_data(data, is_log_scale_mode)
+    if data is None:
         return [gen_kde_result() for _ in scales]
 
-    data = convert_series_to_number(data)
-    data = data[np.isfinite(data)]
-
-    # convert to numpy with correct dtype because later functions always treat those as numpy array
-    # numpy doesn't understand `Float64` or `Int64`, so we convert them to `np.float64`
-    np_dtype = np.float64 if pd.api.types.is_numeric_dtype(data) else None
-    data = data.to_numpy(dtype=np_dtype)
-
+    # Resample if necessary
     sample_data = resample_preserve_min_med_max(data, RESAMPLING_SIZE - 1) if len(data) > RESAMPLING_SIZE else data
 
     if len(sample_data) == 0:
@@ -157,7 +192,7 @@ def calculate_kde_trace_data(plotdata, bins=128, height=1, full_array_y: pd.Seri
         if NegRatio.NEG_RATIO.value in plotdata:
             neg_value = 0
             if RANK_COL in plotdata:
-                neg_ranks = {y: x for x, y in zip(*plotdata[RANK_COL])}
+                neg_ranks = {y: x for x, y in zip(*plotdata[RANK_COL], strict=False)}
                 neg_value = neg_ranks.get(plotdata[JUDGE_NEGATIVE_DISPLAY])
             judge_df = pd.DataFrame({TIME_COL: plotdata[ARRAY_X], JUDGE_DATA: plotdata[ARRAY_Y]})
             judge_kde = calc_judge_kde(judge_df, bins, neg_value)
@@ -277,9 +312,9 @@ def gen_gaussian_kde_1d_same_as_r(x, std_value):
 def gen_kde_1d_fft(
     x: npt.NDArray,
     gridpoints: npt.NDArray,
-    xmin: Optional[int | float],
-    xmax: Optional[int | float],
-    std_value: Optional[int | float],
+    xmin: float | None,
+    xmax: float | None,
+    std_value: float | None,
 ) -> npt.NDArray:
     """Density estimation with FFT for one-dimensional data
 
@@ -306,7 +341,6 @@ def gen_kde_1d_fft(
      ----------
         ndarray of length equal to the parameter `gridpoints`.
     """
-
     n = len(x)
     n_grids = len(gridpoints)
     if n > RESAMPLING_SIZE:
@@ -333,12 +367,13 @@ def gen_kde_1d_fft(
     # generate gaussian kernel
     tau = 5
     delta = (xmax - xmin) / (bandwidth * (n_grids - 1))
-    L = int(np.min([np.floor(tau / delta), n_grids]))
-    Lvec = np.arange(0, L + 1)
+    L = int(np.min([np.floor(tau / delta), n_grids]))  # noqa N806
+    Lvec = np.arange(0, L + 1)  # noqa N806
     kernel = (1 / (np.sqrt(2 * np.pi))) * np.exp(-((Lvec * delta) ** 2) / 2) / (n * bandwidth)
 
     # prepare to calculate FFT
-    P = 2 ** int(np.ceil(np.log2(n_grids + L + 1)))  # make length 2^
+    # make length 2^
+    P = 2 ** int(np.ceil(np.log2(n_grids + L + 1)))  # noqa N806
     kernel = np.concatenate([kernel, np.zeros(P - 2 * L - 1), kernel[1:][::-1]])
     tot = np.sum(kernel) * (xmax - xmin) / (n_grids - 1) * n
 
@@ -376,7 +411,7 @@ def detect_abnormal_count_values(
     max_sample_size: int
         If number of data points exceeds this value, resample x.
 
-    Returns
+    Returns:
     -------
     val_outlier : list
         A list of detected values

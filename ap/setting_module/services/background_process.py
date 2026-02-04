@@ -3,7 +3,7 @@ import datetime as dt
 import logging
 import math
 import re
-from typing import List, Optional, Union
+from typing import Union
 
 from flask_sqlalchemy.pagination import QueryPagination
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
@@ -39,7 +39,6 @@ from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_
 from ap.common.services.error_message_handler import ErrorMessageHandler
 from ap.common.timezone_utils import choose_utc_convert_func
 from ap.setting_module.models import (
-    CfgDataSource,
     CfgProcess,
     JobManagement,
     ProcLinkCount,
@@ -59,18 +58,18 @@ class JobSerializedOutput(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True, validate_assignment=True)
 
     id: int = Field(serialization_alias='job_id')
-    job_type: Optional[Union[JobType, str]]
-    db_code: Optional[int]
-    db_name: Optional[str] = Field(serialization_alias='db_master_name')
-    process_id: Optional[int] = Field(serialization_alias='proc_id')
-    process_name: Optional[str] = Field(serialization_alias='proc_code')
+    job_type: Union[JobType, str] | None
+    db_code: int | None
+    db_name: str | None = Field(serialization_alias='db_master_name')
+    process_id: int | None = Field(serialization_alias='proc_id')
+    process_name: str | None = Field(serialization_alias='proc_code')
 
     start_tm: str = ''
-    end_tm: Optional[str]
+    end_tm: str | None
     status: str = ''
     done_percent: float = 0.0
     duration: float = 0.0
-    error_msg: Optional[str]
+    error_msg: str | None
     detail: str = ''
     data_type_error: bool = False
 
@@ -101,10 +100,7 @@ def get_background_jobs_service(
     ignore_job_types=None,
     error_page=False,
 ) -> tuple[list[JobSerializedOutput], QueryPagination]:
-    """
-    Get background jobs from JobManagement table
-    """
-
+    """Get background jobs from JobManagement table"""
     jobs = JobManagement.query
     if error_page:
         jobs = jobs.filter(JobManagement.status.in_(JobStatus.failed_statuses()))
@@ -141,50 +137,25 @@ def get_background_jobs_service(
 
 def send_processing_info(
     generator_func,
-    job_type: JobType,
-    db_code=None,
-    process_id=None,
-    process_name=None,
+    job_management: JobManagement,
     after_success_func=None,
     after_success_func_kwargs=None,
     is_check_disk=True,
 ):
-    """send percent, status to client
+    """Send percent, status to client
 
     Arguments:
         job_type {JobType} -- [description]
         generator_func {[type]} -- [description]
     """
     # add new job
+    job_type = JobType[job_management.job_type]
     global previous_disk_status
     error_msg_handler = ErrorMessageHandler()
 
     running_jobs = RunningJobs.get_running_jobs()
 
-    start_tm = dt.datetime.utcnow()
-    with make_session() as meta_session:
-        job = JobManagement()
-        job.job_type = job_type.name
-        job.db_code = db_code
-
-        # datasource_idの代わりに、t_job_managementテーブルにdatasource_nameが保存される。
-        if job.db_code is not None:
-            data_source = meta_session.query(CfgDataSource).get(job.db_code)
-            job.db_name = data_source.name
-
-        job.process_id = process_id
-
-        # Yamlの代わりに、データベースからデータを取得する。
-        job.process_name = process_name
-        if not process_name and job.process_id:
-            data_process = meta_session.query(CfgProcess).get(job.process_id)
-            if data_process:
-                job.process_name = data_process.name
-
-        job.status = str(JobStatus.PROCESSING)
-        meta_session.add(job)
-        meta_session.flush()
-        job_output = JobSerializedOutput.model_validate(job.as_dict())
+    job_output = JobSerializedOutput.model_validate(job_management.as_dict())
 
     # processing info
     dic_res: dict[int, JobSerializedOutput] = {job_output.id: job_output}
@@ -194,7 +165,7 @@ def send_processing_info(
     notify_data_type_error_flg = True
     while True:
         try:
-            if is_check_disk and JobType[job.job_type] in JobType.jobs_can_increase_disk_usage():
+            if is_check_disk and JobType[job_management.job_type] in JobType.jobs_can_increase_disk_usage():
                 disk_capacity = get_disk_capacity_once(_job_id=job_output.id)
 
                 if disk_capacity:
@@ -289,7 +260,9 @@ def send_processing_info(
             # emit info
             dic_res[job_output.id].done_percent = job_output.done_percent
             dic_res[job_output.id].end_tm = job_output.end_tm
-            dic_res[job_output.id].duration = (dt.datetime.utcnow() - start_tm).total_seconds()
+            dic_res[job_output.id].duration = (
+                dt.datetime.utcnow() - dt.datetime.strptime(job_management.start_tm, DATE_FORMAT_STR)
+            ).total_seconds()
             EventQueue.put(
                 EventBackgroundAnnounce(
                     job_id=job_output.id,
@@ -309,13 +282,12 @@ def send_processing_info(
 
 
 def update_job_management(job_output: JobSerializedOutput, err=None) -> JobSerializedOutput:
-    """update job status
+    """Update job status
 
     Arguments:
         job {[type]} -- [description]
         done_percent {[type]} -- [description]
     """
-
     job = JobManagementSchema().load(job_output.model_dump())
     with make_session() as meta_session:
         if (
@@ -347,6 +319,40 @@ def update_job_management(job_output: JobSerializedOutput, err=None) -> JobSeria
 
 
 class JobInfo:
+    """Job information container for background job processing.
+
+    Tracks the progress, status, and metadata of background jobs during execution.
+
+    Attributes:
+        job_id: ID of the job.
+        auto_increment_col_timezone: Whether auto-increment column has timezone.
+        percent: Completion percentage of the job.
+        status: Current job status.
+        row_count: Number of rows processed.
+        committed_count: Number of rows committed to database.
+        has_record: Whether the job has processed any records.
+        exception: Exception encountered during processing.
+        empty_files: List of empty file names.
+        dic_imported_row: Dictionary of imported row metadata.
+        import_type: Type of import operation.
+        import_from: Import start timestamp.
+        import_to: Import end timestamp.
+        is_safe_interrupt: Whether the job can be safely interrupted.
+        target: Target of the job processing.
+        first_cycle_time: First cycle timestamp.
+        last_cycle_time: Last cycle timestamp.
+        has_error: Whether the job encountered errors.
+        data_type_error_cnt: Count of data type errors.
+        start_tm: Job start time.
+        end_tm: Job end time.
+
+    Methods:
+        calc_percent: Calculate completion percentage based on row count and total.
+        interruptible: Context manager to mark safe interrupt points.
+
+    Generated by Duo
+    """
+
     job_id: int
     auto_increment_col_timezone: bool
     percent: int
@@ -355,14 +361,14 @@ class JobInfo:
     committed_count: int
     has_record: bool
     exception: Exception
-    empty_files: List[str]
+    empty_files: list[str]
     dic_imported_row: dict
     import_type: str
     import_from: str
     import_to: str
     is_safe_interrupt: bool
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.job_id = None
         self.target = None
         self.percent = 0
@@ -442,7 +448,11 @@ class JobInfo:
         self.is_safe_interrupt = False
 
 
-def format_factory_date_to_meta_data(date_val: Optional[str], is_tz_col: bool, db_type: str = None) -> Optional[str]:
+def format_factory_date_to_meta_data(
+    date_val: str | None,
+    is_tz_col: bool,
+    db_type: str | None = None,
+) -> str | None:
     if date_val is None:
         return None
 
@@ -489,7 +499,7 @@ def get_job_detail_service(job_id):
             job_details = [job_details]
 
         if job.error_msg:
-            job_details = [job] + job_details
+            job_details = [job, *job_details]
 
         for job_detail in job_details:
             job_details_as_dict[job_id] = row2dict(job_detail) if not isinstance(job_detail, dict) else job_detail

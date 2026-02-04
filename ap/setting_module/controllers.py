@@ -1,15 +1,20 @@
+import json
 import os
 from json import dumps, loads
 
-from flask import Blueprint, current_app, render_template, request
-from flask_babel import get_locale
+from flask import Blueprint, render_template
+from flask_babel import get_locale, gettext
 from flask_babel import gettext as _
 
-from ap import is_admin_request, is_internal_version
+from ap import is_internal_version
+from ap.common.authorization import is_authorized
 from ap.common.common_utils import (
     sort_processes_by_parent_children_relationship,
 )
-from ap.common.constants import DISABLE_CONFIG_FROM_EXTERNAL_KEY
+from ap.common.constants import (
+    CfgConstantType,
+    DBType,
+)
 from ap.common.path_utils import (
     get_about_md_file,
     get_cookie_policy_md_file,
@@ -22,7 +27,7 @@ from ap.common.path_utils import (
     get_wrapr_path,
 )
 from ap.common.services.jp_to_romaji_utils import to_romaji
-from ap.setting_module.models import CfgDataSource
+from ap.setting_module.models import CfgConstant, CfgDataSource
 from ap.setting_module.schemas import DataSourcePublicSchema
 from ap.setting_module.services.about import markdown_to_html
 from ap.setting_module.services.process_config import (
@@ -30,6 +35,7 @@ from ap.setting_module.services.process_config import (
     get_all_functions,
     get_all_process,
     get_all_process_no_nested,
+    get_process_columns,
 )
 
 # socketio = web_socketio[SOCKETIO]
@@ -58,6 +64,8 @@ def config_screen():
     all_functions = get_all_functions()
     datasource_types = CfgDataSource.get_datasource_types()
 
+    import_limit = CfgConstant.get_value_by_type_first(CfgConstantType.IMPORT_LIMIT.name, int)
+
     output_dict = {
         'page_title': _('Application Configuration'),
         'procs': sort_processes_by_parent_children_relationship(all_procs),
@@ -67,9 +75,11 @@ def config_screen():
         'log_path': get_log_path(),
         'data_path': get_data_path(),
         'all_function': dumps(all_functions),
+        'import_limit': import_limit,
         # 'ds_tables': ds_tables
-        'is_authorized': current_app.config.get(DISABLE_CONFIG_FROM_EXTERNAL_KEY) is False or is_admin_request(request),
+        'is_authorized': is_authorized(),
         'datasource_types': datasource_types,
+        'datasource_types_i18n': DBType.get_i18n(method=gettext),
     }
 
     # get R ETL wrap functions
@@ -88,7 +98,10 @@ def config_screen():
 
 @setting_module_blueprint.route('/config/filter')
 def filter_config():
-    is_authorized = current_app.config.get(DISABLE_CONFIG_FROM_EXTERNAL_KEY) is False or is_admin_request(request)
+    return filter_config_template('filter_config.html')
+
+
+def filter_config_template(template_name: str):
     processes = get_all_process_no_nested(with_parent=False)
     # generate english name for process
     for proc_data in processes:
@@ -96,9 +109,14 @@ def filter_config():
             proc_data['name_en'] = to_romaji(proc_data['name'])
     output_dict = {
         'procs': processes,
-        'is_authorized': is_authorized,
+        'is_authorized': is_authorized(),
     }
-    return render_template('filter_config.html', **output_dict)
+    return render_template(template_name, **output_dict)
+
+
+@setting_module_blueprint.route('/config/filter-partial', methods=['GET'])
+def filter_config_partial():
+    return filter_config_template('_filter_config.html')
 
 
 # @setting_module_blueprint.route('/config/job/<int:page>', methods=['GET'])
@@ -117,9 +135,7 @@ def failed_jobs():
 
 @setting_module_blueprint.route('/about', methods=['GET'])
 def about():
-    """
-    about page
-    """
+    """About page"""
     markdown_file_path = get_about_md_file()
     css, html = markdown_to_html(markdown_file_path)
     return render_template('about.html', css=css, content=html)
@@ -127,9 +143,7 @@ def about():
 
 @setting_module_blueprint.route('/cookie-policy', methods=['GET'])
 def cookie_policy():
-    """
-    about page
-    """
+    """About page"""
     current_locale = get_locale()
     markdown_file_path = get_cookie_policy_md_file(current_locale)
     css, html = markdown_to_html(markdown_file_path)
@@ -138,9 +152,7 @@ def cookie_policy():
 
 @setting_module_blueprint.route('/terms_of_use', methods=['GET'])
 def term_of_use():
-    """
-    term of use page
-    """
+    """Term of use page"""
     current_locale = get_locale()
     markdown_file_path = get_terms_of_use_md_file(current_locale)
     css, html = markdown_to_html(markdown_file_path)
@@ -149,7 +161,6 @@ def term_of_use():
 
 @setting_module_blueprint.route('/config/master')
 def master_config():
-    is_authorized = current_app.config.get(DISABLE_CONFIG_FROM_EXTERNAL_KEY) is False or is_admin_request(request)
     processes = get_all_process_no_nested(with_parent=False)
     # generate english name for process
     for proc_data in processes:
@@ -157,7 +168,7 @@ def master_config():
             proc_data['name_en'] = to_romaji(proc_data['name'])
     output_dict = {
         'procs': processes,
-        'is_authorized': is_authorized,
+        'is_authorized': is_authorized(),
     }
     return render_template('master_cfg.html', **output_dict)
 
@@ -165,3 +176,19 @@ def master_config():
 @setting_module_blueprint.route('/register_by_file')
 def register_by_file_page():
     return render_template('register_by_file.html')
+
+
+@setting_module_blueprint.route('/config/export_config')
+def export_config():
+    processes = get_all_process_no_nested(with_parent=False)
+    # generate english name for process
+    for proc_data in processes:
+        if not proc_data['name_en']:
+            proc_data['name_en'] = to_romaji(proc_data['name'])
+        column = get_process_columns(proc_data['id'], show_graph=False)
+        proc_data['columns'] = column
+    output_dict = {
+        'processes': processes,
+        'processesJs': json.dumps(processes),
+    }
+    return render_template('export_config.html', **output_dict)

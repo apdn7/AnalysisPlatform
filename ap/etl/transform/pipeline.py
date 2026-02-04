@@ -47,13 +47,13 @@ def software_workshop_snowflake_measurement_transform_pipeline(
             index_columns=[
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.child_equip_id,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.event_time,
-                SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.created_at,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.serial_no,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.part_no,
             ],
             horizontal_columns=[
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.lot_no,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.tray_no,
+                SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.created_at,
             ],
             name_column='code',
             value_column='value',
@@ -151,7 +151,6 @@ def software_workshop_snowflake_history_transform_pipeline_local(*, process_id: 
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.child_equip_id,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.child_equip_name,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.event_time,
-                SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.created_at,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.serial_no,
                 SNOWFLAKE_SOFTWARE_WORKSHOP_DEF.part_no,
             ],

@@ -70,8 +70,7 @@ from ap.trace_data.schemas import DicParam
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def run_pca(root_graph_param: DicParam, dic_param, sample_no=0):
-    """run pca package to get graph jsons"""
-
+    """Run pca package to get graph jsons"""
     dic_output, dic_biplot, dic_t2q_lrn, dic_t2q_tst, errors = gen_base_object(root_graph_param, dic_param)
     if errors:
         return None, errors
@@ -196,7 +195,7 @@ def get_test_n_train_data(root_graph_param: DicParam, dic_param):
 @abort_process_handler()
 def get_sample_no_data(dic_biplot, dic_t2q_lrn, dic_t2q_tst, sample_no=0):
     """
-    clicked sample no data
+    Clicked sample no data
     :param dic_biplot:
     :param dic_t2q_lrn:
     :param dic_t2q_tst:
@@ -221,11 +220,10 @@ def get_sample_no_data(dic_biplot, dic_t2q_lrn, dic_t2q_tst, sample_no=0):
 @log_execution_time()
 @abort_process_handler()
 def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_cache):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
-
     # get sensor cols
     dic_sensor_headers, short_names, ids = gen_sensor_headers(orig_graph_param)
 
@@ -298,7 +296,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     send_ga=True,
 )
 def get_trace_data(graph_param, dic_cat_filters, use_expired_cache):
-    """get data from universal db
+    """Get data from universal db
 
     Arguments:
         trace {Trace} -- [DataFrame Trace]
@@ -330,7 +328,7 @@ def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_pro
     for proc in graph_param.array_formval:
         proc_cnt += 1
         proc_cfg = dic_proc_cfgs[proc.proc_id]
-        for col_id, _col_name, show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, _col_name, show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             col_name = _col_name
             col_name = gen_sql_label(col_id, col_name)
             if col_name not in df.columns:
@@ -358,9 +356,7 @@ def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_pro
 @log_execution_time()
 @abort_process_handler()
 def calculate_data_size(output_dict):
-    """
-    Calculate data size for each chart.
-    """
+    """Calculate data size for each chart."""
     dtsize_pca_score_train = get_size(output_dict.get('json_pca_score_train'))
     output_dict['dtsize_pca_score_train'] = dtsize_pca_score_train
 
@@ -435,7 +431,7 @@ def gen_sensor_headers(orig_graph_param):
     ids = {}
     used_names = set()
     for proc in orig_graph_param.array_formval:
-        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             name = gen_sql_label(col_id, col_name)
             dic_labels[name] = col_show_name
 
@@ -486,7 +482,7 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list, dic_selected_vars: dic
         (p) Column names. Must be len(varnames) == X_train.shape[1]
     dic_selected_vars: dict
         (p) Dictionary of column id and column name. Must be len(dic_selected_vars) == X_train.shape[1]
-    Returns
+    Returns:
     ----------
     output_dict: dict
         A dictionary of jsons (dictionaries) to draw Biplot and T2/Q chart with plotly.js
@@ -522,7 +518,7 @@ class PCA:
 
     Note that sklearn's PCA function does not return rotation matrix.
 
-    Attributes
+    Attributes:
     ----------
     sdev: ndarray
         1D array containing standard deviation of principle components (calculated by eigen values).
@@ -538,7 +534,7 @@ class PCA:
         Scaler fitted with data given to fit().
     """
 
-    def __init__(self, scale=True):
+    def __init__(self, scale=True) -> None:
         self.sdev = None
         self.rotation = None
         self.var_explained = None
@@ -551,7 +547,7 @@ class PCA:
     def fit(self, X):
         if self.scale:
             self.scaler = StandardScaler().fit(X)
-            X = self.scaler.transform(X)
+            X = self.scaler.transform(X)  # noqa N806
         covmat = np.cov(X.T)
 
         # note that eig() does not return eigen values in descending order
@@ -567,7 +563,7 @@ class PCA:
 
     def transform(self, X):
         if self.scale:
-            X = self.scaler.transform(X)
+            X = self.scaler.transform(X)  # noqa N806
         return X.dot(self.rotation)
 
 
@@ -666,7 +662,7 @@ def _calc_biplot_arrows(rotation, sdev, max_train, var_name_adjust=1.5, tgt_pc=[
 
 def _gen_biplot_axislabs(var_explained, tgt_pc=[1, 2]) -> list:
     """Generate axis labels for biplot"""
-    axislabs = ['PC{}({:.1f} [%] explained Var.)'.format(x, var_explained[x - 1]) for x in tgt_pc]
+    axislabs = [f'PC{x}({var_explained[x - 1]:.1f} [%] explained Var.)' for x in tgt_pc]
     return axislabs
 
 
@@ -715,7 +711,6 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
         For example, clicked_sample_no=1 is the first data point of X_test.
         clicked_sample_no=-1 is the last data point of X_train.
     """
-
     # Biplots (scatter, circles)
     dic_circles = _convert_df_circles_to_dict(dic_biplot['df_circles'])
     json_pca_score_train = {
@@ -807,7 +802,6 @@ def _convert_df_circles_to_dict(df_circles) -> dict:
 
 def _extract_clicked_sample(df_train, df_test, sample_no=0):
     """Extract a row from train/test data, according to given sample_no"""
-
     if sample_no >= 0:
         return df_test[sample_no, :]
     else:

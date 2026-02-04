@@ -211,3 +211,36 @@ const showModalAnyChangesInDefinitionMainSerialFunctionColumn = (columnName, new
         $(functionConfigElements.confirmAnyChangeDefinitionMainSerialFunctionColumnModal).modal('show');
     }
 };
+
+/**
+ * @description Handle show confirm modal if selected data type is main::Serial and function column has main::Serial col
+ * @param currentRowData
+ * @param value
+ * @param rowIndex
+ * @return {string|*}
+ */
+
+const handleShowConfirmSelectMainSerialInProcessConfig = (currentRowData, value, rowIndex) => {
+    // check create or editing function column
+    const isMainSerialChecked = functionConfigElements.isMainSerialCheckboxElement.checked;
+    // check function column has column main serial.
+    const mainSerialFunctionCol = FunctionInfo.getMainSerialFunctionColumnRow();
+    if (isMainSerialChecked || mainSerialFunctionCol) {
+        functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-text', value);
+        functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-row-index', rowIndex);
+        $(functionConfigElements.confirmUncheckMainSerialFunctionColumnModal).modal('show');
+        // In case show modal confirm -> not changed
+        value = currentRowData.shown_data_type;
+    }
+
+    return value;
+};
+
+const toggleStatusMainSerialCheckbox = (rawDataType) => {
+    if ([DataTypes.INTEGER.name, DataTypes.CATEGORY.name, DataTypes.STRING.name].includes(rawDataType)) {
+        functionConfigElements.isMainSerialCheckboxElement.disabled = false;
+    } else {
+        functionConfigElements.isMainSerialCheckboxElement.checked = false;
+        functionConfigElements.isMainSerialCheckboxElement.disabled = true;
+    }
+};

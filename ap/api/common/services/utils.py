@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import copy
 import re
-from typing import TYPE_CHECKING, Any, Iterator, TypeVar, Union
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import sqlite
@@ -51,7 +52,7 @@ def gen_sql_and_params(stmt: Select) -> tuple[str, list[Any]]:
     return compiled_stmt.string, params
 
 
-def run_sql_from_query_with_casted(*, query: Query, db_instance: SQLite3, cls: type[T]) -> Iterator[T]:
+def run_sql_from_query_with_casted[T](*, query: Query, db_instance: SQLite3, cls: type[T]) -> Iterator[T]:
     sql, params = gen_sql_and_params(query.statement)
     _, rows = db_instance.run_sql(sql, row_is_dict=True, params=params)
     for row in rows:
@@ -59,7 +60,7 @@ def run_sql_from_query_with_casted(*, query: Query, db_instance: SQLite3, cls: t
 
 
 def gen_proc_time_label(proc_id):
-    return f'{TIME_COL}_{str(proc_id)}'
+    return f'{TIME_COL}_{proc_id}'
 
 
 def get_col_cfgs(dic_proc_cfgs: dict[int, CfgProcess], col_ids):
@@ -73,7 +74,7 @@ def get_col_cfg(dic_proc_cfgs: dict[int, CfgProcess], col_id):
     all_cols = []
     for proc_id, proc in dic_proc_cfgs.items():
         all_cols += proc.columns
-    return [col for col in all_cols if col.id == col_id][0]
+    return next(col for col in all_cols if col.id == col_id)
 
 
 @log_execution_time()
@@ -112,7 +113,7 @@ def get_well_known_columns_for_v2_type(
         return well_known_columns.get(col) or well_known_columns.get(normalized_col)
 
     group_types = map(get_group_type, cols, normalized_cols)
-    return {col: group_type for col, group_type in zip(cols, group_types) if group_type is not None}
+    return {col: group_type for col, group_type in zip(cols, group_types, strict=False) if group_type is not None}
 
 
 @CustomCache.memoize()

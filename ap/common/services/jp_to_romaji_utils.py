@@ -3,7 +3,7 @@ import re
 
 import cutlet
 
-from ap.common.constants import EMPTY_STRING
+from ap.common.constants import EMPTY_STRING, UNDER_SCORE
 from ap.common.services.normalization import GREEK_U_RE, normalize_preprocessing, normalize_str
 
 conv = cutlet.Cutlet()
@@ -69,11 +69,11 @@ def replace_special_symbols(input_str):
     normalized_input = input_str
 
     normalized_input = GREEK_U_RE.sub('u', normalized_input)
-    normalized_input = BRACKETS_RE.sub('_', normalized_input)
+    normalized_input = BRACKETS_RE.sub(UNDER_SCORE, normalized_input)
 
     # hyphen: remove multi
     normalized_input = HYPHEN_MULTI_RE.sub('-', normalized_input)
-    normalized_input = UNDERSCORE_MULTI_RE.sub('_', normalized_input)
+    normalized_input = UNDERSCORE_MULTI_RE.sub(UNDER_SCORE, normalized_input)
 
     # under score: remove first , last, multi
     normalized_input = START_HYPHEN_UNDERSCORE_RE.sub(EMPTY_STRING, normalized_input)
@@ -127,7 +127,7 @@ def replace_special_symbols(input_str):
 #         input_str = jaconv.normalize(input_str)
 #         # convert special characters
 #         output_str = "".join([convert_irregular(i) for i in input_str])
-#         output_str = re.sub(regular_rule, '_', output_str)
+#         output_str = re.sub(regular_rule, UNDER_SCORE, output_str)
 #         # output_str = 'GD-I4 調整検査7号あア1_アア'
 #         return output_str
 #     except Exception:
@@ -144,6 +144,6 @@ def change_duplicated_columns(columns):
         duplicated = True
         for col in columns:
             if col['romaji'] in duplicated_items:
-                col['romaji'] += '_' + str(idx)
+                col['romaji'] += UNDER_SCORE + str(idx)
                 idx += 1
     return columns, duplicated

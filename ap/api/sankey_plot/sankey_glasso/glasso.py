@@ -44,7 +44,7 @@ class GaussianGraphicalModel:
         Partial correlation matrix
     """
 
-    def __init__(self, alpha=None, num_directs=None):
+    def __init__(self, alpha=None, num_directs=None) -> None:
         self.alpha = alpha
         self.num_directs = num_directs
         self.scaler = None
@@ -62,10 +62,9 @@ class GaussianGraphicalModel:
         idx_tgt: list
             column index of target variable(s)
         """
-
         # scaling
         scaler = StandardScaler().fit(X)
-        X = scaler.transform(X)
+        X = scaler.transform(X)  # noqa N806
 
         # covariance matrix
         emp_cov = empirical_covariance(X)

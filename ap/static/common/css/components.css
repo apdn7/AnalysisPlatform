@@ -8,10 +8,21 @@
 }
 
 .form-group .list-group-item {
-    padding: 1px 1.2rem;
+    padding: 1px;
     font-size: 14px;
     border-left: 1px solid transparent;
     border-right: 1px solid transparent;
+    display: table-row;
+}
+
+.form-group .list-group-item .item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-group .list-group-item .item-row > div {
+    display: table-cell;
 }
 
 .end-proc .sortCol {
@@ -42,7 +53,7 @@
 /*hide sort in filter, and inside modal*/
 .modal .sortCol,
 #cndPrc .sortCol {
-    display: none;
+    display: none !important;
 }
 
 /*hide extend name column in filter, and inside modal*/
@@ -174,7 +185,8 @@ h6 {
     min-width: unset;
     padding: 1px 3px;
     height: auto;
-    width: 60px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .level-select:disabled {
@@ -247,7 +259,6 @@ h6 {
 }
 .large-col {
     max-width: 120px;
-    min-width: 120px;
 }
 
 .center-checkbox-label-filter {
@@ -324,7 +335,11 @@ h6 {
 }
 
 .default-width-sys-name {
-    width: 84px;
+    width: 20%;
+}
+
+.extended-width-sys-name {
+    flex: 1;
 }
 #btn-extend-toggle-container {
     display: inline-block;

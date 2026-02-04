@@ -1,9 +1,19 @@
+from datetime import datetime, timedelta
+
 import pandas as pd
 
-from ap.common.constants import DATE_FORMAT_SIMPLE, FREQ_FOR_RANGE, TERM_FORMAT, CacheType, DataCountType
+from ap.common.constants import (
+    DATE_FORMAT_SIMPLE,
+    DATE_FORMAT_STR,
+    FREQ_FOR_RANGE,
+    TERM_FORMAT,
+    CacheType,
+    DataCountType,
+)
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.timezone_utils import from_utc_to_localtime
 from ap.trace_data.transaction_model import DataCountTable, TransactionData
 
@@ -63,6 +73,44 @@ def gen_full_data_by_time(df, start_date, end_date, query_type):
     return data, min_val, max_val
 
 
+def get_process_full_data_range(proc_id):
+    """
+    Get process full data range (include dummy datetime)
+    Args:
+        proc_id: int, process id
+
+    Returns:
+        from: datetime, to: datetime
+
+    """
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+        trans_data = TransactionData(proc_id)
+        min_time, max_time = trans_data.get_ct_range(db_instance)
+        # add one minute for max_time to get full data when showing graph
+        max_time = datetime.strptime(max_time, DATE_FORMAT_STR)
+        max_time = max_time + timedelta(minutes=1)
+        max_time = max_time.strftime(DATE_FORMAT_STR)
+
+    return min_time, max_time
+
+
+def get_process_data_count_by_timerange(proc_id, start_date, end_date):
+    """
+    Get data count from process by time range
+    Args:
+        proc_id: int, process id
+        start_date: datetime, start time
+        end_date: datetime, end time
+
+    Returns:
+        data_count: int
+    """
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+        trans_data = TransactionData(proc_id)
+        data_count = trans_data.get_data_count_by_time_range(db_instance, start_date, end_date)
+    return data_count
+
+
 @log_execution_time()
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz, count_in_file: bool):
@@ -70,7 +118,7 @@ def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, loca
     min_val = None
     max_val = None
 
-    with DbProxy(gen_data_source_of_universal_db(proc_id)) as db_instance:
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
         trans_data = TransactionData(proc_id)
         _, data_count = trans_data.select_data_count(db_instance, start_date, end_date, count_in_file)
 

@@ -16,6 +16,9 @@ const JUDGE_PATTERN_VALIDATION = /^Pos~([^|]+)\|Neg=([^|]+)\|([^|]+)$/;
 const TAB_CHAR = '\t';
 const NEW_LINE_CHAR = '\n';
 
+const JUDGE_NA_VALUES = new Set(['Null']);
+const NORMAL_NULL_VALUES = new Set(['NA', 'na', 'n/a', 'N/A', '<NA>', 'null', 'NULL', 'nan', '']);
+
 /**
  * @typedef {XMLHttpRequest} CustomXMLHttpRequest
  * @property {string} thread_id - is used to identify the thread that the request is associated with.
@@ -44,6 +47,7 @@ const localeConst = {
     JP: 'ja',
 };
 
+const DATETIME_FORMAT_UTC = 'YYYY-MM-DDTHH:mm:ss.SSSSSS[Z]';
 const DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const DATETIME_FORMAT_PLACE_HOLDER = '%Y-%m-%d %H:%M:%S.%f';
 const THOUSAND_SEP_PATTERN = /^[0-9]{1,3}(,[0-9]{3})*(\.[0-9]+)?$/;
@@ -303,6 +307,10 @@ const trimMid = (target) => target.replace(new RegExp(/\s+/), ' ');
 
 const trimBoth = (target) => trimLeft(trimRight(trimMid(target)));
 
+// global canvas used for measurements
+// we try not to create this multiple times
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
 const isEmpty = (val) => {
     if (!val) {
         // null or undefined or ''(空文字) or 0 or false
@@ -1630,6 +1638,10 @@ const toUTCDateTime = (localDate, localTime, withDateTime = false) => {
     return { date: localDate, time: localTime };
 };
 
+const convertLocalToUTC = (datetimeLocal) => {
+    return moment.utc(moment(datetimeLocal, DATETIME_FORMAT)).format('YYYY-MM-DDTHH:mm:ss') + '.000000Z';
+};
+
 const getColumnName = (endProcName, getVal) => {
     const col = procConfigs[endProcName].getColumnById(getVal) || {};
     return col.name || getVal;
@@ -2349,13 +2361,17 @@ const hasDivSelection = () => {
     return $('select[name=catExpBox] option:selected').text().includes('Div');
 };
 
-const endProcMultiSelectOnChange = async (count, props) => {
+const endProcMultiSelectOnChange = async (count, props, isExportConfig = false) => {
     const selectedProc = $(`#end-proc-process-${count}`);
     if (selectedProc.length === 0) {
         return;
     }
     const procId = selectedProc[0].value;
     const procInfo = procConfigs[procId];
+    const startProcId = getStartProcId();
+
+    // Remove condProc cards that have no-link-warning-sign
+    await removeCondProcWithNoLinkWarning(startProcId);
 
     $(`#count-variables-${count}`).text(0);
 
@@ -2363,7 +2379,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     $(`#end-proc-val-div-${count}`).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
     if (procInfo == null) {
-        checkIfProcessesAreLinked();
+        await checkIfProcessesAreLinked();
         updateSelectedItems();
         return;
     }
@@ -2481,15 +2497,24 @@ const endProcMultiSelectOnChange = async (count, props) => {
         };
         addGroupListCheckboxWithSearch(parentId, `end-proc-val-${count}`, '', ids, vals, listGroupProps);
     }
-    reSizeElementForDateTime(count);
-    updateSelectedItems();
-    onchangeRequiredInput();
-    setProcessID();
-    setColorRelativeStartEndProc();
-    checkIfProcessesAreLinked();
+
+    // Apply sort by column name for process
     initSortIcon('ul.list-group');
-    checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
-    addFilterProcessByProcessId(procId);
+
+    if (!isExportConfig) {
+        updateSelectedItems();
+        onchangeRequiredInput();
+        DataFinderService.setProcessID();
+        setColorRelativeStartEndProc();
+        checkIfProcessesAreLinked();
+        checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
+        if (startProcId && procId) {
+            const hasLink = await isLinkedWithProcess(startProcId, procId);
+            if (hasLink) {
+                addFilterProcessByProcessId(procId);
+            }
+        }
+    }
 };
 
 const endProcessProps = {
@@ -2516,30 +2541,46 @@ const endProcessProps = {
     isDivRequired: false,
 };
 
+const genProcessSelectOptions = (procIds, procNames, noDataLinkOption = null) => {
+    const itemList = [];
+    itemList.push('<option value="">---</option>');
+    if (noDataLinkOption) {
+        itemList.push(noDataLinkOption);
+    }
+    for (let i = 0; i < procIds.length; i++) {
+        const itemId = procIds[i];
+        const itemVal = procNames[i].shown_name;
+        const itemEnVal = procNames[i].name_en;
+        itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
+    }
+    return itemList.join(' ');
+};
+
 // add end proc
-const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
-    let count = 1;
+const addEndProcMultiSelect = (
+    procIds,
+    procNames,
+    props = endProcessProps,
+    isExportConfig = false,
+    positionIndex = '',
+) => {
+    let count = positionIndex || 1;
     const innerFunc = (
         onChangeCallbackFunc = null,
         onCloseCallbackFunc = null,
         onChangeCallbackDicParam = null,
         onCloseCallbackDicParam = null,
     ) => {
-        const itemList = [];
-        for (let i = 0; i < procIds.length; i++) {
-            const itemId = procIds[i];
-            const itemVal = procVals[i].shown_name;
-            const itemEnVal = procVals[i].name_en;
-            itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
-        }
-
-        while (checkExistDataGenBtn('btn-add-end-proc', count)) {
-            count = countUp(count);
+        if (!positionIndex) {
+            while (checkExistDataGenBtn('btn-add-end-proc', count)) {
+                count = countUp(count);
+            }
         }
 
         const parentID = `end-proc-process-div-${count}-parent`;
+        const processSelectId = `end-proc-process-${count}`;
 
-        const proc = `<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
+        const proc = `<div class="${isExportConfig ? 'col-12' : 'col-12 col-xl-6'} col-lg-12 col-md-12 col-sm-12 p-1" style="${isExportConfig ? 'max-height: 450px' : ''}">
                 <div class="card end-proc dynamic-element table-bordered py-sm-3" id="${parentID}">
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
@@ -2551,10 +2592,11 @@ const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
                                 <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
                                 <select class="form-control select2-selection--single
                                     ${props.isRequired ? 'required-input' : ''}
-                                    select-n-columns" name="end_proc${count}"
-                                    id="end-proc-process-${count}" 
+                                    select-n-columns process-selector" name="end_proc${count}"
+                                    id="${processSelectId}" 
+                                    data-id="${count}"
                                     data-gen-btn="btn-add-end-proc">
-                                    ${itemList.join(' ')}
+                                    ${genProcessSelectOptions(procIds, procNames)}
                                 </select>
                             </div>
                         </div>
@@ -2565,7 +2607,7 @@ const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
 
         $('#end-proc-row div').last().before(proc);
         $(`#end-proc-process-${count}`).on('change', (e) => {
-            const eleNumber = e.currentTarget.id.match(/\d+$/)[0];
+            const eleNumber = e.currentTarget.getAttribute('data-id');
             const isShowCTTime = $(formElements.showCT_Time).prop('checked');
             props.colorValsSelected = e.colorVals || [];
             if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
@@ -2573,7 +2615,7 @@ const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
             }
             const variableSelected = getEndProcVariableSelected($(e.currentTarget).closest('.card'));
             removeLimitedCheckedList(variableSelected);
-            endProcMultiSelectOnChange(eleNumber, props).then((r) => {
+            endProcMultiSelectOnChange(eleNumber, props, isExportConfig).then((r) => {
                 if (onChangeCallbackFunc) {
                     if (onChangeCallbackDicParam) {
                         onChangeCallbackFunc(onChangeCallbackDicParam);
@@ -2587,7 +2629,8 @@ const addEndProcMultiSelect = (procIds, procVals, props = endProcessProps) => {
         });
 
         cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
-        updateSelectedItems();
+        !isExportConfig && updateSelectedItems();
+        updateProcessListAfterFilter(processSelectId, procConfigs);
     };
     return innerFunc;
 };
@@ -2809,7 +2852,7 @@ const loadingShow = (isContinue = false, showGraph = false) => {
         const h = Math.floor(elapsedTime / (1000 * 60 * 60));
         const m = Math.floor(elapsedTime / (1000 * 60)) - h * 60;
         const s = Math.round(elapsedTime / 1000) - m * 60;
-        const time = `${h > 0 ? addZeroToNumber(h) + ':' : ''}${addZeroToNumber(m)}:${addZeroToNumber(s)}`;
+        const time = `${h > 0 ? DataFinderService.addZeroToNumber(h) + ':' : ''}${DataFinderService.addZeroToNumber(m)}:${DataFinderService.addZeroToNumber(s)}`;
         elapsedTimeEl.text(`Elapsed time: ${time}`);
     };
 
@@ -2898,8 +2941,12 @@ const errorHandling = (error, type = '') => {
 };
 
 const handleShowAbortModal = () => {
+    $(document).off('show.bs.modal', '.modal', zIndexModals.handle);
+    $(document).off('hidden.bs.modal', '.modal', zIndexModals.handle);
     $('#confirmAbortProcessModal').modal('show');
     $('#confirmAbortProcessModal').css({ zIndex: 2147483649 });
+    $(document).on('show.bs.modal', '.modal', zIndexModals.handle);
+    $(document).on('hidden.bs.modal', '.modal', zIndexModals.handle);
     $('.loadingoverlay').css({ zIndex: 9999 });
 };
 
@@ -3009,6 +3056,10 @@ class GraphStore {
 
     getAllScatterPlot() {
         return Object.values(this.dctCanvas2Scatter) || [];
+    }
+
+    getAllWhiskerPlot() {
+        return Object.values(this.dctCanvas2Whisker) || [];
     }
 
     setDctCanvas2Scatter(dictCanvas2Scatter) {
@@ -4336,6 +4387,40 @@ const afterReceiveResponseCommon = (res) => {
     dataSetID = res['dataset_id'];
 };
 
+/**
+ * @description Enhances an HTML table with sorting and filtering capabilities. Adds sort icons to table headers,
+ * creates filter inputs for specified columns, and optionally applies scrolling with maximum height constraints.
+ * The function modifies the existing table DOM structure to add interactive sorting and filtering features.
+ *
+ * @param {string} tableID - The ID of the HTML table element to enhance (without the '#' selector)
+ * @param {number[]} [filterCols=[]] - Array of column indexes (0-based) that should have filter inputs.
+ *                                     If empty array, no filters are added. If null/undefined, no filters are added.
+ * @param {string|number|null} [maxheight=null] - Maximum height for the table container. Can be:
+ *                                                 - A number (treated as pixels)
+ *                                                 - A string with '%' (percentage)
+ *                                                 - A string with 'px' (pixels)
+ *                                                 - null (no height restriction)
+ * @param {boolean} [scrollToBottom=false] - Whether to automatically scroll to the bottom of the table after applying height restrictions
+ * @param {boolean} [iconSort=true] - Whether to add sort icons to table headers. When true, adds clickable sort icons that allow ascending/descending sorting
+ *
+ * @returns {void} This function does not return a value
+ *
+ * @example
+ * // Basic usage - add sorting to all columns
+ * sortableTable('myTable');
+ *
+ * @example
+ * // Add sorting and filtering to specific columns with index (0, 2, 4)
+ * sortableTable('dataTable', [0, 2, 4]);
+ *
+ * @example
+ * // Add sorting, filtering, and set max height with scroll to bottom
+ * sortableTable('resultsTable', [1, 3], '400px', true);
+ *
+ * @example
+ * // Add only filtering without sort icons
+ * sortableTable('filterTable', [0, 1, 2], null, false, false);
+ */
 const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false, iconSort = true) => {
     const tableIDEl = `#${tableID}`;
     const table = $(tableIDEl);
@@ -4425,8 +4510,8 @@ const initSortIcon = (containerSelector = 'table') => {
             $(containerEl).data('init-sort', false);
             Array.from($(containerEl).find('li:not(.keep-header)'))
                 .sort((a, b) => {
-                    const val1 = $(a).find('.row').children('div').eq(idx).data('for-sort');
-                    const val2 = $(b).find('.row').children('div').eq(idx).data('for-sort');
+                    const val1 = $(a).find('.item-row').children('div').eq(idx).data('for-sort');
+                    const val2 = $(b).find('.item-row').children('div').eq(idx).data('for-sort');
                     if (val1 && val2) {
                         if (asc) return val1.toUpperCase() > val2.toUpperCase() ? 1 : -1;
                         return val1.toUpperCase() > val2.toUpperCase() ? -1 : 1;
@@ -4441,16 +4526,35 @@ const handleSearchFilterInTable = (tableID) => {
     convertTextH2Z('#' + tableID);
     $(`#${tableID} .filterCol`).on('keyup change clear search', function () {
         const colIdx = $(this).data('col-idx');
+        const searchType = $(this).attr('search-type');
         const value = stringNormalization($(this).val().toLowerCase());
         let regex = makeRegexForSearchCondition(value);
         regex = new RegExp(regex, 'i');
+        const isSearchLabel = searchType === 'label';
+        const showAllLabels = isShowAllLabels();
         $(`#${tableID} tbody tr`).filter(function f() {
-            const colVal = getCellValue(this, colIdx);
-            $(this).toggle(regex.test(colVal));
+            const colVal = isSearchLabel ? getLabelsOfProcess(this, colIdx) : getCellValue(this, colIdx);
+            if (isSearchLabel) {
+                $(this).toggle(showAllLabels || colVal.filter((label) => labelState[label]).length > 0);
+            } else {
+                $(this).toggle(regex.test(colVal));
+            }
         });
 
         scrollToBottom(`${tableID}_wrap`);
     });
+};
+
+const getLabelsOfProcess = (row, index) => {
+    const cell = $(row).children('td').eq(index);
+    const vals = [];
+    $(cell)
+        .find('.process-label')
+        .each((i, el) => {
+            vals.push($(el).text());
+        });
+
+    return vals;
 };
 
 const getCellValue = (row, index) => {
@@ -4799,7 +4903,7 @@ const onChangeDivideOption = () => {
             const categoryDivideText = $('select[name=compareType] option[value=category]').text();
             const confirmText = i18nCommon.changeDivideOptionConfirmText.replaceAll(
                 'CATEGORY_DIVIDE_OPTION',
-                categoryDivideText,
+                categoryDivideText.trim(),
             );
             $('#changeDivideOptionConfirmMessage').html(confirmText);
             $('#changeCompareTypeConfirm').modal().toggle();
@@ -4833,8 +4937,8 @@ const onChangeDivInFacet = () => {
 
         if (value === facetLevels.DIV && currentDivideOption !== 'category') {
             const confirmText = i18nCommon.changeDivConfirmText
-                .replaceAll('CURRENT_DIVIDE_OPTION', currentDivideOptionText)
-                .replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText);
+                .replaceAll('CURRENT_DIVIDE_OPTION', currentDivideOptionText.trim())
+                .replaceAll('CATEGORY_DIVIDE_OPTION', categoryDivideText.trim());
             $('#changeDivConfirmationText').html(confirmText);
             $('#changeDivInFacetConfirm').modal().toggle();
         }
@@ -4887,9 +4991,46 @@ const toLocalTime = (datetime) => {
     return moment.utc(datetime).local().format(DATETIME_FORMAT);
 };
 
+/**
+ * Get first end proc has value to use start proc
+ * @returns {*|jQuery}
+ */
+
+const getFirstEndProc = () => {
+    return $('select[name^=end_proc]')
+        .filter((i, el) => $(el).val())
+        .first();
+};
+/**
+ * Get first end proc value
+ * @returns {string}
+ */
+
+const getFirstEndProcVal = () => {
+    return getFirstEndProc().val() || '';
+};
+
+/**
+ * Get start proc id, if start proc is null return first end proc value
+ * @returns {string}
+ */
+
+const getStartProcId = () => {
+    let startProcId = $('select[name=start_proc]').val();
+    if (!startProcId) {
+        startProcId = getFirstEndProcVal();
+    }
+
+    return startProcId;
+};
+
+/**
+ * Get start proc value
+ * @returns {string}
+ */
 const getFirstSelectedProc = () => {
     const startProcId = $('select[name^=start_proc]').first().val();
-    const endProcId = $('select[name^=end_proc]').first().val();
+    const endProcId = getFirstEndProcVal();
 
     return !startProcId || startProcId === '0' ? endProcId : startProcId;
 };
@@ -5435,7 +5576,7 @@ const convertDatetimePreview = (dateStr) => {
 
     const getMatched = (dateStr) => {
         const matched = dateStr.split(/-|\/|月|日|年|時|分|秒/);
-        return matched.filter((v) => v).map((v) => addZeroToNumber(Number(v)));
+        return matched.filter((v) => v).map((v) => DataFinderService.addZeroToNumber(Number(v)));
     };
 
     if (regex1.test(dateStr)) {
@@ -5462,20 +5603,14 @@ const convertDatetimePreview = (dateStr) => {
     return dateFormat;
 };
 
-const visualTextLength = (text, textSize = 14) => {
-    const span = `<div class="hide-element" style="font-size: ${textSize}px; font-family: 'Arial'">${text}</div>`;
-    $('html').append(span);
-    const width = $('.hide-element').width();
-    $('.hide-element').remove();
-
-    return Math.floor(width);
-};
-
 const trimTextLengthByPixel = (text, length = 150, textSize = 14) => {
     let tmp = text;
     let trimmed = text;
-    if (visualTextLength(tmp, textSize) > length) {
-        trimmed += '...';
+    const textVisualLen = visualTextLength(tmp, textSize);
+    if (textVisualLen > length) {
+        const step = Math.round(text.length / (textVisualLen / length));
+        tmp = tmp.substring(0, step);
+        trimmed = tmp + '...';
         while (visualTextLength(trimmed, textSize) > length) {
             tmp = tmp.substring(0, tmp.length - 1);
             trimmed = tmp + '...';
@@ -5829,17 +5964,15 @@ const saveAllChanges = () => {
     }
 };
 
-const getYAxisLabelWidth = (yLabel, fontSize = 12, fontFamily = 'Arial') => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+const visualTextLength = (input, fontSize = 12, fontFamily = 'Arial') => {
     ctx.font = `${fontSize}px ${fontFamily}`;
-    return ctx.measureText(yLabel.toString()).width;
+    return ctx.measureText(input.toString()).width;
 };
 const getLegendX = (yLabel, legendLabel) => {
     const minPosX = -2;
     const padding = 20;
-    const labelWidth = getYAxisLabelWidth(yLabel);
-    const legendLabelWidth = getYAxisLabelWidth(legendLabel);
+    const labelWidth = visualTextLength(yLabel);
+    const legendLabelWidth = visualTextLength(legendLabel);
     const graphWidth = document.getElementById('barContainer').offsetWidth;
     const xPosition = -Math.abs((labelWidth + padding) / (graphWidth - labelWidth - legendLabelWidth - 70));
     return xPosition < minPosX ? minPosX : xPosition;
@@ -5895,6 +6028,10 @@ const checkSpecialRow = (row) => {
     return row.is_dummy_datetime || row.is_file_name || row.is_generated_datetime;
 };
 
+const isGeneratedDatetimeRow = (row) => {
+    return row?.is_dummy_datetime || row?.is_generated_datetime;
+};
+
 const scrollToEle = (eleID) => {
     const elePosition = getOffsetTopDisplayGraph(`#${eleID}`);
     $('html,body').animate({ scrollTop: elePosition }, 1000);
@@ -5917,7 +6054,7 @@ const addFilterProcessByProcessId = (processId) => {
     // check if empty dropdown is shown
     const selectName = 'select[name*=cond_proc]';
 
-    let parentCondCardDivs = getEmptyCondCard(selectName);
+    let parentCondCardDivs = getEmptyCondCards(selectName);
 
     if (!parentCondCardDivs.length) {
         // add by trigger click add button
@@ -5925,10 +6062,10 @@ const addFilterProcessByProcessId = (processId) => {
     }
 
     setTimeout(() => {
-        parentCondCardDivs = getEmptyCondCard(selectName);
-        parentCondCardDivs.forEach((el) => {
-            $(el).find(selectName).val(processId).trigger('change');
-        });
+        parentCondCardDivs = getEmptyCondCards(selectName);
+        if (parentCondCardDivs.length) {
+            parentCondCardDivs[0].find(selectName).val(processId).trigger('change');
+        }
     }, 1000);
 };
 
@@ -5938,7 +6075,7 @@ const addFilterProcessByProcessId = (processId) => {
  * @return {Array} or list of Element of filter process Div
  */
 
-const getEmptyCondCard = (selectName) => {
+const getEmptyCondCards = (selectName) => {
     let parentDivs = [];
     const condCard = $('.cond-proc');
     condCard.each((i, el) => {
@@ -5958,10 +6095,47 @@ const getEmptyCondCard = (selectName) => {
 const getShowingFilterProcess = () => {
     return [...$('select[name*=cond_proc]')].map((el) => Number($(el).val()));
 };
+
+/**
+ * Remove condProc cards that have no-link-warning-sign icon
+ * This function is called when endProc is changed to clean up unlinked filter conditions
+ */
+const removeCondProcWithNoLinkWarning = async (startProcId) => {
+    const condProcCards = $('.cond-proc');
+
+    const removeFilterCard = async (card) => {
+        const closeIcon = $(card).find('.close-icon');
+        if (closeIcon.length > 0) {
+            closeIcon.trigger('click');
+            // Wait for removal animation to complete
+            await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+    };
+
+    for (let i = 0; i < condProcCards.length; i++) {
+        const card = condProcCards[i];
+        const condProcSelect = $(card).find('select[name^="cond_proc"]');
+        const condProcValue = condProcSelect.val();
+
+        if (!condProcValue) continue;
+
+        // if no start proc is selected -> remove all filter config
+        if (!startProcId) {
+            await removeFilterCard(card);
+            continue;
+        }
+        // Check if condProc has link with endProc
+        const hasLink = await isLinkedWithProcess(startProcId, condProcValue);
+
+        // If no link, remove the card
+        if (!hasLink) {
+            await removeFilterCard(card);
+        }
+    }
+};
+
 function getCellTextWidth(text) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    const metrics = context.measureText(text);
+    const metrics = ctx.measureText(text);
     return metrics.width;
 }
 
@@ -6007,3 +6181,34 @@ class zIndexModals {
         $(document).on('hidden.bs.modal', '.modal', zIndexModals.handle);
     }
 }
+
+/**
+ * Handle loading component is show and hide by only one logic flow.
+ * @return {{show: show, hide: hide, forceHide: forceHide}}
+ */
+const loadingHandler = () => {
+    const $loadingEl = $('.loading');
+    const isShowingByOtherLogic = $loadingEl.is(':visible');
+    const show = () => {
+        if (isShowingByOtherLogic) {
+            return;
+        }
+        $loadingEl.css('z-index', 9999);
+        $loadingEl.show();
+    };
+    const forceHide = () => {
+        $loadingEl.hide();
+    };
+    const hide = () => {
+        if (isShowingByOtherLogic) {
+            return;
+        }
+
+        forceHide();
+    };
+    return {
+        show,
+        hide,
+        forceHide,
+    };
+};

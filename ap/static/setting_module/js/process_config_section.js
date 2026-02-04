@@ -233,6 +233,20 @@ class ProcessConfigSection {
         this.processOriginNameElement = sectionHTMLObject.querySelector(`#processOriginName${this.idSuffix}`);
 
         /**
+         * Get/Set process labels
+         * @type {{
+         *    set: (function(string[]): void),
+         *    get: (function(): string[]),
+         * }}
+         */
+        this.labels = {
+            get: () => this.labels.value,
+            set: (value) => {
+                this.labels.value = value ?? [];
+            },
+        };
+
+        /**
          * Get/Set process system name
          * @type {{
          *    set: (function(string, boolean): void),
@@ -350,6 +364,7 @@ class ProcessConfigSection {
             comment: null,
             columns: procColumnsData(tableId, true),
             datetime_format: datetimeFormat,
+            labels: this.labels.get(),
         };
 
         // No need fields in this time
@@ -368,8 +383,9 @@ class ProcessConfigSection {
      * @return {RequestProcessData} - an object contains process columns infos
      */
     static splitUsedColumnAndUnusedColumn(processConfig) {
-        const usedProcessConfig = { ...processConfig };
-        const unusedProcessConfig = { ...processConfig };
+        const { labels, ...rest } = processConfig;
+        const usedProcessConfig = { ...rest };
+        const unusedProcessConfig = { ...rest };
 
         usedProcessConfig.columns = processConfig.columns.filter((columnConfig) => columnConfig.is_checked);
         unusedProcessConfig.columns = processConfig.columns.filter((columnConfig) => !columnConfig.is_checked);
@@ -377,6 +393,7 @@ class ProcessConfigSection {
         return {
             proc_config: usedProcessConfig,
             unused_columns: unusedProcessConfig,
+            labels,
         };
     }
 
@@ -443,6 +460,7 @@ class ProcessConfigSection {
         uniqueDataReal,
         uniqueDataInt,
         uniqueDataIntCat,
+        labels,
     ) {
         const mainEle = document.getElementById('procPreviewSection');
 
@@ -451,6 +469,8 @@ class ProcessConfigSection {
         const sectionHTMLObject = htmlToElement(extendSectionDivHTML);
         sectionHTMLObject.__object__ = new ProcessConfigSection(sectionHTMLObject);
 
+        // add labels for registered by file process
+        sectionHTMLObject.__object__.labels.set(labels);
         // append section html.
         mainEle.appendChild(sectionHTMLObject);
 
@@ -806,6 +826,7 @@ class ProcessConfigSection {
             PROCESS_COLUMNS.name_en,
             PROCESS_COLUMNS.name_jp,
             PROCESS_COLUMNS.name_local,
+            PROCESS_COLUMNS.formula,
         ].forEach((name) => {
             const columnIndex = table.getIndexHeaderByName(name);
             const disableCell = table.getCellFromCoords(columnIndex, generateIndex);

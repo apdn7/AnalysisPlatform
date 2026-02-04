@@ -95,7 +95,7 @@ def generate_heatmap():
 
 @api_calendar_heatmap_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]

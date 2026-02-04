@@ -1,0 +1,148 @@
+.inline-elements {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 3rem;
+    align-items: flex-end;
+}
+
+.inline-elements .form-group {
+    flex: 1;
+    min-width: 220px;
+}
+
+.section {
+    background-color: #303030;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.grouplist-checkbox-with-search {
+    overflow: auto;
+}
+
+.export-list-content {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    row-gap: 10px;
+    column-gap: 10px;
+}
+
+.export-list-content .export-content {
+    width: calc(50% - 10px);
+}
+
+.export-list-content .add-export-btn-wrap {
+}
+
+.export-list-content .form-group {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.export-list-content .form-group label,
+.export-list-content .form-group h5 {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.export-list-content .form-group label {
+    margin-right: 8px;
+    width: 200px;
+}
+
+.export-checkbox-content {
+    display: flex;
+    width: 78%;
+}
+.data-finder {
+    max-width: 100%;
+    width: 100%;
+}
+
+.data-finder .form-group {
+    display: block;
+}
+
+.data-finder-action .action {
+    flex-direction: column;
+}
+
+.data-finder-action .action .action-offset {
+    margin-bottom: 0px;
+    width: 60px;
+}
+
+.data-finder-calendar {
+    width: auto;
+    padding: 10px;
+}
+
+.export-list-content .data-finder-card {
+    display: flex;
+}
+[class^='calender-box'] td,
+[class^='calender-box'] th {
+    min-width: 30px;
+}
+
+.year-calendar th,
+.year-calendar td {
+    min-width: 35.5px;
+}
+
+.year-calendar td {
+    height: 35px;
+}
+
+input[name^='data-finder-input'] {
+    max-width: 300px;
+}
+
+@media screen and (max-width: 1700px) {
+    #data-finder-modal {
+        flex-direction: column;
+    }
+    .export-list-content .form-group {
+        justify-content: normal;
+    }
+}
+
+.filter-condition-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+}
+
+.filter-condition-card div:not(:last-child) {
+    margin-bottom: 2px;
+}
+
+.filter-condition-card div div div {
+    width: 100%;
+}
+
+.filter-condition-card #btn-extend-toggle-container {
+    display: none;
+}
+
+.filter-condition-card .sortCol {
+    display: none;
+}
+
+.inline-section-title {
+    width: 145px !important;
+}
+
+.frequency-selection {
+    width: 180px;
+}
+
+.no-padding {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}

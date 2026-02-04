@@ -59,7 +59,6 @@ def trace_data():
     Trace Data API
     return dictionary
     """
-
     start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
     save_input_data_to_file(dic_form, EventType.STP)
@@ -141,7 +140,7 @@ def download_file(filename):
 
 @api_categorical_plot_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]

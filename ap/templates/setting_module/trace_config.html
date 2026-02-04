@@ -269,16 +269,8 @@
                         <h4 class="modal-title">{{ _("Warning") }}</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
-                    <div class="modal-body" style="word-break: keep-all;">
-                        <p class="modal-inform">
-                            {{ _("Based on the set config information, generating the ID for linking the data will be started.") }}
-                        </p>
-                        <p class="modal-inform">
-                            {{ _("It may take time if there is a lot of data to link, but is it okay to start the process?") }}
-                        </p>
-                        <p class="modal-inform">
-                            {{ _("(For data that is automatically and regularly imported, the ID for linking is automatically generated.)") }}
-                        </p>
+                    <div class="modal-body" style="word-break: break-word;">
+                        <p class="modal-inform">{{ _("Data link confirmation") }}</p>
                     </div>
                     <div class="modal-footer">
                         <button id="btn-proceed" class="btn btn-primary" data-dismiss="modal">

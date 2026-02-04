@@ -93,7 +93,7 @@ logger = logging.getLogger(__name__)
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_scatter_plot(graph_param, dic_param, df=None, custom_order=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
@@ -304,12 +304,11 @@ def fit_2d_kde(x, y, max_num_points_kde=10000):
     max_num_points_kde: int
         x and y is under-sampled to this length
 
-    Returns
+    Returns:
     -------
     kernel:
         Fitted gaussian_kde
     """
-
     idx_sample = np.arange(len(x))
     if len(x) > max_num_points_kde:
         # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
@@ -340,7 +339,7 @@ def add_jitter_for_kde(x, y):
     x, y: array
         Raw data
 
-    Returns
+    Returns:
     -------
     x_, y_: array
         Added jitter if necessary
@@ -382,27 +381,26 @@ def calc_2d_hist(x, y, num_bins):
     num_bins: int
         Total number of cells = num_bins^2
 
-    Returns
+    Returns:
     -------
     hist:
         Fitted 2D histogram.
         Counts for each cell, and x-y value for binning is contained.
     """
-
     # range of x and y
 
-    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    qx = np.quantile(x, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')
     min_x, q1_x, q3_x, max_x = qx[:4]
     iqr_x = q3_x - q1_x
 
-    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')  # noqa
+    qy = np.quantile(y, [0.0, 0.25, 0.75, 1.0], interpolation='midpoint')
     min_y, q1_y, q3_y, max_y = qy[:4]
     iqr_y = q3_y - q1_y
 
-    xmin = np.nanmin([min_x, q1_x - 2.5 * iqr_x])  # noqa
-    xmax = np.nanmax([max_x, q3_x + 2.5 * iqr_x])  # noqa
-    ymin = np.nanmin([min_y, q1_y - 2.5 * iqr_y])  # noqa
-    ymax = np.nanmax([max_y, q3_y + 2.5 * iqr_y])  # noqa
+    xmin = np.nanmin([min_x, q1_x - 2.5 * iqr_x])
+    xmax = np.nanmax([max_x, q3_x + 2.5 * iqr_x])
+    ymin = np.nanmin([min_y, q1_y - 2.5 * iqr_y])
+    ymax = np.nanmax([max_y, q3_y + 2.5 * iqr_y])
 
     # 2D histogram. TypeError when values=None
     # https://stackoverflow.com/questions/60623899/why-is-binned-statistic-2d-now-throwing-typeerror
@@ -413,7 +411,7 @@ def calc_2d_hist(x, y, num_bins):
         statistic='count',
         bins=num_bins,
         range=[[xmin, xmax], [ymin, ymax]],
-    )  # noqa
+    )
     return hist
 
 
@@ -430,7 +428,7 @@ def calc_kde_gridpoints(kernel, x_edge, y_edge):
     x_edge, y_edge: array
         Vales fo binning
 
-    Returns
+    Returns:
     -------
     kde_gridpoints: array
         Density values on each gridpoint
@@ -439,7 +437,6 @@ def calc_kde_gridpoints(kernel, x_edge, y_edge):
         x-y values of each gridpoint
         len = len(x_edge) * len(y_edge)
     """
-
     # calculate density of each gridpoints
     x_grid, y_grid = np.meshgrid(x_edge, y_edge)
     x_grid = x_grid.ravel()
@@ -464,12 +461,11 @@ def get_outlier_flg(hist, kde_gridpoints, num_outliers, num_bins):
     num_outliers: int
         Number of outliers to show in scatter plot
 
-    Returns
+    Returns:
     -------
     flg_outlier: array
         True/False values
     """
-
     num_cells = hist.statistic.shape[0]
 
     # we have to be careful that
@@ -529,7 +525,7 @@ def gen_scatter_n_contour_data(dic_param: dict, dic_data, use_contour):
                 use_contour,
                 is_show_contour_only,
             )
-            scatter_contours['{}-{}'.format(r_idx, c_idx)] = {
+            scatter_contours[f'{r_idx}-{c_idx}'] = {
                 'contour_data': contour_data,
                 'scatter_data': scatter_data,
                 'proc_id_x': proc_id_i,
@@ -555,7 +551,7 @@ def partial_corr(data, corr_only=False):
     np.fill_diagonal(parcor_mat, np.diag(correlation_mat))
 
     rowidx, colidx = np.triu_indices(parcor_mat.shape[0])
-    for i, j in zip(rowidx, colidx):
+    for i, j in zip(rowidx, colidx, strict=False):
         if i == j:
             continue
         parcor = -precision_mat[i, j] / np.sqrt(precision_mat[i, i] * precision_mat[j, j])
@@ -669,7 +665,7 @@ def gen_heatmap_data_from_msp(dic_param, dic_proc_cfgs):
         sensor_ids = [sensor[END_COL_ID] for sensor in dic_param[ARRAY_PLOTDATA]]
         y_sensor_ids = reversed(sensor_ids)
         for sensor_data in dic_param[ARRAY_PLOTDATA]:
-            x_label = '{} | {}'.format(sensor_data[END_COL_SHOW_NAME], dic_proc_cfgs[sensor_data[END_PROC_ID]].name)
+            x_label = f'{sensor_data[END_COL_SHOW_NAME]} | {dic_proc_cfgs[sensor_data[END_PROC_ID]].name}'
             x.append(x_label)
 
             # remove unused data

@@ -2,7 +2,7 @@ import csv
 import logging
 import re
 from pathlib import Path
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Union
 
 import numpy as np
 import pandas as pd
@@ -23,6 +23,7 @@ from ap.common.constants import (
     SUB_PART_NO_DEFAULT_NO,
     SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_NAMES,
+    UNDER_SCORE,
     V2_MULTI_EXTEND_COL_DIC,
     V2_SAME_COL_DIC,
     WELL_KNOWN_COLUMNS,
@@ -55,9 +56,7 @@ logger = logging.getLogger(__name__)
 
 @log_execution_time()
 def predict_v2_data_type(columns, df):
-    """
-    predict data type for v2 columns
-    """
+    """Predict data type for v2 columns"""
     data_types = [gen_data_types(df[col], is_v2=True) for col in columns]
     return data_types
 
@@ -123,9 +122,9 @@ def is_v2_data_source(ds_type=None, process_id=None, meta_session: scoped_sessio
 
 @log_execution_time()
 def get_preview_processes_v2(
-    sorted_files: List[str],
-    maximum_files: Optional[int] = None,
-) -> List[str]:
+    sorted_files: list[str],
+    maximum_files: int | None = None,
+) -> list[str]:
     found_processes = set()
     sorted_files = sorted_files[:maximum_files]
     for f_name in sorted_files:
@@ -215,7 +214,7 @@ def get_df_v2_process_single_file(
 
 
 @log_execution_time()
-def get_df_v2_process_multiple_files(v2_files: List[str], process_name: str) -> DataFrame:
+def get_df_v2_process_multiple_files(v2_files: list[str], process_name: str) -> DataFrame:
     df = pd.DataFrame()
     for f_name in v2_files:
         df_process = get_df_v2_process_single_file(f_name, process_name)
@@ -251,8 +250,8 @@ def simple_convert_to_v2_vertical(
     if is_en_cols:
         normalized_cols = normalize_column_name(normalized_cols)
 
-    dict_normalized_cols = dict(zip(normalized_cols, df.columns))
-    for normalized_col, col in zip(normalized_cols, df.columns):
+    dict_normalized_cols = dict(zip(normalized_cols, df.columns, strict=False))
+    for normalized_col, col in zip(normalized_cols, df.columns, strict=False):
         # pandas will add suffix '.' to duplicated columns
         if normalized_col == data_value_col or normalized_col.startswith((f'{data_value_col}.', f'{data_value_col}_')):
             data_value_like_cols.append(col)
@@ -307,7 +306,7 @@ def simple_convert_to_v2_vertical(
             pd.wide_to_long(  # convert from wide to long
                 df,
                 stubnames=stub_columns_to_be_converted,
-                i=unique_cols + [temp_id_column],
+                i=[*unique_cols, temp_id_column],
                 j=temp_suffix_column,
                 sep='.',  # pandas use "." to handle duplicated columns
             )
@@ -315,7 +314,7 @@ def simple_convert_to_v2_vertical(
             .drop(columns=[temp_id_column, temp_suffix_column])  # remove unused columns
         )
 
-    df = df.drop_duplicates(subset=unique_cols + [quality_name_col])
+    df = df.drop_duplicates(subset=[*unique_cols, quality_name_col])
     df = df.dropna(subset=[quality_name_col])
     # replace vertical cols
     unique_vertical_cols = df[quality_name_col].unique().tolist()
@@ -330,7 +329,9 @@ def simple_convert_to_v2_vertical(
         # rename columns if there is duplicated measure item name
         if True in is_duplicated:
             normalized_vertical_cols = df_columns[len(unique_cols) :]
-    df = df.rename(columns=dict(zip(unique_vertical_cols, normalized_vertical_cols))).rename_axis(None, axis=1)
+    df = df.rename(columns=dict(zip(unique_vertical_cols, normalized_vertical_cols, strict=False))).rename_axis(
+        None, axis=1
+    )
     return df.reset_index()
 
 
@@ -366,7 +367,7 @@ def build_read_csv_for_v2(file_path: str, datasource_type: DBType = DBType.V2, i
 
     if datasource_type == DBType.V2_MULTI:
         v2_multi = tuple(V2_MULTI_EXTEND_COL_DIC.values())
-        extend_get_columns = tuple(x for pair in zip(v2_multi[0], v2_multi[1]) for x in pair)
+        extend_get_columns = tuple(x for pair in zip(v2_multi[0], v2_multi[1], strict=False) for x in pair)
         must_get_columns = must_get_columns + extend_get_columns
 
     def usecols(x):
@@ -403,13 +404,12 @@ def save_unused_columns(process: CfgProcess, unused_columns, meta_session: scope
 
 
 @log_execution_time()
-def rename_sub_part_no(df: pd.DataFrame, datasource_type=None) -> Tuple[DataFrame, List, List, str]:
+def rename_sub_part_no(df: pd.DataFrame, datasource_type=None) -> tuple[DataFrame, list, list, str]:
     """
-    rename sub part-no groups for v2 history
+    Rename sub part-no groups for v2 history
     input:  子部品品番   子部品品番
     output: 子1品番    子2品番
     """
-
     # convert duplicate name in df
     count = {}
     header_names = []
@@ -528,9 +528,9 @@ def get_v2_datasource_type_from_df(df: DataFrame) -> Union[tuple[DBType, bool, b
 
 
 @log_execution_time()
-def transform_partno_value(df: pd.DataFrame, partno_columns: List) -> pd.DataFrame:
+def transform_partno_value(df: pd.DataFrame, partno_columns: list) -> pd.DataFrame:
     """
-    tranform part-no value to import data
+    Tranform part-no value to import data
     input: JP1234567890
     output: 7890
     """
@@ -545,10 +545,8 @@ def transform_partno_value(df: pd.DataFrame, partno_columns: List) -> pd.DataFra
 
 
 @log_execution_time()
-def prepare_to_import_v2_df(df: DataFrame, cfg_proc: CfgProcess, datasource_type=None) -> Tuple[DataFrame, bool]:
-    """
-    :return: transformed dataframe, has_new_columns
-    """
+def prepare_to_import_v2_df(df: DataFrame, cfg_proc: CfgProcess, datasource_type=None) -> tuple[DataFrame, bool]:
+    """:return: transformed dataframe, has_new_columns"""
     if not datasource_type:
         datasource_type, *_ = get_v2_datasource_type_from_df(df)
 
@@ -565,9 +563,7 @@ def prepare_to_import_v2_df(df: DataFrame, cfg_proc: CfgProcess, datasource_type
 
 
 def get_reversed_column_value_from_v2(datasource_type, reversed_column_name, is_abnormal_v2, is_en_cols=False):
-    """
-    :return: v2 normal column name
-    """
+    """:return: v2 normal column name"""
     if is_abnormal_v2:
         return ABNORMAL_REVERSED_WELL_KNOWN_COLUMNS[datasource_type][reversed_column_name]
 
@@ -578,9 +574,7 @@ def get_reversed_column_value_from_v2(datasource_type, reversed_column_name, is_
 
 
 def rename_abnormal_history_col_names(datasource_type, headers, is_abnormal_v2):
-    """
-    :return: v2 normal columns from abnormal headers
-    """
+    """:return: v2 normal columns from abnormal headers"""
     rename_headers = []
 
     if not is_abnormal_v2:
@@ -596,9 +590,7 @@ def rename_abnormal_history_col_names(datasource_type, headers, is_abnormal_v2):
 
 
 def rename_abnormal_history_col_names_from_df(df, datasource_type):
-    """
-    :return: df with normal headers
-    """
+    """:return: df with normal headers"""
     rename_headers = {}
     headers = df.columns.to_list()
     for col_name in headers:
@@ -626,7 +618,7 @@ def rename_quality_group(df, datasource_type):
     quality_correct_value = REVERSED_WELL_KNOWN_COLUMNS[datasource_type.name][DataGroupType.DATA_VALUE.value]
 
     rename_dict = {}
-    for idx, (q_name, q_value) in enumerate(list(zip(quality_names, data_value))):
+    for idx, (q_name, q_value) in enumerate(list(zip(quality_names, data_value, strict=False))):
         rename_dict[q_name] = quality_correct_name if not idx else f'{quality_correct_name}.{idx}'
         rename_dict[q_value] = quality_correct_value if not idx else f'{quality_correct_value}.{idx}'
 
@@ -637,9 +629,7 @@ def rename_quality_group(df, datasource_type):
 
 
 def rename_multi_col_names_from_df(df):
-    """
-    :return: df with normal headers
-    """
+    """:return: df with normal headers"""
     rename_headers = {}
     headers = df.columns.to_list()
     for col_name in headers:
@@ -683,8 +673,8 @@ def normalize_column_name(columns_name):
     for column_name in columns_name:
         col_name = column_name.lower()
         for symbol in convert_symbols:
-            col_name = col_name.replace(symbol, '_')
-        if col_name[-1:] == '_':
+            col_name = col_name.replace(symbol, UNDER_SCORE)
+        if col_name[-1:] == UNDER_SCORE:
             # remove last underscore of column name
             # eg. serial_no_ -> serial_no
             col_name = col_name[:-1]
@@ -720,9 +710,7 @@ def get_quality_and_data_value_from_v2(
     is_abnormal_v2=False,
     is_en_cols=False,
 ) -> tuple[list[str], list[str], str, str]:
-    """
-    :return: v2 quality and data value column
-    """
+    """:return: v2 quality and data value column"""
     well_known_columns = WELL_KNOWN_COLUMNS
     reversed_well_known_columns = REVERSED_WELL_KNOWN_COLUMNS
 
@@ -750,10 +738,8 @@ def convert_horizontal_columns_to_vertical_columns(
     variable_col: str,
     value_col: str,
 ) -> pd.DataFrame:
-    """
-    Converting all columns marked as horizontal columns to vertical columns
-    """
-    unique_cols = [col for col in df.columns if col not in horizontal_columns + [variable_col] + [value_col]]
+    """Converting all columns marked as horizontal columns to vertical columns"""
+    unique_cols = [col for col in df.columns if col not in [*horizontal_columns, variable_col, value_col]]
 
     # pandas 2.0 does not allow `variable_col` to be existed in `df`
     # so we need to drop it before run
@@ -791,7 +777,6 @@ def remove_timezone_inside(datetime_series: Series, is_tz_inside: bool):
     :param is_tz_inside: is timezone inside
     :return: series without timezone
     """
-
     if is_tz_inside:
         try:
             return datetime_series.dt.tz_convert(None)

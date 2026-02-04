@@ -1,4 +1,7 @@
 import datetime as dt
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Any
 
 from apscheduler.triggers import interval
 from pytz import utc
@@ -11,6 +14,16 @@ from ap.common.logger import (
 )
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.path_utils import get_data_path
+from ap.common.scheduler import scheduler_app_context
+from ap.setting_module.models import JobManagement
+from ap.setting_module.services.background_process import send_processing_info
+
+
+@scheduler_app_context
+def zip_all_files_as_job(path: Path, job_management: JobManagement, **_kwargs: Mapping[str, Any]):
+    """Zip all files which in the same week into a single zip file"""
+    gen = ZipFileHandler.zip_all_previous_files_gen(path, job_management=job_management)
+    send_processing_info(gen, job_management=job_management)
 
 
 def add_job_zip_all_previous_log_files():
@@ -18,7 +31,7 @@ def add_job_zip_all_previous_log_files():
     interval_trigger = interval.IntervalTrigger(seconds=ZIP_LOG_INTERVAL, timezone=utc)
     EventQueue.put(
         EventAddJob(
-            fn=ZipFileHandler.zip_all_previous_files,
+            fn=zip_all_files_as_job,
             kwargs={'path': log_path},
             job_type=JobType.ZIP_LOG,
             trigger=interval_trigger,

@@ -128,7 +128,7 @@ TOTAL_VIOLIN_PLOT = 200
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
@@ -177,7 +177,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     color_id = root_graph_param.common.color_var
     cat_div_id = root_graph_param.common.div_by_cat
     level_ids = cat_exp if cat_exp else root_graph_param.common.cat_exp
-    col_ids = [col for col in list(set([x_id, y_id, color_id, cat_div_id] + level_ids)) if col]
+    col_ids = [col for col in list({x_id, y_id, color_id, cat_div_id, *level_ids}) if col]
     dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
 
     color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
@@ -359,7 +359,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         # gen scatter matrix
         n_graph = len(output_graphs) or 1
         data_per_graph = math.floor(min(SCATTER_PLOT_TOTAL_POINT / n_graph, SCATTER_PLOT_MAX_POINT))
-        for graph, (x_times, y_times) in zip(output_graphs, output_times):
+        for graph, (x_times, y_times) in zip(output_graphs, output_times, strict=False):
             # limit and sort by color
             df_graph, _is_data_limited = gen_df_limit_data(graph, series_keys, data_per_graph)
             if df_graph.empty:
@@ -465,7 +465,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
         dic_param[IS_RESAMPLING] = False
         # gen violin data
-        for graph, (x_times, y_times) in zip(output_graphs, output_times):
+        for graph, (x_times, y_times) in zip(output_graphs, output_times, strict=False):
             # limit and sort by color
             df_graph, _is_data_limited = gen_df_limit_data(graph, series_keys)
             if df_graph.empty:
@@ -881,7 +881,7 @@ def gen_scatter_data_count(
     chart_type=None,
 ):
     """
-    spit by data count
+    Spit by data count
     :param matrix_col:
     :param df:
     :param x_proc_id:
@@ -901,7 +901,7 @@ def gen_scatter_data_count(
     # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
-    df = drop_missing_data(df, [x, y, color] + levels)
+    df = drop_missing_data(df, [x, y, color, *levels])
 
     h_group_col = DATA_COUNT_COL
 
@@ -996,7 +996,7 @@ def gen_scatter_by_cyclic(
     chart_type=None,
 ):
     """
-    split by terms
+    Split by terms
     :param matrix_col:
     :param df:
     :param x_proc_id:
@@ -1016,7 +1016,7 @@ def gen_scatter_by_cyclic(
     # time_col = [col for col in df.columns if col.startswith(TIME_COL)][0]
 
     # remove missing data
-    df = drop_missing_data(df, [x, y, color] + levels)
+    df = drop_missing_data(df, [x, y, color, *levels])
 
     dic_df_chunks = {}
     df = df.set_index(TIME_COL, drop=False)
@@ -1094,7 +1094,7 @@ def gen_scatter_cat_div(
     cat_div_type=None,
 ):
     """
-    category divide
+    Category divide
     :param matrix_col:
     :param df:
     :param x_proc_id:
@@ -1117,9 +1117,9 @@ def gen_scatter_cat_div(
     if cat_div_type == DataType.INTEGER.name:
         df = drop_missing_data(df, [cat_div])
     else:
-        df = drop_missing_data(df, [x, y, cat_div, color] + levels)
+        df = drop_missing_data(df, [x, y, cat_div, color, *levels])
 
-    list_cols_drop_na = [x, y, color] + levels if color else [x, y] + levels
+    list_cols_drop_na = [x, y, color, *levels] if color else [x, y, *levels]
     list_na_indexes = df[df[list_cols_drop_na].isna().any(axis=1)].index.tolist()
 
     h_group_col = cat_div
@@ -1201,7 +1201,7 @@ def gen_scatter_by_direct_term(
     chart_type=None,
 ):
     """
-    split by terms
+    Split by terms
     :param matrix_col:
     :param dic_df_chunks
     :param x_proc_id:
@@ -1220,7 +1220,7 @@ def gen_scatter_by_direct_term(
 
     # remove missing data
     for key, df in dic_df_chunks.items():
-        dic_df_chunks[key] = drop_missing_data(df, [x, y, color] + levels)
+        dic_df_chunks[key] = drop_missing_data(df, [x, y, color, *levels])
 
     v_group_cols = [col for col in levels if col]
 

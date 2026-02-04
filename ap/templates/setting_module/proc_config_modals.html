@@ -47,6 +47,7 @@
                     <div class="col-sm-12">{{ macros.alert_message("alertProcessNameErrorMsg") }}</div>
                     <div class="col-sm-12">{{ macros.alert_message("alertReferenceFileErrorMsg") }}</div>
                     <div class="col-sm-12">{{ macros.alert_message("alertProcessConfigErrorMsg") }}</div>
+                    <div class="col-sm-12">{{ macros.alert_message("alertColumnNameModifiedWarningMsg") }}</div>
                 </div>
                 <div class="d-flex">
                     <form class="flex-grow-1 mr-4 w-100" id="procCfgForm" onSubmit="return false;">
@@ -129,7 +130,7 @@
                                     {{ macros.single_selectbox('databaseName',_("Data Source Name"),{},1,3,9) }}
                                 </div>
                             </div>
-                            <div class="row group-table-dropdown">
+                            <div class="row group-table-dropdown mb-2">
                                 <label for="tableName" class="col-sm-3 col-form-label label-right">
                                     <h5>{{ _("Table Name") }}</h5>
                                 </label>
@@ -173,114 +174,25 @@
                                     {{ macros.input_and_select_btn('fileName',_("File name"),'',_("ShowPreviewByFile"),'text',3,9, 'filePathProcessing(this)') }}
                                 </div>
                             </div>
+                            <div class="form-group row">
+                                <label for="cfgProcLabel" class="col-sm-3 col-form-label label-right">
+                                    <h5>{{ _("Label") }}</h5>
+                                </label>
+                                <div class="col-sm-9">
+                                    <select
+                                        id="cfgProcLabel"
+                                        class="form-control selection-tags"
+                                        multiple="multiple"
+                                    ></select>
+                                </div>
+                            </div>
                         </div>
                     </form>
-                    <!-- not available from v4.7.10 -->
-                    {#                    <div class=" flex-grow-1">#}
-                    {#                        <div>#}
-                    {#                            <label#}
-                    {#                                class="hint-text"#}
-                    {#                                title="{{ _("Set conditions to narrow down the records to be imported. You can set up to three target columns to specify conditions for.") }}"#}
-                    {#                                >{{ _("Import Condition") }}</label#}
-                    {#                            >#}
-                    {#                        </div>#}
-                    {#                        <div id="importFilterTable" style="width: 100%;" class="jexcel_container"></div>#}
-                    {#                        <table class="d-none table table-borderless" id="tblImportCondition">#}
-                    {#                            <thead>#}
-                    {#                                <tr class="text-center">#}
-                    {#                                    <th scope="col">No</th>#}
-                    {#                                    <th scope="col" class="th-lg">{{ _("Column Raw Name") }}</th>#}
-                    {#                                    <th scope="col" class="th-lg">{{ _("Value") }}</th>#}
-                    {#                                    <th scope="col" class="th-lg">#}
-                    {#                                        <label#}
-                    {#                                            class="mb-0"#}
-                    {#                                            style="text-decoration: underline;"#}
-                    {#                                            title="{{ _("Search Options") }}"#}
-                    {#                                            >{{ _("Filter Type") }}</label#}
-                    {#                                        >#}
-                    {#                                    </th>#}
-                    {#                                </tr>#}
-                    {#                            </thead>#}
-                    {#                            <tbody>#}
-                    {#                                <tr>#}
-                    {#                                    <th scope="row" class="text-center">1</th>#}
-                    {#                                    <td>#}
-                    {#                                        <div class="div-original-name">#}
-                    {#                                            <select#}
-                    {#                                                name="filterOriginalName"#}
-                    {#                                                id="filterOriginalName"#}
-                    {#                                                class="form-control"#}
-                    {#                                            >#}
-                    {#                                                <option value="">---</option>#}
-                    {#                                            </select>#}
-                    {#                                        </div>#}
-                    {#                                    </td>#}
-                    {#                                    <td>#}
-                    {#                                        <div>#}
-                    {#                                            <input#}
-                    {#                                                name="filterValue"#}
-                    {#                                                id="filterValue"#}
-                    {#                                                class="form-control"#}
-                    {#                                                type="text"#}
-                    {#                                            />#}
-                    {#                                            <select#}
-                    {#                                                name="filterValueSelect2"#}
-                    {#                                                id="filterValueSelect2"#}
-                    {#                                                aria-hidden="true"#}
-                    {#                                                class="form-control convert-h2z select2-hidden-accessible"#}
-                    {#                                            ></select>#}
-                    {#                                        </div>#}
-                    {#                                    </td>#}
-                    {#                                    <td>#}
-                    {#                                        <div class="">#}
-                    {#                                            <select#}
-                    {#                                                name="filterConditionFormula"#}
-                    {#                                                id="filterConditionFormulaSelect"#}
-                    {#                                                class="form-control"#}
-                    {#                                            >#}
-                    {#                                                <option value="">---</option>#}
-                    {#                                                <option value="AND_SEARCH">{{ _("AND search") }}</option>#}
-                    {#                                                <option value="OR_SEARCH">{{ _("OR search") }}</option>#}
-                    {#                                                <option value="CONTAINS">{{ _("Contains") }}</option>#}
-                    {#                                                <option value="MATCHES" selected>{{ _("Exact match") }}</option>#}
-                    {#                                                <option value="STARTSWITH">{{ _("Starts With") }}<</option>#}
-                    {#                                                <option value="ENDSWITH">{{ _("Ends With") }}</option>#}
-                    {#                                                <option value="REGEX">{{ _("Regular expressions") }}</option>#}
-                    {#                                            </select>#}
-                    {#                                        </div>#}
-                    {#                                    </td>#}
-                    {#                                </tr>#}
-                    {#                            </tbody>#}
-                    {#                        </table>#}
-                    {#                        <div class="row" style="padding-top: 5px;">#}
-                    {#                            <div class="col-2">#}
-                    {#                                <button class="btn btn-success icon-btn" name="addImportCondition" type="button">#}
-                    {#                                    <i class="fas fa-plus-circle"></i>#}
-                    {#                                </button>#}
-                    {#                            </div>#}
-                    {#                            <div class="col-6"></div>#}
-                    {#                            <div class="col-4">#}
-                    {#                                <div class="d-flex justify-content-end group-preview-btn">#}
-                    {#                                    <div class="warning-btn hide">#}
-                    {#                                        <label#}
-                    {#                                            type="button"#}
-                    {#                                            class="btn mb-0 p-md-0"#}
-                    {#                                            onclick="showConfigProcessWarning()"#}
-                    {#                                            style="margin: 3px 5px 0 0"#}
-                    {#                                        >#}
-                    {#                                            <i class="fas fa-exclamation-triangle yellow status-i"></i>#}
-                    {#                                        </label>#}
-                    {#                                    </div>#}
-                    {#                                    <button name="showRecords" type="button" class="btn btn-secondary">#}
-                    {#                                        {{ _("Show") }}#}
-                    {#                                    </button>#}
-                    {#                                </div>#}
-                    {#                            </div>#}
-                    {#                        </div>#}
-                    {#                    </div>#}
                     <!-- start show preview area: from v4.7.10 -->
-                    <div class="flex-grow-1 d-flex align-items-end mb-1" style="width: 120px;">
-                        <button name="showRecords" type="button" class="btn btn-secondary">{{ _("Show") }}</button>
+                    <div class="flex-grow-1 d-flex align-items-end mb-1 pr-xl-5 pr-md-3">
+                        <button name="showRecords" type="button" class="btn btn-secondary" style="min-width: 105px;">
+                            {{ _("Show") }}
+                        </button>
                     </div>
                     <!-- end show preview area -->
                 </div>
@@ -602,21 +514,39 @@
                                     <div class="function-config-value output-data-type">
                                         <span></span>
                                     </div>
-                                    <div class="custom-control custom-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            class="custom-control-input already-convert-hankaku"
-                                            name="isMainSerial"
-                                            id="is_main_serial"
-                                            onclick="handlerClickIsMainSerialFunctionColumn(this)"
-                                        />
-                                        <label
-                                            class="custom-control-label hint-text"
-                                            for="is_main_serial"
-                                            title="{{ _('mainSerialCheckboxHover') }}"
-                                        >
-                                            {{ _("main::Serial") }}
-                                        </label>
+                                    <div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                class="custom-control-input"
+                                                name="isMainDatetime"
+                                                id="is_main_datatime"
+                                                onclick="handlerClickIsMainDatetimeFunctionColumn(this)"
+                                            />
+                                            <label
+                                                class="custom-control-label hint-text"
+                                                for="is_main_datatime"
+                                                title="{{ _('mainDateTimeCheckboxHover') }}"
+                                            >
+                                                {{ _("main::Datetime") }}
+                                            </label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                class="custom-control-input"
+                                                name="isMainSerial"
+                                                id="is_main_serial"
+                                                onclick="handlerClickIsMainSerialFunctionColumn(this)"
+                                            />
+                                            <label
+                                                class="custom-control-label hint-text"
+                                                for="is_main_serial"
+                                                title="{{ _('mainSerialCheckboxHover') }}"
+                                            >
+                                                {{ _("main::Serial") }}
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">
@@ -947,6 +877,41 @@
             <div class="modal-footer">
                 <div>
                     <button id="confirmReRegisterProcBtn" class="btn btn-primary confirm-btn" data-item-id="">
+                        {{ _("OK") }}
+                    </button>
+                    <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmMergeProcReRegisterModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("Do you want to register with the modified contents?") }}</p>
+                <div class="custom-control custom-checkbox mb-3">
+                    <input
+                        type="checkbox"
+                        class="custom-control-input already-convert-hankaku"
+                        id="initParentData"
+                        name="init_parent"
+                        checked
+                    />
+                    <label class="custom-control-label modal-inform" for="initParentData"
+                        >{{ _("Initialize parent process data") }}</label
+                    >
+                </div>
+                <p>({{ _("Initialize Parent Data Hint") }})</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button id="confirmMergeProcReRegisterBtn" class="btn btn-primary confirm-btn" data-item-id="">
                         {{ _("OK") }}
                     </button>
                     <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
@@ -1344,6 +1309,22 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-sm-10">
+                                <div class="row form-group">
+                                    <label for="cfgProcLabelMergeMode" class="col-sm-4 col-form-label label-right">
+                                        <h5>{{ _("Label") }}</h5>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <select
+                                            id="cfgProcLabelMergeMode"
+                                            class="form-control selection-tags"
+                                            multiple="multiple"
+                                        ></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
@@ -1442,12 +1423,19 @@
             </div>
             <div class="modal-footer pb-3 pt-0" style="border-top:none;">
                 <div class="form-group" style="display: flex;">
-                    <!--                    <button name="reRegisterBtn" id="reRegisterChildProcBtn" type="button" class="btn btn-green mr-2"-->
-                    <!--                            data-itemId=""-->
-                    <!--                            onclick="" title="{{
-                        _(" Register the corrected contents such as Shown Name.-->
-                        <!--                    ")
-                    }}">{{ _("Re-register") }}</button>-->
+                    <button
+                        name="reRegisterChildProcBtn"
+                        id="reRegisterChildProcBtn"
+                        type="button"
+                        class="btn btn-green mr-2"
+                        data-itemId=""
+                        onclick=""
+                        title="{{ _(" Register the corrected contents such as Shown Name.") }}"
+                        data-submit-btn="true"
+                        data-submit-callback="confirmReRegisterProcBtn"
+                    >
+                        {{ _("Re-register") }}
+                    </button>
                     <button
                         name="okBtn"
                         id="createOrUpdateChildProcCfgBtn"
@@ -1491,6 +1479,39 @@
                         class="btn btn-secondary confirm-btn"
                         data-dismiss="modal"
                         onclick="handlerCancelMainSerial()"
+                    >
+                        {{ _("Cancel") }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmCheckIsMainDatetimeModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("checkIsMainDatetimeMsg") }}</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button
+                        id="confirmCheckIsMainDatetimeBtn"
+                        class="btn btn-primary confirm-btn"
+                        onclick="handlerConfirmMainDatetime()"
+                        data-item-id=""
+                    >
+                        {{ _("OK") }}
+                    </button>
+                    <button
+                        class="btn btn-secondary confirm-btn"
+                        data-dismiss="modal"
+                        onclick="handlerCancelMainDatetime()"
                     >
                         {{ _("Cancel") }}
                     </button>
@@ -1620,6 +1641,36 @@
             <div class="modal-footer">
                 <div>
                     <button class="btn btn-primary confirm-btn" onclick="handlerConfirmUncheckMainSerialFunctionCol()">
+                        {{ _("OK") }}
+                    </button>
+                    <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div
+    id="confirmUncheckMainDatetimeFunctionColumnModal"
+    class="modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="false">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform modal-msg">{{ _("changeMainDatetimeFunctionColumnMsg") }}</p>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button
+                        class="btn btn-primary confirm-btn"
+                        onclick="handlerConfirmUncheckMainDatetimeFunctionCol()"
+                    >
                         {{ _("OK") }}
                     </button>
                     <button class="btn btn-secondary confirm-btn" data-dismiss="modal">{{ _("Cancel") }}</button>

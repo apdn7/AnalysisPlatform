@@ -8,8 +8,10 @@ import io
 
 # https://stackoverrun.com/ja/q/6869533
 import logging
+from collections.abc import Mapping
 from datetime import datetime
 from itertools import islice
+from typing import Any
 from zipfile import ZipFile
 
 import numpy as np
@@ -40,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 def gen_csv_fname(export_type=CSVExtTypes.CSV.value):
     timestr = datetime.utcnow().strftime('%Y%m%d_%H%M%S.%f')[:-3]
-    csv_fname = '{0:s}_out.{1:s}'.format(timestr, export_type)
+    csv_fname = f'{timestr:s}_out.{export_type:s}'
     return csv_fname
 
 
@@ -155,7 +157,7 @@ def read_data(
         if is_transpose:
             rows = filter_blank_row(rows)
             rows = list(rows)
-            rows = map(list, zip(*rows))
+            rows = map(list, zip(*rows, strict=False))
 
         # use specify header( maybe get from yaml config)
         csv_headers = next(rows)
@@ -168,7 +170,7 @@ def read_data(
             yield normalize_func(row)
 
 
-def read_csv_with_transpose(file_path: str, is_transpose: bool = False, **pd_params) -> pd.DataFrame:
+def read_csv_with_transpose(file_path: str, is_transpose: bool = False, **pd_params: Mapping[str, Any]) -> pd.DataFrame:
     if is_transpose:
         params = pd_params.copy()
         params.pop('index_col', None)
@@ -183,7 +185,7 @@ def read_csv_with_transpose(file_path: str, is_transpose: bool = False, **pd_par
 
         dropped_columns = []
         renamed_columns = {}
-        for df_header, parsed_header in zip(df_headers, parsed_headers):
+        for df_header, parsed_header in zip(df_headers, parsed_headers, strict=False):
             if parsed_header not in use_cols:
                 dropped_columns.append(df_header)
             else:
@@ -209,7 +211,7 @@ def read_csv_with_transpose(file_path: str, is_transpose: bool = False, **pd_par
 
 def filter_blank_row(data):
     """
-    filter blank row in csv
+    Filter blank row in csv
     :param data:
     :return:
     """
@@ -315,14 +317,14 @@ def zip_file_to_response(csv_data, file_names, export_type=CSVExtTypes.CSV.value
             csv_data.encode(encoding),
             mimetype=f'text/{export_type}',
             headers={
-                'Content-Disposition': 'attachment;filename={}'.format(csv_filename),
+                'Content-Disposition': f'attachment;filename={csv_filename}',
             },
         )
     else:
         csv_filename = gen_csv_fname('zip')
         outfile = io.BytesIO()
         with ZipFile(outfile, 'w') as zf:
-            for name, data in zip(file_names, csv_data):
+            for name, data in zip(file_names, csv_data, strict=False):
                 zf.writestr(name, data)
 
         zip_dat = outfile.getvalue()
@@ -331,7 +333,7 @@ def zip_file_to_response(csv_data, file_names, export_type=CSVExtTypes.CSV.value
             mimetype='application/octet-stream',
             headers={
                 'Content-Type': 'application/octet-stream',
-                'Content-Disposition': 'attachment;filename={}'.format(csv_filename),
+                'Content-Disposition': f'attachment;filename={csv_filename}',
             },
         )
 

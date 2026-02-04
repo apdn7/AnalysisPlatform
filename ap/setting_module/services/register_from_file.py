@@ -26,13 +26,15 @@ from ap.common.constants import (
     DataColumnType,
     DataType,
     DBType,
+    DefinedLabel,
     MasterDBType,
     MaxGraphNumber,
     PagePath,
     max_graph_number,
 )
 from ap.common.path_utils import get_sorted_files
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.services.jp_to_romaji_utils import to_romaji
 
 # from ap.common.pydn.dblib.postgresql import PostgreSQL
@@ -63,7 +65,7 @@ def get_url_to_redirect(request, proc_ids, page):
 
     # get start_datetime and end_datetime
     trans_data = TransactionData(proc_ids[0])
-    with DbProxy(gen_data_source_of_universal_db(proc_ids[0])) as db_instance:
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_ids[0]), is_universal_db=True) as db_instance:
         max_datetime = trans_data.get_max_date_time_by_process_id(db_instance)
         min_datetime = trans_data.get_min_date_time_by_process_id(db_instance)
 
@@ -213,6 +215,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             unique_rows_as_real,
             unique_rows_as_int,
             unique_rows_as_int_cat,
+            labels,
         ) = latest_rec
         dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
         data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
@@ -234,6 +237,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             'unique_rows_as_real': unique_rows_as_real,
             'unique_rows_as_int': unique_rows_as_int,
             'unique_rows_as_int_cat': unique_rows_as_int_cat,
+            'labels': [DefinedLabel.get_by_dbtype(DBType.V2 if is_v2 else DBType.CSV).name],
         }
         process_configs.append(process_config)
 
@@ -267,7 +271,7 @@ def proc_config_infos_for_v2(dic_preview: dict) -> dict:
     }
 
 
-def get_latest_records_for_register_by_file(file_name: str = None, directory: str = None, limit: int = 5):
+def get_latest_records_for_register_by_file(file_name: str | None = None, directory: str | None = None, limit: int = 5):
     delimiter = 'Auto'
     skip_head = None
     etl_func = ''
@@ -305,6 +309,7 @@ def get_latest_records_for_register_by_file(file_name: str = None, directory: st
 def generate_process_config(meta_session: scoped_session, proc_config, data_source_id: int) -> CfgProcess:
     process_schema = ProcessSchema()
     request_process_config = proc_config.get('proc_config')
+    labels = proc_config.get('labels', [])
     # process not register, do need remove unused column
     request_unused_columns = proc_config.get('unused_columns', {}).get('columns', [])
     request_unused_columns_raw = [item['column_raw_name'] for item in request_unused_columns]
@@ -315,7 +320,7 @@ def generate_process_config(meta_session: scoped_session, proc_config, data_sour
     # check is show file name
     process.is_show_file_name = any(col.column_raw_name == FILE_NAME for col in process.columns)
 
-    return create_or_update_process_cfg(process, request_unused_columns_raw, meta_session=meta_session)
+    return create_or_update_process_cfg(process, request_unused_columns_raw, labels, meta_session=meta_session)
 
 
 def handle_importing_by_one_click(request):

@@ -86,7 +86,7 @@
                                                     data-db-type="{{ db_info.type }}"
                                                     class="form-control"
                                                     type="text"
-                                                    value="{% if db_info.type == 'CSV' %}{{ _('DataSourceTypeCsvTsvSsv') }}{% elif db_info.type == 'SQLITE' %}{{ _('DataSourceTypeSqlite') }}{% elif db_info.type == 'POSTGRESQL' %}{{ _('DataSourceTypePostgresql') }}{% elif db_info.type == 'MSSQLSERVER' %}{{ _('DataSourceTypeMssql') }}{% elif db_info.type == 'ORACLE' %}{{ _('DataSourceTypeOracle') }}{% elif db_info.type == 'MYSQL' %}{{ _('DataSourceTypeMysql') }}{% elif db_info.type == 'V2' %}{{ _('DataSourceTypeV2Csv') }}{% elif db_info.type == 'POSTGRES_SOFTWARE_WORKSHOP' %}{{ _('DataSourceTypeSoftwareWorkshop') }}{% elif db_info.type == 'SNOWFLAKE_SOFTWARE_WORKSHOP' %}{{ _('DataSourceTypeSoftwareWorkshopSnowflake') }}{% elif db_info.type == 'SNOWFLAKE' %}{{ _('Snowflake') }}{% endif %}"
+                                                    value="{{ datasource_types_i18n[db_info.type] }}"
                                                     disabled="disabled"
                                                 />
                                             </td>
@@ -121,7 +121,12 @@
                                                 {% endif %}
                                             </td>
                                             <td class="text-center">
-                                                {% set default_option = [0, 60, 1440] if 'SNOWFLAKE' in db_info.type else [0, 3, 5 ,10, 60, 1440] %}
+                                                {% set default_option = [0, 3, 5 ,10, 60, 1440] %}
+                                                {% if 'SNOWFLAKE' in db_info.type %}
+                                                    {% set default_option = [0, 60, 1440] %}
+                                                {% elif 'WEB' in db_info.type %}
+                                                    {% set default_option = [0] %}
+                                                {% endif %}
                                                 {{ macros.polling_frequency_option('main'+db_info.type,  (0 if db_info.polling_frequency == None else db_info.polling_frequency) / 60, is_authorized, default_option, True, 'main-polling-frequency') }}
                                             </td>
                                             <td class="text-center">

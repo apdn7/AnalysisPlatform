@@ -94,10 +94,9 @@ def handler_api_error(e: Exception):
 @external_api_v1_blueprint.route('/bookmarks', methods=['GET'])
 def get_list_of_bookmarks():
     """
-        get list bookmarks
+        Get list bookmarks
     :return: list of bookmarks
     """
-
     bookmarks = CfgUserSetting.get_bookmarks()
 
     user_setting_schema = CfgUserSettingSchema(many=True)
@@ -112,11 +111,7 @@ def get_list_of_bookmarks():
 
 @external_api_v1_blueprint.route('/processes', methods=['GET'])
 def get_list_of_processes():
-    """
-
-    :return:
-    """
-
+    """:return:"""
     processes = CfgProcess.get_list_of_process()
     process_schema = ProcessPublicSchema(many=True)
     processes = process_schema.dump(processes)
@@ -126,10 +121,7 @@ def get_list_of_processes():
 
 @external_api_v1_blueprint.route('/columns', methods=['GET'])
 def get_list_columns_of_processes():
-    """
-
-    :return:
-    """
+    """:return:"""
     validation = Validation(request)
     validation.columns_of_processes().validate()
 
@@ -151,7 +143,6 @@ def save_bookmark():
         Save a bookmark with parameters and options
     :return:
     """
-
     validation = Validation(request)
     validation.save_bookmark().validate()
 
@@ -238,10 +229,7 @@ def show_graph_with_bookmark():
 
 @external_api_v1_blueprint.route('/options', methods=['POST'])
 def send_a_list_options():
-    """
-
-    :return: option_id, req_id
-    """
+    """:return: option_id, req_id"""
     data = json.loads(request.data)
     req_id = data.get('req_id')
 
@@ -279,7 +267,6 @@ def get_list_of_options():
     Get a list of items for options
     :return:
     """
-
     # validate req_id
     Validation(request).get_list_options().validate()
 
@@ -301,7 +288,6 @@ def open_a_page():
     Open a page (with minimum parameters)
     :return:
     """
-
     Validation(request).dn7().validate()
 
     function = request.args.get(FUNCTION)
@@ -401,10 +387,7 @@ def get_param_by_req_id():
 
 @external_api_v1_blueprint.route('/fpp', methods=['GET'])
 def open_fpp():
-    """
-    Open FPP
-    """
-
+    """Open FPP"""
     Validation(request).fpp().validate()
 
     host_url = request.host_url
@@ -427,10 +410,7 @@ def open_fpp():
 
 @external_api_v1_blueprint.route('/skd', methods=['GET'])
 def open_skd():
-    """
-    Open SkD
-    """
-
+    """Open SkD"""
     Validation(request).skd().validate()
 
     host_url = request.host_url
@@ -452,10 +432,7 @@ def open_skd():
 
 @external_api_v1_blueprint.route('/rlp', methods=['GET'])
 def open_rlp():
-    """
-    Open RLP
-    """
-
+    """Open RLP"""
     Validation(request).rlp().validate()
 
     columns = request.args.get(COLUMNS, '').split(',')
@@ -480,10 +457,7 @@ def open_rlp():
 
 @external_api_v1_blueprint.route('/chm', methods=['GET'])
 def open_chm():
-    """
-    Open CHM
-    """
-
+    """Open CHM"""
     Validation(request).chm().validate()
 
     columns = request.args.get(COLUMNS, '').split(',')
@@ -507,10 +481,7 @@ def open_chm():
 
 @external_api_v1_blueprint.route('/msp', methods=['GET'])
 def open_msp():
-    """
-    Open msp
-    """
-
+    """Open msp"""
     Validation(request).msp().validate()
 
     columns = request.args.get(COLUMNS, '').split(',')
@@ -534,10 +505,7 @@ def open_msp():
 
 @external_api_v1_blueprint.route('/pcp', methods=['GET'])
 def open_pcp():
-    """
-    Open pcp
-    """
-
+    """Open pcp"""
     Validation(request).pcp().validate()
 
     host_url = request.host_url
@@ -559,10 +527,7 @@ def open_pcp():
 
 @external_api_v1_blueprint.route('/scp', methods=['GET'])
 def open_scp():
-    """
-    Open scp
-    """
-
+    """Open scp"""
     Validation(request).scp().validate()
 
     host_url = request.host_url
@@ -585,10 +550,7 @@ def open_scp():
 
 @external_api_v1_blueprint.route('/agp', methods=['GET'])
 def open_agp():
-    """
-    Open AgP
-    """
-
+    """Open AgP"""
     Validation(request).agp().validate()
 
     columns = request.args.get(COLUMNS, '').split(',')
@@ -613,10 +575,7 @@ def open_agp():
 
 @external_api_v1_blueprint.route('/stp', methods=['GET'])
 def open_stp():
-    """
-    Open StP
-    """
-
+    """Open StP"""
     Validation(request).stp().validate()
 
     columns = request.args.get(COLUMNS, '').split(',')

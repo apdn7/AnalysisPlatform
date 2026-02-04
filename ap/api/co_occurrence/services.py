@@ -175,7 +175,7 @@ cumulative ratio of number of alarms [%]: {cum_occurrences_ratio.to_numpy()[:5]}
     # note that this list is not in the original column order.
     highlight_bars = set()
     bar_colors = []
-    for alarm_name, cum_ratio_value in list(zip(cum_occurrences_ratio.index, cum_occurrences_ratio)):
+    for alarm_name, cum_ratio_value in list(zip(cum_occurrences_ratio.index, cum_occurrences_ratio, strict=False)):
         if cum_ratio_value <= CUM_RATIO_VALUE:
             color = dic_colors['bar_highlight']
             highlight_bars.add(alarm_name)

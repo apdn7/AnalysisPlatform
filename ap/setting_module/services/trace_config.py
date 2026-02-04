@@ -1,5 +1,3 @@
-from typing import List
-
 from ap.common.logger import log_execution_time
 from ap.setting_module.models import CfgProcess, CfgTrace, CfgTraceKey, make_session
 from ap.setting_module.schemas import VisProcessTraceOutSchema
@@ -130,21 +128,20 @@ def trace_config_crud(traces):
     return [(_cfg.id, _cfg.self_process_id, _cfg.target_process_id) for _cfg in changed_traces], deleted_traces
 
 
-def is_trace_detail_changed(cfg_trace: CfgTrace, exist_cfg_keys: List[CfgTraceKey]):
+def is_trace_detail_changed(cfg_trace: CfgTrace, exist_cfg_keys: list[CfgTraceKey]):
     """
-    check if trace detail changed
+    Check if trace detail changed
     :param cfg_trace:
     :param exist_cfg_keys:
     :return:
     """
-
     if len(cfg_trace.trace_keys) != len(exist_cfg_keys):
         return True
 
     trace_keys = sorted(cfg_trace.trace_keys, key=lambda x: x.self_column_id)
     columns = None
     excludes = ['id', 'trace_id', 'created_at', 'updated_at']
-    for detail, exist_cfg_key in zip(trace_keys, exist_cfg_keys):
+    for detail, exist_cfg_key in zip(trace_keys, exist_cfg_keys, strict=False):
         if not columns:
             columns = [col for col in detail.__table__.columns.keys() if col not in excludes]
 

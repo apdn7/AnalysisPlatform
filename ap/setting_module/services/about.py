@@ -28,7 +28,7 @@ def split_css_html(about_fpath):
     logger.info(f'about_fpath: {about_fpath}')
     regex_css = r'\<style[^>]*>.*\<\/style[ ]*>'
 
-    with open(about_fpath, 'r', encoding='utf-8') as f:
+    with open(about_fpath, encoding='utf-8') as f:
         md = f.read()
 
     css = re.search(regex_css, md, re.DOTALL)
@@ -41,5 +41,5 @@ def split_css_html(about_fpath):
 
 
 def add_about_class(css):
-    output = re.sub(r'(.*{)', '.about \\1', css, re.DOTALL)
+    output = re.sub(r'(.*{)', '.about \\1', css, flags=re.DOTALL)
     return output

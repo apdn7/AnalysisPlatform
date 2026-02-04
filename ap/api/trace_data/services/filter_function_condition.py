@@ -3,6 +3,7 @@ from pandas import DataFrame, Series
 
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import DataType, FilterFunc
+from ap.setting_module.models import CfgFilterDetail
 from ap.trace_data.schemas import ConditionProc
 
 
@@ -108,7 +109,7 @@ def filter_contains(df_col: Series, condition_str):
 
 def filter_substring(df_col: Series, from_position, condition_str):
     """
-    filter from position
+    Filter from position
     :param df_col:
     :param from_position: start from 1
     :param condition_str:
@@ -157,3 +158,108 @@ def convert_str_type(df: DataFrame, column_name):
         column_name = id_col
     df_col = df[column_name].astype(str)
     return df_col
+
+
+def filter_by_condition(df: DataFrame, condition: CfgFilterDetail) -> pd.Series | None:
+    """
+    Filter df by single condition
+    Args:
+        df:
+        condition: CfgFilterDetail
+
+    Returns: series | None
+
+    """
+    val = condition.filter_condition
+    if val is None:
+        return None
+
+    filter_column = condition.cfg_filter.column
+    data_type = filter_column.data_type
+    df_column_name = gen_sql_label(filter_column.id, filter_column.column_name)
+    if df_column_name not in df.columns:
+        return None
+
+    series = df[df_column_name]
+    if data_type == DataType.INTEGER.name:
+        series = series.astype('Int64')
+    series_str = series.astype(str)
+
+    if condition.filter_function in [None, FilterFunc.MATCHES.name]:
+        if data_type == DataType.INTEGER.name:
+            # todo: handle this case
+            # input: 1.2, column data-type: INT
+            # -> int(1.2) = 1
+            # df[df[col] == 1] NG
+            # # df[df[col] == 1.2] OK
+            # todo: handle exception
+            val = int(val)
+        elif data_type == DataType.REAL.name:
+            val = float(val)
+        else:
+            val = str(val)
+
+        matched_result = series == val
+    elif condition.filter_function == FilterFunc.STARTSWITH.name:
+        matched_result = filter_startswith(series_str, val)
+    elif condition.filter_function == FilterFunc.ENDSWITH.name:
+        matched_result = filter_endswith(series_str, val)
+    elif condition.filter_function == FilterFunc.CONTAINS.name:
+        matched_result = filter_contains(series_str, val)
+    elif condition.filter_function == FilterFunc.REGEX.name:
+        matched_result = filter_regex(series_str, val)
+    elif condition.filter_function == FilterFunc.SUBSTRING.name:
+        matched_result = filter_substring(series_str, condition.filter_from_pos, val)
+    elif condition.filter_function == FilterFunc.AND_SEARCH.name:
+        matched_result = filter_and(series_str, val)
+    elif condition.filter_function == FilterFunc.OR_SEARCH.name:
+        matched_result = filter_or(series_str, val)
+    else:
+        return None
+    return matched_result
+
+
+def filter_by_group(df, group: list[CfgFilterDetail]) -> pd.DataFrame:
+    """
+    Filter df by group
+    Args:
+        df:
+        group: filters
+    """
+    # OR operation
+    df['__CONDITION_MATCHING__'] = False
+    for condition in group:
+        series = filter_by_condition(df, condition)
+        if series is not None:
+            df['__CONDITION_MATCHING__'] |= series
+
+    df = df[df['__CONDITION_MATCHING__']]
+    df = df.drop(columns=['__CONDITION_MATCHING__'])
+    return df
+
+
+def grouping_filter(flatten_filters: list[CfgFilterDetail]) -> list[list[CfgFilterDetail]]:
+    """
+    Group filter detail
+    Args:
+        flatten_filters: list of CfgFilterDetail
+    """
+    groups = {}
+    for filter in flatten_filters:
+        groups.setdefault(filter.filter_id, []).append(filter)
+
+    return list(groups.values())
+
+
+def filter_df(df: DataFrame, filters: list[CfgFilterDetail]) -> pd.DataFrame:
+    """
+    Filter df by flatten conditions
+    Args:
+        df:
+        filters: list of all conditions
+    """
+    # group the condition by filter_id
+    group_filters = grouping_filter(filters)
+    for group in group_filters:
+        df = filter_by_group(df, group)  # AND operation
+    return df

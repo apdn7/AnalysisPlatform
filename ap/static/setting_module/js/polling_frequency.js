@@ -2,6 +2,13 @@ class PollingFrequencyOption {
     static DEFAULT_POLLING_FREQUENCY = {
         DEFAULT: 180,
         SNOWFLAKE: 3600,
+        WEB_API: 0,
+    };
+
+    static POLLING_FREQUENCY_OPTION = {
+        DEFAULT: [0, 3, 5, 10, 60, 1440],
+        SNOWFLAKE: [0, 60, 1440],
+        WEB_API: [0],
     };
 
     constructor(datasourceType, defaultFrequency) {
@@ -104,21 +111,18 @@ class PollingFrequencyOption {
         if (defaultFrequency !== undefined) {
             return defaultFrequency == null ? 0 : defaultFrequency;
         } else {
-            if (PollingFrequencyOption.isSnowflakeDBS(this.dbsType)) {
-                return PollingFrequencyOption.DEFAULT_POLLING_FREQUENCY.SNOWFLAKE;
-            } else {
-                return PollingFrequencyOption.DEFAULT_POLLING_FREQUENCY.DEFAULT;
-            }
+            return PollingFrequencyOption.getValue(this.dbsType, PollingFrequencyOption.DEFAULT_POLLING_FREQUENCY);
         }
     }
 
-    static isSnowflakeDBS(dbs) {
-        return dbs.includes('SNOWFLAKE');
+    static getValue(dbsType, option) {
+        const matchedKey = Object.keys(option).find((key) => dbsType.includes(key));
+        return matchedKey ? option[matchedKey] : option.DEFAULT;
     }
 
     static getOptionByDbsType(dbsType, polling_frequency) {
         const defaultValue = [0, null].includes(polling_frequency) ? 0 : polling_frequency;
-        const options = PollingFrequencyOption.isSnowflakeDBS(dbsType) ? [0, 60, 1440] : [0, 3, 5, 10, 60, 1440];
+        const options = PollingFrequencyOption.getValue(dbsType, PollingFrequencyOption.POLLING_FREQUENCY_OPTION);
         const pollingTitle = {
             0: $('#i18nOnlyOnce').text(),
             3: $('#i18nOncePer3Minutes').text(),

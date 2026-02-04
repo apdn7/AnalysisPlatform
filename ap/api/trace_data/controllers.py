@@ -10,7 +10,6 @@ from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
 from ap.api.trace_data.services.csv_export import (
     gen_csv_data,
 )
-from ap.api.trace_data.services.data_count import get_data_count_by_time_range
 from ap.api.trace_data.services.time_series_chart import (
     gen_graph_fpp,
 )
@@ -19,10 +18,8 @@ from ap.common.constants import (
     END_PROC,
     CfgConstantType,
     CSVExtTypes,
-    DataCountType,
     MaxGraphNumber,
 )
-from ap.common.logger import log_execution_time
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
@@ -32,7 +29,7 @@ from ap.common.services.form_env import (
     update_data_from_multiple_dic_params,
     update_fpp_data_from_multiple_dic_params,
 )
-from ap.common.services.http_content import json_dumps, orjson_dumps
+from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
     export_debug_info,
     get_dic_form_from_debug_info,
@@ -42,7 +39,6 @@ from ap.common.services.import_export_config_n_data import (
     set_export_dataset_id_to_dic_param,
 )
 from ap.common.services.request_time_out_handler import request_timeout_handling
-from ap.common.timezone_utils import get_date_from_type
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
@@ -61,7 +57,6 @@ def trace_data():
     Trace Data API
     return dictionary
     """
-
     dic_form = request.form.to_dict(flat=False)
     # save dic_form to pickle (for future debug)
     save_input_data_to_file(dic_form, EventType.FPP)
@@ -111,7 +106,7 @@ def show_graph_fpp(dic_param, orig_graph_param=None, df=None):
 
 @api_trace_data_blueprint.route('/zip_export', methods=['GET'])
 def zip_export():
-    """zip export
+    """Zip export
 
     Returns:
         [type] -- [description]
@@ -126,7 +121,7 @@ def zip_export():
 
 @api_trace_data_blueprint.route('/zip_import', methods=['GET'])
 def zip_import():
-    """zip import
+    """Zip import
 
     Returns:
         [type] -- [description]
@@ -159,58 +154,9 @@ def save_proc_sensor_order():
     return jsonify({}), 200
 
 
-@api_trace_data_blueprint.route('/data_count', methods=['POST'])
-@log_execution_time()
-def get_data_count():
-    """
-    Get data count from datetime range
-    :param process_id
-    :param from
-    :param to
-    :param type
-    :return: object
-    """
-    request_data = json.loads(request.data)
-    process_id = request_data.get('process_id') or None
-    query_type = request_data.get('type') or DataCountType.MONTH.value
-    from_date = request_data.get('from') or None
-    to_date = request_data.get('to') or None
-    local_tz = request_data.get('timezone') or None
-    count_in_file = request_data.get('count_in_file', False)
-
-    data_count = {}
-    min_val = 0
-    max_val = 0
-    if process_id:
-        start_date, end_date = None, None
-
-        if from_date and to_date:
-            start_date = get_date_from_type(from_date, query_type, local_tz)
-            end_date = get_date_from_type(to_date, query_type, local_tz, True)
-
-        data_count, min_val, max_val = get_data_count_by_time_range(
-            process_id,
-            start_date,
-            end_date,
-            query_type,
-            local_tz,
-            count_in_file=count_in_file,
-        )
-    out_dict = {
-        'from': from_date,
-        'to': to_date,
-        'type': query_type,
-        'data': data_count,
-        'min_val': min_val,
-        'max_val': max_val,
-    }
-    out_dict = json_dumps(out_dict)
-    return out_dict, 200
-
-
 @api_trace_data_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -229,7 +175,7 @@ def data_export(export_type):
         csv_str = gen_csv_data(graph_param, single_dic_param, delimiter=delimiter)
         end_proc_id = int(single_dic_param[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
-        csv_list_name.append('{}.{}'.format(proc_name, export_type))
+        csv_list_name.append(f'{proc_name}.{export_type}')
         fpp_dataset.append(csv_str)
 
     response = zip_file_to_response(fpp_dataset, csv_list_name, export_type=export_type)

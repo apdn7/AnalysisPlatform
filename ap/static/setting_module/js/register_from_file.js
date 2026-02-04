@@ -547,6 +547,7 @@ async function convertStructureData(data) {
             unique_rows_as_real: otherData.unique_rows_as_real,
             unique_rows_as_int: otherData.unique_rows_as_int,
             unique_rows_as_int_cat: otherData.unique_rows_as_int_cat,
+            labels: otherData.labels,
         },
     ];
 }
@@ -578,6 +579,7 @@ function convertStructureDataV2(data) {
             unique_rows_as_real: processConfig.unique_rows_as_real,
             unique_rows_as_int: processConfig.unique_rows_as_int,
             unique_rows_as_int_cat: processConfig.unique_rows_as_int_cat,
+            labels: processConfig.labels,
         };
     });
 }
@@ -601,6 +603,7 @@ async function renderProcessConfig(data) {
             processData.unique_rows_as_real,
             processData.unique_rows_as_int,
             processData.unique_rows_as_int_cat,
+            processData.labels,
         );
     }
     // TODO: TuanNH handle uncheck file name

@@ -1,6 +1,5 @@
 let i18nCommon = {};
 const MAX_DYNAMIC_CARD = 50;
-let isExtendSysName = false;
 
 // use this config for select2
 const select2ConfigI18n = {
@@ -28,7 +27,21 @@ const select2ConfigI18n = {
         },
     },
 };
+
+/**
+ * Increment count and reset to minNumber if it exceeds maxNumber
+ * @param {number} cnt
+ * @param {number} minNumber
+ * @param {number} maxNumber
+ * @returns {number}
+ */
 const countUp = (cnt, minNumber = 1, maxNumber = MAX_DYNAMIC_CARD) => (cnt >= maxNumber ? minNumber : cnt + 1);
+
+/**
+ * Extract number from the end of string
+ * @param {string} inputStr
+ * @returns {number|null}
+ */
 const extractNumberAtTheEnd = (inputStr) => {
     const matches = inputStr.match(/\d+$/);
 
@@ -39,6 +52,14 @@ const extractNumberAtTheEnd = (inputStr) => {
     return null;
 };
 
+/**
+ * Check if a data-gen-btn with the same ID and count already exists
+ * @param {string} btnId
+ * @param {number} count
+ * @param {string} parentFormId
+ * @param {number} maxNumber
+ * @returns {boolean}
+ */
 const checkExistDataGenBtn = (btnId, count, parentFormId = '', maxNumber = MAX_DYNAMIC_CARD) => {
     const DYNAMIC_ELE_ATTR = 'data-gen-btn';
     if (parentFormId && parentFormId[0] !== '#') {
@@ -58,6 +79,10 @@ const checkExistDataGenBtn = (btnId, count, parentFormId = '', maxNumber = MAX_D
     return false;
 };
 
+/**
+ * Update common i18n text from HTML elements
+ * @returns {Promise<void>}
+ */
 const updateI18nCommon = async () => {
     i18nCommon = {
         // summary tables
@@ -168,6 +193,9 @@ setTimeout(() => {
     });
 }, 500);
 
+/**
+ * Enable sortable for process list
+ */
 const endProcSortable = () => {
     $('.grouplist-checkbox-with-search').sortable({
         update: function (event, ui) {
@@ -183,6 +211,10 @@ const endProcSortable = () => {
         },
     });
 };
+
+/**
+ * Handle objective variable input event
+ */
 const objectiveInputEventHandle = () => {
     $('input[name="objectiveVar"]').on('change', (e) => {
         const isChecked = e.currentTarget.checked;
@@ -191,6 +223,10 @@ const objectiveInputEventHandle = () => {
     });
 };
 
+/**
+ * Handle inline checkbox/radio click events for list items
+ * @param {string} parentId
+ */
 const inputCheckInlineEvents = (parentId) => {
     $(`#${parentId} li.list-group-item`).on('click', function (e) {
         // prevent event click on border of li_tag START
@@ -276,6 +312,17 @@ const inputCheckInlineEvents = (parentId) => {
     });
 };
 
+/**
+ * Generate Column DOM for list item
+ * @param {boolean} isShow
+ * @param {string} label
+ * @param {string} description
+ * @param {boolean} textCenter
+ * @param {boolean} withCheckBox
+ * @param {string} id
+ * @param {string} className
+ * @returns {string}
+ */
 const genColDOM = ({
     isShow,
     label,
@@ -308,6 +355,15 @@ const genColDOM = ({
 
 let limitedCheckedList = [];
 
+/**
+ * Add group list checkbox with search functionality
+ * @param {string} parentId
+ * @param {string} id
+ * @param {string} label
+ * @param {string[]} itemIds
+ * @param {string[]} itemVals
+ * @param {object} props
+ */
 const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, props) => {
     const mainChkBoxClass = 'main-checkbox';
     const requiredInputClass = 'required-input';
@@ -374,10 +430,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             ];
             const shownNameByDateTime = dataType === DataTypes.DATETIME.name ? (isGetDate ? '' : shownName) : shownName;
             html = `
-                <div class="col-sm-3 col-xs-3 show-name-col ${commonClass} shorten-name pr-1 search-col${isStrCol} sys-name" title="${shownName}" data-for-sort="${itemVal}">
+                <div class="${commonClass} shorten-name pr-1 search-col${isStrCol} sys-name default-width-sys-name" title="${shownName}" data-for-sort="${itemVal}">
                     ${chkBox}
                 </div>
-                <div class="col-sm-3 col-xs-3 show-name-col ${masterNameClass} shorten-name pr-1 search-col col-without-checkbox jp-name"  title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
+                <div class="${masterNameClass} shorten-name pr-1 search-col col-without-checkbox jp-name column-name"  title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
                     ${shownNameByDateTime}
                 </div>
             `;
@@ -449,7 +505,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const headerClass = isHeader ? 'keep-header' : '';
 
         const output = `<li class="list-group-item form-check ${headerClass}">
-                            <div class="row item-row" style="padding-left: 5px">
+                            <div class="item-row" style="padding-left: 5px">
                                ${html}
                             </div>
                         </li> `;
@@ -646,7 +702,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const option = `
             ${inputEl}
-           <label class="custom-control-label${hideClass}" for="" title="${itemVal}">${itemVal}</label>`;
+           <label class="custom-control-label${hideClass} column-name" for="" title="${itemVal}">${itemVal}</label>`;
 
         const isGetDate = itemId === props.getDateColID;
         itemList.push(
@@ -748,14 +804,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const requiredClass = props.isRequired ? 'required-input' : '';
 
         // for sort in filter => hide sort button by css: #cndPrc .sortCol
-        const createSortButton = (index) => `
-            <span idx=${index} class="sortCol w-50" title="Sort">
+        const createSortButton = (index, isShow = true) => `
+            <span idx=${index} class="sortCol w-50" style="display: ${isShow ? 'flex' : 'none'};" title="Sort">
                 <i class="fa fa-sm fa-play asc"></i>
                 <i class="fa fa-sm fa-play desc"></i>
             </span>
         `;
         allOption = `
-            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name col-has-checkbox sys-name">
+            <div class="pr-1 custom-control custom-checkbox shorten-name col-has-checkbox sys-name default-width-sys-name">
                 <div>
                     <input type="${inputType}" name="${props.name}"
                         class="custom-control-input checkbox-all ${requiredClass}"
@@ -763,14 +819,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     <label class="custom-control-label ${isShowColorCheckBox ? 'd-none' : ''}"
                         for="checkbox-all-${id + parentId}">${i18nCommon.allSelection}</label>
                 </div>
-                ${createSortButton(0)}
+                ${createSortButton(0, false)}
           
             </div>
-            <div class="col-sm-3 col-xs-3 show-name-col pr-1 custom-control custom-checkbox shorten-name col-without-checkbox jp-name">
+            <div class="pr-1 custom-control custom-checkbox shorten-name col-without-checkbox jp-name">
                 <span id="btn-extend-toggle-container" onclick="toggleWidth(event)" title="${i18nHoverText.extendSysName}">
-                    <span id="btn-extend-toggle" class="btn text-end"  >${isExtendSysName ? '&#x27FD;' : '&#x27FE;'}</span>
+                    <span id="btn-extend-toggle" class="btn text-end">&#x27FE;</span>
                 </span>
-                ${createSortButton(1)}
+                ${createSortButton(1, true)}
             </div>
             ${typeColDOM}
             ${thresholdBoxDOM}
@@ -793,7 +849,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const groupList = `<div class="form-group list-item mb-0 ${groupLabelClass}" id="${id}"
         style="border-radius: 3px">
             ${labelContent}
-            <div class="floating-dropdown-parent ${labelClass}${expandClass}">
+            <div class="floating-dropdown-parent ${labelClass} ${expandClass} w-100">
                 ${expandArrow}
                 ${searchItems(id)}
                 <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true" data-is-extend="false">
@@ -984,6 +1040,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     // endProcSortable();
 };
 
+/**
+ * Search item for ETL
+ * @returns {string}
+ */
 const searchItemETL = () => {
     return `
         <div class="d-flex">
@@ -993,6 +1053,11 @@ const searchItemETL = () => {
         </div>`;
 };
 
+/**
+ * Add group table checkbox with search functionality
+ * @param {object} data
+ * @returns {HTMLDivElement}
+ */
 const addGroupTableCheckboxWithSearch = (data) => {
     const tableWrapper = document.createElement('div');
     tableWrapper.id = 'tableWrapper';
@@ -1059,6 +1124,11 @@ const addGroupTableCheckboxWithSearch = (data) => {
         checkbox.value = item.child_equip_id;
         checkbox.setAttribute('data-table-name', item.table_name);
         checkbox.setAttribute('data-master-type', item.master_type);
+        checkbox.setAttribute('data-process_id', item.process_id);
+        // todo: confirm with Tuyen, why it should be checked
+        if (item.process_id) {
+            checkbox.setAttribute('checked', 'checked');
+        }
 
         const labelCheckbox = document.createElement('label');
         labelCheckbox.classList.add('custom-control-label');
@@ -1090,6 +1160,11 @@ const addGroupTableCheckboxWithSearch = (data) => {
     return tableWrapper;
 };
 
+/**
+ * Create group table
+ * @param {object} data
+ * @param {boolean} isSnowFlake
+ */
 const createGroupTable = (data, isSnowFlake) => {
     const $groupTable = isSnowFlake ? $('#modal-db-snowflake_software_workshop').find('#groupTable') : $('#groupTable');
     // Clear old equip table
@@ -1111,6 +1186,11 @@ const createGroupTable = (data, isSnowFlake) => {
     initChildEquipTableEvents();
 };
 
+/**
+ * Count variables in a parent container and update count display
+ * @param {string} parentId
+ * @param {string} groupId
+ */
 const countVariables = (parentId, groupId) => {
     const selectedVariablesCount = $(`#${parentId}`)
         .find('input[name^=GET02_VALS_SELECT]:checked')
@@ -1119,6 +1199,9 @@ const countVariables = (parentId, groupId) => {
     countTotalVariables();
 };
 
+/**
+ * Count total variables across all groups and update total display
+ */
 const countTotalVariables = () => {
     let selectedVars = $('span[id^=count-variables-]').map((idx, ele) => parseInt($(ele).text()));
     selectedVars = Array.from(selectedVars);
@@ -1143,6 +1226,11 @@ const countTotalVariables = () => {
     }
 };
 
+/**
+ * Get selected variables in end-proc card
+ * @param {jQuery} cardElem
+ * @returns {string[]}
+ */
 const getEndProcVariableSelected = (cardElem) => {
     const listEndProcValElem = cardElem.find(`[id*="list-end-proc-val"]`);
     const listInputValElem = listEndProcValElem.find(
@@ -1151,10 +1239,18 @@ const getEndProcVariableSelected = (cardElem) => {
     return listInputValElem.toArray().map((e) => $(e).attr('id'));
 };
 
+/**
+ * Remove limited checked list
+ * @param {string[]} listDataRemove
+ */
 const removeLimitedCheckedList = (listDataRemove) => {
     limitedCheckedList = limitedCheckedList.filter((el) => !listDataRemove.includes($(el).attr('id')));
 };
 
+/**
+ * Handle filter checkbox change event
+ * @param {jQuery} e
+ */
 const onChangeFilterCheckBox = (e) => {
     const parentDiv = $(e).closest('li.list-group-item.form-check').parent();
     const selector = 'input[name^=GET02_CATE_SELECT]';
@@ -1172,6 +1268,10 @@ const onChangeFilterCheckBox = (e) => {
     compareSettingChange();
 };
 
+/**
+ * Handle judge variable change event
+ * @param {jQuery} e
+ */
 const onchangeJudge = (e) => {
     const _this = $(e);
     const parentRow = _this.parents('li');
@@ -1215,7 +1315,11 @@ const onchangeJudge = (e) => {
     compareSettingChange();
 };
 
-// Render search with set and reset button
+/**
+ * Render search with set and reset button
+ * @param {string} id
+ * @returns {string}
+ */
 const searchItems = (id) => {
     const htmlSource = `
         <div class="d-flex">
@@ -1227,6 +1331,10 @@ const searchItems = (id) => {
     return htmlSource;
 };
 
+/**
+ * Handle search items events
+ * @param {string} id
+ */
 const handleSearchItems = (id) => {
     initCommonSearchInput($(`#search-${id}`), 'flex-grow-1');
     const parent = $(`#search-${id}`).closest('.form-group');
@@ -1315,6 +1423,10 @@ const handleSearchItems = (id) => {
     };
 };
 
+/**
+ * Show sensor as floating list
+ * @param {string} sensorListId
+ */
 const showSensorAsFloatingList = (sensorListId) => {
     let timerOpen;
     const dropDown = $(`#${sensorListId}`);
@@ -1331,16 +1443,16 @@ const showSensorAsFloatingList = (sensorListId) => {
             $(that).addClass('disable-max-height');
 
             // find max width of column
+            const maxAllowWidth = $(window).width() - 135;
             const dropDownWidthMin = $(window).width() - $(that).offset().left - 40;
             const colWidths = $(that)
-                .find('li label')
+                .find('li .column-name')
                 .map((i, item) => $(item).width());
-            const maxWidth = Math.max(...colWidths) * 2 + 380 || 0;
+            const maxWidth = Math.max(...colWidths) + 380 || 0;
             const selectBoxWidth = $(that).parent().width();
-            const dropDownWidth = maxWidth > selectBoxWidth ? maxWidth : selectBoxWidth;
+            const dropDownWidth = Math.min(maxAllowWidth, Math.max(maxWidth, selectBoxWidth));
             const dropDownHeight = dropDownFullHeight + 2;
             const leftHeightFromCurrentPosition = $(window).height() - $(that).get(0).getBoundingClientRect().top - 12;
-            const windowWidth = $(window).width() - 100;
 
             if (dropDownWidth > dropDownWidthMin) {
                 $(that).css({
@@ -1348,7 +1460,7 @@ const showSensorAsFloatingList = (sensorListId) => {
                 });
             }
             $(that).css({ width: `${dropDownWidth}px` });
-            $(that).css({ maxWidth: `${windowWidth}px` });
+            $(that).css({ maxWidth: `${maxAllowWidth}px` });
             if (dropDownHeight > leftHeightFromCurrentPosition) {
                 $(that).css({ height: `${leftHeightFromCurrentPosition}px` });
             } else {
@@ -1387,6 +1499,10 @@ const showSensorAsFloatingList = (sensorListId) => {
         clearTimeout(timerOpen);
     });
 
+    /**
+     * Check and collapse floating list
+     * @param {jQuery.Event} e
+     */
     const checkAndCollapseFloatingList = (e) => {
         const clickedInList = $(e.target).closest('.floating-dropdown-parent').length;
         if (!clickedInList) {
@@ -1399,6 +1515,11 @@ const showSensorAsFloatingList = (sensorListId) => {
     $(document).on('click', checkAndCollapseFloatingList);
 };
 
+/**
+ * Update selected items
+ * @param {boolean} isCategoryItem
+ * @param {jQuery} selectParent
+ */
 const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
     let selectedItems = [];
     let allSelected;
@@ -1426,6 +1547,12 @@ const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElemen
     });
 };
 
+/**
+ * Handle card removal by clicking on close icon
+ * @param {string} parentId
+ * @param {function} callbackFunc
+ * @param {object} dicParams
+ */
 const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null) => {
     $(`${parentId} .close-icon`)
         .last()
@@ -1475,11 +1602,16 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                 }, 200);
             }
 
-            setProcessID();
+            DataFinderService.setProcessID();
         });
 };
 
-// get filter by type
+/**
+ * Get filters by type for a process
+ * @param {object} process
+ * @param {string} filterType
+ * @returns {any[]}
+ */
 const getFilterByTypes = (process, filterType) => {
     const procFilters = process.getFiltersByType(filterType);
     const filterIDs = [];
@@ -1502,7 +1634,13 @@ const getFilterByTypes = (process, filterType) => {
     }));
 };
 
-// Condition Line change event
+/**
+ * Handle condition line change event
+ * @param {string[]} selectedLines
+ * @param {number} count
+ * @param {string} prefix
+ * @param {object} options
+ */
 const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = false, is_pca_filter = false } = {}) => {
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (selectedLines.length === 0) {
@@ -1578,18 +1716,41 @@ const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = fal
     }
 };
 
-// add condition Process children components ( line, machine , partno)
-const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_filter = false) => {
-    // remove old elements
-    // TODO: make re-use function
+/**
+ * Clear filter content
+ * @param {string} prefix
+ * @param {number} count
+ */
+const clearFilterContent = (prefix, count) => {
     $(`#${prefix}cond-proc-line-${count}`).remove();
     $(`#${prefix}cond-proc-machine-${count}`).remove();
     $(`#${prefix}cond-proc-partno-${count}`).remove();
     $(`#${prefix}cond-proc-others-div-${count}`).empty();
+};
+
+/**
+ * Handle condition process change event (line, machine, partno)
+ * @param {string} selectedProcId - Process ID to use; if empty, reads from `#${prefix}cond-proc-process-${count}`.
+ * @param {number} count - Sequential index to differentiate multiple condition blocks.
+ * @param {string} prefix - Optional DOM id prefix used for PCA filters and nested forms.
+ * @param {string} parentFormId - Parent form id, if applicable.
+ * @param {boolean} is_pca_filter - Whether this change originates from the PCA filter UI.
+ * @param {boolean} allowCallInnerFunc - When true, others inner function is called to check same logic, but some case we don't want to call inner function.
+ */
+const condProcOnChange = async (
+    selectedProcId,
+    count,
+    prefix = '',
+    parentFormId = '',
+    is_pca_filter = false,
+    allowCallInnerFunc = true,
+) => {
+    // remove old elements
+    clearFilterContent(prefix, count);
 
     // selected process
-    const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
-    if (isEmpty(selectedProc)) {
+    const selectedProc = selectedProcId || $(`#${prefix}cond-proc-process-${count}`).val();
+    if (isEmpty(selectedProc) && allowCallInnerFunc) {
         checkIfProcessesAreLinked();
         return;
     }
@@ -1682,13 +1843,24 @@ const condProcOnChange = async (count, prefix = '', parentFormId = '', is_pca_fi
             }
         });
     }
-    compareSettingChange();
-    bindFilterChangeEvents(selectedProc);
-    checkIfProcessesAreLinked();
-    // clearNoLinkDataSelection();
+    if (allowCallInnerFunc) {
+        compareSettingChange();
+        bindFilterChangeEvents(selectedProc);
+        checkIfProcessesAreLinked();
+    }
 };
 
-// add condition proc
+/**
+ * Add condition process card
+ * @param {string[]} procIds
+ * @param {object[]} procVals
+ * @param {string} prefix
+ * @param {string} parentFormId
+ * @param {string} dataGenBtn
+ * @param {boolean} is_full_width
+ * @param {boolean} is_pca_filter
+ * @returns {function}
+ */
 const addCondProc = (
     procIds,
     procVals,
@@ -1700,14 +1872,6 @@ const addCondProc = (
 ) => {
     let count = 1;
     const innerFunc = () => {
-        const itemList = [];
-        for (let i = 0; i < procIds.length; i++) {
-            const itemId = procIds[i];
-            const itemVal = procVals[i].shown_name;
-            const itemEnVal = procVals[i].name_en;
-            itemList.push(`<option value="${itemId}" title="${itemEnVal}">${itemVal}</option>`);
-        }
-
         while (checkExistDataGenBtn(dataGenBtn, count, parentFormId)) {
             count = countUp(count);
         }
@@ -1715,6 +1879,7 @@ const addCondProc = (
         if (is_full_width) {
             half_col_style = 'col-12';
         }
+        const processSelectorId = `${prefix}cond-proc-process-${count}`;
 
         const proc = `<div class="${half_col_style} p-1">
                     <div class="card cond-proc dynamic-element table-bordered py-sm-3 filter-condition-card">
@@ -1725,9 +1890,9 @@ const addCondProc = (
                             <span class="mr-2">${i18nCommon.process}</span>
                             <div class="w-auto flex-grow-1 position-relative">
                                 <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 30px;"></i>
-                                <select name="${is_pca_filter ? prefix : ''}cond_proc${count}" class="form-control select2-selection--single select-n-columns" id="${prefix}cond-proc-process-${count}"
-                                    data-gen-btn="${dataGenBtn}" onchange="condProcOnChange(${count},'${prefix}','${parentFormId}', ${is_pca_filter})">
-                                    ${itemList.join(' ')}
+                                <select name="${is_pca_filter ? prefix : ''}cond_proc${count}" data-is-pca-filter="${is_pca_filter}" data-prefix="${prefix}" data-count="${count}" data-parent-from-id="${parentFormId}" class="form-control select2-selection--single select-n-columns process-selector" id="${processSelectorId}"
+                                    data-gen-btn="${dataGenBtn}" onchange="condProcOnChange('', ${count},'${prefix}','${parentFormId}', ${is_pca_filter})">
+                                    ${genProcessSelectOptions(procIds, procVals)}
                                 </select>
                             </div>
                         </div>
@@ -1739,6 +1904,14 @@ const addCondProc = (
                         </div>
                         <div id="${prefix}cond-proc-others-div-${count}">
                         </div>
+                        <div class="d-flex">
+                            <div style="flex-basis:80px;">
+                                 <button id="openFilterConfigModalBtn" onclick="handleOpenFilterConfigModal(this)" name="openFilterConfigModalBtn" type="button" class="btn simple-btn">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            </div>
+                            <div class="w-100"></div>
+                        </div>
                      </div>
                    </div>`;
         $(`#${prefix}cond-proc-row div`).last().before(proc);
@@ -1746,10 +1919,114 @@ const addCondProc = (
         cardRemovalByClick(`#${prefix}cond-proc-row div`, bindRemoveFilterCondByCards);
         addAttributeToElement();
         updateSelectedItems(false, $(formElements.condProcSelectedItem));
+        updateProcessListAfterFilter(processSelectorId, procConfigs);
     };
     return innerFunc;
 };
 
+/**
+ * Open filter config modal
+ * @param {HTMLButtonElement} buttonElement - show filter config modal button element
+ */
+const handleOpenFilterConfigModal = async (buttonElement) => {
+    const $partialViewModal = /** @type {jQuery<HTMLDivElement>} */ $('#partialViewFilterModal');
+    await handleInitFilterPartial($partialViewModal);
+    handleShowFilterData(buttonElement);
+    handleSyncFilterDataAfterCloseModal($partialViewModal);
+    $partialViewModal.modal('show');
+};
+
+/**
+ * Sync update filter data after closing modal
+ * @param {jQuery<HTMLDivElement>} $partialViewModal
+ */
+const handleInitFilterPartial = async ($partialViewModal) => {
+    const $partialViewModelBody = /** @type {jQuery<HTMLDivElement>} */ $partialViewModal.find('div.modal-body');
+    if ($partialViewModelBody.html().trim() === '') {
+        // get content of partial view modal
+        const innerHTML = await fetch('/ap/config/filter-partial', { method: 'GET' }).then((response) =>
+            response.text(),
+        );
+        $partialViewModelBody.html(innerHTML);
+
+        // make sure partial js are loaded already before trigger change
+        const loaded = new Promise((resolve) => {
+            $(document).ready(function () {
+                resolve();
+            });
+        });
+        await loaded;
+    }
+};
+
+/**
+ * Show filter config modal base on the selected process
+ * @param {HTMLButtonElement} buttonElement - show filter config modal button element
+ */
+const handleShowFilterData = (buttonElement) => {
+    const selectedProcessId = /** @type {string} */ buttonElement
+        .closest('div.card.cond-proc')
+        .querySelector('select[name^="cond_proc"]').value;
+    const $selectProcess = /** @type {jQuery<HTMLSelectElement>} */ $('#processList');
+    $selectProcess.val(selectedProcessId).change();
+};
+
+/**
+ * Sync update filter data after closing modal
+ * @param {jQuery<HTMLDivElement>} $partialViewModal
+ */
+const handleSyncFilterDataAfterCloseModal = ($partialViewModal) => {
+    $partialViewModal.off('hidden.bs.modal');
+    $partialViewModal.on('hidden.bs.modal', () => {
+        // Preserve current checked cond-proc inputs and re-apply them after filters update. Do not run check link function.
+        const filterEndProcs = $('select[name^="cond_proc"]');
+        // update proc filters
+        filterEndProcs.each(async (index, element) => {
+            const $this = $(element);
+            const prefix = $this.data('prefix');
+            const count = $this.data('count');
+            const parentFormId = $this.data('parent-from-id');
+            const procId = $this.val();
+            const isPCAFilter = $this.data('is-pca-filter') === 'true';
+
+            if (procId) {
+                // Snapshot currently checked checkbox values within this cond-proc card
+                const $card = $this.closest('.cond-proc');
+                const prevCheckedVals = $card
+                    .find('input.main-checkbox:checked')
+                    .map((_, el) => $(el).val())
+                    .get();
+
+                const prevCLCheckedVals = $card
+                    .find('input[name=thresholdBox]:checked')
+                    .map((_, el) => $(el).val())
+                    .get();
+                await procConfigs[procId].updateProcFilters();
+                await condProcOnChange(procId, count, prefix, parentFormId, isPCAFilter, false);
+
+                // Re-apply previously checked values if they still exist
+                if (prevCheckedVals && prevCheckedVals.length) {
+                    prevCheckedVals.forEach((v) => {
+                        $card.find(`input.main-checkbox[value="${v}"]`).prop('checked', true);
+                    });
+                }
+
+                if (prevCLCheckedVals && prevCLCheckedVals.length) {
+                    // reset all CL check before apply
+                    $card.find('input[name=thresholdBox]').prop('checked', false);
+                    prevCLCheckedVals.forEach((v) => {
+                        $card.find(`input[name=thresholdBox][value="${v}"]`).prop('checked', true);
+                    });
+                }
+            }
+        });
+    });
+};
+
+/**
+ * Handle change events for date-time group with radio buttons
+ * @param {jQuery} parentEle
+ */
 const onChangeForDateTimeGroup = (parentEle = null) => {
     const targetClass = '.datetime-group-with-radio-btn';
     let targetEle;
@@ -1770,6 +2047,12 @@ const onChangeForDateTimeGroup = (parentEle = null) => {
     });
 };
 
+/**
+ * Generate HTML for total and non-linked data summary
+ * @param {object} summaryOption
+ * @param {object} generalInfo
+ * @returns {string[]}
+ */
 const genTotalAndNonLinkedHTML = (summaryOption, generalInfo) => {
     const linkedTotal = summaryOption.ntotal - summaryOption.countUnlinked;
     const nTotalHTML = isEmpty(summaryOption.ntotal)
@@ -1786,6 +2069,10 @@ const genTotalAndNonLinkedHTML = (summaryOption, generalInfo) => {
     return [nTotalHTML, noLinkedHTML];
 };
 
+/**
+ * Handle facet level change event
+ * @param {jQuery} e
+ */
 const changeFacetLevel = (e) => {
     if (isSettingLoading) return;
     let currentLevelSet = $(e).val();
@@ -1848,6 +2135,15 @@ const changeFacetLevel = (e) => {
     updateStyleButtonByCheckingValid();
 };
 
+/**
+ * Generate HTML for date-time range picker
+ * @param {string} dtName
+ * @param {string} dtId
+ * @param {string} prefix
+ * @param {string} isSetDefaultValue
+ * @param {string} props
+ * @returns {string}
+ */
 const dateTimeRangePickerHTML = (dtName, dtId, prefix, isSetDefaultValue = 'False', props = '') =>
     `<input id="${dtId}" name="${dtName}" type="text" class="datetimepicker form-control to-update-time-range"
                 is-show-time-picker="True" is-set-default-value="${isSetDefaultValue}" ${props}
@@ -1909,11 +2205,19 @@ const resizeListOptionSelect2 = ({
     }
 };
 
+/**
+ * Reset summary option to 'none'
+ * @param {string} name
+ */
 const resetSummaryOption = (name) => {
     $(`input[name=${name}][value='none']`).prop('checked', true).trigger('change');
     $(`input[name=${name}]`).removeAttr('data-checked');
 };
 
+/**
+ * Check summary option and trigger change
+ * @param {string} name
+ */
 const checkSummaryOption = (name) => {
     $(`input[name=${name}]:checked`).prop('checked', false).prop('checked', true).trigger('change');
 };
@@ -1975,6 +2279,12 @@ const buildSummaryChartTitle = (
     return isShowTitle ? cardTitle : '';
 };
 
+/**
+ * Get color from HSV scale based on value
+ * @param {number} pointValue
+ * @param {number} maxCorr
+ * @returns {string}
+ */
 const getColorFromScale = (pointValue, maxCorr = 1) => {
     // CHM blue colorscale
     // 0.0: HSV 210°, 68%, 30%
@@ -1995,6 +2305,11 @@ const getColorFromScale = (pointValue, maxCorr = 1) => {
     return color;
 };
 
+/**
+ * Get all group IDs and values from sensor data
+ * @param {object[]} sensorData
+ * @returns {object}
+ */
 const getAllGroupOfSensor = (sensorData) => {
     const ranks = {};
     let rankIDs = [];
@@ -2020,6 +2335,14 @@ const getAllGroupOfSensor = (sensorData) => {
         value: rankValues,
     };
 };
+
+/**
+ * Generate full category data for step chart
+ * @param {any[]} categoryIds
+ * @param {any[]} stepChartDat
+ * @param {object} allGroupNames
+ * @returns {any[]}
+ */
 const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
     // allGroupNames: {id: [3,2,1], value: ["C", "B", "A"]}
     // categoryIds: [3,1]
@@ -2036,6 +2359,9 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
     });
 };
 
+/**
+ * Handle objective variable change event
+ */
 const changeObjectiveVarEvent = () => {
     const stringColInputElms = $('.is-string-col input');
     const stringColLabelElms = $('.is-string-col label');
@@ -2057,12 +2383,25 @@ const changeObjectiveVarEvent = () => {
     compareSettingChange();
 };
 
-const isLinkedWithProcess = async (end_proc_id, start_proc_id) => {
+/**
+ * Check if two processes are linked
+ * @param {string} start_proc_id
+ * @param {string} end_proc_id
+ * @returns {Promise<boolean>}
+ */
+const isLinkedWithProcess = async (start_proc_id, end_proc_id) => {
+    if (!start_proc_id || !end_proc_id) throw new Error('End proc Id and start proc id should be not null');
+
+    // No data link is not check link
+    if (start_proc_id === '0' || start_proc_id === end_proc_id) return true;
     const url = `/ap/api/setting/proc_config/${end_proc_id}/traces_with/${start_proc_id}`;
     const res = await fetchData(url, {}, 'GET');
     return res.data;
 };
 
+/**
+ * Set color for relative start and end processes
+ */
 const setColorRelativeStartEndProc = () => {
     const startProc = $('select[name=start_proc]');
     const startProcVal = startProc.val();
@@ -2077,7 +2416,8 @@ const setColorRelativeStartEndProc = () => {
         // start proc not set, default if first end proc is black end others is blue.
         startProc.removeClass('blue-color');
         endProcs.addClass('blue-color');
-        $(endProcs[0]).removeClass('blue-color');
+        const firstEndProc = getFirstEndProc();
+        firstEndProc.removeClass('blue-color');
     }
 
     if (startProcVal && startProcVal !== '0') {
@@ -2093,18 +2433,25 @@ const setColorRelativeStartEndProc = () => {
     }
 };
 
+/**
+ * Check if all selected processes are linked
+ */
 const checkIfProcessesAreLinked = async () => {
     if (isSettingLoading) {
         return;
     }
-    const startProc = $('select[name=start_proc]');
-    const startProcVal = startProc.val();
+    const startProcVal = getStartProcId();
     const endProcs = $('select[name^=end_proc]');
     const condProcs = $('select[name^=cond_proc]');
     const warningSigns = $('svg[id^=no-link-warning-sign]');
     warningSigns.css({ display: 'none' });
     hideAlertMessages();
 
+    /**
+     * Display no link alert message
+     * @param {boolean} displayProcLinkAlert
+     * @param {boolean} displayFilterLinkAlert
+     */
     const displayNoLinkAlertMessage = (displayProcLinkAlert, displayFilterLinkAlert) => {
         let messageContent = '';
         if (displayProcLinkAlert && displayFilterLinkAlert) {
@@ -2121,50 +2468,17 @@ const checkIfProcessesAreLinked = async () => {
         }
     };
 
-    // Start Proc is not selected
-    if (startProcVal === '') {
-        const startProcId = $(endProcs[0]).val();
-        let displayProcLinkAlert = false;
-        let displayFilterLinkAlert = false;
-        for (const el of endProcs) {
-            if ($(el).val() === startProcId || !$(el).val()) {
-                continue;
-            }
-            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
-            const hasLink = await isLinkedWithProcess($(el).val(), startProcId);
-            if (hasLink) {
-                warningSign.css({ display: 'none' });
-            } else {
-                warningSign.css({ display: 'block' });
-                displayProcLinkAlert = true;
-            }
-        }
-        for (const el of condProcs) {
-            if ($(el).val() === startProcId || !$(el).val()) {
-                continue;
-            }
-            const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
-            const hasLink = await isLinkedWithProcess($(el).val(), startProcId);
-            if (hasLink) {
-                warningSign.css({ display: 'none' });
-            } else {
-                warningSign.css({ display: 'block' });
-                displayFilterLinkAlert = true;
-            }
-        }
-        displayNoLinkAlertMessage(displayProcLinkAlert, displayFilterLinkAlert);
-    }
-
     // Start Proc is selected
     if (startProcVal && startProcVal !== '0') {
         let displayProcLinkAlert = false;
         let displayFilterLinkAlert = false;
         for (const el of endProcs) {
-            if (!$(el).val()) {
+            const endProcId = $(el).val();
+            if (!endProcId || !startProcVal) {
                 continue;
             }
             const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
-            const hasLink = await isLinkedWithProcess($(el).val(), startProcVal);
+            const hasLink = await isLinkedWithProcess(startProcVal, endProcId);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
@@ -2173,11 +2487,12 @@ const checkIfProcessesAreLinked = async () => {
             }
         }
         for (const el of condProcs) {
-            if (!$(el).val()) {
+            const condProcId = $(el).val();
+            if (!condProcId || !startProcVal) {
                 continue;
             }
             const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
-            const hasLink = await isLinkedWithProcess($(el).val(), startProcVal);
+            const hasLink = await isLinkedWithProcess(startProcVal, condProcId);
             if (hasLink) {
                 warningSign.css({ display: 'none' });
             } else {
@@ -2193,14 +2508,16 @@ const checkIfProcessesAreLinked = async () => {
     if (startProcVal === '0') {
         let displayFilterLinkAlert = false;
         for (const el of condProcs) {
-            if (!$(el).val()) {
+            const condProcId = $(el).val();
+            if (!condProcId) {
                 continue;
             }
             let isLinkedWithEndProc = [];
             const warningSign = $(el).siblings('svg[id^=no-link-warning-sign]');
             for (const endProcElement of endProcs) {
                 const endProcId = $(endProcElement).val();
-                const hasLink = await isLinkedWithProcess($(el).val(), endProcId);
+                if (!endProcId) continue;
+                const hasLink = await isLinkedWithProcess(endProcId, condProcId);
                 isLinkedWithEndProc.push(hasLink);
             }
             // warning is only displayed when a condition proc is not linked with any end procs
@@ -2216,12 +2533,20 @@ const checkIfProcessesAreLinked = async () => {
     }
 };
 
+/**
+ * Toggle tooltips and save status to local storage
+ * @param {HTMLInputElement} ele
+ */
 const tooltipsToggle = (ele) => {
     // to handle tooltips toggle
     const status = $(ele).is(':checked');
     localStorage.setItem('tooltipsEnabled', status);
 };
 
+/**
+ * Get selected label and filter values
+ * @returns {number[][]}
+ */
 const getLabelAndFilterValues = () => {
     const categoriesFilter = $('input[id^=categoryFilter]:checked')
         .map(function () {
@@ -2236,47 +2561,32 @@ const getLabelAndFilterValues = () => {
     return [categoriesLabel, categoriesFilter];
 };
 
+/**
+ * Toggle between default and extended width for list items
+ * @param {jQuery.Event} event
+ */
 const toggleWidth = (event) => {
     event.stopPropagation();
-
-    const ulEl = $('[id^=list-end-proc-val-]');
-    const JPNameElWidth = calculateWidthForJPNameEl(ulEl);
-    if (!isExtendSysName) {
-        ulEl.find('.sys-name')
-            .removeClass('default-width-sys-name')
-            .addClass('col-sm-3 col-xs-3 show-name-col')
-            .css('max-width', '')
-            .css('width', '');
-        ulEl.find('.jp-name').addClass('col-sm-3 col-xs-3 show-name-col');
+    const ulEl = $(event.target).closest('ul');
+    const isExtendSystemName = ulEl.find('.sys-name').hasClass('extended-width-sys-name');
+    if (!isExtendSystemName) {
+        ulEl.find('.sys-name').removeClass('default-width-sys-name').addClass('extended-width-sys-name');
+        ulEl.find('.jp-name').css({ width: '20%', flex: 'unset' });
         ulEl.find('#btn-extend-toggle').html('&#x27FD;').attr('title', $('#i18nExtentVariableNameLonger').text());
         ulEl.find('span[idx="0"]').show();
-        isExtendSysName = true;
     } else {
-        ulEl.find('.sys-name').removeClass('col-sm-3 col-xs-3 show-name-col').addClass('default-width-sys-name');
-        ulEl.find('.jp-name')
-            .removeClass('col-sm-3 col-xs-3 show-name-col')
-            .css('max-width', JPNameElWidth)
-            .css('width', JPNameElWidth);
+        ulEl.find('.sys-name').removeClass('extended-width-sys-name').addClass('default-width-sys-name');
+        ulEl.find('.jp-name').css({ width: '', flex: '1' });
         ulEl.find('#btn-extend-toggle').html('&#x27FE;').attr('title', $('#i18nExtentSysNameLonger').text());
         ulEl.find('span[idx="0"]').hide();
-        isExtendSysName = false;
     }
 };
 
-const reSizeElementForDateTime = (count) => {
-    const targetUlEle = $('#list-end-proc-val-' + count);
-    const JPNameElWidth = calculateWidthForJPNameEl(targetUlEle);
-    if (!isExtendSysName) {
-        targetUlEle.find('.sys-name').removeClass('col-sm-3 col-xs-3 show-name-col').addClass('default-width-sys-name');
-        targetUlEle
-            .find('.jp-name')
-            .removeClass('col-sm-3 col-xs-3 show-name-col')
-            .css('max-width', JPNameElWidth)
-            .css('width', JPNameElWidth);
-        targetUlEle.find('span[idx="0"]').hide();
-    }
-};
-
+/**
+ * Calculate width for Japanese name element
+ * @param {HTMLElement} targetUlEle
+ * @returns {number}
+ */
 const calculateWidthForJPNameEl = (targetUlEle) => {
     // get first row => to calculate width of 1 col of grid system
     const firstRowEl = $(targetUlEle).find('.row').first();
@@ -2290,18 +2600,34 @@ const calculateWidthForJPNameEl = (targetUlEle) => {
     return widthOfNameCols - 84; // 84 is width of default-width-sys-name
 };
 
+/**
+ * Handle table row events (hover and click)
+ * @param {string} tableId
+ */
 const handleTableRowEvents = (tableId) => {
     const tbodyRow = $(`#${tableId}`).find('tbody tr');
+    /**
+     * Mouse enter handler
+     * @param {jQuery.Event} e
+     */
     function onMouseenter(e) {
         const currentRow = $(e.currentTarget);
         currentRow.addClass('hovered');
     }
 
+    /**
+     * Mouse leave handler
+     * @param {jQuery.Event} e
+     */
     function onMouseleave(e) {
         const currentRow = $(e.currentTarget);
         currentRow.removeClass('hovered');
     }
 
+    /**
+     * Click handler
+     * @param {jQuery.Event} e
+     */
     function onClick(e) {
         if ($(e.target).hasClass('cell-checkbox') || $(e.target.parentElement).hasClass('cell-checkbox')) {
             return;

@@ -37,7 +37,7 @@ def parse_user_setting(params):
     setting_id = parse_int_value(params.get('id'))
     title = params.get('title') or ''
     page = params.get('page') or ''
-    key = '{}|{}'.format(page, title)  # TODO use page + title for now
+    key = f'{page}|{title}'  # TODO use page + title for now
     created_by = params.get('created_by') or ''
     priority = parse_int_value(params.get('priority', 0))
     use_current_time = bool(params.get('use_current_time'))

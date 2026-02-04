@@ -153,6 +153,18 @@ const DB_CONFIGS = {
             auth_type_el: 'snowflakeSWAuthType',
         },
     },
+    WEB: {
+        name: 'web',
+        i18nLabel: 'Web',
+        configs: {
+            type: 'WEB_API',
+            url: '',
+            id: '',
+            username: '',
+            password: '',
+            authentication_type: 'NONE',
+        },
+    },
 };
 
 const HttpStatusCode = {
@@ -168,7 +180,7 @@ const dbElements = {
     v2ProcessSelection: '#v2ProcessSelection',
     saveDataSourceModal: '#createV2ProcessDataSource',
     CSVTitle: $('#CSVSelectedLabel'),
-    lineGrpSelect: $('#modal-db-postgres_software_workshop select[name=lineGrps]'),
+    lineGrpSelect: $('#modal-db-postgres_software_workshop select[name=swlineGrps]'),
     lineGroupContainer: $('#modal-db-postgres_software_workshop #lineGroupContainer'),
     sfLineGrpSelect: $('#modal-db-snowflake_software_workshop select[name=lineGrps]'),
     sfLineGroupContainer: $('#modal-db-snowflake_software_workshop #lineGroupContainer'),
@@ -194,6 +206,11 @@ const dbElements = {
 const SNOWFLAKE_AUTH_TYPES = {
     ACCESS_TOKEN: 'access_token',
     KEYPAIR: 'keypair',
+};
+
+const WEB_AUTH_TYPES = {
+    NONE: 'NONE',
+    BASIC: 'BASIC',
 };
 
 const DATETIME = originalTypes[4];
@@ -390,6 +407,7 @@ async function checkIsFilePath(folderUrl, originFolderUrl) {
 }
 
 const showResources = async (isFilePath = undefined, isValidFolder = undefined) => {
+    $('#resourceLoading').show();
     const folderUrl = $(csvResourceElements.folderUrlInput).val();
     const originFolderUrl = $(csvResourceElements.folderUrlInput).data('originValue');
     if (isFilePath == undefined) {
@@ -489,10 +507,24 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
                     }
                 });
 
+                // fix issue https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/823
+                // In case all processes are selected, "全部" option will be checked.
+                const processCount = $('[name="v2Process"]:not([value="All"])').length;
+                const selectedProcessCount = $('[name="v2Process"]:not([value="All"]):checked').length;
+                if (processCount > 0 && processCount === selectedProcessCount) {
+                    $('[name="v2Process"][value="All"]').prop('checked', true);
+                }
+                // In case at least one process is selected, "OK" button will be enabled.
+                if (processCount > 0) {
+                    updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
+                    $(csvResourceElements.csvSubmitBtn).prop('disabled', false);
+                }
+
                 // update observer
                 inputMutationObserver = new InputChangeObserver(document.getElementById('modal-db-csv'));
                 inputMutationObserver.startObserving();
             }
+            $('#resourceLoading').hide();
         },
         error: (error) => {
             $('#resourceLoading').hide();
@@ -577,6 +609,7 @@ const getSWProcessData = () => {
                 table_name: $(item).data('table-name'),
                 child_equip_id: $(item).val(),
                 master_type: $(item).data('master-type'),
+                id: $(item).data('process_id'),
             });
         });
     }
@@ -610,6 +643,7 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
         .then((response) => response.clone().json())
         .then((json) => {
             displayRegisterMessage('#alert-msg-db', json.flask_message);
+            showMessage(json.flask_message.message);
 
             // 新規アイテムのattrを設定する。
             const itemName = 'name';
@@ -620,7 +654,7 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
             }
 
             // データソース名とコメントの値を設定する。
-            const dbType = currentDSTR.find('select[name="type"]').val();
+            const dbType = getDbType(dsConfig.id);
             currentDSTR.find(`input[name="${itemName}"]`).val($(`#${dbType.toLowerCase()}_dbsourcename`).val());
             currentDSTR.find('textarea[name="comment"]').val($(`#${dbType.toLowerCase()}_comment`).val());
 
@@ -662,7 +696,7 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
             const newProcesses = getNewProcesses(json.processes);
             if (!dsCode || newProcesses.length) {
                 newProcesses.forEach((proc) => {
-                    addProcToTable(
+                    addDisabledProcToTable(
                         proc.id,
                         proc.name_en,
                         proc.name_jp,
@@ -671,8 +705,11 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
                         proc.data_source.id,
                         proc.table_name,
                         proc.data_source.name,
+                        proc.labels, // process label
                     );
                 });
+                // update trace configs
+                $(tracingElements.confirmReloadBtn).trigger('click');
             }
         })
         .catch((json) => {
@@ -748,8 +785,8 @@ const saveDataSource = (dsCode, dsConfig, isDirectlyImport = false) => {
 };
 
 const saveV2DataSource = (dsConfig) => {
-    loading.css('z-index', 9999);
-    loading.show();
+    const loadingObj = loadingHandler();
+    loadingObj.show();
     fetch('api/setting/v2_data_source_save', {
         method: 'POST',
         headers: {
@@ -763,7 +800,7 @@ const saveV2DataSource = (dsConfig) => {
             $('#modal-db-csv').modal('hide');
             displayRegisterMessage('#alert-msg-db', json.flask_message);
             if (json.flask_message.is_error) {
-                loading.hide();
+                loadingObj.hide();
                 return;
             }
             const dataSources = json.data.map((da) => JSON.parse(da.data_source));
@@ -801,7 +838,7 @@ const saveV2DataSource = (dsConfig) => {
             v2DataSources = null;
             // show toastr message to guide user to proceed to Process config
             showToastrToProceedProcessConfig();
-            loading.hide();
+            loadingObj.hide();
 
             // show v2 process config automatically
             const dbsIds = json.data.map((da) => da.id);
@@ -838,7 +875,6 @@ const handleCloseProcConfigModal = (ele) => {
     // Use jspreadsheet to handle history inside process column table.
     // Because they have better history operation for excel, they will keep track for us
     // with proper undo + redo operation as well.
-
     const changedFromProcColumnsTable = spreadsheetProcConfig(procModalElements.procConfigTableName).isHasChange();
     const changedFromFunctionColumnsTable = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER).isHasChange();
 
@@ -851,11 +887,13 @@ const handleCloseProcConfigModal = (ele) => {
         $('#modifyConfirmationModal').modal('show');
         return;
     }
-
+    hideAlertMessages();
     $(ele).closest('.modal').modal('hide');
 
     isV2ProcessConfigOpening = false;
     isClickPreviewMergeMode = false;
+    // reset isInitialize: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/443
+    isInitialize = false;
     resetIsShowFileName();
     functionConfigResetDefaultValues();
 };
@@ -872,7 +910,9 @@ const handleCloseDSConfigModal = (ele) => {
 
 const showV2ProcessConfigModal = async (dbsId = null) => {
     if (!dbsId) return;
-    await showProcSettingModal(null, dbsId);
+    const procRow = addProcToTable({ dbsId: dbsId });
+    const btnShowDetail = procRow.find('button.proc-show-detail-btn');
+    await showProcSettingModal(btnShowDetail, dbsId);
     isV2ProcessConfigOpening = true;
 };
 
@@ -1095,6 +1135,7 @@ const validateDBInfo = () => {
         username: $(`#${dbTypePrefix}_username`).val(),
         password: $(`#${dbTypePrefix}_password`).val(),
         comment: $(`#${dbTypePrefix}_comment`).val(),
+        url: $(`#${dbTypePrefix}_url`).val(),
         use_os_timezone: $(`#${dbTypePrefix}_use_os_timezone`).val() === 'true',
     };
     dbItem[dbItemId] = itemValues;
@@ -1117,6 +1158,31 @@ const validateDBInfo = () => {
     }
 
     return true;
+};
+
+const genWebInfo = () => {
+    const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
+    const dbType = getDbType(dbItemId);
+    const domDBPrefix = dbType.toLowerCase();
+
+    // Get DB Information
+    const dictDetail = {
+        id: dbItemId,
+        url: $(`#${domDBPrefix}_url`).val(),
+        authentication_type: $(`input[name=${domDBPrefix}_authentication_type]:checked`).val(),
+        username: $(`#${domDBPrefix}_username`).val(),
+        password: $(`#${domDBPrefix}_password`).val(),
+    };
+
+    const dictDataSrc = {
+        id: dbItemId,
+        name: $(`#${domDBPrefix}_dbsourcename`).val(),
+        type: dbType,
+        comment: $(`#${domDBPrefix}_comment`).val(),
+        web_detail: dictDetail,
+    };
+
+    return dictDataSrc;
 };
 
 // DBInfoを生成する。
@@ -1188,10 +1254,7 @@ const handleChangeSelectToInputForDBType = () => {
 };
 
 // DBInfoの保存を実施する。
-const saveDBDataSource = () => {
-    const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const dictDataSrc = genDBInfo();
-
+const saveDBDataSource = (dataSrcId, dictDataSrc) => {
     // save
     saveDataSource(dataSrcId, dictDataSrc);
 
@@ -1201,8 +1264,89 @@ const saveDBDataSource = () => {
 
 const saveDBInfo = () => {
     if (validateDBInfo()) {
-        saveDBDataSource();
+        const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
+        const dictDataSrc = genDBInfo();
+        saveDBDataSource(dataSrcId, dictDataSrc);
     }
+};
+
+const saveDBSourceWeb = () => {
+    const dictDataSrc = genWebInfo();
+    if (validateWebInfor(dictDataSrc)) {
+        const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
+        saveDBDataSource(dataSrcId, dictDataSrc);
+    }
+};
+
+const validateWebInfor = (dictDataSrc) => {
+    const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
+    const dbType = getDbType(dbItemId);
+    const domDBPrefix = dbType.toLowerCase();
+    const requiredWebDetails = ['username', 'password'];
+    const requiredRows = ['name'];
+    const errorMsg = {
+        name: $('#i18nDbSourceEmpty').text(),
+        url: $('#i18nPleaseInputURL').text(),
+        username: $('#i18nPleaseInputUsername').text(),
+        password: $('#i18nPleaseInputPassword').text(),
+    };
+    for (const key of requiredRows) {
+        if (!dictDataSrc[key]) {
+            if (key === 'name') {
+                $(`#${domDBPrefix}_dbsourcename`).addClass('column-name-invalid');
+            }
+            $(`#${domDBPrefix}_${key}`).addClass('column-name-invalid');
+
+            displayRegisterMessage(`#alert-${domDBPrefix}-validation`, {
+                message: errorMsg[key],
+                is_error: true,
+            });
+            return false;
+        } else {
+            if (key === 'name') {
+                $(`#${domDBPrefix}_dbsourcename`).removeClass('column-name-invalid');
+            }
+            $(`#${domDBPrefix}_${key}`).removeClass('column-name-invalid');
+        }
+    }
+
+    // check url
+    if (!dictDataSrc.web_detail.url) {
+        $(`#${domDBPrefix}_url`).addClass('column-name-invalid');
+        displayRegisterMessage(`#alert-${domDBPrefix}-validation`, {
+            message: errorMsg.url,
+            is_error: true,
+        });
+        return false;
+    } else {
+        $(`#${domDBPrefix}_url`).removeClass('column-name-invalid');
+    }
+
+    // データベース名の存在をチェックする。
+    if (!validateExistDBName($(`#${domDBPrefix}_dbsourcename`).val()).isOk) {
+        displayRegisterMessage(`#alert-${domDBPrefix}-validation`, {
+            message: validateExistDBName().message,
+            is_error: true,
+        });
+        return false;
+    }
+
+    if (dictDataSrc.web_detail.authentication_type === WEB_AUTH_TYPES.NONE) return true;
+    for (const key of requiredWebDetails) {
+        if (dictDataSrc.id && key === 'password') continue;
+        if (!dictDataSrc.web_detail[key]) {
+            $(`#${domDBPrefix}_${key}`).addClass('column-name-invalid');
+            displayRegisterMessage(`#alert-${domDBPrefix}-validation`, {
+                message: errorMsg[key],
+                is_error: true,
+            });
+            return false;
+        } else {
+            $(`#${domDBPrefix}_${key}`).removeClass('column-name-invalid');
+        }
+    }
+
+    return true;
 };
 
 // save db
@@ -1292,6 +1436,7 @@ const addDBConfigRow = () => {
                 <option value="${DB_CONFIGS.SNOWFLAKE.configs.type}">${DB_CONFIGS.SNOWFLAKE.i18nLabel}</option>
                 <option value="${DB_CONFIGS.POSTGRES_SOFTWARE_WORKSHOP.configs.type}">${DB_CONFIGS.POSTGRES_SOFTWARE_WORKSHOP.i18nLabel}</option>
                 <option value="${DB_CONFIGS.SNOWFLAKE_SOFTWARE_WORKSHOP.configs.type}">${DB_CONFIGS.SNOWFLAKE_SOFTWARE_WORKSHOP.i18nLabel}</option>
+                <option value="${DB_CONFIGS.WEB.configs.type}">${DB_CONFIGS.WEB.i18nLabel}</option>
             </select>
         </td>
         <td class="text-center">
@@ -1366,7 +1511,7 @@ const confirmDeleteDS = async () => {
                     $(`select[name="databaseName"] option[value="${dsCode}"]`).remove();
 
                     // refresh Vis network
-                    reloadTraceConfigFromDB();
+                    reloadTraceConfigFromDB(true);
 
                     // update datasource
                     cfgDS = $.grep(cfgDS, (e) => String(e.id) !== String(dsCode));
@@ -1640,6 +1785,20 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             }
             break;
         }
+        case DB_CONFIGS.WEB.configs.type:
+            $(`#${domModalPrefix}_url`).val(dictDataSrc.web_detail.url);
+            $(`#${domModalPrefix}_dbsourcename`).val(dictDataSrc.name);
+            $(`#${domModalPrefix}_comment`).val(dictDataSrc.comment);
+            $(`input[name=${domModalPrefix}_authentication_type][value=${dictDataSrc.web_detail.authentication_type}]`)
+                .prop('checked', true)
+                .trigger('change');
+            $(`#${domModalPrefix}_password`).attr('placeholder', '');
+            if (dictDataSrc.web_detail.authentication_type === WEB_AUTH_TYPES.BASIC && dictDataSrc.id) {
+                $(`#${domModalPrefix}_username`).val(dictDataSrc.web_detail.username);
+                $(`#${domModalPrefix}_password`).val('');
+                $(`#${domModalPrefix}_password`).attr('placeholder', `<${i18nDBCfg.hiddenPlaceholder}>`);
+            }
+            break;
         default: {
             if (!dictDataSrc.db_detail) {
                 break;
@@ -1773,13 +1932,20 @@ const checkDBConnection = (dbType, html, msgID) => {
         });
     }
 
-    fetch('api/setting/check_db_connection', {
+    let apiEndPoint = 'api/setting/check_db_connection';
+    if (dbType === DB_CONFIGS.WEB.configs.type.toLowerCase()) {
+        apiEndPoint = 'api/setting/check_web_connection';
+    }
+
+    const requestData = dbType === DB_CONFIGS.WEB.configs.type.toLowerCase() ? genWebInfo().web_detail : data;
+
+    fetch(apiEndPoint, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(requestData),
     })
         .then((response) => response.clone().json())
         .then((json) => {
@@ -1880,6 +2046,14 @@ const loadDetail = (self) => {
                 };
                 break;
             }
+            case DB_CONFIGS.WEB.configs.type: {
+                jsonDictDataSrc = {
+                    id: null,
+                    comment: '',
+                    web_detail: DB_CONFIGS.WEB.configs,
+                };
+                break;
+            }
         }
         bindDBItemToModal(dsType, jsonDictDataSrc);
     } else {
@@ -1933,7 +2107,10 @@ const getV2ProcessData = (dictDataSrc) => {
         v2SelectedProcess.forEach((processName) => {
             const subDatasourceByProcess = JSON.parse(JSON.stringify(dictDataSrc));
             const suffix = processName === DUMMY_V2_PROCESS_NAME ? '' : `_${processName}`;
-            subDatasourceByProcess.name = `${subDatasourceByProcess.name}${suffix}`;
+            // #825: We do not need to add suffix when the datasource already exists
+            if (!subDatasourceByProcess.id) {
+                subDatasourceByProcess.name = `${subDatasourceByProcess.name}${suffix}`;
+            }
             subDatasourceByProcess.csv_detail.process_name = processName;
             subDatasourceByProcess.csv_detail.auto_link = false;
             v2Datasources.push(subDatasourceByProcess);
@@ -2046,7 +2223,7 @@ $(() => {
     onSearchTableContent('searchDataSource', 'tblDbConfig');
     onSearchTableContent('searchProcConfig', 'tblProcConfig');
     sortableTable('tblDbConfig', [0, 1, 2, 4, 5], 510, true);
-    sortableTable('tblProcConfig', [0, 1, 2, 3, 5], 510, true);
+    sortableTable('tblProcConfig', [0, 1, 2, 3, 5, 6], 510, true);
 });
 
 const getDbType = (dbItemId) => {
@@ -2114,7 +2291,7 @@ const previewSoftwareWorkshop = (dbType, html, msgID) => {
             $lineGroupContainer.css('display', json.flask_message.connected ? '' : 'none');
             displayTestDBConnectionMessage(msgID, json.flask_message);
             line_grp_infos = json.db_info.line_group_infos;
-            fillLineGroupIdSelect(json.db_info.line_groups, $lineGrpSelect, isSnowFlake);
+            fillLineGroupIdSelect(json.db_info, $lineGrpSelect, isSnowFlake);
             document.getElementById('groupTable').replaceChildren();
             $lineGrpSelect.val(0).trigger('change'); // Select first line_group
         });
@@ -2123,7 +2300,7 @@ const previewSoftwareWorkshop = (dbType, html, msgID) => {
 const fillLineGroupIdSelect = (data, lineGrpSelect, isSnowFlake) => {
     //  clear line group data first
     $(lineGrpSelect).empty();
-    data.forEach(function (line_grp, index) {
+    data.line_groups.forEach(function (line_grp, index) {
         const option_attribute = {
             value: index,
             text: line_grp,
@@ -2131,7 +2308,19 @@ const fillLineGroupIdSelect = (data, lineGrpSelect, isSnowFlake) => {
         lineGrpSelect.append($('<option/>', option_attribute));
     });
     $(lineGrpSelect).on('change', (e) => {
-        createGroupTable(line_grp_infos[parseInt(e.currentTarget.value)], isSnowFlake);
+        // Khanh commented: Cái này là sao nhỉ? khó hiểu quá.
+        // todo: confirm with Tuyen
+        const processes = data.processes;
+        let lineGroupInfos = data.line_group_infos[parseInt(e.currentTarget.value)].map((lineGroup) => {
+            const mappedProc = processes.filter((proc) => {
+                return proc.master_type === lineGroup.master_type && proc.process_factid === lineGroup.child_equip_id;
+            });
+            return {
+                ...lineGroup,
+                process_id: mappedProc.length && mappedProc[0].id,
+            };
+        });
+        createGroupTable(lineGroupInfos, isSnowFlake);
     });
 };
 
@@ -2213,5 +2402,14 @@ const switchAuthTypeDisplay = (e, dbType = DB_CONFIGS.SNOWFLAKE.configs.type) =>
             $(dbElements.snowflakeInputAreaAccessToken[dbType]).css('display', 'block');
             $(dbElements.snowflakeInputAreaPrivateKeyFile[dbType]).css('display', 'none');
             break;
+    }
+};
+
+const switchAuthTypeForWebAPI = (e) => {
+    if (e.value == WEB_AUTH_TYPES.BASIC) {
+        $('#webAuthInputArea').find('input').attr('disabled', false);
+    } else {
+        $('#webAuthInputArea').find('input').attr('disabled', true);
+        $('#webAuthInputArea').find('input').val('');
     }
 };

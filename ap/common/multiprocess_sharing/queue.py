@@ -5,7 +5,8 @@ import logging
 import multiprocessing
 import queue
 import threading
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any, ClassVar
 
 from ap.common.multiprocess_sharing.events import Event
 from ap.common.multiprocess_sharing.manager import CustomManager
@@ -20,7 +21,7 @@ class EventQueue:
 
     # callback to run on Event
     # we don't need to lock this because all callbacks should be added only in main thread
-    callbacks: list[Callable[[Event], Any]] = []
+    callbacks: ClassVar[list[Callable[[Event], Any]]] = []
 
     is_listening: bool = False
 
@@ -145,7 +146,6 @@ class EventQueue:
     @classmethod
     def try_init(cls) -> bool:
         """Try to initialize object from server, return True if success, otherwise return False"""
-
         should_run_init = (
             # Inner is not set, we are definitely not connecting to a server.
             cls.inner is None

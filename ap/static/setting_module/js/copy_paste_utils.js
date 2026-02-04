@@ -1,3 +1,8 @@
+/**
+ * Get all text data inside tds, separate by TAB
+ * @param {?HTMLTableRowElement} tr
+ * @return string[]
+ */
 const getTRDataValues = (tr) => {
     const children = [...(tr?.querySelectorAll('td:not(.d-none)') ?? [])];
     return children.map((td) => {

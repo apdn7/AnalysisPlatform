@@ -15,7 +15,7 @@
         <!-- prettier-ignore-start -->
         <script>
             // get app context object before import js funcs
-            const appContext = {{ app_context|safe }};
+            const appContext = {{ app_context|tojson }};
         </script>
         <!-- prettier-ignore-end -->
         {% assets "js_all" %}

@@ -26,7 +26,7 @@ def check_available_port(port):
                 logger.exception(e)
 
             sys.exit()
-    except (s.timeout, s.gaierror) as ex:
+    except (TimeoutError, s.gaierror) as ex:
         logger.error(f'Checking port availability timeout! {ex}')
         # logger.exception(ex)
     except Exception as ex:

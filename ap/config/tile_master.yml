@@ -104,3 +104,16 @@
               数十個といった多数の変数の動きを監視し、「いつもと違う」状況を検出することができます。\n
               (分布がスプリットしていない場合に使用できます。)'
     link_address: '/ap/analyze/anomaly_detection/pca'
+- wfp:
+      title_en: 'WfP Waveform plot'
+      title_ja: 'WfP 波形プロット'
+      png_path: 'WfP.png'
+      hover_en: 'You can visualize waveforms for each cycle.\n
+                Multiple waveforms can be plotted on a single graph, and coloring is also supported.\n
+                For example, by comparing press‑fit waveforms, current waveforms,\n
+                or vibration waveforms of good and defective products,\n
+                you can identify rising‑edge changes in specific sections or detect variations in peak positions.'
+      hover_ja: '1サイクルごとの波形を可視化することができます。複数の波形を1つのグラフに描画し、色分けも可能です。\n
+                例えば良品/不良品の圧入波形・電流波形・振動波形など比較することで、\n
+                特定区間での立ち上がり変化、 ピーク位置の偏りの存在を明らかにすることができます。'
+      link_address: '/ap/wfp'

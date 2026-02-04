@@ -6,7 +6,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
 from math import ceil
-from typing import Dict, List, Tuple
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -149,6 +149,7 @@ from ap.common.constants import (
     SUMMARIES,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_LOG_SCALE_MODE,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
@@ -166,6 +167,7 @@ from ap.common.constants import (
     UNIT,
     UNLINKED_IDXS,
     UNMATCHED_FILTER_IDS,
+    UPPER_LIM_MARGIN,
     UPPER_OUTLIER_IDXS,
     X_OPTION,
     Y_MAX,
@@ -178,7 +180,6 @@ from ap.common.constants import (
     DuplicateSerialCount,
     DuplicateSerialShow,
     FilterFunc,
-    JudgeDefinition,
     N,
     RemoveOutlierType,
     YType,
@@ -188,6 +189,7 @@ from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import drop_dataframe_duplicated_columns
 from ap.common.path_utils import gen_sqlite3_file_name
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.services.ana_inf_data import calculate_kde_trace_data, detect_abnormal_count_values
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import abort_process_handler
@@ -196,6 +198,7 @@ from ap.common.services.statistics import convert_series_to_number, get_mode
 from ap.common.services.trace_graph import ConnectedTraceKeys, TraceGraph
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, Target, save_df_to_file, trace_log
+from ap.conversion_formula import JudgeFormula, conversion_formula
 from ap.equations.utils import get_function_class_by_id
 
 # TODO: filter check
@@ -209,10 +212,17 @@ from ap.setting_module.models import (
 from ap.trace_data.schemas import CategoryProc, ConditionProc, DicParam, EndProc
 from ap.trace_data.transaction_model import TransactionData
 
+CACHED_PARAMS = (
+    DIC_CAT_FILTERS,
+    TEMP_CAT_EXP,
+    TEMP_CAT_PROCS,
+    TEMP_LOG_SCALE_MODE,
+)
+
 
 @log_execution_time()
 def gen_dic_data(
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     df,
     orig_graph_param,
     graph_param_with_cate,
@@ -235,7 +245,7 @@ def gen_dic_data(
         )
         dic_cates = defaultdict(dict)
         for proc in orig_graph_param.common.cate_procs:
-            for col_id, col_name in zip(proc.col_ids, proc.col_names):
+            for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
                 sql_label = gen_sql_label(col_id, col_name)
                 dic_cates[proc.proc_id][col_id] = df[sql_label].tolist() if sql_label in df.columns else []
 
@@ -266,7 +276,7 @@ def gen_dic_data_from_df(
     for proc in graph_param.array_formval:
         dic_data_cat_exp = defaultdict(list)
         dic_data_none_idxs = defaultdict(list)
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             col_id_name = gen_sql_label(col_id, col_name)
             sql_labels = [col for col in df.columns if col.startswith(col_id_name)]
             series_lst = []
@@ -288,7 +298,7 @@ def gen_dic_data_from_df(
             dic_data[proc.proc_id][CAT_EXP_BOX] = dic_data_cat_exp
             dic_data[proc.proc_id][NONE_IDXS] = dic_data_none_idxs
 
-        time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
+        time_col_alias = f'{TIME_COL}_{proc.proc_id}'
         if time_col_alias in df:
             dic_data[proc.proc_id][TIME_COL] = df[time_col_alias]
         else:
@@ -302,7 +312,7 @@ def gen_dic_data_from_df(
 
 @log_execution_time()
 def gen_dic_data_cat_exp_from_df(
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     df: DataFrame,
     graph_param: DicParam,
     dic_cfg_cat_exps,
@@ -314,7 +324,7 @@ def gen_dic_data_cat_exp_from_df(
         return dic_data, is_graph_limited
 
     cat_exp_cols = gen_cat_exp_names(graph_param.common.cat_exp)
-    for cat_exp_col, cat_exp_label in zip(graph_param.common.cat_exp, cat_exp_cols):
+    for cat_exp_col, cat_exp_label in zip(graph_param.common.cat_exp, cat_exp_cols, strict=False):
         if cat_exp_label not in df.columns:
             cfg_cat_exp = dic_cfg_cat_exps[cat_exp_col]
             sql_label = gen_sql_label(cfg_cat_exp.id, cfg_cat_exp.column_name)
@@ -337,13 +347,13 @@ def gen_dic_data_cat_exp_from_df(
         datetime_cols = [dic_proc_cfgs[proc.proc_id].get_cols_by_data_type(DataType.DATETIME, column_name_only=False)]
         dic_none_idxs = defaultdict(list)
         dic_cat_exp_names = defaultdict(list)
-        time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
+        time_col_alias = f'{TIME_COL}_{proc.proc_id}'
         if time_col_alias in df:
             dic_data[proc.proc_id][TIME_COL] = df[time_col_alias]
         else:
             dic_data[proc.proc_id][TIME_COL] = pd.Series()
 
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             if max_graph and graph_count >= max_graph:
                 is_graph_limited = True
                 break
@@ -429,7 +439,7 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
     # find groups of filter columns from df
     # do not use df.groupby(filter_labels).groups.keys() to avoid bad performance in huge df
     group_df = df[filter_labels].drop_duplicates()
-    group_df = group_df.rename(columns=dict(zip(filter_labels, sorted_filter_cols)))
+    group_df = group_df.rename(columns=dict(zip(filter_labels, sorted_filter_cols, strict=False)))
 
     # if group_list has nan, an int64 column will be converted to float64, 1 -> 1.0
     # should be keep original value of these columns, with convert nan to pd.NA first
@@ -467,17 +477,16 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
 
 def customize_dic_param_for_reuse_cache(dic_param):
     use_expired_cache = False
-    for name in (
-        DIC_CAT_FILTERS,
-        TEMP_CAT_EXP,
-        TEMP_CAT_PROCS,
+    expired_cache_params = (
+        *CACHED_PARAMS,
         TEMP_X_OPTION,
         TEMP_SERIAL_PROCESS,
         TEMP_SERIAL_COLUMN,
         TEMP_SERIAL_ORDER,
         MATRIX_COL,
         COLOR_ORDER,
-    ):
+    )
+    for name in expired_cache_params:
         if name in dic_param[COMMON]:
             use_expired_cache = True
             break
@@ -488,8 +497,11 @@ def customize_dic_param_for_reuse_cache(dic_param):
     )
     cat_exp = [int(id) for id in dic_param[COMMON].get(TEMP_CAT_EXP, []) if id]
     cat_procs = dic_param[COMMON].get(TEMP_CAT_PROCS, [])
-    for name in (DIC_CAT_FILTERS, TEMP_CAT_EXP, TEMP_CAT_PROCS):
+    log_scale_mode = dic_param[COMMON].get(TEMP_LOG_SCALE_MODE, False)
+
+    for name in CACHED_PARAMS:
         if name in dic_param[COMMON]:
+            # to reuse cached results
             dic_param[COMMON].pop(name)
     (
         dic_param,
@@ -509,7 +521,6 @@ def customize_dic_param_for_reuse_cache(dic_param):
     # set default for color order ( default : data value )
     color_order = dic_param[COMMON].get(COLOR_ORDER)
     color_order = ColorOrder(int(color_order)) if color_order else ColorOrder.DATA
-
     return (
         dic_param,
         cat_exp,
@@ -520,6 +531,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         temp_serial_order,
         temp_serial_process,
         temp_x_option,
+        log_scale_mode,
         matrix_col,
         color_order,
     )
@@ -537,7 +549,7 @@ def filter_cat_dict_common(
     separate_div=False,
 ):
     """
-        filter cat_exp_box function common
+        Filter cat_exp_box function common
     :param label_col_id:
     :param df:
     :param dic_param;
@@ -548,7 +560,6 @@ def filter_cat_dict_common(
     :param separate_div: do not add div into facet
     :return:
     """
-
     if COMMON in dic_param:
         if cat_exp:
             for i, val in enumerate(cat_exp):
@@ -632,7 +643,7 @@ def gen_df(
     rank_value=False,
     optional_cache_config: OptionalCacheConfig = OptionalCacheConfig(),
 ):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition point
     """
@@ -660,7 +671,9 @@ def gen_df(
 
     # get order columns
     if graph_param.common.x_option == 'INDEX':
-        for _proc_id, _col_id in zip(graph_param.common.serial_processes, graph_param.common.serial_columns):
+        for _proc_id, _col_id in zip(
+            graph_param.common.serial_processes, graph_param.common.serial_columns, strict=False
+        ):
             proc_id = _proc_id
             col_id = _col_id
             if proc_id and col_id:
@@ -781,19 +794,17 @@ def rank_str_cols(df: DataFrame, graph_param: DicParam):
             )
         else:
             # RLP does not allow plotting judge as a target sensor, this applies to only FPP for now
-            OK_value = string_col.judge_positive_display or JudgeDefinition.OK.name
-            NG_value = string_col.judge_negative_display or JudgeDefinition.NG.name
-            # NG: 1, OK: 0 it just not same JudgeDefinition
-            df[sql_label] = pd.Series(
-                np.where(
-                    df[sql_label].isna(),
-                    df[sql_label],
-                    df[sql_label].replace(
-                        {OK_value: '0', NG_value: '1'},
-                    ),
-                ),
-                dtype=pd.Int32Dtype.name,
+            formula = conversion_formula(
+                formula=string_col.formula,
+                col_type=string_col.column_type,
+                data_type=string_col.data_type,
             )
+            match formula:
+                case JudgeFormula(positive_display=positive_display, negative_display=negative_display):
+                    # NG: 1, OK: 0 it just not same JudgeDefinition
+                    df[sql_label] = (
+                        df[sql_label].replace({positive_display: '0', negative_display: '1'}).astype(pd.Int64Dtype())
+                    )
 
         df[sql_label] = df[sql_label].convert_dtypes()
         str_cols.append(string_col.col_id)
@@ -803,14 +814,32 @@ def rank_str_cols(df: DataFrame, graph_param: DicParam):
 
 @dataclass()
 class StringCol:
+    """Data class for string column information.
+
+    This class stores metadata about string columns including their ranking information,
+    process and column identifiers, display names, and data type information.
+
+    Attributes:
+        before_rank_col_name: Column name before ranking transformation.
+        proc_id: Process ID that the column belongs to.
+        col_id: Column ID within the process.
+        col_name: Internal column name.
+        show_name: Display name for the column.
+        column_type: Type of the column (e.g., judge, normal).
+        formula: Optional formula for column transformation.
+        data_type: Data type of the column (e.g., TEXT, INTEGER).
+
+    Generated by Duo.
+    """
+
     before_rank_col_name: str
     proc_id: int
     col_id: int
     col_name: str
     show_name: str
     column_type: int
-    judge_positive_display: str
-    judge_negative_display: str
+    formula: str | None
+    data_type: str | None
 
 
 @log_execution_time()
@@ -818,7 +847,7 @@ def get_str_cols_in_end_procs(graph_param: DicParam, df=None) -> dict[str, Strin
     dic_output = {}
     for proc in graph_param.array_formval:
         proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id]
-        for col_id, col_name, show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             cfg_col = proc_cfg.get_col(col_id)
 
             if cfg_col is None or cfg_col.data_type == DataType.REAL.name:
@@ -836,8 +865,8 @@ def get_str_cols_in_end_procs(graph_param: DicParam, df=None) -> dict[str, Strin
                 col_name=col_name,
                 show_name=show_name,
                 column_type=cfg_col.column_type,
-                judge_positive_display=cfg_col.judge_positive_display,
-                judge_negative_display=cfg_col.judge_negative_display,
+                formula=cfg_col.formula,
+                data_type=cfg_col.data_type,
             )
 
     return dic_output
@@ -855,7 +884,7 @@ def gen_before_rank_dict(df: DataFrame, dic_str_cols):
         if string_col.before_rank_col_name in df.columns:
             df_rank = df[[sql_label, string_col.before_rank_col_name]].drop_duplicates().dropna()
             dic_output[string_col.col_id] = dict(
-                zip(df_rank[sql_label], df_rank[string_col.before_rank_col_name].astype(str)),
+                zip(df_rank[sql_label], df_rank[string_col.before_rank_col_name].astype(str), strict=False),
             )
 
     return dic_output
@@ -1002,7 +1031,7 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
 @log_execution_time()
 def check_and_order_data(
     df,
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     x_option='TIME',
     serial_processes=[],
     serial_cols=[],
@@ -1017,7 +1046,7 @@ def check_and_order_data(
 
     cols = []
     orders = []
-    for proc_id, col_id, order in zip(serial_processes, serial_cols, serial_orders):
+    for proc_id, col_id, order in zip(serial_processes, serial_cols, serial_orders, strict=False):
         if not proc_id or not col_id:
             continue
 
@@ -1043,11 +1072,11 @@ def check_and_order_data(
     return df
 
 
-def gen_blank_df_end_cols(procs: List[EndProc]):
+def gen_blank_df_end_cols(procs: list[EndProc]):
     params = {}
     for proc in procs:
         params.update({gen_sql_label(col_id, proc.col_names[idx]): [] for idx, col_id in enumerate(proc.col_ids)})
-        params.update({'{}{}'.format(TIME_COL, create_rsuffix(proc.proc_id)): []})
+        params.update({f'{TIME_COL}{create_rsuffix(proc.proc_id)}': []})
     params.update({ID: [], TIME_COL: []})
 
     df = pd.DataFrame(params)
@@ -1055,7 +1084,7 @@ def gen_blank_df_end_cols(procs: List[EndProc]):
 
 
 def create_rsuffix(proc_id):
-    return '_{}'.format(proc_id)
+    return f'_{proc_id}'
 
 
 @log_execution_time()
@@ -1065,12 +1094,10 @@ def gen_graph_df(
     trace_graph: TraceGraph,
     start_tm,
     end_tm,
-    end_procs: List[EndProc],
+    end_procs: list[EndProc],
     cond_procs,
     common_paths,
     short_procs,
-    judge_columns,
-    boolean_columns,
     duplicate_serial_show=None,
     duplicated_serials_count=None,
     is_order_by_time=True,
@@ -1094,10 +1121,11 @@ def gen_graph_df(
 
     # get equation data
     for end_proc in end_procs:
-        df = get_equation_data(df, end_proc)
+        df = get_equation_data(df, end_proc.cfg_proc, end_proc.col_ids)
 
-    df = judge_data_conversion(df, judge_columns)
-    df = boolean_data_conversion(df, boolean_columns)
+    for end_proc in end_procs:
+        df = df_from_db_data_conversion(df, end_proc.cfg_proc.columns)
+
     # filter function column
     for end_proc in end_procs:
         for condition_proc in cond_procs:
@@ -1123,45 +1151,14 @@ def is_show_duplicated_serials(duplicate_serial_show, duplicated_serial_count, a
     return duplicate_serial_show, for_count
 
 
-# @log_execution_time()
-# def gen_trace_sensors_df(dic_proc_cfgs, column_ids, column_names, cycle_ids, df, dic_mapping_col_n_sensor, proc_id):
-#     df.set_index(proc_id, inplace=True)
-#     with DbProxy(gen_data_source_of_universal_db(proc_id), True, True) as db_instance:
-#         sql = gen_create_temp_table_sql()
-#         db_instance.execute_sql(sql)
-#         db_instance.bulk_insert(SHOW_GRAPH_TEMP_TABLE_NAME, [SHOW_GRAPH_TEMP_TABLE_COL], cycle_ids)
-#         for col_ids, col_names in chunk_two_list(column_ids, column_names, 50):
-#             sql, params = gen_trace_sensors_sql(
-#                 dic_proc_cfgs,
-#                 int(proc_id),
-#                 col_names,
-#                 dic_mapping_col_n_sensor,
-#                 SHOW_GRAPH_TEMP_TABLE_NAME,
-#                 SHOW_GRAPH_TEMP_TABLE_COL,
-#             )
-#             _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
-#
-#             labels = [gen_sql_label(_col_id, _col_name) for _col_id, _col_name in zip(col_ids, col_names)]
-#             df_proc = pd.DataFrame(rows, columns=[SHOW_GRAPH_TEMP_TABLE_COL] + labels)
-#             df_proc.set_index(SHOW_GRAPH_TEMP_TABLE_COL, inplace=True)
-#             # df = df.join(df_proc, rsuffix='_old_')
-#             df = df.merge(df_proc, how='left', left_index=True, right_index=True, suffixes=('', '_old_'))
-#
-#             old_cols = [col for col in df.columns if str(col).endswith('_old_')]
-#             if old_cols:
-#                 df.drop(old_cols, axis=1, inplace=True)
-#
-#     return df
-
-
 @log_execution_time()
 def gen_trace_procs_df(
     start_tm,
     end_tm,
-    cond_procs: List[ConditionProc],
+    cond_procs: list[ConditionProc],
     end_procs,
     trace_graph: TraceGraph,
-    common_paths: List[Tuple[List[int], bool]],
+    common_paths: list[tuple[list[int], bool]],
     short_procs,
     duplicate_serial_show: DuplicateSerialShow,
     duplicated_serials_count: DuplicateSerialCount,
@@ -1189,10 +1186,9 @@ def gen_trace_procs_df(
             file_name = gen_sqlite3_file_name(sql_obj.process_id)
             dic_db_files[sql_obj.process_id] = file_name
 
-    first_proc_id = list(dic_db_files.keys())[0]
-    with DbProxy(
+    first_proc_id = next(iter(dic_db_files.keys()))
+    with ReadOnlyDbProxy(
         gen_data_source_of_universal_db(first_proc_id),
-        # FIXME: remove is universal, this is unnecessary
         is_universal_db=True,
         dic_db_files=dic_db_files,
         proc_id=first_proc_id,
@@ -1243,38 +1239,45 @@ def gen_trace_procs_df(
 @log_execution_time()
 def reduce_graph(end_procs, trace_graph: TraceGraph, start_proc_id):
     # get all paths between start and end procs
-    paths = []
-    procs = set()
+    paths: list[tuple[list[int], bool]] = []
+    short_procs: set[int] = set()
     dic_end_proc_cols = {}
     for end_proc_obj in end_procs:
         end_proc = end_proc_obj.proc_id
         dic_end_proc_cols[end_proc] = (end_proc_obj.col_ids, end_proc_obj.col_names)
+        undirected_graph = False
 
         # forward
         is_trace_forward = True
         connected_paths = trace_graph.get_all_paths(start_proc=start_proc_id, end_proc=end_proc)
-        connected_paths = list(map(trace_graph.remove_middle_nodes, connected_paths))
 
         # backward, only add if there is no paths
         if not connected_paths:
             is_trace_forward = False
             connected_paths = trace_graph.get_all_paths(start_proc=end_proc, end_proc=start_proc_id)
-            connected_paths = list(map(trace_graph.remove_middle_nodes, connected_paths))
 
         # no forward and backward, fallback to undirected graphs
         if not connected_paths:
             is_trace_forward = True
+            # must use undirected graph
+            undirected_graph = True
             connected_paths = trace_graph.get_all_paths(
                 start_proc=start_proc_id,
                 end_proc=end_proc,
                 undirected_graph=True,
             )
-            connected_paths = [trace_graph.remove_middle_nodes(p, undirected_graph=True) for p in connected_paths]
 
-        procs.update(*connected_paths)
+        # store `short_procs` and ignore processes that are not in short procs when constructing sql.
+        # This is to improve performance for processes having many (100) middle processes between them.
+        # But we shouldn't do this because it create incorrect records. For example: if proc1 -> proc2 -> proc3
+        # but proc2 doesn't have any records ---> the sql result is incorrect if we remove proc2.
+        for path in connected_paths:
+            # remove middle nodes
+            short_path = trace_graph.remove_middle_nodes(path, undirected_graph=undirected_graph)
+            short_procs.update(short_path)
+
         paths.extend((p, is_trace_forward) for p in connected_paths)
 
-    short_procs = sorted(procs)
     common_paths = get_common_longest_paths(paths)
     return common_paths, dic_end_proc_cols, short_procs
 
@@ -1436,7 +1439,7 @@ def create_graph_config(cfgs=[]):
     return list_cfgs
 
 
-def get_default_graph_config(dic_proc_cfgs: Dict[int, CfgProcess], col_id, start_tm, end_tm):
+def get_default_graph_config(dic_proc_cfgs: dict[int, CfgProcess], col_id, start_tm, end_tm):
     # get sensor default cfg chart info
     sensor_default_cfg = []
     for cfg_proc in dic_proc_cfgs.values():
@@ -1445,13 +1448,13 @@ def get_default_graph_config(dic_proc_cfgs: Dict[int, CfgProcess], col_id, start
                 sensor_default_cfg = cfg_proc.get_sensor_default_chart_info(col_id, start_tm, end_tm)
                 break
 
-    # sensor_default_cfg: List[CfgVisualization] = (
+    # sensor_default_cfg: list[CfgVisualization] = (
     #         CfgVisualization.get_sensor_default_chart_info(col_id, start_tm, end_tm) or []
     # )
     return create_graph_config(sensor_default_cfg)
 
 
-def get_col_graph_configs(dic_proc_cfgs: Dict[int, CfgProcess], col_id, filter_detail_ids, start_tm, end_tm):
+def get_col_graph_configs(dic_proc_cfgs: dict[int, CfgProcess], col_id, filter_detail_ids, start_tm, end_tm):
     if not filter_detail_ids:
         return get_default_graph_config(dic_proc_cfgs, col_id, start_tm, end_tm)
     graph_configs = []
@@ -1615,7 +1618,7 @@ def order_end_proc_sensor(orig_graph_param: DicParam, reorder, custom_order=None
     lst_proc_end_col = []
     for proc in orig_graph_param.array_formval:
         proc_id = proc.proc_id
-        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             proc_order = dic_orders.get(proc_id) or {}
             order = proc_order.get(str(col_id)) or 999
             lst_proc_end_col.append((proc_id, col_id, col_name, col_show_name, order))
@@ -1756,14 +1759,20 @@ def gen_plotdata_fpp(
             if ranks:
                 plotdata.update({RANK_COL: ranks[idx]})
 
-            if col_cfg.column_type is DataColumnType.JUDGE.value:
-                plotdata.update(
-                    {
-                        JUDGE_DATA: [{'x': x, 'y': y} for x, y in zip(array_x, array_y)],
-                        JUDGE_POSITIVE_DISPLAY: col_cfg.judge_positive_display,
-                        JUDGE_NEGATIVE_DISPLAY: col_cfg.judge_negative_display,
-                    },
-                )
+            formula = conversion_formula(
+                col_type=col_cfg.column_type,
+                data_type=col_cfg.data_type,
+                formula=col_cfg.formula,
+            )
+            match formula:
+                case JudgeFormula(positive_display=positive_display, negative_display=negative_display):
+                    plotdata.update(
+                        {
+                            JUDGE_DATA: [{'x': x, 'y': y} for x, y in zip(array_x, array_y, strict=False)],
+                            JUDGE_POSITIVE_DISPLAY: positive_display,
+                            JUDGE_NEGATIVE_DISPLAY: negative_display,
+                        },
+                    )
 
             plotdatas.append(plotdata)
 
@@ -1783,7 +1792,7 @@ def set_chart_infos_to_plotdata(
     plotdata,
 ):
     """
-    set chart config
+    Set chart config
     :param col_id:
     :param chart_infos:
     :param original_graph_configs:
@@ -1812,7 +1821,7 @@ def set_chart_infos_to_plotdata(
 def gen_category_data(graph_param: DicParam, dic_data, dic_org_cates=None):
     dic_proc_cfgs = graph_param.dic_proc_cfgs
     plotdatas = []
-    cate_procs: List[CategoryProc] = graph_param.common.cate_procs
+    cate_procs: list[CategoryProc] = graph_param.common.cate_procs
     dic_cates = dic_data.get(CATEGORY_DATA) or dic_data if graph_param.common.cat_exp else dic_data
 
     for proc in cate_procs:
@@ -1823,7 +1832,7 @@ def gen_category_data(graph_param: DicParam, dic_data, dic_org_cates=None):
 
         proc_cfg = dic_proc_cfgs[proc_id]
 
-        for col_id, column_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, column_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             col_cfg = proc_cfg.get_col(col_id)
             data = dic_proc.get(col_id)
             if len(data) == 0:
@@ -1957,12 +1966,12 @@ def calc_upper_lower_range(array_y: Series):
 
 
 def get_filter_detail_ids(
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     proc_ids: list[int],
     column_ids: list[int],
 ) -> tuple[dict[str, list[tuple[int, str]]], list[int]]:
     """
-    get filter detail ids to check if this filter matching dataset of graph
+    Get filter detail ids to check if this filter matching dataset of graph
     :param dic_proc_cfgs:
     :param proc_ids:
     :param column_ids:
@@ -1986,13 +1995,20 @@ def get_filter_detail_ids(
 
 
 @log_execution_time()
-def gen_dic_uniq_value_from_df(df, col_names):
+def gen_dic_uniq_value_from_df(df: pd.DataFrame, col_names: list[str]) -> dict[str, set[Any]]:
     dic_col_values = {}
-    for col in col_names:
-        if col in df.columns:
-            vals = set(df[col])
-            vals = [str(val) for val in vals]
-            dic_col_values[col] = set(vals)
+    for col_name in col_names:
+        # Need to get data from `rank_col` if the real data is shifted to `rank_col`
+        rank_col = gen_sql_label(RANK_COL, col_name)
+        if rank_col in df.columns:
+            col = rank_col
+        elif col_name in df.columns:
+            col = col_name
+        else:
+            continue
+        # TODO: This should be `dic_col_values[col] = set(df[col].unique().astype(pd.StringDtype()).tolist())`
+        vals = set(df[col])
+        dic_col_values[col_name] = set(map(str, vals))
 
     return dic_col_values
 
@@ -2033,18 +2049,17 @@ def main_check_filter_detail_match_graph_data(graph_param: DicParam, df: DataFra
 @log_execution_time()
 def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     """
-    make data for thin  mode
+    Make data for thin  mode
     :param df_orig:
     :param graph_param:
     :param dic_str_cols:
     :return:
     """
-
     # end cols
     dic_end_col_names = {}
     rank_cols = []
     for proc in graph_param.array_formval:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             sql_label = gen_sql_label(col_id, col_name)
             cols_in_df = [col for col in df_orig.columns if col.startswith(sql_label)]
             target_col_info = dic_str_cols.get(sql_label)
@@ -2058,7 +2073,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     dic_cate_names = {}
     cat_exp_col = graph_param.common.cat_exp
     for proc in graph_param.common.cate_procs:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             if cat_exp_col:
                 sql_label = gen_sql_label(CATEGORY_DATA, col_id, col_name)
             else:
@@ -2067,7 +2082,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
             if sql_label in df_orig.columns:
                 dic_cate_names[sql_label] = (proc.proc_id, col_id, col_name)
 
-    all_cols = list(set([TIME_COL] + list(dic_end_col_names) + list(dic_cate_names) + rank_cols))
+    all_cols = list({TIME_COL, *dic_end_col_names, *dic_cate_names, *rank_cols})
     group_col = '__group_col__'
     index_col = '__index_col__'
     all_cols = [col for col in all_cols if col in df_orig.columns]
@@ -2213,7 +2228,7 @@ def calc_data_per_group(min_val, max_val):
 @log_execution_time()
 def calc_raw_common_scale_y(plots, string_col_ids=None, y_col=ARRAY_Y, is_get_common_y_scale_count=False):
     """
-    calculate y min max in common scale
+    Calculate y min max in common scale
     :param plots:
     :param string_col_ids:
     :return:
@@ -2433,7 +2448,7 @@ def calc_threshold_scale_y(plotdata, series_y):
 
 @log_execution_time()
 def calc_scale_info(
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     array_plotdata,
     min_max_list,
     all_graph_min,
@@ -2553,11 +2568,11 @@ def calc_scale_info(
 
 
 @log_execution_time()
-def gen_kde_data_trace_data(dic_param, full_arrays=None):
+def gen_kde_data_trace_data(dic_param, full_arrays=None, is_log_scale_mode=False):
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
     for num, plotdata in enumerate(array_plotdata):
         full_array_y = full_arrays[num] if full_arrays else None
-        kde_list = calculate_kde_trace_data(plotdata, full_array_y=full_array_y)
+        kde_list = calculate_kde_trace_data(plotdata, full_array_y=full_array_y, is_log_scale_mode=is_log_scale_mode)
         (
             plotdata[SCALE_SETTING][KDE_DATA],
             plotdata[SCALE_COMMON][KDE_DATA],
@@ -2794,7 +2809,7 @@ def gen_category_info(dic_param, dic_ranks):
     return dic_param
 
 
-def get_cfg_proc_col_info(dic_proc_cfgs: Dict[int, CfgProcess], col_ids):
+def get_cfg_proc_col_info(dic_proc_cfgs: dict[int, CfgProcess], col_ids):
     dic_procs = {}
     dic_cols = {}
     for proc_id, proc in dic_proc_cfgs.items():
@@ -2942,7 +2957,7 @@ def remove_outlier(df: DataFrame, sensor_labels, graph_param):
 
 
 @log_execution_time()
-def get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs: Dict[int, CfgProcess]):
+def get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs: dict[int, CfgProcess]):
     serials = []
     date_times = pd.Series()
     start_proc_name = ''
@@ -3027,7 +3042,7 @@ def get_selected_cate_column_ids(dic_param: dict):
 
 
 @log_execution_time()
-def retrieve_order_setting(dic_proc_cfgs: Dict[int, CfgProcess], dic_param):
+def retrieve_order_setting(dic_proc_cfgs: dict[int, CfgProcess], dic_param):
     dic_orders_columns = {}
     selected_cate_column_ids = get_selected_cate_column_ids(dic_param)
     for proc_id, proc_cfg in dic_proc_cfgs.items():
@@ -3099,7 +3114,6 @@ def discretize_float_data_equally(x, num_bins=10):
     For example, if x = np.array([0.0, 1.0, 2.0, 3.0]) and num_bins=2,
     this function will return [0.5, 0.5, 2.5, 2.5].
     """
-
     # NOTE:
     # 1. This function returns error when np.nan/np.inf exists
     # 2. x_discretized must have the same digits as x
@@ -3197,7 +3211,6 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
     :param target_vars:
     :return:
     """
-
     if df.empty:
         return df
 
@@ -3255,8 +3268,6 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
 
 @log_execution_time()
 def calc_cycle_time_of_list(series: Series):
-    UPPER_LIM_MARGIN = 5
-
     series = pd.to_datetime(series)
     # sort datetime target col
     series = series.sort_values()
@@ -3361,9 +3372,6 @@ def get_data_from_db(
                     df[col_name] = calc_cycle_time_of_list(df[col_name])
                     df[categorized_col_name] = df[col_name].astype(float)
 
-    # df = judge_data_conversion(df, graph_param)
-    # df = boolean_data_conversion(df, graph_param)
-
     # on-demand filter
     if dic_filter:
         df = filter_df(graph_param.dic_proc_cfgs, df, dic_filter)
@@ -3438,8 +3446,6 @@ def get_df_from_db(
     #     ele for ele in [graph_param.common.color_var, graph_param.common.div_by_cat] if ele)
     duplicate_serial_show = graph_param.common.duplicate_serial_show
     duplicated_serials_count = graph_param.common.duplicated_serials_count
-    judge_columns = graph_param.get_judge_cols()
-    boolean_columns = graph_param.get_boolean_variables()
 
     common_paths, dic_end_proc_cols, short_procs = reduce_graph(
         graph_param.array_formval,
@@ -3454,8 +3460,6 @@ def get_df_from_db(
         graph_param.common.cond_procs,
         common_paths,
         short_procs,
-        judge_columns,
-        boolean_columns,
         duplicate_serial_show,
         duplicated_serials_count,
         optional_cache_config=optional_cache_config,
@@ -3484,7 +3488,7 @@ def get_df_from_db(
 
     # fill missing columns
     for proc in graph_param.array_formval:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             label = gen_sql_label(col_id, col_name)
             if label not in df.columns:
                 df[label] = None
@@ -3537,18 +3541,20 @@ def reduce_dic_proc_cfgs(dic_proc_cfgs, short_procs):
     return dic_reduce
 
 
-def gen_trace_procs_sqls(path, trace_graph: TraceGraph, start_tm, end_tm, end_procs: List[EndProc], short_procs):
-    sql_objs: List[SqlProcLink] = []
+def gen_trace_procs_sqls(
+    path: list[int], trace_graph: TraceGraph, start_tm, end_tm, end_procs: list[EndProc], short_procs
+):
+    sql_objs: list[SqlProcLink] = []
     end_proc_start_tm, end_proc_end_tm = gen_end_proc_start_end_time(start_tm, end_tm)
     start_proc = path[0]
     dic_processes = {proc_id: TransactionData(proc_id) for proc_id in path}
     # create table if not exist
     for proc_id, trans_data in dic_processes.items():
-        with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+        with DbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
             trans_data.create_table(db_instance)
 
     if len(short_procs) == 1:
-        proc_id = list(short_procs)[0]
+        proc_id = next(iter(short_procs))
         trans_data: TransactionData = dic_processes[proc_id]
         proc_link_sql = SqlProcLink()
         proc_link_sql.trans_data = trans_data
@@ -3571,7 +3577,7 @@ def gen_trace_procs_sqls(path, trace_graph: TraceGraph, start_tm, end_tm, end_pr
         sql_objs.append(proc_link_sql)
         return sql_objs
 
-    for from_proc, to_proc in zip(path[:-1], path[1:]):
+    for from_proc, to_proc in itertools.pairwise(path):
         edge_id = (from_proc, to_proc)
         connected_trace_keys = trace_graph.get_connected_trace_keys(from_proc, to_proc)
         self_sensor_keys, target_sensor_keys = gen_sql_proc_link_key_from_trace_keys(connected_trace_keys)
@@ -3658,8 +3664,8 @@ def gen_sensor_time_range(db_instance, temp_table_name):
 @log_execution_time()
 def gen_trace_procs_df_detail(
     db_instance,
-    list_sql_objs: List[List[SqlProcLink]],
-    cond_procs: List[ConditionProc],
+    list_sql_objs: list[list[SqlProcLink]],
+    cond_procs: list[ConditionProc],
     duplicate_serial_show: DuplicateSerialShow,
     for_count: bool = False,
 ) -> DataFrame:
@@ -3691,7 +3697,7 @@ def gen_trace_procs_df_detail(
 
         _df_cols = _df.columns.difference(df.columns).tolist()
         if TransactionData.id_col_name in df.columns:
-            df = df.merge(_df[[TransactionData.id_col_name] + _df_cols], on=TransactionData.id_col_name)
+            df = df.merge(_df[[TransactionData.id_col_name, *_df_cols]], on=TransactionData.id_col_name)
 
     if df is None:
         return pd.DataFrame()
@@ -3735,14 +3741,14 @@ def gen_sql_proc_link_key_from_trace_keys(
 
 @log_execution_time(SQL_GENERATOR_PREFIX)
 def gen_proc_link_from_sql(
-    sql_objs: List[SqlProcLink],
-    cond_procs: List[ConditionProc],
+    sql_objs: list[SqlProcLink],
+    cond_procs: list[ConditionProc],
     duplicated_serial_show: DuplicateSerialShow,
     for_count: bool = False,
-) -> Tuple[str, Dict[str, str]]:
+) -> tuple[str, dict[str, str]]:
     cte_proc_list = []
 
-    dict_cond_procs: Dict[int, List[ConditionProc]] = {}
+    dict_cond_procs: dict[int, list[ConditionProc]] = {}
     for cond in cond_procs:
         if cond.proc_id not in dict_cond_procs:
             dict_cond_procs[cond.proc_id] = [cond]
@@ -3783,9 +3789,21 @@ def gen_proc_link_from_sql(
 
 
 class DropDuplicatesTraceProcs:
+    """Utility class for removing duplicate records in trace process data.
+
+    This class provides static methods to drop duplicate records from DataFrames
+    based on different criteria such as IDs or link keys.
+
+    Methods:
+        drop_duplicates_by_ids: Remove duplicates based on transaction IDs.
+        drop_duplicates_by_link_keys: Remove duplicates based on link key columns.
+
+    Generated by Duo.
+    """
+
     @staticmethod
     @log_execution_time()
-    def drop_duplicates_by_ids(df: DataFrame, sql_objs: List[SqlProcLink]) -> DataFrame:
+    def drop_duplicates_by_ids(df: DataFrame, sql_objs: list[SqlProcLink]) -> DataFrame:
         end_sql_obj = sql_objs[-1]
         end_time_col = end_sql_obj.gen_proc_time_label(is_start_proc=len(sql_objs) == 1)
         return df.sort_values(end_time_col).drop_duplicates(subset=[TransactionData.id_col_name], keep='last')
@@ -3794,7 +3812,7 @@ class DropDuplicatesTraceProcs:
     @log_execution_time()
     def drop_duplicates_by_link_keys(
         df: DataFrame,
-        sql_objs: List[SqlProcLink],
+        sql_objs: list[SqlProcLink],
         duplicate_serial_show: DuplicateSerialShow,
     ) -> DataFrame:
         # sort by times
@@ -3852,10 +3870,10 @@ def sorted_function_details(cfg_process_columns: list[CfgProcessColumn]) -> list
     return sorted(cfg_function_cols, key=lambda col: col.order)
 
 
-def get_equation_data(df, end_proc: EndProc):
-    sorted_cfg_function_cols = sorted_function_details(end_proc.cfg_proc.get_cols(col_ids=end_proc.col_ids))
+def get_equation_data(df, cfg_proc: CfgProcess, col_ids: list[int]) -> pd.DataFrame:
+    sorted_cfg_function_cols = sorted_function_details(cfg_proc.get_cols(col_ids=col_ids))
     for cfg_func_col in sorted_cfg_function_cols:
-        df = add_equation_column_to_df(df, cfg_func_col, end_proc.cfg_proc)
+        df = add_equation_column_to_df(df, cfg_func_col, cfg_proc)
 
     for col in df.columns:
         if '__SHOW_NAME__' in col:
@@ -3863,7 +3881,7 @@ def get_equation_data(df, end_proc: EndProc):
 
     # cast equation function to string if its `data-type` is string
     for cfg_func_col in sorted_cfg_function_cols:
-        cfg_col = end_proc.cfg_proc.get_col(cfg_func_col.process_column_id)
+        cfg_col = cfg_proc.get_col(cfg_func_col.process_column_id)
         if cfg_col.data_type == DataType.TEXT.value:
             label = gen_sql_label(cfg_col.id, cfg_col.column_name)
 
@@ -3877,8 +3895,16 @@ def get_equation_data(df, end_proc: EndProc):
     return df
 
 
+def df_from_db_data_conversion(df: pd.DataFrame, cfg_process_columns: list[CfgProcessColumn]) -> pd.DataFrame:
+    judge_columns = [c for c in cfg_process_columns if c.is_judge]
+    df = judge_data_conversion(df, judge_columns)
+    boolean_columns = [c for c in cfg_process_columns if c.is_boolean]
+    df = boolean_data_conversion(df, boolean_columns)
+    return df
+
+
 @log_execution_time()
-def judge_data_conversion(df, judge_columns, revert=False) -> DataFrame:
+def judge_data_conversion(df, judge_columns: list[CfgProcessColumn]) -> DataFrame:
     """
     All data-type can be set as judge column
     But, only 1|0 will be converted into OK|NG, anything else will be converted into null (pd.NA)
@@ -3887,40 +3913,21 @@ def judge_data_conversion(df, judge_columns, revert=False) -> DataFrame:
     if judge_columns:
         for col in judge_columns:
             col_label = gen_sql_label(col.id, col.column_name)
-            negative_display_label = col.judge_negative_display or JudgeDefinition.NG.name
-            positive_display_label = col.judge_positive_display or JudgeDefinition.OK.name
-            if revert:
-                df[col_label] = (
-                    df[col_label]
-                    .astype(pd.StringDtype())  # make sure we convert to `string` before converting
-                    .replace(
-                        {
-                            positive_display_label: str(JudgeDefinition.OK.value),
-                            negative_display_label: str(JudgeDefinition.NG.value),
-                        },
-                    )
-                    .astype(pd.Int8Dtype(), errors='ignore')  # try to convert to integer
-                )
-            else:
-                df[col_label] = (
-                    df[col_label]
-                    .astype(pd.BooleanDtype())  # make sure we have `True`, `False` values
-                    .astype(pd.StringDtype())  # make sure all of them are `string` before replacing
-                    .replace(
-                        {
-                            'True': positive_display_label,
-                            'False': negative_display_label,
-                        },
-                    )
-                )
+            if col_label not in df:
+                continue
+            formula = conversion_formula(data_type=col.data_type, col_type=col.column_type, formula=col.formula)
+            df[col_label] = formula.revert(df[col_label])
     return df
 
 
 @log_execution_time()
-def boolean_data_conversion(df, boolean_columns) -> DataFrame:
+def boolean_data_conversion(df, boolean_columns: list[CfgProcessColumn]) -> DataFrame:
     """We can always sure that df[boolean_columns] only contains `boolean` (TuanNH: confirmed)"""
     for col in boolean_columns:
-        df[col] = df[col].astype(pd.BooleanDtype()).astype(pd.StringDtype()).str.lower()
+        col_label = gen_sql_label(col.id, col.column_name)
+        if col_label not in df:
+            continue
+        df[col_label] = df[col_label].astype(pd.BooleanDtype()).astype(pd.StringDtype()).str.lower()
     return df
 
 

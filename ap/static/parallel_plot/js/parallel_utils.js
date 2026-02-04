@@ -16,6 +16,7 @@ class ParallelPlot {
         this.fromJump = false;
         this.selectedOrder = [];
         this.selectedConstraintRange = {};
+        this.selectedNaInfValue = {};
         this.objectiveDimInfo = {};
 
         // init objective variable
@@ -304,7 +305,7 @@ class ParallelPlot {
     // }
 
     // gen dimension range text for real sensor
-    genDimRangeText(dimValues, infIDX, minfIDX, isInt = false, fmt = '', fineSelect = false, [yMin, yMax]) {
+    genDimRangeText(dimValues, infIDX, minfIDX, fmt = '', fineSelect = false, [yMin, yMax], dataType, columnType) {
         const notNADim = dimValues.filter((i) => i === 0 || i);
         // const [minText, maxText] = findMinMax(notNADim);
         const [minText, maxText] = [yMin, yMax];
@@ -316,7 +317,7 @@ class ParallelPlot {
             ...new Set(
                 Array(...Array(10)).map((v, i) => {
                     const tickVal = minText + stepVals * i;
-                    if (isInt) {
+                    if (dataType === DataTypes.INTEGER.name) {
                         return parseInt(tickVal, 10);
                     }
 
@@ -337,7 +338,8 @@ class ParallelPlot {
         const minfDumVal = minText - 2 * stepVals;
         let naVals = false;
         // check dim have na values
-        const naDumVal = minText - naPosition * stepVals;
+        // for string columns, NA values in the ranking dictionary is -1, naDumVal should be kept as -1 in that case
+        const naDumVal = isCategory(dataType, columnType) ? minText : minText - naPosition * stepVals;
         // if fine select on -> do not transform values
         const transDim = dimValues.map((v, i) => {
             if (CONST.NAV.includes(v) && !fineSelect) {
@@ -381,6 +383,9 @@ class ParallelPlot {
             values: transDim,
             ticktext: tickText,
             tickvals: tickVals,
+            naDumVal: naDumVal,
+            infDumVal: infDumVal,
+            minfDumVal: minfDumVal,
         };
     }
     // gen dimension label for PCat
@@ -513,16 +518,16 @@ class ParallelPlot {
 
         const fmt = this.traceData.fmt[colData.end_col_id];
         const [yMin, yMax] = [yScale['y-min'], yScale['y-max']];
-        const isIntColType = colData.col_detail.data_type === DataTypes.INTEGER.name;
 
         let dim = this.genDimRangeText(
             colValue,
             colData.inf_idx,
             colData.m_inf_idx,
-            isIntColType,
             fmt,
             this.settings.fineSelect,
             [yMin, yMax],
+            colData.col_detail.data_type,
+            colData.col_detail.data_group_type,
         );
 
         // for int or string col with ranked encoding
@@ -571,11 +576,14 @@ class ParallelPlot {
             is_judge: colData.col_detail.is_judge,
             dimID: `${colData.col_detail.proc_id}-${colData.col_detail.col_id}`, // dPV
             dimName: `${colData.col_detail.col_shown_name} ${colData.col_detail.proc_shown_name}`,
-            // isReal: 1, // todo remove
             isNum: this.isNumberVariable(colData.end_col_id, colData),
             correlation: corr,
             range: dimRange,
             colId: colData.end_col_id,
+            naDumVal: dim.naDumVal,
+            infDumVal: dim.infDumVal,
+            minfDumVal: dim.minfDumVal,
+            yMin: yMin,
         };
     }
     // gen dimension data
@@ -873,11 +881,19 @@ class ParallelPlot {
         }
     }
 
-    setSelectedValue(colId, constraintRange) {
+    setSelectedNumericValue(colId, constraintRange) {
         if (constraintRange) {
             this.selectedConstraintRange[colId] = constraintRange;
         } else {
             delete this.selectedConstraintRange[colId];
+        }
+    }
+
+    setSelectedNaInfValue(colId, values) {
+        if (values) {
+            this.selectedNaInfValue[colId] = values;
+        } else {
+            delete this.selectedNaInfValue[colId];
         }
     }
 
@@ -955,6 +971,9 @@ class ParallelPlot {
     show(isReturnToDefaultOrderingParams) {
         // gen dimension data
         this.genData();
+        if (Object.keys(this.data).length === 0) {
+            return;
+        }
         this.genCorrValue();
         if (isReturnToDefaultOrderingParams) {
             this.genDefaultSetting();

@@ -198,7 +198,7 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list, cat_cols
     cat_cols : list
          A list of sensor names of categorical data
 
-    Returns
+    Returns:
     ----------
     alphas : list
          Applied alpha (penalty factors) of glasso. Use this for the slider.
@@ -211,7 +211,6 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list, cat_cols
     dic_edges :
          A dict of DataFrames of edge attributes for sigmajs
     """
-
     # the graphical lasso
     alphas, best_alpha, parcors, best_parcor = _fit_glasso(X, idx_target, cat_cols, nominal_variables)
 
@@ -237,7 +236,7 @@ def preprocess_glasso_page(X, idx_target, groups: list, colnames: list, cat_cols
 @abort_process_handler()
 def _fit_glasso(X, idx_target, cat_cols, nominal_variables):
     """Fit graphical lasso with reasonable alpha sequence"""
-    X = _preprocess_glasso_data(X, idx_target, cat_cols, nominal_variables=nominal_variables)
+    X = _preprocess_glasso_data(X, idx_target, cat_cols, nominal_variables=nominal_variables)  # noqa N806
 
     alphas = np.round(10 ** (np.linspace(-2, 0, num=10)), 2).tolist()
     ggm = GaussianGraphicalModel(alphas=alphas, idx_target=idx_target)
@@ -250,12 +249,11 @@ def _fit_glasso(X, idx_target, cat_cols, nominal_variables):
 @log_execution_time()
 @abort_process_handler()
 def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose=True, nominal_variables=[]):
-    """drop Infs, NAs, resampling, convert string variables and zero-variance variables"""
-
+    """Drop Infs, NAs, resampling, convert string variables and zero-variance variables"""
     if X.shape[0] > max_datapoints:
         # TODO: use np.random.default_rng(seed=610) https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html
         np.random.seed(1)  # noqa: NPY002
-        X = X.sample(n=max_datapoints, replace=False)
+        X = X.sample(n=max_datapoints, replace=False)  # noqa N806
         if verbose:
             logger.info('Number of data points exceeded {max_datapoints}. Data is automatically resampled.')
 
@@ -273,7 +271,7 @@ def _preprocess_glasso_data(X, idx_tgt, cat_cols, max_datapoints=10_000, verbose
             )
 
     # drop infinite
-    X = X[np.isfinite(X).all(1)]
+    X = X[np.isfinite(X).all(1)]  # noqa N806
 
     # replace zero variance variable with an independent random variable
     is_zerovar = X.var(axis=0).to_numpy() == 0
@@ -304,7 +302,7 @@ class GaussianGraphicalModel:
             ebic: EBIC, list of float values
     """
 
-    def __init__(self, alphas=None, idx_target=None):
+    def __init__(self, alphas=None, idx_target=None) -> None:
         self.alphas = [alphas] if not isinstance(alphas, list) else alphas
         self.results = None
         self.idx_target = idx_target
@@ -316,7 +314,7 @@ class GaussianGraphicalModel:
            nrow, ncol = sample_size, num_vars
         """
         scaler = StandardScaler().fit(X)
-        X = scaler.transform(X)
+        X = scaler.transform(X)  # noqa N806
 
         # covariance matrix
         # shrink eigenvalue for ill-conditioned data.
@@ -359,7 +357,7 @@ class GaussianGraphicalModel:
         loglik = 0.5 * sample_size * (np.log(np.linalg.det(pmat)) - np.trace(np.dot(covmat, pmat)))
         # number of edges
         num_nodes = pmat.shape[0]
-        E = 0.5 * (np.sum(pmat != 0, axis=(0, 1)) - num_nodes)
+        E = 0.5 * (np.sum(pmat != 0, axis=(0, 1)) - num_nodes)  # noqa N806
         # (eq.1)
         term1 = -2 * loglik
         term2 = E * np.log(sample_size)
@@ -394,7 +392,7 @@ def _gen_node_positions(parcor, idx_target=None):
     """Generate node positions for graphical lasso"""
 
     def _gen_node_positions_glasso(d: int, radius=10):
-        """circle layout"""
+        """Circle layout"""
         step = 2 * np.pi / d
         theta = np.arange(d) * step
         x = radius * np.sin(theta)
@@ -404,7 +402,7 @@ def _gen_node_positions(parcor, idx_target=None):
         return x, y
 
     def _gen_node_positions_tlasso(d: int, colidx_per_layer: list):
-        """right to left layout"""
+        """Right to left layout"""
 
         def gen_layer_positions(num_vars: int, layer=1):
             if layer == 0:
@@ -478,18 +476,18 @@ def _gen_node_positions(parcor, idx_target=None):
 
 def _gen_proc_colorcodes(procnames):
     """
-    generate color codes of each process
+    Generate color codes of each process
     :param procnames:
     :return: node_colors
     """
 
     def get_n_hex_col(N=5):
         """Random color generator (used to generate colors per process)"""
-        HSVs = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
+        hsv_color_range = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
         hex_colorcodes = []
-        for _rgb in HSVs:
-            rgb = (int(x * 255) for x in colorsys.hsv_to_rgb(*_rgb))
-            hex_colorcodes.append('#%02x%02x%02x' % tuple(rgb))
+        for _rgb in hsv_color_range:
+            rgb = tuple(int(x * 255) for x in colorsys.hsv_to_rgb(*_rgb))
+            hex_colorcodes.append(f'#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}')
         return hex_colorcodes
 
     # colors
@@ -509,7 +507,7 @@ def _gen_df_nodes_sigmajs(x, y, colnames, groups):
             'id': ['n' + str(x) for x in np.arange(d)],
             # "label": [str(x)+"\\\\n"+str(y) for x, y in zip(groups, colnames)],
             # "label": [str(x)+" | "+str(y) for x, y in zip(groups, colnames)],
-            'label': [str(y) for x, y in zip(groups, colnames)],
+            'label': [str(y) for x, y in zip(groups, colnames, strict=False)],
             'size': [10] * d,
             'x': x,
             'y': [-x for x in y],  # on sigmajs, (0, 0) is the upper left corner

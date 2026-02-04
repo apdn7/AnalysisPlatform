@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from cryptography.fernet import Fernet
 
 from ap import dic_config
@@ -9,7 +11,7 @@ def encode_db_secret_key():
     return Fernet(str.encode(db_secret_key))
 
 
-def encrypt(plain_text):
+def encrypt(plain_text: str | bytes | None) -> bytes | None:
     """
     Encoding a text with a key using Fernet.
     :param plain_text: str or bytes
@@ -25,7 +27,7 @@ def encrypt(plain_text):
     return cipher_text
 
 
-def decrypt(cipher_text):
+def decrypt(cipher_text: str | bytes) -> bytes:
     """
     Decoding a text with a key using Fernet.
     :param cipher_text:
@@ -38,7 +40,7 @@ def decrypt(cipher_text):
     return plain_text
 
 
-def decrypt_pwd(cipher_text):
+def decrypt_pwd(cipher_text: str | bytes | None) -> str | None:
     """
     Decoding a text with a key using Fernet.
     :param cipher_text: str or bytes

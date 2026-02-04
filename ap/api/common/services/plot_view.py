@@ -47,12 +47,11 @@ from ap.trace_data.schemas import DicParam, EndProc
 
 @log_execution_time()
 def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, point_time, target_proc_id, target_id):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
     """
-
     # for cfg_proc in orig_graph_param.dic
 
     # get data from database
@@ -345,7 +344,7 @@ def get_latest_threshold(col_thresholds, point_time, client_timezone):
 
 
 def build_stats_header(max_num_serial):
-    stats_tbl_header = ['Serial No {}'.format(idx + 1) for idx in range(max_num_serial)]
+    stats_tbl_header = [f'Serial No {idx + 1}' for idx in range(max_num_serial)]
     stats_tbl_header.extend(
         [
             'Item',
@@ -533,7 +532,7 @@ def build_dic_param_plot_view(dic_form, start_proc_local_time):
 
 # def order_proc_as_trace_config(proc_ids):
 #     edges = CfgTrace.get_all()
-#     ordered_edges: List[CfgTrace] = order_before_mapping_data(edges)
+#     ordered_edges: list[CfgTrace] = order_before_mapping_data(edges)
 #     ordered_proc_ids = [(edge.self_process_id, edge.target_process_id) for edge in ordered_edges]
 #     ordered_proc_ids = list(itertools.chain.from_iterable(ordered_proc_ids))
 #     reversed_proc_ids = list(reversed(ordered_proc_ids))
@@ -563,7 +562,7 @@ def build_graph_param(graph_param, paths=None):
 
 def parse_column_value(df: pd.DataFrame, col_label: str):
     """
-    parses column value for plotview
+    Parses column value for plotview
     :param df: input df
     :param col_label: sql label of column
     :return: value of column, should be an empty string if it is NA or df is empty

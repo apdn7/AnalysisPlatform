@@ -209,7 +209,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             japaneseNameCell.classList.remove(READONLY_CLASS, 'disabled');
             localNameCell.classList.remove(READONLY_CLASS, 'disabled');
             // revert to original name
-            if (oldValSystem && oldValJa) {
+            if (oldValSystem) {
                 table.setValueFromCoords(systemNameColumnIdx, rowIndex, oldValSystem, true);
                 table.setValueFromCoords(japaneseNameColumnIdx, rowIndex, oldValJa, true);
                 table.setValueFromCoords(localNameColumnIdx, rowIndex, oldValLocal, true);
@@ -464,18 +464,25 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const beforeRowData = spreadsheet.table.getRowDataByIndex(rowIndex);
         const beforeColumnType = beforeRowData.column_type;
         // this.handleCheckDuplicateMainSerial(procConfigTable, rowIndex, shownDataType, dataType, columnType);
-        // change data type
-        this.changeDataType(table, dataType, rowIndex);
-        // change column typ
-        this.changeColumnType(table, columnType, rowIndex);
+
+        if (!isFirstLoad) {
+            // change data type
+            this.changeDataType(table, dataType, rowIndex);
+            // change column typ
+            this.changeColumnType(table, columnType, rowIndex);
+        }
+
         this.disableShownDataType(table, columnType, rowIndex);
         // this.setValueToShowValueElement(dataTypeDropdownElement, value, text, attrKey); // TODO: check not use
+
         this.setDefaultNameAndDisableInput(table, columnType, rowIndex);
 
         // toggle input unit for cell if numeric data type
         this.toggleUnitInput(table, dataType, rowIndex, isFirstLoad);
 
-        this.toggleFormulaInput(table, columnType, rowIndex, isFirstLoad);
+        this.toggleFilterInput(table, dataType, columnType, rowIndex, isFirstLoad);
+
+        this.toggleFormulaInput(table, dataType, columnType, rowIndex);
 
         // disable data type column not input format
         // this.enableDisableFormatText(dataTypeDropdownElement, value); // ES not use
@@ -496,9 +503,9 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         }
         if (!isFirstLoad) {
             ProcessConfigSection.handleMainDateAndMainTime(spreadsheet, dataType, columnType, beforeColumnType);
+            // reindexing rows
+            spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
         }
-        // reindexing rows
-        spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
     }
 
     /**
@@ -645,12 +652,12 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         if (isFirstLoad) {
             if (!NUMERIC_TYPES.includes(newDataType)) {
                 unitCell.classList.add(READONLY_CLASS, 'disabled');
-                unitCell.setAttribute('old-value', unitCell.innerText);
-                table.setValueFromCoords(unitTypeIndex, rowIndex, '', true);
+                if (unitCell.innerText) {
+                    unitCell.setAttribute('old-value', unitCell.innerText);
+                    table.setValueFromCoords(unitTypeIndex, rowIndex, '', true);
+                }
             }
-        }
-        // on change data type
-        else {
+        } else {
             const oldDataType = dataTypeCell.getAttribute('old-value');
             if (NUMERIC_TYPES.includes(oldDataType) && NUMERIC_TYPES.includes(newDataType)) {
                 table.setValueFromCoords(unitTypeIndex, rowIndex, unitCell.innerText, true);
@@ -667,27 +674,65 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
-     * Disable and remove disable input judge formula
+     * Toggle disable in filter: if registered process -> disable all input, if not disable not Cat column.
      * @param {JspreadSheetTable} table
+     * @param {string} newDatatype
      * @param {number} columnType
      * @param {number} rowIndex
-     * @param {boolean} isFirstLoad
-     * @param {boolean} force -> force to enable
+     */
+    static toggleFilterInput(table, newDatatype, columnType, rowIndex, isFirstLoad = false) {
+        const colIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.filter);
+        const filterCell = table.getCellFromCoords(colIndex, rowIndex);
+        const data = table.getRowDataByIndex(rowIndex);
+        const isRegistered = data.id > 0;
+        if (isRegistered || checkSpecialRow(data)) {
+            filterCell.classList.add(READONLY_CLASS, 'disabled');
+        } else {
+            if (!isCategory(newDatatype, columnType)) {
+                filterCell.classList.add(READONLY_CLASS, 'disabled');
+                if (!isFirstLoad) {
+                    const filterIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.filter);
+                    table.setValueFromCoords(filterIndex, rowIndex, '', true);
+                }
+            } else {
+                filterCell.classList.remove(READONLY_CLASS, 'disabled');
+            }
+        }
+    }
+
+    /**
+     * Disable and remove disable input judge formula
+     * @param {JspreadSheetTable} table
+     * @param {number} dataType
+     * @param {number} columnType
+     * @param {number} rowIndex
      *
      */
-    static toggleFormulaInput(table, columnType, rowIndex, isFirstLoad, force = false) {
-        const formulaColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.judge_formula);
+    static toggleFormulaInput(table, dataType, columnType, rowIndex) {
+        const formulaColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.formula);
         const formulaCell = table.getCellFromCoords(formulaColumnIndex, rowIndex);
-        const isJudge = table.getCellByHeaderAndIndex(PROCESS_COLUMNS.is_judge, rowIndex).data;
-        const isJudgeAvailable = table.getCellByHeaderAndIndex(PROCESS_COLUMNS.judge_available, rowIndex).data;
-        // const columnType = table.getCellByHeaderAndIndex(PROCESS_COLUMNS.column_type, rowIndex);
-        const isAcceptJudge = force || isFirstLoad ? isJudge : isJudgeAvailable;
-        if (isAcceptJudge) {
+        const row = table.getRowDataByIndex(rowIndex);
+        const isRegisteredProcess = !!procModalCurrentProcId && !isInitialize;
+        const isEnable =
+            isJudgeFormula(columnType) || (isDatetimeFormula(dataType, columnType) && !isRegisteredProcess);
+        const isRegisterFilePage = window.location.href.includes('register_by_file');
+
+        // for registerByFile cannot using isEnableFormulaForDs so need to detect registerByFile
+        const shouldEnableFormula =
+            isEnable && (isRegisterFilePage || isEnableFormulaForDs) && !isGeneratedDatetimeRow(row);
+        if (shouldEnableFormula) {
             // enable input formula in this row
             formulaCell.classList.remove(READONLY_CLASS, 'disabled', 'text-hide');
+            // clear all input for dt formula, for judge just hide the formula and not clear it
+            if (isDatetimeFormula(dataType, columnType)) {
+                table.setValueFromCoords(formulaColumnIndex, rowIndex, '', true);
+            }
         } else {
             // disable index formula other row
-            formulaCell.classList.add(READONLY_CLASS, 'disabled', 'text-hide');
+            formulaCell.classList.add(READONLY_CLASS, 'disabled');
+            if (!isDatetimeFormula(dataType, columnType)) {
+                formulaCell.classList.add('text-hide');
+            }
         }
     }
 
@@ -700,7 +745,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     static changeColumnType(table, columnType, rowIndex) {
         const columnTypeIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.column_type);
         table.setValueFromCoords(columnTypeIndex, rowIndex, columnType);
-        // change is main serial
+        // change is main datetime
         const isGetDateColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.is_get_date);
         table.setValueFromCoords(isGetDateColumnIndex, rowIndex, columnType === masterDataGroup.MAIN_DATETIME);
         // change is main serial
@@ -724,7 +769,9 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param sampleDataDisplayMode
      */
     static parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode) {
-        parseDataTypeProc(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode);
+        setTimeout(async () => {
+            await parseDataTypeProc(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode);
+        });
     }
 
     /**
@@ -1032,7 +1079,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const $OkBtn = judgeConfirmModal.find('button[name=OK]');
         $OkBtn.off('click');
         $OkBtn.on('click', () => {
-            const columnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.judge_formula);
+            const columnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.formula);
             this.handleChangeDatatype(
                 spreadsheet,
                 dataType,
@@ -1043,7 +1090,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 isFirstLoad,
                 false,
             );
-            this.toggleFormulaInput(table, columnType, rowIndex, false, true);
+            this.toggleFormulaInput(table, dataType, columnType, rowIndex);
             table.setValueFromCoords(columnIndex, rowIndex, 'Pos~1|Neg=OK|NG', true);
             judgeConfirmModal.modal('hide');
         });

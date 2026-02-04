@@ -30,8 +30,8 @@ const closeBackupAndRestoreModal = () => {
     // TODO cleanup
     $(systemElements.backupAndRestoreModal).modal('hide');
     // reset default datetime
-    handleSetValueToDateRangePicker(defaultTimeRange, false);
-    closeCalenderModal();
+    mainDataFinder.handleSetValueToDateRangePicker(defaultTimeRange, false);
+    mainDataFinder.closeCalenderModal();
     processId = undefined;
 
     // Release cache function after closing this modal
@@ -68,10 +68,12 @@ const generateHTMLBackupAndRestoreModal = () => {
     processSelection.addClass('d-flex align-items-center');
     $(`#${processSelectionId}`).on('change', (e) => {
         processId = e.currentTarget.value;
-        setProcessID();
+        DataFinderService.setProcessID();
     });
     initializeDateTimeRangePicker();
-    showDataFinderButton(processId);
+    if (mainDataFinder) {
+        mainDataFinder.showDataFinderButton(processId);
+    }
 };
 
 const getBackupAndRestoreInfo = () => {
@@ -188,7 +190,7 @@ const resetTransactionData = () => {
         .then((response) => response.clone().json())
         .then((data) => {
             // refresh Vis network
-            reloadTraceConfigFromDB();
+            reloadTraceConfigFromDB(true);
         })
         .catch((e) => {
             console.error(e);

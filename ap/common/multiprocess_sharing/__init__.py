@@ -23,13 +23,13 @@ def stop_sharing_instance_server():
 __all__ = [
     'Event',
     'EventAddJob',
+    'EventBackgroundAnnounce',
+    'EventExpireCache',
+    'EventQueue',
     'EventRemoveJobs',
     'EventRescheduleJob',
     'EventRunFunction',
-    'EventExpireCache',
-    'EventBackgroundAnnounce',
     'EventShutDown',
-    'EventQueue',
     'start_sharing_instance_server',
     'stop_sharing_instance_server',
 ]

@@ -19,6 +19,7 @@ const serverSentEventType = {
     restoreDataFinished: 'RESTORE_DATA_FINISHED',
     transactionUpdated: 'TRANSACTION_UPDATED',
     processBulkRegister: 'PROCESS_BULK_REGISTER',
+    deleteDataWithLimit: 'DEL_TRANSACTION_DATA_BY_LIMIT',
 };
 
 /**
@@ -189,6 +190,16 @@ const handleSSEMessage = ({ type, data, broadcastType = ShouldBroadcast.DEFAULT 
         }
     }
 
+    // update transaction
+    else if (type === serverSentEventType.deleteDataWithLimit) {
+        if (typeof handleSourceListener !== 'undefined') {
+            handleSourceListener();
+        }
+        if (typeof reloadTraceConfigFromDB !== 'undefined') {
+            reloadTraceConfigFromDB(true);
+        }
+    }
+
     if (type === serverSentEventType.clearTransactionData) {
         if (typeof showToastClearTransactionData !== 'undefined') {
             showToastClearTransactionData();
@@ -212,8 +223,8 @@ const handleSSEMessage = ({ type, data, broadcastType = ShouldBroadcast.DEFAULT 
 
     // for data register page
     else if (type === serverSentEventType.processBulkRegister) {
-        if (typeof updateProcessRegisterStatus !== 'undefined') {
-            updateProcessRegisterStatus(data);
+        if (typeof updateProcessConfig !== 'undefined') {
+            updateProcessConfig(data);
         }
     }
 

@@ -567,6 +567,8 @@
 
                     {{ macros.input_row("oracle_port", _("Port number"), value='', type='number') }}
 
+                    {{ macros.input_row("oracle_schema", _("Schema")) }}
+
                     {{ macros.input_row("oracle_dbname", _("Database Name")) }}
 
                     {{ macros.input_row("oracle_username", _("User name")) }}
@@ -734,7 +736,7 @@
                 <div id="lineGroupContainer" style="display: none">
                     <div class="d-flex align-items-center">
                         <div class="flex-grow-1" style="margin-right: 0.7rem !important">
-                            {{ macros.single_selectbox('lineGrps',_("softwareWorkshopPreviewLineGrpLabel"),{},1,4,8, multiple_cols=false) }}
+                            {{ macros.single_selectbox('swlineGrps',_("softwareWorkshopPreviewLineGrpLabel"),{},1,4,8, multiple_cols=false) }}
                         </div>
                         <div style="width: 125px"></div>
                     </div>
@@ -927,6 +929,167 @@
                     data-submit-btn="true"
                 >
                     {{ _("registerProcessButton") }}
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
+                    {{ _("Cancel") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WEB API -->
+<div
+    class="modal fade db-modal"
+    id="modal-db-web_api"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="DBSelectedLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog" role="document" style="max-width: 910px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="col-md">
+                    <h4 class="modal-title" id="DBSelectedLabel">
+                        {{ _("Config") }}:
+                        <span class="hint-text" title="{{ _('ConfigWebHoverMsg') }}" id="DBTypeModal">Web</span>
+                    </h4>
+                </div>
+                {{ macros.polling_frequency_option('WEB_API', polling_frequency, is_authorized, [0]) }}
+                <button type="button" class="close" aria-label="Close" onclick="handleCloseDSConfigModal(this)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    {{ macros.alert_message("alert-web_api-validation") }}
+                    <form id="webCfgForm">
+                        <div class="form-group row">
+                            <label for="web_api_dbsourcename" class="col-sm-3 col-form-label"
+                                ><h5>{{ _("Data Source Name") }}</h5></label
+                            >
+                            <div class="col-sm-9">
+                                <input
+                                    type="text"
+                                    name="web_api_dbsourcename"
+                                    class="form-control"
+                                    id="web_api_dbsourcename"
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="web_api_comment" class="col-sm-3 col-form-label"
+                                ><h5>{{ _("Comment") }}</h5></label
+                            >
+                            <div class="col-sm-9">
+                                <input type="text" name="web_api_comment" class="form-control" id="web_api_comment" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="web_api_url" class="col-sm-3 col-form-label"><h5>{{ _("URL") }}</h5></label>
+                            <div class="col-sm-9">
+                                <input
+                                    type="text"
+                                    name="web_api_url"
+                                    class="form-control already-convert-hankaku"
+                                    id="web_api_url"
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="web_api_url" class="col-sm-3 col-form-label"
+                                ><h5>{{ _("Authentication") }}</h5></label
+                            >
+                            <div class="col-sm-9">
+                                <div class="mb-2">
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="NoAuth"
+                                            name="web_api_authentication_type"
+                                            value="NONE"
+                                            onchange="switchAuthTypeForWebAPI(this)"
+                                            checked
+                                            data-observer
+                                        />
+                                        <label class="custom-control-label" for="NoAuth"
+                                            >{{ _('NoneAuthentication') }}</label
+                                        >
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="basicAuth"
+                                            name="web_api_authentication_type"
+                                            value="BASIC"
+                                            onchange="switchAuthTypeForWebAPI(this)"
+                                            data-observer
+                                        />
+                                        <label
+                                            class="custom-control-label hint-text"
+                                            title="{{ _('BasicAuthenticationHoverMsg') }}"
+                                            for="basicAuth"
+                                            >{{ _('BasicAuthentication') }}</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="webAuthInputArea" class="form-group row d-flex">
+                            <label for="web_api_url" class="col-sm-3 col-form-label"><h5></h5></label>
+                            <div class="col-sm-9 d-flex">
+                                <div class="d-flex align-items-center w-50">
+                                    <label for="web_api_username" style="min-width: 85px;" class="col-form-label pb-0">
+                                        {{ _("Username") }}</label
+                                    >
+                                    <input
+                                        type="text"
+                                        name="web_api_username"
+                                        class="form-control"
+                                        id="web_api_username"
+                                        disabled
+                                    />
+                                </div>
+                                <div class="d-flex align-items-center w-50 ml-3">
+                                    <label for="web_api_pw" style="min-width: 85px" class="col-form-label pb-0"
+                                        >{{ _("Password") }}</label
+                                    >
+                                    <input
+                                        type="password"
+                                        name="web_api_password"
+                                        class="form-control"
+                                        id="web_api_password"
+                                        autocomplete="new_password"
+                                        data-observer
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        {{ macros.input_hidden("web_use_os_timezone", "", "web_use_os_timezone") }}
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                {{ macros.check_db_connection_message('web_api', '#form-control-file [name="web_dbname"]', 'btn-test-db-conn-web', 'msg-test-db-conn-web') }}
+
+                <button
+                    id=""
+                    type="button"
+                    onclick="saveDBSourceWeb(this);"
+                    class="btn btn-primary saveDBInfoBtn"
+                    data-item-id=""
+                    data-submit-btn="true"
+                    {% if not is_authorized %}
+                        disabled
+                    {% endif %}
+                >
+                    {{ _("OK") }}
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
                     {{ _("Cancel") }}

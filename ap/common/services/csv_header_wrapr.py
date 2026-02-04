@@ -10,7 +10,7 @@ from itertools import tee
 import numpy as np
 import pandas as pd
 
-from ap.common.constants import WR_CTGY, WR_HEAD, WR_HEADER_NAMES, WR_RPLC, WR_TYPES, WR_VALUES, DataType
+from ap.common.constants import UNDER_SCORE, WR_CTGY, WR_HEAD, WR_HEADER_NAMES, WR_RPLC, WR_TYPES, WR_VALUES, DataType
 from ap.common.services.normalization import normalize_list
 
 logger = logging.getLogger(__name__)
@@ -174,7 +174,6 @@ def filechecker(fpath: str, nrows_to_check=20) -> dict:
         - type  (pd.DataFrame) Datatype info. Datetime/string/numeric/integer.
         - ctgy  (pd.DataFrame) Category info. (Machine, Line, Process)
     """
-
     results = {'info': None, 'head': None, 'type': None, 'ctgy': None}
 
     # read as list
@@ -523,7 +522,7 @@ def summarize_header_as_df(hdr: dict, info: dict):
     # extract units
     units = _split_colnames_from_unit(head['long'])
     head['units'] = units['unit']
-    head['user'] = [x + y for x, y in zip(units['colname'], units['suffix'])]
+    head['user'] = [x + y for x, y in zip(units['colname'], units['suffix'], strict=False)]
     # translate
     head['main'] = translate_wellknown_jp2en(head['main'])
     # if head$main has some same value, add _01, _02, ...
@@ -630,7 +629,7 @@ def add_suffix_if_duplicated(names):
     _max_item = len(names) + 1
     # [a_01, a_02, a_03]
     suffix_format = (f'_{str(x).zfill(2)!s}' for x in range(1, _max_item))
-    dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated))))
+    dic_suffix = dict(zip(duplicated, tee(suffix_format, len(duplicated)), strict=False))
 
     def _gen_name(name, suffix):
         # input: col, generator
@@ -659,16 +658,16 @@ def transform_duplicated_col_suffix_to_pandas_col(dic_valid_csv_cols, dic_origin
         org_col_name = col_name if not dic_original_cols else dic_original_cols[col_name]
         if is_add_suffix:
             # [a_01, a_02] -> [a, a.1]
-            matched = org_col_name.split('_')
+            matched = org_col_name.split(UNDER_SCORE)
             if len(matched) > 1 and matched[-1].isdigit():
                 digit = int(matched[-1])
                 if (digit - 1) > 0:
                     # the rest of the column name except for the suffix
-                    s = '_'.join(matched[0:-1])
+                    s = UNDER_SCORE.join(matched[0:-1])
                     col_names.append(f'{s}.{digit - 1}')
                 else:
                     # case a_01 -> a
-                    col_names.append('_'.join(matched[0:-1]))
+                    col_names.append(UNDER_SCORE.join(matched[0:-1]))
             else:
                 col_names.append(org_col_name)
         else:
@@ -719,7 +718,6 @@ def guess_datatypes(df) -> list:
 
 def _guess_datatype(uniq_vals) -> str:
     """Guess datatype of given arrray"""
-
     # initial guess
     if len(uniq_vals) == 0:
         return 'logical'
@@ -777,10 +775,9 @@ def _can_parse_as_datetime(uniq_vals) -> bool:
 
 def _is_date(x) -> bool:
     """
-    detect date format
+    Detect date format
     x: 1-d array or list of strings
     """
-
     formats = [
         '%Y-%m-%d',
         '%Y/%m/%d',  # YMD
@@ -809,10 +806,9 @@ def _is_date(x) -> bool:
 
 def _is_dati(x) -> bool:
     """
-    detect datetime format
+    Detect datetime format
     x: 1-d array or list of strings
     """
-
     formats = [
         '%Y-%m-%d %H:%M:%S',
         '%Y/%m/%d %H:%M:%S',  # YMD HMS
@@ -892,7 +888,6 @@ def inverse_rle(vals, lens):
 
 def guess_na_str(arr_dat) -> dict:
     """Guess NA strings included in the data"""
-
     dic_nas = {'lst': None, 'exc': None, 'sts': None, 'str': None}
 
     # count occurrence of each item

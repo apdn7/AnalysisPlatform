@@ -9,7 +9,7 @@ Create Date: 2025-07-16 10:34:58.967316
 import sqlalchemy as sa
 from alembic import op
 
-from migrations.versions import remove_orphaned_data
+from migrations.versions import col_exists, remove_orphaned_data
 
 # revision identifiers, used by Alembic.
 revision = '7a4ee3f2a8e4'
@@ -57,22 +57,6 @@ def table_exists(table: str):
     )
 
 
-def col_exists(table_name: str, column_name: str):
-    conn = op.get_bind()
-    # 'PRAGMA TABLE_INFO({})'.format(tblname)
-    return bool(
-        conn.execute(
-            sa.text(f"""
-        SELECT 1
-        FROM pragma_table_info('{table_name}')
-        WHERE name = '{column_name}'
-    """)
-        )
-        .scalars()
-        .all()
-    )
-
-
 def fix_migration_relationship():
     def fix_parent_null(table: str, column: str, parent_table: str, parent_column: str):
         if not table_exists(table) or not table_exists(parent_table):
@@ -83,11 +67,13 @@ def fix_migration_relationship():
 
         op.execute(sa.text(f'DELETE FROM {table} WHERE {column} IS NULL'))
         op.execute(
-            sa.text(f"""
+            sa.text(
+                f"""
 DELETE FROM {table}
 WHERE NOT EXISTS (
     SELECT 1 FROM {parent_table} parent WHERE parent.{parent_column} = {table}.{column}
-)""")
+)"""
+            )
         )
 
     def fix_parent_maybe_null(table: str, column: str, parent_table: str, parent_column: str):
@@ -95,11 +81,13 @@ WHERE NOT EXISTS (
             return
 
         op.execute(
-            sa.text(f"""
+            sa.text(
+                f"""
 DELETE FROM {table}
 WHERE {column} IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM {parent_table} parent WHERE parent.{parent_column} = {table}.{column}
-)""")
+)"""
+            )
         )
 
     # cfg_csv_column -> cfg_data_source
@@ -182,34 +170,44 @@ def fix_migration_cfg_process_column():
 def fix_migration_cfg_visualization():
     # see `Sprint271/250820_BlockAssy調査`
     op.execute(
-        sa.text("""
+        sa.text(
+            """
 UPDATE cfg_visualization
 SET created_at = strftime('%Y-%m-%dT%H:%M:%f', 'now') || '000Z'
 WHERE created_at IS NULL;
-""")
+"""
+        )
     )
     op.execute(
-        sa.text("""
+        sa.text(
+            """
 UPDATE cfg_visualization
 SET updated_at = strftime('%Y-%m-%dT%H:%M:%f', 'now') || '000Z'
 WHERE updated_at IS NULL;
-""")
+"""
+        )
     )
 
 
 def fix_migration_polling_freq_in_cfg_constant():
     op.execute(
-        sa.text("""
+        sa.text(
+            """
     UPDATE cfg_constant
     SET value = 0
     WHERE type = 'POLLING_FREQUENCY' and value IS NULL;
-""")
+"""
+        )
     )
 
 
 def fix_delete_data_for_mfunction_and_munit():
     op.execute(sa.text('DROP TABLE IF EXISTS m_function'))
     op.execute(sa.text('DROP TABLE IF EXISTS m_unit'))
+
+
+def fix_migration_t_job_management_datetime_null():
+    op.execute(sa.text('DELETE FROM t_job_management WHERE start_tm IS NULL or end_tm IS NULL'))
 
 
 def fix_migration():
@@ -222,6 +220,7 @@ def fix_migration():
     fix_migration_cfg_visualization()
     fix_migration_polling_freq_in_cfg_constant()
     fix_delete_data_for_mfunction_and_munit()
+    fix_migration_t_job_management_datetime_null()
 
 
 def upgrade():

@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import inspect
 import logging
+from collections.abc import Mapping
 from functools import wraps
 from typing import Any
 
 from ap import close_sessions, dic_config, scheduler
-from ap.common.constants import PROCESS_QUEUE, ListenNotifyType
+from ap.common.constants import PROCESS_QUEUE, JobStatus, JobType, ListenNotifyType
 from ap.common.logger import log_execution_time
+from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ MAX_CONCURRENT_JOBS = 10
 
 @log_execution_time(logging_exception=True)
 def scheduler_app_context(fn):
-    """application context decorator for background task(scheduler)
+    """Application context decorator for background task(scheduler)
 
     Arguments:
         fn {function} -- [description]
@@ -30,7 +32,7 @@ def scheduler_app_context(fn):
     """
 
     @wraps(fn)
-    def inner(*args, **kwargs):
+    def inner(*args: Any, **kwargs: Mapping[str, Any]):
         if args:
             raise RuntimeError(
                 'Function running in scheduler should never have passed `args`.'
@@ -51,10 +53,13 @@ def scheduler_app_context(fn):
                 # we convert params from old scheduler to new scheduler.
                 # This function should be delete in 3 release later.
                 # When every user has new scheduler params in their database.
-                new_scheduler_kwargs = convert_kwargs_from_old_scheduler(kwargs)
-
-                acceptable_kwargs = filter_kwargs_for_function(fn, new_scheduler_kwargs)
-                result = fn(**acceptable_kwargs)
+                new_scheduler_params = convert_kwargs_from_old_scheduler(kwargs)
+                job_management = create_job_management_from_scheduler_params(new_scheduler_params)
+                acceptable_kwargs = filter_kwargs_for_function(fn, new_scheduler_params)
+                if job_management:
+                    result = fn(**acceptable_kwargs, job_management=job_management)
+                else:
+                    result = fn(**acceptable_kwargs)
                 logger.info(f'--------{job_id} END-----------')
             except Exception as e:
                 raise e
@@ -128,3 +133,37 @@ def is_job_running(job_id=None, job_name=None):
         return job_name in list(dic_jobs.values())
 
     return False
+
+
+def create_job_management_from_scheduler_params(scheduler_params: dict[str, Any]) -> JobManagement | None:
+    """Create JobManagement instance from scheduler kwargs"""
+    job_type = scheduler_params.get('job_type')
+    db_code = scheduler_params.get('data_source_id')
+    process_id = scheduler_params.get('process_id')
+    process_name = scheduler_params.get('process_name')
+
+    if job_type in JobType.jobs_without_management_info():
+        return None
+    with make_session() as meta_session:
+        job = JobManagement()
+        job.job_type = job_type.name if job_type else None
+        job.db_code = db_code
+
+        if job.db_code is not None:
+            data_source = meta_session.query(CfgDataSource).get(job.db_code)
+            if data_source:
+                job.db_name = data_source.name
+
+        job.process_id = process_id
+        job.process_name = process_name
+
+        if not process_name and job.process_id:
+            data_process = meta_session.query(CfgProcess).get(job.process_id)
+            if data_process:
+                job.process_name = data_process.name
+
+        job.status = str(JobStatus.PROCESSING)
+        meta_session.add(job)
+        meta_session.flush()
+
+    return job

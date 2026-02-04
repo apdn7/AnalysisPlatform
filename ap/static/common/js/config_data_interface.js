@@ -167,6 +167,7 @@ const DataTypes = Object.freeze({
         i18nLabelID: 'i18nBool',
         selectionBoxDisplay: 'Boolean',
         column_type: 77,
+        org_type: 'BOOLEAN',
     },
     JUDGE: {
         name: 'JUDGE',
@@ -236,6 +237,7 @@ const CfgProcess_CONST = {
         DataTypes.REAL_SEP.name,
         DataTypes.INTEGER_SEP.name,
         DataTypes.EU_INTEGER_SEP.name,
+        DataTypes.BOOLEAN.name,
     ],
     CATEGORY_TYPES: [
         DataTypes.STRING.name,
@@ -635,9 +637,13 @@ function sortByOrderOrID(proc1, proc2) {
     return order1 < order2 ? -1 : order1 > order2 ? 1 : 0;
 }
 
-const genProcessDropdownData = (procConfigs = {}) => {
-    const ids = [''];
-    const names = ['---'];
+const genProcessDropdownData = (procConfigs) => {
+    const isList = Array.isArray(procConfigs);
+    const ids = [];
+    const names = [];
+    const processConfigList = isList ? procConfigs : Object.values(procConfigs);
+    // When loading user settings, we must load all processes to avoid bookmarked processes being filtered out.
+    procConfigs = isLoadingUserSetting ? procConfigs : filterProcessConfigPlain(processConfigList);
     Object.values(procConfigs)
         .sort(sortByOrderOrID)
         .forEach((proc) => {

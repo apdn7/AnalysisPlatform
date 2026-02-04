@@ -439,7 +439,7 @@ class JspreadSheetTable {
     }
 
     expandWidthForFormulaWhenFocus(spreadsheet, x, y) {
-        const index = spreadsheet.getIndexHeaderByName(PROCESS_COLUMNS.judge_formula);
+        const index = spreadsheet.getIndexHeaderByName(PROCESS_COLUMNS.formula);
         const data = spreadsheet.getDataFromCoords(x, y);
         const width = getCellTextWidth(data);
         if (x === index) {

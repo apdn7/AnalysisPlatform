@@ -94,7 +94,9 @@ const displayDatetimeFormatCondition = (el = null) => {
  * @return {{dataTypeDropdownElement: HTMLDivElement, colIdx: String, dataType: String}[]}
  */
 const collectDatetimeRows = (spreadsheet) => {
-    const rows = spreadsheet.rowsByDataTypes(DataTypes.DATETIME.name, DataTypes.TIME.name, DataTypes.DATE.name);
+    let rows = spreadsheet.rowsByDataTypes(DataTypes.DATETIME.name, DataTypes.TIME.name, DataTypes.DATE.name);
+    // remove row with formula because it already formated with formula
+    rows = rows.filter((row) => !row.formula || !row.formula.data);
     return rows.map((row) => ({
         dataType: row[PROCESS_COLUMNS.data_type].data,
         rowIdx: row[PROCESS_COLUMNS.data_type].rowIndex,
@@ -127,7 +129,7 @@ const showInputFormatDatetimeData = async (spreadsheet, ...rows) => {
     let dateTimeRow = rows.filter((row) => row.dataType === DataTypes.DATETIME.name);
     const inputFormatEle = getDatetimeFormatInputFromElement(spreadsheet.table.table.el);
     const inputFormat = inputFormatEle.val().trim();
-    rows = [mainTimeRow, mainDateRow, ...dateTimeRow];
+    rows = [mainTimeRow, mainDateRow, ...dateTimeRow].filter((row) => row);
     let formatRow = dateTimeRow;
     if (mainDateRow) {
         formatRow.unshift(mainTimeRow);

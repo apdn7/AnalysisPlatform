@@ -25,6 +25,10 @@ const filterElements = {
     divMachineConfig: '#_machine',
     divPartnoConfig: '#partno',
     divOtherConfig: '[name=filterOtherCard]',
+    confirmModalId: '#filterConfirmModal',
+    confirmButton: '#confirmRegister',
+    confirmDeleteFilterBtn: '#delete-cfg-btn',
+    deleteModal: '#deleteFilterConfigModal',
 };
 
 class FilterStore {
@@ -32,7 +36,7 @@ class FilterStore {
         this.currentProcessId = null;
         this.selectedProcess = {};
         this.selectedProcConfig = new CfgProcess();
-        this.filterColumnData = {};
+        this.instanceByCardId = {};
     }
 
     setSelectedProcessId(processId) {
@@ -61,6 +65,10 @@ class FilterStore {
 
     setFilterColumnsData(filterColumnsData) {
         this.filterColumnData = filterColumnsData;
+    }
+
+    setInstanceByCardId(cardId, instance) {
+        this.instanceByCardId[cardId] = instance;
     }
 }
 
@@ -130,18 +138,21 @@ const showProcessSettings = async (procId) => {
     if (!isEmpty(processConfig)) {
         // show line setting
         const lineCfgFuncs = filterCfgGenerator(htmlCardId.LINE, filterTypes.LINE);
+        filterStore.setInstanceByCardId(htmlCardId.LINE, lineCfgFuncs);
         lineCfgFuncs.genEvents();
         await lineCfgFuncs.showLineSetting(processConfig, cfgProcess);
         addAttributeToElement($(lineCfgFuncs.eles.thisCard));
 
         // show machine setting
         const machineCfgFuncs = filterCfgGenerator(htmlCardId.MACHINE_ID, filterTypes.MACHINE);
+        filterStore.setInstanceByCardId(htmlCardId.MACHINE_ID, machineCfgFuncs);
         machineCfgFuncs.genEvents();
         await machineCfgFuncs.showMachineSetting(processConfig);
         addAttributeToElement($(machineCfgFuncs.eles.thisCard));
 
         // show partno setting
         const partnoFuncs = filterCfgGenerator(htmlCardId.PART_NO, filterTypes.PART_NO);
+        filterStore.setInstanceByCardId(htmlCardId.PART_NO, partnoFuncs);
         partnoFuncs.genEvents();
         await partnoFuncs.showPartnoSetting(processConfig);
         addAttributeToElement($(partnoFuncs.eles.thisCard));
@@ -159,8 +170,8 @@ $(() => {
         const currentProcessId = $(e.currentTarget).val() || '';
         hideAlertMessages();
         // hide loading screen
-        const loading = $('.loading');
-        loading.show();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
         filterElements.detailCards.css('display', 'none');
 
         // update process id
@@ -168,10 +179,10 @@ $(() => {
 
         if (!isEmpty(currentProcessId)) {
             await showProcessSettings(currentProcessId);
-            loading.hide();
+            loadingObj.hide();
             filterElements.detailCards.css('display', 'unset');
         } else {
-            loading.hide();
+            loadingObj.hide();
         }
 
         // drag & drop for tables
@@ -180,6 +191,22 @@ $(() => {
             update: updateOrder,
         });
     });
+
+    $(filterElements.confirmButton)
+        .off('click')
+        .on('click', () => {
+            const cardId = $(filterElements.confirmModalId).data('cardId');
+            const instance = filterStore.instanceByCardId[cardId];
+            instance.register();
+        });
+
+    $(filterElements.confirmDeleteFilterBtn)
+        .off('click')
+        .on('click', () => {
+            const cardId = $(filterElements.deleteModal).data('cardId');
+            const instance = filterStore.instanceByCardId[cardId];
+            instance.deleteFilter();
+        });
 
     $(filterElements.divLineConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
     $(filterElements.divLineConfig)[0].addEventListener('mouseup', handleMouseUp, false);

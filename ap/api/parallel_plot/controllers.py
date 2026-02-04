@@ -16,6 +16,7 @@ from ap.common.constants import (
     EXPORT_FROM,
     ONLY_EXPORT_DATA_SELECTED,
     SELECTED,
+    SELECTED_NA_INF_VALUES,
     TIME_COL,
     TRUE_MATCH,
     CSVExtTypes,
@@ -75,7 +76,7 @@ def trace_data():
 
 @api_paracords_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -86,18 +87,20 @@ def data_export(export_type):
     graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
     graph_param, client_timezone = make_graph_param(graph_param, dic_param)
     delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
-    exportOnlySelected = dic_form.get(ONLY_EXPORT_DATA_SELECTED, 'false') == TRUE_MATCH
+    export_only_selected = dic_form.get(ONLY_EXPORT_DATA_SELECTED, 'false') == TRUE_MATCH
 
     df = gen_df_export(graph_param, dic_param)
 
     if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
-        mask = generate_mask_from_constraint(json.loads(dic_form[CONSTRAINT_RANGE]), graph_param, df)
+        mask = generate_mask_from_constraint(
+            json.loads(dic_form[CONSTRAINT_RANGE]), json.loads(dic_form[SELECTED_NA_INF_VALUES]), graph_param, df
+        )
 
         selected_index = list(df[mask].index)
         # add selected column 0 -> gray, 1 -> color of user selected value in plot PCP
         df[SELECTED] = 0
         df.loc[selected_index, SELECTED] = 1
-        if exportOnlySelected:
+        if export_only_selected:
             df = df[df[SELECTED] == 1]
             del df[SELECTED]
 
@@ -127,7 +130,9 @@ def select_data():
     df = gen_df_export(graph_param, dic_param)
 
     if dic_param[COMMON][EXPORT_FROM] == DataExportMode.PLOT.value:
-        mask = generate_mask_from_constraint(json.loads(dic_form[CONSTRAINT_RANGE]), graph_param, df)
+        mask = generate_mask_from_constraint(
+            json.loads(dic_form[CONSTRAINT_RANGE]), json.loads(dic_form[SELECTED_NA_INF_VALUES]), graph_param, df
+        )
 
         selected_index = list(df[mask].index)
         df = df.loc[selected_index]

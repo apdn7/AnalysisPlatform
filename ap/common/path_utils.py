@@ -4,8 +4,9 @@ import os
 import shutil
 import sys
 import zipfile
+from os import PathLike
 from pathlib import Path
-from typing import IO, List, TextIO, Union
+from typing import IO, TextIO, Union
 
 from ap.common.constants import (
     CONFIG_DB,
@@ -24,7 +25,7 @@ def check_exist(file_path):
 
 
 def get_data_path(abs=True, is_log=False):
-    """get data folder path
+    """Get data folder path
 
     Returns:
         [type] -- [description]
@@ -36,7 +37,7 @@ def get_data_path(abs=True, is_log=False):
 
 
 def get_log_path(abs=True):
-    """get data folder path
+    """Get data folder path
 
     Returns:
         [type] -- [description]
@@ -46,7 +47,7 @@ def get_log_path(abs=True):
 
 
 def get_instance_path(abs=True):
-    """get data folder path
+    """Get data folder path
 
     Returns:
         [type] -- [description]
@@ -56,7 +57,7 @@ def get_instance_path(abs=True):
 
 
 def get_error_trace_path(abs=True):
-    """get import folder path
+    """Get import folder path
 
     Returns:
         [type] -- [description]
@@ -66,7 +67,7 @@ def get_error_trace_path(abs=True):
 
 
 def get_error_cast_path(abs=True):
-    """get error cast folder path
+    """Get error cast folder path
 
     Returns:
         [type] -- [description]
@@ -76,7 +77,7 @@ def get_error_cast_path(abs=True):
 
 
 def get_error_duplicate_path(abs=True):
-    """get duplicate folder path
+    """Get duplicate folder path
 
     Returns:
         [type] -- [description]
@@ -86,7 +87,7 @@ def get_error_duplicate_path(abs=True):
 
 
 def get_error_import_path(abs=True):
-    """get import folder path
+    """Get import folder path
 
     Returns:
         [type] -- [description]
@@ -96,27 +97,21 @@ def get_error_import_path(abs=True):
 
 
 def get_about_md_file():
-    """
-    get about markdown file path
-    """
+    """Get about markdown file path"""
     folder_name = 'about'
     file_name = 'Endroll.md'
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
 
 
 def get_terms_of_use_md_file(current_locale):
-    """
-    get about markdown file path
-    """
+    """Get about markdown file path"""
     folder_name = 'about'
     file_name = 'terms_of_use_jp.md' if current_locale.language == 'ja' else 'terms_of_use_en.md'
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
 
 
 def get_cookie_policy_md_file(current_locale):
-    """
-    get about markdown file path
-    """
+    """Get about markdown file path"""
     folder_name = 'about'
     file_name = 'cookie_policy_jp.md' if current_locale.language == 'ja' else 'cookie_policy_en.md'
     return resource_path(folder_name, file_name, level=AbsPath.SHOW)
@@ -128,7 +123,7 @@ def get_user_scripts_path():
 
 
 def get_wrapr_path():
-    """get wrap r folder path
+    """Get wrap r folder path
 
     Returns:
         [type] -- [description]
@@ -138,7 +133,7 @@ def get_wrapr_path():
 
 
 def get_temp_path():
-    """get temporaty folder path
+    """Get temporaty folder path
 
     Returns:
         [type] -- [description]
@@ -148,13 +143,13 @@ def get_temp_path():
     temp_dir = resource_path(data_folder, folder_name, level=AbsPath.SHOW)
 
     # check if temp dir exists, if not, create it
-    os.makedirs(temp_dir, exist_ok=True)
+    Path(temp_dir).mkdir(parents=True, exist_ok=True)
 
     return temp_dir
 
 
 def get_cache_path():
-    """get cache folder path
+    """Get cache folder path
 
     Returns:
         [type] -- [description]
@@ -165,7 +160,7 @@ def get_cache_path():
 
 
 def get_export_path():
-    """get cache folder path
+    """Get cache folder path
 
     Returns:
         [type] -- [description]
@@ -176,7 +171,7 @@ def get_export_path():
 
 
 def get_view_path():
-    """get view/image folder path
+    """Get view/image folder path
 
     Returns:
         [type] -- [description]
@@ -186,8 +181,8 @@ def get_view_path():
     return resource_path(data_folder, folder_name, level=AbsPath.SHOW)
 
 
-def get_etl_path(*sub_paths):
-    """get etl output folder path
+def get_etl_path(*sub_paths: PathLike | str):
+    """Get etl output folder path
 
     Returns:
         [type] -- [description]
@@ -206,13 +201,12 @@ def get_backup_data_path():
 
 def get_backup_data_folder(process_id):
     folder = get_backup_data_path()
-    if not check_exist(folder):
-        os.makedirs(folder)
+    Path(folder).mkdir(parents=True, exist_ok=True)
     return os.path.join(folder, str(process_id))
 
 
-def resource_path(*relative_path, level=AbsPath.SHOW):
-    """make absolute path
+def resource_path(*relative_path: PathLike | str, level=AbsPath.SHOW):
+    """Make absolute path
 
     Keyword Arguments:
         level {int} -- [0: auto, 1: user can see folder, 2: user can not see folder(MEIPASS)] (default: {0})
@@ -220,7 +214,6 @@ def resource_path(*relative_path, level=AbsPath.SHOW):
     Returns:
         [type] -- [description]
     """
-
     show_path = os.getcwd()
     hide_path = getattr(sys, '_MEIPASS', show_path)
 
@@ -236,8 +229,7 @@ def resource_path(*relative_path, level=AbsPath.SHOW):
 
 def get_preview_data_file_folder(data_source_id):
     folder = get_preview_data_path()
-    if not check_exist(folder):
-        os.makedirs(folder)
+    Path(folder).mkdir(parents=True, exist_ok=True)
 
     return os.path.join(folder, str(data_source_id))
 
@@ -260,7 +252,7 @@ def get_scheduler_db_path():
 
 
 def get_export_setting_path():
-    """get cache folder path
+    """Get cache folder path
 
     Returns:
         [type] -- [description]
@@ -286,7 +278,7 @@ def get_dummy_data_path():
     return resource_path(*folder_names, level=AbsPath.SHOW)
 
 
-def get_sorted_files(root_name, is_allow_zip: bool = True) -> List[str]:
+def get_sorted_files(root_name, is_allow_zip: bool = True) -> list[str]:
     try:
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
@@ -295,23 +287,23 @@ def get_sorted_files(root_name, is_allow_zip: bool = True) -> List[str]:
         latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
         latest_files.sort(reverse=True)
         return latest_files
-    except Exception:
-        raise FileNotFoundError('File not found')
+    except Exception as e:
+        raise FileNotFoundError('File not found') from e
 
 
-def get_largest_files_in_list(files: List[str]) -> List[str]:
+def get_largest_files_in_list(files: list[str]) -> list[str]:
     sorted_files = sorted(files, key=lambda x: os.path.getsize(x))
     sorted_files.reverse()
     return sorted_files
 
 
-def get_sorted_files_in_list(files: List[str]) -> List[str]:
+def get_sorted_files_in_list(files: list[str]) -> list[str]:
     sorted_files = sorted(files, key=lambda x: (os.path.getsize(x), os.path.getctime(x)))
     sorted_files.reverse()
     return sorted_files
 
 
-def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[str]:
+def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> list[str]:
     try:
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
@@ -323,7 +315,7 @@ def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> List[
         return []
 
 
-def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True) -> List[str]:
+def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True) -> list[str]:
     try:
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
@@ -341,7 +333,7 @@ def get_base_dir(path, is_file=True):
 
 
 def make_dir(dir_path):
-    os.makedirs(dir_path, exist_ok=True)
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
     return True
 
 
@@ -352,8 +344,7 @@ def get_basename(path):
 def make_dir_from_file_path(file_path):
     dirname = os.path.dirname(file_path)
     # make dir
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
+    Path(dirname).mkdir(parents=True, exist_ok=True)
 
     return dirname
 
@@ -370,7 +361,7 @@ def split_path_to_list(file_path):
 
 @log_execution_time()
 def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False):
-    """get files in folder
+    """Get files in folder
 
     Arguments:
         directory {[type]} -- [description]
@@ -411,8 +402,9 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
 
 
 def rename_file(src, des):
-    if os.path.exists(src):
-        os.rename(src, des)
+    src_path = Path(src)
+    if src_path.exists():
+        src_path.rename(des)
 
 
 def count_file_in_folder(folder_path):
@@ -441,7 +433,7 @@ def is_normal_zip(f_name: Union[str, Path]) -> bool:
     return Path(f_name).suffix == '.zip'
 
 
-def get_latest_files(root_name: Union[Path, str]) -> List[str]:
+def get_latest_files(root_name: Union[Path, str]) -> list[str]:
     try:
         files = get_files(
             str(root_name),
@@ -474,7 +466,7 @@ def open_with_zip(file_name, mode, encoding=None) -> Union[IO[bytes], TextIO]:
 
 
 def copy_file(source, target):
-    """copy file
+    """Copy file
 
     Arguments:
         source {[type]} -- [description]
@@ -488,9 +480,7 @@ def copy_file(source, target):
 
 
 def get_etl_scripts(etl_path):
-    """
-    get etl (r and python) scripts
-    """
+    """Get etl (r and python) scripts"""
     try:
         return get_files(directory=etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
     except (Exception, FileNotFoundError):

@@ -69,7 +69,7 @@ def migrate_cfg_process_add_process_etl_func(app_db):
 
 
 def migrate_cfg_process_add_is_import(app_db):
-    is_col_existing = app_db.is_column_existing(CfgProcess.__table__.name, CfgProcess.is_import.name)
+    is_col_existing = app_db.is_column_existing(CfgProcess.__table__.name, 'is_import')
     if not is_col_existing:
         app_db.execute_sql(create_is_import)
         app_db.execute_sql(update_is_import)

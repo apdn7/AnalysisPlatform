@@ -1,12 +1,19 @@
+import json
 from typing import Union
 
 from flask import Blueprint, render_template, request
 from flask_babel import get_locale
 
+from ap import log_execution_time
 from ap.api.common.services.plot_view import gen_graph_plot_view
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_services import update_draw_data_trace_log
 from ap.api.trace_data.services.csv_export import gen_csv_data
+from ap.api.trace_data.services.data_count import (
+    get_data_count_by_time_range,
+    get_process_data_count_by_timerange,
+    get_process_full_data_range,
+)
 from ap.common.constants import (
     ALL_TILES,
     RCMDS,
@@ -15,6 +22,7 @@ from ap.common.constants import (
     TILES,
     UN_AVAILABLE,
     CSVExtTypes,
+    DataCountType,
 )
 from ap.common.jobs.utils import get_update_transaction_table_job
 from ap.common.services.csv_content import zip_file_to_response
@@ -23,8 +31,9 @@ from ap.common.services.form_env import (
     parse_multi_filter_into_one,
     parse_request_params,
 )
-from ap.common.services.http_content import orjson_dumps
+from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.request_time_out_handler import api_request_threads
+from ap.common.timezone_utils import get_date_from_type
 from ap.common.yaml_utils import TileInterfaceYaml
 from ap.tile_interface.services.utils import get_tile_master_with_lang
 
@@ -45,7 +54,7 @@ def abort_process():
 @api_common_blueprint.route('/draw_plot_excuted_time', methods=['GET'])
 def save_draw_plot_executed_time():
     """
-        update draw chart exe time
+        Update draw chart exe time
     :return: {}
     """
     dataset_id = request.args.get('dataset_id')
@@ -91,7 +100,7 @@ def plot_view():
 
 @api_common_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -139,3 +148,93 @@ def is_show_warning_message_update_main_serial(process_id: Union[int, str]):
     is_show_warning_message = False if job is None else job.kwargs.get('is_show_warning_message')
 
     return orjson_dumps(is_show_warning_message), 200
+
+
+@api_common_blueprint.route('/data_count', methods=['POST'])
+@log_execution_time()
+def get_data_count():
+    """
+    Get data count from datetime range
+    :param process_id
+    :param from
+    :param to
+    :param type
+    :return: object
+    """
+    request_data = json.loads(request.data)
+    process_id = request_data.get('process_id') or None
+    query_type = request_data.get('type') or DataCountType.MONTH.value
+    from_date = request_data.get('from') or None
+    to_date = request_data.get('to') or None
+    local_tz = request_data.get('timezone') or None
+    count_in_file = request_data.get('count_in_file', False)
+
+    data_count = {}
+    min_val = 0
+    max_val = 0
+    if process_id:
+        start_date, end_date = None, None
+
+        if from_date and to_date:
+            start_date = get_date_from_type(from_date, query_type, local_tz)
+            end_date = get_date_from_type(to_date, query_type, local_tz, True)
+
+        data_count, min_val, max_val = get_data_count_by_time_range(
+            process_id,
+            start_date,
+            end_date,
+            query_type,
+            local_tz,
+            count_in_file=count_in_file,
+        )
+    out_dict = {
+        'from': from_date,
+        'to': to_date,
+        'type': query_type,
+        'data': data_count,
+        'min_val': min_val,
+        'max_val': max_val,
+    }
+    out_dict = json_dumps(out_dict)
+    return out_dict, 200
+
+
+@api_common_blueprint.route('/full_data_range/<int:process_id>', methods=['GET'])
+def full_data_range(process_id):
+    """
+    Get time range of process (full data) by process id
+    Args:
+        process_id: int, process id
+
+    Returns: object
+        {
+            min_date_time: datetime,
+            max_date_time: datetime
+        }
+    """
+    min_date_time, max_date_time = get_process_full_data_range(process_id)
+    return orjson_dumps({'min_date_time': min_date_time, 'max_date_time': max_date_time}), 200
+
+
+@api_common_blueprint.route('/data_count_in_range', methods=['POST'])
+def data_count_in_range():
+    """
+    Get data count from datetime range by process id
+    Args:
+        process_id: int, process id
+        from: datetime
+        to: datetime
+
+    Returns:
+        count: int, data count
+    """
+    request_data = json.loads(request.data)
+    process_id = request_data.get('process_id') or None
+    start_date = request_data.get('from') or None
+    end_date = request_data.get('to') or None
+    data_count = get_process_data_count_by_timerange(
+        process_id,
+        start_date,
+        end_date,
+    )
+    return orjson_dumps(data_count), 200

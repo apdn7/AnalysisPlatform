@@ -1,7 +1,6 @@
 import logging
 import math
 from datetime import datetime, timedelta
-from typing import Dict
 
 import numpy as np
 import pandas as pd
@@ -38,6 +37,7 @@ from ap.common.constants import (
     DATE_FORMAT_QUERY,
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_CSV,
+    EMPTY_STRING,
     END_COL,
     END_COL_SHOW_NAME,
     END_PROC_ID,
@@ -52,6 +52,7 @@ from ap.common.constants import (
     REMOVED_OUTLIERS,
     TIME_COL,
     TIME_COL_LOCAL,
+    UNDER_SCORE,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
     X_TICKTEXT,
@@ -146,7 +147,7 @@ def gen_heatmap_data(root_graph_param, dic_param, df=None):
 
 def get_utc_offset(time_zone):
     """
-    get utc time offset
+    Get utc time offset
     :param time_zone: str, timezone object
     :return: timedelta(seconds)
     """
@@ -167,10 +168,10 @@ def limit_num_cells(df_cells: pd.DataFrame, end_tm, limit=10000):
     df_cells: pd.DataFrame = df_cells.loc[:limit]
 
     # update new end_time to 10000 cells
-    last_cell_time = list(df_cells.tail(1)[TIME_COL])[0]
+    last_cell_time = next(iter(df_cells.tail(1)[TIME_COL]))
     # end_tm is utc -> convert to local-time
     end_tm_tz = pd.to_datetime(pd.Series([end_tm]), utc=True)
-    end_tm_tz = list(end_tm_tz)[0]
+    end_tm_tz = next(iter(end_tm_tz))
     new_end_time = np.minimum(end_tm_tz, last_cell_time)
     new_end_tm = new_end_time.strftime(DATE_FORMAT_QUERY)
 
@@ -271,15 +272,46 @@ def get_x_ticks(df: pd.DataFrame):
     return df_ticks['x'], df_ticks['x_label']
 
 
+def convert_agg_value_as_str(agg_series, agg_func):
+    """Convert agg value into string"""
+    match agg_func:
+        case HMFunction.count.value:
+            # For Count, display as integer (no decimal point)
+            return agg_series.apply(lambda x: str(int(x)) if pd.notna(x) else NA_STR)
+        case _:
+            # For other functions, use signify_digit
+            return agg_series.apply(signify_digit).astype(str).str.replace(r'None|nan', NA_STR, regex=True)
+
+
+def add_rate_percentage_to_hover(hover_series, agg_series, agg_func):
+    """Add rate percentage to hover text for Count function"""
+    if agg_func != HMFunction.count.value:
+        return hover_series
+
+    # Calculate sum excluding NaN values
+    n = agg_series.sum(skipna=True)
+    if n <= 0:
+        return hover_series
+
+    # Calculate rate
+    rate = agg_series * 100 / n
+    rate_str = rate.apply(signify_digit)
+
+    # Add rate percentage only for non-NA values
+    return np.where(agg_series.notna(), hover_series + ' (' + rate_str.astype(str) + '%)', hover_series)
+
+
 def build_hover(df, end_col, hm_function):
-    df['hover'] = (
-        df['from'].astype(str)
-        + df['to'].astype(str)
-        + hm_function
-        + ': '
-        + df[end_col].apply(signify_digit).astype(str).str.replace(r'None|nan', NA_STR, regex=True)
-        + '<br>'
-    )
+    """Hover Information builder for CHM"""
+    # Format value display
+    value_str = convert_agg_value_as_str(df[end_col], hm_function)
+
+    df['hover'] = df['from'].astype(str) + df['to'].astype(str) + hm_function + ': ' + value_str
+
+    # Add rate percentage for Count function
+    df['hover'] = add_rate_percentage_to_hover(df['hover'], df[end_col], hm_function)
+
+    df['hover'] = df['hover'] + '<br>'
     return df['hover']
 
 
@@ -316,7 +348,7 @@ def build_plot_data(df, end_col, hm_function):
 
 def get_function_i18n(hm_function):
     """Generate i18n aggregate function name"""
-    return _('CHM' + hm_function.replace('_', ' ').title().replace(' ', ''))
+    return _('CHM' + hm_function.replace(UNDER_SCORE, ' ').title().replace(' ', EMPTY_STRING))
 
 
 @log_execution_time()
@@ -444,7 +476,7 @@ def gen_daily_ticks(df: pd.DataFrame):
 
 
 def get_year_week_in_df_column(column: pd.DataFrame.columns):
-    """get year and week with format 'yy,w' -> '22, 20'"""
+    """Get year and week with format 'yy,w' -> '22, 20'"""
     return (
         column.dt.year.astype(str).str[-2:]
         + ', '
@@ -556,7 +588,7 @@ def gen_x_y(df: pd.DataFrame, hm_mode, hm_step, start_tm, end_tm):
 
 @log_execution_time()
 @abort_process_handler()
-def build_dic_col_func(dic_proc_cfgs: Dict[int, CfgProcess], graph_param: DicParam):
+def build_dic_col_func(dic_proc_cfgs: dict[int, CfgProcess], graph_param: DicParam):
     """Each column needs an aggregate function"""
     dic_col_func = {}
     for proc_id, proc_config in dic_proc_cfgs.items():
@@ -643,7 +675,6 @@ def gen_agg_col_names(var_agg_cols):
 @abort_process_handler()
 def graph_heatmap_data_one_proc(df, proc_cfg: CfgProcess, graph_param: DicParam, dic_col_func, var_agg_cols, agg_cols):
     """Build heatmap data for all columns of each process"""
-
     # start proc
     proc_id = proc_cfg.id
 
@@ -676,15 +707,14 @@ def range_func(x):
 def convert_to_pandas_step(hm_step, hm_mode):
     """Pandas steps are: 4h, 15min, ..."""
     if hm_mode == HM_WEEK_MODE:
-        return '{}h'.format(hm_step)
-    return '{}min'.format(hm_step)
+        return f'{hm_step}h'
+    return f'{hm_step}min'
 
 
 @log_execution_time()
 @abort_process_handler()
 def create_agg_column(df, agg_col=AGG_COL, hm_mode=7, hm_step=4, df_cells=None):
     """Create aggregate column data"""
-
     # create temporary column for searching values
     temp_col = '__temp__datetime__'
     df[temp_col] = pd.to_datetime(df[TIME_COL], utc=True)
@@ -922,7 +952,7 @@ def get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param, cat_only=Tr
 
 
 def gen_plot_df(df, transform_target_sensor_name, transform_facets_name=None):
-    export_columns = ['time_cell', 'to_temp', 'dayofweek'] + list(transform_target_sensor_name.keys())
+    export_columns = ['time_cell', 'to_temp', 'dayofweek', *list(transform_target_sensor_name.keys())]
     transform_cols = {'time_cell': 'From', 'to_temp': 'To', 'dayofweek': 'Day'}
     transform_cols.update(transform_target_sensor_name)
     if transform_facets_name:
@@ -954,7 +984,7 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
                 # target sensor only
                 sensor_obj = dic_proc_cfgs[proc_id].get_cols([sensor_id])
                 aggregate_func = dic_col_func[proc_id][sensor_id].name
-                export_name = '{}|{}|{}'.format(proc_name, sensor_obj[0].column_name, aggregate_func)
+                export_name = f'{proc_name}|{sensor_obj[0].column_name}|{aggregate_func}'
                 transform_target_sensor_name = {sensor_id: export_name}
                 if isinstance(sensor_dat, dict) or len(facet_ids) != 0:
                     # has facets
@@ -975,8 +1005,8 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
                         sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
                         csv_dat.append(sub_df_dat)
 
-                        group_name = '_'.join(group) if isinstance(group, tuple) else group
-                        file_name = '{}_{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, group_name, file_type)
+                        group_name = UNDER_SCORE.join(group) if isinstance(group, tuple) else group
+                        file_name = f'{proc_name}_{sensor_obj[0].column_name}_{group_name}.{file_type}'
                         csv_list_name.append(file_name)
                 else:
                     # no facet
@@ -995,7 +1025,7 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
                     sub_df_dat = sub_df_dat.to_csv(sep=delimiter, index=False)
                     csv_dat.append(sub_df_dat)
 
-                    file_name = '{}_{}.{}'.format(proc_name, sensor_obj[0].column_name, file_type)
+                    file_name = f'{proc_name}_{sensor_obj[0].column_name}.{file_type}'
                     csv_list_name.append(file_name)
 
     return csv_dat, csv_list_name

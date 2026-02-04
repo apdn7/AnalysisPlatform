@@ -62,6 +62,12 @@ const parseBooleanData = (v) => {
     return val;
 };
 
+const isNullLike = (v) => {
+    if (v === null || v === undefined) return true;
+    const str = String(v).trim();
+    return NORMAL_NULL_VALUES.has(str);
+};
+
 /**
  * Parse to boolean data
  * @param {number|boolean|string} v
@@ -69,17 +75,30 @@ const parseBooleanData = (v) => {
  * @return {string} - a parsed value or empty in case cannot be parsed
  */
 const parseJudgeData = (v, formula = undefined) => {
-    if (v && formula) {
+    if (formula) {
         const match = formula.match(JUDGE_PATTERN_VALIDATION);
         if (!match) {
             return v;
         }
+
         const [, pos, posDisplay, negDisplay] = match;
-        if (String(v) === pos) {
-            return posDisplay;
+
+        // if Pos~Null|Neg=OK|NG
+        if (JUDGE_NA_VALUES.has(pos)) {
+            if (isNullLike(v)) {
+                return posDisplay;
+            }
+            return negDisplay;
         }
-        return negDisplay;
+
+        if (v) {
+            if (String(v) === pos) {
+                return posDisplay;
+            }
+            return negDisplay;
+        }
     }
+
     return trimBoth(String(v));
 };
 
@@ -90,10 +109,9 @@ const parseJudgeData = (v, formula = undefined) => {
  * @param {number|string?} idx - index of row in table's body
  * @param {number} columnType - column type of row in table's body
  * @param sampleDataDisplayMode
- * @param formula
  * @param {HTMLDivElement?} dataTypeDropdownElement - a div HTML object of datatype dropdown menu
  */
-const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, sampleDataDisplayMode = null, formula = null) => {
+const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleDataDisplayMode = null) => {
     // change background color
     // changeBackgroundColor(ele);
 
@@ -122,9 +140,34 @@ const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, sampleDataDis
 
     const attrName = getAttributeName(sampleDataDisplayMode, dataType, columnType);
 
+    // Parse data using user provided formula
+    let sampleDatas = vals.map((e) => e.attr(attrName));
+    const formula = $(`#${spreadsheet.table.table.el.id}`)
+        .find(`tr:eq(${Number(idx) + 1}) .column-formula`)
+        .text();
+
+    // try to parse data using formula if it has formula
+    const parseByFormula = (isJudgeFormula(columnType) || isDatetimeFormula(dataType, columnType)) && formula;
+    if (parseByFormula) {
+        const response = await fetch('/ap/api/setting/formula_convert', {
+            method: 'POST',
+            body: JSON.stringify({
+                formula: formula,
+                data: sampleDatas,
+                col_type: columnType,
+                data_type: dataType,
+                is_sample_data: true,
+                display_mode: sampleDataDisplayMode,
+            }),
+        })
+            .then((res) => res.json())
+            .catch((error) => {
+                return {};
+            });
+        sampleDatas = response?.data ? response.data : sampleDatas;
+    }
     // calculation results for percentiles should not be parsed
     const isRequireParsing = ![UNIQUE_INT_DATA_ATTR, UNIQUE_REAL_DATA_ATTR].includes(attrName);
-
     switch (dataType) {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
@@ -186,48 +229,80 @@ const parseDataTypeProc = (spreadsheet, dataType, idx, columnType, sampleDataDis
             }
             break;
         case DataTypes.DATETIME.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                spreadsheet.table.updateCell(e[0], val, true);
+            if (parseByFormula) {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    const val = sampleDatas[idx];
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+            } else {
+                for (const e of vals) {
+                    let val = e.attr(attrName);
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+                await showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             }
-            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.DATE.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                spreadsheet.table.updateCell(e[0], val, true);
+            if (parseByFormula) {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    const val = sampleDatas[idx];
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+            } else {
+                for (const e of vals) {
+                    let val = e.attr(attrName);
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+                await showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             }
-            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.TIME.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                spreadsheet.table.updateCell(e[0], val, true);
+            if (parseByFormula) {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    const val = sampleDatas[idx];
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+            } else {
+                for (const e of vals) {
+                    let val = e.attr(attrName);
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+                await showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             }
-            showProcDatetimeFormatSampleData(spreadsheet, getParamsForFormatDatetime());
             break;
         case DataTypes.BOOLEAN.name:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                if (columnType === masterDataGroup.JUDGE) {
-                    if (!formula) {
-                        formula = $(`#${spreadsheet.table.table.el.id}`)
-                            .find(`tr:eq(${Number(idx) + 1}) .formula`)
-                            .text();
-                    }
-                    val = parseJudgeData(val, formula);
-                } else {
-                    val = parseBooleanData(val);
+            if (parseByFormula) {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    const val = sampleDatas[idx];
+                    spreadsheet.table.updateCell(e[0], val, true);
                 }
-                spreadsheet.table.updateCell(e[0], val, true);
+            } else {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    let val = e.attr(attrName);
+                    val = parseBooleanData(val);
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
             }
             break;
 
         default:
-            for (const e of vals) {
-                let val = e.attr(attrName);
-                val = trimBoth(String(val));
-                spreadsheet.table.updateCell(e[0], val, true);
+            if (parseByFormula) {
+                for (let idx = 0; idx < vals.length; idx++) {
+                    const e = vals[idx];
+                    let val = sampleDatas[idx];
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
+            } else {
+                for (const e of vals) {
+                    let val = e.attr(attrName);
+                    val = trimBoth(String(val));
+                    spreadsheet.table.updateCell(e[0], val, true);
+                }
             }
             break;
     }
@@ -245,7 +320,7 @@ const parseProcDatetimeFormatSampleData = async (dataType, values) => {
 
 const parseProcDatetimeInputFormat = async (inputFormat, dataType, values, isGeneratedMainDatetimeColumn = false) => {
     const clientTimezone = detectLocalTimezone();
-    const formattedData = await fetch('/ap/api/setting/datetime_format', {
+    return fetch('/ap/api/setting/datetime_format', {
         method: 'POST',
         body: JSON.stringify({
             data: values,
@@ -259,5 +334,4 @@ const parseProcDatetimeInputFormat = async (inputFormat, dataType, values, isGen
         .catch((res) => {
             console.log('Can not apply format');
         });
-    return formattedData;
 };

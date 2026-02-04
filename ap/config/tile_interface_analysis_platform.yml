@@ -21,6 +21,9 @@
       - row: 1
         column: 3
         page: hmp
+      - row: 1
+        column: 4
+        page: wfp
   - title_en: 'Basic'
     title_ja: 'ベーシック'
     tiles:

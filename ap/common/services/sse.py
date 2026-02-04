@@ -6,9 +6,10 @@ import logging
 import queue
 import threading
 import time
+from collections.abc import Generator, Mapping
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Generator
+from typing import Any, ClassVar
 
 from ap import json_dumps
 from ap.common.constants import AnnounceEvent
@@ -31,7 +32,6 @@ class SSEMessage:
         format(data=json.dumps({'abc': 123}), event='Jackson 5')
         'event: Jackson 5\\ndata: {"abc": 123}\\n\\n'
         """
-
         msg = json_dumps(self.data)
         msg = f'data: {msg}\n\n'
 
@@ -41,9 +41,8 @@ class SSEMessage:
         return msg
 
     @classmethod
-    def from_background_event(cls, e: EventBackgroundAnnounce) -> 'SSEMessage':
+    def from_background_event(cls, e: EventBackgroundAnnounce) -> SSEMessage:
         """Create `SSEMessage` from `EventBackgroundAnnounce`."""
-
         return SSEMessage(data=e.data, event=e.event.name, timestamp=e.timestamp)
 
 
@@ -56,7 +55,7 @@ class SSEStreamer:
         blocking_message_timeout: int = 1,
         idle_timeout: float = 60,
         message_queue_size: int = 1000,
-    ):
+    ) -> None:
         # The streamer unique identifier
         self.uuid: str = str(uuid)
 
@@ -82,13 +81,11 @@ class SSEStreamer:
 
     def is_alive(self):
         """Check if our streamer is alive"""
-
         latest_message_query_time_diff = datetime.now() - self.latest_response
         return latest_message_query_time_diff < timedelta(seconds=self.idle_timeout)
 
     def get_message(self) -> SSEMessage | None:
         """Getting message from queue, we also update our `latest_response` depends on `sse_message.timestamp`."""
-
         with contextlib.suppress(queue.Empty):
             sse_message = self.messages.get(timeout=self.blocking_message_timeout)
             self.latest_response = sse_message.timestamp
@@ -119,7 +116,6 @@ class SSEStreamer:
 
     def stream(self) -> Generator[str, None, None]:
         """Generator for stream to front-end"""
-
         while True:
             if self.stop:
                 logger.debug(f'[SSE]: UUID = {self.uuid}; streamer stopped')
@@ -135,7 +131,7 @@ class MessageAnnouncer:
 
     # Key is the id of client (which is browser in our case)
     # Value is the specific streamer that we use to send our message to front-end
-    streamers: dict[str, SSEStreamer] = {}
+    streamers: ClassVar[dict[str, SSEStreamer]] = {}
 
     # Lock to maintain that we are not modifying streamer while reading it at the same time.
     # Though it rarely happens, we still want to avoid returning a *dead* streamer to caller.
@@ -149,7 +145,6 @@ class MessageAnnouncer:
     @classmethod
     def create_streamer(cls, uuid: str) -> SSEStreamer:
         """Create a new streamer for specific request."""
-
         # We lock it to prevent other trying to delete this streamer at the same time.
 
         # There no such case that a streamer will be deleted immediately after creation.
@@ -179,7 +174,6 @@ class MessageAnnouncer:
         Send message data to front-end by EVENT name
         :param event: event to be announced
         """
-
         sse_message = SSEMessage.from_background_event(event)
         for streamer in cls.streamers.values():
             streamer.add_message(sse_message)
@@ -190,7 +184,7 @@ class MessageAnnouncer:
 
         def decorator(fn):
             @wraps(fn)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args: Any, **kwargs: Mapping[str, Any]):
                 try:
                     result = fn(*args, **kwargs)
                     EventQueue.put(EventBackgroundAnnounce(data=percent, event=AnnounceEvent.SHOW_GRAPH))

@@ -11,6 +11,7 @@ let xAxisShowSettings;
 let availableOrderingSettings = {};
 let isShowIndexInGraphArea = false;
 let updateOrderCols = false;
+let logScaleActivated = false;
 let fppScaleOption = {
     xAxis: null,
     yAxis: null,
@@ -63,6 +64,7 @@ const formElements = {
     labelPlotContextMenu: '#showAnchorLabelPlotContextMenu',
     duplicatedSerial: '#duplicatedSerialTemp',
     timeSeriesPlotView: '#timeSeriesPlotView',
+    logScaleEnableBtn: '#logScaleEnableBtn',
 };
 
 const i18n = {
@@ -385,6 +387,7 @@ const buildGraphContainerHTML = (chartOption) => {
         catExpBoxHTML = `<span class="show-detail cat-exp-box" title="${hasLevel2 ? 'Level1 | Level2' : 'Level1'}">${catExpBox}</span>`;
     }
 
+    let canvasDOM = `<canvas id="${tsCanvasId}" chart-type="timeSeries" plotdata-index="${index - 1}" style="" ></canvas>`;
     graphCanvasHTML += `
         <div class="tschart-title-parent">
             <div class="tschart-title">
@@ -396,7 +399,7 @@ const buildGraphContainerHTML = (chartOption) => {
         <div class="row flex-grow-1">
         <div class="col-sm-${chartCols.timeSeries} td-chart-container no-padding time-series"
             id="${tsCanvasId}Outer">
-            <canvas id="${tsCanvasId}" chart-type="timeSeries" plotdata-index="${index - 1}" style="" ></canvas>
+            ${canvasDOM}
         </div>`;
 
     const whiskerCanvasHTML = `
@@ -606,6 +609,7 @@ const convertChartInfoToIndex = (data) => {
         }
     }
 };
+
 const selectScatterXY = (plots) => {
     const dicIdxs = {};
     const validCharts = [];
@@ -810,6 +814,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             stepChartSummary,
             isCTCol,
             unit: plotData.unit,
+            logScaleAvailable: arrayY && Math.min(...arrayY) >= 0,
         };
 
         // 起点とターゲット変数工程を比較する。
@@ -1258,8 +1263,16 @@ const deleteFormDataKeysDuplicate = (formData, keyRemove) => {
     return uniqueFormData;
 };
 
+const getLogScaleOption = (formData) => {
+    if (logScaleActivated) {
+        formData.set('temp_log_scale_mode', true);
+    }
+    return formData;
+};
+
 const traceData = (clearOnFlyFilter, autoUpdate) => {
     let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
+    formData = getLogScaleOption(formData);
     formData = deleteFormDataKeysDuplicate(formData, 'GET02_CATE_SELECT');
     formData = handleXSettingOnGUI(formData);
     showGraphCallApi('/ap/api/fpp/index', formData, REQUEST_TIMEOUT, async (res) => {
@@ -1603,4 +1616,10 @@ const goToGraphConfigPageFPP = (url) => {
 
     const procId = graphStore.getArrayPlotData(selectedCanvasId).end_proc_id;
     goToOtherPage(`${url}?proc_id=${procId}`, false);
+};
+
+const logScaleToggle = (ele) => {
+    logScaleActivated = $(ele).is(':checked');
+    // re-show charts by button click
+    handleSubmit(false, false);
 };

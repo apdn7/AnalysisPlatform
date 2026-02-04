@@ -15,6 +15,53 @@
     z-index: 1;
 }
 
+.filter-labels-group {
+    position: relative;
+}
+
+.filter-label-button {
+    height: 20px;
+    width: 20px;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    z-index: 1;
+    position: absolute;
+    bottom: calc(100vh - 120px);
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.label-modal-top {
+    top: 38px;
+    left: -32px;
+}
+
+.label-modal-right {
+    top: calc(-100vh + 97px);
+    right: 24px;
+}
+
+.label-modal {
+    position: absolute;
+    width: 260px;
+    height: auto;
+    border: 1px solid #303030;
+    background-color: #1b1918;
+    z-index: 9999;
+
+    border-radius: 16px;
+    padding: 10px 10px 10px 2px;
+}
+
+.filterLabelsButon:focus {
+    outline: none;
+}
+
 .graphNavButton svg {
     position: absolute;
     left: 50%;

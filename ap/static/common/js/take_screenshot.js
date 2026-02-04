@@ -180,9 +180,24 @@ const defaultCapture = () => {
         copy,
     };
 };
+
+const updateSelectedElementInMaincontent = (mainContent) => {
+    // this function modifies the selected attribute in the HTML, not in the DOM
+    // this is a workaround for https://github.com/qq15725/modern-screenshot/issues/102
+    // show graph's form data uses the DOM's selected property, so screenshot should not affect form data used to show graph
+    for (let option of mainContent.getElementsByTagName('option')) {
+        if (option.selected) {
+            option.setAttribute('selected', '');
+        } else {
+            option.removeAttribute('selected');
+        }
+    }
+};
+
 const modernScreenShotCapture = () => {
     const generator = (mainContent) => {
         $('.select2-selection__rendered').css('margin-right', '50px');
+        updateSelectedElementInMaincontent(mainContent);
         modernScreenshot.domToPng(mainContent).then((dataUrl) => {
             document.getElementById('screenshot').setAttribute('data-url', dataUrl);
             // generate filename
@@ -207,6 +222,7 @@ const modernScreenShotCapture = () => {
     };
     const copy = async (mainContent) => {
         $('.select2-selection__rendered').css('margin-right', '50px');
+        updateSelectedElementInMaincontent(mainContent);
         modernScreenshot.domToPng(mainContent).then(async (dataUrl) => {
             $('.select2-selection__rendered').css('margin-right', '0');
             const response = await fetch(dataUrl);

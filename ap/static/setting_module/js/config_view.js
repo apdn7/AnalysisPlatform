@@ -61,6 +61,7 @@ const eles = {
     useOSTZConfirmBtn: '#useOSTZConfirmBtn',
     contextMenuName: '[name=contextMenu]',
     withImport: '#withImport',
+    importLimit: '#importLimit',
     changeAllFreqSameDS: '#changeAllFreqSameDS',
 };
 
@@ -99,7 +100,13 @@ const loading = $('#configLoadingScreen');
 loading.css('display', 'none');
 
 $(() => {
+    $('#import-limit-confirm-modal').on('hidden.bs.modal', () => {
+        $(eles.importLimit).val(DB.getImportLimit());
+    });
+
     stickyHeaders.load($('#dataLinkGroup'));
+
+    DB.setImportLimit($(eles.importLimit).val());
 
     collapseConfig();
     $('#userBookmarkBar').hide();
@@ -163,7 +170,6 @@ const getDBItems = () => {
 
 // Update polling freq
 const UpdatePollingFreq = (pf, withImport = 'NO') => {
-    // todo check this func
     let importFlg = false;
     if (withImport === 'YES') {
         importFlg = true;
@@ -187,6 +193,29 @@ const UpdatePollingFreq = (pf, withImport = 'NO') => {
         })
         .catch((json) => {
             displayRegisterMessage('#alert-msg-db', json.flask_message);
+        });
+};
+
+// Update import limit
+const updateImportLimit = (importLimit) => {
+    const data = {
+        IMPORT_LIMIT: importLimit,
+    };
+
+    fetch('api/setting/update_import_limit', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then((response) => response.clone().json())
+        .then((json) => {
+            showToastrMsg($('#i18nUpdateImportLimitSuccess').text(), MESSAGE_LEVEL.INFO);
+        })
+        .catch((json) => {
+            showToastrMsg($('#i18nUpdateImportLimitFailed').text(), MESSAGE_LEVEL.ERROR);
         });
 };
 

@@ -42,7 +42,7 @@ GREEK_U_RE = re.compile(r'[μµ]')
 
 def convert_irregular(char):
     """
-    except cases:
+    Except cases:
         ① - ⑩ (9312 - 9321)
     """
     char_code = ord(char)

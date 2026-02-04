@@ -90,7 +90,7 @@
 {% endmacro %}
 
 <!--  selectbox ex:procs-->
-{% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false, no_link_data=false, multiple_cols=true, id='') %}
+{% macro single_selectbox(name, label,items, selected,label_block_cnt = 1,selectbox_block_cnt = 11, is_required=false, no_link_data=false, multiple_cols=true, id='', class_name='') %}
     <div class="mb-2 row">
         {% if label != '' %}
             <label for="{{ id or name }}" class="col-sm-{{ label_block_cnt }} col-form-label label-right">
@@ -102,7 +102,7 @@
         {% endif %}
         <div class="col-sm-{{ col }}">
             <select
-                class="form-control select2-selection--single {{ 'select-n-columns' if multiple_cols else '' }} {{ 'required-input' if is_required else '' }}"
+                class="form-control select2-selection--single {{ 'select-n-columns' if multiple_cols else '' }} {{ 'required-input' if is_required else '' }} {{ class_name }}"
                 name="{{ name }}"
                 id="{{ id or name }}"
                 data-observer=""
@@ -1036,7 +1036,6 @@
                 {% if showDataFinder %}
                     <button
                         type="button"
-                        onclick="showDataFinderModal(this)"
                         name="dataFinderBtn"
                         style="position: absolute; top: 3px; right: 3px; display: none"
                         class="btn btn-sm btn-primary"
@@ -1148,7 +1147,7 @@
 {% macro start_proc_select(procs=[], no_link_data=false) %}
     <div class="">
         {{ sub_label(_('Start point'), title=_('If you do not select start process, the process of the first target variable will be start process.'), hl=' pb-1') }}
-        {{ single_selectbox('start_proc','', procs, no_link_data=no_link_data) }}
+        {{ single_selectbox('start_proc','', procs, no_link_data=no_link_data, class_name='process-selector') }}
     </div>
 {% endmacro %}
 
@@ -1282,7 +1281,6 @@
                             <input name="START_TIME" class="form-control" id="cyclicTermStartTime" type="text" hidden />
                             <button
                                 type="button"
-                                onclick="showDataFinderModal(this)"
                                 name="dataFinderBtn"
                                 style="position: absolute; top: 3px; right: 3px; display: none"
                                 class="btn btn-sm btn-primary"
@@ -1388,7 +1386,6 @@
                                 <input name="END_TIME" class="form-control" id="endTime1" type="text" hidden />
                                 <button
                                     type="button"
-                                    onclick="showDataFinderModal(this)"
                                     name="dataFinderBtn"
                                     style="position: absolute; top: 3px; right: 20px; display: none"
                                     class="btn btn-sm btn-primary"
@@ -1465,16 +1462,20 @@
                             <label class="mr-2 mb-0" title="{{ _('Divide format hover msg') }}">
                                 <span class="hint-text sub-label">{{ _('Divide format') }}</span>
                             </label>
-                            <div class="custom-selection-section">
+                            <div class="custom-selection-section custom-selection-section-event">
                                 <div
-                                    class="custom-selection gui-custom-selection"
+                                    class="custom-selection custom-selection-event gui-custom-selection"
                                     style="width: auto; min-width: 240px"
                                     id="cyclicCalender-selection"
                                 >
                                     <span id="cyclicCalender">yyyy-mm-dd 2022-04-01</span>
                                     <span class="selection__arrow"><b></b></span>
                                 </div>
-                                <div class="custom-selection-content" style="width: auto" id="cyclicCalender-content">
+                                <div
+                                    class="custom-selection-content custom-selection-content-event"
+                                    style="width: auto"
+                                    id="cyclicCalender-content"
+                                >
                                     <div class="cyclic-calender-select-option">
                                         <div class="cyclic-calender-option-list">
                                             <div class="cyclic-calender-option-item">
@@ -1702,8 +1703,10 @@
         {% set cleansing_option = ['['] + cleansing_option + [']'] %}
     {% endif %}
     {% set cleansing_val = cleansing_option|join('') %}
-    <div class="d-flex justify-content-center align-items-center custom-selection-section">
-        <div class="custom-selection gui-custom-selection" id="cleansing-selection">
+    <div
+        class="d-flex justify-content-center align-items-center custom-selection-section custom-selection-section-event"
+    >
+        <div class="custom-selection custom-selection-event gui-custom-selection" id="cleansing-selection">
             <input type="hidden" name="cleansing" value="" />
             <span
                 >{{ _('Cleansing') }}
@@ -1712,7 +1715,7 @@
             </span>
             <span class="selection__arrow"><b></b></span>
         </div>
-        <div class="custom-selection-content" id="cleansing-content">
+        <div class="custom-selection-content custom-selection-content-event" id="cleansing-content">
             <div class="custom-control custom-checkbox">
                 <input
                     class="custom-control-input"
@@ -2004,12 +2007,12 @@
 {% macro variable_ordering_mac() %}
     <div class="d-flex justify-content-center align-items-center ml-4">
         <span class="mr-2">{{ _('Order') }}</span>
-        <div class="custom-selection-section">
-            <div class="custom-selection border-white" id="ordering-selection">
+        <div class="custom-selection-section custom-selection-section-event">
+            <div class="custom-selection custom-selection-event border-white" id="ordering-selection">
                 <span id="ordering-name">{{ _('In order of corr') }}</span>
                 <span class="selection__arrow"><b></b></span>
             </div>
-            <div class="custom-selection-content" id="ordering-content">
+            <div class="custom-selection-content custom-selection-content-event" id="ordering-content">
                 <div class="form-check">
                     <label class="form-check-label" for="sort-by-selected-order">
                         <input
@@ -2163,119 +2166,11 @@
     </div>
 {% endmacro %}
 
-{% macro data_finder_modal() %}
-    <div id="data-finder-modal" class="data-finder position-relative">
-        <span class="data-finder-close" onclick="closeCalenderModal()"><i class="fa fa-times"></i></span>
-        <div class="data-finder-calendar">
-            <div id="data-finder-year" class="calender-box year-calendar" style="display: none"></div>
-            <div id="data-finder-month" class="calender-box month-calendar"></div>
-            <div id="data-finder-week" class="calender-box week-calendar" style="display: none"></div>
-        </div>
-        <div class="data-finder-action">
-            <input name="data-finder-from" id="data-finder-from" class="form-control" type="text" hidden />
-            <input name="data-finder-from" id="data-finder-to" class="form-control" type="text" hidden />
-            <div class="action">
-                <div class="action-offset">
-                    <label id="dataFinderInputLabel" for="data-finder-input">From To</label>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="form-group">
-                        <input
-                            name="data-finder-input"
-                            id="data-finder-input"
-                            class="form-control"
-                            placeholder="マップをクリックしてください"
-                            type="text"
-                        />
-                    </div>
-
-                    <div class="action-button">
-                        <div class="action-button-group">
-                            <button
-                                type="button"
-                                onclick="handleBackToCalender('month')"
-                                class="btn btn-sm btn-secondary for-data-finder for-data-finder-week"
-                            >
-                                Month
-                            </button>
-                            <button
-                                type="button"
-                                onclick="handleGoToCalender('year')"
-                                class="btn btn-sm btn-secondary for-data-finder for-data-finder-month"
-                            >
-                                Year
-                            </button>
-                        </div>
-                        <div class="action-button-group">
-                            <button type="button" onclick="closeCalenderModal()" class="btn btn-sm btn-secondary">
-                                Cancel
-                            </button>
-                        </div>
-                        <div class="action-button-group d-flex">
-                            <button
-                                type="button"
-                                onclick="handleGoToCalender('month')"
-                                style="margin-right: 8px"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder-year"
-                            >
-                                Month
-                            </button>
-                            <button
-                                type="button"
-                                id="dataFinderWeekBtn"
-                                onclick="handleGoToCalender('week')"
-                                style="margin-right: 8px"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder-month"
-                            >
-                                Week
-                            </button>
-                            <button
-                                type="button"
-                                onclick="handleSetValueToDateRangePicker()"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder-week for-data-finder-month for-data-finder-year"
-                            >
-                                Set
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="single-month-calendar single-calendar position-fixed" style="display: none">
-        <div class="single-month-calendar-header single-calendar-header">
-            <div class="single-month-calendar-title single-calendar-title" id="singleMonthCalendarShowYear"></div>
-            <div class="single-month-calendar-action single-calendar-action">
-                <i class="fa fa-arrow-up" id="singleMonthCalendarGoToNextYear"></i>
-                <i class="fa fa-arrow-down" id="singleMonthCalendarGoToPrevYear"></i>
-            </div>
-        </div>
-        <div class="single-month-calendar-body single-calendar-body" id="singleMonthCalendarBody"></div>
-        <div class="single-month-calendar-bottom single-calendar-bottom">
-            <div class="action" id="singleMonthCalendarThisWeek">{{ _('This week') }}</div>
-        </div>
-    </div>
-
-    <div class="single-date-calendar single-calendar position-fixed" style="display: none">
-        <div class="single-date-calendar-header single-calendar-header">
-            <div class="single-date-calendar-title single-calendar-title" id="singleDateCalendarShowYearMonth"></div>
-            <div class="single-date-calendar-action single-calendar-action">
-                <i class="fa fa-arrow-up" id="singleDateCalendarGoToNextMonth"></i>
-                <i class="fa fa-arrow-down" id="singleDateCalendarGoToPrevMonth"></i>
-            </div>
-        </div>
-        <div class="single-date-calendar-body single-calendar-body" id="singleDateCalendarBody"></div>
-        <div class="single-date-calendar-bottom single-calendar-bottom">
-            <div class="action" id="singleDateCalendarThisDate">{{ _('Today') }}</div>
-        </div>
-    </div>
-{% endmacro %}
-
 {% macro data_finder_card() %}
     <div id="data-finder-card" class="card-body table-bordered graph-navi" style="display: none">
         <div class="row">
             <div class="col-xl-2 col-3">{{ label(_('Data Finder'), title=_('DataFinderHoverMsg')) }}</div>
-            <div class="col-xl-10 col-9">{{ data_finder_modal() }}</div>
+            <div class="col-xl-10 col-9" id="data-finder-div"></div>
         </div>
     </div>
 {% endmacro %}
@@ -2640,7 +2535,7 @@
             <label
                 for="{{ dbs_type }}pollingFreq"
                 class="col-form-label vertical-center"
-                style="margin: 0 15px 0 0; padding: 0;"
+                style="margin: 0; padding: 0;"
             >
                 <h5 class="mr-2 mb-0">{{ _("Polling Frequency") }}</h5>
             </label>
