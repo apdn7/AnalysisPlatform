@@ -1,5 +1,101 @@
 # Releases
 
+## 4.9.0
+
+Core changes
+
+- Updated installer
+- Now AP+DN7 uses Python version 3.12
+  - The upgrade process may take additional time due to downloading Python and the required modules.
+
+New features
+
+- (Common)
+- (FPP)
+  - Log scale for y-axis is now available
+- (AgP)
+  - Now has an option to order x-axis, by Div or by the values of Y axis  
+- (SkD)
+  -  When jumping from SkD to pages, the category objective variable selected will be selected as a facet.
+- (CHM)
+  - Added percentage information for Count mode
+- (WfP)
+  - Added Waveform Plot (WfP). Now you can
+  - Added sample data (`WfP_sample_data`) and a sample bookmark for WfP (`13-1 WfP`).  
+  - Description
+  ```plaintext
+  You can visualize waveforms for each cycle.
+  Multiple waveforms can be plotted on a single graph, and coloring is also supported.
+  For example, by comparing press‑fit waveforms, current waveforms,
+  or vibration waveforms of good and defective products,
+  you can identify rising‑edge changes in specific sections or detect variations in peak positions.
+  ```
+
+- (Config)
+  - Process Config: Added `Import Limit`
+    - This configures the maximum number of rows to store for each process.
+    - If the number of rows exceeds the limit, the oldest data will be deleted first.  
+  - Process Config: Added `Labels`
+    - You can assign any label to each process.
+    - These labels can be used for filtering.  
+    - Also, you can set filter on the upper right hand corner, to filter processes shown in the visualization pages.  
+  - Process Config: Enabled conversion formula for Datetime-related columns    
+
+- (Misc)
+  - Added Data Export Config
+    - Now supports exporting data to specified directory (only once, or periodically).  
+   
+Improvements
+
+- (Common)
+  - Improved the expand button for variable names in show graph pages. Display length is adjusted when variable names are long. 
+  - When a process is removed in Show graph pages, its corresponding Filter Configuration will also disappear.
+  - When `disable_config_from_external` is `true`, users from clients other than the host machine will also not be able to edit bookmarks.
+- (PCP)
+  - Data selecting feature now supports selecting NA and infinite values 
+  - Now shows warning if the type of objective variable is not suitable
+- (Config)
+  - Data Source Config: Improved performance for bulk registering (use s background job when necessary) 
+  - Process Config: Improved frontend performance 
+  - Process Config: Now Datatype `Judge` is automatically set only if the data is string type and the original column name is Judge or 判定.
+  - Process Config: Conversion formula for `Judge` now supports NA as a positive value.
+  - Process Config: Now shows warning when filter configuration is changed, or the Conversion formula for `Judge` is changed.
+  - Process Config: Datetime::key columns are no longer included in duplicate check
+  - Process Config: Filename column is ignored when using Select All or Auto Select 
+  - Process Config; AP+DN7 will now attempt to connect to the datasource when previewing process and only use preview cache when this fails. Shows warning when the preview data is different from the preview cache .
+  - Filter Config: Improved usability. When selected, filter value is appended to filter name automatically     
+  - Merge Mode: Improved usability.
+    - Allows re-registration (no need to delete and set up from scratch anymore).
+    - Parent process data can now be initialized during re-registration to ensure data integrity.
+  - Data link: Removed some unnecessary messages
+
+Bug fixes 
+
+- (Common)
+  - Fixed an issue where the selected values of items are not correctly reflected in screenshots.
+  - Fixed an issue where transaction database might be locked when importing data
+  - Fixed an issue with data link, where processing slowed down when the data types of data-link keys differed.
+  - Fixed a migration issue where legacy jobs can cause errors
+  - Fixed an issue where the confirmation modal to Abort the Show Graph process cannot be clicked 
+- (SkD)
+  - Fixed an issue where SkD does not use category classification for category variables with more than 2 unique values 
+- (RLP)
+  - Fixed a bug where Judge column in RLP is not correctly plotted and raises errors 
+- (Related to data import)
+  - Data source config: Fixed an issue where file names are not appropriately imported when using `Optional function`.
+  - Data source config: Fixed an issue with Data Pull feature (Snowflake) where processes without columns can cause errors for other processes 
+  - Fixed an issue where data is not imported when the size of a data chunk exceeds a certain value 
+- (Config)
+  - Process Config: Fixed an issue where a value like 200000-1234 is identified as datetime. They are now identified as text instead 
+  - Process Config: Fixed a migration issue where function columns without x variable causes errors in the application 
+  - Process Config: Fixed an issue where orphaned function columns cannot be deleted 
+  - Process Config: Fixed a validation issue where error messages are not shown when function columns are created using unchecked columns 
+  - Process Config: Fixed an issue where changing a function column to a me.function column and vice versa can cause errors 
+  - Data link config: Fixed an issue where arrow directions in Data Link network cannot be swapped
+  - Data link config: Fixed an issue where process link counts are not correctly updated 
+  - Data link config: Fixed some performance issues of Data Link causing the browser to consume a lot of memory    
+  - Merge mode: Fixed an issue in Merge Mode where unlinked columns are displayed as linked 
+
 ## 4.8.1
 
 Core changes

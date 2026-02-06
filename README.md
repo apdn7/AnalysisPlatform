@@ -56,6 +56,8 @@ The Analysis Platform currently supports following data sources:
 * PostgreSQL
 * SQL Server
 * Oracle Database
+* Snowflake
+* Web
 
 ## Terms of Use
 
@@ -64,9 +66,6 @@ On your first access to the application, you must read and agree to [Terms of Us
 ## Requirements
 
 * Windows (Tested with Windows 10), Windows Server
-* Python (>=3.6) (Tested with Python 3.9.0, pip 22.2)
-  * If you are going to use the Windows embeddable package, you do not have to install Python in your machine.  
-  (See section: For users)
 
 ## Getting Started
 
@@ -116,7 +115,7 @@ then copy entire files.
 
 The Analysis Platform uses [Flask](https://flask.palletsprojects.com/en/latest/) framework.
 
-* Python (>=3.6) (Tested with Python 3.9.0)
+* Python (>=3.12) (Tested with Python 3.12.10)
 
 First, pull this repository to your PC.  
 
