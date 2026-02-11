@@ -5,7 +5,7 @@
 # Analysis Platform
 
 ```
-2025-10-13: version 4.8.1
+2026-2-11: version 4.9.0
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
@@ -182,6 +182,10 @@ Data is stored as TSV file under the subdirectories in [/sample_data](/sample_da
   * alarm_daily.tsv
 * /AgP_sample_data: PartNo, Ok/NG, NG_Mode, and pressure data
   * AgP_sample.tsv
+* /HMp_sample_data
+  * wafermap.tsv
+* /WfP_sample_data: ElapseTime, PressFitLoad
+  * wfp_sample_data.csv
 
 Above data will be automatically imported after activation.  
 You can call each sample visualization from 'Load' or 'Bookmark' on upper right corner of GUI.
@@ -201,8 +205,6 @@ or you can just remove each data source setting from GUI.
 
 You can get some materials to use for educating AP+DN7.
 
-* [APDN7_eduational_materials.zip](https://github.com/apdn7/AnalysisPlatform/releases/download/v4.8.1/APDN7_educational_materials.zip): This file includes following materials
+* [APDN7_eduational_materials.zip](https://github.com/apdn7/AnalysisPlatform/releases/latest/download/APDN7_educational_materials.zip): This file includes following materials
   * Document (JA): Basic introduction of AP+DN7 and task description of hands-on data analysis
   * Toy data set (`instance folder` = Data pre-imported into AP+DN7)
-    * Compatible with AP+DN7 version 4.8.0 or later
-    * For the older versions (e.g. 4.7.10), use the [past data set](https://github.com/apdn7/AnalysisPlatform/releases/download/v4.7.10/APDN7_educational_materials.zip)
