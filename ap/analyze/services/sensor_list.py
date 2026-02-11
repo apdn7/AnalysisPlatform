@@ -10,7 +10,7 @@ from ap.trace_data.transaction_model import TransactionData
 
 
 def get_checked_cols():
-    """get all checked columns
+    """Get all checked columns
 
     Yields:
         [type] -- [description]
@@ -29,7 +29,7 @@ def get_checked_cols():
 
 
 def filter_data(data, filter_func):
-    """filter data func
+    """Filter data func
 
     Arguments:
         data {[type]} -- [description]
@@ -44,7 +44,7 @@ def filter_data(data, filter_func):
 
 
 def filter_data_type(dic_row):
-    """filter only real and integer columns
+    """Filter only real and integer columns
 
     Arguments:
         dic_row {[type]} -- [description]
@@ -83,7 +83,7 @@ def produce_sample_value_str(sensor_vals=[], effective_length=29, max_length=32)
 
 
 def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
-    tooltip = [{'pos': '{col}:'.format(col=col_name), 'val': ''}]
+    tooltip = [{'pos': f'{col_name}:', 'val': ''}]
     head = [{'pos': idx + 1, 'val': sample} for idx, sample in enumerate(lst_sensor_vals[0:num_head_tail])]
     tooltip.extend(head)
 
@@ -103,7 +103,7 @@ def produce_tool_tip_data(col_name='', lst_sensor_vals=[], num_head_tail=10):
 
 @log_execution_time()
 def get_sample_data(columns, limit=None):
-    """get sample data from database
+    """Get sample data from database
 
     Arguments:
         data {[type]} -- [description]
@@ -174,7 +174,7 @@ def get_sample_data(columns, limit=None):
 
 
 def get_sensors_incrementally():
-    """get sensors with filtered
+    """Get sensors with filtered
 
     Returns:
         [type] -- [description]

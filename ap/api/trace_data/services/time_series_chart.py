@@ -124,6 +124,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
         temp_serial_order,
         temp_serial_process,
         temp_x_option,
+        is_log_scale_mode,
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
@@ -216,7 +217,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
                 dic_param[ARRAY_PLOTDATA][index][NegRatio.NEG_RATIO.value] = bin_df.to_dict(orient='records')
                 dic_param[ARRAY_PLOTDATA][index][NEG_CUMSUM] = cumulative_sum.to_dict(orient='records')
     # calculate_summaries
-    calc_summaries(dic_param)
+    calc_summaries(dic_param, is_log_scale_mode)
 
     # calc common scale y min max
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param.get(ARRAY_PLOTDATA, []), str_cols)
@@ -274,7 +275,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
         dic_param = gen_thin_dic_param(graph_param, df, dic_thin_param, dic_cat_exp_labels, dic_ranks)
         dic_param[IS_THIN_DATA] = is_thin_data
 
-        for plot, summary, neg_ratio in zip(dic_param[ARRAY_PLOTDATA], list_summaries, list_neg_ratio):
+        for plot, summary, neg_ratio in zip(dic_param[ARRAY_PLOTDATA], list_summaries, list_neg_ratio, strict=False):
             plot[SUMMARIES] = summary
             # check the index of the list_neg_ratio
             if neg_ratio is not None:
@@ -304,7 +305,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     )
 
     # kde
-    gen_kde_data_trace_data(dic_param, full_arrays)
+    gen_kde_data_trace_data(dic_param, full_arrays, is_log_scale_mode)
 
     # add unique category values
     for dic_cate in dic_param.get(CATEGORY_DATA) or []:
@@ -464,7 +465,6 @@ def gen_df_thin_values(
     More specifically, each series in `df_cat_exp` is a pair:
     (`index`, `df's value of df's index`)
     """
-
     df_cat_exp = pd.DataFrame()
     df_cat_exp[TIME_COL] = df_thin[TIME_COL]
     if CAT_EXP_BOX in df_thin.columns:
@@ -472,9 +472,9 @@ def gen_df_thin_values(
 
     for proc in graph_param.array_formval:
         orig_sql_label_serial = gen_sql_label(SERIAL_DATA, proc.proc_id)
-        time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
+        time_col_alias = f'{TIME_COL}_{proc.proc_id}'
 
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             col_id_name = gen_sql_label(col_id, col_name)
             cols_in_df = [col for col in df_thin.columns if col.startswith(col_id_name)]
             target_col_info = dic_str_cols.get(col_id_name)
@@ -567,7 +567,7 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
             SERIAL_COLUMNS: serial_cols,
         }
         cols = []
-        for sql_label, before_rank_label in zip(sql_labels, before_rank_sql_labels):
+        for sql_label, before_rank_label in zip(sql_labels, before_rank_sql_labels, strict=False):
             if before_rank_label in df.columns:
                 cols.append(before_rank_label)
             else:

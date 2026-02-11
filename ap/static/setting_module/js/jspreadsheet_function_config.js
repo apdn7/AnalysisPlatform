@@ -26,6 +26,7 @@
  * @property {string} sample_data_5
  * @property {?string} index
  * @property {?boolean} isMainSerialNo
+ * @property {?boolean} isMainDatetime
  * @property {?boolean} isMeFunction
  * @property {string} shownName
  * @property {number | string} processColumnId
@@ -83,6 +84,7 @@ class SpreadSheetFunctionConfig {
         // hidden columns
         Index: 'index',
         IsMainSerialNo: 'isMainSerialNo',
+        IsMainDatetime: 'isMainDatetime',
         IsMeFunction: 'isMeFunction',
         ShownName: 'shownName',
         ProcessColumnId: 'processColumnId',
@@ -130,6 +132,7 @@ class SpreadSheetFunctionConfig {
         // hidden columns
         classes[this.ColumnNames.Index] = ['column-index'];
         classes[this.ColumnNames.IsMainSerialNo] = ['column-is-main-serial-no'];
+        classes[this.ColumnNames.IsMainDatetime] = ['column-is-main-datetime'];
         classes[this.ColumnNames.IsMeFunction] = ['column-is-me-function'];
         classes[this.ColumnNames.ShownName] = ['column-shown-name'];
         classes[this.ColumnNames.ProcessColumnId] = ['column-process-column-id'];
@@ -216,7 +219,21 @@ class SpreadSheetFunctionConfig {
         }
         return _.first(
             this.table.findRows({
-                [SpreadSheetFunctionConfig.ColumnNames.Output]: (cell) => cell.data.startsWith('main::'),
+                [SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo]: (cell) => cell.data,
+            }),
+        );
+    }
+
+    /**
+     * @returns {ExcelTableRow | null}
+     */
+    mainDatetimeRow() {
+        if (!this.isValid()) {
+            return null;
+        }
+        return _.first(
+            this.table.findRows({
+                [SpreadSheetFunctionConfig.ColumnNames.IsMainDatetime]: (cell) => cell.data,
             }),
         );
     }
@@ -252,6 +269,39 @@ class SpreadSheetFunctionConfig {
         return _.first(
             this.table.findRows({
                 [SpreadSheetFunctionConfig.ColumnNames.Output]: (cell) => cell.rowIndex === rowIndex,
+            }),
+        );
+    }
+
+    /**
+     *
+     * @param columnId
+     * @return {ExcelTableRow | null}
+     */
+
+    getFunctionRowWithColumnAsYVar(columnId) {
+        if (!this.isValid()) {
+            return null;
+        }
+        return _.first(
+            this.table.findRows({
+                [SpreadSheetFunctionConfig.ColumnNames.VarYProcessColumnId]: (cell) => cell.data === columnId,
+            }),
+        );
+    }
+
+    /**
+     *
+     * @param columnId
+     * @return {ExcelTableRow | null}
+     */
+    getFunctionRowWithColumnAsXVar(columnId) {
+        if (!this.isValid()) {
+            return null;
+        }
+        return _.first(
+            this.table.findRows({
+                [SpreadSheetFunctionConfig.ColumnNames.VarXProcessColumnId]: (cell) => cell.data === columnId,
             }),
         );
     }
@@ -792,6 +842,7 @@ class SpreadSheetFunctionConfig {
             // update output to upper case because when use copy/paste raw out put changed to lower case
             functionInfoDict.output.toUpperCase(),
             functionInfoDict.isMainSerialNo,
+            functionInfoDict.isMainDatetime,
         );
         (functionInfoDict.sampleDatas ?? []).every((sample, idx) => {
             if (idx > 4) return false;
@@ -801,6 +852,7 @@ class SpreadSheetFunctionConfig {
 
         rowData[SpreadSheetFunctionConfig.ColumnNames.Index] = functionInfoDict.index;
         rowData[SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo] = functionInfoDict.isMainSerialNo;
+        rowData[SpreadSheetFunctionConfig.ColumnNames.IsMainDatetime] = functionInfoDict.isMainDatetime;
         rowData[SpreadSheetFunctionConfig.ColumnNames.IsMeFunction] = functionInfoDict.isMeFunction;
         rowData[SpreadSheetFunctionConfig.ColumnNames.ShownName] = functionInfoDict.shownName;
         rowData[SpreadSheetFunctionConfig.ColumnNames.ProcessColumnId] = functionInfoDict.processColumnId;
@@ -854,6 +906,7 @@ class SpreadSheetFunctionConfig {
 
         functionInfoDict.index = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.Index];
         functionInfoDict.isMainSerialNo = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo];
+        functionInfoDict.isMainDatetime = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMainDatetime];
         functionInfoDict.isMeFunction = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMeFunction];
         functionInfoDict.shownName = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.ShownName];
         functionInfoDict.processColumnId =
@@ -1027,6 +1080,10 @@ class SpreadSheetFunctionConfig {
             {
                 type: 'hidden',
                 name: this.ColumnNames.IsMainSerialNo,
+            },
+            {
+                type: 'hidden',
+                name: this.ColumnNames.IsMainDatetime,
             },
             {
                 type: 'hidden',

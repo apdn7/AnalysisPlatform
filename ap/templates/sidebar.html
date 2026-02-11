@@ -109,18 +109,16 @@
                         <span class="nav-text hint-text">{{ _('Heatmap Plot Page Title') }}</span></a
                     >
                 </li>
-                <!-- unavailable on v4.8.0
-{#                <li data-search="Tv TimeVis {{ _('TimeVis') }}">#}
-{#                    <a#}
-{#                        href="{{ url_for('waveform_plot.index') }}"#}
-{#                        class="go-to-page"#}
-{#                        title="{{ _('TV Page title description') }}"#}
-{#                    >#}
-{#                        <span class="page-character">TV</span>#}
-{#                        <span class="nav-text hint-text">{{ _('TimeVis') }}</span></a#}
-{#                    >#}
-{#                </li>#}
-                -->
+                <li data-search="WfP waveform plot {{ _('Waveform plot') }}">
+                    <a
+                        href="{{ url_for('waveform_plot.index') }}"
+                        class="go-to-page"
+                        title="{{ _('Waveform Plot Description') }}"
+                    >
+                        <span class="page-character">WfP</span>
+                        <span class="nav-text hint-text">{{ _('Waveform plot') }}</span></a
+                    >
+                </li>
                 <li data-search="PCP Parallel Coordinates Plot {{ _('Parallel Coordinates Plot') }}">
                     <a
                         href="{{ url_for('parallel_plot.index') }}"
@@ -228,6 +226,11 @@
                 <li data-search="Data Link Config {{ _('Data Link Config') }}">
                     <a href="{{ url_for('setting_module.config_screen') }}#data_link" class="go-to-page"
                         ><span class="nav-text">{{ _('Data Link Config') }}</span></a
+                    >
+                </li>
+                <li data-search="Data Export Config {{ _('SidebarTitleDataExport') }}">
+                    <a href="{{ url_for('setting_module.export_config') }}" class="go-to-page"
+                        ><span class="nav-text">{{ _('SidebarTitleDataExport') }}</span></a
                     >
                 </li>
                 <li data-search="Filter Config {{ _('Filter Config') }}">

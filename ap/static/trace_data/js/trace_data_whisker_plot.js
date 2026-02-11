@@ -1,6 +1,7 @@
 const whiskerPlot = (ctx, prop) => {
     const left = 0;
     const right = 3;
+    const EPSILON = 1e-10;
 
     let tickConfig = {
         rotation: 0,
@@ -49,6 +50,7 @@ const whiskerPlot = (ctx, prop) => {
                 // },
             },
             y: {
+                type: 'linear',
                 min: prop.minY,
                 max: prop.maxY,
                 title: {
@@ -105,6 +107,11 @@ const whiskerPlot = (ctx, prop) => {
         },
     };
 
+    let lowerWhisker = prop.p0_org;
+    if (lowerWhisker < 0 && logScaleActivated) {
+        lowerWhisker = EPSILON;
+    }
+
     if (!isEmpty(prop.q3_org) && !isEmpty(prop.p100_org)) {
         chartOptions.plugins.annotation.annotations.q3Max = {
             type: 'box',
@@ -121,7 +128,7 @@ const whiskerPlot = (ctx, prop) => {
             type: 'box',
             xMin: (left + right) / 2,
             xMax: (left + right) / 2,
-            yMin: prop.p0_org,
+            yMin: lowerWhisker,
             yMax: prop.q1_org,
             borderColor: '#89b368',
         };
@@ -177,8 +184,8 @@ const whiskerPlot = (ctx, prop) => {
             type: 'box',
             xMin: left,
             xMax: right,
-            yMin: prop.p0_org,
-            yMax: prop.p0_org,
+            yMin: lowerWhisker,
+            yMax: lowerWhisker,
             borderColor: '#89b368',
         };
     }
@@ -194,6 +201,13 @@ const whiskerPlot = (ctx, prop) => {
         });
     } catch (e) {
         console.log(e);
+    }
+
+    // Redraw the chart with a logarithmic scale if logScaleActivated is true.
+    // This applies only to numeric data, as whisker plots are shown for numeric data only.
+    // No need to check for category chart types.
+    if (logScaleActivated) {
+        chartOptions.scales.y.type = 'logarithmic';
     }
 
     const chart = new Chart(ctx, {

@@ -15,7 +15,6 @@ const CLASSES_FUNCTION = 'sample-data show-raw-text';
 const ARRAY_ANS = ['a', 'n', 's'];
 const ARRAY_BK = ['b', 'k'];
 const ARRAY_CT = ['c', 't'];
-let selectedFunctionColumnInfo = null;
 let mainSerialFunctionColumnInfo = null;
 let dbFunctionCols = [];
 let /** @type {function(): void} */ removeAllSyncEvents;
@@ -30,9 +29,15 @@ const functionConfigElements = {
         'confirmChangeIsMainSerialFunctionColumnModal',
     ),
     /** @type HTMLSelectElement */
+    confirmCheckIsMainDatetimeModal: document.getElementById('confirmCheckIsMainDatetimeModal'),
+    /** @type HTMLSelectElement */
     confirmReloadFunctionColumnModal: document.getElementById('confirmReloadFunctionColumnModal'),
     /** @type HTMLSelectElement */
     confirmUncheckMainSerialFunctionColumnModal: document.getElementById('confirmUncheckMainSerialFunctionColumnModal'),
+    /** @type HTMLSelectElement */
+    confirmUncheckMainDatetimeFunctionColumnModal: document.getElementById(
+        'confirmUncheckMainDatetimeFunctionColumnModal',
+    ),
     /** @type HTMLSelectElement */
     confirmAnyChangeDefinitionMainSerialFunctionColumnModal: document.getElementById(
         'confirmAnyChangeDefinitionMainSerialFunctionColumnModal',
@@ -43,8 +48,10 @@ const functionConfigElements = {
     functionDetailsElement: document.getElementById('functionDetails'),
     /** @type HTMLSpanElement */
     outputElement: document.querySelector('#functionOutput span'),
-    /** @type HTMLSpanElement */
+    /** @type HTMLInputElement */
     isMainSerialCheckboxElement: document.querySelector('#is_main_serial'),
+    /** @type HTMLInputElement */
+    isMainDatetimeCheckboxElement: document.querySelector('#is_main_datatime'),
     /** @type HTMLInputElement */
     systemNameElement: document.querySelector('#functionColumnSystemName input'),
     /** @type HTMLInputElement */
@@ -184,6 +191,7 @@ function htmlToElement(html) {
  * @property {string[]} sampleDatas - sample data
  * @property {?boolean} isChecked - true: function is checked, otherwise
  * @property {?boolean} isMainSerialNo - true: function is main::Serial, otherwise
+ * @property {?boolean} isMainDatetime - true: function is main::Datetime, otherwise
  * @property {?boolean} isMeFunction - true: function is me function, otherwise
  * @property {?string} shownName - shown name of function column
  * @property {?number|string} processColumnId - id of process column
@@ -250,6 +258,7 @@ class FunctionInfo {
             functionName = '',
             output = '',
             isMainSerialNo = false,
+            isMainDatetime = false,
             systemName = '',
             japaneseName = '',
             localName = '',
@@ -272,6 +281,7 @@ class FunctionInfo {
 
         this.functionName = functionName;
         this.isMainSerialNo = String(isMainSerialNo) === 'true';
+        this.isMainDatetime = String(isMainDatetime) === 'true';
         this.output = output;
         this.systemName = systemName;
         this.japaneseName = japaneseName;
@@ -429,6 +439,7 @@ class FunctionInfo {
         const coeCT = functionConfigElements.coeCTElement.value.trim();
         const note = functionConfigElements.noteElement.value.trim();
         const isMainSerialNo = functionConfigElements.isMainSerialCheckboxElement.checked;
+        const isMainDatetime = functionConfigElements.isMainDatetimeCheckboxElement.checked;
 
         const sampleDatas = (functionConfigElements.sampleDataElement.result ?? []).map((element) =>
             String(element ?? '').trim(),
@@ -438,6 +449,7 @@ class FunctionInfo {
             functionName,
             output,
             isMainSerialNo,
+            isMainDatetime,
             systemName,
             japaneseName,
             localName,
@@ -499,6 +511,7 @@ class FunctionInfo {
         functionConfigElements.coeCTElement.value = String(this.coeCT);
         functionConfigElements.noteElement.value = String(this.note);
         functionConfigElements.isMainSerialCheckboxElement.checked = String(this.isMainSerialNo) === 'true';
+        functionConfigElements.isMainDatetimeCheckboxElement.checked = String(this.isMainDatetime) === 'true';
     }
 
     /**
@@ -729,19 +742,93 @@ class FunctionInfo {
     }
 
     /**
+     * Updating a row can change process column id.
+     * this happens when users change column from `normal` to `me` and vice versa.
+     *
+     * If newFunctionInfo.processColumnId != oldFunctionInfo.processColumnId
+     * Then we should go through all the function columns and update their
+     * `varX`, `varXName`, `varY`, and `varYName` accordingly pointing to newFunctionInfo.processColumnId instead.
+     * @param {FunctionInfo} oldFunctionInfo
+     */
+    updateFunctionRelationship(oldFunctionInfo) {
+        // Only update relationship if `processColumnId` has change.
+        // this happens when users change column from `normal` to `me` and vice versa
+        if (this.processColumnId !== oldFunctionInfo.processColumnId) {
+            for (const functionInfo of FunctionInfo.collectAllFunctionRows()) {
+                // do not update function that shouldn't depends on this row
+                if (functionInfo.index <= this.index) {
+                    continue;
+                }
+
+                let relationshipChanged = false;
+                // update varX
+                if (functionInfo.varX.processColumnId === oldFunctionInfo.processColumnId) {
+                    functionInfo.varX.processColumnId = this.processColumnId;
+                    functionInfo.varX.functionColumnId = this.functionColumnId;
+                    functionInfo.varXName = this.shownName;
+                    relationshipChanged = true;
+                }
+                // update varY
+                if (functionInfo.varY.processColumnId === oldFunctionInfo.processColumnId) {
+                    functionInfo.varY.processColumnId = this.processColumnId;
+                    functionInfo.varY.functionColumnId = this.functionColumnId;
+                    functionInfo.varYName = this.shownName;
+                    relationshipChanged = true;
+                }
+                if (relationshipChanged) {
+                    const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+                    spreadsheetConfig.table.updateRow(
+                        functionInfo.index - 1,
+                        SpreadSheetFunctionConfig.convertToSpreadSheetData(functionInfo),
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Update a function row into Function table
      * @param {boolean} isMainSerial
      */
-    updateFunctionRow(isMainSerial = false) {
+    updateFunctionRow(isMainSerial = false, isMainDatetime = false) {
+        // Update row into JSpreadSheet table
+        const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+
+        // Question: Why don't we just call `selectedRow`?
+        // Because we want to update our function column accordingly when user change `mainSerial`, `mainDatetime` in process config area (in such case, they don't focus on any function row)
+        const updateRow = isMainSerial
+            ? spreadsheetConfig.mainSerialRow()
+            : isMainDatetime
+              ? spreadsheetConfig.mainDatetimeRow()
+              : spreadsheetConfig.selectedRow();
+
+        // no row to update
+        if (updateRow == null) {
+            return;
+        }
+
         // update prc PreviewDataOfFunctionColumn
         setPreviewDataForFunctionColumns(this.functionColumnId, this.sampleDatas);
 
-        // Update row into JSpreadSheet table
-        const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
-        const spreadsheetData = SpreadSheetFunctionConfig.convertToSpreadSheetData(this);
-        const updateRow = isMainSerial ? spreadsheetConfig.mainSerialRow() : spreadsheetConfig.selectedRow();
-        const selectedRowIndex = updateRow[SpreadSheetFunctionConfig.ColumnNames.IsChecked].rowIndex;
-        spreadsheetConfig.table.updateRow(selectedRowIndex, spreadsheetData);
+        // Get function column before updating, to check whether we are converting `me` to `normal` and vice versa
+        const oldFunctionInfo = SpreadSheetFunctionConfig.convertToFunctionInfo(
+            spreadsheetConfig.table.getRowDataByIndex(this.index - 1),
+        );
+
+        if (
+            // previously a me function ..
+            oldFunctionInfo.isMeFunction &&
+            // .. but changed to normal function
+            !this.isMeFunction
+        ) {
+            // then we need to update `processColumnId` (because `me` pointed to **itself**)
+            this.processColumnId = FunctionInfo.getNewProcessColumnId();
+        }
+
+        spreadsheetConfig.table.updateRow(this.index - 1, SpreadSheetFunctionConfig.convertToSpreadSheetData(this));
+
+        this.updateFunctionRelationship(oldFunctionInfo);
+        // TODO: update sample data
     }
 
     /**
@@ -839,6 +926,15 @@ class FunctionInfo {
     }
 
     /**
+     * Collect main Datetime function info in table
+     * @return {FunctionInfo}
+     */
+    static getMainDatetimeFunctionColumnRow() {
+        const allFunctionCols = FunctionInfo.collectAllFunctionRows();
+        return allFunctionCols.find((col) => col.isMainDatetime);
+    }
+
+    /**
      * Call api to backend to get all function infos of target process
      * @param {number|string} processId - a process id
      * @param {number[]} colIds - a list of column ids
@@ -907,7 +1003,13 @@ class FunctionInfo {
 
         // Convert to Spreadsheet data before init table
         spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER).table.destroyTable();
-        const spreadsheetData = functionData.map((data) => SpreadSheetFunctionConfig.convertToSpreadSheetData(data));
+        const spreadsheetData = functionData.map((data, index) => {
+            const convertedData = SpreadSheetFunctionConfig.convertToSpreadSheetData(data);
+            // index returned by backend starts from `0`, but in spreadsheet frontend, it must start from 1.
+            // Why is that? Because when a new function column is created, we assign it a negative index, but minus 0 is 0 ...
+            convertedData.index = index + 1;
+            return convertedData;
+        });
         const spreadsheet = SpreadSheetFunctionConfig.create(FUNCTION_TABLE_CONTAINER, spreadsheetData);
         mainSerialFunctionColumnInfo = spreadsheetData.find((data) => data.isMainSerialNo);
         spreadsheet.table.takeSnapshotForTracingChanges(SpreadSheetFunctionConfig.trackingHeaders());
@@ -1077,6 +1179,7 @@ class FunctionInfo {
      * @param {HTMLOptionElement} selectedFunction - a selected option of Function
      */
     static initDropdownVarXY(selectedFunction) {
+        if (!selectedFunction) return;
         const showSerial = selectedFunction.getAttribute('show-serial') === 'true';
 
         const getTypes = (attributeName) => {
@@ -1118,6 +1221,10 @@ class FunctionInfo {
             }
         };
 
+        const removeAllOptions = ($varElement) => {
+            $varElement.find('option').remove();
+        };
+
         const removeOptions = (processColumnId, functionColumnId, $varElement) => {
             const dropDownOptionValue = FunctionInfo.setDropDownOptionValue({
                 processColumnId,
@@ -1127,6 +1234,9 @@ class FunctionInfo {
         };
 
         const { shouldSelectDropDowns, shouldIgnoreDropDowns } = FunctionInfo.getDropDownOptionsForXY(showSerial);
+
+        removeAllOptions($varXElement);
+        removeAllOptions($varYElement);
 
         shouldSelectDropDowns.forEach((col) => {
             const options = {
@@ -1197,7 +1307,17 @@ class FunctionInfo {
         if (currentProcDataCols.length === 0) {
             currentProcDataCols = currentLatestProcDataCols;
         }
-        const allNormalColumns = [...currentProcDataCols];
+
+        const procColumnsChecked = procColumnsData(procModalElements.procConfigTableName);
+        // Get show_name to show on varXY dropdown
+        procColumnsChecked.forEach((procColumn) => {
+            const matchingColumn = currentProcDataCols.find((item) => item.id === procColumn.id);
+            if (matchingColumn) {
+                procColumn.shown_name = matchingColumn.shown_name;
+            }
+        });
+
+        const allNormalColumns = [...procColumnsChecked];
         const allFunctionColumns = FunctionInfo.collectAllFunctionRows().map(functionInfoToNormalColumnDesc);
         const allColumns = [...allNormalColumns, ...allFunctionColumns].map(parseIntColumnDesc);
 
@@ -1318,9 +1438,10 @@ class FunctionInfo {
      * Get label of raw data type
      * @param rawDataType
      * @param isMainSerialNo
+     * @param isMainDatetime
      * @return {string} - Label of raw data type
      */
-    static getLabelRawDataType(rawDataType, isMainSerialNo = false) {
+    static getLabelRawDataType(rawDataType, isMainSerialNo = false, isMainDatetime = false) {
         let label = '';
         switch (rawDataType) {
             case DataTypes.BIG_INT.name:
@@ -1340,7 +1461,7 @@ class FunctionInfo {
                 label = DataTypes.REAL.selectionBoxDisplay;
                 break;
             case DataTypes.DATETIME.name:
-                label = DataTypes.DATETIME.selectionBoxDisplay;
+                label = isMainDatetime ? datatypeI18nText['is_get_date'] : DataTypes.DATETIME.selectionBoxDisplay;
                 break;
             case DataTypes.CATEGORY.name:
                 // Show "main::Serial:Int" for Int(Cat) as main::Serial
@@ -1365,13 +1486,10 @@ class FunctionInfo {
     static setOutputDataType(rawDataType, isMainSerialNo = false) {
         functionConfigElements.outputElement.innerHTML = FunctionInfo.getLabelRawDataType(rawDataType, isMainSerialNo);
         functionConfigElements.outputElement.dataset.rawDataType = rawDataType;
+        // enable/disable checkbox main datetime
+        toggleStatusMainDatetimeCheckbox(rawDataType);
         // enable/disable checkbox main serial
-        if ([DataTypes.INTEGER.name, DataTypes.CATEGORY.name, DataTypes.STRING.name].includes(rawDataType)) {
-            functionConfigElements.isMainSerialCheckboxElement.disabled = false;
-        } else {
-            functionConfigElements.isMainSerialCheckboxElement.checked = false;
-            functionConfigElements.isMainSerialCheckboxElement.disabled = true;
-        }
+        toggleStatusMainSerialCheckbox(rawDataType);
         functionConfigElements.outputElement.dispatchEvent(new Event('change'));
     }
 
@@ -2358,10 +2476,10 @@ const changeFunctionNameEvent = (event) => {
     }
 
     //change output data type
-    const selectedOption = el.selectedOptions[0];
-    FunctionInfo.setOutputDataType(selectedOption.getAttribute('output-data-type'));
+    selectedFunctionNameEle = el.selectedOptions[0];
+    FunctionInfo.setOutputDataType(selectedFunctionNameEle.getAttribute('output-data-type'));
     // Disable input column name if me
-    const functionName = selectedOption.text;
+    const functionName = selectedFunctionNameEle.text;
     let isMeFunction = functionName.startsWith('me.');
     // TODO: implement for me function
     if (isMeFunction) {
@@ -2372,8 +2490,8 @@ const changeFunctionNameEvent = (event) => {
     functionConfigElements.japaneseNameElement.disabled = isMeFunction;
     functionConfigElements.localNameElement.disabled = isMeFunction;
 
-    const isHasXParam = selectedOption.getAttribute('var-x') === 'true';
-    const isHasYParam = selectedOption.getAttribute('var-y') === 'true';
+    const isHasXParam = selectedFunctionNameEle.getAttribute('var-x') === 'true';
+    const isHasYParam = selectedFunctionNameEle.getAttribute('var-y') === 'true';
     if (isHasXParam) {
         if (isMeFunction) {
             // change label X to me
@@ -2399,9 +2517,9 @@ const changeFunctionNameEvent = (event) => {
     }
 
     const changeStatusLabel = (attributeName, coeElement, coeLabelElement) => {
-        const coeLabel = selectedOption.getAttribute(attributeName);
-        const defaultValue = selectedOption.getAttribute(`${DEFAULT_VALUE_PREFIX}${attributeName}`) || '';
-        const required = selectedOption.getAttribute(`${REQUIRED_VALUE_PREFIX}${attributeName}`) === 'true';
+        const coeLabel = selectedFunctionNameEle.getAttribute(attributeName);
+        const defaultValue = selectedFunctionNameEle.getAttribute(`${DEFAULT_VALUE_PREFIX}${attributeName}`) || '';
+        const required = selectedFunctionNameEle.getAttribute(`${REQUIRED_VALUE_PREFIX}${attributeName}`) === 'true';
 
         if (coeLabel.length === 0) {
             coeElement.value = '';
@@ -2420,13 +2538,13 @@ const changeFunctionNameEvent = (event) => {
     changeStatusLabel('coe-b-k', functionConfigElements.coeBKElement, functionConfigElements.coeBKLabelElement);
     changeStatusLabel('coe-c-t', functionConfigElements.coeCTElement, functionConfigElements.coeCTLabelElement);
 
-    FunctionInfo.initDropdownVarXY(selectedOption);
+    FunctionInfo.initDropdownVarXY(selectedFunctionNameEle);
 
     // change helper message
     const isShowInJP = document.getElementById('select-language').value === 'ja';
     const fullLengthMsg = isShowInJP
-        ? selectedOption.getAttribute('description_jp')
-        : selectedOption.getAttribute('description_en');
+        ? selectedFunctionNameEle.getAttribute('description_jp')
+        : selectedFunctionNameEle.getAttribute('description_en');
     // no longer support, change to css to overflow long text
     // const maximumLength = 200;
     // functionConfigElements.helperMessageElement.innerHTML = fullLengthMsg.length > maximumLength ? fullLengthMsg.substring(0, maximumLength) + '...' : fullLengthMsg;
@@ -3143,7 +3261,7 @@ function separateArgumentsOfFunction(functionId, coeANS, coeBK, coeCT) {
 function collectFunctionDatasForRegister() {
     const dictProcessFunctionColumn = {};
     FunctionInfo.collectAllFunctionRows().forEach((functionInfo) => {
-        const isGetDate = false;
+        const isGetDate = functionInfo.isMainDatetime;
         const isSerial = functionInfo.isMainSerialNo;
         const columnType = masterDataGroup.GENERATED_EQUATION;
 
@@ -3448,6 +3566,18 @@ const totalCheckedFunctionColumns = () => {
 const totalFunctionColumns = () => {
     const totalColumns = functionConfigElements.functionTableElement().querySelectorAll('tbody tr').length;
     return Number.isNaN(totalColumns) ? 0 : totalColumns;
+};
+
+/**
+ *
+ * @param columnId
+ * @return {boolean}
+ */
+const checkColumnIsInFunctionColumn = (columnId) => {
+    const functionSpreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+    const isColumnInVarX = functionSpreadsheet.getFunctionRowWithColumnAsXVar(columnId);
+    const isColumnInVarY = functionSpreadsheet.getFunctionRowWithColumnAsYVar(columnId);
+    return !!isColumnInVarX || !!isColumnInVarY;
 };
 
 /**

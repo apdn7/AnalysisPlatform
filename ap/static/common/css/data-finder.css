@@ -19,16 +19,16 @@
     padding: 8px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    margin-top: 80px;
 }
 
-.calender-box th,
-.calender-box td {
+[class^='calender-box'] th,
+[class^='calender-box'] td {
     border: none;
 }
 
-.calender-box td.cell,
-.calender-box div.cell {
+[class^='calender-box'] td.cell,
+[class^='calender-box'] div.cell {
     border-right: 1px solid #444444;
     border-bottom: 1px solid #444444;
 }
@@ -45,6 +45,7 @@
 .data-finder-action .action .action-offset {
     margin-bottom: 0px;
     width: 60px;
+    min-width: 60px;
 }
 
 .data-finder-action .action {
@@ -69,21 +70,21 @@
     display: flex;
 }
 
-.calender-box th,
-.calender-box td {
+[class^='calender-box'] th,
+[class^='calender-box'] td {
     padding: 5px;
     text-align: center;
 }
 
-.calender-box td {
+[class^='calender-box'] td {
     cursor: pointer;
 }
 
-.calender-box .cell {
+[class^='calender-box'] .cell {
     position: relative;
 }
 
-.calender-box .cell:before {
+[class^='calender-box'] .cell:before {
     content: '';
     position: absolute;
     width: 100%;
@@ -92,25 +93,25 @@
     left: 0;
 }
 
-.calender-box .cell.active:before {
+[class^='calender-box'] .cell.active:before {
     border: 1px solid #fff;
 }
 
-.calender-box .cell.in-range:before {
+[class^='calender-box'] .cell.in-range:before {
     border: 1px solid #fff;
 }
 
-.calender-box .cell:hover:before {
+[class^='calender-box'] .cell:hover:before {
     border: 1px solid #fff;
 }
 
-.calender-box tr:last-child th {
+[class^='calender-box'] tr:last-child th {
     border-bottom: 1px solid white;
 }
 
-.calender-box .week,
-.calender-box .year,
-.calender-box .hour {
+[class^='calender-box'] .week,
+[class^='calender-box'] .year,
+[class^='calender-box'] .hour {
     border-right: 1px solid white;
 }
 
@@ -165,8 +166,8 @@
     max-width: calc(100% - 50px);
 }
 
-.calender-box td,
-.calender-box th {
+[class^='calender-box'] td,
+[class^='calender-box'] th {
     min-width: 40px;
 }
 
@@ -183,7 +184,7 @@
     border: none !important;
 }
 
-.calender-box .year-calendar-go-to {
+[class^='calender-box'] .year-calendar-go-to {
     position: relative;
     cursor: default;
 }
@@ -281,6 +282,9 @@
 }
 
 @media screen and (max-width: 1330px) {
+    .data-finder {
+        width: auto;
+    }
     #data-finder-modal {
         flex-direction: column;
     }
@@ -354,6 +358,7 @@
     .data-finder-action {
         max-width: 360px;
         padding: 16px;
+        margin-top: 0px;
     }
 }
 
@@ -465,4 +470,18 @@ button.for-data-finder {
     grid-template-columns: repeat(7, 1fr);
     grid-template-rows: repeat(7, 1fr);
     padding: 0 5px;
+}
+
+.all-button-wrap {
+    margin-top: 8px;
+}
+
+.all-button-wrap button {
+    width: 55px;
+}
+
+.data-finder-warning-msg {
+    margin-top: 15px;
+    color: #ffbf00;
+    line-height: 1.2;
 }

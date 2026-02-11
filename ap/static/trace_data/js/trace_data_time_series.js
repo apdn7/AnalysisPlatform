@@ -878,6 +878,34 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         timeSeriesOnClick(cht, evt);
     };
 
+    if (logScaleActivated && !beforeRankValues) {
+        // in case of variable has negative number
+        // just cast y-axis type only
+        if (config.options.scales.y.max < 0) {
+            config.options.scales.y.type = 'logarithmic';
+        } else {
+            config.options.scales.y = {
+                type: 'logarithmic',
+                ticks: {
+                    labelOffset: 0,
+                    mirror: false,
+                    padding: 5,
+                    maxRotation: 0,
+                    minRotation: 0,
+                    sampleSize: 8,
+                    color: CONST.TICK,
+                    maxTicksLimit: 9,
+                    count: 9,
+                    callback: (val) => val.toExponential(1),
+                },
+                min: config.options.scales.y.min,
+                max: config.options.scales.y.max,
+                afterBuildTicks: (axis) => axis,
+                afterTickToLabelConversion: (context) => context,
+            };
+        }
+    }
+
     const canvas = $(`#${canvasId}`).get(0);
     const chart = new Chart(ctx, config);
     canvas.addEventListener('contextmenu', rightClickHandler, false);

@@ -1,6 +1,5 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from apscheduler.triggers.date import DateTrigger
 from pytz import utc
@@ -76,7 +75,6 @@ def import_transaction_data_from_files(
         NotImplementedError: If the master database type specified in the process
             is not supported for import operations.
     """
-
     # columns info
     dic_use_cols = {col.column_name: col for col in process.get_transaction_process_columns()}
     raw_to_column_name_dict = {value.column_raw_name: value.column_name for key, value in dic_use_cols.items()}
@@ -85,11 +83,11 @@ def import_transaction_data_from_files(
     cfg_columns = process.columns
 
     # get parent process config
-    parent_cfg_proc: Optional[CfgProcess] = None
-    parent_cfg_columns: Optional[list[CfgProcessColumn]] = None
+    parent_cfg_proc: CfgProcess | None = None
+    parent_cfg_columns: list[CfgProcessColumn] | None = None
     if process.parent_id:
-        parent_cfg_proc: Optional[CfgProcess] = CfgProcess.get_proc_by_id(process.parent_id)
-        parent_cfg_columns: Optional[list[CfgProcessColumn]] = parent_cfg_proc.get_transaction_process_columns()
+        parent_cfg_proc: CfgProcess | None = CfgProcess.get_proc_by_id(process.parent_id)
+        parent_cfg_columns: list[CfgProcessColumn] | None = parent_cfg_proc.get_transaction_process_columns()
 
     master_type = MasterDBType[process.master_type] if process.master_type is not None else None
 
@@ -123,6 +121,11 @@ def import_transaction_data_from_files(
 
         df = transformed_data.df
         df = df.rename(columns=raw_to_column_name_dict)
+
+        # Handle calculate data for main::Datetime, main::Serial function column
+        from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+
+        df = handle_main_function_columns(process, df)
 
         # no records
         if not len(df):
@@ -183,7 +186,9 @@ def import_transaction_data_from_files(
         target_cfg_process = process
         target_get_date_col = get_date_col
         target_cfg_columns = cfg_columns
+        child_cfg_proc = None
         if parent_cfg_proc:
+            child_cfg_proc = process
             target_cfg_process = parent_cfg_proc
             target_cfg_columns = parent_cfg_columns
             dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in parent_cfg_columns}
@@ -198,15 +203,6 @@ def import_transaction_data_from_files(
             orig_df = orig_df.rename(columns=dic_rename)
             df_error = df_error.rename(columns=dic_rename)
             target_get_date_col = parent_cfg_proc.get_date_col()
-
-        # Handle calculate data for main::Serial function column
-        main_serial_function_col = target_cfg_process.get_main_serial_function_col()
-        if main_serial_function_col:
-            from ap.api.setting_module.services.import_function_column import (
-                calculate_data_for_main_serial_function_column,
-            )
-
-            df = calculate_data_for_main_serial_function_column(df, target_cfg_process, main_serial_function_col)
 
         # remove duplicate records which exists DB
         df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
@@ -232,7 +228,7 @@ def import_transaction_data_from_files(
             job_info.status = JobStatus.FAILED
             job_info.err_msg = error_type
         df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
-        save_res = import_data(df, target_cfg_process, target_get_date_col, job_info)
+        save_res = import_data(df, target_cfg_process, target_get_date_col, job_info, child_cfg_proc=child_cfg_proc)
         gen_import_job_info(job_info, save_res, err_cnt=df_error_cnt)
 
         # FIXME: we set this as processing, to avoid showing DONE on SSE, but this is wrong.
@@ -295,11 +291,7 @@ def import_transaction_data(process_id: int):
 
 
 @scheduler_app_context
-def import_transaction_data_job(
-    process_id: int,
-    process_name: str,
-    data_source_id: int,
-):
+def import_transaction_data_job(process_id: int, job_management: JobManagement):
     """
     Executes the data import job and handles subsequent processing steps.
 
@@ -311,8 +303,7 @@ def import_transaction_data_job(
 
     Arguments:
         process_id (int): The unique identifier for the process to be handled.
-        process_name (str): The human-readable name of the process being handled.
-        data_source_id (int): The identifier for the data source involved
+        job_management (JobManagement): The job management object for this process.
         in the import operation.
 
     Raises:
@@ -322,10 +313,7 @@ def import_transaction_data_job(
     generator = import_transaction_data(process_id)
     send_processing_info(
         generator,
-        JobType.IMPORT_DATA,
-        db_code=data_source_id,
-        process_id=process_id,
-        process_name=process_name,
+        job_management=job_management,
         after_success_func=finished_transaction_import,
         after_success_func_kwargs={},
     )

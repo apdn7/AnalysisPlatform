@@ -22,13 +22,65 @@
                                     <h3 class="header-left">{{ _("Process Config") }}</h3>
                                 </div>
                                 <div class="col-5 d-flex justify-content-end">
-                                    <input
-                                        id="searchProcConfig"
-                                        class="form-control common-search-input"
-                                        placeholder="{{ _('Search') }}..."
-                                    />
+                                    <div class="mr-3">
+                                        <input
+                                            id="searchProcConfig"
+                                            class="form-control common-search-input"
+                                            placeholder="{{ _('Search') }}..."
+                                        />
+                                    </div>
+                                    <div
+                                        class="d-flex align-items-center w-auto"
+                                        style="margin-right: 0 !important; float: right"
+                                    >
+                                        <label
+                                            for="importLimit"
+                                            class="col-form-label vertical-center hint-text"
+                                            style="margin: 0 15px 0 0; padding: 0; white-space: pre;"
+                                            title="{{ _('ImportLimitTitle') }}"
+                                        >
+                                            <h5 class="m-0">{{ _('Import Limit') }}</h5></label
+                                        >
+                                        <div class="w-auto">
+                                            <select
+                                                type="select"
+                                                name="importLimit"
+                                                class="form-control"
+                                                id="importLimit"
+                                                onchange="changeImportLimit(this);"
+                                                data-original-value="{{ import_limit or 0 }}"
+                                            >
+                                                <option value="0" {{ 'selected' if import_limit == 0 else '' }}>
+                                                    {{ _('No limit') }}
+                                                </option>
+                                                <option
+                                                    value="1000000"
+                                                    {{ 'selected' if import_limit == 1000000 else '' }}
+                                                >
+                                                    {{ _('1 million rows') }}
+                                                </option>
+                                                <option
+                                                    value="10000000"
+                                                    {{ 'selected' if import_limit == 10000000 else '' }}
+                                                >
+                                                    {{ _('10 million rows') }}
+                                                </option>
+                                                <option
+                                                    value="100000000"
+                                                    {{ 'selected' if import_limit == 100000000 else '' }}
+                                                >
+                                                    {{ _('100 million rows') }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="process-label-list">
+                            <button type="button" class="clear-label-btn">Clear All</button>
                         </div>
                     </div>
                     <div
@@ -45,9 +97,10 @@
                                         <th class="col-number">{{ _("No.") }}</th>
                                         <th scope="col" class="text-center th-md">{{ _("Process Name") }}</th>
                                         <th scope="col" class="text-center th-md">{{ _("Data Source Name") }}</th>
-                                        <th class="text-center th-md" scope="col">{{ _("Table Name") }}</th>
+                                        <th class="text-center th-sm" scope="col">{{ _("Table Name") }}</th>
                                         <th class="text-center button-column" scope="col"></th>
                                         <th class="text-center" scope="col">{{ _("Comment") }}</th>
+                                        <th class="text-center th-md" scope="col">{{ _("Label") }}</th>
                                         <th class="text-center w-auto" scope="col">{{ _("Status") }}</th>
                                         <th class="text-center col-btn button-column" scope="col">
                                             <!-- <i class="fas fa-filter icon-secondary"
@@ -100,12 +153,16 @@
                                                     />
                                                 {% endif %}
                                             </td>
+                                            <!--disable edit button for processes being registered -->
                                             <td class="text-center">
                                                 <button
-                                                    class="btn btn-secondary icon-btn"
+                                                    class="btn btn-secondary icon-btn proc-show-detail-btn"
                                                     type="button"
                                                     onclick="showProcSettingModal(this);"
                                                     title=""
+                                                    {% if proc_info.status == 2 %}
+                                                        disabled
+                                                    {% endif %}
                                                 >
                                                     <i class="fas fa-edit icon-secondary"></i>
                                                 </button>
@@ -121,13 +178,46 @@
 {{ proc_info.comment or '' }}</textarea
                                                 >
                                             </td>
-                                            <td class="process-status" id="jobStatus-{{ proc_info.id }}"></td>
+                                            <td>
+                                                <div class="process-labels">
+                                                    {% for cfg_label in proc_info.labels %}
+                                                        <span class="process-label">{{ cfg_label.name }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </td>
+                                            <!--loading icon for processes being registered -->
+                                            <td class="process-status" id="jobStatus-{{ proc_info.id }}">
+                                                {% if proc_info.status == 2 %}
+                                                    <div class="align-middle text-center" data-st="spinner fa-spin">
+                                                        <div
+                                                            class=""
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="{{ _('Importing') }}"
+                                                        >
+                                                            <i class="fas fa-spinner fa-spin status-i"></i>
+                                                        </div>
+                                                    </div>
+                                                {% elif proc_info.status == 3 %}
+                                                    <div class="align-middle text-center" data-st="spinner fa-spin">
+                                                        <div
+                                                            class=""
+                                                            data-toggle="tooltip"
+                                                            data-placement="top"
+                                                            title="{{ _('ProcessRegisterFailedMsg') }}"
+                                                        >
+                                                            <i class="fas fa-triangle-exclamation yellow status-i"></i>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </td>
+                                            <!--disable delete button for processes being registered -->
                                             <td class="text-center">
                                                 <button
                                                     onclick="deleteProcess(this);"
                                                     type="button"
-                                                    class="btn btn-secondary icon-btn"
-                                                    {% if not is_authorized %}
+                                                    class="btn btn-secondary icon-btn proc-delete-btn"
+                                                    {% if not is_authorized or proc_info.status == 2 %}
                                                         disabled
                                                     {% endif %}
                                                 >
@@ -157,13 +247,9 @@
     </div>
 </div>
 {% block js %}
-    <link
-        rel="stylesheet"
-        type="text/css"
-        href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css') }}"
-    />
     <script src="{{ url_for('setting_module.static', filename = 'js/process_config_section.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/failed_cast_data_modal.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/copy_paste_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_table_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_process_config.js') }}"></script>
@@ -173,7 +259,7 @@
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_unique_sample_data.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/function_config_modals.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/main_serial_function_column.js') }}"></script>
-    <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_filter_config.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/main_datetime_function_column.js') }}"></script>
     <!-- prettier-ignore-start -->
     <script>
         let cfgDS = {{ all_datasource|safe }};

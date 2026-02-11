@@ -248,6 +248,12 @@ function YasuHistogram($, paramObj) {
         );
     }
 
+    // Redraw the chart with a logarithmic scale if logScaleActivated is true,
+    // excluding step bar charts and histograms from judges.
+    if (logScaleActivated && !beforeRankValues) {
+        config.options.scales.y.type = 'logarithmic';
+    }
+
     const chart = new Chart(ctx, config);
 
     const histObj = {

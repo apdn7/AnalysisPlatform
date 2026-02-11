@@ -1,0 +1,41 @@
+{% import 'macros.html' as macros %}
+
+{# --------- Load CSS --------- #}
+<link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jspreadsheet/css/jspreadsheet.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename = 'modules/jsuites/css/jsuites.css') }}" />
+<link rel="stylesheet" href="{{ url_for('setting_module.static', filename = 'css/filter_visualization.css') }}" />
+{# --------- Load CSS --------- #}
+
+{# --------- Content ---------- #}
+<div class="card card-xl graph-navi">
+    <div class="card-body">
+        <div class="d-flex align-items-center flex-row">
+            <h3 class="header-left mb-0">{{ _("Process name") }}</h3>
+            <div class="flex-grow-1 ml-3">
+                <select name="type" id="processList" class="form-control select2-selection--single select-n-columns">
+                    <option value="" selected>---</option>
+                    {% for proc in procs %}
+                        <option value="{{ proc.id }}" title="{{ proc.name_en }}">{{ proc.shown_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loading" style="display: none;"></div>
+<div id="detailCards" style="display: none">
+    {% include '_filter_line.html' %}
+    {% include '_filter_machine.html' %}
+    {% include '_filter_partno.html' %}
+    {% include '_filter_others.html' %}
+    {% include 'filter_config_modals.html' %}
+</div>
+{# --------- Content ---------- #}
+
+{# --------- Load JS ---------- #}
+<script src="{{ url_for('static', filename = 'modules/jspreadsheet/js/index.js') }}"></script>
+<script src="{{ url_for('static', filename = 'modules/jsuites/js/jsuites.js') }}"></script>
+<script src="{{ url_for('setting_module.static', filename = 'js/cfg_filter_main.js') }}"></script>
+<script src="{{ url_for('setting_module.static', filename = 'js/cfg_filter_funcs.js') }}"></script>
+<script src="{{ url_for('setting_module.static', filename = 'js/copy_paste_utils.js') }}"></script>
+{# --------- Load JS ---------- #}

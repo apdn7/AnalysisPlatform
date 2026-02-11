@@ -15,9 +15,10 @@ from ap.common.constants import (
     UNDER_SCORE,
     DBType,
     MasterDBType,
+    ProcessStatus,
 )
 from ap.common.memoize import CustomCache
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_list
@@ -25,6 +26,7 @@ from ap.equations.utils import get_all_functions_info
 from ap.setting_module.models import (
     CfgDataSource,
     CfgFilter,
+    CfgLabel,
     CfgProcess,
     CfgProcessColumn,
     CfgVisualization,
@@ -101,6 +103,7 @@ def get_all_visualizations():
 def create_or_update_process_cfg(
     process: CfgProcess,
     unused_columns: list[str],
+    labels: list[str],
     meta_session: scoped_session = None,
 ) -> CfgProcess:
     dict_id_column_name = {}
@@ -110,20 +113,12 @@ def create_or_update_process_cfg(
     for column in process.columns:
         # get id with name before save db
         dict_id_column_name[column.id] = column.column_name
+        column.filter = column.filter if column.filter else None
         if column.id and column.id < 0:  # set None for new column
             column.id = None
         for function_col in column.function_details:
             if function_col.id and function_col.id < 0:
                 function_col.id = None
-
-        # import filters
-        for import_filter in column.import_filters:
-            if import_filter.id and import_filter.id < 0:
-                import_filter.id = None
-
-            for filter_detail in import_filter.filters:
-                if filter_detail.id and filter_detail.id < 0:
-                    filter_detail.id = None
 
     # merge to get `process.id`
     process = meta_session.merge(process)
@@ -137,7 +132,7 @@ def create_or_update_process_cfg(
         child_process.name_jp = process.name_jp
         child_process.name_en = process.name_en
         child_process.name_local = process.name_local
-        child_process.is_import = process.is_import
+        child_process.status = process.status
 
     # update order if new
     if process.order is None:
@@ -150,6 +145,14 @@ def create_or_update_process_cfg(
             func_col.var_x = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_x))
             func_col.var_y = dict_column_name_with_id.get(dict_id_column_name.get(func_col.var_y))
 
+    # use dict to avoid duplicated labels
+    process_labels: dict[int, CfgLabel] = {}
+    for label_name in labels:
+        label = get_or_create_label(label_name, meta_session)
+        process_labels[label.id] = label
+    # sort label
+    process.labels = sorted(process_labels.values(), key=lambda v: v.id)
+
     # update process function columns
     process = meta_session.merge(process)
 
@@ -157,6 +160,17 @@ def create_or_update_process_cfg(
     process = save_unused_columns(process, unused_columns, meta_session=meta_session)
 
     return process
+
+
+def get_or_create_label(label_name: str, meta_session) -> CfgLabel:
+    label = CfgLabel.get_label_by_name(label_name, meta_session)
+
+    if not label:
+        label = CfgLabel(name=label_name)
+        meta_session.add(label)
+        # flush to get id
+        meta_session.flush()
+    return label
 
 
 def query_database_tables(db_id, process=None):
@@ -174,9 +188,8 @@ def query_database_tables(db_id, process=None):
         output['master_types'] = [process.get('master_type', '')]
         return output
     # return None if CSV
-    if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]:
+    if data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower(), DBType.WEB_API.name.lower()]:
         return output
-
     updated_at = data_source.db_detail.updated_at
     if data_source.type in [DBType.POSTGRES_SOFTWARE_WORKSHOP.name, DBType.SNOWFLAKE_SOFTWARE_WORKSHOP.name]:
         tables, process_fact_ids, master_types = get_list_process_software_workshop(data_source)
@@ -269,7 +282,11 @@ def convert2serialize(obj):
     elif not isinstance(obj, str) and hasattr(obj, '__iter__'):
         return [convert2serialize(v) for v in obj]
     elif hasattr(obj, '__dict__'):
-        return {k: convert2serialize(v) for k, v in obj.__dict__.items() if not callable(v) and not k.startswith('_')}
+        return {
+            k: convert2serialize(v)
+            for k, v in obj.__dict__.items()
+            if not callable(v) and not k.startswith(UNDER_SCORE)
+        }
     else:
         return obj
 
@@ -281,27 +298,17 @@ def get_ct_range(proc_id, columns):
         return []
 
     try:
-        with DbProxy(gen_data_source_of_universal_db(proc_id)) as db_instance:
+        with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
             trans_data = TransactionData(proc_id)
             ct_range = trans_data.get_ct_range(db_instance)
-        # cycle_cls = find_cycle_class(proc_id)
-        # ct_range = (
-        #     db.session.query(cycle_cls.id, cycle_cls.time)
-        #     .filter(cycle_cls.process_id == proc_id)
-        #     .with_entities(
-        #         func.min(cycle_cls.time).label('min_time'),
-        #         func.max(cycle_cls.time).label('max_time'),
-        #     )
-        #     .first()
-        # )
         return ct_range
     except Exception:
         return []
 
 
-def update_is_import_column(process_id, is_import):
+def update_process_status(process_id: int, status: ProcessStatus):
     with make_session() as meta_session:
-        CfgProcess.update_is_import(meta_session, process_id, is_import)
+        CfgProcess.update_status(meta_session, process_id, status)
 
 
 @CustomCache.memoize(duration=300)

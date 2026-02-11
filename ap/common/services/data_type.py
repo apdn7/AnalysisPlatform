@@ -8,16 +8,80 @@ import numpy as np
 import pandas as pd
 from pandas import Series
 
-from ap.common.constants import COL_NAME, INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
+from ap.common.constants import INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
 from ap.common.logger import log_execution_time
 
 na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf]
+datetime_pattern = (
+    r'^\d{4}'  # begin with YYYY
+    r'[-\/]'  # separator
+    r'\d{1,2}'  # MM or M
+    r'[-\/]'  # separator
+    r'\d{1,2}'  # DD or D
+    r'[\sT]'  # separator or T
+    r'\d{1,2}'  # HH or H
+    r':'  # separator
+    r'\d{1,2}'  # mm or m
+    r'(:\d{1,2})?'  # optional (separator and seconds (ss or s))
+    r'(\.\d+)?'  # optional fractional seconds
+    r'((\s?([+-]?\d{1,2}:\d{2})?)|Z)?$'  # end with optional (timezone (+-HH:ss or +-H:ss) or Z)
+)
+"""This pattern is designed to match datetime strings, particularly those that follow a format similar to:
+YYYY-MM-DD HH:MM[:SS][.fraction][timezone]
+Or
+YYYY/MM/DDTHH:MM[:SS][.fraction][timezone]
+"""
+dtype_pattern = {
+    DataType.DATETIME: [re.compile(datetime_pattern)],
+    DataType.INTEGER: [re.compile(r'^-?[1-9]\d{9}$')],
+    DataType.TEXT: [re.compile(r'^\d{6}-\d{4}$')],
+}
+extra_int_pattern = {DataType.INTEGER: [re.compile(r'^-?\d+\.0$')]}
+
+
+def detect_type_from_patterns(series: pd.Series, extra_pattern=None):
+    """
+    Detect data type for special cases defined by predefined regex patterns.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Input data to check.
+    extra_pattern : dict | None
+        If specified, only check against this particular data type.
+
+    Returns:
+    -------
+    DataType | None
+        The detected data type, or None if no pattern matches.
+    """
+    global dtype_pattern
+    if extra_pattern is None:
+        extra_pattern = {}
+
+    # Always work on string values
+    series_str = series.astype(str)
+
+    # If check_type is specified, update checking pattern with extra pattern
+    pattern_dict = {
+        k: dtype_pattern.get(k, []) + extra_pattern.get(k, []) for k in set(dtype_pattern) | set(extra_pattern)
+    }
+
+    for dtype, regex_def in pattern_dict.items():
+        for regex in regex_def:
+            try:
+                if series_str.str.match(regex).all():
+                    return dtype.value
+            except Exception:
+                continue
+
+    return None
 
 
 @log_execution_time()
 def gen_data_types(series: Series, is_v2=False):
     """
-    check datatype of a list of columns
+    Check datatype of a list of columns
     :param is_v2:
     :param series:
     :return:
@@ -28,17 +92,13 @@ def gen_data_types(series: Series, is_v2=False):
     if series.dtypes.name != 'boolean':
         series = series.replace(na_values, pd.NA).dropna()
 
-    # try to convert dtypes from float to int
+    # for v2, try to convert dtypes from float to int
     # if data=[1.0, 2.0] (to avoid wrong data-type prediction)
-    if is_v2:
-        try:
-            df = pd.DataFrame({COL_NAME: series})
-            df[COL_NAME] = df[COL_NAME].astype(str)
-            is_int_types = pd.Series(df[COL_NAME]).str.match(r'^\d*.0$').tolist()
-            if False not in is_int_types:
-                return DataType.INTEGER.value
-        except Exception:
-            pass
+    if not series.empty:
+        extra_pattern = extra_int_pattern if is_v2 else None
+        dtype = detect_type_from_patterns(series, extra_pattern=extra_pattern)
+        if dtype:
+            return dtype
 
     data_type = check_data_type_series(series)
     if data_type is not None:
@@ -137,7 +197,7 @@ def check_data_type(data):
         return eu_type
 
     try:
-        re_dt = r'^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}[\sT]\d{1,2}:\d{1,2}(:\d{1,2})?(\.\d+)?((\s?([+-]?\d{1,2}:\d{2})?)|Z)?$'
+        re_dt = datetime_pattern
         matches = re.match(re_dt, data)
         if matches:
             return DataType.DATETIME
@@ -147,7 +207,7 @@ def check_data_type(data):
     # try if there is not iso format of datetime
     # eg: 20-09-2023 01:00
     try:
-        # Only cast datetime with string len >= 16
+        # Only cast datetime with string len > 10
         if len(data) < MIN_DATETIME_LEN:
             return DataType.TEXT
 
@@ -275,6 +335,7 @@ def convert_df_str_to_others(orig_series):
             continue
 
     if series is None:
+        # updated at 2025/10: `1234567890` should be detected as Int instead of datetime
         # Only cast datetime with string len >= 10
         # cast to string before using .str accessor
         if orig_series.astype(str).str.len().min() < MIN_DATETIME_LEN:

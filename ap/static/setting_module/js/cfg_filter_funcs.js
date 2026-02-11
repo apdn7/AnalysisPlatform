@@ -24,9 +24,6 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         searchInput: `.card#${cardId} [name=SearchOtherFilter]`,
         changeModeBtn: `.card#${cardId} .changeMode`,
         deleteBtn: `.card#${cardId} [name=configDelete]`,
-        confirmDeleteFilterBtn: `.card#${cardId} .delete-cfg-btn`,
-        confirmButton: `.card#${cardId} #confirmRegister`,
-        confirmSwitchButton: `.card#${cardId} [name=confirmSwitch]`,
         formula: 'filterConditionFormula',
         columnName: `.card#${cardId} [name=columnName]`,
         filterTitle: 'filterTitle',
@@ -39,9 +36,6 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         tblConfigId: `tblConfig${cardId}`,
         tblConfigBody: `#tblConfig${cardId} tbody`,
         conditionFormula: `.card#${cardId} [name=filterConditionFormula]`,
-        modalId: `.card#${cardId} #filterConfirmModal`,
-        switchModalId: `.card#${cardId} [name=filterConfirmSwitchModal]`,
-        deleteModal: `.card#${cardId} .delete-cfg-modal`,
         selectedOptStr: 'selected="selected"',
         alertMsg: 'alertMsgSetting',
         alertCard: `.card#${cardId}`,
@@ -145,8 +139,40 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             const condSelect2 = $(`#${startFromSelectPrefix}CondSelect2`);
             condSelect2.select2(genSelect2Param(select2Type));
             condSelect2.val(selectedValues).trigger('change');
+
+            // Update filterName based on filterCondition if not manually edited by user
+            condSelect2.on('change', function updateFilterName() {
+                const row = $(this).closest('tr');
+                const filterNameInput = row.find('input[name=filterName]');
+                const userEdited = filterNameInput.attr('data-user-edited') === 'true';
+                if (!userEdited || isEmpty(filterNameInput.val())) {
+                    // Use select2('data') to get the display text instead of the technical value (e.g., 'OK' instead of '1')
+                    const selectedData = $(this).select2('data');
+                    const filterNames = selectedData.map((item) => item.text);
+                    const filterName = filterNames.join('_');
+                    filterNameInput.val(filterName);
+                }
+            });
         }
 
+        const condInput = $(`#${startFromSelectPrefix}CondInput`);
+        // Update filterName based on filterCondition if not manually edited by user
+        condInput.on('input', function updateFilterName() {
+            const row = $(this).closest('tr');
+            const filterNameInput = row.find('input[name=filterName]');
+            const userEdited = filterNameInput.attr('data-user-edited') === 'true';
+            if (isEmpty(filterNameInput.val()) || !userEdited) {
+                filterNameInput.val($(this).val());
+            }
+        });
+
+        const filterNameInput = condInput.closest('tr').find('input[name=filterName]');
+        // Mark filterName as user-edited when user manually inputs a value
+        // to prevent automatic updates from filterCondition
+        filterNameInput.on('input', function markAsUserEdited() {
+            const isFieldEmpty = isEmpty($(this).val());
+            $(this).attr('data-user-edited', isFieldEmpty ? 'false' : 'true');
+        });
         // normalization
         convertTextH2Z($(eles.thisCard));
     };
@@ -279,7 +305,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             ${lineHTML}
             <td>
                 <input name="filterName" class="form-control" type="text" value="${filterName}"
-                ${dragDropRowInTable.DATA_ORDER_ATTR}>
+                ${dragDropRowInTable.DATA_ORDER_ATTR} data-user-edited="${!isEmpty(filterName)}">
             </td>
             <td class="td-lg">
                 <input name="filterCondition" id="${startFromSelectPrefix}CondInput"  class="form-control" type="text" value="${filterCondition}" ${hideCondInput}>
@@ -372,7 +398,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             const newColumnData = procConfig.getColumnData(colId);
             const judge = procConfig.getJudgeData(colId);
             const select2Data = newColumnData.map((val) => {
-                if (judge) {
+                if (judge.isJudge) {
                     return {
                         id: val,
                         text: val === 1 ? judge.positiveDisplay : judge.negativeDisplay,
@@ -981,48 +1007,6 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         });
     };
 
-    const switchMode = async (spreadTableDOM, force = false) => {
-        const isEditMode = isEmpty($(eles.registerBtn).attr('disabled'));
-        if (isEditMode) {
-            // go to excel mode
-            $(eles.spreadSheet).html('');
-            await generateSpreadSheet(spreadTableDOM);
-        } else {
-            // convert -> back to setting mode
-            const tableId = eles.tblConfigId;
-            const settingData = getSettingModeData(tableId);
-            const jexcelDivId = $(eles.spreadSheet).attr('id');
-            const editData = getExcelModeData(jexcelDivId);
-            if (force) {
-                sendSpreadSheetDataToSetting(tableId, settingData, editData);
-            } else {
-                const validData = validateData(editData);
-                if (validData) {
-                    sendSpreadSheetDataToSetting(tableId, settingData, editData);
-                } else {
-                    $(eles.switchModalId).modal('show');
-                    return;
-                }
-            }
-        }
-        showHideModes(isEditMode);
-    };
-
-    const validateData = (editData) => {
-        if (cardId !== htmlCardId.MACHINE_ID) {
-            return checkExcelDataValid(
-                editData,
-                ['filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
-                ['filterConditionFormula', 'startDigit'],
-            );
-        }
-        return checkExcelDataValid(
-            editData,
-            ['lineName', 'filterName', 'filterCondition', 'filterConditionFormula', 'startDigit'],
-            ['lineName', 'filterConditionFormula', 'startDigit'],
-        ); // TODO validate line name too
-    };
-
     const sendSpreadSheetDataToSetting = (tableId, settingData, editData) => {
         clearConfigTable();
 
@@ -1357,22 +1341,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         $(`#tblConfig${cardId}`).removeClass('hide');
         $(eles.spreadSheetContainer).addClass('hide');
         $(eles.addConfigBtn).removeClass('hide');
-        $(`${eles.changeModeBtn} span`).text(` ${i18n.editMode}`);
         $(eles.registerBtn).attr('disabled', false);
-    };
-
-    const showHideModes = (isEditMode) => {
-        // show/hide tables
-        $(`#tblConfig${cardId}`).toggleClass('hide');
-        $(eles.spreadSheetContainer).toggleClass('hide');
-        $(eles.addConfigBtn).toggleClass('hide');
-
-        if (isEditMode) {
-            $(`${eles.changeModeBtn} span`).text(` ${i18n.settingMode}`);
-        } else {
-            $(`${eles.changeModeBtn} span`).text(` ${i18n.editMode}`);
-        }
-        $(eles.registerBtn).attr('disabled', isEmpty($(eles.registerBtn).attr('disabled')));
     };
 
     const register = () => {
@@ -1500,19 +1469,16 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
     const genEvents = () => {
         // register a filter other
-        $(eles.registerBtn).click((e) => {
-            const isDisabled = $(e.currentTarget).hasClass('disabled');
-            // disable button since is_authorized = false
-            if (isDisabled) return;
-
-            const isValid = validate(e);
-            if (!isValid) return;
-            $(eles.modalId).modal('show');
-        });
-        $(eles.confirmButton)
+        $(eles.registerBtn)
             .off('click')
             .on('click', (e) => {
-                register();
+                const isDisabled = $(e.currentTarget).hasClass('disabled');
+                // disable button since is_authorized = false
+                if (isDisabled) return;
+
+                const isValid = validate(e);
+                if (!isValid) return;
+                $(filterElements.confirmModalId).data('cardId', cardId).modal('show');
             });
 
         $(eles.addConfigBtn)
@@ -1530,66 +1496,75 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 // updateTableRowNumber(eles.tblConfigId);
             });
 
-        $(eles.deleteBtn).click(() => {
-            $(eles.deleteModal).modal('show');
-        });
-
-        $(eles.confirmDeleteFilterBtn).click(() => {
-            deleteFilter();
-        });
-        // Filter Line
-        $(eles.downloadFilterLineAllBtn).click(() => {
-            downloadFilterConfig(htmlCardId.LINE);
-        });
-        $(eles.copyLineFilterAllBtn).click(() => {
-            copyAllFilterConfig();
-        });
-        $(eles.pasteLineFilterAllBtn).click(() => {
-            pasteFilterConfig();
-        });
-        // Filter Equip
-        $(eles.downloadFilterEquipAllBtn).click(() => {
-            downloadFilterConfig(htmlCardId.MACHINE_ID);
-        });
-        $(eles.copyFilterEquipAllBtn).click(() => {
-            copyAllFilterConfig();
-        });
-        $(eles.pasteFilterEquipAllBtn).click(() => {
-            pasteFilterConfig();
-        });
-        // Filter PartNo
-        $(eles.downloadFilterPartNoAllBtn).click(() => {
-            downloadFilterConfig(htmlCardId.PART_NO);
-        });
-        $(eles.copyFilterPartNoAllBtn).click(() => {
-            copyAllFilterConfig();
-        });
-        $(eles.pasteFilterPartNoAllBtn).click(() => {
-            pasteFilterConfig();
-        });
-        // Filter Others
-        $(eles.downloadFilterOthersAllBtn).click(() => {
-            downloadFilterConfig(htmlCardId.FILTER_OTHER);
-        });
-        $(eles.copyFilterOthersAllBtn).click(() => {
-            copyAllFilterConfig();
-        });
-        $(eles.pasteFilterOthersAllBtn).click(() => {
-            pasteFilterConfig();
-        });
-
-        $(eles.changeModeBtn).unbind('click');
-        $(eles.changeModeBtn)
+        $(eles.deleteBtn)
             .off('click')
-            .click((e) => {
-                const spreadTableDOM = $(e.currentTarget).attr('data-sm');
-                switchMode(spreadTableDOM).then(() => {});
+            .on('click', () => {
+                $(filterElements.deleteModal).data('cardId', cardId).modal('show');
             });
-        $(eles.confirmSwitchButton)
+
+        // Filter Line
+        $(eles.downloadFilterLineAllBtn)
             .off('click')
-            .click((e) => {
-                const spreadTableDOM = $(e.currentTarget).attr('data-sm');
-                switchMode(spreadTableDOM, true).then(() => {});
+            .on('click', () => {
+                downloadFilterConfig(htmlCardId.LINE);
+            });
+        $(eles.copyLineFilterAllBtn)
+            .off('click')
+            .on('click', () => {
+                copyAllFilterConfig();
+            });
+        $(eles.pasteLineFilterAllBtn)
+            .off('click')
+            .on('click', () => {
+                pasteFilterConfig();
+            });
+        // Filter Equip
+        $(eles.downloadFilterEquipAllBtn)
+            .off('click')
+            .on('click', () => {
+                downloadFilterConfig(htmlCardId.MACHINE_ID);
+            });
+        $(eles.copyFilterEquipAllBtn)
+            .off('click')
+            .on('click', () => {
+                copyAllFilterConfig();
+            });
+        $(eles.pasteFilterEquipAllBtn)
+            .off('click')
+            .on('click', () => {
+                pasteFilterConfig();
+            });
+        // Filter PartNo
+        $(eles.downloadFilterPartNoAllBtn)
+            .off('click')
+            .on('click', () => {
+                downloadFilterConfig(htmlCardId.PART_NO);
+            });
+        $(eles.copyFilterPartNoAllBtn)
+            .off('click')
+            .on('click', () => {
+                copyAllFilterConfig();
+            });
+        $(eles.pasteFilterPartNoAllBtn)
+            .off('click')
+            .on('click', () => {
+                pasteFilterConfig();
+            });
+        // Filter Others
+        $(eles.downloadFilterOthersAllBtn)
+            .off('click')
+            .on('click', () => {
+                downloadFilterConfig(htmlCardId.FILTER_OTHER);
+            });
+        $(eles.copyFilterOthersAllBtn)
+            .off('click')
+            .on('click', () => {
+                copyAllFilterConfig();
+            });
+        $(eles.pasteFilterOthersAllBtn)
+            .off('click')
+            .on('click', () => {
+                pasteFilterConfig();
             });
 
         $(eles.thisCard).each(function () {
@@ -1616,6 +1591,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         genEvents,
         genColumnNameSelectBox,
         deleteFilter,
+        register,
         eles,
     };
 };
@@ -1642,6 +1618,7 @@ const genSmartHtmlOther = (procId, cardId = null) => {
     }
     // create filter other object ,generate events, clear copy source data
     const otherFuncs = filterCfgGenerator(currId, filterTypes.OTHER);
+    filterStore.setInstanceByCardId(currId, otherFuncs);
     filterElements.addFilterOther.before(`<div name="filterOtherCard" class="card graph-navi" id="${currId}"></div>`);
     const prevCard = filterElements.filterTemplate.clone();
     $(prevCard).find('table').attr('id', tableId);

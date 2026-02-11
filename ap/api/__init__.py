@@ -1,4 +1,8 @@
-def create_module(app, **kwargs):
+from collections.abc import Mapping
+from typing import Any
+
+
+def create_module(app, **_kwargs: Mapping[str, Any]):
     from .aggregate_plot.controllers import api_agp_blueprint
     from .analyze.controllers import api_analyze_module_blueprint
     from .calendar_heatmap.controllers import api_calendar_heatmap_blueprint

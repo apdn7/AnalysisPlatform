@@ -43,7 +43,12 @@ class EventListener:
     @staticmethod
     def remove_job(event: Event):
         if isinstance(event, EventRemoveJobs):
-            remove_jobs(job_types=event.job_types, process_id=event.process_id, data_source_id=event.data_source_id)
+            remove_jobs(
+                job_types=event.job_types,
+                process_id=event.process_id,
+                data_source_id=event.data_source_id,
+                export_id=event.export_id,
+            )
 
     @staticmethod
     def run_function(event: Event):

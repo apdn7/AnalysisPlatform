@@ -7,7 +7,6 @@ import re
 import time
 from contextlib import suppress
 from itertools import islice
-from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -37,28 +36,34 @@ from ap.api.setting_module.services.v2_etl_services import (
     rename_abnormal_history_col_names,
     rename_sub_part_no,
 )
+from ap.api.setting_module.services.web_api import WebAPI
 from ap.common.common_utils import (
+    WebAuthenticationType,
     convert_eu_decimal_series,
     convert_numeric_by_type,
     get_csv_delimiter,
 )
 from ap.common.constants import (
+    COL_DATA_TYPE,
     DATA_TYPE_ESTIMATION_LIMIT,
     DATE_FORMAT_SIMPLE,
     DATETIME_DUMMY,
     EMPTY_STRING,
     FILE_NAME,
+    FORMULA,
     HALF_WIDTH_SPACE,
     IS_JUDGE,
     JUDGE_AVAILABLE,
-    JUDGE_FORMULA,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
     PREVIEW_DATA_TIMEOUT,
+    RE_ID_PATTERN,
+    RE_SERIAL_PATTERN,
     REVERSED_WELL_KNOWN_COLUMNS,
     SOFTWARE_WORKSHOP_SHOW_MISSING_COLUMNS_ON_PREVIEW,
     SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_PREFIX,
     SUB_PART_NO_SUFFIX,
+    UNDER_SCORE,
     WR_HEADER_NAMES,
     WR_TYPES,
     WR_VALUES,
@@ -66,14 +71,15 @@ from ap.common.constants import (
     DataGroupType,
     DataType,
     DBType,
+    DefinedLabel,
     MasterDBType,
     ProcessColumnConst,
 )
+from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.logger import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.path_utils import (
     check_exist,
-    get_files,
     get_preview_data_file_folder,
     get_sorted_files,
     get_sorted_files_by_size,
@@ -95,6 +101,7 @@ from ap.common.services.csv_header_wrapr import (
     gen_colsname_for_duplicated,
 )
 from ap.common.services.data_type import gen_data_types
+from ap.common.services.http_content import orjson_dumps
 from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji
 from ap.common.services.normalization import (
     normalize_big_rows,
@@ -103,7 +110,8 @@ from ap.common.services.normalization import (
     unicode_normalize,
 )
 from ap.common.timezone_utils import gen_dummy_datetime, gen_dummy_datetime_data
-from ap.detect_judge.core import get_judge_formula
+from ap.conversion_formula import JudgeFormula
+from ap.conversion_formula.judge import JUDGE_NAME_REGEX
 from ap.etl.transform import TransformData
 from ap.etl.transform.pipeline import (
     software_workshop_postgres_history_transform_pipeline,
@@ -111,6 +119,7 @@ from ap.etl.transform.pipeline import (
     software_workshop_snowflake_history_transform_pipeline,
     software_workshop_snowflake_measurement_transform_pipeline,
 )
+from ap.import_filter.utils import get_import_filter_for_preview, get_preview_df_with_filter
 from ap.setting_module.models import (
     CfgDataSource,
     CfgProcess,
@@ -137,6 +146,8 @@ def get_latest_records(
     process_factid=None,
     master_type: MasterDBType = None,
     etl_func: str = '',
+    import_filter=None,
+    api_url: str | None = None,
 ):
     previewed_files = None
     cols_with_types = []
@@ -148,10 +159,12 @@ def get_latest_records(
     dummy_datetime_idx = None
     file_name_col_idx = None
     is_file_checker = False
-    data_source: Optional[CfgDataSource] = None
+    data_source: CfgDataSource | None = None
 
     if data_source_id:
         data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
+        if not api_url and data_source.web_detail:
+            api_url = data_source.web_detail.url
         if not data_source:
             return None
         is_v2_datasource = is_v2_data_source(ds_type=data_source.type)
@@ -219,6 +232,7 @@ def get_latest_records(
                 dummy_datetime_idx=dummy_datetime_idx,
                 file_name_idx=file_name_col_idx,
                 is_gen_cols=is_gen_cols,
+                import_filter=import_filter,
                 master_type=master_type,
             )
 
@@ -230,6 +244,26 @@ def get_latest_records(
         # get rows
         df_rows = dic_preview.get('content', None)
         previewed_files = dic_preview.get('previewed_files')
+    elif api_url:
+        authentication_type: WebAuthenticationType = WebAuthenticationType[data_source.web_detail.authentication_type]
+        web_api = WebAPI(
+            api_url,
+            username=data_source.web_detail.username,
+            password=decrypt_pwd(data_source.web_detail.password),
+            authentication_type=authentication_type,
+        )
+        api_data = web_api.get_data(limit=DATA_TYPE_ESTIMATION_LIMIT)
+        cols, df_rows, dict_column_name_and_unit = api_data.cols, api_data.df_rows, api_data.dict_column_name_and_unit
+        data_types = [gen_data_types(df_rows[col]) for col in cols]
+        same_values = check_same_values_in_df(df_rows, cols)
+        if cols and data_types:
+            cols_with_types = gen_cols_with_types(
+                normalize_list(cols),
+                data_types,
+                same_values,
+                column_raw_name=cols,
+                dict_column_name_and_unit=dict_column_name_and_unit,
+            )
     else:
         if current_process_id is not None:
             proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(int(current_process_id))
@@ -244,7 +278,7 @@ def get_latest_records(
         )
         if etl_func:
             df_rows = df_transform(df_rows, etl_func)
-            cols = df_rows.columns.tolist()
+            cols = list(df_rows.columns)
         data_types = [gen_data_types(df_rows[col]) for col in cols]
         same_values = check_same_values_in_df(df_rows, cols)
         if cols and data_types:
@@ -254,10 +288,9 @@ def get_latest_records(
                 same_values,
                 column_raw_name=cols,
                 dict_column_name_and_unit=dict_column_name_and_unit,
+                import_filter=import_filter,
                 master_type=master_type,
             )
-        # format data
-        df_rows = convert_utc_df(df_rows, cols, data_types, data_source)
 
     # change name if romaji cols is duplicated
     cols_with_types, cols_duplicated = change_duplicated_columns(cols_with_types)
@@ -280,10 +313,15 @@ def get_latest_records(
         if is_valid_list(df_rows):
             df_rows = gen_dummy_datetime(df_rows)
 
+    # filter preview data
+    filters = get_import_filter_for_preview(filter_dict=import_filter or {})
+    df_rows = get_preview_df_with_filter(df_rows, filters)
+
     # if DATETIME_DUMMY in cols or DataType.DATETIME.value not in data_types:
     #     dummy_datetime_idx = 0
     #     has_ct_col = False
 
+    labels = [DefinedLabel.get_by_dbtype(DBType[data_source.type])] if data_source else []
     rows = []
     unique_rows_as_category = []
     unique_rows_as_real = []
@@ -298,17 +336,25 @@ def get_latest_records(
     df_rows.columns = col_names
     df_unique_sample_processing = df_rows.copy()
     if is_valid_list(df_rows):
-        # check is judge
-        is_has_judge_col = False
         for index, col in enumerate(df_rows.columns):
-            judge_formula = get_judge_formula(df_rows[col])
+            judge_formula = JudgeFormula.detect(df_rows[col])
+            cols_with_types[index][IS_JUDGE] = False
             if judge_formula is not None:
                 cols_with_types[index][JUDGE_AVAILABLE] = True
-                cols_with_types[index][JUDGE_FORMULA] = judge_formula.get_formula()
-                cols_with_types[index][IS_JUDGE] = is_has_judge_col is False
-                is_has_judge_col = True
+                cols_with_types[index][FORMULA] = judge_formula.get_formula()
             else:
                 cols_with_types[index][JUDGE_AVAILABLE] = False
+
+        # check is judge
+        for index, col in enumerate(df_rows.columns):
+            # check name includes Judge or 判定
+            # the detected datatype should also be TEXT
+            if JUDGE_NAME_REGEX.search(col) and cols_with_types[index][COL_DATA_TYPE] == DataType.TEXT.name:
+                cols_with_types[index][IS_JUDGE] = True
+                # force assign boolean datatype to column detected as judge (#676)
+                # TODO: should be actually use raw_data_type here? (it was never available in this flow)
+                cols_with_types[index][COL_DATA_TYPE] = DataType.BOOLEAN.name
+                break
 
         data_type_by_cols = {}
         for col_data in cols_with_types:
@@ -351,6 +397,10 @@ def get_latest_records(
                 logger.exception(e)
                 continue
 
+        df_rows[df_rows.select_dtypes(include=['datetime64[ns]']).columns] = df_rows.select_dtypes(
+            include=['datetime64[ns]']
+        ).astype('string')
+
         rows = transform_df_to_rows(col_names, df_rows, limit)
         if is_csv_or_v2 and directory and (file_name_col_idx is not None):
             file_name_data = pd.Series([os.path.basename(path) for path in get_sorted_files(directory)])
@@ -377,28 +427,42 @@ def get_latest_records(
         unique_rows_as_real,
         unique_rows_as_int,
         unique_rows_as_int_cat,
+        labels,
     )
 
 
-def get_sample_from_preview_data(preview_data, columns):
+def get_sample_from_preview_data(preview_data, columns: list[CfgProcessColumn]):
     link_cols = {col.column_name: str(col.id) for col in columns}
     # make dic use cols for validate and parse sensor value by selected type
     dic_use_cols = {col.column_name: col for col in columns}
     # bind data from preview_data
     df = pd.DataFrame(data=preview_data['rows'])
-    df = validate_data(df, dic_use_cols, na_vals=[None, pd.NA])
+    # we don't need to pass na values, because the data from `preview_data` is json
+    df = validate_data(df, dic_use_cols)
     df = df[list(link_cols.keys())]
     # use column id to get easier from frontend
     df = df.rename(columns=link_cols)
     return df
 
 
-def get_latest_record_from_preview_file(fp, proc_id, limit=10):
-    data = json.load(fp)
+def get_latest_record_from_preview_file(fp, proc_id, limit=10, import_filter=None):
+    dict_data = json.load(fp)
+    # If dict_data is a string (JSON string), parse it again
+    if isinstance(dict_data, str):
+        dict_data = json.loads(dict_data)
     proc_col = get_process_columns(proc_id, show_graph=False)
-    dict_data = json.loads(data)
     cols_org = dict_data.get('cols', [])
     rows_org = dict_data.get('rows', [])
+
+    # check import filter condition
+    filtered_cols = {(col['column_raw_name'], col['filter']) for col in cols_org if col.get('filter') is not None}
+    import_filter_config = {tuple(import_filter.items())} if import_filter else set()
+    new_filter = list(import_filter_config - filtered_cols)
+
+    if new_filter:
+        # return None to preview again
+        return None
+
     if not cols_org and not rows_org:
         return dict_data
 
@@ -453,28 +517,29 @@ def get_info_from_db(
             process_factid,
             master_type=master_type,
         )
-    return get_info_from_db_normal(data_source, table_name, sql_limit)
+    return get_info_from_db_normal(data_source.id, table_name, sql_limit)
 
 
 @CustomCache.memoize(duration=300)
 def get_info_from_db_normal(
-    data_source,
-    table_name,
+    data_source_id: int,
+    table_name: str,
     sql_limit: int = 2000,
 ) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
+    data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
     with ReadOnlyDbProxy(data_source) as db_instance:
         if not db_instance or not table_name:
             return [], pd.DataFrame(), {}
 
         if isinstance(db_instance, mssqlserver.MSSQLServer):
-            cols, rows = db_instance.run_sql('select TOP {}  * from "{}"'.format(sql_limit, table_name), False)
+            cols, rows = db_instance.run_sql(f'select TOP {sql_limit}  * from "{table_name}"', False)
         elif isinstance(db_instance, oracle.Oracle):
             cols, rows = db_instance.run_sql(
-                'select * from "{}" where rownum <= {}'.format(table_name, sql_limit),
+                f'select * from "{table_name}" where rownum <= {sql_limit}',
                 False,
             )
         else:
-            cols, rows = db_instance.run_sql('select * from "{}" limit {}'.format(table_name, sql_limit), False)
+            cols, rows = db_instance.run_sql(f'select * from "{table_name}" limit {sql_limit}', False)
 
     df_rows = normalize_big_rows(rows, cols, strip_quote=False)
     return cols, df_rows, {}
@@ -544,7 +609,7 @@ def get_last_distinct_sensor_values(cfg_col_id):
         return []
 
     col_name = cfg_col.bridge_column_name
-    with DbProxy(gen_data_source_of_universal_db(cfg_col.process_id)) as db_instance:
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(cfg_col.process_id), is_universal_db=True) as db_instance:
         unique_sensor_vals = trans_data.select_distinct_data(db_instance, col_name, limit=1000)
 
     return unique_sensor_vals
@@ -789,7 +854,7 @@ def preview_csv_data(
         # sort by datetime
         first_datetime_col_idx = None
         # convert utc
-        for col, dtype in zip(header_names, data_types):
+        for col, dtype in zip(header_names, data_types, strict=False):
             if DataType(dtype) in [DataType.DATETIME, DataType.DATE, DataType.TIME]:
                 df_data_details[col] = df_data_details[col].astype(pd.StringDtype())
 
@@ -893,7 +958,7 @@ def preview_csv_data(
     if len(dupl_cols) and same_values:
         if dummy_datetime_idx is not None:
             # for dummy datetime column
-            dupl_cols = [False] + dupl_cols
+            dupl_cols = [False, *dupl_cols]
         for key, value in enumerate(same_values):
             is_dupl_col = bool(dupl_cols[key])
             same_values[key]['is_dupl'] = is_dupl_col
@@ -1067,7 +1132,7 @@ def preview_v2_data(
     dummy_datetime_idx = None
     if df_data_details is not None:
         # convert utc
-        for col, dtype in zip(header_names, data_types):
+        for col, dtype in zip(header_names, data_types, strict=False):
             if DataType(dtype) is not DataType.DATETIME:
                 continue
             # Convert UTC time
@@ -1107,7 +1172,7 @@ def preview_v2_data(
     if len(dupl_cols) and same_values:
         if dummy_datetime_idx is not None:
             # for dummy datetime column
-            dupl_cols = [False] + dupl_cols
+            dupl_cols = [False, *dupl_cols]
         for key, value in enumerate(same_values):
             is_dupl_col = bool(dupl_cols[key])
             same_values[key]['is_dupl'] = is_dupl_col
@@ -1209,10 +1274,11 @@ def gen_cols_with_types(
     is_v2_history=False,
     column_raw_name=[],
     dict_column_name_and_unit={},
-    dummy_datetime_idx: int = None,
-    file_name_idx: int = None,
+    dummy_datetime_idx: int | None = None,
+    file_name_idx: int | None = None,
     is_gen_cols=[],
-    master_type: Optional[MasterDBType] = None,
+    import_filter=None,
+    master_type: MasterDBType | None = None,
 ):
     cols_with_types = []
     ja_locale = False
@@ -1231,11 +1297,11 @@ def gen_cols_with_types(
     # see: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/merge_requests/6875
     # we move this logic out of the loop so that we can add suffix AFTER extract unit
     if is_v2_history:
-        # v2_history: name_jp use short name　子部品品番　ー＞子１品番
+        # v2_history: name_jp use short name 子部品品番 → 子１品番
         mapped_col_names = cols
     else:
         mapped_col_names = []
-        for normalized_col, col_name, is_gen_col in zip(column_raw_name_normalize, cols, is_gen_cols):
+        for normalized_col, col_name, is_gen_col in zip(column_raw_name_normalize, cols, is_gen_cols, strict=False):
             # when stripped col_raw_name is empty, use col_name (which are generated headers)
             mapped_col_name = col_name if is_gen_col else normalized_col
             mapped_col_names.append(mapped_col_name)
@@ -1269,13 +1335,21 @@ def gen_cols_with_types(
         data_type,
         same_value,
     ) in enumerate(
-        zip(column_names_with_suffix, column_raw_name, extracted_col_names_with_suffix, units, data_types, same_values)
+        zip(
+            column_names_with_suffix,
+            column_raw_name,
+            extracted_col_names_with_suffix,
+            units,
+            data_types,
+            same_values,
+            strict=False,
+        )
     ):
         extended_cfg = {}
         is_date = False if has_is_get_date_col else DataType(data_type) is DataType.DATETIME
         is_serial_no = (
             DataType(data_type) in [DataType.TEXT, DataType.INTEGER]
-            and re.search(r'.*シリアル|serial.*', col_name.lower()) is not None
+            and RE_SERIAL_PATTERN.search(col_name.lower()) is not None
         )
         is_main_serial_no = False
         if is_date:
@@ -1289,7 +1363,7 @@ def gen_cols_with_types(
                 is_serial_no = False
                 has_is_serial_no_col = True
         # Collect columns with 'id' in name for potential main serial
-        elif re.search(r'.*(?:[iIｉＩ][dDｄＤ]).*', col_name, re.IGNORECASE) is not None and DataType(data_type) in [
+        elif RE_ID_PATTERN.search(col_name) is not None and DataType(data_type) in [
             DataType.INTEGER,
             DataType.TEXT,
         ]:
@@ -1298,7 +1372,7 @@ def gen_cols_with_types(
         # set Datetime:key & main::Datetime for SOFTWARE_WORKSHOP
         if is_software_workshop:
             if col_name.lower() == POSTGRES_SOFTWARE_WORKSHOP_DEF.event_time:
-                is_date = True
+                is_date, has_is_get_date_col = True, True
                 extended_cfg[ProcessColumnConst.COLUMN_TYPE.value] = DataColumnType.DATETIME.value
                 extended_cfg[ProcessColumnConst.DATA_TYPE.value] = DataType.DATETIME.name
             elif col_name.lower() == POSTGRES_SOFTWARE_WORKSHOP_DEF.created_at:
@@ -1308,7 +1382,6 @@ def gen_cols_with_types(
                 extended_cfg[ProcessColumnConst.DATA_TYPE.value] = DataType.DATETIME.name
             else:
                 is_date = False
-                has_is_get_date_col = False
 
         # add to output
         if col_name:
@@ -1327,6 +1400,7 @@ def gen_cols_with_types(
 
             romaji = name_en
             col_unit = dict_column_name_and_unit.get(col_raw_name, unit)
+            filter_expression = import_filter.get(col_raw_name) if import_filter is not None else None
             cols_with_types.append(
                 {
                     'column_name': col_name,
@@ -1345,6 +1419,7 @@ def gen_cols_with_types(
                     'unit': col_unit,
                     'is_checked': not same_value.get('is_null'),
                     'is_show': True,
+                    'filter': filter_expression,
                     **extended_cfg,
                 },
             )
@@ -1359,7 +1434,7 @@ def gen_cols_with_types(
 
 @log_execution_time()
 def convert_utc_df(df_rows, cols, data_types, data_source):
-    for col_name, data_type in zip(cols, data_types):
+    for col_name, data_type in zip(cols, data_types, strict=False):
         is_date = DataType(data_type) is DataType.DATETIME
         if not is_date:
             continue
@@ -1368,7 +1443,7 @@ def convert_utc_df(df_rows, cols, data_types, data_source):
         # date_val, tzoffset_str, db_timezone = get_tzoffset_of_random_record(data_source, table_name, col_name)
 
         # use os timezone
-        if data_source.db_detail.use_os_timezone:
+        if data_source.db_detail and data_source.db_detail.use_os_timezone:
             pass
 
         # is_tz_inside, _, time_offset = get_time_info(date_val, db_timezone)
@@ -1383,11 +1458,11 @@ def convert_utc_df(df_rows, cols, data_types, data_source):
 
 @log_execution_time()
 def transform_df_to_rows(cols, df_rows, limit):
-    return [dict(zip(cols, vals)) for vals in df_rows[0:limit][cols].to_records(index=False).tolist()]
+    return [dict(zip(cols, vals, strict=False)) for vals in df_rows[0:limit][cols].to_records(index=False).tolist()]
 
 
 @log_execution_time()
-def gen_preview_data_check_dict(rows, previewed_files):
+def gen_preview_data_check_dict(rows, previewed_files, import_filter=None):
     dic_preview_limit = {}
     file_path = previewed_files[0] if previewed_files else ''
     file_name = ''
@@ -1396,7 +1471,7 @@ def gen_preview_data_check_dict(rows, previewed_files):
         file_name = os.path.basename(file_path)
         folder_path = os.path.dirname(file_path)
 
-    dic_preview_limit['reach_fail_limit'] = bool(not rows and previewed_files)
+    dic_preview_limit['reach_fail_limit'] = bool(not rows and previewed_files and not import_filter)
     dic_preview_limit['file_name'] = file_name
     dic_preview_limit['folder'] = folder_path
     return dic_preview_limit
@@ -1497,7 +1572,7 @@ def retrieve_data_from_several_files(
 
 
 @log_execution_time()
-def re_order_items_by_datetime_idx(datetime_idx: int, items: List) -> List:
+def re_order_items_by_datetime_idx(datetime_idx: int, items: list) -> list:
     new_column_ordered = [items[datetime_idx]]
     new_column_ordered += [col for (i, col) in enumerate(items) if i != datetime_idx]
     return new_column_ordered
@@ -1531,7 +1606,7 @@ def add_new_column_with_data(
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
     suffix_header_names = header_names.copy()
     new_col = suffix_header_names.pop(index)
-    rename_cols = dict(zip(df_cols, suffix_header_names))
+    rename_cols = dict(zip(df_cols, suffix_header_names, strict=False))
     df_data_details = df_data_details.rename(columns=rename_cols)
     org_headers.insert(index, new_col_name)
     data_types.insert(index, new_data_type)
@@ -1633,15 +1708,16 @@ def add_generated_datetime_column(
     return header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols
 
 
-@log_execution_time()
-def save_preview_data_file(
+def save_preview_ds_file(
     data_source_id: int,
     data: dict,
-    table_name=None,
-    process_factid=None,
-    master_type=None,
-    etl_func=None,
-):
+    table_name: str | None = None,
+    process_factid: str | None = None,
+    master_type: MasterDBType | None = None,
+    etl_func: str | None = None,
+) -> None:
+    """Save datasource preview data to JSON file."""
+    # Generate preview file path based on parameters
     sample_data_file = gen_latest_record_result_file_path(
         data_source_id,
         table_name=table_name,
@@ -1649,44 +1725,135 @@ def save_preview_data_file(
         master_type=master_type,
         etl_func=etl_func,
     )
+
+    # Create directory if it doesn't exist
     make_dir_from_file_path(sample_data_file)
-    with open(sample_data_file, 'w') as outfile:
-        json.dump(data, outfile)
+
+    try:
+        # Write preview data to JSON file
+        with open(sample_data_file, 'wb') as outfile:
+            data = orjson_dumps(data)
+            outfile.write(data)
+    except Exception as e:
+        # Log exception if file write fails
+        logger.exception(f'Failed to save preview file: {sample_data_file}', exc_info=e)
 
 
-def get_preview_data_files(data_source_id, table_name=None, process_factid=None, master_type=None, etl_func=None):
+def save_preview_process_file(
+    data_source_id: int,
+    process_id: int,
+    table_name: str | None = None,
+    process_factid: str | None = None,
+    master_type: MasterDBType | None = None,
+    etl_func: str | None = None,
+) -> None:
+    """Copy datasource preview data to process-specific preview file."""
+    # Generate datasource preview file path
+    ds_preview_file = gen_latest_record_result_file_path(
+        data_source_id=data_source_id,
+        table_name=table_name,
+        process_factid=process_factid,
+        master_type=master_type,
+        etl_func=etl_func,
+    )
+
+    # Generate process preview file path
+    sample_data_path = get_preview_data_file_folder(data_source_id)
+    process_preview_file = os.path.join(sample_data_path, f'process_{process_id}.json')
+
+    # Check if datasource preview file exists
+    if not os.path.exists(ds_preview_file):
+        logger.warning(f'No datasource preview to copy: {ds_preview_file}')
+        return
+
+    try:
+        # Read data from datasource preview file
+        with open(ds_preview_file, encoding='utf-8') as infile:
+            data = json.load(infile)
+
+        # Write data to process preview file
+        with open(process_preview_file, 'wb') as outfile:
+            data = orjson_dumps(data)
+            outfile.write(data)
+
+        logger.info(f'Process preview saved (copied): {process_preview_file}')
+
+    except Exception as e:
+        # Log exception if file copy fails
+        logger.exception(f'Copy failed for process {process_id}', exc_info=e)
+
+
+def get_preview_data_files(
+    data_source_id: int,
+    table_name: str | None = None,
+    process_factid: str | None = None,
+    master_type: MasterDBType | None = None,
+    etl_func: str | None = None,
+    process_id: int | None = None,
+) -> str | None:
+    """
+    Get the preview data file path with priority order:
+    1. If process_id is provided → check process_{process_id}.json first
+    2. If not found or no process_id → fallback to the latest datasource preview file
+       (generated by gen_latest_record_result_file_path)
+
+    Returns: full file path (str) if found, else None
+    """
     folder_path = get_preview_data_file_folder(data_source_id)
-    if check_exist(folder_path):
-        _files = get_files(folder_path, extension=['csv', 'tsv', 'json'])
-        file_name = gen_latest_record_result_file_path(
-            data_source_id,
-            table_name=table_name,
-            process_factid=process_factid,
-            master_type=master_type,
-            etl_func=etl_func,
-        )
-        if file_name in _files:
-            return file_name
+
+    if not check_exist(folder_path):
+        return None
+
+    # Priority 1: If a process_id is available, check the process file first.
+    if process_id is not None:
+        proc_preview_file = os.path.join(folder_path, f'process_{process_id}.json')
+        if os.path.isfile(proc_preview_file):
+            return proc_preview_file
+
+    # Priority 2: Fallback to the shared datasource preview file.
+    ds_preview_file = gen_latest_record_result_file_path(
+        data_source_id,
+        table_name=table_name,
+        process_factid=process_factid,
+        master_type=master_type,
+        etl_func=etl_func,
+    )
+
+    # Check if the file exists.
+    if os.path.isfile(ds_preview_file):
+        return ds_preview_file
 
     return None
 
 
 def gen_latest_record_result_file_path(
-    data_source_id,
-    table_name=None,
-    process_factid=None,
-    master_type=None,
-    etl_func=None,
-):
+    data_source_id: int,
+    table_name: str | None = None,
+    process_factid: str | None = None,
+    master_type: MasterDBType | None = None,
+    etl_func: str | None = None,
+) -> str:
+    """Generate file path for preview data based on parameters.
+
+    Args:
+        data_source_id: ID of the data source (required)
+        table_name: Name of the table (optional)
+        process_factid: Process fact ID (optional)
+        master_type: Master database type (optional)
+        etl_func: ETL function name (optional)
+
+    Returns:
+        str: Full file path for the preview data JSON file
+    """
     sample_data_path = get_preview_data_file_folder(data_source_id)
     file_partials = [
         str(data_source_id),
         table_name,
         process_factid,
-        str(master_type),
+        master_type,
         etl_func,
     ]
-    file_name = '_'.join([p for p in file_partials if p])
+    file_name = UNDER_SCORE.join([p for p in file_partials if p])
     file_name = f'{file_name}.json'
     sample_data_file = os.path.join(sample_data_path, file_name)
     return sample_data_file
@@ -1745,3 +1912,16 @@ def parse_unique_as_int_cat(data):
         return data.reindex(range(10), fill_value=np.nan)
     except Exception:
         return pd.Series()
+
+
+def check_datasource_connection(data_source: CfgDataSource):
+    if data_source.is_csv_or_v2():
+        data_source_csv_detail = data_source.csv_detail
+        connection_result = len(get_sorted_files(data_source_csv_detail.directory)) > 0
+        if not connection_result:
+            raise FileNotFoundError('File not found')
+        return connection_result
+    else:
+        db_instance = DbProxy(data_source)
+        connection_result = db_instance.check_db_connection(data_source)
+        return connection_result

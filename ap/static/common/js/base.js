@@ -110,6 +110,22 @@ const isCategory = (dataType, columnType) => {
     );
 };
 
+const isJudgeFormula = (columnType) => {
+    return columnType === masterDataGroup.JUDGE;
+};
+
+const isDatetimeFormula = (dataType, columnType) => {
+    return (
+        [
+            masterDataGroup.DATETIME_KEY,
+            masterDataGroup.MAIN_DATETIME,
+            masterDataGroup.MAIN_TIME,
+            masterDataGroup.MAIN_DATE,
+        ].includes(columnType) ||
+        (dataType === DataTypes.DATETIME.name && columnType === masterDataGroup.GENERATED)
+    );
+};
+
 const processOrderForFilterCheck = {
     first: '1',
     all: 'all',
@@ -213,6 +229,11 @@ const JudgeColorPallets = {
         ['1.0', 'rgb(255,0,0)'],
     ],
     OK_NG: colorPallets.JET_REV.scale,
+};
+
+const JUDGE_COLOR_DEFAULT = {
+    POSITIVE: '#1f77b4',
+    NEGATIVE: '#d62728',
 };
 
 const isDebugMode = localStorage.getItem('DEBUG')
@@ -1048,10 +1069,13 @@ const handleChangeDivideOption = (e) => {
         }
     });
     isCyclicTermTab = e.value === CYCLIC_TERM.NAME;
+    if (mainDataFinder) {
+        mainDataFinder.setCalendarShowFromOnly(isCyclicTermTab);
+    }
 
     showDateTimeRangeValue();
     compareSettingChange();
-    setProcessID();
+    DataFinderService.setProcessID();
 };
 
 const toggleDisableAllInputOfNoneDisplayEl = (el, active = true) => {
@@ -1480,10 +1504,12 @@ const updateCleansing = (inputEle) => {
 
 const cleansingHandling = () => {
     const openEvent = new Event('open', { bubbles: true });
-    $('.custom-selection')
+    $('.custom-selection-event')
         .off('click')
         .on('click', (e) => {
-            const contentDOM = $(e.target).closest('.custom-selection-section').find('.custom-selection-content');
+            const contentDOM = $(e.target)
+                .closest('.custom-selection-section-event')
+                .find('.custom-selection-content-event');
             const contentIsShowed = contentDOM.is(':visible');
             const selectContent = document.getElementById('cyclicCalender-content');
             if (contentIsShowed) {
@@ -1508,8 +1534,8 @@ const cleansingHandling = () => {
             $('.dn-custom-select--select--list').addClass('select-hide');
         }
 
-        if (!e.target.closest('.custom-selection-content') && !e.target.closest('.custom-selection')) {
-            $('.custom-selection-content').hide();
+        if (!e.target.closest('.custom-selection-content-event') && !e.target.closest('.custom-selection-event')) {
+            $('.custom-selection-content-event').hide();
         }
 
         // hide single calendar
@@ -2210,3 +2236,16 @@ const sendGtagConfigAndTracking = () => {
         });
     }
 };
+
+/* <h2>Execute a function after milliseconds</h2><br>
+ * <b>Parameters:</b>
+ * - func: function
+ * - ms: milliseconds delay
+ */
+function delay(func, ms, ...extendArgs) {
+    function inner(...args) {
+        clearTimeout(inner.timeoutID);
+        inner.timeoutID = setTimeout(func.bind(this, ...args, ...extendArgs), ms || 0);
+    }
+    return inner;
+}

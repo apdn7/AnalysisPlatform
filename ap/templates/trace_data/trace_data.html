@@ -91,6 +91,17 @@
             </div>
             <!--FPP and Histogram use common-->
             {{ macros.scale_option(name='yScaleOption', className='ml-4') }}
+            <!-- Enable log-scale for y-axis -->
+            {{
+                macros.switch_button(
+                id='logScaleEnableBtn',
+                name='logScaleEnableBtn',
+                label=_("Log-scale"),
+                title=_('Enable log-scale for y-axis'),
+                cl='mr-3 ml-3',
+                onChange='logScaleToggle(this)',
+                defaultVal=False)
+            }}
         </div>
         <ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">
             <li class="nav-item active" onclick="switchTabOption(this)">

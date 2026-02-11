@@ -1401,10 +1401,6 @@ msgstr "Możesz sprawdzić postęp importu z poniższego linku."
 msgid "CheckErrorJob"
 msgstr "Zobacz stronę listy zadań, aby uzyskać status błędu."
 
-#: ap/template/setting_module/trace_config.html
-msgid "Linking data was started."
-msgstr "Zacząłem łączyć dane."
-
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per 3 minutes"
 msgstr "Raz na 3 minuty"
@@ -1525,26 +1521,6 @@ msgstr "Zaimportować dane"
 # ap/template/setting_module/config.html
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"Based on the set config information, generating the ID for linking the "
-"data will be started."
-msgstr "Proces łącza danych rozpocznie się na podstawie bieżącej konfiguracji."
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"It may take time if there is a lot of data to link, but is it okay to "
-"start the process?"
-msgstr "Link może zająć trochę czasu, jeśli jest dużo danych. Czy możesz zacząć?"
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"(For data that is automatically and regularly imported, the ID for "
-"linking is automatically generated.)"
-msgstr ""
-"* Dla danych, które są automatycznie i okresowo importowane, link ID jest"
-" automatycznie generowany."
 
 # ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
@@ -4201,12 +4177,6 @@ msgstr "Number of duplicate serials (percentage)"
 msgid "Show all node labels"
 msgstr "Pokaż etykiety osi X."
 
-#: ap/templates/templates/macros.html
-msgid "Generate proc link information msg"
-msgstr ""
-"If you want to update the number of imported records or the number of "
-"linked records, press the 'Reload' button."
-
 #: ap/templates/templates/sidebar.html
 #, fuzzy
 msgid "in new tab"
@@ -5328,6 +5298,13 @@ msgstr ""
 " be changed to \"Serial:Int\"/\"Serial:Str\"."
 
 #: ap/templates/setting_module/function_config_modal.html
+msgid "checkIsMainDatetimeMsg"
+msgstr ""
+"Since \"main::Datetime\" cannot be selected multiple times, the "
+"\"main::Datetime\" selected in Process Config will be changed to "
+"\"Datetime\"."
+
+#: ap/templates/setting_module/function_config_modal.html
 msgid "fill.na processing will be skipped"
 msgstr "fill.na processing will be skipped"
 
@@ -5368,6 +5345,12 @@ msgid "changeMainSerialFunctionColumnMsg"
 msgstr ""
 "Since \"main::Serial\" cannot be selected multiple times, uncheck the "
 "variable that has already been selected in main::Serial."
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "changeMainDatetimeFunctionColumnMsg"
+msgstr ""
+"Since \"main::Datetime\" cannot be selected multiple times, uncheck the "
+"variable that has already been selected in main::Datetime."
 
 #: ap/templates/setting_module/function_config_modal.html
 msgid "uncheckMainSerialFunctionColumnMsg"
@@ -5536,8 +5519,24 @@ msgstr ""
 msgid "PlaceholderHidden"
 msgstr "hidden"
 
+msgid "ProcessConfigFilterHover"
+msgstr ""
+"Data will be imported based on the values entered here. Regular "
+"expressions can be used.\n"
+"For example, use\n"
+"\"\"   “abc” to search for items containing “abc” (partial match),\n"
+"   “^abc” to find items starting with “abc”,\n"
+"   “^abc$” for items matching “abc” (exact match),\n"
+"   “ab|c” to search for items containing either “ab” or “c” (OR "
+"condition), and\n"
+"   “^(?!test|abc).*” to find items starting something other than “test” "
+"or “abc”.\n"
+"(“^” indicates that the next character is at the beginning, “$” indicates"
+" that the preceding character is at the end, and “|” means OR.\n"
+"Note: The quotation marks are not needed when entering the values.)"
+
 #: ap/templates/i18n.html
-msgid "HoverConversationJudgeMsg"
+msgid "HoverConversationFormulaMsg"
 msgstr ""
 "Enter the unit. It will be displayed in the plot area, etc. Only units "
 "defined in the system can be registered.\n"
@@ -5559,7 +5558,7 @@ msgid "SelectJudgeDataTypeWarningFilterChangeModalMsg"
 msgstr "You will need to reset filter settings."
 
 #: ap/templates/i18n.html
-msgid "InvalidInputJudgeMsg"
+msgid "InvalidInputFormulaMsg"
 msgstr "Invalid input detected, reverting to original value."
 
 #: ap/templates/i18n.html
@@ -5640,6 +5639,25 @@ msgstr "Access Token"
 msgid "Waveform plot"
 msgstr "Waveform plot"
 
+#: ap/templates/waveform_plot/waveform_plot.html
+msgid "Waveform Plot Description"
+msgstr ""
+"You can visualize waveforms for each cycle.\n"
+"Multiple waveforms can be plotted on a single graph, and coloring is also"
+" supported.\n"
+"For example, by comparing press‑fit waveforms, current waveforms,\n"
+"or vibration waveforms of good and defective products,\n"
+"you can identify rising‑edge changes in specific sections or detect "
+"variations in peak positions.\n"
+
+#: ap/templates/waveform_plot/waveform_plot.html
+msgid "WfP Display variable hover"
+msgstr ""
+"Select two variables: the x‑value and y‑value of the waveforms. The first"
+" selected variable becomes the x‑axis.\n"
+"Selecting a 'Div' variable (used to group identical waveforms, such as "
+"Cycle ID) is mandatory."
+
 #: ap/templates/setting_module/db_config_modals.html
 msgid "SnowflakePrivateKeyFilePathLabel"
 msgstr "Private Key File"
@@ -5659,4 +5677,229 @@ msgstr "Authentication method"
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshopSnowflake"
 msgstr "Software Workshop ETL (Snowflake)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "ConfigWebHoverMsg"
+msgstr ""
+"Get data using HTTP GET.\n"
+"Returned data must be in JSON array of objects format, for example:\n"
+"[\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:00:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0001&quot;, &quot;temperature&quot;: "
+"12.3},\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:01:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0002&quot;, &quot;temperature&quot;: "
+"14.1},\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:02:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0003&quot;, &quot;temperature&quot;: "
+"11.2}\n"
+"]"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "ImportLimitTitle"
+msgstr ""
+"Limits the number of rows to import.\n"
+"The limit applies to each process (e.g., for a database: table, for CSV: "
+"folder).\n"
+"If you decrease the limit or when importing the latest data, if the "
+"number of rows exceeds the limit,\n"
+"the oldest data will be deleted from database in AP+DN7.\n"
+"When the import limit is increased, the data previously imported into "
+"AP+DN7 is first deleted and then re-imported from the data sources."
+
+msgid "ImportLimitUpdateSuccess"
+msgstr "Import Limit updated."
+
+msgid "ImportLimitUpdateFailed"
+msgstr "Cannot update Import Limit."
+
+msgid "Import Limit"
+msgstr "Import Limit"
+
+msgid "No limit"
+msgstr "No limit"
+
+msgid "1 million rows"
+msgstr "1 million rows"
+
+msgid "10 million rows"
+msgstr "10 million rows"
+
+msgid "100 million rows"
+msgstr "100 million rows"
+
+msgid "ConfirmIncreaseLimitImport"
+msgstr ""
+"Data previously imported into AP+DN7 is first deleted, and then "
+"automatically re-imported from the data sources."
+
+msgid "ConfirmDecreaseLimitImport"
+msgstr ""
+"If number of imported data exceeds the new limit, oldest data will be "
+"deleted from AP+DN7."
+
+#: ap/templates/setting_module/export_config.html
+msgid "TitleDataExport"
+msgstr "Data Export"
+
+#: ap/templates/sidebar.html
+msgid "SidebarTitleDataExport"
+msgstr "Data Export Config"
+
+#: ap/templates/i18n.html
+msgid "ExportFolder"
+msgstr "Export Folder"
+
+#: ap/templates/i18n.html
+msgid "ExportFrequency"
+msgstr "Export Frequency"
+
+#: ap/templates/i18n.html
+msgid "ExportFrom"
+msgstr "Export From"
+
+#: ap/templates/i18n.html
+msgid "ExportTo"
+msgstr "Export To"
+
+#: ap/templates/i18n.html
+msgid "ExportConfigDetail"
+msgstr "Export Config Detail"
+
+#: ap/templates/i18n.html
+msgid "Export column name"
+msgstr "Export column name"
+
+#: ap/templates/i18n.html
+msgid "System Name"
+msgstr "System Name"
+
+#: ap/templates/i18n.html
+msgid "Once per week"
+msgstr "Once per week"
+
+#: ap/templates/i18n.html:390
+msgid ""
+"Sorry, we couldn’t display the graph for your target variable with the "
+"selected mode. Please try a different mode or variable."
+msgstr ""
+"Sorry, we couldn’t display the graph for your target variable with the "
+"selected mode. Please try a different mode or variable."
+
+#: ap/templates/setting_module/db_config.html
+msgid "NoneAuthentication"
+msgstr "None"
+
+#: ap/templates/setting_module/db_config.html
+msgid "BasicAuthentication"
+msgstr "Basic authentication"
+
+#: ap/templates/setting_module/db_config.html
+msgid "BasicAuthenticationHoverMsg"
+msgstr ""
+"Uses username and password to access restricted web resources.\n"
+"Credentials are encoded using Base64 and included in the HTTP request's "
+"Authorization header. \n"
+"This approach is best suited for internal tools, \n"
+"as Base64 encoding does not provide encryption and credentials can be "
+"easily decoded."
+
+#: ap/templates/setting_module/db_config.html
+msgid "Authentication"
+msgstr "Authentication"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Username"
+msgstr "Username"
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to connect to URL"
+msgstr "Failed to connect to URL"
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to authorized. Please check your credentials."
+msgstr "Failed to authorized. Please check your credentials."
+
+#: ap/api/setting_module/controllers.py:532
+msgid ""
+"The data source columns have changed. The imported data may no longer be "
+"accurate. Please reinitialize the process and re-register."
+msgstr ""
+"The data source columns have changed. The imported data may no longer be "
+"accurate. Please reinitialize the process and re-register."
+
+#: ap/api/setting_module/controllers.py:495
+msgid "Unable to connect to data source. No preview data available."
+msgstr "Unable to connect to data source. No preview data available."
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to find connect to URL. Please check your URL."
+msgstr "Failed to find connect to URL. Please check your URL."
+
+#: ap/templates/i18n.html
+msgid "Please input URL"
+msgstr "Please input URL"
+
+#: ap/templates/i18n.html
+msgid "Please input Username"
+msgstr "Please input Username"
+
+#: ap/templates/i18n.html
+msgid "Please input Password"
+msgstr "Please input Password"
+
+#: ap/templates/i18n.html
+msgid "ErrorMsgFunctionUsesUndefinedColumn"
+msgstr "Function column is defined using undefined columns"
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr ""
+"Saved data link configuration. Press 'Reload' button to show the latest "
+"number of imported records and the number of linked records."
+
+#: ap/templates/setting_module/trace_config.html:274
+msgid "Data link confirmation"
+msgstr ""
+"Data link settings will be saved.<br>Depending on the amount of data, it "
+"may take some time for the number of linked data to appear."
+
+#: ap/templates/aggregate_plot.html
+msgid "Div order"
+msgstr "Div order"
+
+#: ap/templates/aggregate_plot.html
+msgid "Y axis value"
+msgstr "Y axis value"
+
+#: ap/templates/i18n.html
+msgid ""
+"Due to the large number of data points, it may take some time to display "
+"the charts."
+msgstr ""
+"* Due to the large number of data points, it may take some time to "
+"display the charts."
+
+#: ap/templates/setting_module/proc_config.html
+msgid "ProcessRegisterFailedMsg"
+msgstr "Failed to register process"
+
+#: ap/templates/i18n.html
+msgid "loadTablesFailedMsg"
+msgstr "Failed to load tables of database"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize parent process data"
+msgstr "Initialize parent process data"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize Parent Data Hint"
+msgstr ""
+"If you select \"Initialize Parent Data\", the data of the parent process "
+"will be initialized and re-imported from scratch. If it is not checked, "
+"the data may not be consistent."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Label"
+msgstr "Label"
 

@@ -1,9 +1,9 @@
 from collections import defaultdict
-from typing import List
 
 from ap.api.trace_data.services.proc_link import gen_proc_link_of_edge
 from ap.common.logger import log_execution_time
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.setting_module.models import CfgProcess, CfgTrace, ProcLinkCount
 from ap.trace_data.transaction_model import TransactionData
 
@@ -11,15 +11,15 @@ PREDICT_SAMPLE = 10_000
 
 
 @log_execution_time('[SIMULATE GLOBAL ID]')
-def sim_gen_global_id(edges: List[CfgTrace]):
-    """
-    generate global id for universal db (root function)
-    """
+def sim_gen_global_id(edges: list[CfgTrace]):
+    """Generate global id for universal db (root function)"""
     traces = CfgTrace.get_all()
     dic_proc_data_count = {}
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for i, tran_data in enumerate(trans):
-        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id)) as db_instance:
+        with ReadOnlyDbProxy(
+            gen_data_source_of_universal_db(tran_data.process_id), is_universal_db=True
+        ) as db_instance:
             if tran_data.is_table_exist(db_instance):
                 data_count = tran_data.count_data(db_instance)
                 dic_proc_data_count[tran_data.process_id] = data_count

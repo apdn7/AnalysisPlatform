@@ -45,7 +45,6 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     ZERO_VARIANCE,
     CacheType,
-    DataType,
     ErrorMsg,
     GrLassoTask,
 )
@@ -93,7 +92,7 @@ colors = [
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
@@ -237,16 +236,11 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
             dic_scp = dict(**dic_scp, **dic_tbl)
             obj_var_id = graph_param.common.objective_var
             obj_var_name = None
-            is_cat_obj = False
             for proc_id, cfg_proc in graph_param.dic_proc_cfgs.items():
                 for cfg_col in cfg_proc.columns:
                     if cfg_col.id == obj_var_id:
                         obj_var_name = cfg_col.shown_name
-                        is_cat_obj = cfg_col.is_category and cfg_col.data_type != DataType.INTEGER.name
                         break
-
-                if obj_var_name is not None:
-                    break
 
             # _, dic_cols = get_cfg_proc_col_info(graph_param.dic_proc_cfgs, obj_var)
             dic_scp[OBJ_VAR] = obj_var_name
@@ -258,7 +252,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
             is_multi_class = dic_bar[TASK_KEY] == GrLassoTask.MULTI_CLASS.value
             _actual = dic_scp.get('actual')
             _fitted = dic_scp.get('fitted')
-            if is_multi_class or is_cat_obj:
+            if is_multi_class or is_classif:
                 # encoding category variable
                 encoder = LabelEncoder()
                 _y_combination = np.array([dic_scp['actual'], dic_scp['fitted']])
@@ -316,7 +310,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
 def get_end_proc_cols(df, orig_graph_param):
     dic_cols = {}
     for end_proc in orig_graph_param.array_formval:
-        for col_id, col_name in zip(end_proc.col_ids, end_proc.col_names):
+        for col_id, col_name in zip(end_proc.col_ids, end_proc.col_names, strict=False):
             df_col = gen_sql_label(col_id, col_name)
             if df_col in df.columns:
                 dic_cols[df_col] = col_id
@@ -394,8 +388,11 @@ def gen_sankey_grouplasso_plot_data(
     y_1d = df[[y_col_id]].to_numpy()
 
     x_col_ids = np.array(x_2d.columns.tolist())
+
+    is_categorical = y_col_id in cat_cols
+
     # please set verbose=False if info should not be printed
-    is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg = preprocess_skdpage(
+    dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg = preprocess_skdpage(
         x_2d,
         y_1d,
         groups,
@@ -409,9 +406,10 @@ def gen_sankey_grouplasso_plot_data(
         colids_x=x_col_ids,
         nominal_variables=nominal_vars,
         objective_var_shown_name=objective_var_shown_name,
+        is_categorical=is_categorical,
     )
 
-    return is_classif, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg
+    return is_categorical, dic_skd, dic_bar, dic_scp, dic_tbl, idx, msg
 
 
 @abort_process_handler()
@@ -490,7 +488,7 @@ def get_sensors_objective_explanation(orig_graph_param):
     dic_id_name = {}
     dic_col_proc_id = {}
     for proc in orig_graph_param.array_formval:
-        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names):
+        for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
             label = gen_sql_label(col_id, col_name)
             dic_label_id[label] = col_id
             dic_id_name[col_id] = col_show_name

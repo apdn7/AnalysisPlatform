@@ -136,7 +136,7 @@ def trace_data():
 
 @api_ridgeline_plot_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -193,7 +193,7 @@ def export_file(dic_form, export_type=CSVExtTypes.CSV.value):
 
         end_proc_id = int(rlp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
-        csv_list_name.append('{}.{}'.format(proc_name, export_type))
+        csv_list_name.append(f'{proc_name}.{export_type}')
 
         if export_from == DataExportMode.PLOT.value:
             # find DIV, as string
@@ -204,7 +204,7 @@ def export_file(dic_form, export_type=CSVExtTypes.CSV.value):
                 div_var = [var for var in rlp_dat[CAT_EXP_BOX] if str(var[COL_ID]) == div_id]
                 div_var = div_var[0] if div_var else None
                 if div_var:
-                    div_name = '{}|{}'.format(div_var[PROC_MASTER_NAME], div_var[COL_MASTER_NAME])
+                    div_name = f'{div_var[PROC_MASTER_NAME]}|{div_var[COL_MASTER_NAME]}'
 
             term_sep = False
             if not div_name and dic_param[COMMON][COMPARE_TYPE] != RL_CATEGORY:

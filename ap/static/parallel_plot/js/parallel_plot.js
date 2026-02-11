@@ -714,6 +714,27 @@ const showParacords = (
 
     // const dimensions = pcp.data;
     pcpPlot.show(isReturnToDefaultOrderingParams);
+
+    if (Object.keys(pcpPlot.data).length === 0) {
+        loadingHide();
+        const msgContent = $('#i18nNoDataForThisSetting').text();
+        $('#paracord-plot').append(`
+            <div class="tab-pane fade show not-data-class" 
+                style="
+                    color: #65c5f1;
+                    border: 1px solid #444;
+                    height: 130px;
+                    border-radius: 5px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;"
+                >
+                   ${msgContent}
+            </div>
+        `);
+
+        return;
+    }
     getSelectedValues();
 
     // $('#paracord-plot').show();
@@ -799,11 +820,12 @@ const changeShowVariableByType = (selection) => {
     $('input[type=radio][name=sort_by][value=correlation]').prop('disabled', propOption);
     $('input[type=number][name=corr_value]').prop('disabled', propOption);
 
-    loading.show();
+    const loadingObj = loadingHandler();
+    loadingObj.show();
     setTimeout(() => {
         // if there is categorized real selected, pass it to call API same as with ODF case
         showParacordWithSettings();
-        loading.hide();
+        loadingObj.hide();
     }, 500);
 };
 
@@ -867,7 +889,8 @@ const orderingEventHandler = () => {
         $('#ordering-name').text(orderingName);
 
         // update chart by settings
-        loading.show();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
 
         setTimeout(() => {
             if (pcpPlot && sortBy === ParallelProps.orderBy.selected_order) {
@@ -879,7 +902,7 @@ const orderingEventHandler = () => {
             } else {
                 showParacordWithSettings();
             }
-            loading.hide();
+            loadingObj.hide();
         }, 500);
     });
 };
@@ -1266,20 +1289,46 @@ const getSelectedValues = () => {
     }
     graphDiv.on('plotly_restyle', (data) => {
         const dimensionKey = Object.keys(data[0])[0];
+        const selectedNaInfValues = [];
         if (!dimensionKey || !dimensionKey.includes('constraintrange')) {
             // this event for reselect range of value in dimension only, not for other restyle events
             return;
         }
         const dimensionId = Number(dimensionKey.match(/\d+/g)[0]);
         const selectedDimension = pcpPlot.dimensions[dimensionId];
-        let constraintRange = data[0][dimensionKey];
-        if (constraintRange && _.isArray(constraintRange[0][0])) {
-            constraintRange = constraintRange[0];
+        let constraintRanges = data[0][dimensionKey];
+
+        if (constraintRanges && _.isArray(constraintRanges[0][0])) {
+            constraintRanges = constraintRanges[0];
         }
-        if (!selectedDimension.isNum && constraintRange) {
+        if (constraintRanges) {
+            constraintRanges = constraintRanges.map((range) => {
+                let upperValue = range[1];
+                let lowerValue = range[0];
+                // If the tick lies within the selected range of tick values, include the abnormal value in the selection
+                if (selectedDimension.infDumVal <= upperValue && selectedDimension.infDumVal >= lowerValue) {
+                    selectedNaInfValues.push('Inf');
+                }
+                if (selectedDimension.minfDumVal <= upperValue && selectedDimension.minfDumVal >= lowerValue) {
+                    selectedNaInfValues.push('-Inf');
+                }
+                if (selectedDimension.naDumVal <= upperValue && selectedDimension.naDumVal >= lowerValue) {
+                    selectedNaInfValues.push('NA');
+                }
+                // when both upper and lower values are below yMin, keep their values
+                // in that case, the resulting numeric range is completely outside of df range so no values should be returned
+                // 7403#note_2997971842
+                range[0] =
+                    upperValue > selectedDimension.yMin && lowerValue < selectedDimension.yMin
+                        ? selectedDimension.yMin
+                        : lowerValue;
+                return range;
+            });
+        }
+        if (!selectedDimension.isNum && constraintRanges) {
             // get category value by ticks text and ticks value
             // tim so nguyen trong mang
-            constraintRange = constraintRange.map((range) => {
+            constraintRanges = constraintRanges.map((range) => {
                 const from = Math.round(range[0]);
                 const to = Math.round(range[1]);
                 const selectedValue = [];
@@ -1288,13 +1337,21 @@ const getSelectedValues = () => {
                 }
                 return selectedValue
                     .map((val) => {
-                        const indexTickVal = selectedDimension.tickvals.indexOf(val);
-                        return selectedDimension.ticktext[indexTickVal];
+                        // this looks for the corresponding tick text using tick values
+                        // however, NA should not be treated this way
+                        // TODO: Can we make it less complicated?
+                        if (val > selectedDimension.naDumVal) {
+                            const indexTickVal = selectedDimension.tickvals.indexOf(val);
+                            return selectedDimension.ticktext[indexTickVal];
+                        } else {
+                            return val;
+                        }
                     })
                     .filter((v) => v);
             });
         }
-        pcpPlot.setSelectedValue(selectedDimension.colId, constraintRange);
+        pcpPlot.setSelectedNumericValue(selectedDimension.colId, constraintRanges);
+        pcpPlot.setSelectedNaInfValue(selectedDimension.colId, selectedNaInfValues);
         getAndDisplayDataViewTable();
     });
 };
@@ -1327,18 +1384,24 @@ const getSelectedDataFrame = async () => {
     const formData = collectFormDataPCP(true);
     formData.set('export_from', 'plot');
     formData.set('constraint_range', JSON.stringify(pcpPlot.selectedConstraintRange));
+    formData.set('selected_na_inf_values', JSON.stringify(pcpPlot.selectedNaInfValue));
     loadingShow();
     const queryString = genQueryStringFromFormData(formData);
     if (queryString && queryString.includes('GET02_VALS_SELECT')) {
         return await fetchSelectedDataFrame(queryString);
     }
-    loadingHide();
     return null;
 };
 
 const fetchSelectedDataFrame = async (queryString) => {
-    const dataFrame = await fetchData(`/ap/api/pcp/select_data?${queryString}`, {});
-    return [dataFrame['cols'], dataFrame['rows'], dataFrame['cols_name']];
+    try {
+        const dataFrame = await fetchData(`/ap/api/pcp/select_data?${queryString}`, {});
+        return [dataFrame['cols'], dataFrame['rows'], dataFrame['cols_name']];
+    } catch (e) {
+        return [[], [], []];
+    } finally {
+        loadingHide();
+    }
 };
 
 const buildPCPTableDataSelectedHeader = (columnsName) => {
@@ -1387,7 +1450,6 @@ const handlerPCPDisplayTableDataSelected = (dataSelected) => {
 const getAndDisplayDataViewTable = () => {
     if (formElements.dataView.is(':checked')) {
         getSelectedDataFrame().then((r) => {
-            loadingHide();
             handlerPCPDisplayTableDataSelected(r);
         });
     }

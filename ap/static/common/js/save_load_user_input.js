@@ -1372,23 +1372,42 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
 		</td>
         <td class="action col-with-button"><button class="btn-primary btn" name="useUserSetting"
         	onclick="handleUseUserSetting(${setting.id})"><i class="fas fa-file-import"></i></button></td>
-        <td class="action col-with-button"><button class="btn-orange btn"
+        ${
+            appContext.is_authorized === '1'
+                ? `
+        <td class="action col-with-button" ><button class="btn-orange btn"
         	onclick="editSettings(${setting.id})"><i class="far fa-edit"></i></button></td>
+        `
+                : ''
+        }
         <td class="action col-with-button">
             <button class="btn-secondary btn" onclick="handleCopyUrlToClipBoard(this, ${setting.id})">
                 <i class="fa fa-copy"></i>
             </button>
         </td>
+        ${
+            appContext.is_authorized === '1'
+                ? `
         <td class="action col-with-button">
         	<button class="btn-danger btn"
-        	onclick="bindDeleteUserSetting(this, ${setting.id})"><i class="fas fa-trash"></i></button></td>
+                onclick="bindDeleteUserSetting(this, ${setting.id})"><i class="fas fa-trash"></i>
+            </button>
+        </td>
+        `
+                : ''
+        }
         <td class="col-3">${setting.description || ''}</td>
     </tr>`;
     return htmlRow;
 };
 
 const settingDataTableInit = () => {
-    sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 11], '100%');
+    // Adjust filter column for external connection
+    if (appContext.is_authorized === '1') {
+        sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 11], '100%');
+    } else {
+        sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 9], '100%');
+    }
 };
 
 const scrollToBottom = (id) => {

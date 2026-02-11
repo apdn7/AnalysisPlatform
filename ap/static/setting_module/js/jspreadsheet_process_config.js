@@ -54,7 +54,11 @@ class SpreadSheetProcessConfig {
     /**
      * Init loading animation for Jspreadsheet table
      * @param {string} tableId
-     * @return {Element & {show: () => void, hide: () => void}}
+     * @return {Element & {
+     * show: () => void,
+     * hide: () => void,
+     * updateProgress: (() => void),
+     * }}
      */
     static initLoadingTable(tableId) {
         const tableEl = document.querySelector(`#${tableId}`);
@@ -68,14 +72,39 @@ class SpreadSheetProcessConfig {
 
         // Show loading animation when table data is being loaded
         loadingEl.show = function showLoadingAnimation() {
+            loadingEl.style.textAlign = 'center';
+            loadingEl.style.alignContent = 'center';
+            loadingEl.style.paddingTop = '145px';
+            loadingEl.style.paddingLeft = '40px';
+            loadingEl.progess = [];
+            loadingEl.total = document.querySelectorAll(`#${tableId} table.jexcel tbody tr`).length;
+            loadingEl.innerHTML = `${loadingEl.progess.length} / ${loadingEl.total}`;
+
             loadingEl.style.display = 'block';
             tableEl.style.pointerEvents = 'none';
+            loadingEl.startTime = performance.now();
         };
 
         // Hide loading animation when table data is loaded and rendered
         loadingEl.hide = function hideLoadingAnimation() {
+            loadingEl.endTime = performance.now();
+            const executionTime = loadingEl.endTime - loadingEl.startTime;
+            consoleLogDebug(`Loading time: ${executionTime} milliseconds`);
+
             loadingEl.style.display = 'none';
             tableEl.style.pointerEvents = 'auto';
+
+            delete loadingEl.progess;
+            delete loadingEl.total;
+            delete loadingEl.startTime;
+            delete loadingEl.endTime;
+            loadingEl.innerHTML = '';
+        };
+
+        // Update progress of loading columns in table
+        loadingEl.updateProgress = function showLoadingAnimation() {
+            loadingEl.progess.push(null);
+            loadingEl.innerHTML = `${loadingEl.progess.length} / ${loadingEl.total}`;
         };
 
         return loadingEl;
@@ -330,24 +359,16 @@ class SpreadSheetProcessConfig {
     handleChangeDataType(cell, rowIndex, value) {
         const [dataType, columnType] = DataTypeDropdown_Controller.convertShownDataTypeToColumnTypeAndDataType(value);
         const currentRowData = this.table.getRowDataByIndex(rowIndex);
+        // check main::Datetime in function col
+        if (columnType === masterDataGroup.MAIN_DATETIME && typeof FunctionInfo !== 'undefined') {
+            value = handleShowConfirmSelectMainDatetimeInProcessConfig(currentRowData, value, rowIndex);
+        }
+
         // check main serial
         if (columnType === masterDataGroup.MAIN_SERIAL && typeof FunctionInfo !== 'undefined') {
-            // check create or editing function column
-            const isMainSerialChecked = functionConfigElements.isMainSerialCheckboxElement.checked;
-            // check function column has column main serial.
-            const functionColumnInfos = FunctionInfo.collectAllFunctionRows();
-            const mainSerialFunctionCol = functionColumnInfos.find((functionCol) => functionCol.isMainSerialNo);
-            if (isMainSerialChecked || mainSerialFunctionCol) {
-                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute('change-text', value);
-                functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.setAttribute(
-                    'change-row-index',
-                    rowIndex,
-                );
-                $(functionConfigElements.confirmUncheckMainSerialFunctionColumnModal).modal('show');
-                // In case show modal confirm -> not changed
-                value = currentRowData.shown_data_type;
-            }
+            value = handleShowConfirmSelectMainSerialInProcessConfig(currentRowData, value, rowIndex);
         }
+
         const [oldDataType, oldColumnType] = DataTypeDropdown_Controller.convertShownDataTypeToColumnTypeAndDataType(
             cell.innerText,
         );
@@ -373,36 +394,21 @@ class SpreadSheetProcessConfig {
     }
 
     /**
-     * Validate judge formation by regex ^Pos~[^|~=]+\|Neg=[^|~=]+\|[^|~=]+*$ ex: Pos~OK|Neg=OK|NG
+     * Validate formation by regex ^Pos~[^|~=]+\|Neg=[^|~=]+\|[^|~=]+*$ ex: Pos~OK|Neg=OK|NG
      * @param {number} rowIndex
      * @param {string} newValue
-     * @param {string} oldValue
-     * @return {boolean} - valid or invalid
+     * @return Promise<boolean> - valid or invalid
      */
-    validateJudgeFormulation(rowIndex, newValue, oldValue) {
+    async validateFormulation(rowIndex, newValue) {
         const data = this.table.getRowDataByIndex(rowIndex);
-        if (!data.judge_available) return true; // TODO: Move — this function only validates the formulation.
-        const regex = JUDGE_PATTERN_VALIDATION;
-        const invalidMsg = document.getElementById('i18nInvalidInputJudgeMsg').textContent;
-        const invalidMsgOfImportedJudge = document.getElementById('i18nInvalidInputImportedJudgeMsg').textContent;
 
         hideAlertMessages();
-        const isRegisteredData = data.id > 0;
-        if (!regex.test(newValue)) {
+        const isRegisteredData = data.id > 0 && !isInitialize;
+        const response = await validateFormula(newValue, data.column_type, data.data_type, isRegisteredData, data.id);
+        if (!response.is_valid) {
             // show messenger and return old value
-            this.showErrorMsg(invalidMsg);
-            this.table.table.undo();
-            return false; // old value is valid
-        }
-
-        // The DL settings have changed (the part before “=” in the conversion formula has changed). --> Only accept changing display value of formula
-        if (isRegisteredData && !isInitialize) {
-            const positiveValue = newValue.split('|')[0];
-            if (oldValue && oldValue.split('|')[0] !== positiveValue) {
-                this.showErrorMsg(invalidMsgOfImportedJudge);
-                this.table.table.undo();
-                return false; // old value is valid
-            }
+            this.showErrorMsg(response.msg);
+            return false;
         }
         return true;
     }
@@ -527,19 +533,22 @@ class SpreadSheetProcessConfig {
         // Add * into Order column
         const orderCell = this.table.getOrderHeaderElement();
         orderCell.innerHTML = '*';
+        this.setHoverInfor(
+            document.getElementById('i18nSystemNameHoverMsg').textContent,
+            PROCESS_COLUMNS.name_en,
+            true,
+        );
+        this.setHoverInfor(
+            document.getElementById('i18nProcessConfigFilterHover').textContent,
+            PROCESS_COLUMNS.filter,
+            false,
+        );
 
-        // Set hover text for system column
-        const hoverTitle = document.getElementById('i18nSystemNameHoverMsg').textContent;
-        const systemCell = this.table.getTableHeaderElement(PROCESS_COLUMNS.name_en);
-        systemCell.setAttribute('title', hoverTitle);
-        systemCell.classList.add('required'); // add * symbol css class
-        systemCell.innerHTML = `<span class="hint-text">${systemCell.innerText}</span>`;
-
-        const judgeHoverMsg = document.getElementById('i18nHoverConversationJudgeMsg').textContent;
-        const judgeCell = this.table.getTableHeaderElement(PROCESS_COLUMNS.judge_formula);
-        judgeCell.setAttribute('title', judgeHoverMsg);
-        judgeCell.classList.add('required'); // add * symbol css class
-        judgeCell.innerHTML = `<span class="hint-text">${judgeCell.innerText}</span>`;
+        const formulaHoverMsg = document.getElementById('i18nHoverConversationFormulaMsg').textContent;
+        const cell = this.table.getTableHeaderElement(PROCESS_COLUMNS.formula);
+        cell.setAttribute('title', formulaHoverMsg);
+        cell.classList.add('required'); // add * symbol css class
+        cell.innerHTML = `<span class="hint-text">${cell.innerText}</span>`;
         // add icon sort
         const headerSort = [
             PROCESS_COLUMNS.column_raw_name,
@@ -548,6 +557,7 @@ class SpreadSheetProcessConfig {
             PROCESS_COLUMNS.name_jp,
             PROCESS_COLUMNS.name_local,
             PROCESS_COLUMNS.unit,
+            PROCESS_COLUMNS.filter,
         ];
         headerSort.forEach((headerName, index) => {
             let tdEle = this.table.getTableHeaderElement(headerName);
@@ -558,6 +568,23 @@ class SpreadSheetProcessConfig {
                         <i id="desc-${index}" class="fa fa-sm fa-play desc" ></i >
                     </span>`;
         });
+    }
+
+    /**
+     *
+     * @param {string} hoverMsg
+     * @param PROCESS_COLUMNS column
+     * @param {boolean} isRequired
+     */
+
+    setHoverInfor(hoverMsg, column, isRequired = false) {
+        // Set hover text for target column
+        const cellElement = this.table.getTableHeaderElement(column);
+        cellElement.setAttribute('title', hoverMsg);
+        cellElement.innerHTML = `<span class="hint-text">${cellElement.innerText}</span>`;
+        if (isRequired) {
+            cellElement.classList.add('required'); // add * symbol css class
+        }
     }
 
     loadCSS() {
@@ -574,22 +601,8 @@ class SpreadSheetProcessConfig {
         }
 
         rows.forEach((row) => {
-            const cell = row[PROCESS_COLUMNS.judge_formula].td;
+            const cell = row[PROCESS_COLUMNS.formula].td;
             cell.classList.add('formula');
-        });
-    }
-    hideJudgeFormulationForRowNotJudgeRow() {
-        const rows = this.judgeAvailableRows();
-
-        if (!rows.length) {
-            return;
-        }
-
-        rows.forEach((row) => {
-            if (!row[PROCESS_COLUMNS.is_judge].data) {
-                const cell = row[PROCESS_COLUMNS.judge_formula].td;
-                cell.classList.add(READONLY_CLASS, 'disabled', 'text-hide');
-            }
         });
     }
 
@@ -705,16 +718,20 @@ class SpreadSheetProcessConfig {
                     setTimeout(() => {
                         try {
                             spreadsheet.changeShownDataType(index, shownDataType, displayMode, { isFirstLoad: true });
+                            loadingEl.updateProgress();
                             resolve();
                         } catch (e) {
                             reject(e);
                         }
-                    }, 0),
+                    }),
                 ).catch((e) => {
                     console.error(e);
                 }),
             ),
-        ).then(() => loadingEl.hide());
+        ).then(() => {
+            spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
+            loadingEl.hide();
+        });
     }
 
     /**
@@ -741,7 +758,8 @@ class SpreadSheetProcessConfig {
         columnClasses[PROCESS_COLUMNS.name_jp] = ['column-japanese-name'];
         columnClasses[PROCESS_COLUMNS.name_local] = ['column-local-name'];
         columnClasses[PROCESS_COLUMNS.unit] = ['column-unit'];
-        columnClasses[PROCESS_COLUMNS.judge_formula] = ['column-judge-formula'];
+        columnClasses[PROCESS_COLUMNS.filter] = ['column-filter'];
+        columnClasses[PROCESS_COLUMNS.formula] = ['column-formula'];
         columnClasses[PROCESS_COLUMNS.raw_data_type] = ['column-raw-data-type'];
 
         // Set classes into table body cells
@@ -856,7 +874,8 @@ class SpreadSheetProcessConfig {
             PROCESS_COLUMNS.name_jp,
             PROCESS_COLUMNS.name_local,
             PROCESS_COLUMNS.unit,
-            PROCESS_COLUMNS.judge_formula,
+            PROCESS_COLUMNS.filter,
+            PROCESS_COLUMNS.formula,
         ];
     }
 
@@ -1016,8 +1035,14 @@ class SpreadSheetProcessConfig {
             {
                 type: 'text',
                 width: '100',
-                name: PROCESS_COLUMNS.judge_formula,
+                name: PROCESS_COLUMNS.formula,
                 title: $(procModali18n.i18nJudgeFormulaTitle).text(),
+            },
+            {
+                type: 'text',
+                width: '100',
+                name: PROCESS_COLUMNS.filter,
+                title: 'Filter',
             },
             {
                 type: 'text',
@@ -1172,7 +1197,6 @@ class SpreadSheetProcessConfig {
                 spreadsheet.loadHeaderStatus();
                 spreadsheet.table.sortInHeaderColumn();
                 spreadsheet.loadCSS();
-                spreadsheet.hideJudgeFormulationForRowNotJudgeRow();
                 spreadsheet.addJudgeFormulationClass();
 
                 spreadsheet.updateOriginalValueSampleData(...allRows);
@@ -1197,28 +1221,33 @@ class SpreadSheetProcessConfig {
                 spreadsheet.handleChangeCell(c, r, newValue, oldValue);
             },
 
-            onafterchanges: (instance, records) => {
+            onafterchanges: async (instance, records) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 for (const record of records) {
-                    const { x: columnIndex, y: rowIndex, newValue: newValue, oldValue: oldValue } = record;
+                    const { x: columnIndex, y: rowIndex, newValue: newValue } = record;
                     const cell = spreadsheet.table.getCellFromCoords(columnIndex, rowIndex);
                     spreadsheet.table.closeTransaction(cell);
                     const header = spreadsheet.table.getHeaderByIndex(columnIndex);
-                    if (header.name === PROCESS_COLUMNS.judge_formula) {
-                        const isValidPattern = spreadsheet.validateJudgeFormulation(rowIndex, newValue, oldValue);
-                        const sampleDataDisplayMode = getSampleDataDisplayModeElement(spreadsheet.table.table.el).val();
-                        parseDataTypeProc(
-                            spreadsheet,
-                            DataTypes.BOOLEAN.name,
-                            rowIndex,
-                            masterDataGroup.JUDGE,
-                            sampleDataDisplayMode,
-                            isValidPattern ? newValue : oldValue,
-                        );
+                    const rowData = spreadsheet.table.getRowDataByIndex(rowIndex);
+                    if (header.name === PROCESS_COLUMNS.formula) {
+                        const isValidPattern = await spreadsheet.validateFormulation(rowIndex, newValue);
+                        if (isValidPattern) {
+                            const sampleDataDisplayMode = getSampleDataDisplayModeElement(
+                                spreadsheet.table.table.el,
+                            ).val();
+                            await parseDataTypeProc(
+                                spreadsheet,
+                                rowData.data_type,
+                                rowIndex,
+                                rowData.column_type,
+                                sampleDataDisplayMode,
+                            );
+                        } else {
+                            spreadsheet.table.table.undo();
+                        }
                     }
                 }
                 spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
-                spreadsheet.hideJudgeFormulationForRowNotJudgeRow();
             },
 
             oninsertrow: (instance, rowNumber, numOfRows, rowRecords, insertBefore) => {
@@ -1281,9 +1310,12 @@ class SpreadSheetProcessConfig {
                 spreadsheet.reIndexForSpecialRow(spreadsheet);
             },
 
-            onselection: (instance, x, y) => {
+            // Use oneditionstart so that styling for cell expansion only happens on edit and not on selecting cells
+            // Refer to https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/merge_requests/7219#note_2891669260
+            // TODO: Possible improvement: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/175
+            oneditionstart: (instance, cell, x, y) => {
                 const spreadsheet = jspreadsheetTable(instance);
-                spreadsheet.expandWidthForFormulaWhenFocus(spreadsheet, x, y);
+                spreadsheet.expandWidthForFormulaWhenFocus(spreadsheet, Number(x), Number(y));
             },
         };
 
@@ -1413,4 +1445,22 @@ const getSampleDataDisplayModeElement = (element) => {
     const processSectionElement = element.closest(`[id^="procSettingModalBody"]`);
     const sampleDataDisplayModeElement = processSectionElement.querySelector(`[name^="sampleDataDisplayMode"]:checked`);
     return $(sampleDataDisplayModeElement);
+};
+
+const validateFormula = async (formula, columnType, dataType, isRegistered = false, columnId = null) => {
+    return fetch('/ap/api/setting/formula_validate', {
+        method: 'POST',
+        body: JSON.stringify({
+            formula: formula,
+            col_type: columnType,
+            data_type: dataType,
+            is_registered: isRegistered,
+            column_id: columnId,
+        }),
+    })
+        .then((res) => res.json())
+        .catch((error) => {
+            console.log(error);
+            return false;
+        });
 };

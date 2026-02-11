@@ -7,7 +7,6 @@ import re
 import uuid
 from datetime import datetime
 from io import BytesIO
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -55,25 +54,19 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     ALMOST_COMPLETE_PERCENT,
-    COMMA_BETWEEN_NUMBERS_REGEX,
     COMPLETED_PERCENT,
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_MSG,
     DATE_FORMAT,
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_ONLY_DIGIT,
-    DATE_TYPE_REGEX,
     DATETIME_DUMMY,
-    DATETIME_TYPE_MD,
-    DATETIME_TYPE_YMD,
-    DATETIME_TYPE_YMD_HMS,
     EMPTY_CHECK_TIME_PERIOD,
     EMPTY_STRING,
     FILE_NAME,
     IMPORT_CSV_EMPTY_DATA,
     NUM_CHARS_THRESHOLD,
     TIME_FORMAT_WITH_SEC,
-    TIME_TYPE_REGEX,
     AnnounceEvent,
     CSVExtTypes,
     DataType,
@@ -87,6 +80,7 @@ from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.path_utils import get_basename, get_files
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
     get_limit_records,
@@ -106,6 +100,7 @@ from ap.common.timezone_utils import (
     get_next_datetime_value,
     get_time_info,
 )
+from ap.conversion_formula import conversion_formula
 from ap.setting_module.models import (
     CfgDataSourceCSV,
     CfgProcess,
@@ -122,20 +117,15 @@ logger = logging.getLogger(__name__)
 @scheduler_app_context
 def import_csv_job(
     process_id: int,
-    process_name: str,
-    data_source_id: int,
+    job_management: JobManagement,
     is_user_request: bool = False,
-    register_by_file_request_id: str = None,
+    register_by_file_request_id: str | None = None,
 ):
-    """scheduler job import csv"""
-
+    """Scheduler job import csv"""
     gen = import_csv(process_id, register_by_file_request_id=register_by_file_request_id)
     send_processing_info(
         gen,
-        JobType.CSV_IMPORT,
-        db_code=data_source_id,
-        process_id=process_id,
-        process_name=process_name,
+        job_management=job_management,
         after_success_func=finished_transaction_import,
         after_success_func_kwargs={'process_id': process_id, 'is_user_request': is_user_request, 'publish': True},
     )
@@ -148,8 +138,8 @@ def get_config_sensor(cfg_process: CfgProcess):
 
 
 @log_execution_time()
-def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_request_id: str = None):
-    """csv files import
+def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_request_id: str | None = None):
+    """Csv files import
 
     Keyword Arguments:
         proc_id {[type]} -- [description] (default: {None})
@@ -181,9 +171,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     proc_cfg = proc_cfg.clone()
     data_src: CfgDataSourceCSV = proc_cfg.data_source.csv_detail
     is_v2_datasource = is_v2_data_source(ds_type=proc_cfg.data_source.type)
-    cfg_parent_proc: Optional[CfgProcess] = (
-        CfgProcess.get_proc_by_id(proc_cfg.parent_id) if proc_cfg.parent_id else None
-    )
+    cfg_parent_proc: CfgProcess | None = CfgProcess.get_proc_by_id(proc_cfg.parent_id) if proc_cfg.parent_id else None
 
     trans_data = TransactionData(proc_cfg)
     with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
@@ -218,7 +206,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     # find last records in case of dummy datetime is used
     if use_dummy_datetime:
         # (latest_record,) = dic_sensor_cls[DATETIME_DUMMY].get_max_value(DATETIME_DUMMY)
-        with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
+        with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
             latest_record = trans_data.get_max_date_time_by_process_id(db_instance)
             if latest_record:
                 latest_record = add_days_from_utc(latest_record, 1)
@@ -357,10 +345,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 csv_cols, with_dupl_cols, _is_gen_col = add_suffix_if_duplicated(csv_cols)
                 if not partial_dummy_header:
                     partial_dummy_header = _is_gen_col
-                dic_csv_cols = dict(zip(csv_cols, with_dupl_cols))
+                dic_csv_cols = dict(zip(csv_cols, with_dupl_cols, strict=False))
                 # add suffix to origin csv cols
                 org_csv_cols, *_ = add_suffix_if_duplicated(org_csv_cols)
-                dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols))
+                dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols, strict=False))
 
                 check_file.close()
             # missing_cols = set(dic_use_cols).difference(csv_cols)
@@ -368,12 +356,12 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             valid_columns = list(set(dic_use_cols).intersection(csv_cols))
             # re-arrange cols
             valid_columns = [col for col in csv_cols if col in valid_columns]
-            dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns)))
+            dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns), strict=False))
             missing_cols = [] if valid_columns else list(dic_use_cols.keys())
 
             if not is_v2_datasource:
                 valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
-                dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols))
+                dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols, strict=False))
 
             if dummy_datetime_col in missing_cols:
                 # remove dummy col before check
@@ -514,7 +502,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
         file_record_count = len(df_one_file)
         if proc_cfg.is_import_file_name:
-            df_one_file = add_column_file_name(df_one_file, transformed_file, file_name_col=file_name_col)
+            df_one_file = add_column_file_name(df_one_file, csv_file_name, file_name_col=file_name_col)
 
         # Save history even if the file is empty
         dic_imported_row[idx] = (csv_file_name, file_record_count)
@@ -709,8 +697,7 @@ def set_csv_import_percent(job_info, total_percent, percent_per_chunk):
 
 @log_execution_time()
 def get_last_csv_import_info(trans_data, db_instance) -> tuple[dict[str, str], dict[str, str]]:
-    """get latest csv import info"""
-
+    """Get latest csv import info"""
     latest_import_files = trans_data.get_import_history_latest_done_files(db_instance)
     dic_imported_file = {rec.file_name: rec.start_tm for rec in latest_import_files}
     csv_fatal_imports = trans_data.get_import_history_last_fatal(db_instance)
@@ -720,7 +707,7 @@ def get_last_csv_import_info(trans_data, db_instance) -> tuple[dict[str, str], d
     return dic_imported_file, dic_fatal_file
 
 
-def get_file_metadata(file_name, dic_success_file: dict = None) -> tuple[any, any]:
+def get_file_metadata(file_name, dic_success_file: dict | None = None) -> tuple[any, any]:
     _modified_date = get_file_modify_time(file_name)
     _imported_datetime = dic_success_file.get(file_name)
     modified_datetime = datetime.strptime(_modified_date, DATE_FORMAT_STR)
@@ -730,7 +717,7 @@ def get_file_metadata(file_name, dic_success_file: dict = None) -> tuple[any, an
 
 @log_execution_time()
 def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_error_file: dict, etl_func=None):
-    """filter import target file base on last import job
+    """Filter import target file base on last import job
 
     Arguments:
         all_files {[type]} -- [description]
@@ -740,7 +727,6 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
     Returns:
         [type] -- [description]
     """
-
     has_transform_targets = []
     no_transform_targets = []
     toast_skip = []
@@ -778,7 +764,7 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
 @log_execution_time()
 def validate_columns(checked_cols, csv_cols, use_dummy_datetime, dummy_datetime_col):
     """
-    check if checked column exists in csv file
+    Check if checked column exists in csv file
     :param use_dummy_datetime:
     :param checked_cols:
     :param csv_cols:
@@ -816,14 +802,14 @@ def csv_to_df(
         read_csv_param.update(default_csv_param)
 
     if is_partial_dummy_header:  # skip header
-        head_skips = head_skips + [max(head_skips) + 1] if len(head_skips) else [0]
+        head_skips = [*head_skips, max(head_skips) + 1] if len(head_skips) else [0]
 
     read_csv_param.update(
         {
             'skiprows': head_skips + list(range(data_first_row, skip_row + data_first_row)),
         },
     )
-    if len(head_skips) and data_src.dummy_header:
+    if head_skips and data_src.dummy_header:
         # to avoid issue of header be duplicated at first row
         read_csv_param.update(
             {
@@ -939,36 +925,40 @@ def copy_df(df):
 
 @log_execution_time()
 def remove_duplicates(
-    df: DataFrame,
+    df_import: DataFrame,
     df_origin: DataFrame,
     df_error: DataFrame,
     cfg_process: CfgProcess,
-    get_date_col,
+    get_date_col: str,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Return unique_df and duplicated_df"""
-
-    # get min max time of df
-    start_tm, end_tm = get_min_max_date(df, get_date_col)
-    if not start_tm and not end_tm:
-        return df, pd.DataFrame(columns=df.columns.tolist())
-
-    # column names
+    """Return unique_df and duplicated_df
+    This performs:
+    - remove duplicates on `df_import`
+    - get `min_date` and `max_date` from `df_import`
+    - get data from database between [min_date, max_date] for duplicated check
+    - remove duplicates on `df_import` if it is duplicated with `df_db`
+    """
+    # remove duplicated on df_import!
     cfg_columns = cfg_process.get_transaction_process_columns()
     dic_cols = {cfg_col.bridge_column_name: cfg_col.column_name for cfg_col in cfg_columns}
-    # find same columns from csv and datasource
-    df_columns = list(set(df.columns.tolist()).intersection(dic_cols.values()))
+    # columns that shouldn't be used for duplicated checks
+    ignored_dup_check_columns = [c.column_name for c in cfg_process.get_cols_ignored_by_duplicated_check()]
 
-    # remove duplicate in csv files
-    if df_columns:
-        # check if FileName in df
-        filename_cols = [cfg_col.column_name for cfg_col in cfg_columns if cfg_col.is_file_name]
-        if filename_cols and (filename_col := filename_cols[0]) in df_columns:
-            # Remove duplicated rows without check FileName
-            df_columns.remove(filename_col)
-        df = df.drop_duplicates(subset=df_columns, keep='last')
+    # find columns that in both `df` and `dic_cols`, but not on `ignored_columns`
+    df_import_subset_columns_dup_check = (
+        set(df_import.columns.tolist()).intersection(dic_cols.values()).difference(ignored_dup_check_columns)
+    )
+    # remove duplicated on importing columns
+    if df_import_subset_columns_dup_check:
+        df_import = df_import.drop_duplicates(subset=df_import_subset_columns_dup_check, keep='last')
+
+    # get min max time of df
+    start_tm, end_tm = get_min_max_date(df_import, get_date_col)
+    if not start_tm and not end_tm:
+        return df_import, pd.DataFrame(columns=df_import.columns.tolist())
 
     # get data from database
-    with DbProxy(gen_data_source_of_universal_db(cfg_process.id), True) as db_instance:
+    with ReadOnlyDbProxy(gen_data_source_of_universal_db(cfg_process.id), is_universal_db=True) as db_instance:
         trans_data = TransactionData(cfg_process)
         cols, rows = trans_data.get_data_for_check_duplicate(db_instance, start_tm, end_tm)
         dic_col_dtypes = trans_data.get_column_dtype(db_instance, cols)
@@ -982,16 +972,18 @@ def remove_duplicates(
 
     # remove duplicate df vs df_db
     dic_col_dtypes = {dic_cols[col]: dtype for col, dtype in dic_col_dtypes.items() if col in dic_cols}
-    duplicated_indexes = get_duplicate_info(df, df_db, col_dtypes=dic_col_dtypes)
+    duplicated_indexes = get_duplicate_info(
+        df_import, df_db, ignore_columns=ignored_dup_check_columns, col_dtypes=dic_col_dtypes
+    )
 
     if len(duplicated_indexes):
-        df = df.drop(duplicated_indexes, axis=0)
+        df_import = df_import.drop(duplicated_indexes, axis=0)
 
     # Records that don't exist in both `df` and `df_error` are duplicated records.
-    is_duplicated = ~(df_origin.index.isin(df.index) | df_origin.index.isin(df_error.index))
+    is_duplicated = ~(df_origin.index.isin(df_import.index) | df_origin.index.isin(df_error.index))
     df_duplicate = df_origin[is_duplicated]
 
-    return df, df_duplicate
+    return df_import, df_duplicate
 
 
 @log_execution_time()
@@ -1000,22 +992,29 @@ def get_min_max_date(df: DataFrame, get_date_col):
 
 
 @log_execution_time()
-def get_duplicate_info(df_csv: DataFrame, df_db: DataFrame, col_dtypes=None) -> pd.Index:
-    db_column_names = set(df_db.columns)
-    csv_column_names = set(df_csv.columns)
-    same_column_names = list(db_column_names & csv_column_names)
-    missing_column_names = list(db_column_names - csv_column_names)
+def get_duplicate_info(df_import: DataFrame, df_db: DataFrame, ignore_columns: list[str], col_dtypes=None) -> pd.Index:
+    """
+    Perform duplicated check with:
+    - df_import: dataframe to be imported
+    - df_db: dataframe inside database
+    - ignore_columns: columns that we don't perform duplicated check on (This is `Datetime::key` atm)
+    We also convert data type for `df_import` as well!!
+    """
+    db_column_names = set(df_db.columns) - set(ignore_columns)
+    import_column_names = set(df_import.columns)
+    same_column_names = list(db_column_names & import_column_names)
+    missing_column_names = list(db_column_names - import_column_names)
 
     if not same_column_names:
         return pd.Index([])
 
     # fill None if df_csv missing column
     # we set `df_csv` = `df_db` to avoid converting datatype
-    df_csv[missing_column_names] = df_db[missing_column_names]
+    df_import[missing_column_names] = df_db[missing_column_names]
     # mark all data None
-    df_csv[missing_column_names] = None
+    df_import[missing_column_names] = None
 
-    df = df_csv.copy()
+    df = df_import.copy()
 
     index_col = str(uuid.uuid4().hex)
     df[index_col] = df.index
@@ -1059,109 +1058,6 @@ def get_duplicate_info(df_csv: DataFrame, df_db: DataFrame, col_dtypes=None) -> 
 
 
 @log_execution_time()
-def datetime_transform(datetime_series, date_only=False):
-    current_year = datetime.now().strftime('%Y')
-
-    def without_year_datetime(m: re.match) -> str:
-        result = f'{current_year}-{m.group("m")}-{m.group("d")}'
-        if not date_only:
-            result += ' 00:00:00'
-        return result
-
-    def full_datetime(m: re.match) -> str:
-        if len(m.group('y')) == 4:
-            result = f'{m.group("y")}-{m.group("m")}-{m.group("d")}'
-        else:
-            # if there is 2 digit of year, convert to full year
-            result = f'{current_year[0:2]}{m.group("y")}-{m.group("m")}-{m.group("d")}'
-        if not date_only:
-            result += ' 00:00:00'
-        return result
-
-    def actual_datetime(m: re.match) -> str:
-        result = f'{m.group("y")}-{m.group("m")}-{m.group("d")}'
-        if not date_only:
-            result += f' {m.group("h")}:{m.group("min")}:{m.group("s")}'
-        return result
-
-    # convert special datetime string to iso-format
-    datetime_series = datetime_series.str.replace(DATETIME_TYPE_MD, without_year_datetime, regex=True)
-    datetime_series = datetime_series.str.replace(DATETIME_TYPE_YMD, full_datetime, regex=True)
-    datetime_series = datetime_series.str.replace(DATETIME_TYPE_YMD_HMS, actual_datetime, regex=True)
-
-    # convert comma to dot for barcelona data
-    # this is a workaround for <https://github.com/pandas-dev/pandas/issues/59256>
-    datetime_series = datetime_series.str.replace(COMMA_BETWEEN_NUMBERS_REGEX, '.', regex=True)
-
-    return datetime_series
-
-
-@log_execution_time()
-def date_transform(date_series):
-    """
-    Convert date series to standard date format
-
-    Support input formats:
-
-    - YYYY/MM/DD
-    - YYYY-MM-DD
-    - YYYY年MM月DD日
-
-    Args:
-        date_series (Series): a series of time
-
-    Returns:
-        A series of date with standard format YYYY-MM-DD
-    """
-    separate_char = '-'
-    begin_part_of_year = datetime.now().year.__str__()[:2]
-    return date_series.str.replace(
-        DATE_TYPE_REGEX,
-        lambda m: (
-            f'{m.group("year") if len(m.group("year")) == 4 else begin_part_of_year + m.group("year")}'
-            f'{separate_char}'
-            f'{m.group("month").rjust(2, "0")}'
-            f'{separate_char}'
-            f'{m.group("day").rjust(2, "0")}'
-        ),
-        regex=True,
-    )
-
-
-@log_execution_time()
-def time_transform(time_series):
-    """
-    Convert time series to standard time format
-
-    Support input formats:
-
-    - HH:mm:ss
-    - HH-mm-ss
-    - HH.mm.ss
-    - HH mm ss
-    - HH時mm分ss秒
-
-    Args:
-        time_series (Series): a series of time
-
-    Returns:
-        A series of time with standard format HH:MM:SS
-    """
-    separate_char = ':'
-    return time_series.str.replace(
-        TIME_TYPE_REGEX,
-        lambda m: (
-            f'{m.group("hour").rjust(2, "0")}'
-            f'{separate_char}'
-            f'{m.group("minute").rjust(2, "0")}'
-            f'{separate_char}'
-            f'{m.group("second").rjust(2, "0")}'
-        ),
-        regex=True,
-    )
-
-
-@log_execution_time()
 def import_df(
     cfg_process: CfgProcess,
     df,
@@ -1169,7 +1065,7 @@ def import_df(
     get_date_col,
     job_info=None,
     trans_data=None,
-    parent_cfg_process: Optional[CfgProcess] = None,
+    parent_cfg_process: CfgProcess | None = None,
 ):
     if not len(df):
         return 0, None, None
@@ -1177,10 +1073,27 @@ def import_df(
     # convert types
     df = df.convert_dtypes()
 
+    # Handle calculate data for main::Datetime, main::Serial function column
+    from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+
+    df = handle_main_function_columns(cfg_process, df)
+
+    dic_date_time_data_type = {}
+    for col, cfg_col in dic_use_cols.items():
+        formula = conversion_formula(
+            col_type=cfg_col.column_type,
+            data_type=cfg_col.data_type,
+            formula=cfg_col.formula,
+        )
+        if formula:
+            df[cfg_col.column_name] = formula.convert(df[cfg_col.column_name])
+        else:
+            # get dic_data_type from dic_use_cols
+            # if not have formula then add to dic_date_time to convert it in convert_datetime_format
+            dic_date_time_data_type[col] = cfg_col.data_type
+
     # convert datatime type 2023年01月02日 -> 2023-01-02 00:00:00
-    # get dic_data_type from dic_use_cols
-    dic_data_type = {col: cfg_col.data_type for col, cfg_col in dic_use_cols.items()}
-    df = convert_datetime_format(df, dic_data_type, datetime_format=cfg_process.datetime_format)
+    df = convert_datetime_format(df, dic_data_type=dic_date_time_data_type, datetime_format=cfg_process.datetime_format)
     # make datetime main from date:main and time:main
     # TODO: fix bug not validate after merge
     if trans_data and trans_data.main_date_column and trans_data.main_time_column:
@@ -1237,7 +1150,9 @@ def import_df(
     # merge mode
     target_cfg_process = cfg_process
     target_get_date_col = get_date_col
+    child_cfg_proc = None
     if parent_cfg_process:
+        child_cfg_proc = cfg_process
         target_cfg_process = parent_cfg_process
         dic_parent_cfg_cols = {cfg_col.id: cfg_col for cfg_col in parent_cfg_process.get_transaction_process_columns()}
         dic_cols = {cfg_col.column_name: cfg_col.parent_id for cfg_col in cfg_columns}
@@ -1247,19 +1162,8 @@ def import_df(
         df_error = df_error.rename(columns=dic_rename)
         target_get_date_col = parent_cfg_process.get_date_col()
 
-    # Handle calculate data for main::Serial function column
-    main_serial_function_col = target_cfg_process.get_main_serial_function_col()
-    if main_serial_function_col:
-        from ap.api.setting_module.services.import_function_column import calculate_data_for_main_serial_function_column
-
-        df = calculate_data_for_main_serial_function_column(
-            df,
-            target_cfg_process,
-            main_serial_function_col,
-        )
-
     df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
-    save_res = import_data(df, target_cfg_process, target_get_date_col, job_info)
+    save_res = import_data(df, target_cfg_process, target_get_date_col, job_info, child_cfg_proc=child_cfg_proc)
 
     return save_res, df_error, df_duplicate
 
@@ -1270,7 +1174,7 @@ def yield_job_info(
     imported_row: int = 0,
     save_res: int = 0,
     df_error_cnt: int = 0,
-    err_msgs: str = None,
+    err_msgs: str | None = None,
     is_safe_interrupt: bool = False,
 ):
     """
@@ -1311,8 +1215,8 @@ def convert_csv_timezone(df, get_date_col):
     if utc_offset != 0:
         df[get_date_col] = convert_df_col_to_utc(df, get_date_col, is_timezone_inside, csv_timezone, utc_offset)
     # convert to string
-    df[get_date_col] = convert_df_datetime_to_str(df, get_date_col)
-
+    if not pd.api.types.is_string_dtype(df[get_date_col]):
+        df[get_date_col] = convert_df_datetime_to_str(df, get_date_col)
     return df
 
 
@@ -1411,7 +1315,7 @@ def gen_dummy_header(header_names, data_details=None, skip_head=None):
     is_gen_from_number_skip = not is_blank and skip_head > 0 and is_auto_generate_dummy_header
     if is_gen_from_blank_skip or is_gen_from_zero_skip or is_gen_from_number_skip:
         if data_details:
-            data_details = [header_names] + data_details
+            data_details = [header_names, *data_details]
         header_names = ['col'] * len(header_names)
         dummy_header = True
     # columns with only spaces are treated the same way as empty column names

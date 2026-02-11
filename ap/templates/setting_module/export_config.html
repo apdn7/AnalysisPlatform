@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+{% block asset %}
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('tile_interface.static', filename = 'css/tile_interface.css') }}"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{{ url_for('setting_module.static', filename = 'css/export_config.css') }}"
+    />
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(title=_('TitleDataExport')) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="export-list-content mt-2" id="export-list-content">
+        <div class="add-export-btn-wrap export-content">
+            <button id="btnAddExportContent" name="btnAddExportContent" onclick="" type="button" class="btn simple-btn">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <!-- prettier-ignore-start -->
+    <script>
+        const procJsons = {{ processesJs | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <!-- prettier-ignore-end -->
+    <script src="{{ url_for('setting_module.static', filename = 'js/export_config.js') }}"></script>
+{% endblock %}

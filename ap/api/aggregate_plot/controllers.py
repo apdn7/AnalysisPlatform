@@ -1,5 +1,6 @@
 import timeit
 from copy import deepcopy
+from itertools import chain
 
 import pytz
 from dateutil import tz
@@ -10,7 +11,6 @@ from ap.api.aggregate_plot.services import gen_agp_data
 from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
-from ap.api.common.services.show_graph_services import judge_data_conversion
 from ap.api.trace_data.services.csv_export import get_export_options, to_csv_export
 from ap.common.constants import (
     ARRAY_FORMVAL,
@@ -98,7 +98,7 @@ def generate_agp():
 
 @api_agp_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -126,12 +126,9 @@ def data_export(export_type):
             max_graph_config[MaxGraphNumber.AGP_MAX_GRAPH.name],
         )
 
-        # export original value of judge variable
-        judge_columns = graph_param.get_judge_cols()
-
         end_proc_id = int(agp_dat[ARRAY_FORMVAL][0][END_PROC])
         proc_name = graph_param.dic_proc_cfgs[end_proc_id].shown_name
-        csv_list_name.append('{}.{}'.format(proc_name, export_type))
+        csv_list_name.append(f'{proc_name}.{export_type}')
 
         client_timezone = agp_dat[COMMON].get(CLIENT_TIMEZONE)
         client_timezone = pytz.timezone(client_timezone) if client_timezone else tz.tzlocal()
@@ -148,10 +145,10 @@ def data_export(export_type):
             csv_list_name = list(agp_plotted_df.keys())
             file_type = '.csv' if delimiter == ',' else '.tsv'
             csv_list_name = [name + file_type for name in csv_list_name]
-            csv_df_list = list(agp_plotted_df.values())
-            agp_list_df = [judge_data_conversion(df[0], judge_columns, revert=True) for df in csv_df_list]
+            # TinhTN confirmed that there is only one item in each list, to flat list is correct way
+            csv_df_list = list(chain.from_iterable(agp_plotted_df.values()))
 
-            for i, agp_df in enumerate(agp_list_df):
+            for i, agp_df in enumerate(csv_df_list):
                 csv_df = to_csv_export(
                     agp_df,
                     graph_param,
@@ -161,7 +158,6 @@ def data_export(export_type):
                 )
                 agp_dataset.append(csv_df)
         else:
-            agp_df = judge_data_conversion(agp_df, judge_columns, revert=True)
             csv_df = to_csv_export(
                 agp_df,
                 graph_param,

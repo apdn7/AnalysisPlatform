@@ -1,5 +1,5 @@
 import contextlib
-from typing import Optional, Union
+from typing import Union
 
 from apscheduler.jobstores.base import JobLookupError
 
@@ -9,7 +9,7 @@ from ap.common.constants import JobType
 from ap.common.jobs.jobs import RunningJob, RunningJobs
 
 
-def remove_job(job_id: str, process_id: Optional[Union[str, int]] = None):
+def remove_job(job_id: str, process_id: Union[str, int] | None = None):
     """Remove a job from scheduler
 
     :param str job_id:
@@ -24,20 +24,32 @@ def remove_job(job_id: str, process_id: Optional[Union[str, int]] = None):
 
 
 @log_execution_time()
-def remove_jobs(job_types: list[JobType], process_id: Optional[int] = None, data_source_id: Optional[int] = None):
+def remove_jobs(
+    job_types: list[JobType],
+    process_id: int | None = None,
+    data_source_id: int | None = None,
+    export_id: int | None = None,
+):
     """Remove all interval jobs
 
     :param list[JobType] job_types:
     :param Optional[int] process_id:
     :return: void
     """
-    kill_jobs(job_types, process_id=process_id, data_source_id=data_source_id)
+    kill_jobs(job_types, process_id=process_id, data_source_id=data_source_id, export_id=export_id)
     for job_type in job_types:
-        job_id = generate_job_id(job_type=job_type, process_id=process_id, data_source_id=data_source_id)
+        job_id = generate_job_id(
+            job_type=job_type, process_id=process_id, data_source_id=data_source_id, export_id=export_id
+        )
         remove_job(job_id, process_id=process_id)
 
 
-def kill_jobs(job_types: list[JobType], process_id: Optional[int] = None, data_source_id: Optional[int] = None):
+def kill_jobs(
+    job_types: list[JobType],
+    process_id: int | None = None,
+    data_source_id: int | None = None,
+    export_id: int | None = None,
+):
     """Kill all interval jobs by type and process id
 
     :param list[JobType] job_types:
@@ -47,8 +59,10 @@ def kill_jobs(job_types: list[JobType], process_id: Optional[int] = None, data_s
     running_jobs = RunningJobs.get_running_jobs()
     with RunningJobs.lock():
         for job_type in job_types:
-            job_id = generate_job_id(job_type=job_type, process_id=process_id, data_source_id=data_source_id)
-            running_job: Optional[RunningJob] = running_jobs.get(job_id)
+            job_id = generate_job_id(
+                job_type=job_type, process_id=process_id, data_source_id=data_source_id, export_id=export_id
+            )
+            running_job: RunningJob | None = running_jobs.get(job_id)
             if running_job:
                 running_job.update(wait_to_kill=True, running_jobs=running_jobs)
 
@@ -69,6 +83,5 @@ def get_update_transaction_table_job(process_id: Union[int, str]):
     :param Union[int, str] process_id: a process id
     :return: the job, otherwise None
     """
-
     job_id = generate_job_id(JobType.UPDATE_TRANSACTION_TABLE, process_id)
     return scheduler.get_job(job_id)

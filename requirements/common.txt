@@ -1,5 +1,4 @@
-cryptography==37.0.2
-cx-Oracle==8.3.0
+oracledb==3.2.0
 Flask==3.0.3
 Jinja2==3.1.4
 MarkupSafe==3.0.2
@@ -11,10 +10,8 @@ Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
 jaconv==0.2.4
 numpy==2.0.2
-psycopg2==2.9.5
-pymssql==2.2.11
+psycopg2==2.9.10
 PyMySQL==1.0.2
-ruamel.yaml==0.16.5
 markdown2==2.3.9
 pytz==2024.2
 APScheduler==3.10.4
@@ -28,7 +25,6 @@ marshmallow==3.23.0
 WTForms==3.2.1
 Flask-WTF==1.2.2
 WTForms-JSON==0.3.5
-simplejson==3.17.2
 joblib==1.2.0
 scikit-learn==1.5.2
 chardet==3.0.4
@@ -37,19 +33,36 @@ Flask-Compress==1.17
 group-lasso==1.5.0
 unidic-lite==1.0.8
 cutlet==0.5.0
-pyarrow==17.0.0
 waitress==2.1.2
-requests==2.28.2
 python-dateutil~=2.8.2
 Flask-Assets==2.1.0
 orjson==3.10.10
-pywin32==306
 pydantic==2.9.2
-snowflake==1.0.2
-snowflake-sqlalchemy==1.7.6
 opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
 cachelib==0.13.0
 diskcache==5.6.3
 filelock==3.13.1
 networkx==3.2.1
+arrow==1.4.0
+
+# py3.12
+pymssql==2.3.11
+ruamel.yaml==0.19.1
+simplejson==3.20.2
+pywin32==311
+pyOpenSSL==25.3.0
+cryptography==46.0.0
+
+# requests
+requests==2.32.5
+urllib3==2.6.3
+charset-normalizer==3.4.4
+idna==3.11
+certifi==2026.1.4
+
+# pyarrow
+pyarrow==23.0.0
+snowflake-sqlalchemy==1.8.2
+snowflake-connector-python==4.2.0
+snowflake==1.11.0

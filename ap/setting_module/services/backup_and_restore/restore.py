@@ -7,8 +7,10 @@ from ap.api.setting_module.services.data_import import (
     save_proc_data_count_multiple_dfs,
 )
 from ap.common.constants import DATE_FORMAT_STR, AnnounceEvent
+from ap.common.jobs.job_info_schema import UserRestoreDatabaseJobInfo
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.setting_module.models import JobManagement
 from ap.setting_module.services.backup_and_restore.backup_file_manager import BackupKey, BackupKeysManager
 from ap.setting_module.services.backup_and_restore.duplicated_check import (
     get_df_insert_and_duplicated_ids,
@@ -17,14 +19,19 @@ from ap.setting_module.services.backup_and_restore.duplicated_check import (
 from ap.trace_data.transaction_model import TransactionData
 
 
-def restore_db_data(process_id, start_time, end_time):
+def restore_db_data(process_id, start_time, end_time, job_management: JobManagement = None):
+    """Restore data from backup files to database."""
     backup_keys_manager = BackupKeysManager(process_id=process_id, start_time=start_time, end_time=end_time)
 
     # TODO: get min max date in database before running this
     backup_keys = backup_keys_manager.get_backup_keys_by_day()
     total_backup_keys = len(backup_keys)
 
+    # update job info
+    job_management.info = UserRestoreDatabaseJobInfo(restore_from=start_time, restore_to=end_time)
+
     if total_backup_keys == 0:
+        job_management.info.info('No data to restore')
         # nothing to do
         yield 100
 

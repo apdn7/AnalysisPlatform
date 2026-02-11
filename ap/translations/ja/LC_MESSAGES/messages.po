@@ -1358,10 +1358,6 @@ msgstr "以下のリンクからデータ読み込みの進捗状況を確認で
 msgid "CheckErrorJob"
 msgstr "エラーの発生状況はジョブ一覧ページを参照してください。"
 
-#: ap/template/setting_module/trace_config.html
-msgid "Linking data was started."
-msgstr "データの紐づけを始めました。"
-
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per 3 minutes"
 msgstr "3分間に1回"
@@ -1475,24 +1471,6 @@ msgstr "読み込みデータ"
 # ap/template/setting_module/config.html
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "すべての同じデータソースタイプの変更"
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"Based on the set config information, generating the ID for linking the "
-"data will be started."
-msgstr "設定した情報を元にデータの紐付け用IDの生成を開始します。"
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"It may take time if there is a lot of data to link, but is it okay to "
-"start the process?"
-msgstr "紐付けするデータが多い場合に時間がかかる場合がありますが、処理を開始してもいいですか?"
-
-# ap/template/setting_module/trace_config.html
-msgid ""
-"(For data that is automatically and regularly imported, the ID for "
-"linking is automatically generated.)"
-msgstr "※自動で定期的に読み込まれるデータに対しては、自動で紐付け用のIDが生成されます。"
 
 # ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
@@ -2628,9 +2606,10 @@ msgstr ""
 "Lv1あるいはLv2だけ選択すると、選択された変数の種類ごとにグラフが分割されます。\n"
 "Lv1,Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでグラフが分割されます。\n"
 "\n"
-"*RLP,AgP,ScPページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです\n"
+"*RLP,AgP,ScP,WfPページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです\n"
 "・RLP,AgP:選択した変数が横軸に使用され、変数の中身の種類ごとに集約もしくは集計されます\n"
-"・ScP:Lv1,Lv2と同様にグラフが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたグラフが並びます。"
+"・ScP:Lv1,Lv2と同様にグラフが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたグラフが並びます。\n"
+"・WfP:選択した変数の値ごとの波形が描画されます。"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -3174,13 +3153,13 @@ msgid "Change divide confirm message"
 msgstr ""
 "FacetのDivをクリアしますか?\n"
 "OKの場合、Divをクリアします。\n"
-"Cancelの場合、自動で'CATEGORY_DIVIDE_OPTION'が選択されます。"
+"Cancelの場合、自動でCATEGORY_DIVIDE_OPTIONが選択されます。"
 
 #: ap/templates/i18n.html
 msgid "Clear Div in Facet"
 msgstr ""
-"'CURRENT_DIVIDE_OPTION'をクリアしますか?\n"
-"OKの場合、'CURRENT_DIVIDE_OPTION'をクリアし、自動で'CATEGORY_DIVIDE_OPTION'が選択されます。\n"
+"CURRENT_DIVIDE_OPTIONをクリアしますか?\n"
+"OKの場合、CURRENT_DIVIDE_OPTIONをクリアし、自動でCATEGORY_DIVIDE_OPTIONが選択されます。\n"
 "Cancelの場合、自動でDivがクリアされます。"
 
 #: ap/templates/templates/i18n.html
@@ -3782,10 +3761,6 @@ msgstr ""
 msgid "Show all node labels"
 msgstr "全ノードのラベルを表示"
 
-#: ap/templates/templates/macros.html
-msgid "Generate proc link information msg"
-msgstr "読み込みしたレコード数や紐付け対象のレコード数を更新したい場合は、再読込みボタンを押してください。"
-
 #: ap/templates/templates/sidebar.html
 msgid "in new tab"
 msgstr "(新しいタブ)"
@@ -3821,7 +3796,7 @@ msgstr "実数 カテゴリ化"
 
 #: ap/templates/templates/modal.html
 msgid "Generate several v2 data sources msg"
-msgstr "複数のデータソース設定を自動生成しますか? そうでない場合は、プロセスを一つだけ選択してください?"
+msgstr "複数のデータソース設定を自動生成しますか? そうでない場合は、プロセスを一つだけ選択してください。"
 
 #: ap/templates/tile_interface/tile_search_by_use.html
 msgid "For example"
@@ -4759,6 +4734,10 @@ msgid "checkIsMainSerialMsg"
 msgstr "main::Serialは複数選択ができないため、プロセス設定で選択されているmain::シリアル:Int/main::シリアル:Strをシリアル:Int/シリアル:Strにします。"
 
 #: ap/templates/setting_module/function_config_modal.html
+msgid "checkIsMainDatetimeMsg"
+msgstr "main::Datetimeは複数選択ができないため、プロセス設定で選択されているmain::DatetimeをDatetimeにします。"
+
+#: ap/templates/setting_module/function_config_modal.html
 msgid "fill.na processing will be skipped"
 msgstr "fill.naの処理はスキップします。"
 
@@ -4786,7 +4765,11 @@ msgstr "本プロセスにおいて、main::Serialが更新されており、ト
 
 #: ap/templates/setting_module/function_config_modal.html
 msgid "changeMainSerialFunctionColumnMsg"
-msgstr "main::Serialは複数選択ができないため、Function設定で選択されているmain::シリアルのチェックを外します。"
+msgstr "main::シリアルは複数選択ができないため、Function設定で選択されているmain::シリアルのチェックを外します。"
+
+#: ap/templates/setting_module/function_config_modal.html
+msgid "changeMainDatetimeFunctionColumnMsg"
+msgstr "main::Datetimeは複数選択ができないため、Function設定で選択されているmain::Datetimeのチェックを外します。"
 
 #: ap/templates/setting_module/function_config_modal.html
 msgid "uncheckMainSerialFunctionColumnMsg"
@@ -4937,8 +4920,20 @@ msgstr "紐付設定がされていない工程がフィルタ条件に設定さ
 msgid "PlaceholderHidden"
 msgstr "非表示"
 
+msgid "ProcessConfigFilterHover"
+msgstr ""
+"こちらに入力された値に限定してデータの取込を行います。正規表現を使用できます。\n"
+"例として、以下の様な限定ができます。\n"
+"   “abc”：”abc”を含むもの(部分一致)、\n"
+"   “^abc”：”abc”から始まるもの、\n"
+"   ”^abc$”：”abc”に一致するもの(完全一致)、\n"
+"   ”ab|c”：OR条件”ab”もしくは”c”を含むもの、\n"
+"   ^(?!test|abc).*”：”test”と”abc”以外から始まるもの。\n"
+"(“^”は次の文字が先頭であること、”$”は最後に付けてひとつ前の文字が末尾であること、”|”はORであることを意味します。\n"
+"※”は入力時は不要です)"
+
 #: ap/templates/i18n.html
-msgid "HoverConversationJudgeMsg"
+msgid "HoverConversationFormulaMsg"
 msgstr ""
 "交換式を入力します。プロットエリアなどに表示されます。\n"
 "DataTypeが判定の場合は、変換式Pos~p0|Neg=p1|n1が表示されます。\n"
@@ -4953,7 +4948,7 @@ msgid "SelectJudgeDataTypeWarningFilterChangeModalMsg"
 msgstr "フィルタの再設定が必要になります"
 
 #: ap/templates/i18n.html
-msgid "InvalidInputJudgeMsg"
+msgid "InvalidInputFormulaMsg"
 msgstr "無効な入力があるため、元の値に戻します。"
 
 #: ap/templates/i18n.html
@@ -5032,6 +5027,19 @@ msgstr "アクセストークン"
 msgid "Waveform plot"
 msgstr "波形プロット"
 
+#: ap/templates/waveform_plot/waveform_plot.html
+msgid "Waveform Plot Description"
+msgstr ""
+"1サイクルごとの波形を可視化することができます。複数の波形を1つのグラフに描画し、色分けも可能です。\n"
+"例えば良品/不良品の圧入波形・電流波形・振動波形など比較することで、\n"
+"特定区間での立ち上がり変化、 ピーク位置の偏りの存在を明らかにすることができます。"
+
+#: ap/templates/waveform_plot/waveform_plot.html
+msgid "WfP Display variable hover"
+msgstr ""
+"波形のx値とy値、計2つの変数を選択します。最初に選択した変数がxとなります。\n"
+"Div (同じ波形をまとめるための変数、例えばサイクルID) の選択が必須です。"
+
 #: ap/templates/setting_module/db_config_modals.html
 msgid "SnowflakePrivateKeyFilePathLabel"
 msgstr "秘密キーファイル"
@@ -5051,4 +5059,208 @@ msgstr "認証方法"
 #: ap/templates/i18n.html ap/templates/setting_module/db_config.html
 msgid "DataSourceTypeSoftwareWorkshopSnowflake"
 msgstr "V2 ソフトウェア工房ETL(Snowflake)"
+
+#: ap/templates/setting_module/db_config.html
+msgid "ConfigWebHoverMsg"
+msgstr ""
+"Web からデータを取得します (HTTP GET).\n"
+"返り値は以下のような、 JSON オブジェクトの配列であることが必要です:\n"
+"[\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:00:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0001&quot;, &quot;temperature&quot;: "
+"12.3},\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:01:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0002&quot;, &quot;temperature&quot;: "
+"14.1},\n"
+"    {&quot;datetime&quot;: &quot;2025-01-01T00:02:00&quot;, "
+"&quot;serial_no&quot;: &quot;ABC0003&quot;, &quot;temperature&quot;: "
+"11.2}\n"
+"]"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "ImportLimitTitle"
+msgstr ""
+"読み込む行数の上限を設定できます。\n"
+"上限はプロセスそれぞれ (例 データベースの場合：テーブル、CSVの場合：フォルダ) に対して適用されます。\n"
+"読込上限を低下させた場合あるいは最新データの読込時、\n"
+"行数が上限を超える場合は、日時が古いデータからAP+DN7内のデータベースから削除されます。\n"
+"読込上限を増加させた場合、全プロセスのAP+DN7内のデータを一度削除し、再度データを読み込みます。"
+
+msgid "ImportLimitUpdateSuccess"
+msgstr "読込上限は変更しました。"
+
+msgid "ImportLimitUpdateFailed"
+msgstr "読込上限は変更できませんでした。"
+
+msgid "Import Limit"
+msgstr "読込上限"
+
+msgid "No limit"
+msgstr "上限なし"
+
+msgid "1 million rows"
+msgstr "100万行"
+
+msgid "10 million rows"
+msgstr "1000万行"
+
+msgid "100 million rows"
+msgstr "1億行"
+
+msgid "ConfirmIncreaseLimitImport"
+msgstr "既に読み込んだAP+DN7内のデータを一度削除し、再度データを読み込みます。"
+
+msgid "ConfirmDecreaseLimitImport"
+msgstr "読込済のデータ行数が新しい上限を超える場合、時刻の古いデータからAP+DN7から削除されます。"
+
+#: ap/templates/setting_module/export_config.html
+msgid "TitleDataExport"
+msgstr "データのエクスポート"
+
+#: ap/templates/sidebar.html
+msgid "SidebarTitleDataExport"
+msgstr "データ出力設定"
+
+#: ap/templates/i18n.html
+msgid "ExportFolder"
+msgstr "フォルダ"
+
+#: ap/templates/i18n.html
+msgid "ExportFrequency"
+msgstr "書出周期"
+
+#: ap/templates/i18n.html
+msgid "ExportFrom"
+msgstr "開始日時"
+
+#: ap/templates/i18n.html
+msgid "ExportTo"
+msgstr "終了日時"
+
+#: ap/templates/i18n.html
+msgid "ExportConfigDetail"
+msgstr "データ出力設定詳細"
+
+#: ap/templates/i18n.html
+msgid "Export column name"
+msgstr "出力列名"
+
+#: ap/templates/i18n.html
+msgid "System Name"
+msgstr "システム名"
+
+#: ap/templates/i18n.html
+msgid "Once per week"
+msgstr "1週に1回"
+
+#: ap/templates/i18n.html:390
+msgid ""
+"Sorry, we couldn’t display the graph for your target variable with the "
+"selected mode. Please try a different mode or variable."
+msgstr "申し訳ありませんが、選択されたモードでは対象の変数のグラフを表示できませんでした。別のモードまたは変数をお試しください。"
+
+#: ap/templates/setting_module/db_config.html
+msgid "NoneAuthentication"
+msgstr "なし"
+
+#: ap/templates/setting_module/db_config.html
+msgid "BasicAuthentication"
+msgstr "Basic 認証"
+
+#: ap/templates/setting_module/db_config.html
+msgid "BasicAuthenticationHoverMsg"
+msgstr ""
+"ユーザー名とパスワードを使用して制限されたWebリソースにアクセスします。\n"
+"認証情報はBase64でエンコードされ、HTTPリクエストのAuthorizationヘッダーに含められます。\n"
+"Base64は容易復号可能であるため、この認証方式は社内ツールなどの内部利用に限定することを推奨します。"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Authentication"
+msgstr "認証"
+
+#: ap/templates/setting_module/db_config.html
+msgid "Username"
+msgstr "ユーザ名"
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to connect to URL"
+msgstr "URLに接続できませんでした"
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to authorized. Please check your credentials."
+msgstr "認証に失敗しました。認証情報を確認してください。"
+
+#: ap/api/setting_module/controllers.py:532
+msgid ""
+"The data source columns have changed. The imported data may no longer be "
+"accurate. Please reinitialize the process and re-register."
+msgstr "データソースの列に変更がありました。読込されるデータが正確ではなくなる可能性があります。プロセスを初期化し、再度、データ読込をしてください。"
+
+#: ap/api/setting_module/controllers.py:495
+msgid "Unable to connect to data source. No preview data available."
+msgstr "データソースに接続できません。プレビューデータがありません。"
+
+#: ap/api/setting_module/controllers.py:398
+msgid "Failed to find connect to URL. Please check your URL."
+msgstr "URLへの接続が見つかりませんでした。URLを確認してください。"
+
+#: ap/templates/i18n.html
+msgid "Please input URL"
+msgstr "URLを入力してください。"
+
+#: ap/templates/i18n.html
+msgid "Please input Username"
+msgstr "ユーザー名を入力してください。"
+
+#: ap/templates/i18n.html
+msgid "Please input Password"
+msgstr "パスワードを入力してください。"
+
+#: ap/templates/i18n.html
+msgid "ErrorMsgFunctionUsesUndefinedColumn"
+msgstr "Functionは未定義の列を使用して定義されています。"
+
+#: ap/templates/templates/macros.html
+msgid "Generate proc link information msg"
+msgstr "設定を保存しました。再読込みボタンを押すことで、読込んだ行数と紐付け数を最新の値に更新することができます。"
+
+#: ap/templates/setting_module/trace_config.html:274
+msgid "Data link confirmation"
+msgstr "プロセス間の紐付設定を登録します。<br>データの量によって、紐付の数が反映されるまで時間がかかる場合があります。 "
+
+#: ap/templates/aggregate_plot.html
+msgid "Div order"
+msgstr "Div順"
+
+#: ap/templates/aggregate_plot.html
+msgid "Y axis value"
+msgstr "Y軸の値"
+
+#: ap/templates/i18n.html
+msgid ""
+"Due to the large number of data points, it may take some time to display "
+"the charts."
+msgstr "※ データの点数が多いため、描画に時間がかかる可能性があります。"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "ProcessRegisterFailedMsg"
+msgstr "プロセス登録が失敗しました"
+
+#: ap/templates/i18n.html
+msgid "loadTablesFailedMsg"
+msgstr "テーブルの一覧の取得が失敗しました。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize parent process data"
+msgstr "親プロセスのデータを初期化する"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Initialize Parent Data Hint"
+msgstr ""
+"「親プロセスのデータを初期化する」 "
+"を選択すると、親プロセスのデータは初期化され、最初から再インポートされます。チェックされない場合はデータの整合性がない場合があります。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Label"
+msgstr "ラベル"
 

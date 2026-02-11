@@ -581,6 +581,16 @@ tr.row-unchecked td {
     border: 3px solid red;
 }
 
+#processColumnsTable_functionTable {
+    .jexcel {
+        border-collapse: collapse;
+    }
+
+    .row-invalid {
+        border: 3px solid red;
+    }
+}
+
 #procDateTimeFormatInput {
     height: 30px;
     min-width: 200px;

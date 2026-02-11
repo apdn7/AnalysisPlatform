@@ -2,8 +2,14 @@ import contextlib
 import logging
 import os
 import sys
+from datetime import UTC
+from pathlib import Path
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
+
+root = os.path.dirname(Path(__file__).resolve())
+if root not in sys.path:
+    sys.path.insert(0, root)
 
 from ap import (
     SHUTDOWN,
@@ -27,7 +33,7 @@ env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 
 is_main = __name__ == '__main__'
 
-app = create_app('config.%sConfig' % env.capitalize(), is_main)
+app = create_app(f'config.{env.capitalize()}Config', is_main)
 
 basic_config_yaml = get_basic_yaml_obj()
 start_up_yaml = get_start_up_yaml_obj()
@@ -46,15 +52,15 @@ logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, handlers=log_handler
 logger = logging.getLogger(__name__)
 
 if is_main:
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     from ap import scheduler
-    from ap.common.backup_db import add_backup_dbs_job
     from ap.common.check_available_port import check_available_port
     from ap.common.clean_expired_request import add_job_delete_expired_request
     from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
     from ap.common.common_utils import bundle_assets
     from ap.common.constants import APP_DB_FILE, CfgConstantType
+    from ap.common.db_maintenance import add_backup_dbs_job, add_vacuum_dbs_job
     from ap.common.memoize import clear_cache
     from ap.common.trace_data_log import (
         EventAction,
@@ -118,6 +124,7 @@ if is_main:
         # init cfg_constants for usage_disk
         from ap.api.setting_module.services.import_function_column import reschedule_update_transaction_table
         from ap.api.setting_module.services.polling_frequency import (
+            add_delete_transaction_data_job,
             add_idle_monitoring_job,
             change_polling_all_interval_jobs,
         )
@@ -140,6 +147,7 @@ if is_main:
 
         CfgConstant.initialize_disk_usage_limit()
         CfgConstant.initialize_max_graph_constants()
+        CfgConstant.initialize_import_limit()
 
         for key, _ in max_graph_config.items():
             max_graph_config[key] = CfgConstant.get_value_by_type_first(key, int)
@@ -156,6 +164,9 @@ if is_main:
 
         # delete req_id created > 24h ago
         add_job_delete_expired_request()
+
+        # add job delete limit transaction
+        add_delete_transaction_data_job()
 
     scheduler.start()
 
@@ -183,6 +194,7 @@ if is_main:
 
     # add job when app started
     add_backup_dbs_job()
+    add_vacuum_dbs_job()
 
     # BRIDGE STATION - Refactor DN & OSS version
     if is_internal_version:
@@ -208,7 +220,7 @@ if is_main:
         disable_terminal_close_btn()
 
     try:
-        app.config.update({'app_startup_time': datetime.now(timezone.utc)})
+        app.config.update({'app_startup_time': datetime.now(UTC)})
         if env == 'dev':
             logger.info('Development Flask server !!!')
             app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)

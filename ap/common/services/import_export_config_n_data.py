@@ -120,7 +120,7 @@ def set_export_dataset_id_to_dic_param(dic_param):
 
 def gen_config_json(graph_param):
     """
-    get all process from graph_param then gen its json
+    Get all process from graph_param then gen its json
     :param graph_param:
     :return:
     """
@@ -132,11 +132,10 @@ def gen_config_json(graph_param):
 
 def gen_user_setting_json(user_setting_id):
     """
-    get user setting json
+    Get user setting json
     :param user_setting_id:
     :return:
     """
-
     user_setting = CfgUserSetting.get_by_id(setting_id=user_setting_id)
     user_setting_schema = CfgUserSettingSchema()
     return user_setting_schema.dump(user_setting)
@@ -258,7 +257,7 @@ def import_config_db(zip_file):
     config_db = pickle.loads(config_db)
     # insert data source
     data_source_data = get_data_source_info(config_db)
-    for ds_table, dic_data in zip(data_source_tables, data_source_data):
+    for ds_table, dic_data in zip(data_source_tables, data_source_data, strict=False):
         for values in dic_data.values():
             insert_data_to_table(ds_table, values)
 

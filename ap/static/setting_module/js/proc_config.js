@@ -5,6 +5,17 @@ let dicOriginDataType = {};
 let dicProcessCols = {};
 let isInitialize = false;
 
+const DB_CONFIG_CSV_TYPES = [DB.DB_CONFIGS.CSV.type, DB.DB_CONFIGS.V2.type];
+
+// TODO: add other db types. This is currently not needed because databases are in else clause
+const DB_CONFIG_DB_TYPES = [
+    DB.DB_CONFIGS.POSTGRESQL.type,
+    DB.DB_CONFIGS.SQLITE.type,
+    DB.DB_CONFIGS.MYSQL.type,
+    DB.DB_CONFIGS.MSSQL.type,
+    DB.DB_CONFIGS.ORACLE.type,
+];
+
 const procElements = {
     tblProcConfig: 'tblProcConfig',
     tblProcConfigID: '#tblProcConfig',
@@ -30,6 +41,8 @@ const i18n = {
     noCTColProc: $('#i18nNoCTColPrc').text(),
     confirmDeleteProc: $('#i18nConfirmDeleteProc').text(),
     warnDeleteMergedProc: $('#i18nWarDeleteMergedProc').text(),
+    confirmIncreaseLimitImport: $('#i18nConfirmIncreaseLimitImport').text(),
+    confirmDecreaseLimitImport: $('#i18nConfirmDecreaseLimitImport').text(),
 };
 const JOB_STATUS = {
     DONE: {
@@ -147,7 +160,7 @@ const confirmDelProc = () => {
             // updateTableRowNumber(procElements.tblProcConfig);
 
             // refresh Vis network
-            reloadTraceConfigFromDB();
+            reloadTraceConfigFromDB(true);
         })
         .catch((e) => {
             console.error(e);
@@ -214,14 +227,13 @@ const getProcInfo = async (procId) => {
         type: 'GET',
         cache: false,
         success(res) {
-            loading.hide();
-
             procModalElements.proc.val(res.data.name_en);
             procModalElements.procJapaneseName.val(res.data.name_jp || '');
             procModalElements.procLocalName.val(res.data.name_local || '');
             procModalElements.procID.val(res.data.id);
             procModalElements.comment.val(res.data.comment);
             procModalElements.tables.val(res.data.table_name);
+            procModalElements.label.val(res.data.labels.map((l) => l.name)).trigger('change');
             procModalElements.optionalFunctions.val(res.data.etl_func);
             procModalElements.dsID.val(res.data.data_source_id);
             procModalElements.fileName.val(res.data.file_name);
@@ -264,6 +276,10 @@ const getProcInfo = async (procId) => {
                 );
                 propGroupTableDropdown(true);
             }
+
+            // disable formula cell for ds not csv types
+            isEnableFormulaForDs = DB_CONFIG_CSV_TYPES.includes(res.tables.ds_type.toLowerCase());
+
             if (res.tables.tables) {
                 const isSoftwareWorkshop = res.tables.ds_type === DB_CONFIGS.POSTGRES_SOFTWARE_WORKSHOP.configs.type;
                 const isSWSnowflake = res.tables.ds_type === DB_CONFIGS.SNOWFLAKE_SOFTWARE_WORKSHOP.configs.type;
@@ -380,9 +396,8 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
 
     currentProcItem = $(procItem).closest('tr');
     const procId = currentProcItem.data('proc-id');
-    const loading = $('.loading');
-
-    loading.show();
+    const loadingObj = loadingHandler();
+    loadingObj.show();
     handleEnglishNameChange(procModalElements.proc);
 
     const parentDataRow = $(procItem).parent().parent();
@@ -406,7 +421,6 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
             procModalElements.procModal.modal('show');
             FunctionInfo.loadFunctionListTableAndInitDropDown([]);
         }
-        loading.hide();
     }
 
     if (isMergeMode) {
@@ -429,8 +443,7 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     } else {
         //set attribute for Ok btn
         $(procModalElements.confirmImportDataBtn).attr('data-is-merge-mode', false);
-        $(filterConditionElements.addImportConditionBtn).prop('disabled', false);
-        loadProcModal(procId, dataRowID, dbsId);
+        await loadProcModal(procId, dataRowID, dbsId);
         // not available from v4.7.10
         // GenerateDefaultImportFilterTable(procId);
         modalName = 'procSettingModal';
@@ -460,6 +473,7 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     // input change observer for process cfg modal and process cfg merge mode modal
     inputMutationObserver = new InputChangeObserver(document.getElementById(modalName));
     inputMutationObserver.startObserving();
+    loadingObj.hide();
 };
 
 const resetDicOriginData = () => {
@@ -469,12 +483,12 @@ const resetDicOriginData = () => {
 };
 
 const changeDataSource = (e) => {
-    const dsType = $(e).find(':selected').data('ds-type');
+    const dsType = $(e).find(':selected').data('ds-type').toLowerCase();
     const tableDOM = $(e).parent().parent().find('select[name="tableName"]')[0];
 
     const processName = $(e).parent().parent().find("input[name='processName']").val();
 
-    if (dsType === 'CSV' || dsType === 'V2' || !dsType) {
+    if ([DB.DB_CONFIGS.CSV.type, DB.DB_CONFIGS.V2.type, DB.DB_CONFIGS.WEB_API.type].includes(dsType) || !dsType) {
         if (tableDOM) {
             $(tableDOM).hide();
             $(tableDOM).next().hide();
@@ -506,7 +520,7 @@ const changeDataSource = (e) => {
     }
 };
 
-const addProcToTable = (
+const generateProcessRow = (
     procId = null,
     procName = '',
     nameJP = '',
@@ -515,9 +529,10 @@ const addProcToTable = (
     dbsId = null,
     tableName = '',
     dbsName = '',
+    dummyRowID = '',
+    labels = [],
+    disabled = false,
 ) => {
-    // function to create proc_id
-
     const procConfigTextByLang = {
         procName: $('#i18nProcName').text(),
         dbName: $('#i18nDataSourceName').text(),
@@ -526,12 +541,11 @@ const addProcToTable = (
         comment: '',
     };
     const allDS = cfgDS || [];
-    const DSselection = allDS.map(
+    const dsSelection = allDS.map(
         (ds) =>
             `<option data-ds-type="${ds.type}" ${dbsId && Number(dbsId) === Number(ds.id) ? 'selected' : ''} value="${ds.id}">${ds.name}</option>`,
     );
-    const DSSelectionWithDefaultVal = ['<option value="">---</option>', ...DSselection].join('');
-    const dummyRowID = new Date().getTime().toString(36);
+    const DSSelectionWithDefaultVal = ['<option value="">---</option>', ...dsSelection].join('');
     const rowNumber = $(`${procElements.tblProcConfigID} tbody tr`).length;
 
     // for SW processes
@@ -545,6 +559,11 @@ const addProcToTable = (
         // if creating a process row then disable fields
         dsSelector = `<input class="form-control" name="databaseName" ${dbsId ? 'disabled' : ''}
                             value="${dbsName}"/>`;
+    }
+
+    let labelEles = '';
+    if (labels) {
+        labelEles = labels.map((label) => `<span class="process-label">${label.name}</span>`).join('');
     }
 
     const newRecord = `
@@ -564,7 +583,7 @@ const addProcToTable = (
             </select>
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-secondary icon-btn"
+            <button type="button" class="btn btn-secondary icon-btn proc-show-detail-btn" ${disabled ? 'disabled' : ''}
                 onclick="showProcSettingModal(this)">
                 <i class="fas fa-edit icon-secondary"></i></button>
         </td>
@@ -572,18 +591,59 @@ const addProcToTable = (
             <textarea name="comment" class="form-control form-data"
                 rows="1" placeholder="${procConfigTextByLang.comment}" disabled></textarea>
         </td>
+         <td>
+            <div class="process-labels">${labelEles}</div>
+        </td>
         <td class="process-status" id=""></td>
         <td class="text-center">
-            <button onclick="deleteProcess(this)" type="button"
-                class="btn btn-secondary icon-btn">
+            <button onclick="deleteProcess(this)" type="button" ${disabled ? 'disabled' : ''}
+                class="btn btn-secondary icon-btn proc-delete-btn">
                 <i class="fas fa-trash-alt icon-secondary"></i>
             </button>
         </td>
     </tr>`;
 
+    return newRecord;
+};
+
+const addProcToTable = ({
+    procId = null,
+    procName = '',
+    nameJP = '',
+    nameLocal = '',
+    procShownName = '',
+    dbsId = null,
+    tableName = '',
+    dbsName = '',
+    labels = [],
+} = {}) => {
+    const dummyRowID = new Date().getTime().toString(36);
+    const newRecord = generateProcessRow(
+        procId,
+        procName,
+        nameJP,
+        nameLocal,
+        procShownName,
+        dbsId,
+        tableName,
+        dbsName,
+        dummyRowID,
+        labels,
+    );
+
     const $procTable = $(procElements.tableProcList);
     if (!$procTable.find(`#proc_${procId}`).length) {
         $procTable.append(newRecord);
+        const showAllLabels = isShowAllLabels();
+        if (labels.length > 0) {
+            labels.forEach((label) => {
+                addLabelIfNotExist(label.name);
+                if (!showAllLabels) {
+                    activateLabel(label.name);
+                }
+            });
+            filterProcessByLabels();
+        }
     }
     if (procName && dbsId) {
         dragDropRowInTable.setItemLocalStorage($(procElements.tableProcList)[0]); // set proc table order
@@ -682,6 +742,53 @@ const addProcToTable = (
     }, 200);
 
     // updateTableRowNumber(procElements.tblProcConfig);
+    return $procTable.children().last();
+};
+
+const addDisabledProcToTable = (
+    procId = null,
+    procName = '',
+    nameJP = '',
+    nameLocal = '',
+    procShownName = '',
+    dbsId = null,
+    tableName = '',
+    dbsName = '',
+    labels = [],
+) => {
+    const dummyRowID = new Date().getTime().toString(36);
+    const newRecord = generateProcessRow(
+        procId,
+        procName,
+        nameJP,
+        nameLocal,
+        procShownName,
+        dbsId,
+        tableName,
+        dbsName,
+        dummyRowID,
+        labels,
+        true,
+    );
+
+    const $procTable = $(procElements.tableProcList);
+    if (!$procTable.find(`#proc_${procId}`).length) {
+        $procTable.append(newRecord);
+        const showAllLabels = isShowAllLabels();
+        if (labels.length > 0) {
+            labels.forEach((label) => {
+                addLabelIfNotExist(label.name);
+                if (!showAllLabels) {
+                    activateLabel(label.name);
+                }
+            });
+            filterProcessByLabels();
+        }
+    }
+    // set order for temp. process to avoid aut-arrange in table
+    if (procName && dbsId) {
+        dragDropRowInTable.setItemLocalStorage($(procElements.tableProcList)[0]); // set proc table order
+    }
 };
 
 const hideDataSourceRegistered = (elem) => {
@@ -734,6 +841,7 @@ const focusInSelectDataSource = (elem) => {
 
 $(() => {
     procModalElements.procModal.on('hidden.bs.modal', () => {
+        currentProcessId = null;
         $(procModalElements.selectAllColumn).css('display', 'none');
     });
 
@@ -852,4 +960,34 @@ const getProcessInfo = async (procId) => {
         },
     });
     return data;
+};
+
+const changeImportLimit = (e) => {
+    const $modal = $('#import-limit-confirm-modal');
+    const $messageEl = $modal.find('.modal-inform');
+    const $selectLimitEl = $(e);
+    const limit = Number($selectLimitEl.val());
+    const originalValue = parseInt($selectLimitEl.data('original-value'));
+
+    $('#btn-confirm-import-limit').attr('data-item-id', 'CONFIRM_IMPORT_LIMIT');
+    $('#btn-confirm-import-limit').attr('data-pf', limit);
+    $('#btn-confirm-import-limit').off('click');
+    $('#btn-confirm-import-limit').on('click', () => {
+        $selectLimitEl.val(Number(limit));
+        $selectLimitEl.data('original-value', Number(limit));
+        // call api to update limit import
+        updateImportLimit(limit);
+        DB.setImportLimit(limit);
+    });
+    $('#btn-cancel-import-limit').off('click');
+    $('#btn-cancel-import-limit').on('click', () => {
+        $(eles.importLimit).val(DB.getImportLimit());
+    });
+
+    let isIncrease = false;
+    if (limit === 0 || (originalValue !== 0 && originalValue < limit)) {
+        isIncrease = true;
+    }
+    $messageEl.text(isIncrease ? i18n.confirmIncreaseLimitImport : i18n.confirmDecreaseLimitImport);
+    $modal.modal('show');
 };

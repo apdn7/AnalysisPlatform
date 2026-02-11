@@ -3,7 +3,6 @@ from collections import defaultdict
 from copy import deepcopy
 
 import numpy as np
-import pandas
 import pandas as pd
 
 from ap import TraceErrKey
@@ -188,11 +187,10 @@ def gen_trace_data_by_cyclic(graph_param, dic_param, max_graph=None):
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end point
     filter by condition points that between start point and end_point
     """
-
     (
         dic_param,
         cat_exp,
@@ -298,10 +296,9 @@ def gen_trace_data_by_categorical_var(graph_param, dic_param, max_graph=None):
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
-    """rlp data to show graph
+    """Rlp data to show graph
     filter by condition points that between start point and end_point
     """
-
     dic_param[ARRAY_PLOTDATA] = []
     terms = dic_param.get(TIME_CONDS) or []
 
@@ -499,7 +496,10 @@ def customize_dict_param(dic_param):
         and len(start_dates) == len(start_times) == len(end_dates) == len(end_times)
     ):
         names = [START_DATE, START_TM, END_DATE, END_TM]
-        lst_datetimes = [dict(zip(names, row)) for row in zip(start_dates, start_times, end_dates, end_times)]
+        lst_datetimes = [
+            dict(zip(names, row, strict=False))
+            for row in zip(start_dates, start_times, end_dates, end_times, strict=False)
+        ]
         for idx, time_cond in enumerate(lst_datetimes):
             start_dt = start_of_minute(time_cond.get(START_DATE), time_cond.get(START_TM))
             end_dt = end_of_minute(time_cond.get(END_DATE), time_cond.get(END_TM))
@@ -575,7 +575,6 @@ def calc_emd_for_ridgeline(data, group_id, num_bins, signed=True, diff=False):
     Returns:
         emd_mat [2d numpy array] (group_id x num of sensors)
     """
-
     # in case when data was 1d array (only 1 sensor selected)
     if len(data.shape) == 1:
         data = data.reshape(-1, 1)
@@ -639,7 +638,7 @@ def gen_term_groups(terms_obj):
         terms_obj[START_DT] += 'Z'
     if 'Z' not in terms_obj[END_DT]:
         terms_obj[END_DT] += 'Z'
-    return '{} | {}'.format(terms_obj[START_DT], terms_obj[END_DT])
+    return f'{terms_obj[START_DT]} | {terms_obj[END_DT]}'
 
 
 @log_execution_time()
@@ -1055,7 +1054,7 @@ def gen_emd_df(
     ng_rate_data = rlp_data.get(NG_RATES, None)
     if has_facet:
         for rlp in rlp_data[ARRAY_PLOTDATA]:
-            file_name = '{}_{}_{}.{}'.format(rlp[PROC_NAME], rlp[RL_SENSOR_NAME], rlp[CAT_EXP_BOX], file_extension)
+            file_name = f'{rlp[PROC_NAME]}_{rlp[RL_SENSOR_NAME]}_{rlp[CAT_EXP_BOX]}.{file_extension}'
             csv_name.append(file_name)
 
     limit = 8
@@ -1104,9 +1103,9 @@ def gen_emd_df(
                 sensor_name = judge[RL_SENSOR_NAME]
                 rlp_emd[f'{process_name}|{sensor_name}|{EXPORT_NG_RATE}'] = judge[Y]
         if has_facet:
-            csv_data.append(pandas.DataFrame(rlp_emd))
+            csv_data.append(pd.DataFrame(rlp_emd))
     if not has_facet:
-        csv_data.append(pandas.DataFrame(rlp_emd))
+        csv_data.append(pd.DataFrame(rlp_emd))
     return csv_data, csv_name
 
 
@@ -1184,7 +1183,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
     judge_col_name = graph_param.gen_label_from_col_id(judge_var)
     facets_label = [gen_sql_label(col.id, col.column_name) for col in graph_param.get_facet_var_cols_name()]
 
-    columns = [TIME_COL] + facets_label + [judge_col_name]
+    columns = [TIME_COL, *facets_label, judge_col_name]
     if div_label:
         columns += [div_label]
     ng_condition = graph_param.common.ng_condition

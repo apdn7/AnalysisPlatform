@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 : _____________________________________________________________________________
 :
 :  Analysis Platform Launcher
@@ -9,182 +10,134 @@
 :    https://github.com/apdn7/AnalysisPlatform/about/terms_of_use_en.md
 : _____________________________________________________________________________
 
+:: Set powershell common option
+set "pshell=powershell -NoLogo -NoProfile -ExecutionPolicy Bypass"
+: set variables
+set "file_stat=..\apdn7.ini"
+set "file_vers=VERSION"
+set "start_up_ini_file=startup.ini"
+set "start_ap_file=AnalysisPlatform.bat"
+
+title start_ap
+mode con: cols=120 lines=60
+%pshell% -Command ^
+  $rw=$Host.UI.RawUI; ^
+  $rw.BufferSize = New-Object System.Management.Automation.Host.Size(120,1000); ^
+  $rw.WindowSize = New-Object System.Management.Automation.Host.Size(120,25)
 echo ________________________________________________________________
-echo:
+echo.
 echo  Analysis Platform + DN7
 echo ________________________________________________________________
-echo:
-
-: set variables
-set path_file=.\path_list_ini.log
-set original_path_file=.\_original_path_list.log
-set path_diff_file=.\path_diff.log
-set status_file=.\__STATUS__
-set temp_file=.\__TEMP__
-set version_file=.\VERSION
-set start_up_ini_file=.\startup.ini
-set start_ap_file=.\AnalysisPlatform.bat
-set start_up_file=.\startup.yaml
+echo.
 
 : get user settings
 echo Read User Settings
 for /f "tokens=1,* delims== eol=;" %%a in (%start_up_ini_file%) do (
-  rem if "%%b" == "" (echo Section: %%a) else set "%%a=%%b"
-  if not "%%b" == "" set "%%a=%%b"
-)
-if %prxs% == http set prxs=%prxy%
-echo:
-
-if %only_install% == 1 (
-  mode con: cols=120 lines=60
-  powershell -ExecutionPolicy Bypass -Command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
-)
-if %startup_mode% == 0 (
-  mode con: cols=120 lines=60
-  powershell -ExecutionPolicy Bypass -Command "&{$h=Get-Host;$w=$h.UI.RawUI;$s=$w.BufferSize;$s.height=5000;$w.BufferSize=$s;}"
+  rem if "%%b"=="" (echo Section: %%a) else set "%%a=%%b"
+  if not "%%b"=="" set "%%a=%%b"
 )
 
-: Make path list and verify application files
-:MAKE_PATH_LIST
-:: Path list init
-
-set path_list_verifying=1
-
-echo Path List Verifying
-rem call :checkFileExist instance\app.sqlite3
-call :checkFileExist %start_up_file%
-call :checkFileExist %status_file%
-if %path_list_verifying% equ 0 (
-  echo   Failed to create path list because it is not in the initial state.
-  echo   Skipped path list verifying!
-) else (
-  powershell -ExecutionPolicy Bypass -Command "Get-ChildItem -Recurse . -file | Resolve-Path -Relative | Where-Object { $_ -notmatch '__pycache__|.data$|.log$|cache|webassets-cache|.idea' } | Out-File -Encoding ASCII '%path_file%'"
-  echo   Created path list Successfully.
-  echo.
-  powershell -ExecutionPolicy Bypass -Command "Compare-Object (Get-Content '%path_file%') (Get-Content '%original_path_file%') | Where-Object SideIndicator -eq '=>' | Out-File -Encoding ASCII '%path_diff_file%'"
-  for /f %%a in ('powershell -ExecutionPolicy Bypass -Command "(Get-Content '%path_diff_file%').Count"') do (
-    if %%a gtr 0 (
-      echo   Some files are missing, please re-download the application and try again
-      echo   Missing path count: %%a
-      echo.
-      pause
-      exit /b 1
-    )
-  )
-  echo Path list verified!
+: Read AN+DN7 User Settings: Version and Product (DN, OSS)
+for /f "tokens=1,* delims=:" %%a in ('findstr /n /r "^" "%file_vers%"') do (
+    if "%%a"=="1" set "ver_str=%%b"
+    if "%%a"=="2" set "app_yml=%%b"
+    if "%%a"=="3" set "app_prd=%%b"
 )
-echo.
-
+for /f "tokens=1-3 delims=.v" %%a in ("%ver_str%") do set "app_ver=%%a%%b%%c"
+set /a app_ver=%app_ver% >nul 2>&1 || set /a app_ver=9999
+echo Version: %app_ver%  Group: %app_prd%
 : get status install or run AP (should be link in AnalysisPlatform.bat)
-set status_install=0
-set status_run_app=1
-if not exist %status_file% echo:> %status_file%
-cd> %temp_file%
-for %%a in (%version_file%) do echo %%~ta>> %temp_file%
-set last_status=%errorlevel%
-fc %temp_file% %status_file% > nul
-if errorlevel 1 (
-  set status=%status_install%
+set /a status_install=0
+set /a status_run_app=1
+if exist "%file_stat%" (
+  for /f "tokens=1,* delims==" %%a in ('findstr /r /c:"^[^;].*=" "%file_stat%"') do (
+    set "%%a=%%b"
+  )  
+)
+%pshell% -Command if($env:install_vers -match '^\d{3,4}$'){} else {exit 1} || set /a install_vers=0
+if %app_ver% gtr %install_vers% (
+  set /a status=%status_install%
   echo Install...
 ) else (
-  set status=%status_run_app%
+  set /a status=%status_run_app%
   echo Start up AP+DN7...
 )
-: reset errorlevel of initiating progress after compare status by fc
-if %last_status% == 0 if errorlevel 1 (
-    set errorlevel=0
-)
-echo:
 
-if %status%==%status_run_app% if %startup_mode% ==9 set startup_mode=0
-if %only_install% == 1 (
-  set startup_mode=0
-  set launch_chrome%=0
-  set launch_edge%=0
+if %status% equ %status_run_app% if %startup_mode% equ 9 set /a startup_mode=0
+if %only_install% equ 1 (
+  set /a startup_mode=0
+  set /a launch_chrome=0
+  set /a launch_edge%=0
 )
 
 : launch AP Batch
-set subt=%subt: =_%
-if %startup_mode% == 1 (
-  start /min %start_ap_file%
-) else if %startup_mode% == 9 (
-  start /b %start_ap_file% ^> cmd.log ^2^>^&^1
+echo Launch Analysis Platform
+if %startup_mode% equ 1 (
+  start /min "%start_ap_file%" "%start_ap_file%"
+) else if %startup_mode% equ 9 (
+  start /b   "%start_ap_file%" "%start_ap_file%" ^> cmd.log ^2^>^&^1
 ) else (
-  echo Launch Analysis Platform
-  start /b %start_ap_file%
+  start /b   "%start_ap_file%" "%start_ap_file%"
 )
-
-timeout 3
+echo.
 
 echo Launch Browser
-: start with Chrome
-if not %launch_chrome% == 0 start chrome.exe http://localhost:%port% --start-maximized
-:: For PC without chrome
-if errorlevel 1 start http://localhost:%port%
-: start with Edge
-if not %launch_edge% == 0 start microsoft-edge:http://localhost:%port%
-:: For PC without Edge
-if errorlevel 1 start http://localhost:%port%
+echo   Move to AnalysisPlatform
 echo.
 
 echo Create Shortcut
 : make shortcut on DeskTop
-set shortcut_icon="ap\static\common\icons\AP+DN7.ico"
-if not exist %shortcut_icon% set shortcut_icon="ap\static\common\icons\AP+DN7.ico"
+set "shortcut_icon=ap\static\common\icons\AP+DN7.ico"
+if not exist %shortcut_icon% set "shortcut_icon=ap\static\common\icons\AP+DN7.ico"
 rem echo %shortcut_icon%
 : get desktop path in case of OneDrive
-for /f "delims=" %%i in ('powershell -Command "[Environment]::GetFolderPath('Desktop')"') do set "desktopPath=%%i"
-if %subt% == null (
-  set fname="%desktopPath%\Analysis Platform AP+DN7 %port%|.url"
+for /f "delims=" %%i in ('%pshell% -Command "[Environment]::GetFolderPath('Desktop')"') do set "desktopPath=%%i"
+if "%subt%"=="null" (
+  set "fname=%desktopPath%\Analysis Platform AP+DN7 %port%|.url"
 ) else (
-  set fname="%desktopPath%\Analysis Platform AP+DN7 %port%| [%subt%].url"
+  set "fname=%desktopPath%\Analysis Platform AP+DN7 %port%| [%subt%].url"
 )
 
 :: for web
-set fpath=skip
-if not %shortcut_web% == 0 set fpath=%fname:|=%
-if %shortcut_web% == 1 if %status% == %status_run_app% if %only_install% == 0 set fpath=skip
-if not %fpath% == skip if not exist %fpath% (
+set "fpath=skip"
+if not %shortcut_web% equ 0 set "fpath=%fname:|=%"
+if %shortcut_web% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%fpath%"=="skip" if not exist %fpath% (
   echo [InternetShortcut]>%fpath%
   echo URL=http://localhost:%port%/>> %fpath%
 )
 
 :: for app
-set fpath=skip
-if not %shortcut_app% == 0 set fpath=%fname:|=%
-if %shortcut_app% == 1 if %status% == %status_run_app% if %only_install% == 0 set fpath=skip
-set fpath=%fpath:.url=.lnk%
-if not %fpath% == skip if not exist %fpath% (
-  powershell -ExecutionPolicy Bypass -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%fpath%');$s.TargetPath='%~f0';$s.WorkingDirectory='%~dp0';$s.IconLocation='%~dp0%shortcut_icon:"=%';$s.Save()"
+set "fpath=skip"
+if not %shortcut_app% equ 0 set "fpath=%fname:|=%"
+if %shortcut_app% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+set "fpath=%fpath:.url=.lnk%"
+if not "%fpath%"=="skip" if not exist "%fpath%" (
+  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='%~f0';$s.WorkingDirectory='%~dp0';$s.IconLocation='%~dp0%shortcut_icon:"=%';$s.Save()"
 )
 
 ::: for web by ip addr
 for /f "tokens=4 delims= " %%i in ('route print ^| find " 0.0.0.0"') do set ip=%%i
 echo   ip: %ip%
-set fpath=skip
-if not %shortcut_web_ip% == 0 set fpath=%fname:|=ip%
-if %shortcut_web_ip% == 1 if %status% == %status_run_app% if %only_install% == 0 set fpath=skip
-if not %fpath% == skip if not exist %fpath% (
-  powershell -ExecutionPolicy Bypass -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%fpath%');$s.TargetPath='http://%ip%:%port%/';$s.Save()"
+set "fpath=skip"
+if not %shortcut_web_ip% equ 0 set "fpath=%fname:|=ip%"
+if %shortcut_web_ip% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%fpath%"=="skip" if not exist "%fpath%" (
+  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='http://%ip%:%port%/';$s.Save()"
 )
 ::: for web by pc name
 for /f %%i in ('hostname') do set pc=%%i
 echo   pc: %pc%
-set fpath=skip
-if not %shortcut_web_pc% == 0 set fpath=%fname:|=pc%
-if %shortcut_web_pc% == 1 if %status% == %status_run_app% if %only_install% == 0 set fpath=skip
-if not %fpath% == skip if not exist %fpath% (
-  powershell -ExecutionPolicy Bypass -Command "$s=(New-Object -COM WScript.Shell).CreateShortcut('%fpath%');$s.TargetPath='http://%pc%:%port%/';$s.Save()"
+set "fpath=skip"
+if not %shortcut_web_pc% equ 0 set "fpath=%fname:|=pc%"
+if %shortcut_web_pc% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%fpath%"=="skip" if not exist "%fpath%" (
+  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='http://%pc%:%port%/';$s.Save()"
 )
+echo.
 
 :Finish
-timeout /t 5
+echo The main sequence has started.
+echo This window will close automatically after a while.
+timeout /t 30
 exit
-
-:checkFileExist
-if exist %1 (
-  echo     Detect %1
-  set /a path_list_verifying=0
-)
-exit /b
-:end

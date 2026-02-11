@@ -11,6 +11,7 @@ class WaveformPlot extends APPlot {
             yMin = undefined,
             xFmt = '',
             yFmt = '',
+            judgeColor = undefined,
         } = {},
     ) {
         super(plotDOM);
@@ -23,6 +24,7 @@ class WaveformPlot extends APPlot {
         this._yMin = yMin;
         this._xFmt = xFmt;
         this._yFmt = yFmt;
+        this._judgeColor = judgeColor;
     }
     /**
      * get traces from a grouped color
@@ -38,7 +40,7 @@ class WaveformPlot extends APPlot {
             name: groupName,
             legendgroup: groupName,
             marker: {
-                color: color,
+                color: this._judgeColor ? JUDGE_COLOR_DEFAULT[this._judgeColor[groupName]] : color,
             },
             type: 'scatter',
             mode: 'lines',

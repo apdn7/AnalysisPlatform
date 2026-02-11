@@ -340,3 +340,30 @@
         description_ja: '<li> 「ファイル」に1列目に日時、2列目以降にアラーム等の発生回数が格納されたCSV/TSVを指定</li>
                          <li> 「集計単位」に、共起関係を集計する単位を選択</li>
                          </ul>'
+  - title_en: 'How can I compare multiple waveforms?'
+    title_ja: '波形を比較したい'
+    icon_path: 'waveformIcon.png'
+    example_en: '<ul>
+                <li>I want to understand the differences between the press‑fit waveforms of OK and NG products.</li>
+                <li>I want to understand how waveforms differ under various experimental conditions.</li>
+                <li>I want to know whether equipment deterioration causes changes in the waveform.</li>
+                </ul>'
+    example_ja: '<ul>
+                <li>OK品とNG品の圧入波形の違いを知りたい</li>
+                <li>実験条件ごとの波形の違いを知りたい</li>
+                <li>設備の劣化で波形が変化するかを知りたい</li>
+                </ul>'
+    tiles:
+      - row: 1
+        column: 1
+        page: wfp
+        description_en: '<ul>
+                        <li>Display variables: Select two variables (x and y). The first selected variable becomes the x‑axis.</li>
+                        <li>Div: (Mandatory) A variable used to group identical waveforms (e.g., Cycle ID).</li>
+                        <li>Color: Used for color‑coding (e.g., inspection results).</li>
+                        </ul>'
+        description_ja: '<ul>
+                        <li>可視化する変数: 2つ選択する (x, y) 。最初に選択した変数がxとなる。</li>
+                        <li>Div: (必須) 同じ波形をまとめるための変数 (サイクルIDなど)</li>
+                        <li>Color: 色分け (判定結果など)</li>
+                        </ul>'

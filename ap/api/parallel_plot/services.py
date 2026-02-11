@@ -75,7 +75,7 @@ from ap.trace_data.schemas import DicParam
 )
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
 def gen_graph_paracords(graph_param, dic_param, df=None):
-    """tracing data to show graph
+    """Tracing data to show graph
     1 start point x n end points
     filter by condition point
     https://files.slack.com/files-pri/TJHPR9BN3-F01GG67J84C/image.pngnts that between start point and end_point
@@ -205,7 +205,7 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
 def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam):
     dic_data = defaultdict(dict)
     for proc in graph_param.array_formval:
-        for col_id, col_name in zip(proc.col_ids, proc.col_names):
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             sql_label = gen_sql_label(col_id, col_name)
             if sql_label in df.columns:
                 dic_data[proc.proc_id][col_id] = df[sql_label]
@@ -213,7 +213,7 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam):
                 dic_data[proc.proc_id][col_id] = pd.Series([None] * df.index.size)
 
         dic_data[proc.proc_id][TIME_COL] = []
-        time_col_alias = '{}_{}'.format(TIME_COL, proc.proc_id)
+        time_col_alias = f'{TIME_COL}_{proc.proc_id}'
         if time_col_alias in df:
             dic_data[proc.proc_id][TIME_COL] = df[time_col_alias]
 
@@ -431,34 +431,53 @@ def gen_plotdata(
 
 
 def generate_mask_from_constraint(
-    constraint_range,
+    constraint_ranges,
+    na_inf_range_dict,
     graph_param,
     df,
 ):
     df_condition = pd.DataFrame()
     sql_labels = []
     mask = [True] * len(df)
-    for col_id, range_value in constraint_range.items():
-        # get df label
-        # filter by range_value
+    # process through numeric selection ranges
+    for col_id, column_constraint_ranges in constraint_ranges.items():
+        # each column has a list of constraint ranges
         col_cfg = graph_param.get_col_cfg(int(col_id))
         sql_label = gen_sql_label(col_cfg.id, col_cfg.column_name)
         sql_labels.append(sql_label)
-        for range_v in range_value:
+        for constraint_range in column_constraint_ranges:
             if sql_label not in df_condition:
                 df_condition[sql_label] = [False] * len(df)
             if col_cfg.is_category:
                 dtype_name = col_cfg.data_type
                 if dtype_name == DataType.INTEGER.name:
-                    vals = [int(val) for val in range_v]
+                    vals = [int(val) for val in constraint_range]
                 else:
-                    vals = [str(val) for val in range_v]
-                    df[sql_label] = df[sql_label].astype(str)
-                df_condition[sql_label] = df_condition[sql_label] | (df[sql_label].isin(vals))
-            else:
-                df_condition[sql_label] = df_condition[sql_label] | (df[sql_label] >= range_v[0]) & (
-                    df[sql_label] <= range_v[1]
+                    vals = [str(val) for val in constraint_range]
+                df_condition[sql_label] = df[sql_label].isin(vals)
+            elif constraint_range[0] is not None and constraint_range[1] is not None:
+                df_condition[sql_label] = df_condition[sql_label] | (df[sql_label] >= constraint_range[0]) & (
+                    df[sql_label] <= constraint_range[1]
                 )
+        # process NA, infinite selection ranges
+        for value in na_inf_range_dict[col_id]:
+            df_condition[sql_label] = df_condition[sql_label] | (
+                generate_abnormal_series_condition(df[sql_label], value)
+            )
 
         mask = mask & df_condition[sql_label]
     return mask
+
+
+def generate_abnormal_series_condition(series, value: str):
+    match value:
+        case 'NA':
+            condition = series.isna()
+        case 'Inf':
+            condition = series == np.inf
+        case '-Inf':
+            condition = series == -np.inf
+        case _:
+            condition = True
+
+    return condition

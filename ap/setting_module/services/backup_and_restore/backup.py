@@ -2,8 +2,10 @@ import pandas as pd
 
 from ap.api.setting_module.services.data_import import save_proc_data_count_multiple_dfs
 from ap.common.constants import AnnounceEvent
+from ap.common.jobs.job_info_schema import UserBackupDatabaseJobInfo
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.setting_module.models import JobManagement
 from ap.setting_module.services.backup_and_restore.backup_file_manager import BackupKey, BackupKeysManager
 from ap.setting_module.services.backup_and_restore.duplicated_check import (
     get_df_insert_and_duplicated_ids,
@@ -12,14 +14,21 @@ from ap.setting_module.services.backup_and_restore.duplicated_check import (
 from ap.trace_data.transaction_model import TransactionData
 
 
-def backup_db_data(process_id: int, start_time: str, end_time: str):
+def backup_db_data(process_id: int, start_time: str, end_time: str, job_management: JobManagement):
     backup_keys_manager = BackupKeysManager(process_id=process_id, start_time=start_time, end_time=end_time)
 
     # TODO: get min max date in database before running this
     backup_keys = backup_keys_manager.get_backup_keys_by_day()
     total_backup_keys = len(backup_keys)
 
+    # update job info
+    job_management.info = UserBackupDatabaseJobInfo(
+        backup_from=start_time,
+        backup_to=end_time,
+    )
+
     if total_backup_keys == 0:
+        job_management.info.info('No data to backup')
         # nothing to do
         yield 100
 

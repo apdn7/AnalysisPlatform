@@ -715,19 +715,6 @@ const initializeDateTimePicker = (dtId = null, isClassName = false, parentEl = n
 };
 
 
-/* <h2>Execute a function after milliseconds</h2><br>
-    * <b>Parameters:</b>
-    * - func: function
-    * - ms: milliseconds delay
-    */
-function delay(func, ms, ...extendArgs) {
-    function inner(...args) {
-        clearTimeout(inner.timeoutID);
-        inner.timeoutID = setTimeout(func.bind(this, ...args, ...extendArgs), ms || 0);
-    }
-    return inner;
-}
-
 let thisCalendar = null;
 
 const initShowData = (element) => {
@@ -816,6 +803,8 @@ const handleShowDataCount = async (picker, callApi = true) => {
         const endLeft = moment(calendarLeft[5][6]).format(DATETIME_PICKER_NO_TIME_FORMAT)
         const startRight = moment(calendarRight[0][0]).format(DATETIME_PICKER_NO_TIME_FORMAT)
         const endRight = moment(calendarRight[5][6]).format(DATETIME_PICKER_NO_TIME_FORMAT)
+        const dataId = picker.element.attr('data-finder-id') || 'main';
+        const selectedProcessId = DataFinder.dataFinderObj[dataId] || processId;
 
         // show loading
         const timeShowLoading = 5000 //5s
@@ -827,19 +816,19 @@ const handleShowDataCount = async (picker, callApi = true) => {
         setTimeout(() => {
             $('.daterangepicker-loading').remove();
             if (isCalling) {
-                overRightDateStyle(null, null);
+                overrideDateStyle(null, null);
             }
         }, timeShowLoading)
 
         $('.daterangepicker').append(loadingEl)
-        if (processId) {
+        if (selectedProcessId) {
             if (callApi) {
-                resLeft = await getDataByType(startLeft, endLeft, calenderTypes.month);
-                resRight = await getDataByType(startRight, endRight, calenderTypes.month);
-                overRightDateStyle(resLeft, resRight)
+                resLeft = await DataFinderService.getDataCountByType(selectedProcessId, startLeft, endLeft, calenderTypes.month);
+                resRight = await DataFinderService.getDataCountByType(selectedProcessId, startRight, endRight, calenderTypes.month);
+                overrideDateStyle(resLeft, resRight)
                 isCalling = false;
             } else {
-                overRightDateStyle(resLeft, resRight)
+                overrideDateStyle(resLeft, resRight)
             }
         }
 
@@ -852,7 +841,7 @@ const handleShowDataCount = async (picker, callApi = true) => {
     }
 };
 
-const overRightDateStyle = (resLeft, resRight) => {
+const overrideDateStyle = (resLeft, resRight) => {
     const dataLeft = resLeft && resLeft.data ? resLeft.data.count : null;
     const dataRight = resRight && resRight.data ? resRight.data.count : null;
     let index = 0;

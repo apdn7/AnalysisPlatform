@@ -35,11 +35,15 @@ let currentProcess = null;
 let currentProcessName = null;
 let currentProcessNameLocal = null;
 let procDsSelected = null;
+let isEnableFormulaForDs = false;
 let childProcData = null;
 let baseProcObj = null;
 let baseProcDataCols = null;
-const DATA_IGNORE_CHANGE = 'ignore_change';
+let selectedFunctionNameEle = '';
+/** @type {function(): Promise} */
+let showRecordsBtnFunc;
 
+const DATA_IGNORE_CHANGE = 'ignore_change';
 const procModalElements = {
     procModal: $('#procSettingModal'),
     procMergeModeModal: $('#procSettingMergeModeModal'),
@@ -51,6 +55,7 @@ const procModalElements = {
     procJapaneseName: $('#procSettingModal input[name=processJapaneseName]'),
     procLocalName: $('#procSettingModal input[name=processLocalName]'),
     comment: $('#procSettingModal input[name=cfgProcComment]'),
+    label: $('#procSettingModal select[id=cfgProcLabel]'),
     isShowFileName: $('#procSettingModal input[name=isShowFileName]'),
     databases: $('#procSettingModal select[name=databaseName]'),
     databasesMergeMode: $('#procSettingMergeModeModal select[name=databaseName]'),
@@ -79,6 +84,7 @@ const procModalElements = {
     confirmInitializeProcBtn: 'button[name="initProcConfirm"]',
 
     reRegisterBtn: $('#procSettingModal button[name=reRegisterBtn]'),
+    reRegisterChildProcBtn: $('#procSettingMergeModeModal button[name=reRegisterChildProcBtn]'),
     confirmImportDataBtn: $('#confirmImportDataBtn'),
     confirmReRegisterProcBtn: $('#confirmReRegisterProcBtn'),
     revertChangeAsLinkIdBtn: $('#revertChangeAsLinkIdBtn'),
@@ -144,6 +150,7 @@ const procModalElements = {
     alertMessage: '#alertMsgProcessColumnsTable',
     alertProcessNameErrorMsg: '#alertProcessNameErrorMsg',
     alertErrMsgContent: '#alertProcessNameErrorMsg-content',
+    alertColumnNameModifiedWarningMsg: '#alertColumnNameModifiedWarningMsg',
     selectAllColumn: '#selectAllColumn',
     procID: $('#procSettingModal input[name=processID]'),
     dsID: $('#procSettingModal input[name=processDsID]'),
@@ -169,6 +176,7 @@ const procModalElements = {
     dataGroupTypeClassName: 'data-type-selection',
     dataTypeSelection: 'dataTypeSelection',
     sampleDataColumnClassName: 'sample-data-column',
+    filterColumnClassName: '.column-filter',
     mainDate: 'mainDate',
     mainTime: 'mainTime',
     procDateTimeFormatCheckbox: $('#procDateTimeFormatCheckbox input[name="toggleProcDatetimeFormat"]'),
@@ -186,15 +194,15 @@ const procModalElements = {
     mergeModeTableChild: '.merge-mode-tables-child',
     mergeModeTableBase: '.merge-mode-tables-base',
     mergeModeTables: $('#procSettingMergeModeModal select[name=childTableName]'),
+    mergeModeLabel: $('#procSettingMergeModeModal select[id=cfgProcLabelMergeMode]'),
     mergeModeInputComment: $('#procSettingMergeModeModal input[name=cfgProcComment]'),
     mergeProcSearchInput: $('#procSettingMergeModeModal input#mergeProcSearchInput'),
     generatedDateTimeColumnName: 'DatetimeGenerated',
     collapseFunctionConfigID: '#functionSettingWithCollapse',
+    functionConfigTableID: 'processColumnsTable_functionTable',
     alertReferenceFileErrorID: '#alertReferenceFileErrorMsg',
     alertProcessConfigErrorID: '#alertProcessConfigErrorMsg',
     alertProcessConfigMergeModeErrorMsg: '#alertProcessConfigMergeModeErrorMsg',
-    // Import condition
-    importConditionArea: '#importConditionArea',
     procConfigTableName: 'processColumnsTable',
     /**
      * In first load, i element will be changed to svg element
@@ -202,6 +210,10 @@ const procModalElements = {
      * */
     settingChangeMark: () => document.getElementById('procSettingChangeMark'),
     sampleDataDisplayRecordsRadio: $('#sampleDataRecords'),
+    // for merge mode modals
+    confirmMergeProcReRegisterBtn: $('#confirmMergeProcReRegisterBtn'),
+    confirmMergeProcReRegisterModal: $('#confirmMergeProcReRegisterModal'),
+    processLabelsField: $('#cfgProcLabel'),
 };
 
 const procModali18n = {
@@ -273,6 +285,9 @@ const procModali18n = {
     i18nInvalidFilePathMessage: '#i18nInvalidFilePathMsg',
     i18nInitializeProcessSuccess: $('#i18nInitializeProcessSuccess').text(),
     i18nInitializeProcessError: $('#i18nInitializeProcessError').text(),
+    i18nProcessRegisterFailedMsg: '#i18nProcessRegisterFailedMsg',
+    i18nMsgErrorUncheckColumn: '#i18nErrorUncheckColumn',
+    i18nloadTablesFailedMsg: $('#i18nloadTablesFailedMsg').text(),
 };
 
 const COLUMN_IS_CHECKED_NAME = 'is_checked';
@@ -292,7 +307,7 @@ const PROCESS_COLUMNS = {
     name_jp: 'name_jp',
     name_local: 'name_local',
     unit: 'unit',
-    judge_formula: 'judge_formula',
+    formula: 'formula',
     raw_data_type: 'raw_data_type',
     is_serial_no: 'is_serial_no',
     is_get_date: 'is_get_date',
@@ -301,6 +316,7 @@ const PROCESS_COLUMNS = {
     is_dummy_datetime: 'is_dummy_datetime',
     is_generated_datetime: 'is_generated_datetime',
     is_null: 'is_null',
+    filter: 'filter',
     is_judge: 'is_judge',
     judge_available: 'judge_available',
 };
@@ -311,13 +327,13 @@ const translateToEng = async (text) => {
     return result;
 };
 
-const setProcessName = (dataRowID = null) => {
+const setProcessName = async (dataRowID = null) => {
     const procDOM = $(`#tblProcConfig tr[data-rowid=${dataRowID}]`);
     const procNameInput = procModalElements.proc.val();
     const ignoreRenameProcess = procModalElements.optionalFunctions.data(DATA_IGNORE_CHANGE);
 
     if (userEditedProcName && procNameInput) {
-        procModalElements.showRecordsBtn.trigger('click');
+        await showRecordsBtnFunc();
         return;
     }
     const dsSelection = getSelectedOptionOfSelect(procModalElements.databases);
@@ -378,18 +394,22 @@ const setProcessName = (dataRowID = null) => {
     }
 
     const selectedDsType = dsSelection.attr('type') || null;
-    const dsIsDB = selectedDsType && !['V2', 'CSV'].includes(selectedDsType);
+    const dsIsDB =
+        selectedDsType &&
+        ![DB_CONFIGS.CSV.configs.type, DB_CONFIGS.V2.configs.type, DB_CONFIGS.WEB.configs.type].includes(
+            selectedDsType,
+        );
 
     // enable click preview btn when db + dataTable is chosen
     if (!procModalCurrentProcId && dsIsDB && dsNameSelection && tableNameSelection) {
-        procModalElements.showRecordsBtn.trigger('click');
+        await showRecordsBtnFunc();
     }
 
     // enable click preview btn when ds is chosen
     if (!procModalCurrentProcId && !dsIsDB && dsNameSelection) {
         // remove selected table
         // $(`table[name=${procModalElements.processColumnsTable}] tbody`).empty();
-        procModalElements.showRecordsBtn.trigger('click');
+        await showRecordsBtnFunc();
     }
 };
 
@@ -397,34 +417,51 @@ const setProcessName = (dataRowID = null) => {
 const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
     // if new row have process name, set new process name in modal
     if (!databaseId || isEmpty(databaseId)) {
-        setProcessName(dataRowID);
+        await setProcessName(dataRowID);
         return;
     }
     procModalElements.tables.empty();
     propGroupTableDropdown(false);
     clearProcModalColumnTable(procModalElements.procConfigTableName);
 
-    const isHiddenFileInput = $(procModalElements.fileInputPreview).hasClass('hide');
-    const isHiddenDbTble = $(procModalElements.grTableDropdown).hasClass('hide');
+    // const isHiddenFileInput = $(procModalElements.fileInputPreview).hasClass('hide');
+    // const isHiddenDbTble = $(procModalElements.grTableDropdown).hasClass('hide');
 
-    await $.ajax({
-        url: `api/setting/database_table/${databaseId}`,
-        method: 'GET',
-        cache: false,
-    }).done((res) => {
-        if (['v2', 'csv'].includes(res.ds_type.toLowerCase())) {
+    const loadingObj = loadingHandler();
+
+    try {
+        loadingObj.show();
+        const res = await $.ajax({
+            url: `api/setting/database_table/${databaseId}`,
+            method: 'GET',
+            cache: false,
+        });
+
+        if (DB_CONFIG_CSV_TYPES.includes(res.ds_type.toLowerCase())) {
+            // enable formula input
+            isEnableFormulaForDs = true;
             procModalElements.tables.empty();
             propGroupTableDropdown(true);
             if (!procModalCurrentProcId) {
                 // new process, should enable file name
                 resetIsShowFileName();
-                setProcessName(dataRowID);
+                await setProcessName(dataRowID);
             }
             // hide 'table' dropdown if there is CSV datasource
-            if (isHiddenFileInput) {
-                toggleDBTableAndFileName();
+            $(procModalElements.fileInputPreview).show();
+            $(procModalElements.grTableDropdown).hide();
+        } else if (res.ds_type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type) {
+            isEnableFormulaForDs = false;
+            disableIsShowFileName();
+
+            if (!procModalCurrentProcId) {
+                await setProcessName(dataRowID);
             }
+
+            $(procModalElements.fileInputPreview).hide();
+            $(procModalElements.grTableDropdown).hide();
         } else if (res.tables) {
+            isEnableFormulaForDs = false;
             disableIsShowFileName();
             loadTableNameSelectOptions(res, selectedTbl, procModalElements.tables);
 
@@ -433,14 +470,18 @@ const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
             }
 
             if (!procModalCurrentProcId) {
-                setProcessName(dataRowID);
+                await setProcessName(dataRowID);
             }
-            // hide 'fileName' input if there is DB datasource
-            if (isHiddenDbTble) {
-                toggleDBTableAndFileName();
-            }
+
+            $(procModalElements.fileInputPreview).hide();
+            $(procModalElements.grTableDropdown).show();
         }
-    });
+    } catch (e) {
+        showToastrMsg(procModali18n.i18nloadTablesFailedMsg, MESSAGE_LEVEL.ERROR);
+        throw e;
+    } finally {
+        loadingObj.hide();
+    }
 };
 
 const loadMergeModeTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
@@ -489,6 +530,10 @@ const toggleDBTableAndFileName = () => {
 };
 // load current proc name, database name and tables name
 
+// const displayDataSourceFieldsByType = (datasourceType) => {
+//     if([])
+// }
+
 const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
     // set current proc
     procModalCurrentProcId = procId;
@@ -531,7 +576,8 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
         // hide 'table' dropdown if there is CSV datasource
         const isHiddenFileInput = $(procModalElements.fileInputPreview).hasClass('hide');
         const isHiddenDbTble = $(procModalElements.grTableDropdown).hasClass('hide');
-        const isCSVDS = selectedDbInfo && ['v2', 'csv'].includes(selectedDbInfo.type.toLowerCase());
+        const isCSVDS = selectedDbInfo && DB_CONFIG_CSV_TYPES.includes(selectedDbInfo.type.toLowerCase());
+        const isWebDS = selectedDbInfo && [''].includes(selectedDbInfo.type.toLowerCase());
         if ((isCSVDS && isHiddenFileInput) || (!isCSVDS && isHiddenDbTble)) {
             toggleDBTableAndFileName();
         }
@@ -551,7 +597,7 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
 
         if (currentDs) {
             if (
-                ![DB.DB_CONFIGS.CSV.type.toLowerCase(), DB.DB_CONFIGS.V2.type.toLowerCase()].includes(
+                ![DB.DB_CONFIGS.CSV.type, DB.DB_CONFIGS.V2.type, DB.DB_CONFIGS.WEB_API.type].includes(
                     selectedDbInfo.type.toLowerCase(),
                 ) ||
                 dbsId
@@ -571,7 +617,7 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
 
             propGroupTableDropdown(true);
             const dataRowId = currentProcItem.attr('data-rowid');
-            setProcessName(dataRowId);
+            await setProcessName(dataRowId);
             // gen header of spead table
             await SpreadSheetProcessConfig.create(procModalElements.procConfigTableName, []);
         }
@@ -621,6 +667,8 @@ const generateProcessList = async (
                 ...col,
                 ...dicProcessCols[col.column_name],
                 column_raw_name: columnRawName,
+                filter: col.filter,
+                formula: col.formula,
             };
         });
     }
@@ -675,17 +723,24 @@ const generateProcessList = async (
     }
 
     sortedCols.forEach((col, i) => {
+        // TODO: there are a lot of complicated if-else logic here between registered and unregistered. Can we separate them somehow?
         const column_raw_name = col.column_raw_name;
         const isGeneratedDatetime = hasMainDate && hasMainTime && col.is_get_date;
         // get judge_available result from show_latest_record before col is replaced by registerCol
         const judge_available = col.judge_available;
-        const judge_formula = col.judge_formula;
+        const predictedFormula = col.formula; // predicted formula from show_latest_record
+        const filter = col.filter;
         // registerCol will be defined when the column already exists in the DB
         const registerCol = dicProcessCols[col.column_name];
         col = fromRegenerate ? col : registerCol || col;
         col.judge_available = judge_available;
-        col.judge_formula = judge_formula;
+        // prioritize registered formula
+        // when registered formula is empty, fill with predicted formula (to be used when changing to Judge column type)
+        col.formula = registerCol ? registerCol.formula || predictedFormula : predictedFormula;
         col.is_show = true;
+
+        // apply filter from spreadsheet not from registerCol
+        col.filter = filter;
         // col.id = registerCol ? registerCol.id : i;
         // for a new process, check for is_checked variable (is_checked is only present in unregistered column)
         // for a registered process, check if it exists in the DB
@@ -712,6 +767,9 @@ const generateProcessList = async (
                 col.column_type = masterDataGroup.SERIAL;
             } else if (col.is_judge) {
                 col.column_type = masterDataGroup.JUDGE;
+            } else {
+                // currently it is safe to do this, as BOOLEAN still has GENERATED column_type
+                col.column_type = masterDataGroup.GENERATED;
             }
         }
         if (!col.raw_data_type) {
@@ -841,6 +899,7 @@ const cleanOldData = () => {
     $(procModalElements.prcSM).parent().addClass('hide');
 
     procModalElements.comment.val('');
+    procModalElements.label.val([]).trigger('change');
     procModalElements.proc.val('');
     procModalElements.procLocalName.val('');
     procModalElements.procJapaneseName.val('');
@@ -859,6 +918,7 @@ const cleanOldData = () => {
     procModalElements.fileName.val('');
 
     procModalElements.mergeModeInputComment.val('');
+    procModalElements.mergeModeLabel.val([]).trigger('change');
     procModalElements.mergeProcSearchInput.val('');
 
     procModalElements.procDateTimeFormatCheckbox.prop('checked', false);
@@ -1045,16 +1105,18 @@ const handleCheckAutoAndAllSelect = (el, autoSelect = false) => {
     }
 
     const spreadsheet = getSpreadSheetFromToolsBarElement(el);
-    const nonReadonlyRows = spreadsheet.nonReadonlyRows();
+    let selectedRows = spreadsheet.nonReadonlyRows();
 
     /** @type {HTMLTableCellElement[]} */
-    const selectedCells = [];
-    if (autoSelect) {
-        const nonNullRows = nonReadonlyRows.filter((row) => !row[PROCESS_COLUMNS.is_null].data);
-        selectedCells.push(...nonNullRows.map((row) => row[PROCESS_COLUMNS.is_checked].td));
-    } else {
-        selectedCells.push(...nonReadonlyRows.map((row) => row[PROCESS_COLUMNS.is_checked].td));
+    let selectedCells = [];
+    if (selectedRows && autoSelect) {
+        selectedRows = selectedRows.filter((row) => !row[PROCESS_COLUMNS.is_null].data);
     }
+    // file name row should be not checked
+    const fileNameRow = spreadsheet.fileNameRow() || {};
+    selectedRows = selectedRows.filter((row) => !_.isEqual(row, fileNameRow));
+
+    selectedCells.push(...selectedRows.map((row) => row[PROCESS_COLUMNS.is_checked].td));
     $(selectedCells).find('input[type=checkbox]').prop('checked', isChecked).trigger('change');
 };
 
@@ -1108,8 +1170,10 @@ const showLatestRecordsFromPrc = async (json) => {
         // auto click auto select
         $(procModalElements.autoSelect).prop('checked', true).change();
         isClickPreview = false;
-        // Default uncheck file name
-        procModalElements.isShowFileName.prop('checked', false).trigger('change');
+        // Default uncheck file name if not disabled
+        if (!procModalElements.isShowFileName.prop('disabled')) {
+            procModalElements.isShowFileName.prop('checked', false).trigger('change');
+        }
     }
     addEventInToolsBar(procModalElements.procConfigTableName);
 };
@@ -1159,9 +1223,11 @@ const addDummyDatetimePrc = async (addCol = true) => {
 };
 
 // get latestRecords
-const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
-    loading.css('z-index', 9999);
-    loading.show();
+/* prettier-ignore */
+const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Promise((resolve) => {
+    const loadingObj = loadingHandler();
+    loadingObj.show();
+    hideAlertMessages();
     $.ajax({
         url: '/ap/api/setting/show_latest_records',
         data: formData,
@@ -1170,7 +1236,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
         contentType: false,
         processData: false,
         success: async (json) => {
-            loading.hide();
+            loadingObj.hide();
             if (json.cols_duplicated) {
                 showToastrMsg(i18nCommon.colsDuplicated);
             }
@@ -1182,6 +1248,13 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
                     json.transform_error,
                 );
             }
+            if (!isEmpty(json.message)) {
+                // if column name was modified from datasource
+                displayRegisterMessage(procModalElements.alertColumnNameModifiedWarningMsg, {
+                    message: json.message,
+                    is_warning: true,
+                });
+            }
             prcPreviewData = { ...json, rows: json.rows.slice(0, 10) };
             currentLatestProcDataCols = prcPreviewData
                 ? prcPreviewData.cols.map((col, index) => {
@@ -1189,6 +1262,10 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
                   })
                 : [];
             prcPreviewData.cols = currentLatestProcDataCols;
+            if (!currentProcess) {
+                // show predict labels
+                procModalElements.label.val(prcPreviewData.labels).trigger('change');
+            }
             await getProcessPreviewWith1000Data(json.rows);
             FunctionInfo.resetInputFunctionInfo(false, false);
             FunctionInfo.removeAllFunctionRows();
@@ -1211,12 +1288,10 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
             allProcessColumns = prcPreviewData ? prcPreviewData.cols.map((col) => col.column_name) : [];
 
             initDatetimeFormatCheckboxAndInput();
-            // gen import filter table
-            // not available from v4.7.10
-            // GenerateDefaultImportFilterTable(currentProcItem.data('proc-id'));
             if (isInitialize) {
-                enableDatetimeDataType();
+                enableColumnAfterInitialize();
             }
+            resolve();
         },
         error: (e) => {
             if (e.responseJSON?.transform_error) {
@@ -1226,11 +1301,12 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => {
                     e.responseJSON.transform_error,
                 );
             }
-            loading.hide();
+            loadingObj.hide();
             console.log('error', e);
+            resolve();
         },
     });
-};
+});
 
 const getProcessPreviewWith1000Data = async (rows) => {
     // prcPreviewWith1000Data = json;
@@ -1597,6 +1673,11 @@ const procColumnsData = (tableId, getAll = false) => {
                     predict_type: column.data_type,
                     order: index,
                     function_details: [],
+                    formula:
+                        (isJudgeFormula(column_type) || isDatetimeFormula(column.data_type, column_type)) &&
+                        column.formula
+                            ? column.formula
+                            : null,
                 };
 
                 return procColumnData;
@@ -1640,53 +1721,20 @@ const collectProcCfgData = (getAllCol = false) => {
     const fileName = procModalElements.fileName.val() || null;
     let procColumns = procColumnsData(procModalElements.procConfigTableName, getAllCol);
 
+    // collect labels of process
+
+    // get labels
+    const labels = procModalElements.label.select2('data').map((option) => option.text);
+
     // get uncheck column = all col - uncheck col
     const checkedProcessColumn = procColumns.map((col) => col.column_name);
     const dictFunctionColumns = collectFunctionDatasForRegister();
-    // collect import filter config
-    const importFilterTable = jspreadsheetTable(filterConditionElements.importFilterTable);
-    // disable for release
-    const importFilterRows = [];
     // merge function column into normal column
     for (let procColumn of procColumns) {
         if (dictFunctionColumns[procColumn.id]) {
             procColumn.function_details = dictFunctionColumns[procColumn.id].function_details;
             delete dictFunctionColumns[procColumn.id];
         }
-        const importFilterConfigs = importFilterRows.filter(
-            (importFilter) => Number(importFilter.column_id) === Number(procColumn.id),
-        );
-        const importFilters = importFilterConfigs.map((importFilter) => {
-            const filterId = importFilter.filter_id;
-            let filters = [];
-            if (
-                [conditionFormula.orSearch.value, conditionFormula.andSearch.value].includes(
-                    importFilter.filter_function,
-                )
-            ) {
-                // split value
-                const splitValue = importFilter.value.split(';');
-                splitValue.map((val) =>
-                    filters.push({
-                        filter_id: filterId > 0 ? filterId : null,
-                        value: val.trim(),
-                    }),
-                );
-            } else {
-                filters.push({
-                    filter_id: filterId > 0 ? filterId : null,
-                    value: importFilter.value,
-                });
-            }
-            return {
-                id: importFilter.id > 0 ? importFilter.id : null,
-                column_id: procColumn.id > 0 ? procColumn.id : null,
-                filter_function: importFilter.filter_function,
-                filter_from_position: importFilter.filter_from_pos || null,
-                filters: filters,
-            };
-        });
-        procColumn.import_filters = importFilters;
     }
     const functionColumns = Object.values(dictFunctionColumns);
     procColumns = [...procColumns, ...functionColumns];
@@ -1713,15 +1761,16 @@ const collectProcCfgData = (getAllCol = false) => {
             name_local: procLocalName,
             file_name: fileName,
             is_show_file_name: isShowFileName,
-            is_import: true,
         },
         unusedColumns,
+        labels,
     ];
 };
 
 const collectMergeProcCfgData = () => {
     const dataSourceID = procModalElements.databasesMergeMode.val();
     const comment = procModalElements.mergeProcComment.val();
+    const labels = procModalElements.mergeModeLabel.select2('data').map((option) => option.text);
     const tableName = getSelectedOptionOfSelect(procModalElements.mergeModeTables).val() || '';
     const processFactId = getSelectedOptionOfSelect(procModalElements.mergeModeTables).attr('process_fact_id') || null;
     const masterType = getSelectedOptionOfSelect(procModalElements.mergeModeTables).attr('master_type') || null;
@@ -1745,26 +1794,24 @@ const collectMergeProcCfgData = () => {
             }
         }
     });
-    return {
-        id: null,
-        data_source_id: dataSourceID,
-        name: baseProcObj.name,
-        table_name: tableName,
-        etl_func: optionalFunction,
-        process_factid: processFactId,
-        master_type: masterType,
-        name_en: baseProcObj.name_en,
-        name_jp: baseProcObj.name_jp,
-        name_local: baseProcObj.name_local,
-        comment: comment,
-        parent_id: baseProcObj.id,
-        columns: mergedCols,
-        is_import: true,
-    };
-};
-
-const updateProcessRegisterStatus = (data) => {
-    updateProcessConfig({ data: data.process, bulk_register: true });
+    return [
+        {
+            id: procModalCurrentProcId,
+            data_source_id: dataSourceID,
+            name: baseProcObj.name,
+            table_name: tableName,
+            etl_func: optionalFunction,
+            process_factid: processFactId,
+            master_type: masterType,
+            name_en: baseProcObj.name_en,
+            name_jp: baseProcObj.name_jp,
+            name_local: baseProcObj.name_local,
+            comment: comment,
+            parent_id: baseProcObj.id,
+            columns: mergedCols,
+        },
+        labels,
+    ];
 };
 
 const updateProcessConfig = (res) => {
@@ -1772,7 +1819,10 @@ const updateProcessConfig = (res) => {
     procModalElements.confirmImportDataModal.modal('hide');
     procModalElements.procMergeModeModal.modal('hide');
     // sync Vis network
-    reloadTraceConfigFromDB();
+    // bulk register can lead to a lot of reloads, we should not let it reload after bulk register at the moment
+    if (!res?.bulk_register) {
+        reloadTraceConfigFromDB(true);
+    }
     $(procModalElements.procModal).on('hidden.bs.modal', () => {
         isV2ProcessConfigOpening = false;
     });
@@ -1780,16 +1830,32 @@ const updateProcessConfig = (res) => {
     // update GUI
     if (res.status !== HTTP_RESPONSE_CODE_500) {
         if (res?.bulk_register || !currentProcItem?.length) {
-            addProcToTable(
-                res.data.id,
-                res.data.name_en,
-                res.data.name_jp,
-                res.data.name_local,
-                res.data.shown_name,
-                res.data.data_source.id,
-                res.data.table_name,
-                res.data.data_source.name,
-            );
+            // process has been registered on backend, enable edit and delete buttons
+            const targetProcRow = $(`tr[name="procInfo"][data-proc-id=${res.data.id}]`);
+            targetProcRow.find('button.proc-show-detail-btn').prop('disabled', false);
+            targetProcRow.find('button.proc-delete-btn').prop('disabled', false);
+
+            // In case register process failed, show triangle icon. Otherwise, remove icon
+            const processStatusDiv = targetProcRow.find('.process-status');
+            processStatusDiv.empty();
+            processStatusDiv.removeProp('data-status');
+            if (res.process_status === 3) {
+                const message = $(procModali18n.i18nProcessRegisterFailedMsg).text();
+                processStatusDiv.html(
+                    '<div class="align-middle text-center" data-st="spinner fa-spin">\n' +
+                        '    <div\n' +
+                        '        class=""\n' +
+                        '        data-toggle="tooltip"\n' +
+                        '        data-placement="top"\n' +
+                        `        title="${message}\n${res.error_message}"\n` +
+                        '    >\n' +
+                        '        <i\n' +
+                        '            class="fas fa-triangle-exclamation yellow status-i"\n' +
+                        '        ></i>\n' +
+                        '    </div>\n' +
+                        '</div>',
+                );
+            }
         } else {
             // update parent process name
             updateProcessName({ trEl: currentProcItem, res });
@@ -1821,10 +1887,28 @@ const updateProcessConfig = (res) => {
             }
 
             $(currentProcItem).find('textarea[name="comment"]').val(res.data.comment).prop('disabled', true);
+            $(currentProcItem)
+                .find('div.process-labels')
+                .html(
+                    res.data.labels
+                        .map((label) => (label.name ? `<span class="process-label">${label.name}</span>` : ''))
+                        .join(''),
+                );
             $(currentProcItem).attr('id', `proc_${res.data.id}`);
             $(currentProcItem).attr('data-proc-id', res.data.id);
             $(currentProcItem).attr('data-ds-id', res.data.data_source_id);
             $(currentProcItem).attr('data-proc-parent-id', res.data.parent_id);
+            $(currentProcItem).attr('data-test-id', res.data.shown_name);
+
+            //show new labels
+            const isShowAllLabel = isShowAllLabels();
+            res.data.labels?.forEach((label) => {
+                addLabelIfNotExist(label.name);
+                if (!isShowAllLabel) {
+                    activateLabel(label.name);
+                }
+            });
+            showAllLabels();
         }
     } else {
         if (res['errorType'] === 'CastError') {
@@ -1857,28 +1941,30 @@ const updateProcessConfig = (res) => {
     }
 };
 
-const saveProcCfg = async (isMergeMode = false) => {
+const saveProcCfg = async (isMergeMode = false, init_parent = false) => {
     clearWarning();
-    let [procCfgData, unusedColumns] = [null, []];
+    let [procCfgData, unusedColumns, labels] = [null, [], []];
     if (!isMergeMode) {
-        [procCfgData, unusedColumns] = collectProcCfgData();
+        [procCfgData, unusedColumns, labels] = collectProcCfgData();
     } else {
-        procCfgData = collectMergeProcCfgData();
+        [procCfgData, labels] = collectMergeProcCfgData();
     }
 
     if (!procCfgData) {
         // todo : show toarst message
         console.log('Invalid data');
-        return;
+        return false;
     }
     // validate main::Serial
-    const serialColumns = procCfgData.columns.filter((column) => column.is_serial_no);
+    const serialColumns = procCfgData.columns.filter(
+        (column) => column.column_type === DataTypeDropdown_Controller.DataGroupType.MAIN_SERIAL,
+    );
     if (serialColumns.length > 1) {
         displayRegisterMessage(procModalElements.alertProcessNameErrorMsg, {
             message: 'Duplicated main::Serial column',
             is_error: true,
         });
-        return;
+        return false;
     }
     const isCheckedDatetimeFormat = procModalElements.procDateTimeFormatCheckbox[0].checked;
     procCfgData.datetime_format = isCheckedDatetimeFormat
@@ -1887,6 +1973,8 @@ const saveProcCfg = async (isMergeMode = false) => {
     const data = {
         proc_config: procCfgData,
         unused_columns: unusedColumns,
+        init_parent: init_parent, // for merge mode only
+        labels: labels,
     };
 
     const res = await postProcConfig(data).catch((errorData) => {
@@ -1907,6 +1995,7 @@ const saveProcCfg = async (isMergeMode = false) => {
     }
 
     $(`#tblProcConfig #${procModalCurrentProcId}`).data('type', '');
+    return true;
 };
 
 /**
@@ -1980,20 +2069,20 @@ const validateProcessColumn = (processTableId, isFromProcessConfig) => {
     // check if date is checked
     const getDateMsgs = [];
 
-    // check if main date and main time are selected.
-    const mainDateRow = spreadsheet.mainDateRow();
-    const mainTimeRow = spreadsheet.mainTimeRow();
-    const isMainDateAndMainTimeSelected =
-        mainDateRow &&
-        mainDateRow[PROCESS_COLUMNS.is_checked].data &&
-        mainTimeRow &&
-        mainTimeRow[PROCESS_COLUMNS.is_checked].data;
-
     // check if main datetime is selected.
     const mainDateTimeRow = spreadsheet.mainDateTimeRow();
     const isGetDateSelected = mainDateTimeRow && mainDateTimeRow[PROCESS_COLUMNS.is_checked].data;
 
-    const isValidDatetime = isGetDateSelected || isMainDateAndMainTimeSelected;
+    const isFunctionConfigAvailable =
+        document.querySelectorAll(`[id^="${procModalElements.functionConfigTableID}"]`).length != 0;
+    let hasMainDatetimeFunctionColumn = false;
+
+    if (isFunctionConfigAvailable) {
+        hasMainDatetimeFunctionColumn =
+            Object.values(collectFunctionDatasForRegister()).filter((col) => col.is_get_date).length > 0;
+    }
+
+    const isValidDatetime = isGetDateSelected || hasMainDatetimeFunctionColumn;
     if (!isValidDatetime) {
         getDateMsgs.push($(procModali18n.msgErrorNoGetdate).text());
     }
@@ -2109,26 +2198,6 @@ const convertNonAscii = async (names = []) => {
 };
 
 /**
- * Get all text data inside tds, separate by TAB
- * @param {?HTMLTableRowElement} tr
- * @return string[]
- */
-const getTRDataValues = (tr) => {
-    const children = [...(tr?.children ?? [])];
-    return children.map((td) => {
-        const dataOriginAttr = td.dataset.origin;
-        if (dataOriginAttr != null) {
-            return dataOriginAttr;
-        }
-        const inputEl = td.querySelector('input[type="text"]');
-        if (inputEl != null) {
-            return inputEl.value.trim();
-        }
-        return td.innerText.trim();
-    });
-};
-
-/**
  * Download All process setting info
  * @param {jQuery} e - JqueryEvent
  */
@@ -2151,19 +2220,6 @@ const copyAllProcSettingInfo = (e) => {
     const ele = e.currentTarget;
     const spreadsheet = getSpreadSheetFromToolsBarElement(ele);
     spreadsheet.table.copyAll();
-};
-
-/**
- * parse clipboard string
- * @param {string} copiedText - clipboard string
- * @return {Array.<Array.<string>>}
- */
-const transformCopiedTextToTable = (copiedText) => {
-    const records = copiedText.replace(/\r\n+$/, '').split('\r\n');
-    return records
-        .map((rec) => rec.replace(/\t+$/, ''))
-        .filter((row) => row !== '')
-        .map((row) => row.split('\t'));
 };
 
 /**
@@ -2237,7 +2293,8 @@ const bindSelectColumnsHandler = () => {
 const createProcAndImportData = async (event) => {
     const isMergeMode = $(event).attr('data-is-merge-mode') === 'true';
     $(procModalElements.confirmImportDataModal).modal('hide');
-    await saveProcCfg(isMergeMode);
+    const valid = await saveProcCfg(isMergeMode);
+    if (!valid) return;
 
     // save order to local storage
     dragDropRowInTable.setItemLocalStorage($(procElements.tableProcList)[0]); // set proc table order
@@ -2317,13 +2374,14 @@ $(() => {
     $(procModalElements.confirmInitializeProcBtn).click(() => {
         const procId = currentProcItem.data('proc-id');
         $(procModalElements.confirmInitializeModal).modal('hide');
-        loading.show();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
 
         // call APIs initialize_process
         initializeProcess(procId)
             .then(() => {
                 isInitialize = true;
-                loading.hide();
+                loadingObj.hide();
                 showToastrMsg(procModali18n.i18nInitializeProcessSuccess, MESSAGE_LEVEL.INFO);
 
                 // hide initialize button
@@ -2333,11 +2391,12 @@ $(() => {
                 // change re-import to import
                 procModalElements.reRegisterBtn.css('display', 'none');
                 procModalElements.createOrUpdateProcCfgBtn.css('display', 'block');
-                enableDatetimeDataType();
+                enableColumnAfterInitialize();
+                reloadFunctionInfo();
             })
             .catch(() => {
                 // hide loading
-                loading.hide();
+                loadingObj.hide();
                 showToastrMsg(procModali18n.i18nInitializeProcessError, MESSAGE_LEVEL.ERROR);
             });
     });
@@ -2352,8 +2411,19 @@ $(() => {
         }
         runRegisterProcConfigFlow((edit = true));
     });
+    // reRegister merge mode
+    procModalElements.reRegisterChildProcBtn.click((e) => {
+        // check if e.currentTarget.hasAttributes('data-has-ct')
+        const withShowPreview = e.currentTarget.hasAttribute('data-has-ct');
+        const hasCTCols = $(e.currentTarget).attr('data-has-ct') === 'true';
+        if (withShowPreview && !hasCTCols) {
+            return;
+        }
+        // shown confirm modal directly
+        $(procModalElements.confirmMergeProcReRegisterModal).modal('show');
+    });
 
-    procModalElements.confirmReRegisterProcBtn.click(async () => {
+    procModalElements.confirmReRegisterProcBtn.on('click', async (e) => {
         $(procModalElements.confirmReRegisterProcModal).modal('hide');
         await saveProcCfg();
 
@@ -2362,10 +2432,22 @@ $(() => {
         recentEdit(procModalCurrentProcId);
     });
 
+    procModalElements.confirmMergeProcReRegisterBtn.on('click', async (e) => {
+        // get init parent flag
+        const isInitParent = $('#initParentData').is(':checked');
+
+        // check merge mode
+        await saveProcCfg(true, isInitParent);
+
+        $(procModalElements.confirmMergeProcReRegisterModal).modal('hide');
+
+        // save order to local storage
+        dragDropRowInTable.setItemLocalStorage($(procElements.tableProcList)[0]); // set proc table order
+        recentEdit(procModalCurrentProcId);
+    });
+
     // Databases onchange
     procModalElements.databases.change(async () => {
-        loading.css('z-index', 9999);
-        loading.show();
         procDsSelected = getSelectedOptionOfSelect(procModalElements.databases).val();
         if (
             isMergeModeFromProcConfig() &&
@@ -2381,25 +2463,24 @@ $(() => {
             const dataRowId = currentProcItem.attr('data-rowid');
             await loadTables(dsSelected, dataRowId);
         }
-        loading.hide();
         // not available from v4.7.10
         // GenerateDefaultImportFilterTable();
     });
 
     // Databases onchange merge mode
     procModalElements.databasesMergeMode.change(async () => {
-        loading.css('z-index', 9999);
-        loading.show();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
         procDsSelected = getSelectedOptionOfSelect(procModalElements.databasesMergeMode).val();
         currentProcessName = procModalElements.procNameMergeMode.val();
         await mergeModeProcess();
-        loading.hide();
+        loadingObj.hide();
     });
 
     // Merge mode tables onchange
     procModalElements.mergeModeTables.change(async () => {
-        loading.css('z-index', 9999);
-        loading.show();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
         hideAlertMessages();
         $(procModalElements.childEtlFuncWarningMark).hide();
         isClickPreview = true;
@@ -2414,7 +2495,7 @@ $(() => {
         if (tableName) {
             await loadInfoTableWithMergeMode(procId, baseProc, tableName);
         }
-        loading.hide();
+        loadingObj.hide();
     });
 
     // Tables onchange
@@ -2476,8 +2557,8 @@ $(() => {
     });
 
     // Show records button click event
-    procModalElements.showRecordsBtn.click(async (event) => {
-        event.preventDefault();
+    showRecordsBtnFunc = async (event) => {
+        event?.preventDefault();
         const currentShownTableName = getSelectedOptionOfSelect(procModalElements.tables).val() || null;
         const currentOptionalFunction = getSelectedOptionOfSelect(procModalElements.optionalFunctions).val() || null;
         const currentShownDataSource = getSelectedOptionOfSelect(procModalElements.databases).val() || null;
@@ -2503,7 +2584,10 @@ $(() => {
         if (currentOptionalFunction) {
             formData.set('etlFunc', currentOptionalFunction);
         }
+        // set filter
+        const filter = getFilterExpression();
 
+        formData.set('filter', JSON.stringify(filter));
         preventSelectAll(true);
 
         // disable show file name if we are viewing imported process
@@ -2521,10 +2605,10 @@ $(() => {
         // Hide warning mark
         procModalElements.etlFuncWarningMark.hide();
         resetSampleDataDisplayModeRadio();
-
         // reset first datetime checked
-        showLatestRecords(formData, clearDataFlg);
-    });
+        await showLatestRecords(formData, clearDataFlg);
+    };
+    procModalElements.showRecordsBtn.click(showRecordsBtnFunc);
 
     // Show preview to merge mode
     const showPreviewToMergeProcess = (event) => {
@@ -2771,6 +2855,9 @@ const updateCheckedColumn = (table, newCheckedColumns) => {
     const totalCheckedColumns = getTotalCheckedColumnElementFromElement(tableEle);
     const currentCheckedColumn = totalCheckedColumns.text();
     showTotalCheckedColumns(tableEle, Number(currentTotalColumn), Number(currentCheckedColumn) + newCheckedColumns);
+    if (selectedFunctionNameEle) {
+        FunctionInfo.initDropdownVarXY(selectedFunctionNameEle);
+    }
 };
 
 const initSearchProcessColumnsTable = (tableEle, fromRegisterByFile) => {
@@ -3007,8 +3094,8 @@ const showModalConfirmMergeMode = () => {
 };
 
 const mergeModeProcess = async (procId, dataRowID, baseProc, dbsId) => {
-    loading.css('z-index', 9999);
-    loading.show();
+    const loadingObj = loadingHandler();
+    loadingObj.show();
     clearMergeModeModal();
     $(procModalElements.confirmMergeMode).modal('hide');
     procModalElements.procModal.modal('hide');
@@ -3124,7 +3211,7 @@ const mergeModeProcess = async (procId, dataRowID, baseProc, dbsId) => {
         procModalElements.mergeModeTables.attr('disabled', true);
     }
     addAttributeToElement();
-    loading.hide();
+    loadingObj.hide();
 };
 
 const loadInfoTableWithMergeMode = async (procId, baseProc, tableName) => {
@@ -3142,17 +3229,23 @@ const loadInfoTableWithMergeMode = async (procId, baseProc, tableName) => {
     if (procId) {
         // opening modal of a merged proc
         $('#createOrUpdateChildProcCfgBtn').hide();
+        procModalElements.reRegisterChildProcBtn.show();
         $(procModalElements.showPreviewBtnToMerge).hide();
         $('#mergeProcDatasourceName').attr('disabled', true);
         $('#childTableName').attr('disabled', true);
         [procInfo, mergedColumns] = await getProcessColumnsInfo(procId);
         procModalElements.childOptionalFunctions.val(procInfo.etl_func);
+        procModalElements.mergeModeLabel.val(procInfo.labels.map((l) => l.name)).trigger('change');
+        procModalElements.mergeModeInputComment.val(procInfo.comment);
     } else {
         // new merge proc
         $('#createOrUpdateChildProcCfgBtn').show();
+        procModalElements.reRegisterChildProcBtn.hide();
         $(procModalElements.showPreviewBtnToMerge).show();
         $('#mergeProcDatasourceName').attr('disabled', false);
         $('#childTableName').attr('disabled', false);
+        // set labels from parent labels for default;
+        procModalElements.mergeModeLabel.val(baseProc.labels.map((l) => l.name)).trigger('change');
     }
     baseProcDataCols = JSON.parse(JSON.stringify(baseProcColsData));
 
@@ -3190,7 +3283,7 @@ const loadInfoTableWithMergeMode = async (procId, baseProc, tableName) => {
 
     const dummyDatetimeIdx = baseProcData.dummy_datetime_idx;
     const dummyChildDatetimeIdx = childProcData.dummy_datetime_idx;
-    const colsMapping = generateMergeModeColumnMapping(baseProcDataCols, childProcData.cols, mergedColumns);
+    const colsMapping = generateMergeModeColumnMapping(baseProcDataCols, childProcData.cols, mergedColumns, !procId);
 
     if (colsMapping.length > baseProcDataCols.length) {
         baseProcDataCols.push(...Array(colsMapping.length - baseProcDataCols.length).fill({}));
@@ -3391,7 +3484,19 @@ const generateSampleData = (rows, dummyDatetimeIdx, col, i, checkedAtr) => {
     });
 };
 
-const generateMergeModeColumnMapping = (baseCols, childCols, mergedColumns = []) => {
+/**
+ * Generate mapping between base process columns and child process columns for Merge Mode.
+ * @param baseCols
+ * @param childCols
+ * @param mergedColumns
+ * @param isAutoMerge - If true, the system automatically maps child columns to parent columns based on matching names
+ *                      if no saved configuration is found in the database.
+ *                    - If false, the system only uses mappings explicitly saved in the database.
+ *                    - Use isAutoMerge = true when registering a NEW process.
+ *                    - Use isAutoMerge = false when viewing DETAILS of an existing process to avoid unwanted auto-mapping of new columns.
+ * @returns {*[]}
+ */
+const generateMergeModeColumnMapping = (baseCols, childCols, mergedColumns = [], isAutoMerge = true) => {
     const baseColumnsName = baseCols.map((item) => item.column_name || item.column_raw_name);
     const dictMergedCol = {};
     mergedColumns.forEach((col) => {
@@ -3402,7 +3507,7 @@ const generateMergeModeColumnMapping = (baseCols, childCols, mergedColumns = [])
     const cloneChildCols = JSON.parse(JSON.stringify(childCols));
     const colsMappingIndex = [];
     const colsMapping = baseColumnsName.map((key) => {
-        const mapCol = dictMergedCol[key] || key;
+        const mapCol = dictMergedCol[key] || (isAutoMerge ? key : null);
         const index = childCols.findIndex((item) => item.column_name === mapCol || item.column_raw_name === mapCol);
         if (index === -1) {
             return {};
@@ -3452,7 +3557,7 @@ const changeMergeColumnOption = (elem, dummyDatetimeIdx) => {
     const currentRowIndex = $(elem).closest('tr').index();
     const checkedAtr = 'checked=checked';
     const baseCols = baseProcDataCols.filter((baseProc) => Object.keys(baseProc).length !== 0);
-    const cols = generateMergeModeColumnMapping(baseCols, childProcData.cols);
+    const cols = generateMergeModeColumnMapping(baseCols, childProcData.cols, [], !procModalCurrentProcId);
     const rows = childProcData.rows;
     const colOldIndex = cols.findIndex((col) => col.column_name === oldSelected || col.column_raw_name === oldSelected);
     $(elem).attr('old-selected', currentOptionValue);
@@ -3561,53 +3666,6 @@ const resizeMaxHeightProcColumnTable = () => {
     }
 };
 
-const GenerateDefaultImportFilterTable = (procId) => {
-    const columnsImportFilters =
-        currentProcDataCols
-            .filter((proc) => proc.import_filters?.length)
-            .map((proc) => proc.import_filters)
-            .flat() || [];
-    let filterData = [
-        {
-            id: null,
-            process_id: null,
-            column_id: null,
-            filter_function: conditionFormula.matches.value,
-            value: '',
-            order: 1,
-            filter_id: null,
-            delete_button: deleteButton,
-        },
-    ];
-    if (procId && columnsImportFilters.length) {
-        filterData = columnsImportFilters.map((item, index) => {
-            const isFilterMatches = item.filter_function === 'SUBSTRING';
-            return {
-                id: item.id,
-                process_id: procId,
-                column_id: item.column_id,
-                filter_function: item.filter_function,
-                value: item.filters.map((e) => e.value).join(';'),
-                order: index + 1,
-                filter_id: item.filters[0].filter_id,
-                filter_from_pos: isFilterMatches ? item.filter_from_position : '',
-                delete_button: deleteButton,
-            };
-        });
-    }
-    // clear table
-    const table = jspreadsheetTable(filterConditionElements.importFilterTable);
-    table.destroyTable();
-    const spreadsheet = SpreadSheetFilterConfig.create(filterConditionElements.importFilterTable, filterData, {
-        importFilter: true,
-    });
-    $(filterConditionElements.addImportConditionBtn).prop('disabled', false);
-    if (procId) {
-        $(filterConditionElements.addImportConditionBtn).prop('disabled', true);
-        $(`#${filterConditionElements.importFilterTable} tbody td`).addClass('disabled-input');
-    }
-};
-
 const isSelectedMainSerialInProcessConfig = () => {
     // check process config has column selected main:serial
     const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
@@ -3615,19 +3673,30 @@ const isSelectedMainSerialInProcessConfig = () => {
     return mainSerialRow && mainSerialRow[PROCESS_COLUMNS.is_checked].data;
 };
 
-$(`${procModalElements.mergeModeTableChild} table tbody`).on('scroll', function () {
-    $(`${procModalElements.mergeModeTableBase} table tbody`).scrollLeft($(this).scrollLeft());
-});
+const isSelectedMainDatetimeInProcessConfig = () => {
+    // check process config has column selected main:Datetime
+    const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+    const mainDatetimeRow = spreadsheet.mainDateTimeRow();
+    return mainDatetimeRow && mainDatetimeRow[PROCESS_COLUMNS.is_checked].data;
+};
 
-$(`${procModalElements.mergeModeTableBase} table tbody`).on('scroll', function () {
-    $(`${procModalElements.mergeModeTableChild} table tbody`).scrollLeft($(this).scrollLeft());
-});
+$(() => {
+    initLabelSelectionTags();
 
-$(procModalElements.collapseFunctionConfigID).on('shown.bs.collapse', function (event) {
-    const elmFunction = document.querySelector(procModalElements.collapseFunctionConfigID);
-    elmFunction.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+    $(`${procModalElements.mergeModeTableChild} table tbody`).on('scroll', function () {
+        $(`${procModalElements.mergeModeTableBase} table tbody`).scrollLeft($(this).scrollLeft());
+    });
+
+    $(`${procModalElements.mergeModeTableBase} table tbody`).on('scroll', function () {
+        $(`${procModalElements.mergeModeTableChild} table tbody`).scrollLeft($(this).scrollLeft());
+    });
+
+    $(procModalElements.collapseFunctionConfigID).on('shown.bs.collapse', function (event) {
+        const elmFunction = document.querySelector(procModalElements.collapseFunctionConfigID);
+        elmFunction.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
     });
 });
 
@@ -3669,8 +3738,36 @@ const removeClassReadOnly = (row, spreadsheet) => {
     eleIsCheck.classList.remove(READONLY_CLASS, 'disabled');
 };
 
-const enableDatetimeDataType = () => {
+const enableDatetimeFormulaAfterInitialize = () => {
+    if (typeof spreadsheetProcConfig != 'undefined') {
+        const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+        const rows = spreadsheet.rowsByDataTypes(DataTypes.DATETIME.name, DataTypes.TIME.name, DataTypes.DATE.name);
+        if (rows) {
+            rows.forEach((row) => {
+                const rowIndex = row.formula.rowIndex;
+                const colIndex = row.formula.columnIndex;
+                const eleIsCheck = spreadsheet.table.getCellFromCoords(colIndex, rowIndex);
+                eleIsCheck.classList.remove(READONLY_CLASS, 'disabled');
+            });
+        }
+    }
+};
+
+const enableColumnAfterInitialize = () => {
     addStateInitialize();
+
+    enableDatetimeDataType();
+
+    // reset FileName checkbox
+    enableFileNameColumn();
+
+    // Enable "Import condition"
+    enableDummyDateTimeOrDateTimeGeneratedChecked();
+
+    enableDatetimeFormulaAfterInitialize();
+};
+
+const enableDatetimeDataType = () => {
     // reset checkbox
     procModalElements.procDateTimeFormatCheckbox.prop('checked', false);
     procModalElements.procDateTimeFormatCheckbox.prop('disabled', false);
@@ -3678,14 +3775,53 @@ const enableDatetimeDataType = () => {
     // reset input
     procModalElements.procDateTimeFormatInput.prop('disabled', false);
     procModalElements.procDateTimeFormatInput.attr('placeholder', DATETIME_FORMAT_PLACE_HOLDER);
-    // reset FileName checkbox
-    if (currentProcess?.data_source.csv_detail) {
-        procModalElements.isShowFileName.prop('disabled', false);
-        procModalElements.isShowFileName.prop('checked', false).trigger('change');
-    }
+};
 
-    // Enable "Import condition"
-    $(`#${filterConditionElements.importFilterTable} tbody td`).removeClass('disabled-input');
-    setStatusButton();
-    enableDummyDateTimeOrDateTimeGeneratedChecked();
+const enableFileNameColumn = () => {
+    if (currentProcess?.data_source.csv_detail) {
+        const spreadsheet = spreadsheetProcConfig(procModalElements.procConfigTableName);
+        const fileNameRow = spreadsheet.fileNameRow() || {};
+        const fileNameId = fileNameRow.id?.data;
+        const checkFileNameInFunctionColumn = checkColumnIsInFunctionColumn(fileNameId);
+
+        if (!checkFileNameInFunctionColumn) {
+            procModalElements.isShowFileName.prop('disabled', false);
+            procModalElements.isShowFileName.prop('checked', false).trigger('change');
+        }
+    }
+};
+
+const getFilterExpression = () => {
+    const filter = {};
+    if ($(procModalElements.filterColumnClassName).length) {
+        const table = spreadsheetProcConfig(procModalElements.procConfigTableName).table;
+        $(procModalElements.filterColumnClassName).each((idx, e) => {
+            if (idx >= $(procModalElements.filterColumnClassName).length - 1) return;
+            const row = table.getRowsByHeadersAndIndexes(undefined, idx)[0];
+            if (row.filter.data) {
+                filter[row.column_raw_name.data] = row.filter.data;
+            }
+        });
+    } else {
+        // on first load registered proc config
+        Object.keys(dicProcessCols).forEach((key) => {
+            if (dicProcessCols[key].filter) {
+                filter[dicProcessCols[key].column_raw_name] = dicProcessCols[key].filter;
+            }
+        });
+    }
+    return filter;
+};
+
+const initLabelSelectionTags = async () => {
+    const selectionTags = $('.selection-tags');
+    selectionTags.select2({
+        tags: true,
+    });
+
+    const labels = await getAllLabelsFromDb();
+    labels.forEach((label) => {
+        procModalElements.label.append(new Option(label.name, label.name, false, false));
+        procModalElements.mergeModeLabel.append(new Option(label.name, label.name, false, false));
+    });
 };

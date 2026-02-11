@@ -146,7 +146,7 @@ def pca():
 
 @api_analyze_module_blueprint.route('/data_export/<export_type>', methods=['GET'])
 def data_export(export_type):
-    """csv export
+    """Csv export
 
     Returns:
         [type] -- [description]
@@ -172,8 +172,9 @@ def data_export(export_type):
             )
             df = filter_df(graph_param.dic_proc_cfgs, df, dic_cat_filters)
         csv_name = 'train_data' if not i else 'test_data'
-        csv_list_name.append('{}.{}'.format(csv_name, CSVExtTypes.CSV.value))
-        csv_df = to_csv(df, graph_param, client_timezone=client_timezone)
+        csv_list_name.append(f'{csv_name}.{export_type}')
+        delimiter = ',' if export_type == CSVExtTypes.CSV.value else '\t'
+        csv_df = to_csv(df, graph_param, client_timezone=client_timezone, delimiter=delimiter)
         csv_data.append(csv_df)
 
     response = zip_file_to_response(csv_data, csv_list_name, export_type=export_type)

@@ -1,8 +1,10 @@
 import json
+from collections.abc import Mapping
 from datetime import date, datetime, time
 from decimal import Decimal
 from fractions import Fraction
 from functools import singledispatch
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -96,7 +98,7 @@ def _(obj):
     return None
 
 
-def build_dic_data(*args, **kwargs):
+def build_dic_data(*args: Any, **kwargs: Mapping[str, Any]):
     if len(args) == 1 and args[0] is None:
         dic_data = {}
     else:
@@ -113,7 +115,7 @@ def build_dic_data(*args, **kwargs):
     return dic_data
 
 
-def orjson_dumps(*args, **kwargs):
+def orjson_dumps(*args: Any, **kwargs: Mapping[str, Any]):
     dic_data = build_dic_data(*args, **kwargs)
     json_str = orjson.dumps(
         dic_data,

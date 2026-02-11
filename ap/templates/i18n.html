@@ -314,11 +314,15 @@
     <span id="i18nOncePer10Minutes">{{ _('Once per 10 minutes') }}</span>
     <span id="i18nOncePerHour">{{ _('Once per hour') }}</span>
     <span id="i18nOncePerDay">{{ _('Once per day') }}</span>
+    <span id="i18nOncePerWeek">{{ _('Once per week') }}</span>
+    <span id="i18nRegister">{{ _('Register') }}</span>
 
     <!-- Data Table Config -->
     <span id="i18nDataTableNameBlank">{{ _("Fill in data table name") }}</span>
 
     <!-- Process config -->
+    <span id="i18nConfirmIncreaseLimitImport">{{ _("ConfirmIncreaseLimitImport") }}</span>
+    <span id="i18nConfirmDecreaseLimitImport">{{ _("ConfirmDecreaseLimitImport") }}</span>
     <span id="i18nProcName">{{ _("Process Name") }}</span>
     <span id="i18nTableName">{{ _("Table Name") }}</span>
     <span id="i18nStatusDone">{{ _('Finished Importing') }}</span>
@@ -335,6 +339,14 @@
     <span id="i18nGenDateTimeNotification">{{ _("generateDatetimeCol") }}</span>
     <span id="i18nRequestSelectDateAndTime">{{ _("requestSelectDateAndTime") }}</span>
     <span id="i18nInvalidFilePathMsg">{{ _("invalidFilePathMsg") }}</span>
+    <span id="i18nProcessConfigFilterHover">{{ _("ProcessConfigFilterHover") }}</span>
+    <span id="i18nUpdateImportLimitSuccess">{{ _("ImportLimitUpdateSuccess") }}</span>
+    <span id="i18nUpdateImportLimitFailed">{{ _("ImportLimitUpdateFailed") }}</span>
+    <span id="i18nPleaseInputURL">{{ _("Please input URL") }}</span>
+    <span id="i18nPleaseInputUsername">{{ _("Please input Username") }}</span>
+    <span id="i18nPleaseInputPassword">{{ _("Please input Password") }}</span>
+    <span id="i18nErrorUncheckColumn">{{ _("ErrorMsgFunctionUsesUndefinedColumn") }}</span>
+    <span id="i18nloadTablesFailedMsg">{{ _("loadTablesFailedMsg") }}</span>
 
     <!-- Trace config -->
     <span id="i18nAllDigits">{{ _("All digits") }}</span>
@@ -358,7 +370,6 @@
     <span id="i18nEditClusterErr">{{ _("Edit Cluster Error") }}</span>
     <span id="i18nJobList">{{ _("Job List") }}</span>
     <span id="i18nFailedJobList">{{ _("Failed Job List") }}</span>
-    <span id="i18nStartLink">{{ _('Linking data was started.') }}</span>
     <span id="i18nCheckProgress">{{ _('You can check the progress from the link below.') }}</span>
     <span id="i18nNoColumn">{{ _('Please choose at least one column') }}</span>
 
@@ -382,6 +393,9 @@
     <span id="i18nActFromGreater">{{ _("Action from") }} > {{ _("Action to") }}</span>
     <span id="partNoDefaultName">{{ _("Default") }} </span>
     <span id="noData">{{ _("No data") }} </span>
+    <span id="i18nNoDataForThisSetting"
+        >{{ _("Sorry, we couldn’t display the graph for your target variable with the selected mode. Please try a different mode or variable.") }}
+    </span>
 
     <span id="filterRequireTarget">{{ _('Target column is required') }}</span>
     <span id="filterRequireLine">{{ _('Line is required') }}</span>
@@ -548,6 +562,9 @@
     <span id="i18nSaveUserSettingConfirm">{{ _("Confirm to save your setting.") }}</span>
     <span id="i18nEditUserSettingConfirm">{{ _("Edit user setting confirm") }}</span>
     <span id="i18nCommonErrorMsg">{{ _("ErrorMsgCommon") }}</span>
+    <span id="i18nLargeDataCountWarningMsg"
+        >{{ _('Due to the large number of data points, it may take some time to display the charts.') }}</span
+    >
     <!-- SCP -->
     <span id="i18nColorBarTime">{{ _('Time') }}</span>
     <span id="i18nColorBarElapsedTime">{{ _('Elapsed Time') }}</span>
@@ -677,6 +694,7 @@
     <span id="i18nSystemNameHoverMsg">{{ _('SystemNameHoverMsg') }}</span>
     <span id="i18nJapaneseName">{{ _('Japanese Name') }}</span>
     <span id="i18nLocalName">{{ _('Local Name') }}</span>
+    <span id="i18nSystemName">{{ _('System Name') }}</span>
     <span id="i18nJudgeFormulaTitle">{{ _('JudgeFormulaTitle') }}</span>
     <span id="i18nUnit">{{ _('Unit') }}</span>
     <span id="i18nAlreadyRegistered">{{ _('Already registered') }}</span>
@@ -717,10 +735,8 @@
     <span id="i18nSampleDataLabel">{{ _('SampleDataLabel') }}</span>
     <span id="i18nRecordsDisplayModeLabel">{{ _('RecordsDisplayModeLabel') }}</span>
     <span id="i18nUniqueDisplayModeLabel">{{ _('UniqueDisplayModeLabel') }}</span>
-    <span id="i18nHoverConversationJudgeMsg">{{ _('HoverConversationJudgeMsg') }}</span>
+    <span id="i18nHoverConversationFormulaMsg">{{ _('HoverConversationFormulaMsg') }}</span>
     <span id="i18nSelectJudgeDatatypeModalMsg">{{ _('SelectJudgeDatatypeModalMsg') }}</span>
-    <span id="i18nInvalidInputJudgeMsg">{{ _('InvalidInputJudgeMsg') }}</span>
-    <span id="i18nInvalidInputImportedJudgeMsg">{{ _('InvalidInputImportedJudgeMsg') }}</span>
 
     <!--System-->
     <span id="i18nClearTransactionData">{{ _('Transaction data is deleted.') }}</span>
@@ -765,4 +781,15 @@
     <!--Initialize process-->
     <span id="i18nInitializeProcessSuccess">{{ _('Initialize process config successfully') }}</span>
     <span id="i18nInitializeProcessError">{{ _('Initialize process config error') }}</span>
+    <span id="i18nProcessRegisterFailedMsg">{{ _('ProcessRegisterFailedMsg') }}</span>
+
+    <!-- Export config -->
+    <span id="i18nTitle">{{ _('Title') }}</span>
+    <span id="i18nExportFolder">{{ _('ExportFolder') }}</span>
+    <span id="i18nExportFrequency">{{ _('ExportFrequency') }}</span>
+    <span id="i18nExportFrom">{{ _('ExportFrom') }}</span>
+    <span id="i18nExportTo">{{ _('ExportTo') }}</span>
+    <span id="i18nExportConfigDetail">{{ _('ExportConfigDetail') }}</span>
+    <span id="i18nFiletype">{{ _('File type') }}</span>
+    <span id="i18nExportColumnNameType">{{ _('Export column name') }}</span>
 </div>

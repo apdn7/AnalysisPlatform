@@ -10,11 +10,7 @@ const COLOR_DEFAULT = [
     '#bcbd22',
 ];
 
-const JUDGE_COLOR_DEFAULT = {
-    OK: '#1f77b4',
-    NG: '#d62728',
-};
-
+const MAX_TICKS = 9;
 const drawAgPPlot = (
     data,
     plotData,
@@ -23,13 +19,17 @@ const drawAgPPlot = (
     isCyclicCalender,
     canvasId,
     yScale,
+    xAxisOrder,
     yAxisDisplayMode,
     divFromTo,
     isCommonScale = false,
+    chartViewHeightNumber,
 ) => {
-    const { agg_function, color_name, color_column_type, unique_color, fmt, shown_name } = plotData;
+    const { agg_function, color_name, color_column_type, unique_color, fmt, shown_name, judge_color } = plotData;
 
     const isLineChart = agg_function && agg_function.toLowerCase() !== 'count';
+    const isXOrderByYValue = xAxisOrder == X_AXIS_OPTION.Y_AXIS_VALUE;
+    const xOrder = isXOrderByYValue && !isLineChart ? 'total descending' : undefined;
     const showPercent =
         [AGP_YAXIS_DISPLAY_MODES.Y_AXIS_TOTAL, AGP_YAXIS_DISPLAY_MODES.Y_AXIS_FACET].includes(yAxisDisplayMode) &&
         !isLineChart;
@@ -38,7 +38,7 @@ const drawAgPPlot = (
     const tickLen = xTitles.length ? xTitles[0].length : 0;
     const tickSize = tickLen > 5 ? 10 : 12;
 
-    data = prepareColorForTrace(data, unique_color, color_column_type);
+    data = prepareColorForTrace(data, unique_color, color_column_type, judge_color);
     if (isLineChart && yScale) {
         data = getOutlierTraceData(data, yScale, plotData);
     }
@@ -50,6 +50,13 @@ const drawAgPPlot = (
         yMax = yScale['y-max'] + offset;
     }
 
+    if (isXOrderByYValue && isLineChart) {
+        data = sortDataByMaxDescending(data);
+    }
+
+    const maxTicks = isXOrderByYValue ? xTitles.length : MAX_TICKS;
+    const bottomMargin = (chartViewHeightNumber / 4) * (window.innerHeight / 100);
+
     const layout = {
         barmode: 'stack',
         plot_bgcolor: '#222222',
@@ -59,21 +66,23 @@ const drawAgPPlot = (
             tickmode: 'array',
             ticktext: reduceTicksArray(
                 xTitles.map((val) => val.slice(1)),
-                tickLen,
+                maxTicks,
             ),
-            tickvals: reduceTicksArray(xTitles, tickLen),
+            tickvals: reduceTicksArray(xTitles, maxTicks),
             gridcolor: '#444444',
             tickfont: {
                 color: 'rgba(255,255,255,1)',
                 size: tickSize,
             },
+            tickangle: isXOrderByYValue ? '-90' : null,
             spikemode: 'across',
             spikethickness: 1,
             spikedash: 'solid',
             spikecolor: 'rgb(255, 0, 0)',
             tickformat: 'c',
             domain: [0, 1],
-            nticks: 8,
+            nticks: isXOrderByYValue ? xTitles.length : 8,
+            categoryorder: xOrder,
         },
         yaxis: {
             gridcolor: '#444444',
@@ -108,7 +117,7 @@ const drawAgPPlot = (
             // itemwidth: 200
         },
         margin: {
-            b: 60,
+            b: isXOrderByYValue ? bottomMargin : 60,
             t: 20,
             r: 10,
         },
@@ -206,16 +215,76 @@ const drawAgPPlot = (
             1,
         );
     });
+
+    /**
+     * Set data-hover for each tick label and bind events
+     */
+    agPPlot.on('plotly_afterplot', () => {
+        if (isXOrderByYValue) {
+            const currentPlot = document.getElementById(canvasId);
+            const renderedTickTextElements = document.querySelectorAll(`#${canvasId} .xtick text`);
+            // calculated like tickSize
+            const fontSize = renderedTickTextElements.length > 5 ? 10 : 12;
+            const ellipsisPixelLen = visualTextLength('...', fontSize);
+            const pixelLenLimit = (chartViewHeightNumber / 4) * (window.innerHeight / 100); // 25% of chart's height
+            renderedTickTextElements.forEach((ele, i) => {
+                ele.innerHTML = formatVerticalLabel(
+                    ele.dataset.unformatted,
+                    pixelLenLimit,
+                    ellipsisPixelLen,
+                    ele.getAttribute('x'),
+                    ele.getAttribute('y'),
+                    fontSize,
+                );
+            });
+            $('g.xtick text')
+                .off('mouseover')
+                .on('mouseover', (e) => {
+                    const fullTickLabel = $(e.currentTarget).attr('data-unformatted');
+                    $('#fullTickLabel').text(fullTickLabel);
+                    showTickLabelTooltip(e);
+                })
+                .off('mouseout')
+                .on('mouseout', () => {
+                    $('#fullTickLabel').text('');
+                    $('#fullTickLabel').hide();
+                })
+                // must be enabled so that mouseover events work
+                .css({
+                    'pointer-events': 'auto',
+                });
+        }
+    });
+
     unHoverHandler(agPPlot);
 };
 
-const reduceTicksArray = (array, tickLen) => {
-    const MAX_TICKS = 9;
-    const nTicks = MAX_TICKS;
-    const isReduce = array.length > MAX_TICKS;
+const showTickLabelTooltip = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const tooltip = $('#fullTickLabel');
+    const tooltipHeight = tooltip.height();
+    const windowHeight = $(window).height();
+    const left = e.clientX;
+    let top = e.clientY + 5;
+    if (windowHeight - top < tooltipHeight) {
+        top -= tooltipHeight;
+    }
+    tooltip.css({
+        left: `${left}px`,
+        top: `${top}px`,
+        display: 'block',
+    });
+
+    return false;
+};
+const reduceTicksArray = (array, maxTick = MAX_TICKS) => {
+    const nTicks = maxTick;
+    const isReduce = array.length > maxTick;
     if (!isReduce) return array;
     let nextIndex = array.length / nTicks < 2 ? 2 : Math.round(array.length / nTicks);
-    if (nextIndex * nTicks > MAX_TICKS) {
+    if (nextIndex * nTicks > maxTick) {
         nextIndex += 1;
     }
     const res = [];
@@ -228,12 +297,14 @@ const reduceTicksArray = (array, tickLen) => {
     return res;
 };
 
-const prepareColorForTrace = (data, uniqueColor, colorColumnType) => {
+const prepareColorForTrace = (data, uniqueColor, colorColumnType, judgeColor) => {
     let styles = [];
     const getDefaultColor = (colorType, colorName, index) => {
         let color = COLOR_DEFAULT[index];
         // When variable data type is judge: Change color scale to OK:Blue, NG:Red in AgP
-        if (colorType === masterDataGroup.JUDGE) color = JUDGE_COLOR_DEFAULT[colorName];
+        if (colorType === masterDataGroup.JUDGE && judgeColor) {
+            color = JUDGE_COLOR_DEFAULT[judgeColor[colorName]];
+        }
         return color;
     };
     if (uniqueColor.length > 0) {
@@ -329,3 +400,73 @@ function getAllIndexes(arr, val) {
     }
     return indexes;
 }
+
+const sortDataByMaxDescending = (data) => {
+    const categoryValues = {};
+    data.forEach((trace) => {
+        trace.x.forEach((category, index) => {
+            if (!categoryValues[category]) {
+                categoryValues[category] = [];
+            }
+            categoryValues[category].push(trace.y[index]);
+        });
+    });
+
+    const maxValues = Object.values(categoryValues).map((values) => {
+        return Math.max(...values);
+    });
+
+    return data.map((trace) => {
+        // Create an array of indices
+        const indices = Array.from({ length: trace.x.length }, (_, i) => i);
+        indices.sort((a, b) => maxValues[b] - maxValues[a]);
+        return {
+            ...trace,
+            x: indices.map((i) => trace.x[i]),
+            y: indices.map((i) => trace.y[i]),
+        };
+    });
+};
+
+/**
+ * Used to format AgP's vertical label text (might be used for other charts later)
+ * If the text's length exceeds pixelLenLimit for the first time, format into two tspan elements to be used for plotly
+ * For the second time, truncate with ellipsis
+ * @param text input text
+ * @param pixelLenLimit maximum length (width) allowed
+ * @param parentX x attribute of parent element
+ * @param parentY y attribute of parent element
+ * @param dx dx attribute of parent element
+ * @param dy dy attribute for second line of text (usually 1.3em of current fontsize)
+ * @param textSize font size
+ */
+const formatVerticalLabel = (
+    text,
+    pixelLenLimit,
+    ellipsisPixelLen,
+    parentX,
+    parentY,
+    textSize = 12,
+    dx = 0,
+    dy = 1.3,
+) => {
+    let tmp = text;
+    const textPixelLen = visualTextLength(tmp, textSize);
+    if (textPixelLen > pixelLenLimit) {
+        const pixelLimitSecondLine = pixelLenLimit - ellipsisPixelLen;
+        let firstLine = '';
+        let secondLine = '';
+        const step = Math.round(text.length / (textPixelLen / pixelLenLimit));
+        firstLine = tmp.substring(0, step);
+        secondLine = tmp.substring(step);
+        const secondLinePixelLen = visualTextLength(secondLine, textSize);
+        if (secondLinePixelLen > pixelLenLimit) {
+            const step = Math.floor(secondLine.length / (secondLinePixelLen / pixelLimitSecondLine));
+            secondLine = secondLine.substring(0, step);
+            secondLine += '...';
+        }
+        return `<tspan class="line" dx="${dx}em" dy="0em" x=${parentX} y=${parentY}>${firstLine}</tspan><tspan class="line" dx="${dx}em" dy="${dy}em" x=${parentX} y=${parentY}>${secondLine}</tspan>`;
+    } else {
+        return text;
+    }
+};

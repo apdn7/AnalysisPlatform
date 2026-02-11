@@ -1,6 +1,6 @@
 import copy
 import uuid
-from typing import Any, List, Optional, Union
+from typing import Any, Union
 
 import pandas as pd
 from dateutil.tz import tz
@@ -23,7 +23,6 @@ from ap.api.common.services.show_graph_services import (
     get_chart_infos,
     get_data_from_db,
     get_filter_on_demand_data,
-    judge_data_conversion,
     set_chart_infos_to_plotdata,
 )
 from ap.api.scatter_plot.services import gen_df
@@ -52,6 +51,7 @@ from ap.common.constants import (
     FMT,
     IS_CATEGORY,
     IS_GRAPH_LIMITED,
+    JUDGE_COLOR,
     NO_COLOR,
     REMOVED_OUTLIERS,
     RL_CATEGORY,
@@ -64,8 +64,10 @@ from ap.common.constants import (
     UNIQUE_DIV,
     UNIQUE_SERIAL,
     CacheType,
+    DataColumnType,
     DataType,
     HMFunction,
+    JudgeDisplay,
     X,
     Y,
 )
@@ -79,6 +81,7 @@ from ap.common.services.request_time_out_handler import (
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
+from ap.conversion_formula import JudgeFormula
 from ap.trace_data.schemas import DicParam
 
 CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
@@ -146,7 +149,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
         data_number = graph_param.common.div_by_data_number
         df[DIVIDE_FMT_COL] = df.reset_index().index // data_number
         df_from_to = df.groupby(DIVIDE_FMT_COL)[TIME_COL].agg(['min', 'max'])
-        from_to_list = list(zip(df_from_to['min'], df_from_to['max']))
+        from_to_list = list(zip(df_from_to['min'], df_from_to['max'], strict=False))
         df[DIVIDE_FMT_COL] = df[DIVIDE_FMT_COL].apply(lambda x: f'{data_number * x + 1} - {data_number * (x + 1)}')
         dic_param[DIV_FROM_TO] = from_to_list
 
@@ -229,8 +232,6 @@ def gen_df_direct_term(
             dic_cat_filters,
             optional_cache_config=optional_cache_config,
         )
-        judge_columns = root_graph_param.get_judge_cols()
-        df_term = judge_data_conversion(df_term, judge_columns)
 
         df_term[DIVIDE_FMT_COL] = f'{term[START_DT]} | {term[END_DT]}'
 
@@ -278,7 +279,7 @@ def gen_divide_format_column(
 
 
 @log_execution_time()
-def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int = None) -> list[dict[Any, Any]]:
+def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int | None = None) -> list[dict[Any, Any]]:
     plot_data = []
     is_graph_limited = False
     target_vars = graph_param.common.sensor_cols
@@ -286,6 +287,12 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
     str_cols = []
     agg_plot_data_df = []
     export_agp_plot_data = {}
+
+    cols = graph_param.get_col_cfgs(target_vars)
+
+    # handle color display for judge formula
+    formula = next((JudgeFormula.from_formula(col.formula) for col in cols if col.is_judge), None)
+
     # same_color_dfs = {}
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
@@ -351,6 +358,14 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             agg_df = df_groupby.count()
 
         num_facets = len(graph_param.common.cat_exp)
+
+        # handle color display for judge formula
+        if color_column_type == DataColumnType.JUDGE.value and formula:
+            # handle color for judge
+            general_col_info[JUDGE_COLOR] = {
+                formula.positive_display: JudgeDisplay.POSITIVE.name,
+                formula.negative_display: JudgeDisplay.NEGATIVE.name,
+            }
 
         # TODO refactor this
         if num_facets == 0:
@@ -470,7 +485,7 @@ def get_common_columns(list_df):
 
 def merge_df_by_colors(same_color_dfs):
     """
-    merge dfs which has same color variable,
+    Merge dfs which has same color variable,
     be used to export into one csv file in zip,
     and, all targets without color will be merged into one group
     """
@@ -525,7 +540,7 @@ def get_div_col_name(graph_param: DicParam) -> str:
     return div_col_name
 
 
-def get_color_col_name(graph_param: DicParam, target_var: int) -> Optional[str]:
+def get_color_col_name(graph_param: DicParam, target_var: int) -> str | None:
     """Get color column name used to groupby from target variable"""
     color_id = graph_param.get_color_id(target_var)
     color_col_name = None
@@ -550,7 +565,7 @@ def summarize_redundant_groups_into_others(
     target_var: int,
     maximum_allowed_groups: int,
     other_key: str,
-    other_col: Optional[str],
+    other_col: str | None,
 ) -> tuple[pd.DataFrame, list[Any]]:
     """Summarize color value if total unique value of color columns exceed `maximum_allowed_groups`"""
     color_col_name = get_color_col_name(graph_param, target_var)
@@ -591,7 +606,7 @@ def replace_redundant_groups_into_others(
         df[new_column_name] = colors.replace(to_replace=sorted_colors_by_count[non_redundant_groups:], value=other_key)
 
         # form a new_keys, with OTHER_KEY always be on top
-        sorted_colors_by_count = [other_key] + sorted_colors_by_count[:non_redundant_groups]
+        sorted_colors_by_count = [other_key, *sorted_colors_by_count[:non_redundant_groups]]
 
     # re-order sorted keys because we used ascending=False
     sorted_colors_by_count.reverse()
@@ -606,7 +621,7 @@ def get_data_for_target_var_without_facets(
     is_real_data: bool,
     target_var: int,
     sorted_colors: list[str],
-    other_group: str = None,
+    other_group: str | None = None,
 ) -> tuple[list[dict[Any, Any]], pd.Series]:
     chart_type = 'lines+markers' if is_real_data else 'bar'
 
@@ -620,7 +635,7 @@ def get_data_for_target_var_without_facets(
     def gen_trace_data(
         sub_df: pd.DataFrame,
         col_name: str,
-        other_group_key: str = None,
+        other_group_key: str | None = None,
     ) -> tuple[dict[str, Any], pd.Series]:
         y = sub_df[target_col_name].reset_index(drop=True)
 
@@ -668,7 +683,7 @@ def get_data_for_target_var_without_facets(
 
 
 @log_execution_time()
-def get_agg_cols(df: pd.DataFrame, graph_param: DicParam, target_var: int) -> List[str]:
+def get_agg_cols(df: pd.DataFrame, graph_param: DicParam, target_var: int) -> list[str]:
     agg_cols = []
 
     facet_cols_name = [graph_param.gen_label_from_col_id(col) for col in graph_param.common.cat_exp]
@@ -700,10 +715,10 @@ def gen_groupby_from_target_var(
     # colors columns now converted into string, hence we need to convert our color columns into string
     # before grouping by
     agg_cols_str = [uuid.uuid4().hex for _ in agg_cols]
-    dict_agg_cols = dict(zip(agg_cols_str, agg_cols))
+    dict_agg_cols = dict(zip(agg_cols_str, agg_cols, strict=False))
 
     # since we don't use this `df` anymore, we can modify it directly
-    for col, col_str in zip(agg_cols, agg_cols_str):
+    for col, col_str in zip(agg_cols, agg_cols_str, strict=False):
         df[col_str] = df[col].astype(pd.StringDtype())
 
     target_col_name = graph_param.gen_label_from_col_id(target_var)

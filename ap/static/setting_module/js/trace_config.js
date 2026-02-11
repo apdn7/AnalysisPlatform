@@ -2,6 +2,7 @@
 
 // global variable to store data of processes
 let processes = {};
+let fullProcessConfig = [];
 const getConfigOption = () => JSON.parse(localStorage.getItem('network-config')) || {};
 
 const configOption = getConfigOption();
@@ -52,7 +53,6 @@ const i18nNames = {
     partialMatch: $('#i18nPartialMatch').text(),
     thCharacter: $('#i18nThCharacter').text(),
     jobList: $('#i18nJobList').text(),
-    startLink: $('#i18nStartLink').text(),
     checkProgress: $('#i18nCheckProgress').text(),
     i18nNoColumn: $('#i18nNoColumn').text(),
     edgeLinkTitlePred: $('#i18nEdgeLinkTitlePred').text(),
@@ -387,7 +387,6 @@ const handleEditEdge = async (edgeData, callback) => {
         edgeData.to.toString(),
     ).then();
     // get data from external dict
-    currentEditEdge = edgeData;
     const edgeDataFull = mapIdFromIdTo2Edge[`${edgeData.from.id}-${edgeData.to.id}`];
     if (edgeDataFull) {
         edgeData.target_proc = edgeDataFull.target_proc;
@@ -646,7 +645,7 @@ const initVisData = (processesArray) => {
             to: trace.target_process_id,
             arrows: 'to',
             font: {
-                multi: false,
+                multi: 'html',
                 strokeColor: COLOR.background,
                 align: 'top',
             },
@@ -1093,15 +1092,6 @@ const addTraceKey = (isNew = false) => {
     initPreviewData();
 };
 
-// TODO use util
-const informLinkingJobStarted = () => {
-    const { jobList } = i18nNames;
-    const msgContent = `<p>${i18nNames.startLink}.
-    <br>${i18nNames.checkProgress}.
-    <p><a style="float:right;" href="/ap/config/job" target="_blank">${jobList}</a></p>`;
-    showToastrMsg(msgContent, MESSAGE_LEVEL.INFO);
-};
-
 // call backend API to save
 const saveTraceConfigs = (edgesCfg) => {
     fetch('api/setting/trace_config', {
@@ -1125,9 +1115,6 @@ const saveTraceConfigToDB = () => {
     saveTraceConfigs(edgesCfg);
 
     displayRegisterMessage(tracingElements.alertProcLink);
-
-    // show msg
-    informLinkingJobStarted();
 };
 
 /**
@@ -1173,6 +1160,20 @@ const updateProcessEditModal = (procs = []) => {
     });
 };
 
+const reloadTraceConfig = (traceConfigs, isUpdatePosition) => {
+    if (JSON.stringify(Object.keys(traceConfigs)) !== JSON.stringify(Object.keys(processes))) {
+        // broadcast to another tabs to update process information
+        handleSSEMessage({
+            type: serverSentEventType.reloadTraceConfig,
+            data: {
+                procs: Object.values(traceConfigs),
+                isUpdatePosition: isUpdatePosition,
+            },
+            broadcastType: ShouldBroadcast.YES,
+        });
+    }
+};
+
 const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
     fetch('api/setting/trace_config', {
         method: 'GET',
@@ -1183,12 +1184,9 @@ const reloadTraceConfigFromDB = (isUpdatePosition = true) => {
     })
         .then((response) => response.clone().json())
         .then((traceConfigProcess) => {
-            // broadcast to another tabs to update process information
-            handleSSEMessage({
-                type: serverSentEventType.reloadTraceConfig,
-                data: { procs: traceConfigProcess.traceConfigs, isUpdatePosition },
-                broadcastType: ShouldBroadcast.YES,
-            });
+            fullProcessConfig = traceConfigProcess.traceConfigs;
+            const traceConfigs = filterTraceProcessConfig(traceConfigProcess.traceConfigs);
+            reloadTraceConfig(traceConfigs, isUpdatePosition);
         })
         .catch((e) => {
             console.log(e);
@@ -1211,7 +1209,7 @@ function doReloadTraceConfig(procs, isUpdatePosition) {
     setTimeout(() => {
         realProcLink(isUpdatePosition);
         treeCheckboxJs();
-    }, 500);
+    }, 100);
 }
 
 const removeRelation = (colId) => {
@@ -1295,6 +1293,7 @@ const getProcNameFromLabel = (procId) => {
 const updateNodeInfo = (predictionNodes, isPredictive = false, isUpdatePosition = true) => {
     const nodesPos = getConfigOption().nodesPosition;
     for (const procId in predictionNodes) {
+        if (!processes[procId]) continue;
         const totalCount = applySignificantDigit(predictionNodes[procId]);
         const currentProcName = getProcNameFromLabel(procId);
         const color = isPredictive ? COLOR.prediction : COLOR.real;
@@ -1460,6 +1459,8 @@ const addEdgesFromNode = async (e) => {
     const indexFromNode = nodeList.indexOf(nodeId);
     const indexToNode = indexFromNode === nodeList.length - 1 ? 0 : indexFromNode + 1;
     const toNodeId = nodeList[indexToNode];
+    //reset currentEditEdge in case add node
+    currentEditEdge = {};
 
     // trigger to add edge to self node
     if (nodeId) {
@@ -1472,6 +1473,8 @@ const editSelectedEdge = async (e) => {
     $('#contextMenuTraceCfg').hide();
     const edgeId = $('#contextMenuTraceCfg li').attr('data-edge-id');
     const edgeData = edges.get(edgeId);
+    currentEditEdge = { ...edgeData };
+    delete mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`];
     await handleEditEdge(edgeData, () => {});
 };
 
@@ -1484,7 +1487,7 @@ const removeSelectedEdge = (e) => {
 };
 
 const getEdgeFromUI = () => {
-    const edgeData = currentEditEdge;
+    const edgeData = { ...currentEditEdge };
     const startProc = tracingElements.edgeBackProc.val();
     const endProc = tracingElements.edgeForwardProc.val();
     edgeData.from = parseInt(startProc);
@@ -1555,7 +1558,8 @@ const getEdgeFromUI = () => {
     edgeData.delta_time = deltaTimes;
     edgeData.cut_off = cutOffs;
     edgeData.font = {
-        multi: false,
+        // TODO: Can we have a common setting?
+        multi: 'html',
         strokeColor: COLOR.background,
         align: 'top',
     };
@@ -1610,6 +1614,10 @@ const drawEdgeToGUI = (edgeData) => {
     if (_.isEmpty(currentEditEdge)) {
         edges.add(edgeData);
     } else {
+        // remove current edge in mapIdFromIdTo2Edge before update
+        delete mapIdFromIdTo2Edge[`${currentEditEdge.from}-${currentEditEdge.to}`];
+
+        // update with new edge data
         edges.update(edgeData);
     }
     currentEditEdge = {};

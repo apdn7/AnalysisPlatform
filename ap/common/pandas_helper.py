@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Sequence, TypeVar
+from collections.abc import Sequence
+from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -25,7 +26,7 @@ def to_string_with_na_adjust(value: Any, accept_none=False) -> str | None:
     return NA_STR if pd.isna(value) else str(value)
 
 
-def append_series(lhs: pd.Series[T], rhs: Any) -> pd.Series[T]:
+def append_series[T](lhs: pd.Series[T], rhs: Any) -> pd.Series[T]:
     """Append element into series, `rhs` can be single element, list, or pd.Series.
     This helper method that we don't need to always convert to Series or use deprecated `append` method
     """
@@ -142,7 +143,6 @@ def pandas_concat_with_filter_empty(dfs: list[pd.DataFrame]) -> pd.DataFrame:
     0  1
     1  2
     """
-
     if not len(dfs):
         return pd.DataFrame()
 

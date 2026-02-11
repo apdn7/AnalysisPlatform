@@ -1,9 +1,17 @@
+import datetime as dt
 import importlib
+from collections.abc import Callable
 from functools import cached_property
 from types import FunctionType
-from typing import Annotated, Any, Callable, Union
+from typing import Annotated, Any, Union
 
 from pydantic import BaseModel, BeforeValidator, Field
+
+
+class EventBase(BaseModel):
+    """Base class for all events"""
+
+    created_at: dt.datetime = Field(default_factory=dt.datetime.now)
 
 
 # Because we cannot pickle `function`, we need to translate them into module and name
@@ -17,7 +25,7 @@ def validator_function(fn: Union[FunctionType, Callable]) -> _Function:
     return _Function(module=fn.__module__, qualname=fn.__qualname__)
 
 
-class EventBaseFunction(BaseModel):
+class EventBaseFunction(EventBase):
     """Since we cannot pickle function to send into PIPE, we need to separate them here,
     fn is just a `_Function` containing location of the real function (where it is defined, what its name)
     """
@@ -31,7 +39,6 @@ class EventBaseFunction(BaseModel):
         """The real function signature from our code, need to dynamically import them before use
         See more: `python doc <https://docs.python.org/3/library/importlib.html#approximating-importlib-import-module>`
         """
-
         # we can import module without any trouble
         module = importlib.import_module(self.fn.module)
 

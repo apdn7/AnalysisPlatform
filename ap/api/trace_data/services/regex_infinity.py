@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -51,7 +52,7 @@ def filter_method(
             f'Length of conditions ({len(conditions)}) and return values ({len(return_vals)}) does not match',
         )
 
-    for is_replace, replace_value in zip(conditions[::-1], return_vals[::-1]):
+    for is_replace, replace_value in zip(conditions[::-1], return_vals[::-1], strict=False):
         df.loc[is_replace & selected, col_name] = replace_value
 
     return df
@@ -182,7 +183,7 @@ def validate_data_with_regex(df):
             continue
 
         df = validate_numeric_minus(df, col, return_vals)
-        df = validate_numeric_plus(df, col, return_vals + [np.nan])
+        df = validate_numeric_plus(df, col, [*return_vals, np.nan])
 
     # float
     return_neg_vals = [float('-inf'), float('-inf')]
@@ -230,7 +231,7 @@ def validate_data_with_simple_searching(
                 conditions.append(isin_with_na(df[col], vals))
                 results.append(result)
 
-        for cond, result in zip(conditions[::-1], results[::-1]):
+        for cond, result in zip(conditions[::-1], results[::-1], strict=False):
             df.loc[cond, col] = result
 
     return df

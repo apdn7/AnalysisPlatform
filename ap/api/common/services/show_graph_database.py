@@ -75,7 +75,7 @@ def get_config_data() -> tuple[dict[int, CfgProcess], TraceGraph, dict[int, dict
 
 def get_proc_ids_in_graph_param(graph_param: 'DicParam'):
     """
-    get process
+    Get process
     :param graph_param:
     :return:
     """

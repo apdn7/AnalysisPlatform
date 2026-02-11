@@ -1,7 +1,6 @@
 import logging
 from collections import deque, namedtuple
 from datetime import datetime, timedelta
-from typing import List, Optional
 
 import pandas as pd
 from apscheduler.triggers import date, interval
@@ -12,15 +11,18 @@ from ap import scheduler
 from ap.api.common.services.sql_generator import gen_sql_proc_link_count
 from ap.api.common.services.utils import gen_sql_and_params
 from ap.common.constants import SUB_STRING_COL_NAME, AnnounceEvent, CacheType, JobType
+from ap.common.jobs.job_info_schema import GenProcLinkCountJobInfo
 from ap.common.logger import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventExpireCache, EventQueue
 from ap.common.path_utils import gen_sqlite3_file_name
 from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.scheduler import RESCHEDULE_SECONDS, scheduler_app_context
 from ap.setting_module.models import (
     CfgProcess,
     CfgProcessColumn,
     CfgTrace,
+    JobManagement,
     ProcLinkCount,
     make_session,
 )
@@ -56,8 +58,8 @@ def gen_proc_link_count_job(is_publish=True, is_user_request: bool = False):
 
 
 @log_execution_time()
-def order_before_mapping_data(edges: List[CfgTrace]):
-    """trace all node in dic_node , and gen sql"""
+def order_before_mapping_data(edges: list[CfgTrace]):
+    """Trace all node in dic_node , and gen sql"""
     ordered_edges = []
 
     max_loop = len(edges) * 10
@@ -72,7 +74,7 @@ def order_before_mapping_data(edges: List[CfgTrace]):
 
         # check if current start proc is in others edge's end procs
         # if YES , we must wait for these end proc run first( move the current edge to the end)
-        if any((edge.self_process_id == other_edge.target_process_id for other_edge in edges)):
+        if any(edge.self_process_id == other_edge.target_process_id for other_edge in edges):
             # move to the end of queue
             edges.append(edge)
             cnt += 1
@@ -113,7 +115,7 @@ def finished_transaction_import(process_id=None, publish: bool = True, is_user_r
 
 
 def add_gen_proc_link_job(process_id=None, publish=True, is_user_request: bool = False):
-    """call gen proc link id job
+    """Call gen proc link id job
 
     Args:
         :param process_id:
@@ -141,14 +143,16 @@ def add_gen_proc_link_job(process_id=None, publish=True, is_user_request: bool =
 
 def show_proc_link_info():
     """
-    show matched global id count
+    Show matched global id count
     :return:
     """
     # count matched per edge
     dic_proc_cnt = {}
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for tran_data in trans:
-        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id)) as db_instance:
+        with ReadOnlyDbProxy(
+            gen_data_source_of_universal_db(tran_data.process_id), is_universal_db=True
+        ) as db_instance:
             data_count = 0
             if tran_data.is_table_exist(db_instance):
                 data_count = tran_data.count_data(db_instance)
@@ -183,19 +187,24 @@ def count_proc_links():
     return dic_count
 
 
-def update_proc_link_count(dic_count):
-    ProcLinkCount.delete_all()
+def update_proc_link_count(dic_count, job_management: JobManagement = None):
     with make_session() as meta_session:
+        ProcLinkCount.delete_all(meta_session)
         for (self_proc, target_proc), matched_count in dic_count.items():
             rec = ProcLinkCount()
             rec.process_id = self_proc
             rec.target_process_id = target_proc
             rec.matched_count = matched_count
             meta_session.merge(rec)
+
+        if job_management:
+            total_matched_count = sum(dic_count.values())
+            # update job_management info
+            job_management.info = GenProcLinkCountJobInfo(total_matched_count=total_matched_count)
     logger.debug('[ProcLinkCount] Done Update proc link count proc id')
 
 
-def proc_link_count_job(is_user_request: bool = False, run_time: Optional[datetime] = None):
+def proc_link_count_job(is_user_request: bool = False, run_time: datetime | None = None):
     job_id = JobType.PROC_LINK_COUNT.name
 
     if run_time is None:
@@ -235,16 +244,16 @@ def proc_link_count_job(is_user_request: bool = False, run_time: Optional[dateti
 
 
 @scheduler_app_context
-def proc_link_count():
-    gen = proc_link_count_main()
-    send_processing_info(gen, JobType.PROC_LINK_COUNT)
+def proc_link_count(job_management: JobManagement):
+    gen = proc_link_count_main(job_management=job_management)
+    send_processing_info(gen, job_management=job_management)
 
 
-def proc_link_count_main():
+def proc_link_count_main(job_management: JobManagement = None):
     yield 0
     dic_count = count_proc_links()
     yield 80
-    update_proc_link_count(dic_count)
+    update_proc_link_count(dic_count, job_management=job_management)
     yield 100
 
 
@@ -262,9 +271,7 @@ def restructure_indexes_gen(process_id):
 
 
 def add_restructure_indexes_job(process_id=None, delay: int = 0):
-    """
-    add job to handle indexes restructure of processes
-    """
+    """Add job to handle indexes restructure of processes"""
     proc_ids = [process_id] if process_id else CfgProcess.get_all_ids()
 
     for proc_id in proc_ids:
@@ -284,16 +291,16 @@ def add_restructure_indexes_job(process_id=None, delay: int = 0):
 
 
 @scheduler_app_context
-def re_structure_indexes_job(process_id: int):
-    """indexes restructure job"""
+def re_structure_indexes_job(process_id: int, job_management: JobManagement):
+    """Indexes restructure job"""
     # refactoring transaction data indexes
     gen = restructure_indexes_gen(process_id)
-    send_processing_info(gen, JobType.RESTRUCTURE_INDEXES, process_id=process_id)
+    send_processing_info(gen, job_management=job_management)
     return True
 
 
 @log_execution_time('gen_proc_link')
-def gen_proc_link_of_edge(trace: CfgTrace, limit: Optional[int] = None):
+def gen_proc_link_of_edge(trace: CfgTrace, limit: int | None = None):
     # create table if not exist
     dic_db_files = {}
     for proc_id in (trace.self_process_id, trace.target_process_id):
@@ -308,9 +315,9 @@ def gen_proc_link_of_edge(trace: CfgTrace, limit: Optional[int] = None):
     sql_stmt = gen_sql_proc_link_count(trace, limit)
     sql, params = gen_sql_and_params(sql_stmt)
     proc_id = trace.self_process_id
-    with DbProxy(
+    with ReadOnlyDbProxy(
         gen_data_source_of_universal_db(proc_id),
-        True,
+        is_universal_db=True,
         dic_db_files=dic_db_files,
         proc_id=proc_id,
     ) as db_instance:

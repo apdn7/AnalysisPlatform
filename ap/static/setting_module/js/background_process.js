@@ -114,9 +114,6 @@ const updateBackgroundJobs = (json, isFirstTime = false) => {
     const pageOptions = getPageOptionsFromGUI();
     const ignoreJobs = [];
     const ignoreStatus = [];
-    if (!pageOptions.showProcLinkJob) {
-        ignoreJobs.push('GEN_GLOBAL');
-    }
     if (!pageOptions.showPastImportJob) {
         ignoreJobs.push('FACTORY_PAST_IMPORT');
     }
@@ -254,58 +251,23 @@ const showJobErrorDetail = async (jobId) => {
 
 const updateFilterJobs = () => {
     const showPastImportJob = $('#factoryPassImport').is(':checked');
-    const showProcLinkJob = $('#genGlobalID').is(':checked');
     const dicFilterJobs = {
         factoryPassImport: showPastImportJob,
-        genGlobalID: showProcLinkJob,
     };
     localStorage.setItem('filterBackgroundJobs', JSON.stringify(dicFilterJobs));
 };
 
-// const filterJobFromLocal = (jobs) => {
-//     const filterTypeConst = ['GEN_GLOBAL', 'FACTORY_PAST_IMPORT'];
-//     const defaultFilter = ['GEN_GLOBAL'];
-//     const showJobs = {};
-//     // load filter background jobs
-//     const userFilterJSON = localStorage.getItem('filterBackgroundJobs');
-//     const userFilterJobs = userFilterJSON ? JSON.parse(userFilterJSON) : [];
-//
-//     let filterJobs;
-//     if (userFilterJSON == null) {
-//         filterJobs = defaultFilter;
-//         localStorage.setItem('filterBackgroundJobs', JSON.stringify(defaultFilter));
-//     } else {
-//         filterJobs = userFilterJobs;
-//     }
-//     filterJobs.forEach((e) => {
-//         $(`input[value="${e}"]`).prop('checked', true);
-//     });
-//     Object.values(jobs).forEach((jobDetail, k) => {
-//         if (filterTypeConst.includes(jobDetail.job_type) && filterJobs.includes(jobDetail.job_type)) {
-//             showJobs[k] = jobDetail;
-//         } else if (!filterTypeConst.includes(jobDetail.job_type)) {
-//             // apply for general jobs
-//             showJobs[k] = jobDetail;
-//         }
-//     });
-//     // get jobs from db
-//     updateBackgroundJobs(showJobs);
-// };
-
 const getPageOptionsFromGUI = () => {
     let showPastImportJob = $('#factoryPassImport').is(':checked');
-    let showProcLinkJob = $('#genGlobalID').is(':checked');
     const jobDataTbl = $(ids.jobTable);
     const pageOptions = jobDataTbl.bootstrapTable('getOptions');
     const errorPage = isFailedJobPage();
     if (isFailedJobPage()) {
         showPastImportJob = true;
-        showProcLinkJob = true;
     }
     const jobPageOptions = {
         pageSize: pageOptions.pageSize,
         pageNumber: pageOptions.pageNumber,
-        showProcLinkJob: showProcLinkJob,
         showPastImportJob: showPastImportJob,
         errorPage: errorPage,
     };
@@ -383,7 +345,6 @@ $(() => {
 
     $('#btnCopyToClipboard').on('click', () => copyToClipboard());
     $('#factoryPassImport').on('change', () => loadPage());
-    $('#genGlobalID').on('change', () => loadPage());
 
     // Search content of table
     onSearchTableContent('searchJobList', 'jobTable');
@@ -435,7 +396,6 @@ function ajaxRequest(params) {
     if (pageOptions) {
         params.data.limit = pageOptions.pageSize;
         // params.data.offset = (pageOptions.pageNumber - 1) * params.data.limit;
-        params.data.show_proc_link_job = pageOptions.showProcLinkJob;
         params.data.show_past_import_job = pageOptions.showPastImportJob;
         if (isFailedJobPage()) {
             params.data.error_page = pageOptions.errorPage;

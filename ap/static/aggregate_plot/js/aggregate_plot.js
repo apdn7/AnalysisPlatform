@@ -5,7 +5,15 @@ const MIN_NUMBER_OF_SENSOR = 0;
 tabID = null;
 let currentData = null;
 const graphStore = new GraphStore();
-let scaleOption = scaleOptionConst.AUTO;
+
+const X_AXIS_OPTION = {
+    DIV_ORDER: 1,
+    Y_AXIS_VALUE: 2,
+};
+
+let yScaleOption = scaleOptionConst.AUTO;
+let xAxisOrder = X_AXIS_OPTION.DIV_ORDER;
+
 const AGP_YAXIS_DISPLAY_MODES = {
     COUNT: 'count',
     Y_AXIS_TOTAL: 'yAxisTotal',
@@ -63,7 +71,8 @@ const formElements = {
     agpScale: $('select[name=agpScale]'),
     resultSection: $('.result-section'),
     divideOption: $('#divideOption'),
-    scaleOption: $('select[name=yScale]'),
+    yScaleOption: $('select[name=yScale]'),
+    xAxisOrderOption: $('select[name=xScale]'),
     yAxisPercent: $('#yAxisPercent'),
     yAxisPercentOrCount: $('#yAxisPercentOrCount'),
 };
@@ -208,25 +217,38 @@ $(() => {
     onChangeScaleOption();
 });
 
-const setScaleOption = (scaleOption = scaleOptionConst.AUTO) => {
-    formElements.scaleOption.val(scaleOption);
+const setScaleOption = (yScaleOption = scaleOptionConst.AUTO, xAxisOrderOption = X_AXIS_OPTION.DIV_ORDER) => {
+    formElements.yScaleOption.val(yScaleOption);
+    formElements.xAxisOrderOption.val(xAxisOrderOption);
     formElements.yAxisPercentOrCount.val(AGP_YAXIS_DISPLAY_MODES.COUNT);
     yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT;
 };
 
-const getScaleOption = () => {
-    return formElements.scaleOption.val();
+const getXYOptionSetting = () => {
+    return {
+        yScale: formElements.yScaleOption.val(),
+        xAxisOrder: formElements.xAxisOrderOption.val(),
+    };
 };
 
 const onChangeScaleOption = () => {
-    formElements.scaleOption.on('change', (e) => {
-        const scale = getScaleOption();
-        scaleOption = scale;
-        drawAGP(currentData, scaleOption, yAxisDisplayMode);
+    formElements.yScaleOption.on('change', (e) => {
+        const settings = getXYOptionSetting();
+        yScaleOption = settings.yScale;
+        xAxisOrder = settings.xAxisOrder;
+        drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
+    });
+
+    formElements.xAxisOrderOption.on('change', () => {
+        const settings = getXYOptionSetting();
+        yScaleOption = settings.yScale;
+        xAxisOrder = settings.xAxisOrder;
+        drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
     });
 };
 
 const showAgP = (clearOnFlyFilter = true) => {
+    showDateTimeRangeValue();
     requestStartedAt = performance.now();
     const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
     updateStyleOfInvalidElements();
@@ -344,12 +366,12 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         currentData = res;
         graphStore.setTraceData(_.cloneDeep(res));
 
-        const scaleOption = getScaleOption();
+        const scaleOption = getXYOptionSetting();
 
         useDivsArray = [...divArrays];
         useDivFromTo = [...divFromTo];
 
-        drawAGP(res, scaleOption, yAxisDisplayMode, true);
+        drawAGP(res, scaleOption.xAxisOrder, scaleOption.yScale, yAxisDisplayMode, true);
 
         // show info table
         showInfoTable(res);
@@ -372,14 +394,21 @@ const longPollingHandler = () => {
     queryDataAndShowAGP(false, true);
 };
 
-const drawAGP = (orgData, scale = scaleOption, showPercent = yAxisDisplayMode, reCalculateYAxisSum = false) => {
+const drawAGP = (orgData, xAxisOrder, yScaleOption, showPercent = yAxisDisplayMode, reCalculateYAxisSum = false) => {
     const data = _.cloneDeep(orgData); // if slow, change
     if (!data) {
         return;
     }
 
     // orgData.array_plotdata = array_plotdata;
-    renderAgPAllChart(orgData.array_plotdata, orgData.COMMON.compareType, scale, showPercent, reCalculateYAxisSum);
+    renderAgPAllChart(
+        orgData.array_plotdata,
+        orgData.COMMON.compareType,
+        xAxisOrder,
+        yScaleOption,
+        showPercent,
+        reCalculateYAxisSum,
+    );
 
     // implement order
     $(formElements.agpCard).sortable({});
@@ -401,7 +430,7 @@ const yScaleOptionHandle = (aggFunct) => {
     const isShowOptions = [Y_SCALE_METHODS.AGG_FUNCT.MEAN, Y_SCALE_METHODS.AGG_FUNCT.MEDIAN].includes(aggFunct);
 
     [Y_SCALE_METHODS.OPTIONS.GRAPH_CFG, Y_SCALE_METHODS.OPTIONS.THRESHOLD_CFG].forEach((option) => {
-        const scale = formElements.scaleOption.find(`option[value=${option}]`);
+        const scale = formElements.yScaleOption.find(`option[value=${option}]`);
         if (isShowOptions) {
             scale.show();
         } else {
@@ -524,20 +553,22 @@ const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false
 const renderAgPAllChart = (
     plots,
     compareType = '',
-    scaleOption,
+    xAxisOrder,
+    yScaleOption,
     yAxisDisplayMode = AGP_YAXIS_DISPLAY_MODES.COUNT,
     reCalculateYAxisSum = false,
 ) => {
     if (!plots) return;
     $(formElements.agpCard).empty();
-    let chartHeight = '';
+    let chartViewHeightNumber;
     const maxCardInScreen = 3;
     if (plots.length >= maxCardInScreen) {
-        chartHeight = `${98 / maxCardInScreen}vh`;
+        chartViewHeightNumber = 98 / maxCardInScreen;
     } else {
-        chartHeight = `${98 / plots.length}vh`;
+        chartViewHeightNumber = 98 / plots.length;
     }
 
+    const chartHeight = `${chartViewHeightNumber}vh`;
     const isCyclicCalender = compareType === divideOptions.cyclicCalender;
     if (reCalculateYAxisSum) {
         countByXAxis = {};
@@ -557,8 +588,8 @@ const renderAgPAllChart = (
             facetLevel2,
             chartId: canvasId,
             scale: {
-                ymax: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]]['y-max'],
-                ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[scaleOption]]['y-min'],
+                ymax: plotData[Y_SCALE_METHODS.SCALE_NAME[yScaleOption]]['y-max'],
+                ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[yScaleOption]]['y-min'],
             },
         };
         const isCTCol = isCycleTimeCol(end_proc_id, end_col_id);
@@ -579,17 +610,23 @@ const renderAgPAllChart = (
                 countByXAxis[colId][key] = count;
             }
         };
-        const sumCountByFacet = (facetKey, key, n) => {
+        const sumCountByFacet = (colId, facetKey, key, n) => {
             const count = n || 0;
-            if (facetKey in countByFacet) {
-                if (key in countByFacet[facetKey]) {
-                    countByFacet[facetKey][key] += count;
+            if (colId in countByFacet) {
+                if (facetKey in countByFacet[colId]) {
+                    if (key in countByFacet[colId][facetKey]) {
+                        countByFacet[colId][facetKey][key] += count;
+                    } else {
+                        countByFacet[colId][facetKey][key] = count;
+                    }
                 } else {
-                    countByFacet[facetKey][key] = count;
+                    countByFacet[colId][facetKey] = {};
+                    countByFacet[colId][facetKey][key] = count;
                 }
             } else {
-                countByFacet[facetKey] = {};
-                countByFacet[facetKey][key] = count;
+                countByFacet[colId] = {};
+                countByFacet[colId][facetKey] = {};
+                countByFacet[colId][facetKey][key] = count;
             }
         };
 
@@ -652,7 +689,7 @@ const renderAgPAllChart = (
                 for (let i = 0; i < trace.x.length; i += 1) {
                     const currDiv = trace.x[i];
                     const indexOfCurrDiv = trace.x.indexOf(currDiv);
-                    sumCountByFacet(facetKey, currDiv, trace.y[indexOfCurrDiv]);
+                    sumCountByFacet(trace.colId, facetKey, currDiv, trace.y[indexOfCurrDiv]);
                 }
             }
 
@@ -680,12 +717,12 @@ const renderAgPAllChart = (
 
         let barChartScale = null;
         // get scale common for bar chart if scale is common
-        const isCommonScale = scaleOption === scaleOptionConst.COMMON;
+        const isCommonScale = yScaleOption === scaleOptionConst.COMMON;
         if (!isNumeric && isCommonScale) {
-            barChartScale = getScaleInfo(plotData, scaleOption);
+            barChartScale = getScaleInfo(plotData, yScaleOption);
         }
 
-        const yScale = isNumeric ? getScaleInfo(plotData, scaleOption) : barChartScale;
+        const yScale = isNumeric ? getScaleInfo(plotData, yScaleOption) : barChartScale;
         drawAgPPlot(
             data,
             plotData,
@@ -694,9 +731,11 @@ const renderAgPAllChart = (
             isCyclicCalender,
             `${canvasId}`,
             yScale,
+            xAxisOrder,
             yAxisDisplayMode,
             currentData.div_from_to,
             isCommonScale,
+            chartViewHeightNumber,
         );
     });
 };
@@ -723,7 +762,7 @@ const toFacetYAxisPercent = (facetKey, countByFacet, traceData) => {
     y = y.map((val, i) => {
         if (!val) return 0;
         const xVal = x[i].slice(1);
-        const total = countByFacet[facetKey][xVal];
+        const total = countByFacet[traceData.colId][facetKey][xVal];
         return val / total;
     });
 
@@ -736,7 +775,10 @@ const toFacetYAxisPercent = (facetKey, countByFacet, traceData) => {
 
 const changeYAxisMode = (e) => {
     yAxisDisplayMode = $(e).val();
-    drawAGP(currentData, scaleOption, yAxisDisplayMode);
+    const settings = getXYOptionSetting();
+    yScaleOption = settings.yScale;
+    xAxisOrder = settings.xAxisOrder;
+    drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
 };
 
 const setYAxisOption = () => {

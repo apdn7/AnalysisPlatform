@@ -3,23 +3,25 @@ from __future__ import annotations
 import logging
 from collections import namedtuple
 from datetime import datetime
-from typing import List, Optional, Set, Union
+from typing import Union
 
 import pandas as pd
 import sqlalchemy as sa
 from pandas import DataFrame
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.sql.ddl import CreateIndex, CreateTable
 
 from ap import log_execution_time
 from ap.api.common.services.utils import gen_sql_and_params, gen_sql_compiled_stmt
 from ap.common.common_utils import (
-    BoundType,
+    Bound,
     TimeRange,
     convert_to_datetime,
     convert_to_str,
     gen_data_count_table_name,
+    gen_export_history_table_name,
     gen_import_history_table_name,
     gen_pull_history_table_name,
     get_type_all_columns,
@@ -38,6 +40,7 @@ from ap.common.constants import (
     ProcessCfgConst,
 )
 from ap.common.pydn.dblib.db_common import gen_insert_col_str
+from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.mssqlserver import MSSQLServer
 from ap.common.pydn.dblib.mysql import MySQL
 from ap.common.pydn.dblib.oracle import Oracle
@@ -55,6 +58,96 @@ logger = logging.getLogger(__name__)
 
 
 class TransactionData:
+    """Main transaction data management class.
+
+    Manages transaction data for a process, including table creation, indexing,
+    data import/export, column management, and various data operations.
+
+    Attributes:
+        id_col_name: Name of the ID column (default 'rowid').
+        process_id: Process ID.
+        table_name: Name of the transaction table.
+        cfg_process: Configuration process object.
+        serial_columns: List of serial number columns.
+        getdate_column: Get date column configuration.
+        main_date_column: Main date column configuration.
+        main_time_column: Main time column configuration.
+        auto_incremental_column: Auto-incremental column configuration.
+        cfg_process_columns: List of process column configurations.
+        select_column_names: List of selected column names.
+        cfg_filters: Configuration filters.
+        show_duplicate: Duplicate mode setting.
+        actual_record_number: Actual number of records.
+        unique_serial_number: Number of unique serials.
+        duplicate_serial_number: Number of duplicate serials.
+        df: DataFrame for data storage.
+
+    Methods:
+        get_new_columns: Get new columns not yet in the table.
+        count_data: Count total data in the table.
+        get_column_dtype: Get column data types.
+        get_data_for_check_duplicate: Get data for duplicate checking.
+        create_table: Create transaction table and related tables.
+        cast_data_type_for_columns: Cast data types for columns.
+        cast_data_type: Cast data type for a specific column.
+        create_data_count_table: Create data count table.
+        create_import_history_table: Create import history table.
+        create_export_history_table: Create export history table.
+        vacuum_data: Vacuum database.
+        clean_data_with_limit_import: Clean data with import limit.
+        delete_sequence_table: Delete sequence table.
+        rename_sequence_table: Rename sequence table.
+        rename_column: Rename DataFrame columns.
+        add_default_indexes_column: Add default index columns.
+        create_index: Create composite indexes.
+        remove_index: Remove unused indexes.
+        purge_index: Force remove all indexes.
+        drop_index: Drop a specific index.
+        get_indexes_by_column_name: Get indexes by column name.
+        is_table_exist: Check if table exists.
+        re_structure_index: Restructure indexes based on cfg_trace.
+        get_table_columns: Get table column names.
+        add_columns: Add columns to table.
+        get_column_name: Get column name by ID.
+        get_column_id: Get column ID by name.
+        get_cfg_column_by_name: Get column configuration by name.
+        get_bs_col_name_by_column_name: Get bridge column name by column name.
+        get_cfg_column_by_id: Get column configuration by ID.
+        delete_columns: Delete columns from table.
+        update_data_types: Update column data types.
+        add_column: Add a single column to table.
+        update_and_cast_date_type: Update and cast data type.
+        rename_column_name: Rename column name.
+        delete_process: Delete process table.
+        remove_transaction_by_time_range: Remove transactions by time range.
+        get_max_date_time_by_process_id: Get maximum datetime.
+        get_min_date_time_by_process_id: Get minimum datetime.
+        get_latest_records_by_process_id: Get latest records.
+        get_datetime_value: Get datetime values.
+        get_column_value_by_id: Get column values by ID.
+        table_model: Get SQLAlchemy table model.
+        update_timezone: Update timezone for datetime column.
+        select_distinct_data: Select distinct data from column.
+        select_data: Select data from columns.
+        get_ct_range: Get datetime range.
+        get_all: Get all data from table.
+        get_all_data_by_chunk: Get all data in chunks.
+        get_transaction_by_time_range: Get transactions by time range.
+        get_data_count_by_time_range: Get data count by time range.
+        select_data_count: Select data count.
+        get_all_import_history: Get all import history records.
+        get_import_history_last_fatal: Get last fatal import history.
+        get_import_history_latest_done_files: Get latest done import files.
+        get_import_history_first_import: Get first import record.
+        get_import_history_last_import: Get last import record.
+        get_import_history_error_jobs: Get error jobs from import history.
+        get_total_imported_row: Get total imported rows.
+        get_sample_data: Get sample data for process linking.
+        get_cols_with_types: Get columns with their data types.
+
+    Generated by Duo
+    """
+
     id_col_name: str = 'rowid'
     process_id: int = None
     table_name: str = None
@@ -64,8 +157,8 @@ class TransactionData:
     main_date_column: CfgProcessColumn = None
     main_time_column: CfgProcessColumn = None
     auto_incremental_column: CfgProcessColumn = None
-    cfg_process_columns: List[CfgProcessColumn] = None
-    select_column_names: List[str] = None
+    cfg_process_columns: list[CfgProcessColumn] = None
+    select_column_names: list[str] = None
     cfg_filters = None
     show_duplicate: DuplicateMode = None
     actual_record_number: int = None
@@ -73,7 +166,7 @@ class TransactionData:
     duplicate_serial_number: int = None
     df: DataFrame = None
 
-    def __init__(self, process: Union[int, CfgProcess], meta_session: scoped_session = None):
+    def __init__(self, process: Union[int, CfgProcess], meta_session: scoped_session = None) -> None:
         if isinstance(process, CfgProcess):
             process_id = process.id
             self.cfg_process = process
@@ -89,6 +182,7 @@ class TransactionData:
         self.table_name = self.cfg_process.bridge_table_name
         self.data_count_table_name = self.cfg_process.data_count_table_name
         self.import_history_table_name = self.cfg_process.import_history_table_name
+        self.export_history_table_name = self.cfg_process.export_history_table_name
 
         self.cfg_process_columns = self.cfg_process.get_transaction_process_columns()
         self.serial_columns = []
@@ -113,8 +207,8 @@ class TransactionData:
     def get_new_columns(
         self,
         db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer],
-        table_name: Optional[str] = None,
-    ) -> List[CfgProcessColumn]:
+        table_name: str | None = None,
+    ) -> list[CfgProcessColumn]:
         table_name = table_name or self.table_name
         exist_columns = self.get_table_columns(db_instance, table_name)
         new_columns = []
@@ -131,13 +225,10 @@ class TransactionData:
 
     @log_execution_time()
     def get_column_dtype(self, db_instance: Union[PostgreSQL, SQLite3], columns):
-        columns_type = []
-        for col in columns:
-            columns_type.append(f'typeof({col}) as {col}')
-        columns_type = ','.join(columns_type)
-        sql = f"SELECT {columns_type} FROM '{self.table_name}' LIMIT 1;"
-        _, list_dict_rows = db_instance.run_sql(sql, row_is_dict=True)
-        col_dtypes = list_dict_rows[0] if list_dict_rows else {}
+        sql = f"PRAGMA table_info('{self.table_name}')"
+        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
+        df = pd.DataFrame(rows, columns=cols)
+        col_dtypes = {col: df.loc[df['name'] == col, 'type'].iloc[0].lower() for col in columns}
         if not col_dtypes:
             # empty table will return none instead of column data type
             # so it should find and return type from CfgProcessColumn
@@ -152,7 +243,7 @@ class TransactionData:
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=[start_dt, end_dt])
         return cols, rows
 
-    def create_table(self, db_instance, table_name: Optional[str] = None, auto_commit: bool = True):
+    def create_table(self, db_instance, table_name: str | None = None, auto_commit: bool = True):
         dict_col_with_types = self.get_cols_with_types()
         table_name = table_name or self.table_name
         if table_name in db_instance.list_tables():
@@ -162,33 +253,34 @@ class TransactionData:
                 self.add_columns(db_instance, self.table_name, dict_new_col_with_type, auto_commit=auto_commit)
             # TODO: Update data-type only when needed (add condition)
             self.update_data_types(db_instance, dict_col_with_types, auto_commit=auto_commit)
-            return table_name
+        else:
+            # self.__create_sequence_table(db_instance)
+            sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
+            sql_col = ''
+            for col_name, _data_type in dict_col_with_types.items():
+                data_type = (
+                    DataType.TEXT.name
+                    if _data_type in [DataType.DATETIME.name, DataType.DATE.name, DataType.TIME.name]
+                    else DataType.INTEGER.name
+                    if _data_type == DataType.CATEGORY.name
+                    else _data_type
+                )
+                sql_col += f'{col_name} {data_type}, '
+            sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
 
-        # self.__create_sequence_table(db_instance)
-        sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
-        sql_col = ''
-        for col_name, _data_type in dict_col_with_types.items():
-            data_type = (
-                DataType.TEXT.name
-                if _data_type in [DataType.DATETIME.name, DataType.DATE.name, DataType.TIME.name]
-                else DataType.INTEGER.name
-                if _data_type == DataType.CATEGORY.name
-                else _data_type
-            )
-            sql_col += f'{col_name} {data_type}, '
-        sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
+            # make at least one column if no column of table for testing
+            if not sql_col:
+                sql_col = 'created_at datetime'
 
-        # make at least one column if no column of table for testing
-        if not sql_col:
-            sql_col = 'created_at datetime'
-
-        sql = f'{sql} ({sql_col})'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+            sql = f'{sql} ({sql_col})'
+            db_instance.execute_sql(sql, auto_commit=auto_commit)
 
         # create data count table
         self.create_data_count_table(db_instance, auto_commit=auto_commit)
         # create import history table
         self.create_import_history_table(db_instance, auto_commit=auto_commit)
+        # create export history table
+        self.create_export_history_table(db_instance, auto_commit=auto_commit)
 
         return table_name
 
@@ -325,6 +417,66 @@ class TransactionData:
 
         return table_name
 
+    def create_export_history_table(self, db_instance, auto_commit: bool = True):
+        table_name = self.export_history_table_name
+        if table_name in db_instance.list_tables():
+            return table_name
+
+        sql = ExportHistoryTable.create_table_sql(self.process_id)
+        db_instance.execute_sql(sql, auto_commit=auto_commit)
+
+        return table_name
+
+    @staticmethod
+    def vacuum_data(db_instance):
+        db_instance.execute_sql('VACUUM;')
+
+    def clean_data_with_limit_import(self, db_instance, limit: int) -> bool:
+        # change created_at to get_date column
+        if limit <= 0:
+            return False
+        data_count = db_instance.run_sql(f'SELECT COUNT(ROWID) AS COUNT FROM {self.table_name}')[1][0]['COUNT']
+        delete_row = data_count - limit
+        if delete_row <= 0:
+            return False
+
+        from ap.api.setting_module.services.data_import import (
+            gen_bulk_insert_sql,
+            get_insert_params,
+            get_proc_data_count_df,
+            insert_data,
+        )
+
+        get_date_column_name = self.getdate_column.bridge_column_name
+
+        sql = f"""
+            DELETE FROM {self.table_name}
+            WHERE ROWID IN (
+                SELECT ROWID FROM {self.table_name}
+                ORDER BY {get_date_column_name}
+                ASC LIMIT {delete_row}
+            )
+            RETURNING {get_date_column_name};
+        """
+
+        cols, rows = db_instance.run_sql(sql)
+
+        # TODO: this is duplicated code.
+        # TODO: this is inefficient because we returning all the rows from the DELETING.
+        # TODO: this is inefficient because we add a lot of negative rows into data_finder,
+        #   making query to data finder slow.
+        df = pd.DataFrame(rows, columns=cols)
+        count_df = get_proc_data_count_df(df, get_date_col=get_date_column_name, decrease=True, is_db=True)
+        agg_keys = {DataCountTable.count.name: 'sum', DataCountTable.count_file.name: 'sum'}
+        aggregated_df = count_df.groupby(DataCountTable.datetime.name).agg(agg_keys).reset_index()
+        sql_vals = aggregated_df.to_records(index=False).tolist()
+        sql_params = get_insert_params(DataCountTable.get_keys())
+        sql_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(self.process_id), *sql_params)
+
+        insert_data(db_instance, sql_insert, sql_vals)
+
+        return True
+
     def __create_sequence_table(self, db_instance):
         sql = f"""
             CREATE SEQUENCE IF NOT EXISTS {self.table_name}_id_seq
@@ -348,14 +500,14 @@ class TransactionData:
     def rename_column(self, df: DataFrame):
         df_columns = list(df.columns)
         rename_columns = self.cfg_process_columns  # column of current version
-        dict_rename_col = dict(zip(df_columns, rename_columns))
+        dict_rename_col = dict(zip(df_columns, rename_columns, strict=False))
         df = df.rename(columns=dict_rename_col)
         return df
 
     def add_default_indexes_column(
         self,
-        set_multiple_indexes: Optional[Set[MultipleIndexes]] = None,
-    ) -> Set[MultipleIndexes]:
+        set_multiple_indexes: set[MultipleIndexes] | None = None,
+    ) -> set[MultipleIndexes]:
         set_indexes = set_multiple_indexes or set()
         # add default index columns
         data_time = self.getdate_column.bridge_column_name if self.getdate_column else None
@@ -365,10 +517,8 @@ class TransactionData:
         add_multiple_indexes_to_set(set_indexes, MultipleIndexes(default_indexes))
         return set_indexes
 
-    def __get_table_indexes(self, db_instance) -> Set[MultipleIndexes]:
-        """
-        get all index columns of process
-        """
+    def __get_table_indexes(self, db_instance) -> set[MultipleIndexes]:
+        """Get all index columns of process"""
         # sql = f'''
         #     SELECT indexdef
         #     FROM pg_indexes
@@ -381,33 +531,27 @@ class TransactionData:
             WHERE type = 'index' AND tbl_name = '{self.table_name}';
         """
         _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        table_indexes: Set[MultipleIndexes] = set()
+        table_indexes: set[MultipleIndexes] = set()
         for col_dat in rows:
             multiple_indexes = MultipleIndexes.from_str(col_dat[0])
             table_indexes.add(multiple_indexes)
         return table_indexes
 
-    def __get_missing_indexes(self, db_instance, new_link_key_indexes: Set[MultipleIndexes]):
+    def __get_missing_indexes(self, db_instance, new_link_key_indexes: set[MultipleIndexes]):
         already_indexes = self.__get_table_indexes(db_instance)
         return new_link_key_indexes - already_indexes
 
-    def __get_expired_indexes(self, db_instance, link_key_indexes: Set[MultipleIndexes]):
-        """
-        get expired indexes to remove
-        """
+    def __get_expired_indexes(self, db_instance, link_key_indexes: set[MultipleIndexes]):
+        """Get expired indexes to remove"""
         already_indexes = self.__get_table_indexes(db_instance)
         return already_indexes - link_key_indexes
 
     def __gen_index_col_name(self, index: MultipleIndexes) -> str:
-        """
-        generate indexes alias name for column
-        """
+        """Generate indexes alias name for column"""
         return index.to_idx(prefix=self.table_name)
 
-    def create_index(self, db_instance, new_link_key_indexes: Set[MultipleIndexes], auto_commit: bool = True):
-        """
-        create composite indexes
-        """
+    def create_index(self, db_instance, new_link_key_indexes: set[MultipleIndexes], auto_commit: bool = True):
+        """Create composite indexes"""
         # get missing indexes
         missing_indexes = self.__get_missing_indexes(db_instance, new_link_key_indexes=new_link_key_indexes)
         for multiple_indexes in missing_indexes:
@@ -417,9 +561,9 @@ class TransactionData:
 
         return missing_indexes
 
-    def remove_index(self, db_instance, new_link_key_indexes: Set[MultipleIndexes], auto_commit=False):
+    def remove_index(self, db_instance, new_link_key_indexes: set[MultipleIndexes], auto_commit=False):
         """
-        remove unused indexes
+        Remove unused indexes
         in case of import data, remove before import
         after that, import data then create indexes again
         """
@@ -441,7 +585,7 @@ class TransactionData:
         return expired_indexes
 
     def purge_index(self, db_instance, auto_commit: bool = True):
-        """force remove all indexes (use for delete column)"""
+        """Force remove all indexes (use for delete column)"""
         # retrieve unused indexes
         multiple_indexes = self.__get_link_key_indexes()
         # remove unused indexes
@@ -467,12 +611,10 @@ WHERE type = 'index'
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
         return [row[0] for row in rows] if rows else []
 
-    def __get_link_key_indexes(self) -> Set[MultipleIndexes]:
-        """
-        get all link_keys of process from CfgTrace
-        """
-        edges: List[CfgTrace] = CfgTrace.get_traces_of_proc([self.process_id])
-        link_key_indexes: Set[MultipleIndexes] = set()
+    def __get_link_key_indexes(self) -> set[MultipleIndexes]:
+        """Get all link_keys of process from CfgTrace"""
+        edges: list[CfgTrace] = CfgTrace.get_traces_of_proc([self.process_id])
+        link_key_indexes: set[MultipleIndexes] = set()
 
         for trace in edges:
             # indexes = [SingleIndex(self.getdate_column.bridge_column_name)]
@@ -531,9 +673,7 @@ WHERE type = 'index'
         return len(row)
 
     def re_structure_index(self, db_instance):
-        """
-        restructure index: add new or remove unused index base on cfg_trace
-        """
+        """Restructure index: add new or remove unused index base on cfg_trace"""
         # check if process table is already existing
         table_existing = self.is_table_exist(db_instance)
         if table_existing:
@@ -578,7 +718,7 @@ WHERE type = 'index'
             if compare_name == column_name:
                 return cfg_process_column.id
 
-    def get_cfg_column_by_name(self, column_name, is_compare_bridge_column_name=True) -> Optional[CfgProcessColumn]:
+    def get_cfg_column_by_name(self, column_name, is_compare_bridge_column_name=True) -> CfgProcessColumn | None:
         for cfg_process_column in self.cfg_process_columns:
             compare_name = (
                 cfg_process_column.bridge_column_name
@@ -593,13 +733,13 @@ WHERE type = 'index'
             if cfg_process_column.column_name == column_name:
                 return cfg_process_column.bridge_column_name
 
-    def get_cfg_column_by_id(self, column_id) -> Optional[CfgProcessColumn]:
+    def get_cfg_column_by_id(self, column_id) -> CfgProcessColumn | None:
         for cfg_process_column in self.cfg_process_columns:
             if cfg_process_column.id == column_id:
                 return cfg_process_column
         return None
 
-    def delete_columns(self, db_instance, column_names: List, auto_commit: bool = True):
+    def delete_columns(self, db_instance, column_names: list, auto_commit: bool = True):
         table = self.table_name
         exist_columns = self.get_table_columns(db_instance, table)
         delete_columns = [column_name for column_name in column_names if column_name in exist_columns]
@@ -687,79 +827,6 @@ WHERE type = 'index'
         cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
         df = pd.DataFrame(rows, columns=cols, dtype='object')
         return df
-
-    # def get_transaction_data(
-    #         self,
-    #         db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer],
-    #         params,
-    #         select_columns: list[str],
-    #         sql_limit: int = SQL_LIMIT,
-    # ) -> Union[tuple[list, list], DataFrame]:
-    #     column_type_dicts = get_type_all_columns(db_instance, self.table_name)
-    #     nullable_int64_columns = get_nullable_int64_columns(
-    #         db_instance, self.table_name, list_dict_rows=column_type_dicts
-    #     )
-    #
-    #     _select_columns = [self.id_col_name] + select_columns
-    #     _select_columns = [
-    #         gen_sql_cast_text(column) if column in nullable_int64_columns else f'"{column}"'
-    #         for column in _select_columns
-    #     ]
-    #     select_columns_sql = ', '.join(_select_columns)
-    #     # ↑====== Prepare columns to collect ======↑
-    #
-    #     # ↓====== Collect data ======↓
-    #     param_marker = BridgeStationModel.get_parameter_marker()  # %s
-    #     sql = f'''
-    #         SELECT {select_columns_sql}
-    #         FROM {self.table_name}
-    #         WHERE {self.factory_machine_id_col_name} IN {param_marker}
-    #             AND {self.prod_part_id_col_name} IN {param_marker}
-    #             AND {self.getdate_column.bridge_column_name} >= {param_marker}
-    #             AND {self.getdate_column.bridge_column_name} <= {param_marker}
-    #         LIMIT {sql_limit};
-    #     '''
-    #     # params = (start_dt, end_dt)
-    #     cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
-    #
-    #     df = pd.DataFrame(rows, columns=cols, dtype='object')
-    #     # df = format_df(df)
-    #     # ↑====== Collect data ======↑
-    #
-    #     # ↓====== Correct data type in dataFrame ======↓
-    #     for column_type_dict in column_type_dicts:
-    #         column_name = column_type_dict.get('column_name')
-    #         if column_name not in cols:
-    #             continue
-    #
-    #         data_type = column_type_dict.get('data_type')
-    #         if data_type == 'bigint':
-    #             convert_nullable_int64_to_numpy_int64(df, [column_name])
-    #             continue
-    #         if data_type == 'integer':
-    #             if column_name in [self.factory_machine_id_col_name, self.prod_part_id_col_name]:
-    #                 df[column_name] = df[column_name].astype('int32')
-    #             else:
-    #                 df[column_name] = df[column_name].astype(pd.Int32Dtype.name)
-    #             continue
-    #         if data_type == 'smallint':
-    #             df[column_name] = df[column_name].astype(pd.Int16Dtype.name)
-    #             continue
-    #         if data_type == 'real':
-    #             df[column_name] = df[column_name].astype(pd.Float32Dtype.name)
-    #             continue
-    #         if data_type == 'text':
-    #             df[column_name] = df[column_name].astype(pd.StringDtype.name)
-    #             continue
-    #         if 'timestamp' in data_type:
-    #             df[column_name] = df[column_name].astype(np.datetime64.__name__)
-    #             continue
-    #         if data_type == 'boolean':
-    #             df[column_name] = df[column_name].astype('boolean')
-    #             continue
-    #     # ↑====== Correct data type in dataFrame ======↑
-    #
-    #     return df
 
     def get_max_date_time_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3]):
         max_time = 'max_time'
@@ -909,6 +976,32 @@ WHERE type = 'index'
         df = pd.DataFrame(rows, columns=cols, dtype='object')
         return df
 
+    def get_data_count_by_time_range(
+        self,
+        db_instance: Union[PostgreSQL, SQLite3],
+        start_date=None,
+        end_date=None,
+    ):
+        """
+        Get data count from data_count_table_name by time range
+        Args:
+            db_instance: DBInstance
+            start_date: datetime
+            end_date: datetime
+
+        Returns:
+            rows: dict
+        """
+        sql = f"""
+                    SELECT count(*) as {DataCountTable.count.name}
+                    FROM {self.table_name}
+                    WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
+                        AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL};
+                """
+        params = [start_date, end_date]
+        _, [count, *_] = db_instance.run_sql(sql, params=params)
+        return count
+
     def select_data_count(
         self,
         db_instance: Union[PostgreSQL, SQLite3],
@@ -974,7 +1067,25 @@ WHERE type = 'index'
         _, rows = db_instance.run_sql(sql, params=params)
         return [self.ImportHistoryLatestDone(**row) for row in rows]
 
-    def get_import_history_first_import(self, db_instance, import_type: str) -> Optional[ImportHistoryTable]:
+    def get_import_history_records(self, db_instance, import_type: str) -> list[ImportHistoryTable]:
+        table = ImportHistoryTable.table(self.process_id)
+
+        stmt = (
+            table.select()
+            .where(
+                sa.and_(
+                    table.c.import_type == import_type,
+                    table.c.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]),
+                ),
+            )
+            .order_by(sa.asc(table.c.created_at))
+        )
+
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params)
+        return [ImportHistoryRecord.model_validate(row) for row in rows]
+
+    def get_import_history_first_import(self, db_instance, import_type: str) -> ImportHistoryTable | None:
         table = ImportHistoryTable.table(self.process_id)
 
         stmt = (
@@ -1028,11 +1139,11 @@ WHERE type = 'index'
         sql = f' SELECT SUM(imported_row) AS total FROM {table_name} WHERE import_type = {SQL_PARAM_SYMBOL}'
         params = [import_type]
         _, data = db_instance.run_sql(sql, params=params)
-        return data[0]['total']
+        return data[0]['total'] or 0
 
     def get_sample_data(self, db_instance: Union[SQLite3], columns: list, limit=5) -> pd.DataFrame:
         """
-        get sample data for process link purpose
+        Get sample data for process link purpose
         return df with column name are cfg_process_column's id
         """
         link_cols = '*'
@@ -1053,6 +1164,24 @@ WHERE type = 'index'
 
 
 class DataCountTable(BaseEnum):
+    """Enum-based data count table definition.
+
+    Defines the structure and columns for data count tables used to track
+    data counts by datetime.
+
+    Attributes:
+        datetime: Datetime column (TEXT type).
+        count: Count column (INTEGER type).
+        count_file: Count file column (INTEGER type).
+
+    Methods:
+        to_dict: Convert enum to dictionary of column names and types.
+        get_date_col: Get the date column name.
+        get_table_name: Get table name for a process ID.
+
+    Generated by Duo
+    """
+
     datetime = (1, DataType.TEXT.name)
     count = (2, DataType.INTEGER.name)
     count_file = (3, DataType.INTEGER.name)
@@ -1072,21 +1201,74 @@ class DataCountTable(BaseEnum):
     # DIC_DATA_COUNT_COLUMNS = dict(datetime=DataType.TEXT.name, count=DataType.INTEGER.name)
 
 
+class ImportHistoryRecord(BaseModel):
+    """Pydantic model for import history records.
+
+    Represents import time range information for tracking data import operations.
+
+    Attributes:
+        import_from: Start datetime for import operation.
+        import_to: End datetime for import operation.
+
+    Methods:
+        time_range: Get TimeRange object from import times.
+
+    Generated by Duo
+    """
+
+    import_from: str | None
+    import_to: str | None
+
+    def time_range(self, timezone) -> TimeRange:
+        return TimeRange(
+            min=Bound.included(convert_to_datetime(self.import_from, timezone)),
+            max=Bound.included(convert_to_datetime(self.import_to, timezone)),
+        )
+
+
 class ImportHistoryTable(BaseModel):
-    job_id: Optional[int]
-    import_type: Optional[str]
+    """Pydantic model for import history.
+
+    Represents import history records for tracking data import operations,
+    including CSV and factory imports.
+
+    Attributes:
+        job_id: Job ID for the import operation.
+        import_type: Type of import (CSV, factory, etc.).
+        file_name: Name of imported file (for CSV imports).
+        import_from: Start datetime for factory imports.
+        import_to: End datetime for factory imports.
+        imported_row: Number of rows imported.
+        status: Import status.
+        error_msg: Error message if import failed.
+        start_tm: Start time of import.
+        end_tm: End time of import.
+        created_at: Record creation timestamp.
+        updated_at: Record update timestamp.
+
+    Methods:
+        get_table_name: Get table name for a process ID.
+        table: Get SQLAlchemy table object.
+        create_table_sql: Generate CREATE TABLE SQL statement.
+        create_index_sql: Generate CREATE INDEX SQL statement.
+
+    Generated by Duo
+    """
+
+    job_id: int | None
+    import_type: str | None
     # csv import
-    file_name: Optional[str]
+    file_name: str | None
     # factory import
-    import_from: Optional[str]
-    import_to: Optional[str]
-    imported_row: Optional[int]
+    import_from: str | None
+    import_to: str | None
+    imported_row: int | None
     status: str
-    error_msg: Optional[str]
+    error_msg: str | None
     start_tm: str
     end_tm: str
-    created_at: Optional[str]
-    updated_at: Optional[str]
+    created_at: str | None
+    updated_at: str | None
 
     @classmethod
     def get_table_name(cls, proc_id: int) -> str:
@@ -1126,11 +1308,43 @@ class ImportHistoryTable(BaseModel):
         sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_index_stmt)
         return sqlite3_compiled_stmt.string
 
+    @classmethod
+    def get_import_history(cls, process_id: int) -> ImportHistoryRecord | None:
+        table = cls.table(process_id)
+        stmt = sa.select(
+            sa.func.min(table.c.import_from).label('import_from'),
+            sa.func.max(table.c.import_to).label('import_to'),
+        ).select_from(table)
+        sql, params = gen_sql_and_params(stmt)
+        with DbProxy(gen_data_source_of_universal_db(process_id), True) as db_instance:
+            _, rows = db_instance.run_sql(sql)
+        output = ImportHistoryRecord.model_validate(rows[0]) if rows and rows[0]['import_from'] is not None else None
+
+        return output
+
 
 class PullHistoryRecord(BaseModel):
+    """Pydantic model for pull history records.
+
+    Represents a pull history record tracking data pull operations with
+    time range information.
+
+    Attributes:
+        id: Record ID (default 1).
+        pull_from: Start datetime for pull operation.
+        pull_to: End datetime for pull operation.
+
+    Methods:
+        set_pull_from: Set pull_from datetime value.
+        set_pull_to: Set pull_to datetime value.
+        time_range: Get TimeRange object from pull times.
+
+    Generated by Duo
+    """
+
     id: int = 1
-    pull_from: Optional[str]
-    pull_to: Optional[str]
+    pull_from: str | None
+    pull_to: str | None
 
     def set_pull_from(self, value: datetime):
         self.pull_from = convert_to_str(value)
@@ -1140,14 +1354,28 @@ class PullHistoryRecord(BaseModel):
 
     def time_range(self, timezone) -> TimeRange:
         return TimeRange(
-            min_ts=convert_to_datetime(self.pull_from, timezone),
-            min_ts_bound_type=BoundType.INCLUDED,
-            max_ts=convert_to_datetime(self.pull_to, timezone),
-            max_ts_bound_type=BoundType.INCLUDED,
+            min=Bound.included(convert_to_datetime(self.pull_from, timezone)),
+            max=Bound.included(convert_to_datetime(self.pull_to, timezone)),
         )
 
 
 class PullHistoryTable:
+    """Pull history table management.
+
+    Manages pull history table operations including table creation,
+    record retrieval, and record updates.
+
+    Methods:
+        get_table_name: Get table name for a process ID.
+        table: Get SQLAlchemy table object.
+        create_table_sql: Generate CREATE TABLE SQL statement.
+        create_table: Create pull history table.
+        get: Get pull history record for a process.
+        set: Set/update pull history record for a process.
+
+    Generated by Duo
+    """
+
     @classmethod
     def get_table_name(cls, process_id: int) -> str:
         return gen_pull_history_table_name(process_id)
@@ -1181,7 +1409,7 @@ class PullHistoryTable:
         return table_name
 
     @classmethod
-    def get(cls, db_instance, process_id: int) -> Optional[PullHistoryRecord]:
+    def get(cls, db_instance, process_id: int) -> PullHistoryRecord | None:
         table = cls.table(process_id)
         stmt = table.select()
         sql, params = gen_sql_and_params(stmt)
@@ -1200,3 +1428,91 @@ INSERT OR REPLACE INTO {table.name}
         ).bindparams(id=record.id, pull_from=record.pull_from, pull_to=record.pull_to)
         sql, params = gen_sql_and_params(upsert_stmt)
         db_instance.run_sql(sql, params=params)
+
+
+class ExportHistoryRecord(BaseModel):
+    """Pydantic model for export history.
+
+    Represents export history records tracking data export operations.
+
+    Attributes:
+        export_id: Export operation ID.
+        export_from: Start datetime for export.
+        export_to: End datetime for export.
+        exported_rows: Number of rows exported.
+        export_file_path: Path to exported file.
+
+    Generated by Duo
+    """
+
+    # job_id: Optional[int]
+    export_id: int
+    export_from: str
+    export_to: str
+    exported_rows: int | None
+    export_file_path: str | None
+
+
+class ExportHistoryTable:
+    """Export history table management.
+
+    Manages export history table operations including table creation,
+    record insertion, and export range queries.
+
+    Methods:
+        get_table_name: Get table name for a process ID.
+        table: Get SQLAlchemy table object.
+        insert: Insert export history record.
+        exported_range: Get exported time range for an export ID.
+        create_table_sql: Generate CREATE TABLE SQL statement.
+
+    Generated by Duo
+    """
+
+    @classmethod
+    def get_table_name(cls, proc_id: int) -> str:
+        return gen_export_history_table_name(proc_id)
+
+    @classmethod
+    def table(cls, proc_id: int):
+        return sa.Table(
+            cls.get_table_name(proc_id),
+            sa.MetaData(),
+            # TODO: we don't know how to store job_id here atm.
+            #  t_job_management must have `export_id` so that we can query them when running job. But should we do that?
+            #  just store raw record at the moment
+            # sa.Column('job_id', sa.Integer),
+            sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+            sa.Column('export_id', sa.Integer),
+            sa.Column('export_from', sa.Text),
+            sa.Column('export_to', sa.Text),
+            sa.Column('exported_rows', sa.Integer),
+            sa.Column('export_file_path', sa.Text),
+            sa.Column('created_at', sa.Text, server_default=func.now()),
+        )
+
+    @classmethod
+    def insert(cls, db_instance, proc_id: int, record: ExportHistoryRecord):
+        table = cls.table(proc_id)
+        stmt = table.insert().values(**record.model_dump())
+        sql, params = gen_sql_and_params(stmt)
+        db_instance.run_sql(sql, params=params)
+
+    @classmethod
+    def exported_range(cls, db_instance, proc_id: int, export_id: int) -> TimeRange:
+        """Get the maximum export to from export history table"""
+        table = cls.table(proc_id)
+        stmt = sa.select(sa.func.min(table.c.export_from), sa.func.max(table.c.export_to)).where(
+            table.c.export_id == export_id
+        )
+        sql, params = gen_sql_and_params(stmt)
+        _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
+        min_ts, max_ts = rows[0]
+        return TimeRange(min=Bound.included(min_ts), max=Bound.included(max_ts))
+
+    @classmethod
+    def create_table_sql(cls, proc_id: int) -> str:
+        table = cls.table(proc_id)
+        create_table_stmt = CreateTable(table, if_not_exists=True)
+        sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_table_stmt)
+        return sqlite3_compiled_stmt.string

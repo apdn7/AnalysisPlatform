@@ -3,7 +3,7 @@ import math
 import re
 from datetime import date, datetime, timedelta, timezone, tzinfo
 from functools import partial
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -29,7 +29,7 @@ from ap.common.pydn.dblib import mssqlserver, mysql, oracle
 logger = logging.getLogger(__name__)
 
 
-def parse_datetime(dt_input: Any) -> Optional[datetime]:
+def parse_datetime(dt_input: Any) -> datetime | None:
     """Parse datetime from string, datetime, etc"""
     try:
         if isinstance(dt_input, str):
@@ -41,7 +41,7 @@ def parse_datetime(dt_input: Any) -> Optional[datetime]:
     return None
 
 
-def detect_timezone(dt_input: Any) -> Optional[tzinfo]:
+def detect_timezone(dt_input: Any) -> tzinfo | None:
     """
     Detect timezone of a datetime string. e.g. 2019-05-14T09:01:04.000000Z/2019-05-14T09:01:04.000000,...
     Return timezone object
@@ -83,9 +83,7 @@ def convert_str_utc_by_timezone(time_zone, dt_str):
 
 
 def convert_str_utc(dt_str):
-    """
-    dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z
-    """
+    """dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z"""
     try:
         dt_obj = parser.parse(dt_str)
         dt_obj = dt_obj.astimezone(tz.tzutc())
@@ -115,9 +113,7 @@ def convert_other_utc_by_timezone(time_zone, val):
 
 
 def convert_dt_utc(dt_obj):
-    """
-    dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z
-    """
+    """dt_str: datetime string: e.g.2019-05-14T20:01:04.000000Z"""
     dt_obj = dt_obj.astimezone(tz.tzutc())
 
     return datetime.strftime(dt_obj, DATE_FORMAT_STR)
@@ -215,7 +211,7 @@ def timezone_regex(tz_offset):
 
         if matches:
             sign, hours, minutes = matches.groups()
-            time_zone = timezone(timedelta(hours=float('{}{}'.format(sign, hours)), minutes=float(minutes or 0)))
+            time_zone = timezone(timedelta(hours=float(f'{sign}{hours}'), minutes=float(minutes or 0)))
         else:
             time_zone = tz.gettz(tz_offset or None) or tz.tzlocal()
             # time_zone = pytz.timezone(tz_offset)
@@ -228,7 +224,7 @@ def timezone_regex(tz_offset):
 @log_execution_time()
 def get_utc_offset(time_zone):
     """
-    get utc time offset
+    Get utc time offset
     :param time_zone: str, timezone object
     :return: timedelta(seconds)
     """
@@ -306,7 +302,7 @@ def add_days_from_utc(dt_str, days):
 def gen_dummy_datetime_data(df, start_date=None):
     if not start_date:
         # from is zero
-        start_date = '{}-{}-01'.format(date.today().year, date.today().month)
+        start_date = f'{date.today().year}-{date.today().month}-01'
     start_date = convert_dt_str_to_simple_local(start_date)
     data = pd.date_range(start=start_date, periods=df.shape[0], freq='10s', tz=tz.tzlocal())
     return data
@@ -321,7 +317,7 @@ def gen_dummy_datetime(df, start_date=None, dummy_datetime_col=DATETIME_DUMMY):
 def get_next_datetime_value(df_size, start_date):
     the_day = math.ceil(df_size / MAX_DATETIME_STEP_PER_DAY)
     if not start_date:
-        start_date = '{}-{}-01'.format(date.today().year, date.today().month)
+        start_date = f'{date.today().year}-{date.today().month}-01'
     next_day = add_days_from_utc(start_date, the_day)
     return next_day
 
@@ -348,7 +344,7 @@ def get_date_from_type(datetime_str, type, local_tz, is_end_date=False):
 
 def from_utc_to_localtime(input_datetime, local_timezone, is_simple_fmt=True):
     """
-    convert datetime to local time
+    Convert datetime to local time
     Args:
         input_datetime: 2019-12-31 15:00:00
         local_timezone: Asia/Tokyo

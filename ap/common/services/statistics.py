@@ -24,7 +24,7 @@ from ap.common.sigificant_digit import signify_digit
 
 
 @log_execution_time()
-def calc_summary_elements(plot):
+def calc_summary_elements(plot, is_log_scale_mode=False):
     none_ids = plot.get(NONE_IDXS)
     array_y = plot.get(ARRAY_Y, pd.Series())
     array_x = plot.get(ARRAY_X, pd.Series())
@@ -33,6 +33,11 @@ def calc_summary_elements(plot):
         return [empty_summary]
 
     df = pd.DataFrame({ARRAY_X: array_x, ARRAY_Y: array_y})
+
+    # convert negative and zero to nan in case of log scale selected
+    if is_log_scale_mode and pd.api.types.is_numeric_dtype(df[ARRAY_Y]):
+        df.loc[df[ARRAY_Y] <= 0, ARRAY_Y] = np.nan
+
     # must check None , because [] is no None value
     if none_ids is None:
         pass
@@ -344,10 +349,10 @@ def calc_summary_elements(plot):
 
 
 @log_execution_time()
-def calc_summaries(dic_param):
+def calc_summaries(dic_param, is_log_scale_mode=False):
     for plot in dic_param.get(ARRAY_PLOTDATA, []):
         try:
-            plot[SUMMARIES] = calc_summary_elements(plot)
+            plot[SUMMARIES] = calc_summary_elements(plot, is_log_scale_mode=is_log_scale_mode)
         except Exception:
             plot[SUMMARIES] = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}
 
@@ -378,7 +383,6 @@ def calc_for_neg_ratio(df: pd.DataFrame, column_name: str, total_bin: int = 128)
     <BLANKLINE>
     [3 rows x 6 columns]
     """
-
     required_columns = [column_name, TIME_COL]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
@@ -433,7 +437,6 @@ def calc_cumulative_sum(df: pd.DataFrame, max_neg_ratio: float, column_name: str
     1  2022-02-28T15:37:55.000000Z  0.6
     2  2022-02-28T16:47:26.000000Z  1.2
     """
-
     required_columns = [column_name, TIME_COL]
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:

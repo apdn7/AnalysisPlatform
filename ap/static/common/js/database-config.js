@@ -20,6 +20,7 @@ class Databases {
         ];
 
         this.POLLING_FREQ = 0;
+        this.IMPORT_LIMIT = 0;
 
         // Default config
         this.DB_CONFIGS = {
@@ -81,6 +82,10 @@ class Databases {
                 'delimiter': 'CSV',
                 'polling-frequency': 1,
                 'use_os_timezone': false,
+            },
+            WEB_API: {
+                type: 'web_api',
+                url: '',
             },
         };
 
@@ -188,6 +193,14 @@ class Databases {
 
     setPollingFreq(freq) {
         this.POLLING_FREQ = freq;
+    }
+
+    setImportLimit(limit) {
+        this.IMPORT_LIMIT = limit;
+    }
+
+    getImportLimit() {
+        return this.IMPORT_LIMIT;
     }
 }
 

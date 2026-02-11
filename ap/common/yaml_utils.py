@@ -2,10 +2,9 @@ import logging
 import os
 from collections import OrderedDict
 from dataclasses import dataclass, fields, is_dataclass
-from typing import Optional, Type, TypeVar, Union
+from typing import Final, TypeVar, Union
 
-from ruamel import yaml
-from ruamel.yaml import add_constructor, resolver
+from ruamel.yaml import YAML, resolver
 
 from ap.common.common_utils import (
     check_exist,
@@ -31,39 +30,40 @@ YAML_START_UP_FILE_NAME = 'startup.yaml'
 
 
 class YamlConfig:
-    """
-    Common Config Yaml class
-    """
+    """Common Config Yaml class"""
 
-    def __init__(self, fname_config_yaml):
+    def __init__(self, fname_config_yaml) -> None:
         self.fname_config_yaml = fname_config_yaml
         self.dic_config = self.read_yaml() if check_exist(fname_config_yaml) else {}
 
     def read_yaml(self):
-        # Read YAML and return dic
-        # https://qiita.com/konomochi/items/f5f53ba8efa07ec5089b
-        # 入力時に順序を保持する
-        add_constructor(
-            resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            lambda loader, node: OrderedDict(loader.construct_pairs(node)),
-        )
-
         # get encoding
         encoding = detect_encoding(self.fname_config_yaml)
 
-        with open(self.fname_config_yaml, 'r', encoding=encoding) as f:
-            data = yaml.load(f, Loader=yaml.Loader)
+        with open(self.fname_config_yaml, encoding=encoding) as f:
+            yaml = YAML(typ='unsafe')
+            # Read YAML and return dic
+            # https://qiita.com/konomochi/items/f5f53ba8efa07ec5089b
+            # 入力時に順序を保持する
+            yaml.constructor.add_constructor(
+                resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                lambda loader, node: OrderedDict(loader.construct_pairs(node)),
+            )
+            data = yaml.load(f)
 
         return data
 
-    def write_json_to_yml_file(self, dict_obj, output_file: str = None):
+    def write_json_to_yml_file(self, dict_obj, output_file: str | None = None):
         # get encoding
         encoding = detect_encoding(self.fname_config_yaml)
 
         try:
             dict_obj = convert_json_to_ordered_dict(dict_obj)
             with open(output_file if output_file else self.fname_config_yaml, 'w', encoding=encoding) as outfile:
-                yaml.dump(dict_obj, outfile, default_flow_style=False, allow_unicode=True)
+                yaml = YAML(typ='unsafe', pure=True)
+                yaml.default_flow_style = False
+                yaml.allow_unicode = True
+                yaml.dump(dict_obj, outfile)
 
             return True
         except Exception as e:
@@ -82,12 +82,11 @@ class YamlConfig:
 
     def save_yaml(self):
         """
-        save yaml object to file
+        Save yaml object to file
         Notice: This method will save exactly yaml obj to file, so in case many users save the same time,
         the last one will win. so use update_yaml is better in these case. update_yaml only save changed node(key) only.
         :return:
         """
-
         try:
             self.write_json_to_yml_file(self.dic_config)
             return True
@@ -150,15 +149,13 @@ class YamlConfig:
 
 
 class BasicConfigYaml(YamlConfig):
-    """
-    Basic Config Yaml class
-    """
+    """Basic Config Yaml class"""
 
     # keywords
     INFO = 'info'
     VERSION = 'version'
 
-    def __init__(self, file_name):
+    def __init__(self, file_name) -> None:
         super().__init__(file_name)
 
     def get_version(self):
@@ -184,11 +181,9 @@ def parse_bool_value(value):
 
 
 class TileInterfaceYaml(YamlConfig):
-    """
-    Tile Interface Yaml class
-    """
+    """Tile Interface Yaml class"""
 
-    YML_CFG = {
+    YML_CFG: Final[dict[str, int]] = {
         None: YAML_TILE_INTERFACE_DN7,
         DN7_TILE: YAML_TILE_INTERFACE_DN7,
         AP_TILE: YAML_TILE_INTERFACE_AP,
@@ -197,7 +192,7 @@ class TileInterfaceYaml(YamlConfig):
         TILE_JUMP_CFG: YAML_TILE_JUMP,
     }
 
-    def __init__(self, file_name):
+    def __init__(self, file_name) -> None:
         yml_file_name = self.YML_CFG[file_name]
         file_name = os.path.join('ap', 'config', yml_file_name)
         super().__init__(file_name)
@@ -206,10 +201,8 @@ class TileInterfaceYaml(YamlConfig):
 T = TypeVar('T')
 
 
-def from_dict(cls: Type[T], data: dict) -> T:
-    """
-    Generic helper to create dataclass from dict, recursively.
-    """
+def from_dict[T](cls: type[T], data: dict) -> T:
+    """Generic helper to create dataclass from dict, recursively."""
     if not is_dataclass(cls):
         return data  # just return primitive or unknown types as is
 
@@ -232,20 +225,18 @@ def from_dict(cls: Type[T], data: dict) -> T:
 
 @dataclass
 class StartupSettings:
-    """
-    Extract data from Startup Yaml
-    """
+    """Extract data from Startup Yaml"""
 
-    port: Optional[int] = None
-    language: Optional[str] = None
-    subtitle: Optional[str] = None
-    proxy_http: Optional[str] = None
-    proxy_https: Optional[str] = None
+    port: int | None = None
+    language: str | None = None
+    subtitle: str | None = None
+    proxy_http: str | None = None
+    proxy_https: str | None = None
     network_nck: bool = False
-    env_ap: Optional[str] = 'prod'  # production
+    env_ap: str | None = 'prod'  # production
     flask_debug: bool = False
     # todo: use bool instead of int in yaml
-    update_R: Optional[int] = 0
+    update_R: int | None = 0
     enable_file_log: Union[bool, int] = 0
     enable_ga_tracking: Union[bool, int] = 0
     enable_dump_trace_log: Union[bool, int] = 0

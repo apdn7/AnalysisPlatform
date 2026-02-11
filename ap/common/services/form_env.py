@@ -3,7 +3,6 @@ import logging
 import re
 from collections import defaultdict
 from copy import deepcopy
-from typing import Dict
 
 import pandas as pd
 from pandas import Series
@@ -120,6 +119,7 @@ from ap.common.constants import (
     TBLS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_LOG_SCALE_MODE,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
@@ -130,6 +130,7 @@ from ap.common.constants import (
     TIME_CONDS,
     TIMES,
     TRACE_TIME,
+    TRUE_MATCH,
     UNIQUE_COLOR,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
@@ -236,6 +237,7 @@ common_startwith_keys = (
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
     STRENGTHEN_SELECTION,
+    TEMP_LOG_SCALE_MODE,  # combine log-scale mode into dic_param
 )
 
 
@@ -344,6 +346,8 @@ def parse_multi_filter_into_one(dic_form):
             elif key.startswith((VAR_TRACE_TIME, TRACE_TIME)):
                 dic_parsed[COMMON][TRACE_TIME] = value
             else:
+                if key == TEMP_LOG_SCALE_MODE:
+                    value = value == TRUE_MATCH
                 dic_parsed[COMMON][key] = value
 
         elif key.startswith(conds_startwith_keys):
@@ -450,7 +454,7 @@ def remove_const_keyword(value, keywords, is_multiple_selection=False):
     return edit_value
 
 
-def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param, prefix=''):
+def bind_condition_procs(dic_proc_cfgs: dict[int, CfgProcess], dic_param, prefix=''):
     dic_proc_filter_details = {}
     # condition
     cond_procs = []
@@ -503,7 +507,7 @@ def bind_condition_procs(dic_proc_cfgs: Dict[int, CfgProcess], dic_param, prefix
 
 # @CustomCache.memoize()
 def bind_dic_param_to_class(
-    dic_proc_cfgs: Dict[int, CfgProcess],
+    dic_proc_cfgs: dict[int, CfgProcess],
     trace_graph: TraceGraph,
     dic_card_orders,
     dic_param,

@@ -57,7 +57,6 @@ def get_table_records():
     Returns:
         [type] -- [description]
     """
-
     request_data = json.loads(request.data)
     db_code = request_data.get('database_code')
     table_name = request_data.get('table_name')
@@ -96,14 +95,14 @@ def get_table_records():
 def query_data(db_instance, table_name, sort_column, sort_order, limit):
     sort_statement = ''
     if sort_column and sort_order:
-        sort_statement = 'order by "{}" {} '.format(sort_column, sort_order)
+        sort_statement = f'order by "{sort_column}" {sort_order} '
 
     if isinstance(db_instance, mssqlserver.MSSQLServer):
-        sql = 'select TOP {}  * from "{}" {} '.format(limit, table_name, sort_statement)
+        sql = f'select TOP {limit}  * from "{table_name}" {sort_statement} '
     elif isinstance(db_instance, oracle.Oracle):
-        sql = 'select * from "{}" where rownum <= {} {} '.format(table_name, limit, sort_statement)
+        sql = f'select * from "{table_name}" where rownum <= {limit} {sort_statement} '
     else:
-        sql = 'select * from "{}" {} limit {}'.format(table_name, sort_statement, limit)
+        sql = f'select * from "{table_name}" {sort_statement} limit {limit}'
 
     cols, rows = db_instance.run_sql(sql=sql)
 
@@ -138,7 +137,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
     df_data = pd.DataFrame(columns=header_names, data=data_details)
 
     if sort_colum:
-        dict_column_name = dict(zip(org_header, header_names))
+        dict_column_name = dict(zip(org_header, header_names, strict=False))
         sort_column_raw_name = dict_column_name[sort_colum]
         if sort_column_raw_name and sort_column_raw_name in df_data.columns:
             asc = sort_order == 'ASC'
@@ -146,7 +145,7 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
 
     df_data = df_data.head(limit)
     cols = df_data.columns
-    rows = [dict(zip(cols, vals)) for vals in df_data[0:limit][cols].to_records(index=False).tolist()]
+    rows = [dict(zip(cols, vals, strict=False)) for vals in df_data[0:limit][cols].to_records(index=False).tolist()]
     cols = [{'name': col} for col in cols]
 
     return cols, rows
