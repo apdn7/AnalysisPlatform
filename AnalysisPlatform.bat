@@ -20,8 +20,8 @@ for /f "delims=" %%i in ('%pshell% -Command [char]09') do set "tab=%%i"
 :: Definition
 call :defSetting
 :: Log
-if not defined startTime for /f %%a in ('%pshell% "Get-Date -Format o"') do set startTime=%%a
-call :clearLog "%log_startup%"
+if not defined startTime call :getDateTime startTime
+call :clearLog "%log_startap%"
 >"%log_stageStatus%" echo.
 if exist "%log_stageTime%" del "%log_stageTime%"
 :: Alias
@@ -30,7 +30,7 @@ set "arg1=%~1"
 if /i "%arg1%"==":downloadOracleInstance" goto downloadOracleInstance
 
 
-call :logTimeDiff %startTime% "===== Startup ====="
+call :logStartap startTime "===== Startup ====="
 set "app_title=Analysis Platform    Port: %port%  Lang: %lang%  %subtitle%  py: %ver_pyt%  Path: %CD%"
 title %app_title%
 call :saveStartTimeOfStage MAIN
@@ -49,13 +49,13 @@ for /f "tokens=1,* delims=:" %%a in ('findstr /n /r "^" "%file_vers%"') do (
 for /f "tokens=1-3 delims=.v" %%a in ("%ver_str%") do set "app_ver=%%a%%b%%c"
 set /a app_ver=%app_ver% >nul 2>&1 || set /a app_ver=9999
 echo   Version: %esc%[36m%app_ver%%esc%[0m  Product: %esc%[36m%app_prd%%esc%[0m
-call :logTimeDiff %lapTime% "VERSION ver:%app_ver% [%ver_str%]  yml:%app_yml%  Type:%app_prd%"
+call :logStartap lapTime "VERSION ver:%app_ver% [%ver_str%]  yml:%app_yml%  Type:%app_prd%"
 
 : Get PID
 for /f "tokens=2 delims=," %%a in ('
   tasklist /v /fo csv /fi "imagename eq cmd.exe" ^| findstr /c:"Port: %port%"
 ') do ( set "cmd_pid=%%~a" )
-call :logTimeDiff %startTime% "PID=%cmd_pid%: %app_title%"
+call :logStartap startTime "PID=%cmd_pid%: %app_title%"
 rem prompt AP:%port%$g
 echo.
 
@@ -71,9 +71,9 @@ if exist "%file_prod_dn%" (
   echo   Detected Product Type: oss
   set "requirements=%file_prod_oss%"
 )
-call :logTimeDiff %startTime% "Product Type: %prod%"
+call :logStartap startTime "Product Type: %prod%"
 if "prod"=="app_prd" (
-  call :logTimeDiff %startTime% "Product Type: Match %prod%" app: 
+  call :logStartap startTime "Product Type: Match %prod%" app: 
 )
 echo.
 
@@ -94,30 +94,25 @@ if not "%launch_edge%"=="0" (
   where msedge.exe >nul 2>&1 && start "" msedge.exe --app="%url_ap%" || start "" "%url_ap%"
 )
 echo.
-call :logTimeDiff %lapTime% "Call start_ap.exe to open welcome page"
+call :logStartap lapTime "Call start_ap.exe to open welcome page"
 
 : _____________________________________________________________________________
 : Check version for reinstallation
 :CHECK_STATUS
 echo %clTitle%Status Check Sequence%cl_Base%
-if exist "%file_stat%" (
-  for /f "tokens=1,* delims==" %%a in ('findstr /r /c:"^[^;].*=" "%file_stat%"') do (
-    call :logTimeDiff %lapTime% "apdn7.ini: %%a%tab%[%%b]"
-    set "%%a=%%b"
-  )  
-)
+call :readIniSettings "%stat_ini%"
 %pshell% -Command if($env:install_vers -match '^\d{3,4}$') {} else {exit 1} || (
   set /a install_vers=0
-  call :logTimeDiff %lapTime% "Missing Vaild Version Info: use ver=0"
+  call :logStartap lapTime "Missing Vaild Version Info: use ver=0"
 )
 if %app_ver% neq %install_vers% (
   set /a status=%status_install%
   set /a wait_netcheck=%wait_netcheck_inst%
-  call :logTimeDiff %lapTime% "[mode] Status File is INSTALL"
+  call :logStartap lapTime "[mode] Status File is INSTALL"
 ) else (
   set /a status=%status_run_app%
   set /a wait_netcheck=%wait_netcheck_appl%
-  call :logTimeDiff %lapTime% "[mode] Status File is RUN APP"
+  call :logStartap lapTime "[mode] Status File is RUN APP"
 )
 echo.
 
@@ -132,14 +127,14 @@ if exist "%main_oracle%" ( echo   Detect oracle ) else set /a noComp^|=8
 call :checkPythonLib_rough || set /a noComp^|=16
 if %noComp% equ 0 call :checkPythonLib_full || set /a noComp^|=32
 if %noComp% equ 0 (
-  call :logTimeDiff %lapTime% "[mode] All component detected  Code:%noComp%"
+  call :logStartap lapTime "[mode] All component detected  Code:%noComp%"
 ) else (
   if %noComp% equ 31 (
-    call :logTimeDiff %lapTime% "[mode] First Installation  Code:%noComp%"
+    call :logStartap lapTime "[mode] First Installation  Code:%noComp%"
   ) else (
     echo.
     echo %clWarng% Installation is corrupted. Forcing component reinstallation... %cl_Base%
-    call :logTimeDiff %lapTime% "[mode] Retry (Component loss)  Code:%noComp%"
+    call :logStartap lapTime "[mode] Retry (Component loss)  Code:%noComp%"
     timeout /t 3
   )
   set /a status=%status_install%
@@ -148,13 +143,13 @@ if %noComp% equ 0 (
 : Mode Setting
 if %status% equ %status_run_app% (
   rem cls
-  call :logTimeDiff %lapTime% "[mode] Start AP+DN7"
+  call :logStartap lapTime "[mode] Start AP+DN7"
 ) else (
   call :mode_cmd_install
   echo %clTitle%Installation%cl_Base%
   echo %clNotic%[Need Network or Proxy Settings and Connection]%esc%[30;107m %cl_Base%
   echo %esc%[30;107m %cl_Base%
-  call :logTimeDiff %lapTime% "[mode] Install (Path or Ver changed)"
+  call :logStartap lapTime "[mode] Install (Path or Ver changed)"
 )
 echo.
 
@@ -190,13 +185,13 @@ if %active_com% equ 0 (
     echo Check the network connection
     echo In an environment with proxy, write proxy settings to startup.ini
     echo Delete proxy settings in startup.ini when no proxy is used.
-    call :logTimeDiff %lapTime% "Network offline  Proxy=%Connectivity_proxy% Direct=%Connectivity_direct%"
+    call :logStartap lapTime "Network offline  Proxy=%Connectivity_proxy% Direct=%Connectivity_direct%"
     call :logStageStatus 102 "Unable to use network"
   ) else (
     call :logStageStatus 102 "Unable to communicate network" "NoCount"
   )
 ) else (
-  call :logTimeDiff %lapTime% "Network is connected"
+  call :logStartap lapTime "Network is connected"
 )
 echo.
 
@@ -217,8 +212,8 @@ if defined target_prxs (
 echo Proxy: %proxy%
 echo   HTTP_PROXY   : %HTTP_PROXY%
 echo   HTTPS_PROXY  : %HTTPS_PROXY%
-call :logTimeDiff %lapTime% "Set HTTP_PROXY%tab%[%HTTP_PROXY%]"
-call :logTimeDiff %lapTime% "Set HTTPS_PROXY%tab%[%HTTPS_PROXY%]"
+call :logStartap lapTime "Set HTTP_PROXY%tab%[%HTTP_PROXY%]"
+call :logStartap lapTime "Set HTTPS_PROXY%tab%[%HTTPS_PROXY%]"
 
 : Check Network Connection
 %pshell% -Command ^
@@ -235,7 +230,7 @@ call :logTimeDiff %lapTime% "Set HTTPS_PROXY%tab%[%HTTPS_PROXY%]"
     echo %clAlarm% Warning: Check Network Connection %cl_Base%
     timeout %wait_netcheck%
 )
-call :logTimeDiff %lapTime% "Check Network after set PROXY  network_nck = %network_nck%"
+call :logStartap lapTime "Check Network after set PROXY  network_nck = %network_nck%"
 echo.
 
 : Branching point between installation and normal startup
@@ -249,7 +244,7 @@ if %status% equ %status_run_app% (
 : _____________________________________________________________________________
 :Install_AP
 echo %clTitle%Start Installation...%cl_Base%
-call :logTimeDiff %startTime% "[Install] Install process initiated"
+call :logStartap startTime "[Install] Install process initiated"
 echo.
 
 : _____________________________________________________________________________
@@ -260,12 +255,12 @@ echo.
 rem Move to Installer
 @REM :: Ensure the user has full control over the folder.
 @REM for %%a in ("..\..") do set "abs=%%~fa"
-@REM call :logTimeDiff %lapTime% "Change User Folder Permissions on %abs%"
+@REM call :logStartap lapTime "Change User Folder Permissions on %abs%"
 @REM icacls "%abs%" /grant "BUILTIN\Users":(OI)(CI)F
 @REM if errorlevel 1 (
-@REM   call :logTimeDiff %lapTime% "Change User Folder Permissions: Denied"
+@REM   call :logStartap lapTime "Change User Folder Permissions: Denied"
 @REM ) else (
-@REM   call :logTimeDiff %lapTime% "Change User Folder Permissions: Done"
+@REM   call :logStartap lapTime "Change User Folder Permissions: Done"
 @REM )
 @REM echo.
 
@@ -276,29 +271,29 @@ if not exist "%path_R%" (
     echo Or prepare R-Portable folder and reboot AP before using R function
     rem call :logStageStatus 999 "R is not installed"
     echo %esc%[32mYou can continue if you do not use R components.%cl_Base%
-    call :logTimeDiff %lapTime% "Check R: R is missing"
+    call :logStartap lapTime "Check R: R is missing"
     echo.
     choice /c YN /m "Press Y to continue or N to cancel:" /t 60 /d Y
     if errorlevel 2 (
       echo   Process canceled.
-      call :logTimeDiff %lapTime% "Check R: Canceled by user"
+      call :logStartap lapTime "Check R: Canceled by user"
       goto FINISH
     )
-    call :logTimeDiff %lapTime% "Check R: Forced execution by user"
+    call :logStartap lapTime "Check R: Forced execution by user"
   )
-  call :logTimeDiff %lapTime% "Check R: No R (OSS)"
+  call :logStartap lapTime "Check R: No R (OSS)"
 ) else (
-  call :logTimeDiff %lapTime% "Check R: R is available"
+  call :logStartap lapTime "Check R: R is available"
 )
 
 echo %clTitle%Download Components...%cl_Base%
 : Download Python
 if exist "%main_python%" (
   echo Detect python
-  call :logTimeDiff %startTime% "Detect %main_python%"
+  call :logStartap startTime "Detect %main_python%"
 ) else (
   call :downloadPythonEmbedded || goto FINISH
-  call :logTimeDiff %startTime% "Fetched %path_py_zip%"
+  call :logStartap startTime "Fetched %path_py_zip%"
 )
 :: python isolation - Lib and DLLs
 set "PYTHONHOME=%path_python%"
@@ -306,28 +301,28 @@ call :checkPythonIsolation "%main_python%"
 : Download pip
 if exist "%main_pip%" (
   echo Detect pip
-  call :logTimeDiff %startTime% "Detect %main_pip%"
+  call :logStartap startTime "Detect %main_pip%"
 )
-call :preparepip && call :logTimeDiff %startTime% "PreFetched pip" || goto FINISH
+call :preparepip && call :logStartap startTime "PreFetched pip" || goto FINISH
 : Download Python libraries (Rapid Mode: pre-download without installation)
 call :checkPythonLib_full && (
   echo Detect python libraries
-  call :logTimeDiff %startTime% "Detect python libraries"
+  call :logStartap startTime "Detect python libraries"
 ) || (
-  call :logTimeDiff %startTime% "Missing Python libraries"
+  call :logStartap startTime "Missing Python libraries"
   if "%rapid_useCache%"=="True" call :getpylib ^
-    && call :logTimeDiff %startTime% "PreFetched pyLib - wheel"
+    && call :logStartap startTime "PreFetched pyLib - wheel"
 )
 : Download Oracle
 if exist "%main_oracle%" (
   echo Detect Oracle
-  call :logTimeDiff %startTime% "Detect %main_oracle%"
+  call :logStartap startTime "Detect %main_oracle%"
 ) else (
   if "%rapid_async_DL%"=="True" (
     start "" cmd /c call "%~f0" :downloadOracleInstance
   ) else (
     call :downloadOracleInstance ^
-      && call :logTimeDiff %startTime% "Fetched %path_oc_zip%" ^
+      && call :logStartap startTime "Fetched %path_oc_zip%" ^
       || goto FINISH
   )
 )
@@ -336,16 +331,16 @@ if exist "%main_oracle%" (
 : install packages
 :: Get pip
 echo %clTitle%Setup python... %clNotic% Components Install. %cl_Base%
-call :logTimeDiff %lapTime% "[Install] Setup python"
+call :logStartap lapTime "[Install] Setup python"
 call :get_version_pip
 if "%cur_pip%"=="Invalid" call :setpyIsoMode
 if not exist "%main_pip%" (
-  call :logTimeDiff %lapTime% "Check pip: Not found. Installing"
+  call :logStartap lapTime "Check pip: Not found. Installing"
   call :downloadPipByPipPyz
   call :get_version_pip
 )
 if not "%cur_pip%"=="%ver_pip%" (
-  call :logTimeDiff %lapTime% "Check pip: Ver mismatch. Updating"
+  call :logStartap lapTime "Check pip: Ver mismatch. Updating"
   call :downloadPipByPipPyz
   call :get_version_pip
 )
@@ -359,12 +354,12 @@ if not "%cur_pip%"=="%ver_pip%" (
   call :logStageStatus 201 "Failed to install pip"
   goto FINISH
 ) else (
-  call :logTimeDiff %lapTime% "Check pip: pip is available"
+  call :logStartap lapTime "Check pip: pip is available"
 )
 
 : -----------------------------------------------------------------------------
 : Install virtual environment
-call :logTimeDiff %lapTime% "Install virtualenv"
+call :logStartap lapTime "Install virtualenv"
 echo %clTitle%Creating Virtualenv...%cl_Base%
 
 set "com_venv=""%main_python%"" -I -m pip install virtualenv --find-links ""%rapid_dirCache%"""
@@ -374,9 +369,9 @@ call :pyGetComp "%com_venv%" "Download venv" "venv"
 ECHO Creating Virtual Environment at "%path_env%"
 "%main_python%" -I -m virtualenv "%path_env%" --python "%main_python%" ^
   --no-download --extra-search-dir "%rapid_dirCache%" && (
-  call :logTimeDiff %lapTime% "Create  virtualenv: Done"
+  call :logStartap lapTime "Create  virtualenv: Done"
 ) || (
-  call :logTimeDiff %lapTime% "Create  virtualenv: Failed"
+  call :logStartap lapTime "Create  virtualenv: Failed"
   echo %clAlarm% Failed to create Virtual Env %cl_Base%
   goto FINISH
 )
@@ -392,19 +387,19 @@ if exist "%path_sqlite_dll%" copy /y "%path_sqlite_dll%" "%path_env%\Scripts\"
 echo Activate Virtual Environment
 CALL "%path_env%\Scripts\activate.bat"
 if errorlevel 1 (
-  call :logTimeDiff %startTime% "virtualenv activated: Failed"
+  call :logStartap startTime "virtualenv activated: Failed"
 ) else (
-  call :logTimeDiff %startTime% "virtualenv activated: %VIRTUAL_ENV%"
+  call :logStartap startTime "virtualenv activated: %VIRTUAL_ENV%"
 )
 :: python isolation - Lib and DLLs for virtualenv in installation
 set "PYTHONHOME=%path_python%"
 call :checkPythonIsolation "%main_venvpy%"
 
 :: Install pip to venv
-call :logTimeDiff %lapTime% "Install pip   to virtualenv"
+call :logStartap lapTime "Install pip   to virtualenv"
 "%main_venvpy%" -I "%path_pi_pyz%" install pip==%ver_pip% --find-links "%rapid_dirCache%" ^
   --exists-action=i --no-warn-script-location --retries 2
-call :logTimeDiff %lapTime% "Install venv pip by pyz"
+call :logStartap lapTime "Install venv pip by pyz"
 set "cmd_dlp=""%main_venvpy%"" -I -m pip install %pkg_com% --no-index --retries 1"
 set "cmd_dlp=%cmd_dlp% --find-links ""%rapid_dirCache%"" --only-binary=:all:"
 call :pyGetComp "%cmd_dlp%" "Install venv pip " "pip.whl" && set /a err=0 || set /a err=1
@@ -424,7 +419,7 @@ if %err% neq 0 (
 
 echo %clTitle%Installing python libraries...%cl_Base%
 :: Install Library with pip
-call :logTimeDiff %startTime% "Install pylib to virtualenv"
+call :logStartap startTime "Install pylib to virtualenv"
 rem Rapid pylib Install
 set "cmd_libR=""%main_venvpy%"" -I -m pip install -r ""%requirements%"" --retries 3"
 set "cmd_libR=%cmd_libR% --find-links ""%rapid_dirCache%"" --no-warn-script-location"
@@ -451,29 +446,25 @@ if %err% neq 0 (
     timeout /t 5
     goto FINISH
 ) else (
-  call :logTimeDiff %lapTime% "Download pylib: Completed"
+  call :logStartap lapTime "Download pylib: Completed"
 )
 
 if exist "%path_R%" (
   if "%prod%"=="%product_dn%" "%path_R%\bin\R" CMD BATCH "r_install_packages.r"
 )
-call :logTimeDiff %lapTime% "Install pylib: Completed"
+call :logStartap lapTime "Install pylib: Completed"
 
 : log application status : Installation Completed
-if exist "%file_stat%" (
-  for /f "tokens=1,* delims==" %%a in ('findstr /r /c:"^[^;].*=" "%file_stat%"') do (
-    call :logTimeDiff %lapTime% "ini: %%a%tab%[%%b]"
-    set "%%a=%%b"
-  )  
-)
-for /f "usebackq delims=" %%t in (`%pshell% -Command ^
-  "$stt=[datetime]::Parse(($env:startTime).Trim());" ^
-  "$end=Get-Date;" ^
-  "($end-$stt).ToString('hh\:mm\:ss\.fff')"
-`) do set "diff=%%t"
+rem call :readIniSettings "%stat_ini%"
+call :getDateTime current
+call :getTimeDiff "%startTime%" "%current%" diff
 if not defined initial_date set "initial_date=%current%"
-if not defined install_path ( set "log=" ) else ( set "log=%install_date%, %install_span%, %install_vers%, %install_path%" )
->"%file_stat%" (
+if not defined install_path (
+  set "log="
+) else (
+  set "log=%install_date%, %install_span%, %install_vers%, %install_prod%, %install_path%"
+)
+>"%stat_ini%" (
   echo(;; This INI file is controlled by AnalysisPlatform.bat installer
   echo(; Application Status
   echo(install_vers=%app_ver%
@@ -488,7 +479,7 @@ if not defined install_path ( set "log=" ) else ( set "log=%install_date%, %inst
   echo(install_log3=%install_log2%
 )
 
-call :logTimeDiff %lapTime% "Install Completed"
+call :logStartap lapTime "Install Completed"
 echo.
 echo Download components, libraries and installation is completed.
 echo.
@@ -498,7 +489,7 @@ echo.
 : _____________________________________________________________________________
 :Start_AP
 call :mode_cmd_run_ap "Keep"
-call :logTimeDiff %startTime% "[Start AP] Startup process initiated"
+call :logStartap startTime "[Start AP] Startup process initiated"
 
 @REM :REMOVE_ZIPPED_FILES
 @REM rem ::::::Blocking this from running
@@ -506,12 +497,12 @@ call :logTimeDiff %startTime% "[Start AP] Startup process initiated"
 @REM   IF exist "%path_oc_zip%" (
 @REM     del "%path_oc_zip%"
 @REM     echo Removed Oracle zipped files.
-@REM     call :logTimeDiff %lapTime% "Delete zip Oracle"
+@REM     call :logStartap lapTime "Delete zip Oracle"
 @REM   )
 @REM   IF exist "%path_py_zip%" (
 @REM     del "%path_py_zip%"
 @REM     echo Removed Python embedded zipped files.
-@REM     call :logTimeDiff %lapTime% "Delete zip python"
+@REM     call :logStartap lapTime "Delete zip python"
 @REM   )
 @REM   echo.
 @REM )
@@ -520,8 +511,8 @@ call :logTimeDiff %startTime% "[Start AP] Startup process initiated"
 :: Activate python in virtual environment (2nd for instllation 1st for RUN APP)
 echo Activate Virtual Environment
 call "%path_env%\Scripts\activate.bat" ^
-  && call :logTimeDiff %startTime% "virtualenv activated: %VIRTUAL_ENV%" ^
-  || call :logTimeDiff %startTime% "virtualenv activated: Failed"
+  && call :logStartap startTime "virtualenv activated: %VIRTUAL_ENV%" ^
+  || call :logStartap startTime "virtualenv activated: Failed"
 :: python isolation - Lib and DLLs for virtualenv in RUN APP
 set "PYTHONHOME=%path_python%"
 call :checkPythonIsolation "%main_venvpy%"
@@ -530,12 +521,12 @@ if "%proxy%"=="Use Proxy" (
   if defined target_prxy (set "HTTP_PROXY=%target_prxy%")
   if defined target_prxs (set "HTTP_PROXY=%target_prxs%")
 )
-call :logTimeDiff %lapTime% "Set HTTP_PROXY%tab%[%HTTP_PROXY%]"
-call :logTimeDiff %lapTime% "Set HTTPS_PROXY%tab%[%HTTPS_PROXY%]"
+call :logStartap lapTime "Set HTTP_PROXY%tab%[%HTTP_PROXY%]"
+call :logStartap lapTime "Set HTTPS_PROXY%tab%[%HTTPS_PROXY%]"
 : ensure to assign the app title
 title %app_title%
 call :saveStartUpSetting
-call :logTimeDiff %lapTime% "Activate and set proxy to venv python"
+call :logStartap lapTime "Activate and set proxy to venv python"
 echo.
 
 : Skip main.py
@@ -554,7 +545,7 @@ call :mode_cmd_run_ap
 REM run application
 echo Starting Up Analysis Platform...    %clTitle% port:%port%  %cd% %cl_Base%
 echo.
-call :logTimeDiff %startTime% "Run main.py"
+call :logStartap startTime "Run main.py"
 "%main_venvpy%" -I "%cd%\main.py"
 rem "%main_venvpy%" -I -c "import sys, runpy; sys.path.insert(0, r'%CD%'); runpy.run_path(r'%CD%\main.py', run_name='__main__')"
 echo.
@@ -562,7 +553,7 @@ echo.
 
 : Close CMD.exe if no error
 :FINISH
-call :logTimeDiff %startTime% "[Closing] Closing process initiated  errCount:%errCount%"
+call :logStartap startTime "[Closing] Closing process initiated  errCount:%errCount%"
 echo.
 echo.
 echo ===== Closing AP+DN7 =====
@@ -574,12 +565,12 @@ if %errCount% neq 0 (
   echo %clAlarm% Abnormal Termination %cl_Base%
   echo  Error Count : %errCount%
   echo  Error Code  : %errCode%
-  call :logTimeDiff %startTime% "===== Error End Code:%errCode% Count: %errCount%"
-  exit /b
+  call :logStartap startTime "===== Error End Code:%errCode% Count: %errCount%"
+  exit /b 0
 )
 if "%only_install%"=="1" (
   echo Installation Completed ...
-  exit /b
+  exit /b 0
 )
 rem call :stopBrowser
 rem In case of NO ERROR, terminal window will be closed automatically in 5 seconds.
@@ -590,7 +581,7 @@ timeout /t 5
 ::powershell -ExecutionPolicy Bypass -Command Get-Process ^| Where-Object { $_.Path -like \"*cmd.exe\" -and $_.MainWindowTitle -like \"STOPPING...*\" } ^| ForEach-Object { Stop-Process -Id $_.Id -Force }
 if /I "%arg1%"=="skip_main" (
   echo skip end
-  exit /b
+  exit /b 0
 )
 exit
 
@@ -646,15 +637,15 @@ exit
   if "%dst%"=="" exit /b 2
   for %%D in ("%dst%") do if not exist "%%~dpD" mkdir "%%~dpD"
   :: Invoke-WebRequest by 1:UseProxy 2:NoProxy 3:WinHTTP 4:WinINET
-  call :logTimeDiff %startTime% "Download by Invk%tab%%tgt%"
+  call :logStartap startTime "Download by Invk%tab%%tgt%"
   %pshell% -Command ^
     $ErrorActionPreference='Stop'; $url=$env:url; $dst=$env:dst; ^
     try { ^
       $st = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff'; ^
-      $base = Split-Path -Path $dst -Leaf; ^
+      $base = Split-Path -Path $dst -Leaf; $tab = [char]9; ^
       $self_pid = (Get-Process -Id $PID).Parent.Id; ^
-      Add-Content -LiteralPath $env:log_startup ^
-        -Value ($st, $st, '00:00.00', $PID, 'PS Invoke-WebReq', $base, $self_pid -join ([char]9)); ^
+      $log = $st, $st, 'zip', '00:00', 'PID:'+$PID, 'PS Invoke-WebReq', $base, $self_pid -join $tab; ^
+      Add-Content -LiteralPath $env:log_startap -Value $log; ^
       if(-not [string]::IsNullOrWhiteSpace($env:stage)) { ^
         Add-Content -LiteralPath $env:log_stageTime -Value ('{0}-{1}-{2}' -f $PID, $env:stage, $st) }; ^
     } catch { } ^
@@ -689,31 +680,31 @@ exit
     } catch { } ^
     exit 5
   if not errorlevel 5 (
-    if          errorlevel 4 ( call :logTimeDiff %lapTime% "Get File by Invk%tab%%tgt%%tab%via WinINET"
-    ) else ( if errorlevel 3 ( call :logTimeDiff %lapTime% "Get File by Invk%tab%%tgt%%tab%via WinHTTP"
-    ) else ( if errorlevel 2 ( call :logTimeDiff %lapTime% "Get File by Invk%tab%%tgt%%tab%via NoProxy"
-    ) else ( if errorlevel 1 ( call :logTimeDiff %lapTime% "Get File by Invk%tab%%tgt%%tab%via Proxy" ))))
+    if          errorlevel 4 ( call :logStartap lapTime "Get File by Invk%tab%%tgt%%tab%via WinINET"
+    ) else ( if errorlevel 3 ( call :logStartap lapTime "Get File by Invk%tab%%tgt%%tab%via WinHTTP"
+    ) else ( if errorlevel 2 ( call :logStartap lapTime "Get File by Invk%tab%%tgt%%tab%via NoProxy"
+    ) else ( if errorlevel 1 ( call :logStartap lapTime "Get File by Invk%tab%%tgt%%tab%via Proxy" ))))
     exit /b 0
   ) else (
-    call :logTimeDiff %lapTime% "Download by BITS%tab%%tgt%"
+    call :logStartap lapTime "Download by BITS%tab%%tgt%"
     echo ---- Try BITS
     call :downloadViaBITS "%url%" "%dst%"
   ) 
   if not errorlevel 4 (
-    if          errorlevel 3 ( call :logTimeDiff %lapTime% "Get File by BITS%tab%%tgt%%tab%via NoProxy"
-    ) else ( if errorlevel 2 ( call :logTimeDiff %lapTime% "Get File by BITS%tab%%tgt%%tab%via Proxy"
-    ) else ( if errorlevel 1 ( call :logTimeDiff %lapTime% "Get File by BITS%tab%%tgt%%tab%via PreConfig" )))
+    if          errorlevel 3 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via NoProxy"
+    ) else ( if errorlevel 2 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via Proxy"
+    ) else ( if errorlevel 1 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via PreConfig" )))
     exit /b 0
   ) else (
-    call :logTimeDiff %lapTime% "Download by CAUt%tab%%tgt%"
+    call :logStartap lapTime "Download by CAUt%tab%%tgt%"
     echo ---- Try Certutil
     certutil -urlcache -split -f "%url%" "%dst%"  
   )
   if not errorlevel 1 (
-    call :logTimeDiff %lapTime% "Get File by CAUt%tab%%tgt%"
+    call :logStartap lapTime "Get File by CAUt%tab%%tgt%"
     exit /b 0
   ) else (  
-    call :logTimeDiff %lapTime% "Download by Curl%tab%%tgt%"
+    call :logStartap lapTime "Download by Curl%tab%%tgt%"
     echo ---- Try Curl
     curl.exe -v %HTTPS_PROXY%
     curl.exe --fail --silent --show-error --location "%url%" -o "%dst%"
@@ -729,27 +720,18 @@ exit
 :checkPythonLib_rough
   echo   Check python libraries
   rem Packages=Flask numpy scikit-learn chardet SQLAlchemy cutlet networkx
-  set "lib_python=flask numpy sklearn chardet sqlalchemy cutlet networkx"
-  set /a fail=0
-  for %%a in (%lib_python%) do (
-    rem echo  [Check] Checking import: %%a
-    "%main_venvpy%" -I -c "import %%a" >nul 2>&1
-    if errorlevel 1 (
-      echo     [Fail] Import failed: %%a
-      set /a fail=1
-      goto IMPORT_FAIL
-    ) else (
-      echo     [Pass] Import succeeded: %%a
-    )
-  )
-  :IMPORT_FAIL
-  if %fail% neq 0 (
+  rem set "lib_python=flask numpy sklearn chardet sqlalchemy cutlet networkx" :: Take Time
+  set "lib_python=flask chardet sqlalchemy networkx"
+
+  set "pycode=import %lib_python: =; import %"
+  "%main_venvpy%" -I -c "%pycode%" 1>nul 2>&1
+  if errorlevel 1 (
     echo   [Judge] One or more imports failed.
-    call :logTimeDiff %lapTime% "Check pylib rouph: Missing"
+    call :logStartap lapTime "Check pylib rouph: Missing"
     exit /b 1
   ) else (
-    echo   Detect python libraries
-    call :logTimeDiff %lapTime% "Check pylib rouph: Exist"
+    echo   Detect python libraries: Pass
+    call :logStartap lapTime "Check pylib rough: Exist"
   )
   exit /b 0
 :end
@@ -762,15 +744,15 @@ exit
   set "exceptlb=(Babel|pyper)"
   if not exist "%main_pip%" (
     echo python libraries missing
-    call :logTimeDiff %lapTime% "Check pylib full: Missing pip"
+    call :logStartap lapTime "Check pylib full: Missing pip"
     rem exit /b 2
   )
   rem Generate list of libraries that are not installed in file_dif, but keep only Flask-Babel if it differs by case.
   if exist "%main_venvpy%" (
     "%main_venvpy%" -I -m pip freeze | sort > %file_frz% ^
-      && call :logTimeDiff %lapTime% "Freeze (Installed lib)  List: %file_frz%"
+      && call :logStartap lapTime "Freeze (Installed lib)  List: %file_frz%"
   ) else (
-    call :logTimeDiff %lapTime% "Check pylib full: Missing python in virtualenv"
+    call :logStartap lapTime "Check pylib full: Missing python in virtualenv"
     type nul > "%file_frz%"
   )
   rem Join two requirements files into file_req
@@ -778,7 +760,7 @@ exit
     $req_com=$env:file_com; $req_prd=$env:requirements; $req_all=$env:file_req; ^
     Get-Content $req_com, $req_prd ^| Select-String -NotMatch 'common.txt' ^
       ^| Sort-Object ^| Set-Content -LiteralPath $req_all -Encoding UTF8 ^
-    && call :logTimeDiff %lapTime% "Create All Requirements List: %file_req%"
+    && call :logStartap lapTime "Create All Requirements List: %file_req%"
   rem Output the differences between the two files to file_dif
   %pshell% -Command ^
     $ErrorActionPreference='Stop'; ^
@@ -790,17 +772,17 @@ exit
     $dif ^| Set-Content -LiteralPath $lib_dif -Encoding UTF8; ^
     $dif = $dif ^| Where-Object { $_ -notmatch $exc_lib } ^| Where-Object { $_ -notmatch '^\s*#' }; ^
     if (@($dif).Count -eq 0) { exit 0 } else { exit 1 } && (
-    call :logTimeDiff %lapTime% "Create Dif Requirements List: %file_dif% - Missing library except keyword in exceptlb"
+    call :logStartap lapTime "Create Dif Requirements List: %file_dif% - Missing library except keyword in exceptlb"
     echo python libraries exist
-    call :logTimeDiff %lapTime% "Check pylib full: Exist"
+    call :logStartap lapTime "Check pylib full: Exist"
     exit /b 0
   ) || (
-    call :logTimeDiff %lapTime% "Create Dif Requirements List: %file_dif% - Missing library except keyword in exceptlb"
+    call :logStartap lapTime "Create Dif Requirements List: %file_dif% - Missing library except keyword in exceptlb"
     echo python libraries missing
-    call :logTimeDiff %lapTime% "Check pylib full: Missing"
+    call :logStartap lapTime "Check pylib full: Missing"
     exit /b 1
   )
-  exit /b
+  exit /b 0
 
 :end
 
@@ -811,7 +793,7 @@ exit
   echo Download python
   if not exist "%path_py_zip%" (
     call :downloadFile "%url_python%" "%path_py_zip%" "PYTHON_EMBEDDED" && (
-      call :logTimeDiff %lapTime% "Download Completed%tab%%path_py_zip%"
+      call :logStartap lapTime "Download Completed%tab%%path_py_zip%"
     ) || (
       echo %clAlarm% Error on CA Check network connection or network security %cl_Base%
       echo Fail to download Python Embedded
@@ -826,9 +808,9 @@ exit
     %pshell% -Command ^
       $ErrorActionPreference='Stop'; $zip=$env:path_py_zip; $dst=$env:path_python; ^
       Expand-Archive -Path $zip -DestinationPath $dst -Force && (
-        call :logTimeDiff %lapTime% "Unzip    Completed%tab%python.zip"
+        call :logStartap lapTime "Unzip    Completed%tab%python.zip"
       ) || (
-        call :logTimeDiff %lapTime% "Unzip    Failed%tab%python.zip"
+        call :logStartap lapTime "Unzip    Failed%tab%python.zip"
       )
   )
   call :setpyIsoMode
@@ -842,7 +824,7 @@ exit
 :downloadOracleInstance
 setlocal EnableExtensions EnableDelayedExpansion
   if /i "%arg1%"==":downloadOracleInstance" (
-    call :logTimeDiff %lapTime% "Background Download%tab%%path_oc_zip%"
+    call :logStartap lapTime "Background Download%tab%%path_oc_zip%"
   )
   echo Download oracle instance
   if not exist "%path_oc_zip%" (
@@ -853,7 +835,7 @@ setlocal EnableExtensions EnableDelayedExpansion
       pause
       endlocal & exit /b 1
     )
-    call :logTimeDiff %lapTime% "Download Completed%tab%%path_oc_zip%"
+    call :logStartap lapTime "Download Completed%tab%%path_oc_zip%"
   )
 
   echo Unzip oracle instance
@@ -861,11 +843,11 @@ setlocal EnableExtensions EnableDelayedExpansion
     %pshell% -Command ^
       $ErrorActionPreference='Stop'; $zip=$env:path_oc_zip; $dst=$env:path_oracle; ^
       Expand-Archive -Force -Path $zip -DestinationPath $dst && (
-      call :logTimeDiff %lapTime% "Unzip    Completed%tab%Oracle.zip"
+      call :logStartap lapTime "Unzip    Completed%tab%Oracle.zip"
     ) || (
       echo %clAlarm% Error on Unzip File %cl_Base%
       echo Fail to unzip Oracle instance
-      call :logTimeDiff %lapTime% "Unzip    Failed%tab%%Oracle.zip"
+      call :logStartap lapTime "Unzip    Failed%tab%%Oracle.zip"
       call :logStageStatus 210
       pause
       endlocal & exit /b 1
@@ -873,7 +855,7 @@ setlocal EnableExtensions EnableDelayedExpansion
     
     if /i "%arg1%"==":downloadOracleInstance" (
       echo Install Completed%tab%%path_oc_zip%
-      call :logTimeDiff %startTime% "Background Install Completed: Oracle.lib"
+      call :logStartap startTime "Background Install Completed: Oracle.lib"
     )
   )
   if /i "%arg1%"==":downloadOracleInstance" (
@@ -890,36 +872,36 @@ endlocal & exit /b 0
   set "py_exe=%~1"
   if %py_exe% == %main_python% set "py=py_embd"
   if %py_exe% == %main_venvpy% set "py=py_venv"
-  call :logTimeDiff %lapTime% "%py% PYTHONHOME=%PYTHONHOME%  PYTHONNOUSERSITE=%PYTHONNOUSERSITE%"
+  call :logStartap lapTime "%py% PYTHONHOME=%PYTHONHOME%  PYTHONNOUSERSITE=%PYTHONNOUSERSITE%"
   :: Check python settings and sys path of virtual environment
   for /f "delims=" %%a in ('%py_exe% -c "import sys; print(sys.prefix)"') do set "sys_pref=%%a"
   for /f "delims=" %%a in ('%py_exe% -c "import site; print(getattr(site,'getusersitepackages',lambda:'N/A')())"') do set "site_usr=%%a"
-  call :logTimeDiff %startTime% "%py% sys.prefix: %sys_pref%  usersite: %site_usr%"
+  call :logStartap startTime "%py% sys.prefix: %sys_pref%  usersite: %site_usr%"
   rem for /f "delims=" %%a in ('%py_exe% -c "import sys; print(sys.path)"') do set "sys_path=%%a"
   for /f "delims=" %%a in ('
     %py_exe% -c "import sys; print('\n'.join(sys.path))"
   ') do (
-    call :logTimeDiff %lapTime% "%py% sys.path: %%a"
+    call :logStartap lapTime "%py% sys.path: %%a"
   )
   for /f "delims=" %%a in ('%py_exe% -c "import sys,os,os.path as P; base=P.normcase(P.normpath(os.path.expandvars(r'%LocalAppData%\Programs\Python'))); print(any(P.normcase(P.normpath(p or '')) .startswith(base) for p in sys.path))"') do set "sys_appd=%%a"
-  call :logTimeDiff %lapTime% "%py% AppData Lib/DLL in sys.path: %sys_appd%  (Should be False in isolation)"
+  call :logStartap lapTime "%py% AppData Lib/DLL in sys.path: %sys_appd%  (Should be False in isolation)"
   for /f "delims=" %%a in ('%py_exe% -c "import sys,site; print(any(p and p.lower()==site.getusersitepackages().lower() for p in sys.path))"') do set "sys_site=%%a"
-  call :logTimeDiff %lapTime% "%py% site:user.local in sys.path: %sys_site%  (Should be False in isolation)"
+  call :logStartap lapTime "%py% site:user.local in sys.path: %sys_site%  (Should be False in isolation)"
   for /f "delims=" %%a in ('%py_exe% -c "import site; print(site.ENABLE_USER_SITE)"') do set "site_ena=%%a"
-  call :logTimeDiff %lapTime% "%py% site.ENABLE_USER_SITE:       %site_ena%  (Should be False in isolation)"
-  exit /b
+  call :logStartap lapTime "%py% site.ENABLE_USER_SITE:       %site_ena%  (Should be False in isolation)"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
 : Subroutine: Download pip.pyz, pip.whl and Install pip.exe
 :      In/Out - |In -
 :downloadPipByPipPyz
-  call :logTimeDiff %startTime% "Try to install pip with pip.pyz"
+  call :logStartap startTime "Try to install pip with pip.pyz"
   if exist "%path_pi_pyz%" (
-    call :logTimeDiff %startTime% "Detect pip.pyz"
+    call :logStartap startTime "Detect pip.pyz"
   ) else (
     call :downloadFile "%url_pippyz%" "%path_pi_pyz%" "PIP_DOWNLOAD" ^
-      && call :logTimeDiff %lapTime% "Fetched pip.pyz"
+      && call :logStartap lapTime "Fetched pip.pyz"
   )
 
   set "cmd_pyz=""%main_python%"" -I ""%path_pi_pyz%"" download pip==%ver_pip% -d ""%rapid_dirCache%"""
@@ -931,7 +913,7 @@ endlocal & exit /b 0
   call :pyGetComp "%cmd_pyz%" "Download pip by pyz" "pip/pip.pyz"
 
   call :get_version_pip
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -941,8 +923,8 @@ endlocal & exit /b 0
   set "cur_pip=Invalid"
   for /f "tokens=2 delims= " %%a in ('"%main_python%" -I -m pip --version') do set "cur_pip=%%~a"
   echo   Current pip version: %cl_Note%%cur_pip%%cl_Base%  target: %ver_pip%
-  call :logTimeDiff %lapTime% "pip version: %cur_pip%  target: %ver_pip%"
-  exit /b
+  call :logStartap lapTime "pip version: %cur_pip%  target: %ver_pip%"
+  exit /b 0
 :end
 
 :get_version_pip_env
@@ -952,8 +934,8 @@ endlocal & exit /b 0
     %main_venvpy% -c "import sys; sys.dont_write_bytecode=True; import pip; print(getattr(pip,'__version__',''))"
   ') do set "epy_var=%%a"
   echo   Current venv pip version: %cl_Note%%env_pip%%cl_Base%  byPy: %epy_var%  target: %ver_pip%
-  call :logTimeDiff %lapTime% "venv pip version: %env_pip%  byPy: %epy_var%  target: %ver_pip%"
-  exit /b
+  call :logStartap lapTime "venv pip version: %env_pip%  byPy: %epy_var%  target: %ver_pip%"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -965,8 +947,8 @@ endlocal & exit /b 0
   for %%a in ("Lib" "Lib\site-packages" "import site") do (
     findstr /x /c:%%a "%path_py_pth%" >nul || echo %%~a>>"%path_py_pth%"
   )
-  call :logTimeDiff %startTime% "Set python Isolated mode"
-  exit /b
+  call :logStartap startTime "Set python Isolated mode"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1025,7 +1007,7 @@ endlocal & exit /b 0
     set "cmd_wheel=%cmd_wheel% -r ""%requirements%"" --retries 2"
     call :pyGetComp "%cmd_wheel%" "Download libraries#" "py.lib" && set /a err=0 || set /a err=1
   )
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1043,16 +1025,16 @@ endlocal & exit /b 0
   )
 
   if %fileSizekB% equ -1 (
-    call :logTimeDiff "%lapTime%" "Missing zip %label%: File.zip not found  %zipPath%"
+    call :logStartap lapTime "Missing zip %label%: File.zip not found  %zipPath%"
   ) else if %fileSizekB% leq %limitkB% (
     del /f /q "%zipPath%"
     echo Removed %label% zipped files. %fileSizekB%[kB] ^< Limit: %limitkB%[kB]
-    call :logTimeDiff "%lapTime%" "Broken  del %label%: %fileSizekB%[kB] ^< Limit: %limitkB%[kB]"
+    call :logStartap lapTime "Broken  del %label%: %fileSizekB%[kB] ^< Limit: %limitkB%[kB]"
   ) else (
-    call :logTimeDiff "%lapTime%" "Keep    zip %label%: %fileSizekB%[kB] Limit: %limitkB%[kB]"
+    call :logStartap lapTime "Keep    zip %label%: %fileSizekB%[kB] Limit: %limitkB%[kB]"
   )
 
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1068,18 +1050,18 @@ endlocal & exit /b 0
   echo %clTitle%%msg%%cl_Base% with Proxy
   %cmd% && (
     set /a err=0
-    call :logTimeDiff %lapTime% "Fetched  %cmp% with Proxy: Done"
+    call :logStartap lapTime "Fetched  %cmp% with Proxy: Done"
     exit /b 0
   ) || (
-    call :logTimeDiff %lapTime% "Download %cmp% with Proxy: Failed"
+    call :logStartap lapTime "Download %cmp% with Proxy: Failed"
     echo %msg% without Proxy
     setlocal EnableExtensions
       for %%a in (HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY) do (set "%%a=")
       %cmd% && (
-        call :logTimeDiff %lapTime% "Fetched  %cmp% w/o  Proxy: Done"
+        call :logStartap lapTime "Fetched  %cmp% w/o  Proxy: Done"
         exit /b 0
       ) || (
-        call :logTimeDiff %lapTime% "Download %cmp% w/o  Proxy: Failed"
+        call :logStartap lapTime "Download %cmp% w/o  Proxy: Failed"
         exit /b 1
       )
     endlocal
@@ -1106,7 +1088,7 @@ endlocal & exit /b 0
   color 0F
   set "cl_Base=%esc%[0m"
   echo %cl_Base%
-  exit /b
+  exit /b 0
 :end
 
 :mode_cmd_install
@@ -1142,18 +1124,18 @@ endlocal & exit /b 0
   echo %esc%[30;107m Change Color %esc%[30;107m%cl_Base%
   cls
   echo.
-  exit /b
+  exit /b 0
 :end
 
 :mode_cmd_run_ap
   set "cmd=%~1"
-  if %status% equ %status_run_app% exit /b
+  if %status% equ %status_run_app% exit /b 0
 
   :: Setting com.exe
   color 0F
   set "cl_Base=%esc%[0m"
 
-  if "cmd"=="Keep" exit /b
+  if "cmd"=="Keep" exit /b 0
   
   :: Minimize com window
   %pshell% -Command ^
@@ -1163,7 +1145,7 @@ endlocal & exit /b 0
       [System.Runtime.InteropServices.DllImport(\"user32.dll\")] ^
         public static extern bool ShowWindowAsync(System.IntPtr hWnd,int nCmdShow);' -Name Win -Namespace X; ^
     [X.Win]::ShowWindowAsync([X.Win]::GetConsoleWindow(), 6)
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1171,7 +1153,7 @@ endlocal & exit /b 0
 :      In/Out var|In  %*: Array of Replacement Char
 :removeChar
   for %%i in (%*) do call set var=%%var:%%i=%%
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1179,7 +1161,7 @@ endlocal & exit /b 0
 :      In/Out var
 :convertCaseLower
   for %%i in (%chr_alphab%) do call set var=%%var:%%i=%%i%%
-  exit /b
+  exit /b 0
 :end
 
 
@@ -1190,8 +1172,8 @@ endlocal & exit /b 0
   :: AP Folder
   for %%D in (..) do set "path_main=%%~fD"
   : Setting
-  set "file_stat=%path_main%\apdn7.ini"
   set "file_vers=VERSION"
+  set "stat_ini=%path_main%\apdn7.ini"
   :: Product Requirements File dn or oss
   set "path_req=requirements"
   set "file_prod_dn=%path_req%\prod.txt"
@@ -1200,7 +1182,7 @@ endlocal & exit /b 0
   set "start_file=%cd%\start_ap.exe"
   set "start_info=startup.yaml"
   set "path_log=log"
-  set "log_startup=start_ap.log"
+  set "log_startap=start_ap.log"
   set "log_stageStatus=stage_status.log"
   set "log_stageTime=stage_start_time.log"
   ::: python
@@ -1228,8 +1210,8 @@ endlocal & exit /b 0
   ::: pip
   set "main_pip=%path_python%\Scripts\pip.exe"
   set "path_pi_pyz=%path_python%\pip.pyz"
-  set "ver_pip=26.0"
-  set "pkg_com=pip==%ver_pip% setuptools==80.10.2 wheel==0.46.3"
+  set "ver_pip=26.0.1"
+  set "pkg_com=pip==%ver_pip% setuptools==82.0.0 wheel==0.46.3"
   set "pkg_env=virtualenv==20.36.1"
   ::: Oracle
   set "path_oc_zip=%path_main%\Oracle-Portable.zip"
@@ -1276,18 +1258,18 @@ endlocal & exit /b 0
   set /a wait_netcheck=%wait_netcheck_appl%
 
   : Settings from start batch
-  :: Remove all '"'
-  set port=%port:"=%
-  set lang=%lang:"=%
-  set prxy=%prxy:"=%
-  set prxs=%prxs:"=%
-  set subt=%subt:"=%
-  :: Remove all ' '
-  set port=%port: =%
-  set lang=%lang: =%
-  set prxy=%prxy: =%
-  set prxs=%prxs: =%
-  set subt=%subt: =_%
+  :: Remove all '"'  
+  set "port=%port:"=%"
+  set "lang=%lang:"=%"
+  set "prxy=%prxy:"=%"
+  set "prxs=%prxs:"=%"
+  set "subt=%subt:"=%"
+  :: Remove all ' '  
+  set "port=%port: =%"
+  set "lang=%lang: =%"
+  set "prxy=%prxy: =%"
+  set "prxs=%prxs: =%"
+  set "subt=%subt: =_%"
 
   ::: Get Current Directory Name: AnalysisPlatform000_7770
   for %%d in ("%CD%") do set "path_cur=%%~nxd"
@@ -1303,7 +1285,35 @@ endlocal & exit /b 0
     if defined path_sub set "subtitle=%path_sub%"
   )
 
-  exit /b
+  exit /b 0
+:end
+
+: _____________________________________________________________________________
+: Subroutine: Read ini File Settings
+:      In/Out - |In -
+:readIniSettings
+  set "ini=%~1"
+  set "idx=%~nx1"
+  if not exist "%ini%" (
+    echo %esc%[32m  Detect no ini file. Using default settings...%esc%[0m
+    call :logStartap lapTime "%idx%: Detect no ini file. Using default settings"
+    exit /b 1
+  )
+  set "ini_acc="
+  for /f "tokens=1,* delims==" %%a in ('findstr /r /c:"^[^;].*=" "%ini%"') do (
+    set "%%a=%%b"
+    if  not defined ini_acc (
+      set "ini_acc=%idx% %%a%tab%[%%b]"
+    ) else (
+      call set "ini_acc=%%ini_acc%%;%%idx%% %%a%%tab%%[%%b]"
+    )
+  )  
+  call :logStartap lapTime "%ini_acc%"
+  if not defined ini_acc (
+    call :logStartap lapTime "%idx%: [Error] %idx%: Fail to read ini file."
+    exit /b 2
+  )
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1345,7 +1355,7 @@ endlocal & exit /b 0
     if ($c) { Write-Host (' '*2 + 'NG: Port ' + $p + ' is in use (LISTENING).');        exit 1 } ^
     else    { Write-Host (' '*2 + 'OK: Port ' + $p + ' is available (Not LISTENING).'); exit 0 } ^
     && (
-      call :logTimeDiff %lapTime% "Check Port: Port %var% is available (TCP Connection)"
+      call :logStartap lapTime "Check Port: Port %var% is available (TCP Connection)"
       exit /b 0
     ) || (
       echo %clAlarm% Alarm: Port %var% is already in use. %cl_Base%
@@ -1363,15 +1373,15 @@ endlocal & exit /b 0
           | %pshell% -command "$input -replace '\"','' -replace ',',\"`t\""
       )
       echo %clAlert%If the required application is running, you must select 'N'.%cl_Base%
-      call :logTimeDiff %lapTime% "Check Port: Detected port %var% in use"
+      call :logStartap lapTime "Check Port: Detected port %var% in use"
       choice /c YN /m "Press Y to continue or N to cancel:" /t 60 /d Y
       if errorlevel 2 (
         echo   Process canceled.
-        call :logTimeDiff %lapTime% "Check Port: Canceled by user"
+        call :logStartap lapTime "Check Port: Canceled by user"
         exit /b 1
       )
       echo   Forcing process to continue...
-      call :logTimeDiff %lapTime% "Check Port: Forced execution by user"
+      call :logStartap lapTime "Check Port: Forced execution by user"
     )
   
   rem call :stopLoadingApp
@@ -1392,7 +1402,7 @@ endlocal & exit /b 0
     }
   timeout /t 1
   echo   Port:%var% available
-  call :logTimeDiff %lapTime% "Forced closing of Port %var%"
+  call :logStartap lapTime "Forced closing of Port %var%"
   exit /b 0
 :end
 
@@ -1401,8 +1411,8 @@ endlocal & exit /b 0
 :      In/Out - |In -
 :getDefaultProxy
   : Setting from start_ap.ini
-  call :logTimeDiff %lapTime% "start_ap.ini Proxy http  prxy : %prxy%"
-  call :logTimeDiff %lapTime% "start_ap.ini Proxy https prxs : %prxs%"
+  call :logStartap lapTime "start_ap.ini Proxy http  prxy : %prxy%"
+  call :logStartap lapTime "start_ap.ini Proxy https prxs : %prxs%"
   : get Default Proxy Setting
   set "basic_ver=null"
   set "basic_port=null"
@@ -1422,15 +1432,15 @@ endlocal & exit /b 0
   echo   Ver  : %basic_ver%
   echo   Port : %basic_port%
   echo   Proxy: %basic_proxy%
-  call :logTimeDiff %lapTime% "Basic Config ver  : %basic_ver%"
-  call :logTimeDiff %lapTime% "Basic Config port : %basic_port%"
-  call :logTimeDiff %lapTime% "Basic Config proxy: %basic_proxy%"
+  call :logStartap lapTime "Basic Config ver  : %basic_ver%"
+  call :logStartap lapTime "Basic Config port : %basic_port%"
+  call :logStartap lapTime "Basic Config proxy: %basic_proxy%"
 
   if not "%basic_proxy%"=="null" (
     if not "%basic_proxy%"==":" (
       if "%prxy%"=="null" (
         echo Use Default Proxy of %basic_proxy%
-        call :logTimeDiff %lapTime% "Use BasicCfg proxy: %basic_proxy%"
+        call :logStartap lapTime "Use BasicCfg proxy: %basic_proxy%"
         set "prxy=%basic_proxy%"
         set "prxs=%basic_proxy%"
       )
@@ -1442,7 +1452,7 @@ endlocal & exit /b 0
   echo   Proxy https: %prxs%
   echo.
   if %prxs% == http set prxs=%prxy%
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1484,7 +1494,7 @@ endlocal & exit /b 0
     echo Current Value: [%var%]  valid_proxy=%valid_proxy%
     if %status% equ %status_install% (
       call :logStageStatus 102 "Bad Proxy Setting"
-      call :logTimeDiff %lapTime% "Proxy Invalid %target_type%:%tab%%target_proxy%"
+      call :logStartap lapTime "Proxy Invalid %target_type%:%tab%%target_proxy%"
       exit /b 1
     ) else (
       call :logStageStatus 102 "Bad Proxy Setting" "NoCount"
@@ -1504,9 +1514,9 @@ endlocal & exit /b 0
   if %valid_proxy% equ 0x06 set "provy_type=ipAddress"
   if %valid_proxy% equ 0x0A set "provy_type=DomainName"
   if %valid_proxy% equ 0x03 (
-    call :logTimeDiff %lapTime% "Proxy Valid %target_type%:%tab%%provy_type%"
+    call :logStartap lapTime "Proxy Valid %target_type%:%tab%%provy_type%"
   ) else (
-    call :logTimeDiff %lapTime% "Proxy Valid %target_type%:%tab%%provy_type%%tab%%target_proxy%"
+    call :logStartap lapTime "Proxy Valid %target_type%:%tab%%provy_type%%tab%%target_proxy%"
   )
 
   rem Skip the TCP Connection Check when no proxy is configured.
@@ -1518,9 +1528,9 @@ endlocal & exit /b 0
     if(-not $res.TcpTestSucceeded){ ^
       Write-Host (' '*2 + 'Proxy Connection Test [TCP] : NG (Unreachable Proxy)'); exit 1 ^
     } else { Write-Host (' '*2 + 'Proxy Connection Test [TCP] : Pass') } && (
-      call :logTimeDiff %lapTime% "Proxy TCP connection: Pass%tab%%target_type%"
+      call :logStartap lapTime "Proxy TCP connection: Pass%tab%%target_type%"
     ) || (
-      call :logTimeDiff %lapTime% "Proxy TCP connection: Failed%tab%%target_type%"
+      call :logStartap lapTime "Proxy TCP connection: Failed%tab%%target_type%"
     )
 
   : Check Proxy HTTPS Connectivity with Proxy
@@ -1535,10 +1545,10 @@ endlocal & exit /b 0
     } catch { Write-Host (' '*4 + 'Fail to connect via proxy'); exit 1 } && (
       set /a active_com+=1
       set /a Connectivity_proxy=1
-      call :logTimeDiff %lapTime% "Proxy OK_CommViaProxy %target_type%: %target_proxy%"
+      call :logStartap lapTime "Proxy OK_CommViaProxy %target_type%: %target_proxy%"
     ) || (
       set /a Connectivity_proxy=0
-      call :logTimeDiff %lapTime% "Proxy NG_CommViaProxy %target_type%: %target_proxy%"
+      call :logStartap lapTime "Proxy NG_CommViaProxy %target_type%: %target_proxy%"
     )
     if %Connectivity_proxy% equ 0 (
       echo %clAlarm% Alarm: Unable to communicate via proxy %cl_Base%
@@ -1566,12 +1576,12 @@ endlocal & exit /b 0
       ) else (
         set "target_prxs=%winhttp_proxy%"
       )
-      call :logTimeDiff %lapTime% "Proxy Replace_WinHTTP %target_type%: %winhttp_proxy% - WinHTTP"
+      call :logStartap lapTime "Proxy Replace_WinHTTP %target_type%: %winhttp_proxy% - WinHTTP"
     )
   )
 
   rem Skip the Direct Connectivity Check when Proxy Connectivity is OK.
-  if %Connectivity_proxy% equ 1 exit /b
+  if %Connectivity_proxy% equ 1 exit /b 0
 
   :Check_Conn_Direct
   : Check Proxy HTTPS Connectivity without Proxy
@@ -1590,10 +1600,10 @@ endlocal & exit /b 0
     } && (
       set /a active_com+=1
       set /a Connectivity_direct=1
-      call :logTimeDiff %lapTime% "Proxy OK_Comm_NoProxy %target_type%: (No Proxy or WinHTTP Setting)"
+      call :logStartap lapTime "Proxy OK_Comm_NoProxy %target_type%: (No Proxy or WinHTTP Setting)"
     ) || (
       set /a Connectivity_direct=0
-      call :logTimeDiff %lapTime% "Proxy NG_Comm_NoProxy %target_type%: (No Proxy or WinHTTP Setting)"
+      call :logStartap lapTime "Proxy NG_Comm_NoProxy %target_type%: (No Proxy or WinHTTP Setting)"
     )
     if %Connectivity_direct% equ 0 (
       echo %clWarng% Alarm: Unable to communicate with no proxy %cl_Base%
@@ -1605,7 +1615,7 @@ endlocal & exit /b 0
       )
     )
 
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1615,28 +1625,29 @@ endlocal & exit /b 0
   set "var=%network_nck%"
   call :convertCaseLower
 
-   : Make yaml file
-  set "filename=%start_info%"
-  echo !!omap> %filename%
-  echo # Analysis Platform StartUp Batch File Setting>> %filename%
-  echo - version_yaml: 1.0 >> %filename%
-  echo - setting_startup: !!omap>> %filename%
-  echo   - port: %port% >> %filename%
-  echo   - language: %lang% >> %filename%
-  echo   - subtitle: %subt% >> %filename%
-  echo   - proxy_http: %prxy% >> %filename%
-  echo   - proxy_https: %prxs% >> %filename%
-  echo   - network_nck: %var% >> %filename%
-  echo   - env_ap: %prod%>> %filename%
-  echo   - flask_debug: %flask_debug% >> %filename%
-  echo   - update_R: %update_R% >> %filename%
-  echo   - enable_file_log: %enable_file_log% >> %filename%
-  echo   - enable_ga_tracking: %enable_ga_tracking% >> %filename%
-  echo   - enable_dump_trace_log: %enable_dump_trace_log% >> %filename%
-  echo   - disable_config_from_external: %disable_config_from_external% >> %filename%
+  : Make yaml file
+  (
+    echo !!omap
+    echo # Analysis Platform StartUp Batch File Setting
+    echo - version_yaml: 1.0
+    echo - setting_startup: !!omap
+    echo   - port: %port%
+    echo   - language: %lang%
+    echo   - subtitle: %subt%
+    echo   - proxy_http: %prxy%
+    echo   - proxy_https: %prxs%
+    echo   - network_nck: %var%
+    echo   - env_ap: %prod%
+    echo   - flask_debug: %flask_debug%
+    echo   - update_R: %update_R%
+    echo   - enable_file_log: %enable_file_log%
+    echo   - enable_ga_tracking: %enable_ga_tracking%
+    echo   - enable_dump_trace_log: %enable_dump_trace_log%
+    echo   - disable_config_from_external: %disable_config_from_external%
+  ) > "%start_info%"
 
-  call :logTimeDiff %lapTime% "Update %start_info% to share settings to python"
-  exit /b
+  call :logStartap lapTime "Update %start_info% to share settings to python"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1668,7 +1679,7 @@ endlocal & exit /b 0
     rem If we could not get disk space somehow, still allow the user to run the program
     echo Could not obtain the amount of remaining and total disk space. Skipping disk check...
   )
-  call :logTimeDiff %lapTime% "Check Disk Space  NG:%stopAP% Free:%freeGB%[GB] Limit:%needGB%[GB] (%diskspace_pct_required%[%%%%])"
+  call :logStartap lapTime "Check Disk Space  NG:%stopAP% Free:%freeGB%[GB] Limit:%needGB%[GB] (%diskspace_pct_required%[%%%%])"
   set "msg=Please free up at least %needGB%[GB] before installation. Current: %freeGB%[GB]"
   if "%stopAP%"=="True" (
     if %status% equ %status_install% (
@@ -1678,26 +1689,26 @@ endlocal & exit /b 0
       echo %msg%
       rem echo Terminating install process...
       echo Disk space is low. Do you want to continue the process?
-      call :logTimeDiff %lapTime% "Check DiskSpace: Low disk space detected"
+      call :logStartap lapTime "Check DiskSpace: Low disk space detected"
       echo.
       choice /c YN /m "Press Y to continue or N to cancel:" /t 60 /d Y
       if errorlevel 2 (
         echo   Process canceled.
-        call :logTimeDiff %lapTime% "Check DiskSpace: Canceled by user"
+        call :logStartap lapTime "Check DiskSpace: Canceled by user"
         exit /b 1
       ) else (
         echo   Forcing process to continue...
         echo   Even after installation, the data is still not loading.
         echo   Please free up space before using AP+DN7.
-        call :logTimeDiff %lapTime% "Check DiskSpace: Forced execution by user"
+        call :logStartap lapTime "Check DiskSpace: Forced execution by user"
       )
     ) else (
-      call :logTimeDiff %startTime% "Detect Error 100 Low Disk Space"
+      call :logStartap startTime "Detect Error 100 Low Disk Space"
       echo %clWarng% Warning: Free disk space is insufficient %cl_Base%
       echo Since the available disk space is below %diskspace_pct_required% [%%],
       echo The data import process will be stopped.
       echo %msg%
-      call :logTimeDiff %lapTime% "Check Port: Forced execution (Installation completed)"
+      call :logStartap lapTime "Check Port: Forced execution (Installation completed)"
       rem timeout /t 3
     )
   ) else (
@@ -1711,9 +1722,9 @@ endlocal & exit /b 0
 : Subroutine: Stop Loading App
 :      In/Out - |In -
 :stopLoadingApp
-  call :logTimeDiff %startTime% "Stop start_ap.exe"
+  call :logStartap startTime "Stop start_ap.exe"
   %pshell% -Command Get-Process -ErrorAction SilentlyContinue ^| Where-Object { $_.Path -eq \"$env:start_file\" } ^| ForEach-Object { Stop-Process -Id $_.Id -Force }
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1729,7 +1740,7 @@ endlocal & exit /b 0
       Stop-Process -Id $p.ProcessId -Force -ErrorAction Stop; $k += $p.ProcessId; ^
       Write-Host ('Kill by URL cmdline: '+$p.Name+' PID='+$p.ProcessId) } catch {} }; ^
     if($k.Count -eq 0){ Write-Host 'No process found' }
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1740,9 +1751,79 @@ endlocal & exit /b 0
   for /f "usebackq tokens=2" %%a in (`tasklist /FO list /FI "WINDOWTITLE eq %app_title%*" ^| find /i "PID:"`) do (
     set self_pid=%%a
   )
-  for /f "delims=" %%a in ('%pshell% Get-Date -format "{yyyy-MM-dd HH:mm:ss.fff}"') do set "stageStartTime=%%a"
+  call :getDateTime stageStartTime
   echo %self_pid%-%stage_name%-%stageStartTime% >> %log_stageTime%
-  exit /b
+  exit /b 0
+:end
+
+: _____________________________________________________________________________
+: Calculate Time difference
+:      In/Out |In %1: startTime, %2 logMsg
+:getTimeDiff
+  set "fr=%~1"
+  set "to=%~2"
+  set "_ret_diff=%~3"
+  set "_ret_roll=%~4"
+  for /f "tokens=2 delims=_" %%a in ("%fr%") do set "frT=%%a"
+  for /f "tokens=2 delims=_" %%a in ("%to%") do set "toT=%%a"
+  for /f "tokens=1-4 delims=:." %%a in ("%frT%") do ( set "fH=%%a" & set "fM=%%b" & set "fS=%%c" & set "fF=%%d" )
+  for /f "tokens=1-4 delims=:." %%a in ("%toT%") do ( set "tH=%%a" & set "tM=%%b" & set "tS=%%c" & set "tF=%%d" )
+  set /a fH = 1%fH% - 100, fM = 1%fM% - 100, fS = 1%fS% - 100, fF = 1%fF% - 1000
+  set /a tH = 1%tH% - 100, tM = 1%tM% - 100, tS = 1%tS% - 100, tF = 1%tF% - 1000
+  set /a fr_ms = ((fH*60 + fM)*60 + fS)*1000 + fF
+  set /a to_ms = ((tH*60 + tM)*60 + tS)*1000 + tF
+  set /a delta = to_ms - fr_ms
+  set "rolled=0"
+  if %delta% lss 0 (
+    set /a delta += 86400000
+    set "rolled=1"
+  )
+  : sec.msec
+  set /a sec = delta / 1000
+  if %delta% lss 1000 set "delta=000%delta%"
+  set "msc=%delta:~-3%"
+  set "tim=%sec%.%msc%"
+  : min:sec
+  set /a min = sec / 60
+  set /a sec = sec %% 60
+  set "sec=00%sec%"
+  set "sec=%sec:~-2%"
+  set "msc=%msc:~0,1%"
+  if %min% gtr 0 set "tim=%min%:%sec%.%msc%"
+  if defined _ret_diff set "%_ret_diff%=%tim%"
+  if defined _ret_roll set "%_ret_roll%=%rolled%"
+  exit /b 0
+:end
+
+: _____________________________________________________________________________
+: Calculate Get DateTime
+:      In/Out |In %1: startTime, %2 logMsg
+:getDateTime
+  set "_ret=%~1"
+  if not defined startDate (
+    for /f %%t in ('%pshell% "Get-Date -Format yyyy-MM-dd"') do set "startDate=%%t"
+  )
+setlocal EnableDelayedExpansion
+  set str=%TIME%
+  rem Since %TIME% uses a 24‑hour format, AM/PM processing is unnecessary and does not depend on locale settings.
+  rem echo(!str! | findstr /i "P 後" >nul && set "h_offset=12" || set "h_offset=0"
+  rem for %%a in (A a P p M m 午前 午後) do set "str=!str:%%a=!"
+  for /f "tokens=* delims=" %%a in ("%str%") do set "str=%%a"
+  for /f "tokens=1-4 delims=:., " %%a in ("%str%") do (
+    rem set /a H = %%a + !h_offset! & set "H=0!H!" & set "H=!H:~-2!"
+    set "H=0%%a" & set "H=!H:~-2!"
+    set "M=0%%b" & set "M=!M:~-2!"
+    set "S=0%%c" & set "S=!S:~-2!"
+    set "F=%%d00" & set "F=!F:~0,3!"
+  )
+  set "now=%H%:%M%:%S%.%F%"
+endlocal & set "now=%now%"
+  if not defined preval set "preval=%startDate%_%now%"
+  call :getTimeDiff "%preval%" "%startDate%_%now%" diff roll
+  if "%roll%"=="1" for /f %%t in ('%pshell% "Get-Date -Format yyyy-MM-dd"') do set "startDate=%%t"
+  if defined _ret set "%_ret%=%startDate%_%now%"
+  set "preval=%startDate%_%now%"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1763,14 +1844,14 @@ endlocal & exit /b 0
     if %errorCode% equ 210 set "msg=Fail to DL oracle"
     rem errorCode% equ 999
   )
-  call :logTimeDiff %startTime% "Detect Error %errorCode% %msg%"
+  call :logStartap startTime "Detect Error %errorCode% %msg%"
   rem If errCount neq 0 Error Diplay at FINISH
   if not "%opt%"=="NoCount" (
     set /a errCount+=1
     if %errorCode% neq 0 (>"%log_stageStatus%" echo %errorCode%)
   )
   if "%opt%"=="Reset" set /a errCount=0
-  exit /b
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
@@ -1780,7 +1861,7 @@ endlocal & exit /b 0
   set "log=%~1"
   set /a maxlines=500
   set /a cutlines=maxlines*4/5
-  if not exist "%log%" exit /b
+  if not exist "%log%" exit /b 0
   rem Count Lines
   for /f %%a in ('type "%log%" ^| find /v /c ""') do set "lines=%%a"
   if %lines% gtr %maxlines% (
@@ -1795,27 +1876,37 @@ endlocal & exit /b 0
     set "cmd=Keep"
     echo [Info] Logfile: "%log%" %lines% lines
   )
-  call :logTimeDiff %startTime% "Clear Log %cmd% %log% %lines% lines"
-  exit /b
+  call :logStartap startTime "Clear Log %cmd% %log% %lines% lines"
+  exit /b 0
 :end
 
 : _____________________________________________________________________________
 : Calculate elapsed time and log into file
 :      In/Out |In %1: startTime, %2 logMsg
-:logTimeDiff
-  set "stt=%~1"
+:logStartap
+  if not exist "%path_main%" exit /b 0
+  set "_st=%~1"
   set "msg=%~2"
-  if not defined msg set "msg=Error Log Func Call: Missing time or msg - %stt%"
-  %pshell% -Command ^
-    $p=$env:log_startup; $st=$env:stt; $msg=$env:msg; ^
-    $now = Get-Date; ^
-    try { $stt = [datetime]::Parse($st.Trim(), [System.Globalization.CultureInfo]::InvariantCulture) } ^
-    catch { $stt = $now }; ^
-    $spnStr = ($now - $stt).ToString('mm\:ss\.fff'); ^
-    $nowStr = $now.ToString('yyyy-MM-dd HH:mm:ss.fff'); ^
-    $sttStr = $stt.ToString('yyyy-MM-dd HH:mm:ss.fff'); ^
-    try { ^Add-Content -LiteralPath $p -Value ($nowStr, $sttStr, $spnStr, $PID, $msg -join ([char]9)) } ^
-    catch { }
-  for /f %%a in ('%pshell% "Get-Date -Format o"') do set lapTime=%%a
-  exit /b
+  call :getDateTime current
+  call set "st=%%%_st%%%"
+  if not defined st set "st=%current%"
+  set "type=---"
+  if "%_st%"=="startTime" set "type=et"
+  if "%_st%"=="lapTime"   set "type=lap"
+  if "%_st%"=="dlTime"    set "type=dl"
+  if not defined msg set "msg=Error Log Func Call: Missing time or msg - %st%"
+  call :getTimeDiff "%st%" "%current%" diff
+  set "rst=%msg%"
+  :__msg_split_loop
+  for /f "tokens=1,* delims=;" %%a in ("%rst%") do (
+    set "seg=%%~a"
+    set "rst=%%~b"
+  )
+  if not defined seg goto __msg_split_loop
+  set "m=%current%%tab%%st%%tab%%type%%tab%%diff%%tab%%seg%"
+  >> "%log_startap%" ( <nul set /p ="%m%" & echo( )
+  if defined rst goto __msg_split_loop
+
+  set "lapTime=%current%"
+  exit /b 0
 :end
