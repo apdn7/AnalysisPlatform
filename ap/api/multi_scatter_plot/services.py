@@ -1,7 +1,6 @@
-import logging
-
 import numpy as np
 import pandas as pd
+from loguru import logger
 from scipy.linalg import pinv
 from scipy.signal import convolve2d
 from scipy.stats import binned_statistic_2d, gaussian_kde
@@ -67,7 +66,7 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     CacheType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.ana_inf_data import calculate_kde_trace_data
 from ap.common.services.form_env import bind_dic_param_to_class
@@ -78,8 +77,6 @@ from ap.common.services.request_time_out_handler import (
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time('[MULTI SCATTER PLOT]')

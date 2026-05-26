@@ -2653,12 +2653,8 @@ const changeFunctionColumnName = (el, colTableIdx) => {
 
     // Get sample data of selected column
     const selectedColumn = el.selectedOptions[0];
-    const { processColumnId, functionColumnId } = FunctionInfo.getDropDownOptionValue(selectedColumn.value);
-    const columnType = selectedColumn.getAttribute('column-type');
     const selectedFunction = functionConfigElements.functionNameElement.selectedOptions[0];
     const isMeFunction = selectedFunction.text.startsWith('me.');
-    const isFunctionColSelected =
-        $(functionConfigElements.functionTableElement()).find(`tr.${ROW_SELECTED_CLASS_NAME}`).length > 0;
 
     if (isMeFunction) {
         functionConfigElements.systemNameElement.value = selectedColumn.getAttribute('name-sys');
@@ -2670,41 +2666,6 @@ const changeFunctionColumnName = (el, colTableIdx) => {
         functionConfigElements.localNameElement.value = selectedColumn.getAttribute('name-local');
         functionConfigElements.localNameElement.dataset.originGeneratedName =
             functionConfigElements.localNameElement.value;
-    }
-
-    // check X and Y is enabled or not
-    const isDisabledX = functionConfigElements.varXElement.disabled;
-    const isDisabledY = functionConfigElements.varYElement.disabled;
-    const isCalculatedXAndY = !isDisabledX && !isDisabledY;
-
-    // check value of X and Y
-    const varXId = FunctionInfo.getVarXId();
-    const varYId = FunctionInfo.getVarYId();
-    const isHasXYValue =
-        (varXId.processColumnId != null || varXId.functionColumnId != null) &&
-        (varYId.processColumnId != null || varYId.functionColumnId != null);
-
-    const xDataType = functionConfigElements.varXElement.selectedOptions[0].getAttribute('raw-data-type');
-    let yDataType = '';
-    if (isHasXYValue) {
-        yDataType = functionConfigElements.varYElement.selectedOptions[0].getAttribute('raw-data-type');
-    }
-
-    if (!isCalculatedXAndY) {
-        // fill dataY empty
-        const dataByX = getSampleDataX();
-        const originalDataByX = getSampleDataX({ isRawData: true });
-        let dataByY = Array(dataByX.length).fill('');
-        let originalDataByY = Array(dataByX.length).fill('');
-        getUniqueAndSlideData(dataByX, dataByY, xDataType, yDataType, originalDataByX, originalDataByY, false);
-    }
-    if (isHasXYValue && isCalculatedXAndY) {
-        // map data by ID
-        const dataByX = getSampleDataX();
-        const dataByY = getSampleDataY();
-        const originalDataByX = getSampleDataX({ isRawData: true });
-        const originalDataByY = getSampleDataY({ isRawData: true });
-        getUniqueAndSlideData(dataByX, dataByY, xDataType, yDataType, originalDataByX, originalDataByY, true);
     }
 
     // Set default system name if it is new function column (not editing mode)
@@ -2829,7 +2790,7 @@ const sortEmptyStringDataXY = (isBothXY, uniqueDataByXY) => {
     return _.unzip(sortedUniqueDataByXY);
 };
 
-const renderDataToFunctionSampleData = ({ renderData, originalData, dataType, colTableIdx }) => {
+const renderDataToFunctionSampleData = async ({ originalData, dataType, colTableIdx }) => {
     const trEls = $(functionConfigElements.sampleDataElement).find(`tbody tr`);
     const tableSampleDataBodyEl = $(functionConfigElements.sampleDataElement).find(`tbody`);
     let tableRow = $(`<tr>
@@ -2839,21 +2800,28 @@ const renderDataToFunctionSampleData = ({ renderData, originalData, dataType, co
     </tr>`);
 
     // render data to table
-    if (trEls.length <= renderData.length) {
+    if (trEls.length <= originalData.length) {
         // add data
-        const numberOfRowsToAdd = renderData.length - trEls.length;
+        const numberOfRowsToAdd = originalData.length - trEls.length;
         for (let i = 0; i < numberOfRowsToAdd; i++) {
             tableSampleDataBodyEl.append(tableRow.clone());
         }
     } else {
         // remove row
-        const numberOfRowsToRemove = trEls.length - renderData.length;
+        const numberOfRowsToRemove = trEls.length - originalData.length;
         trEls.slice(-numberOfRowsToRemove).remove();
     }
 
     const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(${colTableIdx})`);
     // map data to table
     const isNumber = NUMERIC_TYPES.includes(dataType);
+    const isAllNull = originalData.every((val) => val === '' || val === null);
+    let renderData = [];
+    if (isAllNull) {
+        renderData = [...originalData];
+    } else {
+        renderData = await parseDataByDataType(dataType, originalData);
+    }
     _.zip(elements, renderData, originalData).forEach(([ele, value, originalData]) => {
         $(ele).html(formatSignifiValue(value, isNumber));
         $(ele).attr(DATA_ORIGINAL_ATTR, originalData);
@@ -3029,7 +2997,7 @@ const showResultFunctionWithoutDelay = (rowIndex = null) => {
         body: JSON.stringify(data),
     })
         .then((response) => response.json())
-        .then((data) => {
+        .then(async (data) => {
             const isChangeConfig = Number(selectedRowIndex) === Number(rowIndex) || !rowIndex; // is input new function or edit function column
             if (Object.prototype.hasOwnProperty.call(data, 'errors')) {
                 loadingHide();
@@ -3055,32 +3023,29 @@ const showResultFunctionWithoutDelay = (rowIndex = null) => {
                 const sampleData = jsonParse(data.sample_data);
                 const isNumber = NUMERIC_TYPES.includes(data.output_type);
                 if (isChangeConfig) {
-                    // fill data in input
-                    /** @type {string[]} */
-                    // const { xValues, yValues } = getXYValues();
-                    const xValues = getSampleDataX({ isRawData: true }) || [];
-                    const yValues = getSampleDataY({ isRawData: true }) || [];
-                    // Find result of unique X & Y
-                    const xYResult = Object.fromEntries(_.zip(_.zip(xValues, yValues), sampleData));
-                    const uniqueXYResult = Object.fromEntries(
-                        _.zip(_.zip(collectEquationOriginSampleData(2), collectEquationOriginSampleData(3)), []),
-                    );
-                    for (const xYKey in uniqueXYResult) {
-                        uniqueXYResult[xYKey] = xYResult[xYKey] ?? '';
-                    }
-                    const resultValues = Object.values(uniqueXYResult);
                     functionConfigElements.sampleDataElement.result = sampleData;
 
                     FunctionInfo.setOutputDataType(data.output_type);
-                    const elements = $(functionConfigElements.sampleDataElement).find(`tbody tr td:nth-child(1)`);
-                    for (const index of Array(resultValues.length).keys()) {
-                        let val = resultValues[index];
-                        $(elements[index]).attr(DATA_ORIGINAL_ATTR, val);
-                        $(elements[index]).attr(IS_NUMBER_ATTR, isNumber);
-                        val = formatSignifiValue(val, isNumber);
-                        $(elements[index]).html(val);
-                    }
-                    const isResultsEmpty = resultValues.every((element) => element === null);
+                    await renderDataToFunctionSampleData({
+                        renderData: data.sample_x,
+                        originalData: data.sample_x,
+                        dataType: xDataType,
+                        colTableIdx: 2,
+                    });
+                    await renderDataToFunctionSampleData({
+                        renderData: data.sample_y,
+                        originalData: data.sample_y,
+                        dataType: yDataType,
+                        colTableIdx: 3,
+                    });
+                    await renderDataToFunctionSampleData({
+                        renderData: data.sample_result,
+                        originalData: data.sample_result,
+                        dataType: data.output_type,
+                        colTableIdx: 1,
+                    });
+
+                    const isResultsEmpty = data.sample_result.every((element) => element === null);
 
                     if (isResultsEmpty && (!isAllXValuesEmpty || !isAllYValuesEmpty)) {
                         showToastrMsg($('#i18nAllResultIsEmpty').text(), MESSAGE_LEVEL.WARN);

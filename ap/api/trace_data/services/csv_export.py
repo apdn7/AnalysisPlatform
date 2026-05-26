@@ -42,7 +42,7 @@ from ap.common.constants import (
     TIME_COL,
     DataExportMode,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.trace_data.schemas import DicParam
 
 

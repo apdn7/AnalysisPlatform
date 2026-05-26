@@ -1,9 +1,8 @@
 from collections import defaultdict
 
 from ap.api.trace_data.services.proc_link import gen_proc_link_of_edge
-from ap.common.logger import log_execution_time
-from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.log import log_execution_time
+from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.setting_module.models import CfgProcess, CfgTrace, ProcLinkCount
 from ap.trace_data.transaction_model import TransactionData
 
@@ -17,11 +16,15 @@ def sim_gen_global_id(edges: list[CfgTrace]):
     dic_proc_data_count = {}
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for i, tran_data in enumerate(trans):
-        with ReadOnlyDbProxy(
-            gen_data_source_of_universal_db(tran_data.process_id), is_universal_db=True
-        ) as db_instance:
-            if tran_data.is_table_exist(db_instance):
-                data_count = tran_data.count_data(db_instance)
+        with TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=True) as data_con:
+            # TODO: no process has been created! This only exists in test?
+            # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/139
+            if data_con is None:
+                dic_proc_data_count[tran_data.process_id] = 0
+
+            # has process
+            elif tran_data.is_table_exist(data_con=data_con):
+                data_count = tran_data.count_data(data_con=data_con)
                 dic_proc_data_count[tran_data.process_id] = data_count
 
     # dic_proc_data_count = {data.process_id: data.count for data in ProcDataCount.get_procs_count()}

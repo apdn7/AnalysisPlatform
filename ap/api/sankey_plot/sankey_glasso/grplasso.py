@@ -1,10 +1,10 @@
 import colorsys
-import logging
 import warnings
 
 import numpy as np
 import pandas as pd
 from group_lasso import GroupLasso, LogisticGroupLasso
+from loguru import logger
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LassoCV, LogisticRegressionCV, Ridge, RidgeClassifier
 from sklearn.metrics import (
@@ -17,8 +17,6 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
-
-logger = logging.getLogger(__name__)
 
 # - preprocess_skdpage()
 #   # group lasso

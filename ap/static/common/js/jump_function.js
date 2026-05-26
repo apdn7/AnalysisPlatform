@@ -1,6 +1,6 @@
 const JUMP_API = '/ap/api/common/jump_cfg';
 
-const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp', 'wfp'];
+const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp', 'wfp', 'crp'];
 
 const PAGE_NAME = {
     fpp: 'fpp',
@@ -16,6 +16,7 @@ const PAGE_NAME = {
     pca: 'pca',
     hmp: 'hmp',
     wfp: 'wfp',
+    crp: 'crp',
 };
 
 const MAX_JUMP_SENSOR_NUMBER = 20;
@@ -69,7 +70,7 @@ const MAX_SENSOR_NUMBER = {
     scp: 2,
 };
 
-const HAS_OBJECTIVE_PAGE = ['skd', 'pcp', 'gl'];
+const HAS_OBJECTIVE_PAGE = ['skd', 'pcp', 'gl', 'crp'];
 
 const ALL_DIVISION = {
     stp: {

@@ -1534,6 +1534,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "アプリのジョブを停止しました。ブラウザとコンソールを安全に閉じることができます。"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1994,6 +1995,7 @@ msgstr "設定した紐付け条件でどのくらいのデータが紐付けさ
 msgid "Reload Hover"
 msgstr "設定中の紐付け条件を破棄し、先回登録した紐付け条件を呼び出します。"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "設定した紐付け条件でデータを紐付けるためのIDが内部で生成されます。"

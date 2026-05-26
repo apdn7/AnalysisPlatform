@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
-import logging
 import queue
 import threading
 import time
@@ -11,11 +10,11 @@ from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any, ClassVar
 
+from loguru import logger
+
 from ap import json_dumps
 from ap.common.constants import AnnounceEvent
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
-
-logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass

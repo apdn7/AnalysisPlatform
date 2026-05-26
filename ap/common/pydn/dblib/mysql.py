@@ -2,14 +2,11 @@
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2018/01/04)
 
-import logging
 
 import pymysql.cursors
-from pymysql.cursors import SSCursor
+from loguru import logger
 
 from ap.common.common_utils import strip_all_quote
-
-logger = logging.getLogger(__name__)
 
 
 class MySQL:
@@ -252,9 +249,7 @@ self.is_connected: {self.is_connected}
         if not self._check_connection():
             return False
 
-        # use SSCursor for optimize with large data
-        # https://pymysql.readthedocs.io/en/latest/modules/cursors.html#pymysql.cursors.SSCursor
-        cur = self.connection.cursor(SSCursor)
+        cur = self.connection.cursor()
 
         sql = sql.replace('"', '`')
         cur.execute(sql, params)

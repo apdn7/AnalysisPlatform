@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import itertools
-import logging
 from abc import abstractmethod
 from collections.abc import Generator
 from datetime import datetime
@@ -14,20 +13,16 @@ from pandas import DataFrame
 from pytz import utc
 from sqlalchemy.orm import scoped_session
 
-from ap import log_execution_time, scheduler
-from ap.api.setting_module.services.data_import import (
-    gen_bulk_insert_sql,
-    gen_insert_cycle_values,
-    get_insert_params,
-    insert_data,
-)
+from ap import scheduler
 from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
 from ap.api.setting_module.services.polling_frequency import add_import_job, add_import_job_params
-from ap.api.trace_data.services.proc_link import add_restructure_indexes_job
 from ap.common.common_utils import generate_job_id
 from ap.common.constants import CacheType, JobType
+from ap.common.jobs.job_info_schema import UpdateTransactionTableJobInfo
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.duckdb import DuckDB
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
 from ap.equations.utils import get_function_class_by_id
 from ap.setting_module.models import (
@@ -39,8 +34,6 @@ from ap.setting_module.models import (
 )
 from ap.setting_module.services.background_process import JobInfo, send_processing_info
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass()
@@ -173,19 +166,17 @@ class MainSerialFunctionColumnHandler(MainFunctionColumnHandler):
     @log_execution_time()
     def change_main_function_column(
         self,
-        db_instance,
+        data_con: DuckDB,
         transaction_obj: TransactionData,
         old_main_column: CfgProcessColumn | None,
-        auto_commit: bool = True,
     ) -> Generator[float]:
         """
         Handle changing **main::serial** for function column
 
-        :param db_instance: A database instance
+        :param data_con: A DuckDB database instance
         :param TransactionData transaction_obj: A transaction object
         :param Optional[CfgProcessColumn] old_main_column: \
         A process column model object that is as **main::serial** before change
-        :param bool auto_commit: True: Each statement of execute_sql it will run commit, Otherwise
         :return: done percent
         :rtype: Generator[float]
         """
@@ -210,95 +201,55 @@ class MainSerialFunctionColumnHandler(MainFunctionColumnHandler):
 
         # In case change to main::serial normal column or not have main::serial column
         if new_main_function_column is None:
-            # In case main function column is removed
-            if old_main_function_column:
-                indexes = transaction_obj.get_indexes_by_column_name(
-                    db_instance,
-                    old_main_column.bridge_column_name,
-                )
-                for index in indexes:
-                    transaction_obj.drop_index(db_instance, index, auto_commit=auto_commit)
-
-                transaction_obj.delete_columns(
-                    db_instance,
-                    [old_main_column.bridge_column_name],
-                    auto_commit=auto_commit,
-                )
-
+            # we have already sync columns in `update_transaction_table`, so we have the latest columns already.
+            # don't need to delete / handle old function columns
             yield 100
             return
 
-        yield from self.add_main_function_column_to_transaction_table(
-            db_instance,
-            transaction_obj,
-            auto_commit=auto_commit,
-        )
+        yield from self.add_main_function_column_to_transaction_table(data_con, transaction_obj)
 
     @log_execution_time()
     def add_main_function_column_to_transaction_table(
         self,
-        db_instance,
+        data_con: DuckDB,
         transaction_obj: TransactionData,
-        auto_commit: bool = True,
     ) -> Generator[float]:
         """
         Insert calculated data for ``main::serial`` for function column into transaction table.
 
-        :param db_instance: A database instance
+        :param data_con: A DuckDB database instance
         :param transaction_obj: A transaction object
-        :param auto_commit: True: Each statement of execute_sql it will run commit, Otherwise
         :return: done percent
         :rtype: Generator[float]
         """
         # Create new table with function column
         new_table_name = f'{transaction_obj.table_name}_calculating'
-        transaction_obj.delete_sequence_table(
-            db_instance,
-            new_table_name,
-            auto_commit=auto_commit,
-        )  # avoid old session with old columns
-        transaction_obj.create_table(db_instance, new_table_name, auto_commit=auto_commit)
+        old_table_name = f'{transaction_obj.table_name}_old'
+        data_con.copy_table_schema(from_table=transaction_obj.table_name, to_table=new_table_name)
+
         done_percent = 10
         yield done_percent
 
-        # Start - [Calculate function data and insert to new table]
-        data = transaction_obj.get_all_data_by_chunk(db_instance)
-        if data is None:
-            # In case connection failure
-            raise Exception('Connection failure !!!')
-
-        data_columns = next(data)
         transaction_columns = transaction_obj.cfg_process.get_transaction_process_columns()
+        columns_bridge_to_raw = {col.bridge_column_name: col.column_raw_name for col in transaction_columns}
+        columns_raw_to_bridge = {col.column_raw_name: col.bridge_column_name for col in transaction_columns}
 
-        column_mapping = {col.bridge_column_name: col.column_raw_name for col in transaction_columns}
-        column_raw_names = [col.column_raw_name for col in transaction_columns]
-        transaction_column_names = [col.bridge_column_name for col in transaction_columns]
-
-        sql_params = get_insert_params(transaction_column_names)
-        sql_insert = gen_bulk_insert_sql(new_table_name, *sql_params)
-        for data_chunk in data:  # type: list[tuple]
-            df = pd.DataFrame(data=data_chunk, columns=data_columns)
-            df = df.rename(columns=column_mapping)
-            df = self.calculate_data_for_main_function_column(df)
-            insert_vals = gen_insert_cycle_values(df[column_raw_names])
-            is_success = insert_data(db_instance, sql_insert, insert_vals)
-            if not is_success:
-                raise Exception('Cannot insert calculated data !!!')
+        for df_transaction in transaction_obj.get_all_data_by_chunk(data_con):
+            df_column_raw_name = df_transaction.rename(columns=columns_bridge_to_raw)
+            df_column_raw_name = self.calculate_data_for_main_function_column(df_column_raw_name)
+            data_con.insert_from_df(
+                df_column_raw_name.rename(columns=columns_raw_to_bridge),
+                new_table_name,
+            )
 
             done_percent += 10 if done_percent < 70 else 1 if done_percent < 80 else 0.1 if done_percent < 90 else 0.01
             yield done_percent
+
         # End - [Calculate function data and insert to new table]
+        data_con.rename_table(transaction_obj.table_name, old_table_name)
+        data_con.rename_table(new_table_name, transaction_obj.table_name)
+        data_con.delete_table(old_table_name)
 
-        # Drop old table
-        transaction_obj.delete_sequence_table(db_instance, auto_commit=auto_commit)
-
-        # Rename new table back to origin table name
-        transaction_obj.rename_sequence_table(
-            db_instance,
-            new_table_name,
-            transaction_obj.table_name,
-            auto_commit=auto_commit,
-        )
         done_percent = 100
         yield done_percent
 
@@ -372,16 +323,12 @@ def add_new_columns_to_transaction_table(process: CfgProcess, meta_session: scop
     :param scoped_session meta_session: a db session
     :return: void
     """
-    with DbProxy(gen_data_source_of_universal_db(process.id), True) as db_instance:
-        trans_data = TransactionData(process, meta_session=meta_session)
-        if trans_data.table_name not in db_instance.list_tables():
+    trans_data = TransactionData(process, meta_session=meta_session)
+    with TxnDataConnection(process_id=process.id, readonly_transaction=False) as data_con:
+        if trans_data.table_name not in data_con.list_tables():
             # If transaction is not created yet, do nothing
             return
-
-        new_columns = trans_data.get_new_columns(db_instance, table_name=trans_data.table_name)
-        if new_columns:
-            dict_new_col_with_type = {column.bridge_column_name: column.data_type for column in new_columns}
-            trans_data.add_columns(db_instance, trans_data.table_name, dict_new_col_with_type)
+        trans_data.sync_columns_to_transaction(data_con)
 
 
 def add_required_jobs_after_update_transaction_table(
@@ -410,14 +357,12 @@ def add_required_jobs_after_update_transaction_table(
         is_user_request=True,
     )
 
-    # create indexes for new table
-    add_restructure_indexes_job(process.id)
-
 
 def update_transaction_table(
     process: CfgProcess,
     old_main_serial_cfg_process_column: CfgProcessColumn | None,
     meta_session: scoped_session = None,
+    update_txn_tbl_job_info: UpdateTransactionTableJobInfo | None = None,
 ) -> Generator[JobInfo]:
     """
     Update transaction table by doing some points as below:
@@ -429,6 +374,7 @@ def update_transaction_table(
     :param CfgProcess process: a cfg_process object
     :param Optional[CfgProcessColumn] old_main_serial_cfg_process_column: old cfg process column as ``main::Serial``
     :param scoped_session meta_session: a db session
+    :param update_txn_tbl_job_info: a UpdateTransactionTableJobInfo object
     :return: a JobInfo
     :rtype: Generator[JobInfo]
     """
@@ -436,47 +382,40 @@ def update_transaction_table(
     job_info.percent = 0
     yield job_info
 
+    trans_data = TransactionData(process, meta_session=meta_session)
     with (
-        DbProxy(gen_data_source_of_universal_db(process.id), True) as db_instance,
+        TxnDataConnection(process_id=process.id, readonly_transaction=False) as data_con,
+        TxnMetaConnection(process_id=process.id) as meta_con,
         job_info.interruptible() as job_info,
     ):
         auto_commit = False
-        trans_data = TransactionData(process, meta_session=meta_session)
-        trans_data.create_table(db_instance, auto_commit=auto_commit)
+        trans_data.create_table(data_con, meta_con, auto_commit=auto_commit)
         job_info.percent = 10
         yield job_info
 
-        # delete unused columns
-        yield from delete_unused_columns(trans_data, db_instance, job_info, auto_commit)
+        if update_txn_tbl_job_info:
+            main_serial_after = (
+                process.get_main_serial_column().column_name if process.get_main_serial_column() else None
+            )
+            update_txn_tbl_job_info.main_serial_after = main_serial_after
+            main_serial_before = (
+                old_main_serial_cfg_process_column.column_name if old_main_serial_cfg_process_column else None
+            )
+            update_txn_tbl_job_info.main_serial_before = main_serial_before
+
+        job_info.percent = 20
+        yield job_info
 
         main_function_column_handlers = get_main_function_column_handlers(process)
         for handler in main_function_column_handlers:
             if isinstance(handler, MainSerialFunctionColumnHandler) and old_main_serial_cfg_process_column is not None:
                 for done_percent in handler.change_main_function_column(
-                    db_instance,
+                    data_con,
                     trans_data,
                     old_main_serial_cfg_process_column,
-                    auto_commit=auto_commit,
                 ):
                     job_info.percent = round(20 + 0.8 * done_percent, 2)
                     yield job_info
-
-
-def delete_unused_columns(trans_data, db_instance, job_info, auto_commit) -> Generator[JobInfo]:
-    exist_table_columns = trans_data.get_table_columns(db_instance, trans_data.table_name)
-    table_columns_from_cfg = [cfg_column.bridge_column_name for cfg_column in trans_data.cfg_process_columns]
-    redundant_table_columns = [
-        table_column for table_column in exist_table_columns if table_column not in table_columns_from_cfg
-    ]
-    if redundant_table_columns and trans_data.cfg_process_columns:
-        # Must remove index first before remove column to avoid error
-        for column in redundant_table_columns:
-            indexes = trans_data.get_indexes_by_column_name(db_instance, column)
-            for index in indexes:
-                trans_data.drop_index(db_instance, index, auto_commit=auto_commit)
-        trans_data.delete_columns(db_instance, redundant_table_columns, auto_commit=auto_commit)
-    job_info.percent = 20
-    yield job_info
 
 
 @scheduler_app_context
@@ -499,8 +438,14 @@ def update_transaction_table_job(
     :param Optional[CfgProcessColumn] old_main_serial_cfg_process_column: old cfg process column as ``main::Serial``
     :return: void
     """
+    update_txn_tbl_job_info = UpdateTransactionTableJobInfo()
+    job_management.info = update_txn_tbl_job_info
     process = CfgProcess.get_proc_by_id(job_management.process_id).clone()
-    gen = update_transaction_table(process, old_main_serial_cfg_process_column)
+    gen = update_transaction_table(
+        process=process,
+        old_main_serial_cfg_process_column=old_main_serial_cfg_process_column,
+        update_txn_tbl_job_info=update_txn_tbl_job_info,
+    )
     send_processing_info(
         gen,
         job_management=job_management,

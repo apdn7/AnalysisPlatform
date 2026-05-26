@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 
 from ap import max_graph_config
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_jump_function import get_graph_context_param
 from ap.api.trace_data.services.csv_export import (
     gen_csv_data,
 )
@@ -42,7 +42,6 @@ from ap.common.services.request_time_out_handler import request_timeout_handling
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
-    save_input_data_to_file,
     trace_log_params,
 )
 from ap.setting_module.models import CfgConstant
@@ -58,13 +57,10 @@ def trace_data():
     return dictionary
     """
     dic_form = request.form.to_dict(flat=False)
-    # save dic_form to pickle (for future debug)
-    save_input_data_to_file(dic_form, EventType.FPP)
-    dic_param = parse_multi_filter_into_one(dic_form)
 
-    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+    graph_context = get_graph_context_param(dic_form, EventType.FPP)
 
-    out_dict = show_graph_fpp(cache_dic_param or dic_param, graph_param, df)
+    out_dict = show_graph_fpp(graph_context.dic_param, graph_context.graph_param, graph_context.df)
 
     return out_dict, 200
 

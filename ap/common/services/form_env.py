@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 from collections import defaultdict
 from copy import deepcopy
@@ -7,7 +6,6 @@ from copy import deepcopy
 import pandas as pd
 from pandas import Series
 
-from ap import log_execution_time
 from ap.common.common_utils import as_list
 from ap.common.constants import (
     ABNORMAL_COUNT,
@@ -104,6 +102,7 @@ from ap.common.constants import (
     RL_CATES,
     RL_EMD,
     RL_XAXIS,
+    SAFETY_DIV_UNIQUE_KEY,
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
     SELECT_ALL,
@@ -119,18 +118,17 @@ from ap.common.constants import (
     TBLS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
-    TEMP_LOG_SCALE_MODE,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
     TEMP_X_OPTION,
+    TEMP_Y_SCALE_MODE,
     TERM_TRACE_TIME,
     THIN_DATA_GROUP_COUNT,
     THRESHOLD_BOX,
     TIME_CONDS,
     TIMES,
     TRACE_TIME,
-    TRUE_MATCH,
     UNIQUE_COLOR,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
@@ -142,6 +140,7 @@ from ap.common.constants import (
     PCAFilterCondition,
     RemoveOutlierType,
 )
+from ap.common.log import log_execution_time
 from ap.common.pandas_helper import append_series
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -159,8 +158,6 @@ from ap.trace_data.schemas import (
     DicParam,
     EndProc,
 )
-
-logger = logging.getLogger(__name__)
 
 # common key receive from client
 common_startwith_keys = (
@@ -237,7 +234,7 @@ common_startwith_keys = (
     SCP_HMP_X_AXIS,
     SCP_HMP_Y_AXIS,
     STRENGTHEN_SELECTION,
-    TEMP_LOG_SCALE_MODE,  # combine log-scale mode into dic_param
+    TEMP_Y_SCALE_MODE,  # combine log-scale mode into dic_param
 )
 
 
@@ -346,8 +343,6 @@ def parse_multi_filter_into_one(dic_form):
             elif key.startswith((VAR_TRACE_TIME, TRACE_TIME)):
                 dic_parsed[COMMON][TRACE_TIME] = value
             else:
-                if key == TEMP_LOG_SCALE_MODE:
-                    value = value == TRUE_MATCH
                 dic_parsed[COMMON][key] = value
 
         elif key.startswith(conds_startwith_keys):
@@ -802,6 +797,7 @@ def update_data_from_multiple_dic_params(orig_dic_param, dic_param):
         DIC_FILTER,
         IS_THIN_DATA,
         THIN_DATA_GROUP_COUNT,
+        SAFETY_DIV_UNIQUE_KEY,
     ]
     for key in updated_keys:
         if key not in dic_param:

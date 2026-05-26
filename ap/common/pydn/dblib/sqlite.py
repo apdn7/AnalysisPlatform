@@ -3,16 +3,16 @@
 # Author: Masato Yasuda (2019/04/10)
 from __future__ import annotations
 
-import logging
 import sqlite3
 from datetime import datetime
+from typing import Any
 
+import sqlalchemy as sa
 from dateutil import tz
+from loguru import logger
+from sqlalchemy.dialects.sqlite import dialect as sqlite_dialects
 
-from ap.common.common_utils import sql_regexp, strip_all_quote
-from ap.common.constants import SQL_REGEXP_FUNC
-
-logger = logging.getLogger(__name__)
+from ap.common.common_utils import convert_sa_sql_to_sa_str, strip_all_quote
 
 
 class SQLite3:
@@ -51,7 +51,7 @@ class SQLite3:
         # )  # sqliteで言うdbnameはファイル名/
         self.dbname = dbname
         self.is_connected = False
-        self.connection = None
+        self.connection: sqlite3.Connection | None = None
         self.cursor = None
         self.read_only = read_only
 
@@ -76,8 +76,6 @@ self.is_connected: {self.is_connected}
                 self.connection = sqlite3.connect(self.dbname, timeout=60 * 5)
             else:
                 self.connection = sqlite3.connect(self.dbname, timeout=60 * 5, isolation_level='IMMEDIATE')
-
-            self.connection.create_function(SQL_REGEXP_FUNC, 2, sql_regexp)
 
             self.is_connected = True
             self.cursor = self.connection.cursor()
@@ -238,6 +236,7 @@ self.is_connected: {self.is_connected}
     # SQLをそのまま実行。
     # cols, rows = db1.run_sql("select * from tbl01")
     # という形で呼び出す
+    @convert_sa_sql_to_sa_str
     def run_sql(self, sql, row_is_dict=True, params=None):
         if not self._check_connection():
             return False
@@ -249,13 +248,14 @@ self.is_connected: {self.is_connected}
             _params = [p.strftime('%Y-%m-%dT%H:%M:%S.%fZ') if isinstance(p, datetime) else p for p in params]
             try:
                 cur.execute(sql, _params)
+                self.connection.commit()
             except Exception as e:
                 raise e
 
         # cursor.descriptionはcolumnの配列
         # そこから配列名(column[0])を取り出して配列columnsに代入
         if not cur.description:
-            return ([], [])
+            return [], []
 
         cols = [column[0] for column in cur.description]
         # columnsは取得したカラム名、rowはcolumnsをKeyとして持つ辞書型の配列
@@ -264,7 +264,7 @@ self.is_connected: {self.is_connected}
         rows = [dict(zip(cols, row, strict=False)) for row in cur.fetchall()] if row_is_dict else cur.fetchall()
 
         cur.close()
-        return (cols, rows)
+        return cols, rows
 
     def fetch_many(self, sql, size=10_000, params=None):
         if not self._check_connection():
@@ -319,6 +319,7 @@ self.is_connected: {self.is_connected}
         :return: Execution result
         """
         self.cursor.executemany(sql, rows)
+        self.connection.commit()
 
     # 現時点ではSQLをそのまま実行するだけ
     def get_timezone(self):
@@ -375,3 +376,9 @@ self.is_connected: {self.is_connected}
         sql = f'INSERT INTO {tblname} ({cols}) VALUES ({params})'
 
         return sql
+
+    @staticmethod
+    def gen_sql_and_params(stmt: sa.Select | sa.TextClause) -> tuple[str, dict[str, Any]]:
+        compiled_stmt = stmt.compile(dialect=sqlite_dialects(), compile_kwargs={'render_postcompile': True})
+        params = [compiled_stmt.params[pos] for pos in compiled_stmt.positiontup]  # sort params based position
+        return compiled_stmt.string, params

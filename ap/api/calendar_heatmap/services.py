@@ -1,4 +1,3 @@
-import logging
 import math
 from datetime import datetime, timedelta
 
@@ -7,6 +6,7 @@ import pandas as pd
 from dateutil import parser
 from dateutil.tz import tz
 from flask_babel import gettext as _
+from loguru import logger
 from scipy.stats import iqr
 
 from ap import max_graph_config
@@ -65,7 +65,7 @@ from ap.common.constants import (
     HMFunction,
     MaxGraphNumber,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
@@ -78,9 +78,6 @@ from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.schemas import DicParam
-
-logger = logging.getLogger(__name__)
-
 
 CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
 

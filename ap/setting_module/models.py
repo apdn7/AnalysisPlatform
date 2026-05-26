@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import logging
 import unicodedata
 from collections.abc import Generator, Mapping
 from contextlib import contextmanager
@@ -72,7 +71,6 @@ from ap.common.constants import (
     RelationShip,
     max_graph_number,
 )
-from ap.common.cryptography_utils import decrypt_pwd
 from ap.common.datetime_format_utils import DateTimeFormatUtils
 from ap.common.jobs.job_info_schema import BaseJobInfo, SqlAlchemyJobInfoType
 from ap.common.services.http_content import json_dumps
@@ -80,8 +78,6 @@ from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import NORMALIZE_FORM_NFKC
 from ap.common.trace_data_log import Location, LogLevel, ReturnCode
 from ap.conversion_formula import JudgeFormula, conversion_formula
-
-logger = logging.getLogger(__name__)
 
 db_timestamp = db.TIMESTAMP
 
@@ -625,9 +621,6 @@ class CfgDataSource(db.Model):
     def get_all(cls):
         all_ds = cls.query.order_by(cls.order).order_by(asc(cls.id)).all()
         for ds in all_ds:
-            db_detail: CfgDataSourceDB = ds.db_detail
-            if db_detail and db_detail.hashed:
-                db_detail.password = decrypt_pwd(db_detail.password)
             ds.en_name = to_romaji(ds.name)
         return all_ds
 
@@ -635,9 +628,6 @@ class CfgDataSource(db.Model):
     def get_all_db_source(cls):
         all_ds = cls.query.filter(cls.type != str(CSVExtTypes.CSV.value).upper()).order_by(cls.order).all()
         for ds in all_ds:
-            db_detail: CfgDataSourceDB = ds.db_detail
-            if db_detail and db_detail.hashed:
-                db_detail.password = decrypt_pwd(db_detail.password)
             ds.en_name = to_romaji(ds.name)
         return all_ds
 
@@ -648,9 +638,6 @@ class CfgDataSource(db.Model):
     @classmethod
     def get_ds(cls, ds_id):
         ds = cls.query.get(ds_id)
-        db_detail: CfgDataSourceDB = ds.db_detail
-        if db_detail and db_detail.hashed:
-            db_detail.password = decrypt_pwd(db_detail.password)
         ds.en_name = to_romaji(ds.name)
         return ds
 
@@ -748,7 +735,6 @@ class CfgDataSourceDB(db.Model):
         schema: Database schema name (optional).
         username: Database username for authentication (optional).
         password: Database password for authentication (optional).
-        hashed: Flag indicating if password is hashed.
         snowflake_role: Snowflake role for connection (optional).
         snowflake_warehouse: Snowflake warehouse for connection (optional).
         snowflake_private_key_file: Path to Snowflake private key file (optional).
@@ -782,7 +768,6 @@ class CfgDataSourceDB(db.Model):
     schema: Mapped[Optional[str]]
     username: Mapped[Optional[str]]
     password: Mapped[Optional[str]]
-    hashed: Mapped[bool] = mapped_column(default=False)
 
     # snowflake connections
     snowflake_role: Mapped[Optional[str]]
@@ -1162,7 +1147,7 @@ class CfgProcessColumn(db.Model):
 
     @hybrid_property
     def is_transaction_column(self) -> bool:
-        return self.is_normal_column or self.is_main_serial_function_column
+        return self.is_normal_column or self.is_main_serial_function_column or self.is_main_datetime_function_column
 
     @hybrid_property
     def shown_name(self):
@@ -1785,8 +1770,9 @@ class CfgProcess(db.Model):
         return cols
 
     def get_cols(self, col_ids: list[int]) -> list[CfgProcessColumn]:
-        col_ids = set(col_ids)
-        return [col for col in self.columns if col.id in col_ids]
+        """Return columns matching given ids, preserving order and removing duplicates."""
+        col_map = {col.id: col for col in self.columns}
+        return [col_map[col_id] for col_id in dict.fromkeys(col_ids) if col_id in col_map]
 
     def get_col(self, col_id: int) -> Optional[CfgProcessColumn]:
         for col in self.columns:
@@ -3583,6 +3569,7 @@ class CfgExport(CommonModel):
         back_populates='export',
         # export details cannot exists without export -> delete-orphan
         cascade='all, delete, delete-orphan',
+        order_by='CfgExportDetail.order',
     )
     # export with filters
     filters: Mapped[list[CfgExportFilter]] = relationship(
@@ -3638,6 +3625,7 @@ class CfgExportDetail(CommonModel):
     __table_args__ = (PrimaryKeyConstraint('export_id', 'process_column_id'),)
     export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id'))
     process_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id'))
+    order: Mapped[int] = mapped_column(Integer, nullable=True, server_default='1')
 
     process_column: Mapped[CfgProcessColumn] = relationship(
         back_populates='export_details',

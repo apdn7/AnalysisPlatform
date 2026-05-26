@@ -12,6 +12,7 @@ function YasuHistogram($, paramObj) {
     let valMax = setParam('maxY', 0);
     const isThinData = setParam('isThinData', false);
     const xAxisOption = setParam('xAxisOption', 'TIME');
+    const isLogScale = setParam('is_log_scale', false);
 
     if (beforeRankValues) {
         valMin -= 0.5;
@@ -248,9 +249,9 @@ function YasuHistogram($, paramObj) {
         );
     }
 
-    // Redraw the chart with a logarithmic scale if logScaleActivated is true,
+    // Redraw the chart with a logarithmic scale if yScaleMode is true,
     // excluding step bar charts and histograms from judges.
-    if (logScaleActivated && !beforeRankValues) {
+    if (isLogScale && !beforeRankValues) {
         config.options.scales.y.type = 'logarithmic';
     }
 

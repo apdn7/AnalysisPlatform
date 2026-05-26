@@ -1,8 +1,8 @@
 import json
-import logging
 from datetime import datetime
 
 from flask import Blueprint, Response, redirect, request
+from loguru import logger
 
 from ap.api.external_api.services import (
     ExternalErrorMessage,
@@ -77,8 +77,6 @@ from ap.setting_module.schemas import (
     ProcessColumnExternalAPISchema,
     ProcessPublicSchema,
 )
-
-logger = logging.getLogger(__name__)
 
 external_api_v1_blueprint = Blueprint('external_api', __name__, url_prefix='/ap/api/v1')
 

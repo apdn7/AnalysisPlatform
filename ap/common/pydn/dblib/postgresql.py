@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2018/01/04)
 
-import logging
+
 from typing import Union
 
 import psycopg2
 import psycopg2.extras
 import sqlalchemy as sa
+from loguru import logger
 from sqlalchemy.dialects import postgresql
 
 from ap.common.common_utils import convert_sa_sql_to_sa_str, handle_read_only, strip_all_quote
-from ap.common.logger import log_execution_time
-
-logger = logging.getLogger(__name__)
+from ap.common.log import log_execution_time
 
 # See this for more, https://www.psycopg.org/docs/usage.html#server-side-cursors
 # This avoid out of memory when running query without limit
-PSYCOPG2_SERVER_SIZE_CURSOR_ITERSIZE = 2000
+# PSYCOPG2_SERVER_SIZE_CURSOR_ITERSIZE = 2000
 
 
 class PostgreSQL:
@@ -307,17 +306,9 @@ self.is_connected: {self.is_connected}
         if not self._check_connection():
             return False
 
-        # Use sever side cursor to avoid out of memory.
-        # Even though we use fetchmany, psycopg2 client will try to fetch and catch as many as records ahead,
-        # causing out-of-memory. We want to avoid that, set server side cursors to only get `itersize` records at once.
-        # The default value is 2_000.
-        cur = self.connection.cursor(name='server_sided_cursor')
-        cur.itersize = PSYCOPG2_SERVER_SIZE_CURSOR_ITERSIZE
+        cur = self.connection.cursor()
 
         cur.execute(sql, params)
-
-        # when using server sided cursor, we must fetch first to get description
-        cur.fetchmany(0)
 
         cols = [column[0] for column in cur.description]
         yield cols

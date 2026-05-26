@@ -1,9 +1,9 @@
-import logging
 import os
 from datetime import datetime
 
 from apscheduler.triggers.cron import CronTrigger
 from dateutil import tz
+from loguru import logger
 from pytz import utc
 
 from ap import (
@@ -11,18 +11,14 @@ from ap import (
     SQLITE_CONFIG_DIR,
     dic_config,
 )
-from ap.common.constants import CacheType, JobType, ProcessStatus
+from ap.common.constants import JobType
 from ap.common.jobs.job_info_schema import BackupDatabaseJobInfo
-from ap.common.logger import log_execution_time
-from ap.common.multiprocess_sharing import EventAddJob, EventExpireCache, EventQueue
+from ap.common.log import log_execution_time
+from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.path_utils import copy_file, make_dir
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
-from ap.setting_module.models import CfgProcess, JobManagement
+from ap.setting_module.models import JobManagement
 from ap.setting_module.services.background_process import send_processing_info
-from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 BACKUP_TRANS_DATA_INTERVAL_DAY = 7
 DB_MAINTENANCE_TIME = (3, 0, 0)  # 3AM local time
@@ -114,55 +110,5 @@ def add_backup_dbs_job(is_run_now=None):
             replace_existing=True,
             trigger=trigger,
             next_run_time=next_run_time,
-        ),
-    )
-
-
-@log_execution_time()
-def run_vacuum_db(process_ids: list[int]):
-    """Run vacuum on the transaction data every day at 3 AM"""
-    for i, process_id in enumerate(process_ids):
-        trans_data = TransactionData(process_id)
-        with DbProxy(gen_data_source_of_universal_db(process_id), True) as db_instance:
-            trans_data.vacuum_data(db_instance)
-        yield (i + 1) * 99 / len(process_ids)
-        logger.info(f'Vacuum transaction for process: {process_id}')
-    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
-
-
-@log_execution_time()
-def vacuum_db(process_ids: list[int]):
-    yield 0
-    yield from run_vacuum_db(process_ids)
-    yield 100
-
-
-@scheduler_app_context
-def vacuum_dbs_job(job_management: JobManagement):
-    """Vacuum on jobs"""
-    process_ids = CfgProcess.get_all_ids(status=ProcessStatus.REGISTERED)
-    gen = vacuum_db(process_ids)
-    send_processing_info(
-        gen,
-        job_management=job_management,
-    )
-
-
-def add_vacuum_dbs_job():
-    # job run at 3 AM local time
-    trigger_time = DB_MAINTENANCE_TIME
-    # generate datetime of today
-    today = datetime.today()
-    local_datetime = datetime(today.year, today.month, today.day, *trigger_time)
-    # convert to utc
-    utc_datetime = local_datetime.astimezone(tz.tzutc())
-    trigger = CronTrigger(hour=utc_datetime.hour, minute=trigger_time[1], second=trigger_time[2], timezone=utc)
-
-    EventQueue.put(
-        EventAddJob(
-            fn=vacuum_dbs_job,
-            job_type=JobType.VACUUM_DB,
-            replace_existing=True,
-            trigger=trigger,
         ),
     )

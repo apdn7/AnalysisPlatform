@@ -1,12 +1,9 @@
 import sqlalchemy as sa
 import re
-import logging
 
 from sqlalchemy.orm import scoped_session
-
 from ap.common.constants import CfgConstantType
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def convert_user_setting_url(conn: scoped_session):

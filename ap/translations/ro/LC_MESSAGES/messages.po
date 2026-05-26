@@ -1595,6 +1595,7 @@ msgstr ""
 "Toate joburile au fost oprite. Puteți închide în siguranță browserul și "
 "consola."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2177,6 +2178,7 @@ msgstr ""
 "Întoarce în prezent starea de conectare a datelor setate și apelează la "
 "condiția înregistrată anterior."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

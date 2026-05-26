@@ -1,4 +1,3 @@
-import logging
 import math
 import re
 from datetime import date, datetime, timedelta, timezone, tzinfo
@@ -10,6 +9,7 @@ import pandas as pd
 # import pytz
 from dateutil import parser, tz
 from dateutil.relativedelta import relativedelta
+from loguru import logger
 
 from ap.common.common_utils import (
     add_double_quotes,
@@ -23,10 +23,8 @@ from ap.common.constants import (
     TERM_FORMAT,
     DataCountType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle
-
-logger = logging.getLogger(__name__)
 
 
 def parse_datetime(dt_input: Any) -> datetime | None:
@@ -169,7 +167,8 @@ def gen_sql(db_instance, table_name, get_date_col):
     return sql
 
 
-def calc_offset_between_two_tz(from_tz, to_tz):
+def calc_offset_between_two_tz(from_tz: tzinfo, to_tz: tzinfo) -> int:
+    """Return hour different between timezones"""
     cur_datetime = datetime.now()
 
     dt_frm = cur_datetime.replace(tzinfo=from_tz)
@@ -179,22 +178,10 @@ def calc_offset_between_two_tz(from_tz, to_tz):
     dt_to = dt_to.astimezone(tz.tzutc())
 
     # get timezone offset
-    if dt_to == dt_frm:
-        return None
+    seconds = (dt_to - dt_frm).total_seconds()
 
-    if dt_to >= dt_frm:
-        sign = '+'
-        diff_tm = str(dt_to - dt_frm)
-    else:
-        sign = '-'
-        diff_tm = str(dt_frm - dt_to)
-
-    if diff_tm[1] == ':':
-        sign += '0'
-
-    diff_tm = sign + diff_tm
-
-    return diff_tm
+    # convert to hours
+    return int(seconds / 3600)
 
 
 def get_db_timezone(db_instance):

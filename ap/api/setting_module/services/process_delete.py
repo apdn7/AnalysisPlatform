@@ -1,20 +1,24 @@
-import logging
 import os
 import shutil
 
+from loguru import logger
+
 from ap.common.constants import AnnounceEvent, CacheType, CfgConstantType, JobType, ProcessStatus
-from ap.common.jobs.job_info_schema import DelAllTransactionDataJobInfo, ProcessJobInfo
-from ap.common.logger import log_execution_time
+from ap.common.jobs.job_info_schema import (
+    DelAllTransactionDataJobInfo,
+    DelTransactionDataByLimit,
+    DelTransactionProcessJobInfo,
+    ProcessJobInfo,
+)
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventExpireCache, EventQueue, EventRemoveJobs
-from ap.common.path_utils import delete_file, gen_sqlite3_file_name, get_data_path, resource_path
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.path_utils import delete_file, gen_duckdb_file_name, gen_sqlite3_file_name, get_data_path, resource_path
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgConstant, CfgDataSource, CfgExport, CfgProcess, JobManagement, make_session
 from ap.setting_module.services.background_process import send_processing_info
 from ap.setting_module.services.process_config import update_process_status
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -81,13 +85,20 @@ def delete_transaction_when_initial_process(proc_id):
 
     for p in deleting_process_ids:
         delete_transaction_db_file(p)
+        # recreate tables
+        trans_data = TransactionData(p)
+        with (
+            TxnDataConnection(process_id=p, readonly_transaction=False) as data_con,
+            TxnMetaConnection(process_id=p) as meta_con,
+        ):
+            trans_data.create_table(data_con, meta_con)
 
     return deleting_process_ids
 
 
 @scheduler_app_context
 def delete_transaction_data_job(job_management: JobManagement):
-    gen = delete_transaction_data()
+    gen = delete_transaction_data(job_management)
     send_processing_info(
         gen,
         job_management=job_management,
@@ -133,7 +144,7 @@ def delete_all_transaction_data(job_management: JobManagement = None):
     job_management.info.info('Delete all transaction data')
 
 
-def delete_transaction_data():
+def delete_transaction_data(job_management: JobManagement):
     # get Import limit
     yield 0
     import_limit = CfgConstant.get_value_by_type_first(CfgConstantType.IMPORT_LIMIT.name, int)
@@ -142,11 +153,20 @@ def delete_transaction_data():
         return
 
     process_ids: list[int] = CfgProcess.get_all_ids(status=ProcessStatus.REGISTERED)
+    job_management.info = DelTransactionDataByLimit(processes=[])
     for idx, process_id in enumerate(process_ids):
         trans_data = TransactionData(process_id)
-        with DbProxy(gen_data_source_of_universal_db(process_id), True) as db_instance:
-            trans_data.create_table(db_instance)
-            if trans_data.clean_data_with_limit_import(db_instance, import_limit):
+        with (
+            TxnMetaConnection(process_id=process_id) as meta_con,
+            TxnDataConnection(process_id=process_id, readonly_transaction=False) as data_con,
+        ):
+            deleted_records = trans_data.clean_data_with_limit_import(data_con, meta_con, import_limit)
+            job_management.info.processes.append(
+                DelTransactionProcessJobInfo(
+                    id=process_id, name=trans_data.cfg_process.name, deleted_records=deleted_records
+                )
+            )
+            if deleted_records > 0:
                 EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
             yield 100 / ((idx + 1) * len(process_ids))
 
@@ -173,14 +193,9 @@ def del_data_source(ds_id):
         meta_session.delete(ds)
 
 
-def delete_transaction_db_file(proc_id):
-    try:
-        file_name = gen_sqlite3_file_name(proc_id)
-        delete_file(file_name)
-    except Exception:
-        pass
-
-    return True
+def delete_transaction_db_file(proc_id: int):
+    delete_file(gen_sqlite3_file_name(proc_id))
+    delete_file(gen_duckdb_file_name(proc_id))
 
 
 def delete_pulled_data_folders(process_ids: list[int]):

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import csv
-import logging
 import os
 from collections import defaultdict
 from dataclasses import dataclass
@@ -9,6 +8,7 @@ from typing import Any, Final
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from pandas import DataFrame
 from pandas.errors import ParserError
 
@@ -36,12 +36,10 @@ from ap.common.constants import (
     MasterDBType,
 )
 from ap.common.datetime_format_utils import convert_datetime_format
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import get_latest_files
 from ap.conversion_formula import conversion_formula
 from ap.setting_module.models import CfgDataSource, CfgProcess, CfgProcessColumn
-
-logger = logging.getLogger(__name__)
 
 AUTO_LINK_ID = 'id'
 DATE = 'date'

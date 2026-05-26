@@ -217,6 +217,7 @@ msgstr "Enw Proses"
 msgid "Table Name"
 msgstr "Enw'r Tabl"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Manylai"
@@ -566,18 +567,23 @@ msgstr "Ystod Y-Exes: Max"
 msgid "Part No"
 msgstr "Rhan Na"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "gorffen gyda"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Dechreuwch gyda"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like Chwilio)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Chydwela ’"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Mynegiadau rheolaidd"
 
@@ -842,6 +848,7 @@ msgstr "Gêm Rannol"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Dewis digid annilys"
 
@@ -849,33 +856,43 @@ msgstr "Dewis digid annilys"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "Mae hyd y cymeriad a ddefnyddir ar gyfer y cysylltiad yn wahanol."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Dim hidlydd"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Pob llinell"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "sefyllfa"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Restr"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "I gyd"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Mewnforio wedi'i gwblhau."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Mewnforio"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Methwyd mewnforio"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "Bydd y data wedi'i lwytho yn cael ei ddileu. Ydy hi'n iawn? (Ni "
 "adlewyrchir unrhyw newid nes bod y botwm cofrestru yn cael ei wasgu)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Restr"
 
@@ -890,54 +908,71 @@ msgstr "Restr"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "ID Swydd"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Enw Swydd"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Cenhedlaeth o gysylltiadID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Arddangos swydd cynhyrchu cyswllt ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Mewnforio data ffatri"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Mewnforio data ffatri yn y gorffennol"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Dangos swydd mewnforio data ffatri yn y gorffennol"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Data mewnforio"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Dileu hen ddata"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Amser Cychwyn"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "amser a aeth heibio"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Cronfa Ddata/CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Symudon"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Phrosesu"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Rhestr Histogram"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Cofrestrwch fel gwerth achos"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Ungof Outlier"
 
@@ -961,24 +996,31 @@ msgstr "Dangos Rhestr Histogram"
 msgid "Last update time"
 msgstr "Amser Diweddaru Diwethaf"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Mae cofrestru allanol wedi'i ganslo."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Wedi'i gofrestru fel allgleiwr"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Allanol"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Dim ond unwaith"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Manylion Swydd"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Copïo I'r clipfwrdd"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Plot Aml -wasgariad"
 
@@ -1015,9 +1057,11 @@ msgstr "Newidyn categori"
 msgid "Stratify by term"
 msgstr "Stratify yn ôl tymor (uniongyrchol)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Canfod anghysondebau"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Prif sgôr cydran y data profi"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Prif sgôr cydran y data hyfforddi"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Siart Cyfres o Ystadegau T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Siart Cyfres o Ystadegau Q"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Plot cyfraniad o ystadegau T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Plot Cyfraniad o Ystadegau Q"
 
@@ -1468,6 +1518,7 @@ msgstr "Ansawdd data"
 msgid "Viewer"
 msgstr "Ngwylwyr"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Mewnforio data"
 
@@ -1475,9 +1526,11 @@ msgstr "Mewnforio data"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Enw Ffynhonnell Data"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Math o Ffynhonnell Data"
 
@@ -1485,9 +1538,11 @@ msgstr "Math o Ffynhonnell Data"
 msgid "Do you want to save changes?"
 msgstr "Ydych chi'n sicr o arbed newidiadau?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Gwybodaeth OS Gorfodol i Gosodiadau Parth Amser."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Lleoliad Uwch"
 
@@ -1544,6 +1599,7 @@ msgstr ""
 "Mae'r holl swydd wedi'i stopio. Gallwch chi gau eich porwr a'ch consol yn"
 " ddiogel."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1553,6 +1609,7 @@ msgstr "Ffynhonnell Ffynhonnell Data"
 msgid "Data Source Import Config"
 msgstr "Ffynhonnell Ffynhonnell Data Ffurfweddu"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1560,15 +1617,19 @@ msgstr ""
 ": Ychydig o golofnau cymeriad a ganfu colofnau. Gwiriwch y gellir cam "
 "-gydnabod y golofn math rhifol ac ati."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Hidlo eitem"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Gwerth Hidlo"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Dyddiad dod i ben (cychwyn)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Dyddiad dod i ben (diwedd)"
 
@@ -1632,9 +1693,11 @@ msgstr "Egwyl"
 msgid "Window length"
 msgstr "Hyd ffenestri"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Theipia ’"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Henwem"
 
@@ -1706,9 +1769,11 @@ msgstr "Config hidlo"
 msgid "Master Config"
 msgstr "Meistr Config"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "O hidlydd config"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Dangos popeth"
 
@@ -1757,33 +1822,40 @@ msgstr ""
 "Os oes gennych sefyllfa wahanol, gallwch wirio'r prif ffactorau yn y plot"
 " cyfraniadau."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Hidlo Categori Haenedig: Yn cyfyngu ar ddata i'w arddangos i is -set. "
 "(Categori: Rhif Rhan, Rhif Gorsaf, ac ati)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Mae newidynnau categori (megis Rhan Rhif, Rhif Gorsaf, ac ati) yn cael eu"
 " harddangos fel labeli ar frig lleiniau i ddod o hyd i bwyntiau newid."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Hidlo Graff: Yn cyfyngu ar ddata i'w arddangos i is -set."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Gosodwch y data dysgu a ddehonglir fel sefyllfa arferol. Gosodwch yr "
 "adran ddata nad yw'n cynnwys unrhyw ddata NG. Os cânt eu cynnwys, mae'r "
 "rhai sy'n agos at y data NG hefyd yn cael eu barnu fel data arferol."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Gosod data prawf i'w farnu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Hidlo Eitem: Yn cyfyngu ar ddata (dadansoddi ac arddangos) i'w arddangos "
 "i is -set."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1792,6 +1864,7 @@ msgstr ""
 "gydrannau) o ddata gwirio amlddimensiwn. Os yw'r data yn y canol, gellir "
 "ei ddehongli mor agos at normal."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1801,6 +1874,7 @@ msgstr ""
 "bennu gan y data dysgu, felly dylai'r rhan fwyaf o'r data dysgu fod yn y "
 "targed."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1812,6 +1886,7 @@ msgstr ""
 "Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r "
 "sefyllfa."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1823,6 +1898,7 @@ msgstr ""
 "Cliciwch Pwynt Data i weld y plot cyfraniad o ba elfennau sy'n ffurfio'r "
 "sefyllfa."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1830,6 +1906,7 @@ msgstr ""
 "Ei drefn y mae newidynnau yn cyfrannu at y sefyllfa ar y pwynt a ddewisir"
 " yn y plot ystadegyn T2. Po hiraf y hyd, y mwyaf tebygol yw'r achos."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2093,6 +2170,7 @@ msgstr ""
 "Yn taflu'r amod cysylltu data a osodir ar hyn o bryd ac yn galw'r cyflwr "
 "a gofrestrwyd yn flaenorol."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "Cynhyrchir ID yn fewnol i gysylltu data â'r amodau cysylltu set."
@@ -2561,9 +2639,11 @@ msgstr "Modd gosod"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Nifer yr eitemau data na ellir eu cysylltu"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Plot gwasgariad"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "gyda chyfuchlin"
 

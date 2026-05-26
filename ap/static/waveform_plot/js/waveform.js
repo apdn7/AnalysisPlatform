@@ -162,4 +162,8 @@ class WaveformPlot extends APPlot {
         });
         unHoverHandler(waveformPLot);
     }
+
+    onYTitleHover() {
+        attachYTitleHovers(this.plotDOM);
+    }
 }

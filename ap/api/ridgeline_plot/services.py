@@ -1,9 +1,9 @@
-import logging
 from collections import defaultdict
 from copy import deepcopy
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ap import TraceErrKey
 from ap.api.categorical_plot.services import (
@@ -114,7 +114,7 @@ from ap.common.constants import (
     X,
     Y,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series
 from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
@@ -127,8 +127,6 @@ from ap.common.sigificant_digit import get_fmt_from_array
 from ap.common.timezone_utils import from_utc_to_localtime
 from ap.common.trace_data_log import EventAction, EventType, Target, trace_log
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()

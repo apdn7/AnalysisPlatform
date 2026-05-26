@@ -98,7 +98,7 @@ from ap.common.constants import (
     HMFunction,
     MaxGraphNumber,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series
 from ap.common.services.form_env import bind_dic_param_to_class

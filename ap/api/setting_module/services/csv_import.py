@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import math
 import os.path
 import re
@@ -8,9 +7,11 @@ import uuid
 from datetime import datetime
 from io import BytesIO
 
-import numpy as np
 import pandas as pd
+
+# pd.options.mode.chained_assignment = None  # default='warn'
 from pandas import DataFrame
+from pandas.core.dtypes.base import ExtensionDtype
 
 from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter
 from ap.api.setting_module.services.data_import import (
@@ -76,11 +77,12 @@ from ap.common.constants import (
 )
 from ap.common.datetime_format_utils import convert_datetime_format
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time
+from ap.common.jobs.job_info_schema import CsvImportJobInfo
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
 from ap.common.path_utils import get_basename, get_files
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.sqlite import SQLite3
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
     get_limit_records,
@@ -109,10 +111,6 @@ from ap.setting_module.models import (
 from ap.setting_module.services.background_process import JobInfo, send_processing_info
 from ap.trace_data.transaction_model import TransactionData
 
-# pd.options.mode.chained_assignment = None  # default='warn'
-
-logger = logging.getLogger(__name__)
-
 
 @scheduler_app_context
 def import_csv_job(
@@ -122,7 +120,7 @@ def import_csv_job(
     register_by_file_request_id: str | None = None,
 ):
     """Scheduler job import csv"""
-    gen = import_csv(process_id, register_by_file_request_id=register_by_file_request_id)
+    gen = import_csv(process_id, register_by_file_request_id=register_by_file_request_id, job_management=job_management)
     send_processing_info(
         gen,
         job_management=job_management,
@@ -138,7 +136,12 @@ def get_config_sensor(cfg_process: CfgProcess):
 
 
 @log_execution_time()
-def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_request_id: str | None = None):
+def import_csv(
+    proc_id,
+    record_per_commit=RECORD_PER_COMMIT,
+    register_by_file_request_id: str | None = None,
+    job_management: JobManagement = JobManagement(),
+):
     """Csv files import
 
     Keyword Arguments:
@@ -154,6 +157,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     """
     # start job
     yield 0
+    job_management.info = CsvImportJobInfo()
 
     data_register_data = {
         'RegisterByFileRequestID': register_by_file_request_id,
@@ -174,11 +178,16 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     cfg_parent_proc: CfgProcess | None = CfgProcess.get_proc_by_id(proc_cfg.parent_id) if proc_cfg.parent_id else None
 
     trans_data = TransactionData(proc_cfg)
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
-        trans_data.create_table(db_instance)
-
+    with (
+        TxnDataConnection(process_id=proc_id, readonly_transaction=False) as data_con,
+        TxnMetaConnection(process_id=proc_id) as meta_con,
+    ):
+        # TODO: we want to remove `create_table` here, so that `data_con` doesn't need to access
+        #  but there are many test cases, call `import_csv` alone. So we need to create table here
+        #  we can remove this later
+        trans_data.create_table(data_con=data_con, meta_con=meta_con)
         # get import files
-        import_targets, no_data_files, toast_skip = get_import_target_files(proc_id, data_src, trans_data, db_instance)
+        import_targets, no_data_files, toast_skip = get_import_target_files(proc_id, data_src, trans_data, meta_con)
 
     # job 100% with zero row
     if not import_targets:
@@ -205,9 +214,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     latest_record = None
     # find last records in case of dummy datetime is used
     if use_dummy_datetime:
-        # (latest_record,) = dic_sensor_cls[DATETIME_DUMMY].get_max_value(DATETIME_DUMMY)
-        with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
-            latest_record = trans_data.get_max_date_time_by_process_id(db_instance)
+        with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
+            latest_record = trans_data.get_max_date_time_by_process_id(data_con)
             if latest_record:
                 latest_record = add_days_from_utc(latest_record, 1)
 
@@ -248,6 +256,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     if is_v2_datasource:
         is_abnormal = False
 
+    job_management.info.is_abnormal = is_abnormal
+
     total_percent = 0
     percent_per_file = 100 / len(import_targets)
     dic_imported_row = {}
@@ -263,6 +273,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
     for idx, csv_file_name in enumerate(no_data_files):
         job_info.status = JobStatus.DONE
         job_info.empty_files = [csv_file_name]
+        job_management.info.empty_files.append(csv_file_name)
         is_safe_interrupt = idx == len(no_data_files) - 1
         yield from yield_job_info(job_info, csv_file_name, is_safe_interrupt=is_safe_interrupt)
         job_info.empty_files = []
@@ -284,6 +295,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         # Because each file has a different structure, it will read according to different parameters
         default_csv_param = origin_default_csv_param.copy()
         job_info.target = csv_file_name
+        import_target_info = CsvImportJobInfo.CsvImportTargetInfo()
+        job_management.info.import_targets.append(import_target_info)
+        import_target_info.file_name = csv_file_name
+        import_target_info.transform_file = transformed_file
 
         if not dic_imported_row:
             job_info.start_tm = get_current_timestamp()
@@ -291,6 +306,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
         # R error check
         if isinstance(transformed_file, Exception):
             yield from yield_job_info(job_info, csv_file_name, err_msgs=str(transformed_file))
+            import_target_info.error = str(transformed_file)
             continue
 
         # delimiter check
@@ -299,6 +315,9 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             csv_delimiter,
             with_encoding=True,
         )
+
+        import_target_info.encoding = encoding
+
         # check missing columns
         partial_dummy_header = False
         if is_abnormal is False:
@@ -369,6 +388,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
             if missing_cols and not is_v2_datasource:
                 err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
+
+                import_target_info.error = err_msg
 
                 df_one_file = csv_to_df(
                     transformed_file,
@@ -501,6 +522,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
 
         file_record_count = len(df_one_file)
+        import_target_info.file_record_count = file_record_count
+
         if proc_cfg.is_import_file_name:
             df_one_file = add_column_file_name(df_one_file, csv_file_name, file_name_col=file_name_col)
 
@@ -515,6 +538,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
             job_info.status = JobStatus.DONE
             job_info.empty_files = [csv_file_name]
+            job_management.info.empty_files.append(csv_file_name)
             yield from yield_job_info(job_info, csv_file_name)
             job_info.empty_files = []
             continue
@@ -578,7 +602,10 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             is_first_chunk = False
 
         df_error_cnt = len(df_error)
+
         if df_error_cnt:
+            job_management.info.error(f'{df_error_cnt} error record count')
+
             if df_db_latest_records is None:
                 df_db_latest_records = get_latest_records(proc_cfg)
             write_invalid_records_to_file(
@@ -593,6 +620,8 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
             error_type = DATA_TYPE_ERROR_MSG
 
         if df_duplicate is not None and len(df_duplicate):
+            job_management.info.error(f'{len(df_duplicate)} duplicated record count')
+
             error_type = DATA_TYPE_DUPLICATE_MSG
             write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
 
@@ -648,6 +677,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
         df_error_cnt = len(df_error)
         if df_error_cnt:
+            job_management.info.error(f'{df_error_cnt} error record count found in last import')
             error_type = DATA_TYPE_ERROR_MSG
             if df_db_latest_records is None:
                 df_db_latest_records = get_latest_records(proc_cfg)
@@ -663,6 +693,7 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
 
         if df_duplicate is not None and len(df_duplicate):
             error_type = DATA_TYPE_DUPLICATE_MSG
+            job_management.info.error(f'{len(df_duplicate)} duplicated record count found in last import')
             write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
 
         for idx, (_csv_file_name, _imported_row) in enumerate(dic_imported_row.values()):
@@ -676,11 +707,13 @@ def import_csv(proc_id, record_per_commit=RECORD_PER_COMMIT, register_by_file_re
                 is_safe_interrupt=is_safe_interrupt,
             )
 
+    job_management.info.imported_row = total_imported_row
     if total_imported_row == 0:
         # if there is empty data in all files
         error_type = IMPORT_CSV_EMPTY_DATA
 
     if error_type:
+        job_management.info.error(error_type)
         save_failed_import_history(proc_id, job_info, error_type)
 
     yield 100
@@ -696,11 +729,11 @@ def set_csv_import_percent(job_info, total_percent, percent_per_chunk):
 
 
 @log_execution_time()
-def get_last_csv_import_info(trans_data, db_instance) -> tuple[dict[str, str], dict[str, str]]:
+def get_last_csv_import_info(trans_data: TransactionData, meta_con: SQLite3) -> tuple[dict[str, str], dict[str, str]]:
     """Get latest csv import info"""
-    latest_import_files = trans_data.get_import_history_latest_done_files(db_instance)
+    latest_import_files = trans_data.get_import_history_latest_done_files(meta_con)
     dic_imported_file = {rec.file_name: rec.start_tm for rec in latest_import_files}
-    csv_fatal_imports = trans_data.get_import_history_last_fatal(db_instance)
+    csv_fatal_imports = trans_data.get_import_history_last_fatal(meta_con)
     # error files
     dic_fatal_file = {rec.file_name: rec.start_tm for rec in csv_fatal_imports}
 
@@ -872,8 +905,8 @@ def csv_to_df(
 
 
 @log_execution_time()
-def get_import_target_files(proc_id, data_src, trans_data, db_instance):
-    dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, db_instance)
+def get_import_target_files(proc_id: int, data_src: CfgDataSourceCSV, trans_data: TransactionData, meta_con: SQLite3):
+    dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, meta_con)
     valid_extensions = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
     csv_files = []
     if data_src.is_file_path:
@@ -958,22 +991,22 @@ def remove_duplicates(
         return df_import, pd.DataFrame(columns=df_import.columns.tolist())
 
     # get data from database
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(cfg_process.id), is_universal_db=True) as db_instance:
+    with TxnDataConnection(process_id=cfg_process.id, readonly_transaction=True) as data_con:
         trans_data = TransactionData(cfg_process)
-        cols, rows = trans_data.get_data_for_check_duplicate(db_instance, start_tm, end_tm)
-        dic_col_dtypes = trans_data.get_column_dtype(db_instance, cols)
+        df_db = trans_data.get_data_for_check_duplicate(data_con, start_tm, end_tm)
+        pandas_dtypes = trans_data.get_pandas_column_dtypes(data_con)
 
     # There is a case that a new column is created in DB but this job still not interrupted yet.
     # In this case, it will throw an error that "new column" is not exist in dic_cols
     # To avoid this, we create df with full columns, then filter out the new column
-    transaction_cols = {col: dic_cols[col] for col in cols if col in dic_cols}
-    df_db = pd.DataFrame(rows, columns=cols)
+    transaction_cols = {col: dic_cols[col] for col in df_db.columns if col in dic_cols}
     df_db = df_db[transaction_cols.keys()].rename(columns=transaction_cols)
 
     # remove duplicate df vs df_db
-    dic_col_dtypes = {dic_cols[col]: dtype for col, dtype in dic_col_dtypes.items() if col in dic_cols}
+    # because column name in df and df_db are different, we must rename them pandas_types to contains column_name
+    pandas_dtypes = {transaction_cols[c]: data_type for c, data_type in pandas_dtypes.items()}
     duplicated_indexes = get_duplicate_info(
-        df_import, df_db, ignore_columns=ignored_dup_check_columns, col_dtypes=dic_col_dtypes
+        df_import, df_db, ignore_columns=ignored_dup_check_columns, pandas_dtypes=pandas_dtypes
     )
 
     if len(duplicated_indexes):
@@ -992,7 +1025,9 @@ def get_min_max_date(df: DataFrame, get_date_col):
 
 
 @log_execution_time()
-def get_duplicate_info(df_import: DataFrame, df_db: DataFrame, ignore_columns: list[str], col_dtypes=None) -> pd.Index:
+def get_duplicate_info(
+    df_import: DataFrame, df_db: DataFrame, ignore_columns: list[str], pandas_dtypes: dict[str, ExtensionDtype]
+) -> pd.Index:
     """
     Perform duplicated check with:
     - df_import: dataframe to be imported
@@ -1021,34 +1056,18 @@ def get_duplicate_info(df_import: DataFrame, df_db: DataFrame, ignore_columns: l
 
     # ↓====== Correct data type in dataFrame ======↓
     for col in df_db.columns:
-        if col not in df:
-            continue
-        if df[col].dtype.name == df_db[col].dtype.name:
+        if col not in df.columns:
             continue
 
-        if not col_dtypes:
+        if df[col].dtype == df_db[col].dtype:
             continue
 
-        data_type = col_dtypes.get(col)
+        data_type = pandas_dtypes.get(col)
+        if not data_type:
+            continue
 
-        try:
-            if data_type == 'integer':
-                dtype = pd.Int64Dtype.name
-            elif data_type == 'real':
-                dtype = pd.Float64Dtype.name
-            elif data_type == 'text':
-                dtype = pd.StringDtype.name
-            elif 'timestamp' in data_type:
-                dtype = np.datetime64.__name__
-            elif data_type == 'boolean':
-                dtype = 'boolean'
-            else:
-                dtype = pd.StringDtype.name
-
-            df[col] = df[col].astype(dtype)
-            df_db[col] = df_db[col].astype(dtype)
-        except TypeError as e:
-            logger.exception(e)
+        df[col] = df[col].astype(data_type)
+        df_db[col] = df_db[col].astype(data_type)
 
     # ↑====== Correct data type in dataFrame ======↑
 
@@ -1143,7 +1162,7 @@ def import_df(
     unused_cols = used_cols - df_columns
     valid_cols = used_cols - unused_cols
 
-    df = df[list(valid_cols)]
+    df = df[sorted(valid_cols)]
     # remove duplicate records in csv file which exists in csv or DB
     cfg_columns = list(dic_use_cols.values())
 

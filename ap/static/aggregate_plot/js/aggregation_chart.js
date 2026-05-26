@@ -259,26 +259,6 @@ const drawAgPPlot = (
     unHoverHandler(agPPlot);
 };
 
-const showTickLabelTooltip = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    const tooltip = $('#fullTickLabel');
-    const tooltipHeight = tooltip.height();
-    const windowHeight = $(window).height();
-    const left = e.clientX;
-    let top = e.clientY + 5;
-    if (windowHeight - top < tooltipHeight) {
-        top -= tooltipHeight;
-    }
-    tooltip.css({
-        left: `${left}px`,
-        top: `${top}px`,
-        display: 'block',
-    });
-
-    return false;
-};
 const reduceTicksArray = (array, maxTick = MAX_TICKS) => {
     const nTicks = maxTick;
     const isReduce = array.length > maxTick;

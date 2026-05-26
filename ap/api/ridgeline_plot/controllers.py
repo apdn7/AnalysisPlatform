@@ -5,7 +5,10 @@ from flask import Blueprint, request
 
 from ap import max_graph_config
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import convert_emd_data_to_df
+from ap.api.common.services.show_graph_jump_function import (
+    get_graph_context_param,
+    save_data_of_graph,
+)
 from ap.api.common.services.show_graph_services import get_filter_on_demand_data
 from ap.api.ridgeline_plot.services import (
     customize_dict_param,
@@ -29,7 +32,6 @@ from ap.common.constants import (
     END_PROC,
     EXPORT_FROM,
     PROC_MASTER_NAME,
-    REQUEST_THREAD_ID,
     RL_CATEGORY,
     RL_CYCLIC_TERM,
     RL_DATA,
@@ -38,8 +40,7 @@ from ap.common.constants import (
     DataExportMode,
     MaxGraphNumber,
 )
-from ap.common.logger import log_execution_time
-from ap.common.memoize import cache_jump_key
+from ap.common.log import log_execution_time
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,
@@ -54,7 +55,7 @@ from ap.common.services.import_export_config_n_data import (
     get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
-from ap.common.trace_data_log import EventType, save_draw_graph_trace, save_input_data_to_file, trace_log_params
+from ap.common.trace_data_log import EventType, save_draw_graph_trace, trace_log_params
 
 api_ridgeline_plot_blueprint = Blueprint('api_ridgeline_plot', __name__, url_prefix='/ap/api/rlp')
 
@@ -67,23 +68,17 @@ def trace_data():
     """
     start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
-    save_input_data_to_file(dic_form, EventType.RLP)
-    dic_param = parse_multi_filter_into_one(dic_form)
+    graph_context = get_graph_context_param(dic_form, EventType.RLP)
 
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
+    compare_type = graph_context.dic_param.get(COMMON).get(COMPARE_TYPE)
 
-    customize_dict_param(dic_param)
-
-    dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-
-    compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
-
-    org_dic_param = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
+    org_dic_param = deepcopy(graph_context.dic_param)
+    dic_params = get_end_procs_param(graph_context.dic_param, graph_context.dic_proc_cfgs)
 
     for single_dic_param in dic_params:
-        root_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
+        root_graph_param = bind_dic_param_to_class(
+            graph_context.dic_proc_cfgs, graph_context.trace_graph, graph_context.dic_card_orders, single_dic_param
+        )
         if compare_type == RL_CATEGORY:
             rlp_dat, _ = gen_trace_data_by_categorical_var(
                 root_graph_param,
@@ -119,18 +114,10 @@ def trace_data():
         del plot[RL_DATA]
 
     org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.RLP))
-
     out_dict = orjson_dumps(org_dic_param)
-    df, dic_param, new_dic_proc_cfgs = convert_emd_data_to_df(org_dic_param, root_graph_param)
-    if df is not None:
-        graph_param = bind_dic_param_to_class(new_dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
-        # dic_param = bind_ng_rate_to_dic_param(graph_param, dic_param)
-        cache_jump_key(
-            jump_key=dic_form.get(REQUEST_THREAD_ID, [None])[0],
-            dic_param=dic_param,
-            graph_param=graph_param,
-            df=df,
-        )
+
+    save_data_of_graph(graph_context, org_dic_param, EventType.RLP)
+
     return out_dict, 200
 
 

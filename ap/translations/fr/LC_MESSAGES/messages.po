@@ -1610,6 +1610,7 @@ msgstr ""
 "Tout le travail a été arrêté. Vous pouvez fermer en toute sécurité votre "
 "navigateur et votre console."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2205,6 +2206,7 @@ msgstr ""
 "Élimine la condition de liaison de données actuellement définie et "
 "appelle la condition précédemment enregistrée."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

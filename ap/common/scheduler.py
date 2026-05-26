@@ -1,23 +1,36 @@
 from __future__ import annotations
 
 import inspect
-import logging
 from collections.abc import Mapping
 from functools import wraps
 from typing import Any
 
-from ap import close_sessions, dic_config, scheduler
-from ap.common.constants import PROCESS_QUEUE, JobStatus, JobType, ListenNotifyType
-from ap.common.logger import log_execution_time
-from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
+from flask import g, has_request_context
+from loguru import logger
 
-logger = logging.getLogger(__name__)
+from ap import close_sessions, dic_config, scheduler
+from ap.common.constants import PROCESS_QUEUE, RUN_AFTER_REQUEST, JobStatus, JobType, ListenNotifyType
+from ap.common.log import log_execution_time
+from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
 
 # RESCHEDULE_SECONDS
 RESCHEDULE_SECONDS = 30
 
 # max concurrent importing jobs
 MAX_CONCURRENT_JOBS = 10
+
+
+def run_after_request(fn):
+    @wraps(fn)
+    def inner(*args: Any, **kwargs: Any) -> Any:
+        if has_request_context():
+            if RUN_AFTER_REQUEST not in g:
+                g.run_after_request = []
+            g.run_after_request.append((fn, args, kwargs))
+        else:
+            return fn(*args, **kwargs)
+
+    return inner
 
 
 @log_execution_time(logging_exception=True)
@@ -165,5 +178,8 @@ def create_job_management_from_scheduler_params(scheduler_params: dict[str, Any]
         job.status = str(JobStatus.PROCESSING)
         meta_session.add(job)
         meta_session.flush()
+
+        # make return job object isolate and not contain db connection
+        job = JobManagement(**job.as_dict())
 
     return job

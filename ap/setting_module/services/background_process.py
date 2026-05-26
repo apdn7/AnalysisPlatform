@@ -1,11 +1,11 @@
 import contextlib
 import datetime as dt
-import logging
 import math
 import re
 from typing import Union
 
 from flask_sqlalchemy.pagination import QueryPagination
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
 
 from ap import db
@@ -28,14 +28,15 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.disk_usage import get_disk_capacity_once
+from ap.common.jobs.job_info_schema import JobInfoUnion
 from ap.common.jobs.jobs import RunningJobs
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import (
     EventBackgroundAnnounce,
     EventQueue,
     EventRunFunction,
 )
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.transaction import TxnMetaConnection
 from ap.common.services.error_message_handler import ErrorMessageHandler
 from ap.common.timezone_utils import choose_utc_convert_func
 from ap.setting_module.models import (
@@ -44,10 +45,7 @@ from ap.setting_module.models import (
     ProcLinkCount,
     make_session,
 )
-from ap.setting_module.schemas import JobManagementSchema
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 previous_disk_status = DiskUsageStatus.Normal
 
@@ -72,6 +70,7 @@ class JobSerializedOutput(BaseModel):
     error_msg: str | None
     detail: str = ''
     data_type_error: bool = False
+    info: JobInfoUnion | None
 
     @field_serializer('duration')
     def round_duration(self, duration: float) -> float:
@@ -85,6 +84,14 @@ class JobSerializedOutput(BaseModel):
     @computed_field()
     def process_master_name(self) -> str:
         return self.process_name
+
+    @computed_field()
+    def summary(self) -> str | None:
+        return self.info.summary if self.info else None
+
+    @computed_field()
+    def details(self) -> list[str] | None:
+        return self.info.details if self.info else None
 
 
 def get_all_proc_shown_names():
@@ -149,30 +156,31 @@ def send_processing_info(
         generator_func {[type]} -- [description]
     """
     # add new job
-    job_type = JobType[job_management.job_type]
+    job_type: JobType = JobType[job_management.job_type]
     global previous_disk_status
     error_msg_handler = ErrorMessageHandler()
 
     running_jobs = RunningJobs.get_running_jobs()
 
     job_output = JobSerializedOutput.model_validate(job_management.as_dict())
-
     # processing info
-    dic_res: dict[int, JobSerializedOutput] = {job_output.id: job_output}
-    real_job_id = job_output.job_name
+    dic_res: dict[int, JobSerializedOutput] = {job_management.id: job_output}
+    real_job_id = generate_job_id(
+        job_type=job_type, process_id=job_management.process_id, data_source_id=job_management.db_code
+    )
 
     prev_job_info = None
     notify_data_type_error_flg = True
     while True:
         try:
             if is_check_disk and JobType[job_management.job_type] in JobType.jobs_can_increase_disk_usage():
-                disk_capacity = get_disk_capacity_once(_job_id=job_output.id)
+                disk_capacity = get_disk_capacity_once(_job_id=job_management.id)
 
                 if disk_capacity:
                     if previous_disk_status != disk_capacity.disk_status:
                         EventQueue.put(
                             EventBackgroundAnnounce(
-                                job_id=job_output.id,
+                                job_id=job_management.id,
                                 data=disk_capacity.to_dict(),
                                 event=AnnounceEvent.DISK_USAGE,
                             ),
@@ -187,11 +195,11 @@ def send_processing_info(
             # update job details ( csv_import , gen global...)
             if isinstance(job_info, int):
                 # job percent update
-                job_output.done_percent = job_info
+                job_management.done_percent = job_info
             elif isinstance(job_info, JobInfo):
                 prev_job_info = job_info
                 # job percent update
-                job_output.done_percent = job_info.percent
+                job_management.done_percent = job_info.percent
 
                 # insert import history
                 if not job_info.import_type:
@@ -201,14 +209,14 @@ def send_processing_info(
                     # empty files
                     EventQueue.put(
                         EventBackgroundAnnounce(
-                            job_id=job_output.id,
+                            job_id=job_management.id,
                             data=job_info.empty_files,
                             event=AnnounceEvent.EMPTY_FILE,
                         ),
                     )
 
                 # job err msg
-                job_output, job_info = update_job_management_status_n_error(job_output, job_info)
+                job_management, job_info = update_job_management_status_n_error(job_management, job_info)
 
                 # Check to interrupt generator
                 if job_info.is_safe_interrupt:
@@ -217,18 +225,18 @@ def send_processing_info(
                         if running_job is None:
                             logger.error(f'send_processing_info: {real_job_id} does not exist in `running_jobs`')
                         elif running_job.wait_to_kill:
-                            job_output.status = JobStatus.KILLED
-                            job_output = update_job_management(job_output)
+                            job_management.status = JobStatus.KILLED
+                            job_management = update_job_management(job_management)
                             generator_func.close()
                             logger.info(f'{real_job_id}: killed successfully')
                             break
 
             elif job_type is JobType.GEN_GLOBAL:
                 _, dic_cycle_ids, dic_edge_cnt = job_info
-                save_proc_link_count(job_output.id, dic_cycle_ids, dic_edge_cnt)
+                save_proc_link_count(job_management.id, dic_cycle_ids, dic_edge_cnt)
 
         except StopIteration:
-            job_output = update_job_management(job_output)
+            job_management = update_job_management(job_management)
 
             # emit successful import data
             if prev_job_info and prev_job_info.has_record and after_success_func and after_success_func_kwargs:
@@ -240,7 +248,7 @@ def send_processing_info(
             # update job status
             db.session.rollback()
             message = error_msg_handler.msg_from_exception(exception=e)
-            job_output = update_job_management(job_output, message)
+            job_management = update_job_management(job_management, message)
             logger.exception(e)
             break
         finally:
@@ -248,47 +256,46 @@ def send_processing_info(
             if notify_data_type_error_flg and prev_job_info and prev_job_info.data_type_error_cnt > COMPLETED_PERCENT:
                 EventQueue.put(
                     EventBackgroundAnnounce(
-                        job_id=job_output.id,
-                        data=job_output.db_name,
+                        job_id=job_management.id,
+                        data=job_management.db_name,
                         event=AnnounceEvent.DATA_TYPE_ERR,
                     ),
                 )
 
-                dic_res[job_output.id].data_type_error = True
+                dic_res[job_management.id].data_type_error = True
                 notify_data_type_error_flg = False
 
             # emit info
-            dic_res[job_output.id].done_percent = job_output.done_percent
-            dic_res[job_output.id].end_tm = job_output.end_tm
-            dic_res[job_output.id].duration = (
+            dic_res[job_management.id].done_percent = job_management.done_percent
+            dic_res[job_management.id].end_tm = job_management.end_tm
+            dic_res[job_management.id].duration = (
                 dt.datetime.utcnow() - dt.datetime.strptime(job_management.start_tm, DATE_FORMAT_STR)
             ).total_seconds()
             EventQueue.put(
                 EventBackgroundAnnounce(
-                    job_id=job_output.id,
+                    job_id=job_management.id,
                     data={job_id: output.model_dump(by_alias=True) for job_id, output in dic_res.items()},
                     event=AnnounceEvent.JOB_RUN,
                 ),
             )
 
-    dic_res[job_output.id].status = job_output.status
+    dic_res[job_management.id].status = job_management.status
     EventQueue.put(
         EventBackgroundAnnounce(
-            job_id=job_output.id,
+            job_id=job_management.id,
             data={job_id: output.model_dump(by_alias=True) for job_id, output in dic_res.items()},
             event=AnnounceEvent.JOB_RUN,
         ),
     )
 
 
-def update_job_management(job_output: JobSerializedOutput, err=None) -> JobSerializedOutput:
+def update_job_management(job: JobManagement, err=None) -> JobSerializedOutput:
     """Update job status
 
     Arguments:
         job {[type]} -- [description]
         done_percent {[type]} -- [description]
     """
-    job = JobManagementSchema().load(job_output.model_dump())
     with make_session() as meta_session:
         if (
             not err
@@ -313,9 +320,8 @@ def update_job_management(job_output: JobSerializedOutput, err=None) -> JobSeria
         job.end_tm = get_current_timestamp()
 
         job = meta_session.merge(job)
-        job_output = JobSerializedOutput.model_validate(job.as_dict())
 
-    return job_output
+    return job
 
 
 class JobInfo:
@@ -487,12 +493,10 @@ def get_job_detail_service(job_id):
         job_details = []
         try:
             trans_data = TransactionData(job.process_id)
-            with DbProxy(
-                gen_data_source_of_universal_db(job.process_id),
-                True,
-            ) as db_instance:
-                trans_data.create_table(db_instance)
-                job_details = trans_data.get_import_history_error_jobs(db_instance, job_id)
+            with (
+                TxnMetaConnection(process_id=job.process_id) as meta_con,
+            ):
+                job_details = trans_data.get_import_history_error_jobs(meta_con, job_id)
         except Exception:
             pass
         if not isinstance(job_details, list):
@@ -551,9 +555,9 @@ def save_proc_link_count(job_id, dic_cycle_ids, dic_edge_cnt):
 
 
 def update_job_management_status_n_error(
-    job: JobSerializedOutput,
+    job: JobManagement,
     job_info: JobInfo,
-) -> tuple[JobSerializedOutput, JobInfo]:
+) -> tuple[JobManagement, JobInfo]:
     if not job.status or job_info.status.value > JobStatus[job.status].value:
         job.status = job_info.status.name
 

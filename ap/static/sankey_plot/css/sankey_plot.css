@@ -121,3 +121,9 @@ canvas {
 #actual-fitted-scp .legend .traces:first-child {
     display: none;
 }
+
+.ytick text,
+.xtick text {
+    pointer-events: all !important;
+    cursor: pointer !important;
+}

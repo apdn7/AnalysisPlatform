@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import logging
 from collections.abc import Sequence
 from typing import Any, TypeVar
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ap.common.constants import NA_STR
-
-logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 

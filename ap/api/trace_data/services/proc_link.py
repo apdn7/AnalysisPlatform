@@ -1,26 +1,22 @@
-import logging
-from collections import deque, namedtuple
 from datetime import datetime, timedelta
 
+import _duckdb
 import pandas as pd
 from apscheduler.triggers import date, interval
 from apscheduler.triggers.date import DateTrigger
+from loguru import logger
 from pytz import utc
 
 from ap import scheduler
 from ap.api.common.services.sql_generator import gen_sql_proc_link_count
-from ap.api.common.services.utils import gen_sql_and_params
-from ap.common.constants import SUB_STRING_COL_NAME, AnnounceEvent, CacheType, JobType
+from ap.common.constants import AnnounceEvent, CacheType, JobType
 from ap.common.jobs.job_info_schema import GenProcLinkCountJobInfo
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventExpireCache, EventQueue
-from ap.common.path_utils import gen_sqlite3_file_name
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMultiDataConnection
 from ap.common.scheduler import RESCHEDULE_SECONDS, scheduler_app_context
 from ap.setting_module.models import (
     CfgProcess,
-    CfgProcessColumn,
     CfgTrace,
     JobManagement,
     ProcLinkCount,
@@ -28,8 +24,6 @@ from ap.setting_module.models import (
 )
 from ap.setting_module.services.background_process import send_processing_info
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 # 2 proc join key string
 JOIN_KEY = 'key'
@@ -55,57 +49,6 @@ def gen_proc_link_count_job(is_publish=True, is_user_request: bool = False):
         logger.debug('PROC_LINK_DONE_PUBLISH: DONE')
         EventQueue.put(EventBackgroundAnnounce(data=True, event=AnnounceEvent.PROC_LINK))
         EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
-
-
-@log_execution_time()
-def order_before_mapping_data(edges: list[CfgTrace]):
-    """Trace all node in dic_node , and gen sql"""
-    ordered_edges = []
-
-    max_loop = len(edges) * 10
-    edges = deque(edges)
-    cnt = 0
-    while edges:
-        if cnt > max_loop:
-            raise Exception('Edges made a ring circle, You must re-setting tracing edge to break the ring circle!!!')
-
-        # get first element
-        edge = edges.popleft()
-
-        # check if current start proc is in others edge's end procs
-        # if YES , we must wait for these end proc run first( move the current edge to the end)
-        if any(edge.self_process_id == other_edge.target_process_id for other_edge in edges):
-            # move to the end of queue
-            edges.append(edge)
-            cnt += 1
-        else:
-            ordered_edges.append(edge)
-            cnt = 0
-
-    return ordered_edges
-
-
-# def gen_trace_key_info(edge: CfgTrace, is_start_proc):
-def gen_trace_key_info(proc_id, keys):
-    # trace key info
-    TraceKeyInfo = namedtuple(
-        'TraceKeyInfo',
-        'proc_id, column_id, column_name, col_name_with_substr, from_char, to_char',
-    )
-
-    trace_key_infos = []
-    for key in keys:
-        col_id, from_char, to_char = key
-        column = CfgProcessColumn.query.get(col_id)
-        if from_char or to_char:
-            substr_col_name = SUB_STRING_COL_NAME.format(column.column_name, from_char, to_char)
-        else:
-            substr_col_name = column.column_name
-
-        trace_key_info = TraceKeyInfo(proc_id, column.id, column.column_name, substr_col_name, from_char, to_char)
-        trace_key_infos.append(trace_key_info)
-
-    return trace_key_infos
 
 
 def finished_transaction_import(process_id=None, publish: bool = True, is_user_request: bool = False):
@@ -150,12 +93,10 @@ def show_proc_link_info():
     dic_proc_cnt = {}
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for tran_data in trans:
-        with ReadOnlyDbProxy(
-            gen_data_source_of_universal_db(tran_data.process_id), is_universal_db=True
-        ) as db_instance:
+        with TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=True) as data_con:
             data_count = 0
-            if tran_data.is_table_exist(db_instance):
-                data_count = tran_data.count_data(db_instance)
+            if tran_data.is_table_exist(data_con):
+                data_count = tran_data.count_data(data_con)
             dic_proc_cnt[str(tran_data.process_id)] = data_count
 
     dic_edge_cnt = {}
@@ -257,72 +198,18 @@ def proc_link_count_main(job_management: JobManagement = None):
     yield 100
 
 
-def restructure_indexes_gen(process_id):
-    yield 0
-    tran_data = TransactionData(process_id)
-
-    yield 10
-    with DbProxy(gen_data_source_of_universal_db(process_id), True, True) as db_instance:
-        if not tran_data.is_table_exist(db_instance):
-            tran_data.create_table(db_instance)
-
-        tran_data.re_structure_index(db_instance)
-    yield 100
-
-
-def add_restructure_indexes_job(process_id=None, delay: int = 0):
-    """Add job to handle indexes restructure of processes"""
-    proc_ids = [process_id] if process_id else CfgProcess.get_all_ids()
-
-    for proc_id in proc_ids:
-        run_time = datetime.now().astimezone(utc)
-        run_time += timedelta(seconds=delay)
-        date_trigger = date.DateTrigger(run_date=run_time, timezone=utc)
-        EventQueue.put(
-            EventAddJob(
-                fn=re_structure_indexes_job,
-                kwargs={'process_id': proc_id},
-                job_type=JobType.RESTRUCTURE_INDEXES,
-                process_id=proc_id,
-                trigger=date_trigger,
-                replace_existing=True,
-            ),
-        )
-
-
-@scheduler_app_context
-def re_structure_indexes_job(process_id: int, job_management: JobManagement):
-    """Indexes restructure job"""
-    # refactoring transaction data indexes
-    gen = restructure_indexes_gen(process_id)
-    send_processing_info(gen, job_management=job_management)
-    return True
-
-
 @log_execution_time('gen_proc_link')
 def gen_proc_link_of_edge(trace: CfgTrace, limit: int | None = None):
-    # create table if not exist
-    dic_db_files = {}
-    for proc_id in (trace.self_process_id, trace.target_process_id):
-        file_name = gen_sqlite3_file_name(proc_id)
-        dic_db_files[proc_id] = file_name
-
-        with DbProxy(gen_data_source_of_universal_db(proc_id), True, True) as db_instance:
-            trans_data = TransactionData(proc_id)
-            if not trans_data.is_table_exist(db_instance):
-                trans_data.create_table(db_instance)
-
-    sql_stmt = gen_sql_proc_link_count(trace, limit)
-    sql, params = gen_sql_and_params(sql_stmt)
-    proc_id = trace.self_process_id
-    with ReadOnlyDbProxy(
-        gen_data_source_of_universal_db(proc_id),
-        is_universal_db=True,
-        dic_db_files=dic_db_files,
-        proc_id=proc_id,
-    ) as db_instance:
-        _, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
-    count = rows[0][0]
+    sql = gen_sql_proc_link_count(trace, limit)
+    try:
+        with TxnMultiDataConnection(process_ids=[trace.self_process_id, trace.target_process_id]) as data_con:
+            df = data_con.fetch_df(sql)
+        count = df['count_1'].item()
+    except _duckdb.IOException:
+        # In case transaction database does not exist, it means that process has not imported yet.
+        count = 0
+    except Exception as e:
+        raise e
     return count
 
 

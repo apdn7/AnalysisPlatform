@@ -160,15 +160,6 @@ const showBarGraph = (barJson) => {
         return;
     }
 
-    function wraptext(text, maxLength) {
-        if (text.length <= maxLength) {
-            return text;
-        }
-        return text.slice(0, maxLength) + '...';
-    }
-
-    const wrappedLabels = barJson.y?.map((label) => wraptext(label, 19));
-
     const layout = {
         font: {
             size: 12,
@@ -182,7 +173,6 @@ const showBarGraph = (barJson) => {
             b: 10,
             l: 10,
         },
-        // autosize: true,
         annotationdefaults: {
             arrowcolor: '#f2f5fa',
             arrowhead: 0,
@@ -246,14 +236,6 @@ const showBarGraph = (barJson) => {
             '#FF97FF',
             '#FECB52',
         ],
-        geo: {
-            bgcolor: 'rgb(17,17,17)',
-            lakecolor: 'rgb(17,17,17)',
-            landcolor: 'rgb(17,17,17)',
-            showlakes: true,
-            showland: true,
-            subunitcolor: '#506784',
-        },
         hoverlabel: {
             align: 'left',
         },
@@ -352,6 +334,7 @@ const showBarGraph = (barJson) => {
             zerolinewidth: 2,
         },
         yaxis: {
+            type: 'category',
             automargin: true,
             autorange: 'reversed',
             gridcolor: '#283442',
@@ -362,8 +345,9 @@ const showBarGraph = (barJson) => {
             },
             zerolinecolor: '#283442',
             zerolinewidth: 2,
+            tickmode: 'array',
             tickvals: barJson.y || [],
-            ticktext: wrappedLabels,
+            ticktext: barJson.y,
         },
     };
 
@@ -448,6 +432,7 @@ const showBarGraph = (barJson) => {
         legendToggle.on('mouseleave', function (evt) {
             $(`.${formElements.legendTitle}`).text('');
         });
+        attachTickHovers(formElements.barContainerId);
     });
 };
 
@@ -869,7 +854,7 @@ const showErrorToastr = (errors) => {
 
     errors.forEach((error) => {
         const msgContent = `<p>${MSG_MAPPING[error] || error}</p>`;
-        showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
+        showToastrMsg(msgContent, MESSAGE_LEVEL.WARN);
     });
 };
 

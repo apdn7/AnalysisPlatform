@@ -3,7 +3,6 @@ import timeit
 
 from flask import Blueprint, current_app, request
 
-from ap.analyze.services.sensor_list import get_sensors_incrementally
 from ap.api.analyze.services.pca import calculate_data_size, run_pca
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_services import filter_df, get_data_from_db
@@ -134,13 +133,6 @@ def pca_modelling():
     output_dict['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.PCA))
 
     output_dict = orjson_dumps(output_dict)
-    return output_dict, 200
-
-
-@api_analyze_module_blueprint.route('/sensor', methods=['GET'])
-def pca():
-    get_sensors_incrementally()
-    output_dict = orjson_dumps({})
     return output_dict, 200
 
 

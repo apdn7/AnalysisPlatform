@@ -242,7 +242,7 @@ const mergeTargetProc = (formData) => {
     // append objective var for new PCP
     const objectiveVar = formData.get('objectiveVar');
     if (objectiveVar) {
-        const sensorValName = $(`#objectiveVar-${objectiveVar}`).closest('.row').find('input:eq(0)').attr('name');
+        const sensorValName = $(`#objectiveVar-${objectiveVar}`).closest('.item-row').find('input:eq(0)').attr('name');
         const allValsSelected = formData.getAll(sensorValName);
         if (sensorValName && !allValsSelected.includes(sensorValName)) {
             formData.append(sensorValName, objectiveVar);

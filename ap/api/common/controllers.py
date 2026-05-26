@@ -4,7 +4,6 @@ from typing import Union
 from flask import Blueprint, render_template, request
 from flask_babel import get_locale
 
-from ap import log_execution_time
 from ap.api.common.services.plot_view import gen_graph_plot_view
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_services import update_draw_data_trace_log
@@ -25,6 +24,7 @@ from ap.common.constants import (
     DataCountType,
 )
 from ap.common.jobs.utils import get_update_transaction_table_job
+from ap.common.log import log_execution_time
 from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import (
     bind_dic_param_to_class,

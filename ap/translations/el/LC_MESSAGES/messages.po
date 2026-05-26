@@ -1603,6 +1603,7 @@ msgstr ""
 "Όλη η δουλειά έχει σταματήσει. Μπορείτε να κλείσετε με ασφάλεια το "
 "πρόγραμμα περιήγησής σας και την κονσόλα."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2196,6 +2197,7 @@ msgstr ""
 "Απορρίπτει την κατάσταση σύνδεσης δεδομένων που έχει οριστεί τρέχοντα "
 "δεδομένα και καλεί την προαναφερθείσα κατάσταση."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

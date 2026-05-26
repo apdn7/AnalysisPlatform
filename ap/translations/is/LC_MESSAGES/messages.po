@@ -1590,6 +1590,7 @@ msgstr ""
 "Allt starf hefur verið stöðvað. Þú getur örugglega lokað vafranum og "
 "leikjatölvunni."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2149,6 +2150,7 @@ msgstr ""
 "Fleygðu skilyrðinu sem nú er stillt á gagnatengingu og hringir í áður "
 "skráða ástand."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID er búið til innbyrðis til að tengja gögn við stillingarskilyrði."

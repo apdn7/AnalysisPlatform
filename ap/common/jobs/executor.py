@@ -1,19 +1,15 @@
-import logging
 from collections.abc import Callable
 from typing import Any
 
-import sqlalchemy
 from apscheduler.events import JobExecutionEvent
 from apscheduler.executors.base import BaseExecutor
 from apscheduler.executors.pool import ProcessPoolExecutor, ThreadPoolExecutor
 from apscheduler.job import Job
+from loguru import logger
 
-from ap.common.constants import DB_LOCKED_MSG
 from ap.common.jobs.conflict import is_conflict_with_other_jobs
 from ap.common.jobs.jobs import JobKwargs, RunningJob, RunningJobs, RunningJobStatus
 from ap.common.jobs.trigger import always_trigger_job, unwrap_always_triggered_job
-
-logger = logging.getLogger(__name__)
 
 
 def mark_finished_job_done(event: JobExecutionEvent):
@@ -24,15 +20,8 @@ def mark_finished_job_done(event: JobExecutionEvent):
 
     with RunningJobs.lock():
         running_job = running_jobs.get(event.job_id)
-        # in case of database is locked, do not update job status
-        # just keep them auto reschedule again
-        if isinstance(event.exception, sqlalchemy.exc.OperationalError) and DB_LOCKED_MSG in str(
-            event.exception,
-        ):
-            logger.info(f'{event.job_id}: was rescheduled since database is locked')
-        else:
-            running_job.update(status=RunningJobStatus.EXECUTED, running_jobs=running_jobs)
-            logger.info(f'{event.job_id}: mark complete executing job as done')
+        running_job.update(status=RunningJobStatus.EXECUTED, running_jobs=running_jobs)
+        logger.info(f'{event.job_id}: mark complete executing job as done')
 
 
 def verify_job_submission(submit_function: Callable[[BaseExecutor, Job, list[Any]], Any]):

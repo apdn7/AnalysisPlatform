@@ -1578,6 +1578,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "งานทั้งหมดหยุดลง คุณสามารถปิดเบราว์เซอร์และคอนโซลได้อย่างปลอดภัย"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2127,6 +2128,7 @@ msgstr "เป็นไปได้ที่จะทำนายจำนวน
 msgid "Reload Hover"
 msgstr "ยกเลิกเงื่อนไขการเชื่อมโยงข้อมูลที่ตั้งไว้ในปัจจุบันและเรียกเงื่อนไขที่ลงทะเบียนไว้ก่อนหน้านี้"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID ถูกสร้างขึ้นภายในเพื่อเชื่อมโยงข้อมูลกับเงื่อนไขการเชื่อมโยงชุด"

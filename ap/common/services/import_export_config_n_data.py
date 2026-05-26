@@ -1,6 +1,5 @@
 ### EXPORT
 import io
-import logging
 import os
 import pickle
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -46,8 +45,6 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import CfgUserSettingSchema, ProcessFullSchema
-
-logger = logging.getLogger(__name__)
 
 
 def export_debug_info(dataset_id, user_setting_id):
@@ -159,14 +156,14 @@ def zip_a_file(zip_file, target_file_paths, target_file_names=None):
     return True
 
 
-def download_zip_file(zip_file_name, target_file_paths, target_file_names=None):
-    file_obj = io.BytesIO()
-    zip_a_file(file_obj, target_file_paths, target_file_names)
-    file_obj.seek(0)
+def download_zip_file(zip_file_name=None, target_file_paths=None, target_file_names=None, archive_file=None):
+    if archive_file is None:
+        archive_file = io.BytesIO()
+        zip_a_file(archive_file, target_file_paths, target_file_names)
+        archive_file.seek(0)
 
-    response = make_response(file_obj.read())
+    response = make_response(archive_file.read())
     response.headers.set('Content-Type', 'zip')
-    # response.headers.set('Content-Disposition', 'attachment', f'filename={zip_file_name}.zip')
     response.headers.set('Content-Disposition', 'attachment', filename=f'{zip_file_name}.zip')
     return response
 

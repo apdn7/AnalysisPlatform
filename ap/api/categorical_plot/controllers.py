@@ -1,29 +1,26 @@
-import logging
 import timeit
 from copy import deepcopy
 
 from flask import Blueprint, request, send_from_directory
+from loguru import logger
 
 from ap import max_graph_config
 from ap.api.categorical_plot.services import (
     convert_end_cols_to_array,
-    customize_dict_param,
     gen_trace_data_by_categorical_var,
     gen_trace_data_by_cyclic,
     gen_trace_data_by_term,
 )
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_jump_function import get_graph_context_param
 from ap.api.common.services.show_graph_services import get_filter_on_demand_data
 from ap.api.trace_data.services.csv_export import gen_csv_data
 from ap.common.constants import (
     CATEGORICAL,
     COMMON,
     COMPARE_TYPE,
-    END_PROC,
     RL_CYCLIC_TERM,
     RL_DIRECT_TERM,
-    TIME_CONDS,
     AbsPath,
     CSVExtTypes,
     MaxGraphNumber,
@@ -39,17 +36,14 @@ from ap.common.services.form_env import (
 )
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
-    get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
-    save_input_data_to_file,
     trace_log_params,
 )
 
-logger = logging.getLogger(__name__)
 api_categorical_plot_blueprint = Blueprint('api_categorical_plot', __name__, url_prefix='/ap/api/stp')
 
 
@@ -61,58 +55,39 @@ def trace_data():
     """
     start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
-    save_input_data_to_file(dic_form, EventType.STP)
 
-    dic_param = parse_multi_filter_into_one(dic_form)
+    graph_context = get_graph_context_param(dic_form, EventType.STP)
 
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
+    compare_type = graph_context.dic_param.get(COMMON).get(COMPARE_TYPE)
 
-    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
-
-    if not cache_dic_param:
-        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-    else:
-        dic_param = cache_dic_param
-        dic_proc_cfgs = graph_param.dic_proc_cfgs
-        trace_graph = graph_param.trace_graph
-        dic_card_orders = graph_param.dic_card_orders
-
-    customize_dict_param(dic_param)
-
-    proc_name = dic_param.get(COMMON).get(END_PROC)
-    time_conds = dic_param.get(TIME_CONDS)
-    compare_type = dic_param.get(COMMON).get(COMPARE_TYPE)
-
-    if not proc_name or not time_conds:
-        return {}, 200
-
-    org_dicparam = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
+    org_dicparam = deepcopy(graph_context.dic_param)
+    dic_params = get_end_procs_param(graph_context.dic_param, graph_context.dic_proc_cfgs)
 
     for single_dic_param in dic_params:
-        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
+        graph_param = bind_dic_param_to_class(
+            graph_context.dic_proc_cfgs, graph_context.trace_graph, graph_context.dic_card_orders, single_dic_param
+        )
         if compare_type == CATEGORICAL:
             convert_end_cols_to_array(single_dic_param)
             stp_dat = gen_trace_data_by_categorical_var(
                 graph_param,
                 single_dic_param,
                 max_graph_config[MaxGraphNumber.STP_MAX_GRAPH.name],
-                df,
+                graph_context.df,
             )
         elif compare_type == RL_CYCLIC_TERM:
             stp_dat = gen_trace_data_by_cyclic(
                 graph_param,
                 single_dic_param,
                 max_graph_config[MaxGraphNumber.STP_MAX_GRAPH.name],
-                df,
+                graph_context.df,
             )
         else:
             stp_dat = gen_trace_data_by_term(
                 graph_param,
                 single_dic_param,
                 max_graph_config[MaxGraphNumber.STP_MAX_GRAPH.name],
-                df,
+                graph_context.df,
             )
         stp_dat = get_filter_on_demand_data(stp_dat)
         org_dicparam = update_data_from_multiple_dic_params(org_dicparam, stp_dat)

@@ -217,6 +217,7 @@ msgstr "Název procesu"
 msgid "Table Name"
 msgstr "Název tabulky"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Detail"
@@ -566,18 +567,23 @@ msgstr "Rozsah y-osí: max"
 msgid "Part No"
 msgstr "Část č"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "Konec s"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Začít s"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like vyhledávání)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Souhlasit"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Regulární výrazy"
 
@@ -842,6 +848,7 @@ msgstr "Částečný zápas"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Neplatný výběr číslice"
 
@@ -849,33 +856,43 @@ msgstr "Neplatný výběr číslice"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "Délka znaku použitého pro propojení je jiná."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Žádný filtr"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Všechny řádky"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "situace"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Seznam úloh"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "Všechno"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Import dokončen."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Import"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Nepodařilo se importovat"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "Načtená data budou odstraněna. Je to v pořádku? (Žádná změna se neodráží,"
 " dokud není tlačítko registrace stisknuto)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Seznam úloh"
 
@@ -890,54 +908,71 @@ msgstr "Seznam úloh"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "ID práce"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Název povolání"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Generace propojenýchID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Úloha generování zobrazení odkazu ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Import tovární data"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Importovat minulá tovární data"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Zobrazit import úlohy minulých továrních dat"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Import dat"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Odstranit stará data"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Doba spuštění"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "uplynulý čas"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Databáze/csv"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Pokrok"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Proces"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Seznam histogramů"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Zaregistrujte se jako hodnota ohniska"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Unregister Outlier"
 
@@ -961,24 +996,31 @@ msgstr "Zobrazit seznam histogramů"
 msgid "Last update time"
 msgstr "Poslední čas aktualizace"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Registrace Outlier byla zrušena."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Registrováno jako odlehlé"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Odlehlé"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Pouze jednou"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Podrobnosti o práci"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Zkopírovat do schránky"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Multi rozptylový graf"
 
@@ -1015,9 +1057,11 @@ msgstr "Kategorická proměnná"
 msgid "Stratify by term"
 msgstr "Stratify podle termínu (přímý)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Detekce anomálie"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Hlavní skóre komponent testovacích dat"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Hlavní skóre složek dat tréninku"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Graf série statistik T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Graf série statistik Q"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Příspěvek spiknutí statistik T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Příspěvek Plot Q Statistics"
 
@@ -1460,6 +1510,7 @@ msgstr "Kvalita dat"
 msgid "Viewer"
 msgstr "Divák"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Import dat"
 
@@ -1467,9 +1518,11 @@ msgstr "Import dat"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Název zdroje dat"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Typ zdroje dat"
 
@@ -1477,9 +1530,11 @@ msgstr "Typ zdroje dat"
 msgid "Do you want to save changes?"
 msgstr "Určitě ušetříte změny?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Informace o nuceném OS do nastavení časového pásma."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Pokročilé nastavení"
 
@@ -1531,6 +1586,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "Veškerá práce byla zastavena. Můžete bezpečně zavřít prohlížeč a konzolu."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1540,6 +1596,7 @@ msgstr "Konfigurace zdroje dat"
 msgid "Data Source Import Config"
 msgstr "Konfigurace importu zdroje dat"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1547,15 +1604,19 @@ msgstr ""
 ": Sloupce našly několik sloupců znaků. Zkontrolujte, zda sloupec "
 "číselného typu atd."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Filtr položka"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Hodnota filtru"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Datum vypršení platnosti (start)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Datum vypršení platnosti (konec)"
 
@@ -1619,9 +1680,11 @@ msgstr "Časový úsek"
 msgid "Window length"
 msgstr "Délka okna"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Typ"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "název"
 
@@ -1693,9 +1756,11 @@ msgstr "Konfigurace filtru"
 msgid "Master Config"
 msgstr "Master Config"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "Z konfigurace filtru"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Ukázat vše"
 
@@ -1744,33 +1809,40 @@ msgstr ""
 "(T2/Q). Pokud máte jinou situaci, můžete zkontrolovat hlavní faktory v "
 "grafu příspěvků."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Filtr stratifikované kategorie: omezuje data, která se mají zobrazit do "
 "podmnožiny. (Kategorie: Číslo dílu, stanice ne atd.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Proměnné kategorie (například číslo dílu, NO, atd.) Zobrazené jako štítky"
 " v horní části grafů pro nalezení měnících se bodů."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Filtr grafu: Omezí data, která se mají zobrazit do podmnožiny."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Nastavte údaje o učení interpretované jako normální situaci. Nastavte "
 "sekci dat, která neobsahuje žádná NG data. Pokud jsou zahrnuty, jsou ty, "
 "které jsou blízké datům NG, také posouzeny jako normální data."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Nastavte testovací data, která mají být posouzena."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Filtr položky: Omezí data (analyzovat a zobrazovat), která se mají "
 "zobrazit na podmnožině."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1779,6 +1851,7 @@ msgstr ""
 "hlavních složek) vícerozměrných ověřovacích dat. Pokud jsou data ve "
 "středu, lze je interpretovat tak blízko normálu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1787,6 +1860,7 @@ msgstr ""
 "hlavních složek) vícerozměrných údajů o učení. Centrální cíl je určen "
 "údaji o učení, takže většina údajů o učení by měla být v cíli."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1797,6 +1871,7 @@ msgstr ""
 "údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím na "
 "datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1807,6 +1882,7 @@ msgstr ""
 "bílými údaji, tím je pravděpodobnější, že se situace odchyluje. Kliknutím"
 " na datový bod zobrazíte graf příspěvku toho, jaké prvky tvoří situaci."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1815,6 +1891,7 @@ msgstr ""
 "statistickém grafu T2. Čím delší je délka, tím je pravděpodobnější "
 "příčinu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2069,6 +2146,7 @@ msgstr ""
 "Zhodí podmínku propojení aktuálně nastavených dat a vyvolává dříve "
 "registrovanou podmínku."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID je generován interně pro přidružení dat s podmínkami propojení."
@@ -2535,9 +2613,11 @@ msgstr "Režim nastavení"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Počet datových položek, které nelze propojit"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Bodový diagram"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "s obrysem"
 

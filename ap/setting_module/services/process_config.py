@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import pandas as pd
+from loguru import logger
 from sqlalchemy.orm import scoped_session
 
 from ap.api.setting_module.services.data_import import DbConnectionParam
@@ -18,8 +18,8 @@ from ap.common.constants import (
     ProcessStatus,
 )
 from ap.common.memoize import CustomCache
-from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_list
 from ap.equations.utils import get_all_functions_info
@@ -42,8 +42,6 @@ from ap.setting_module.schemas import (
     ProcessVisualizationSchema,
 )
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 
 def get_all_process(with_parent=True):
@@ -291,16 +289,16 @@ def convert2serialize(obj):
         return obj
 
 
-def get_ct_range(proc_id, columns):
+def get_ct_range(proc_id: int, columns: list[dict[str, Any]]):
     is_using_dummy_datetime = True in [col['is_get_date'] and col['is_dummy_datetime'] for col in columns]
 
     if not is_using_dummy_datetime:
         return []
 
     try:
-        with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+        with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
             trans_data = TransactionData(proc_id)
-            ct_range = trans_data.get_ct_range(db_instance)
+            ct_range = trans_data.get_ct_range(data_con)
         return ct_range
     except Exception:
         return []

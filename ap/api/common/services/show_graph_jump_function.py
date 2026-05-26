@@ -1,7 +1,11 @@
 from copy import copy
+from dataclasses import dataclass
+from typing import Any
 
 import pandas as pd
 
+from ap.api.categorical_plot.services import customize_dict_param
+from ap.api.common.services.show_graph_database import get_config_data
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ARRAY_FORMVAL,
@@ -21,6 +25,7 @@ from ap.common.constants import (
     JUMP_WITH_OBJ_ID,
     NG_RATES,
     OBJ_VAR,
+    REQUEST_THREAD_ID,
     RL_CATE_NAME,
     RL_CATEGORY,
     RL_DATA_COUNTS,
@@ -37,8 +42,14 @@ from ap.common.constants import (
     EMDType,
     Y,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import cache_jump_key
+from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
+from ap.common.services.import_export_config_n_data import get_dic_form_from_debug_info
+from ap.common.services.trace_graph import TraceGraph
+from ap.common.trace_data_log import EventType, save_input_data_to_file
+from ap.setting_module.models import CfgProcess
+from ap.trace_data.schemas import DicParam
 
 
 @log_execution_time()
@@ -148,6 +159,10 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
 
 @log_execution_time()
 def get_jump_emd_data(dic_form):
+    """
+    This function get data is saved with specified jump_key and convert some params
+    :return cache_dic_param, graph_param, df
+    """
     jump_key = dic_form.get('jump_key', [None])[0]
     cache_dic_param, graph_param, df = cache_jump_key(jump_key=jump_key)
 
@@ -170,3 +185,59 @@ def get_jump_emd_data(dic_form):
         graph_param.common.sensor_cols = [col for col in graph_param.common.sensor_cols if col not in excluded_columns]
 
     return cache_dic_param, graph_param, df
+
+
+@dataclass
+class GraphContext:
+    """Class for holding graph context parameters."""
+
+    dic_form: dict[Any, Any]
+    dic_param: dict[Any, Any]
+    graph_param: DicParam
+    dic_proc_cfgs: dict[int, CfgProcess]
+    trace_graph: TraceGraph
+    dic_card_orders: dict[int, dict[Any, Any]]
+    df: pd.DataFrame
+
+
+def get_graph_context_param(dic_form, page: EventType) -> GraphContext:
+    """Return Graph context for show graph service."""
+    dic_param = parse_multi_filter_into_one(dic_form)
+    # save dic_form to pickle (for future debug)
+    save_input_data_to_file(dic_form, page)
+
+    # check if we run debug mode (import mode)
+    dic_param = get_dic_form_from_debug_info(dic_param)
+    # Get cache data from jump function
+    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+
+    if not cache_dic_param:
+        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
+        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
+    else:
+        dic_param = cache_dic_param
+        dic_proc_cfgs = graph_param.dic_proc_cfgs
+        trace_graph = graph_param.trace_graph
+        dic_card_orders = graph_param.dic_card_orders
+    if page in [EventType.RLP, EventType.AGP, EventType.STP, EventType.SKD]:
+        customize_dict_param(dic_param)
+    return GraphContext(dic_form, dic_param, graph_param, dic_proc_cfgs, trace_graph, dic_card_orders, df)
+
+
+def save_data_of_graph(graph_context: GraphContext, org_dic_param: dict[Any, Any], page: EventType) -> None:
+    """Save data for jump function, current only save for RLP page"""
+    if page == EventType.RLP:
+        # From RLP jump to other page will use EMD data to show graph.
+        # Convert emd data to Dataframe and save cache with jump key.
+        df, dic_param, new_dic_proc_cfgs = convert_emd_data_to_df(org_dic_param, graph_context.graph_param)
+        if df is not None:
+            graph_param = bind_dic_param_to_class(
+                new_dic_proc_cfgs, graph_context.trace_graph, graph_context.dic_card_orders, dic_param
+            )
+            # dic_param = bind_ng_rate_to_dic_param(graph_param, dic_param)
+            cache_jump_key(
+                jump_key=graph_context.dic_form.get(REQUEST_THREAD_ID, [None])[0],
+                dic_param=dic_param,
+                graph_param=graph_param,
+                df=df,
+            )

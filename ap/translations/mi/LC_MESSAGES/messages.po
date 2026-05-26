@@ -1601,6 +1601,7 @@ msgstr ""
 "Kua mutu katoa nga mahi. Ka taea e koe te kati i to kaitirotiro me to "
 "papatohu."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2179,6 +2180,7 @@ msgstr ""
 "Whakakorehia nga ahuatanga taapiri raraunga i tenei wa, ka karanga i te "
 "ahuatanga kua rēhitatia i mua."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID i hangaia i roto i roto ki te hono i nga raraunga me nga tikanga hono."

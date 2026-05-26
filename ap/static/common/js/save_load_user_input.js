@@ -900,7 +900,8 @@ const saveLoadUserInput = (
 
         // load value
         for (const v of data) {
-            if (!v.name) {
+            // issue #943: Ignore data finder items to prevent snapshot differences when loading bookmarks
+            if (!v.name || v.id.includes('data-finder')) {
                 continue;
             }
 
@@ -1321,7 +1322,7 @@ const updateSettingPriority = (elem, userSettingId) => {
                     title: res.data.title,
                     use_current_time: res.data.use_current_time,
                 };
-                createOrUpdateSetting(settingDat);
+                createOrUpdateSetting(settingDat, false);
             }
         });
     }
@@ -1358,7 +1359,7 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
         <td>
-        	<select style="padding-left: 0; padding-right: 0; min-width: 84px" class="form-control" onchange="updateSettingPriority(this, ${setting.id})" ${isDisabledSelectPriority ? 'disabled' : ''}>
+        	<select style="padding-left: 3px; padding-right: 0; min-width: 84px" class="form-control" onchange="updateSettingPriority(this, ${setting.id})" ${isDisabledSelectPriority ? 'disabled' : ''}>
         		${prioritySelection}
 			</select>
 			<span class="hide">${setting.priority}</span>
@@ -1800,6 +1801,9 @@ const showOverwriteConfirmModel = () => {
 };
 
 const createOrUpdateSetting = (settingDat, inplace = true, excludeColumns = []) => {
+    if (!inplace) {
+        excludeColumns = ['settings'];
+    }
     $.ajax({
         url: '/ap/api/setting/user_setting',
         data: JSON.stringify({ data: settingDat, exclude_columns: excludeColumns }),
@@ -1808,7 +1812,9 @@ const createOrUpdateSetting = (settingDat, inplace = true, excludeColumns = []) 
         contentType: false,
         processData: false,
         success: (res) => {
-            currentLoadSetting = res.data;
+            if (inplace) {
+                currentLoadSetting = res.data;
+            }
             $(settingModals.confirmation).modal('hide');
             $(settingModals.common).modal('hide');
             isSettingChanged = false;

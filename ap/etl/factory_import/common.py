@@ -1,20 +1,17 @@
-import logging
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from datetime import datetime, timedelta
 from typing import Any, Self
 
-from ap import log_execution_time
 from ap.common.common_utils import Bound, TimeRange, add_double_quotes, convert_time
 from ap.common.constants import DATETIME_DUMMY, SQL_DAYS_AGO, DBType
 from ap.common.datetime_format_utils import detect_datetime_format, format_datetime_to_str
+from ap.common.log import log_execution_time
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.timezone_utils import get_time_info
 from ap.setting_module.models import CfgProcess
 from ap.trace_data.transaction_model import ImportHistoryRecord
-
-logger = logging.getLogger(__name__)
 
 
 class ImportBase(ABC):
@@ -204,7 +201,7 @@ class ImportBase(ABC):
         return selected_time_range.intersect(factory_time_range)
 
     @log_execution_time()
-    def get_factory_data(self, time_range: TimeRange) -> Iterator[tuple]:
+    def _get_factory_data(self, time_range: TimeRange) -> Iterator[tuple]:
         """Get data from factory db for the given time range"""
         from ap.api.setting_module.services.factory_import import FETCH_MANY_SIZE, SQL_FACTORY_LIMIT
 
@@ -219,3 +216,40 @@ class ImportBase(ABC):
                 yield tuple(rows)
 
             return None
+
+    @log_execution_time()
+    def get_factory_data(self, time_range: TimeRange) -> Iterator[tuple]:
+        """Get data from factory db for the given time range
+
+        Postgres will over buffer and accept only one connection to get data.
+        (another connection must be waited then maybe timeout if the first connection have not done yet)
+        when one SQL statement have huge return data.
+        [Solution]
+        - we keep old logic that chunk SQL statement by day instead.
+        - but we still keep logic that yield at least (FETCH_MANY_SIZE) records per chunk
+        """
+        from ap.api.setting_module.services.factory_import import FETCH_MANY_SIZE
+
+        chunk_sql_day = 1  # 1 day
+        chunked_time_ranges = time_range.chunk(chunk_sql_day)
+        buffer = ()
+        for idx, chunked_time_range in enumerate(chunked_time_ranges):
+            generator = self._get_factory_data(chunked_time_range)
+            if idx == 0:
+                # in first SQL it will return cols
+                yield next(generator)
+            else:
+                # from second SQL, we force it only return data
+                _cols = next(generator)
+
+            # second time is data
+            for rows in generator:
+                buffer += rows
+                if len(buffer) >= FETCH_MANY_SIZE:
+                    yield buffer[:FETCH_MANY_SIZE]
+                    buffer = buffer[FETCH_MANY_SIZE:]
+
+        if buffer:
+            yield buffer
+
+        return None

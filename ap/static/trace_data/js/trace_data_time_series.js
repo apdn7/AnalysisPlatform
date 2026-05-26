@@ -31,6 +31,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const slotCount = setParam('slotCount', []);
 
     const isCatLimited = setParam('isCatLimited', false);
+    // y Log-scale
+    const isLogScale = setParam('is_log_scale', false);
 
     // ヒストグラムとY軸の範囲を合わせる
     let minY = setParam('minY', null);
@@ -878,7 +880,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
         timeSeriesOnClick(cht, evt);
     };
 
-    if (logScaleActivated && !beforeRankValues) {
+    if (isLogScale && !beforeRankValues) {
         // in case of variable has negative number
         // just cast y-axis type only
         if (config.options.scales.y.max < 0) {

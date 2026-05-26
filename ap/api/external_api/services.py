@@ -41,7 +41,7 @@ from ap.common.constants import (
     UNIQUE_CATEGORIES,
     PagePath,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.services.api_exceptions import APIError, ErrorMessage
 from ap.common.services.http_content import json_dumps
 from ap.setting_module.models import CfgOption, CfgProcessColumn, CfgRequest, make_session

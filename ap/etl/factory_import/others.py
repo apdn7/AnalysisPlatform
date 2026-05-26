@@ -1,10 +1,7 @@
-import logging
 from typing import Any
 
 from ap.common.common_utils import RangeBound, TimeRange
 from ap.etl.factory_import.common import ImportBase
-
-logger = logging.getLogger(__name__)
 
 
 class ImportOthers(ImportBase):

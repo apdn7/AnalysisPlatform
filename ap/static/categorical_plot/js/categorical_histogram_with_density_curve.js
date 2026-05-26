@@ -247,6 +247,8 @@ const HistogramWithDensityCurve = ($, paramObj) => {
             responsive: true, // responsive histogram
             useResizeHandler: true, // responsive histogram
             style: { width: '100%', height: '100%' }, // responsive histogram
+        }).then(() => {
+            attachYTitleHovers(canvasId);
         });
     } catch (e) {
         console.log(canvasId, data, layout);

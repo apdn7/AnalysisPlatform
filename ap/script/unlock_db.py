@@ -1,11 +1,11 @@
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import delete_file, rename_file, copy_file
 from ap.common.constants import DB_BACKUP_SUFFIX
 from ap.setting_module.models import ProcLinkCount
 
-import logging
 
-logger = logging.getLogger(__name__)
+
+from loguru import logger
 
 
 @log_execution_time()

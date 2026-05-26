@@ -554,7 +554,6 @@ class CfgDataSourceDB {
     schema;
     username;
     password;
-    hashed;
     use_os_timezone;
 
     constructor(inObj) {

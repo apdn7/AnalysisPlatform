@@ -1,5 +1,4 @@
 import dataclasses
-import logging
 from collections.abc import Mapping
 from typing import Any
 
@@ -18,8 +17,6 @@ from ap.setting_module.models import (
     CfgTraceKey,
     CfgVisualization,
 )
-
-logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass

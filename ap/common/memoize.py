@@ -3,7 +3,6 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import hashlib
-import logging
 import pickle
 import time
 from collections.abc import Mapping
@@ -14,11 +13,10 @@ import babel
 import cachelib
 import diskcache
 from flask_babel import get_locale
+from loguru import logger
 
 from ap.common.constants import CacheType, FlaskGKey, MemoizeKey
 from ap.common.path_utils import get_cache_path
-
-logger = logging.getLogger(__name__)
 
 JUMP_KEY_PARAM_NAME = 'jump_key'
 OPTIONAL_CACHE_CONFIG = 'optional_cache_config'

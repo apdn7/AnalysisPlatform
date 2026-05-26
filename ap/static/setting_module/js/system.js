@@ -274,6 +274,25 @@ const zipExportDatabase = () => {
     return false;
 };
 
+const handleExportZipLogFolder = () => {
+    const exportPeriod = $('#exportLogFilePeriod').val();
+    let [startDate, endDate] = exportPeriod ? exportPeriod.split(DATETIME_PICKER_SEPARATOR) : [null, null];
+    if (startDate && endDate) {
+        startDate = moment.utc(moment(startDate, DATETIME_FORMAT)).format('YYYY-MM-DD HH:mm:ss');
+        endDate = moment.utc(moment(endDate, DATETIME_FORMAT)).format('YYYY-MM-DD HH:mm:ss');
+    }
+    const query = startDate && endDate ? `?start_date=${startDate}&end_date=${endDate}` : '';
+    const url = `/ap/api/setting/zip_export_log${query}`;
+    const fileName = `AP_debug_log_folder${moment().format('YYYYMMDDHHmmss')}.zip`;
+    downloadTextFile(url, fileName, { cache: 'no-cache' });
+};
+
+const handleExportZipErrorFolder = () => {
+    const url = '/ap/api/setting/zip_export_error';
+    const fileName = `AP_debug_error_folder${moment().format('YYYYMMDDHHmmss')}.zip`;
+    downloadTextFile(url, fileName, { cache: 'no-cache' });
+};
+
 const startImportDataZipFile = () => {
     $(`${systemElements.importDatabase} .box__success span`).text('');
     $(`${systemElements.importDatabase} .box__success`).hide();
@@ -318,4 +337,5 @@ const zipImportDatabase = () => {
 $(() => {
     $(systemElements.divSystemConfig)[0].addEventListener('contextmenu', baseRightClickHandler, false);
     $(systemElements.divSystemConfig)[0].addEventListener('mouseup', handleMouseUp, false);
+    initializeDateTimeRangePicker();
 });

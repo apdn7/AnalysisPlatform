@@ -1,15 +1,13 @@
-import logging
 from typing import Any
 
 import sqlalchemy as sa
 from flask_sqlalchemy import SQLAlchemy
+from loguru import logger
 from sqlalchemy import Engine, event
 from sqlalchemy.orm import Session
 
 from ap.common.services.normalization import model_normalize
 from ap.common.session.config_changes import SessionConfigChanges
-
-logger = logging.getLogger(__name__)
 
 
 class SessionListener:

@@ -1,10 +1,8 @@
-import logging
 import re
 
 import markdown2
+from loguru import logger
 from markupsafe import Markup
-
-logger = logging.getLogger(__name__)
 
 
 def markdown_to_html(markdown_file_path):

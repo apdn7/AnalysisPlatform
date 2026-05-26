@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import logging
 import threading
 from datetime import datetime
 from enum import auto
@@ -13,8 +12,6 @@ from pytz import utc
 
 from ap.common.constants import BaseEnum
 from ap.common.multiprocess_sharing.manager import AcquirerProxy, CustomManager
-
-logger = logging.getLogger(__name__)
 
 
 class JobKwargs(BaseModel):

@@ -1,5 +1,41 @@
 # Releases
 
+## 4.9.2
+
+Core changes
+
+- AP+DN7 now uses DuckDB for faster query and smaller storage
+
+New features
+
+- Log files can now be downloaded from the top of the settings page to facilitate debugging.
+
+Improvements
+
+- (FPP)
+  - Improved the log-scale feature. Now has 3 options:
+    - 1. Default: automatically apply log scale to data with large variation in number of digits
+    - 2. Linear scale
+    - 3. Log scale
+  - Only labels that are actually in use are displayed in the label-based filters
+- (AgP)
+  - Sorting by div has been improved to sort by natural sorting. It is now also limited to 256 divs
+- (ScP)
+  - Adjusted the size of each plot so that each can fit the screen
+- (SkD, PCA, WfP, StP)
+  - Truncated variable names can now be shown in full by hovering on the variable name
+- (Config)
+  - Improved performance of the Data Link Config
+  - Function : function sample data is now resampled to ensure more uniqueness in results
+
+Bugfixes  
+
+- Data import: Fixed an issue where AP+DN7 queries a large amount of data from the database server in one query while using server-side cursor, leading to heavy server load
+- Data Link Config: Fixed an issue where an edge in Visualization is removed when its direction is inversed
+- Bookmark: Fixed an issue where graph axis range is changed when clicking Show Graph again after loading a bookmark
+- Bookmark: Fixed an issue where Graph settings are affected when only basic information (name, priority, etc) is edited
+- Misc: Fixed an issue where a failed job cannot be rescheduled in the case where app.sqlite3 is locked
+
 ## 4.9.0
 
 Core changes

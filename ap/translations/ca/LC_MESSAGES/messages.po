@@ -217,6 +217,7 @@ msgstr "Nom de procés"
 msgid "Table Name"
 msgstr "Nom de taula"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Detall"
@@ -566,18 +567,23 @@ msgstr "Range dels eixos Y: màxim"
 msgid "Part No"
 msgstr "PART NO"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "acabar amb"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Començar amb"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like cerca)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Acordar"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Expressions regulars"
 
@@ -842,6 +848,7 @@ msgstr "Partit parcial"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Selecció de dígits no vàlid"
 
@@ -849,33 +856,43 @@ msgstr "Selecció de dígits no vàlid"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "La longitud del caràcter utilitzat per a l'enllaç és diferent."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Sense filtre"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Totes les línies"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "situació"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Llista de treballs"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "Tota"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Importació finalitzada."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Importació"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Importació fallada"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "S'eliminaran les dades carregades. Està bé? (No es reflecteix cap canvi "
 "fins que es prem el botó de registre)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Llista de treballs"
 
@@ -890,54 +908,71 @@ msgstr "Llista de treballs"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "Identitat de treball"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Nom del treball"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Generació de LinkedID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Visualització de la generació de l'enllaç ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Importa dades de fàbrica"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Importa dades de fàbrica passades"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Mostra la feina d’importació de dades de fàbrica passades"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Importa dades"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Suprimeix dades antigues"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "L'hora d'inici"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "temps transcorregut"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Base de dades/csv"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Progrés, progressar"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Elaborar"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Llista d’histogrames"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Registreu -vos com a valor de brot"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "No registrat anteriorment"
 
@@ -961,24 +996,31 @@ msgstr "Mostra la llista d’histogrames"
 msgid "Last update time"
 msgstr "Últim temps d’actualització"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "S'ha cancel·lat el registre anterior."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Registrat com a anterior"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Anterior"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Només una vegada"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Detalls de la feina"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Copiar al portapapers"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Trama de dispersió multi"
 
@@ -1015,9 +1057,11 @@ msgstr "Variable categòrica"
 msgid "Stratify by term"
 msgstr "Estratificar per terme (directe)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Detecció d’anomalies"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Puntuació del component principal de les dades de proves"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Puntuació principal del component de dades de formació"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Gràfic de sèries de les estadístiques de T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Gràfic de sèries d’estadístiques Q"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Contribució Trama de les estadístiques T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Contribució Trama d’estadístiques Q"
 
@@ -1466,6 +1516,7 @@ msgstr "Qualitat de les dades"
 msgid "Viewer"
 msgstr "Espectador"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Importa dades"
 
@@ -1473,9 +1524,11 @@ msgstr "Importa dades"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Nom de la font de dades"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Tipus d'origen de dades"
 
@@ -1483,11 +1536,13 @@ msgstr "Tipus d'origen de dades"
 msgid "Do you want to save changes?"
 msgstr "Esteu segur que guardeu canvis?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr ""
 "Informació del sistema operatiu forçat a la configuració de la zona "
 "horària."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Configuració avançada"
 
@@ -1542,6 +1597,7 @@ msgstr ""
 "Tota la feina s’ha aturat. Podeu tancar amb seguretat el navegador i la "
 "consola."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1551,6 +1607,7 @@ msgstr "Configuració de la font de dades"
 msgid "Data Source Import Config"
 msgstr "Configuració d'importació d'importació de la font de dades"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1558,15 +1615,19 @@ msgstr ""
 ": Les columnes van trobar poques columnes de caràcters. Comproveu que la "
 "columna de tipus numèric, etc., es pugui reconèixer malament."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Element de filtre"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Valor de filtre"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Data de caducitat (Inici)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Data de caducitat (final)"
 
@@ -1635,9 +1696,11 @@ msgstr "Interval"
 msgid "Window length"
 msgstr "Longitud de la finestra"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Lletra"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Nom"
 
@@ -1712,9 +1775,11 @@ msgstr "Configuració del filtre"
 msgid "Master Config"
 msgstr "Configuració del mestre"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "De la configuració del filtre"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Mostrar tots"
 
@@ -1765,34 +1830,41 @@ msgstr ""
 "situació diferent, podeu comprovar els principals factors de la trama de "
 "contribució."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Filtre de categories estratificades: limita les dades que es mostraran en"
 " un subconjunt. (Categoria: número de part, estació núm., Etc.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Les variables de categoria (com ara el número de part, l'estació núm., "
 "Etc.) es mostren com a etiquetes a la part superior de les parcel·les per"
 " trobar punts de canvi."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Filtre de gràfics: limita les dades que es mostraran a un subconjunt."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Estableix les dades d’aprenentatge interpretades com una situació normal."
 " Definiu la secció de dades que no conté dades NG. Si s’inclouen, també "
 "es jutgen els que es troben a prop de les dades NG com a dades normals."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Definiu les dades de la prova a jutjar."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Filtre d’elements: limita les dades (analitzar i visualitzar) que es "
 "mostraran en un subconjunt."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1802,6 +1874,7 @@ msgstr ""
 "dades es troben al centre, es poden interpretar tan a prop de la "
 "normalitat."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1812,6 +1885,7 @@ msgstr ""
 "manera que la majoria de les dades d’aprenentatge haurien d’estar a "
 "l’objectiu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1824,6 +1898,7 @@ msgstr ""
 "Punts de dades per veure la trama de contribució de quins elements "
 "constitueixen la situació."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1836,6 +1911,7 @@ msgstr ""
 "dades per veure la trama de contribució de quins elements constitueixen "
 "la situació."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1844,6 +1920,7 @@ msgstr ""
 "seleccionat a la trama estadística T2. Com més llarga sigui la longitud, "
 "més probabilitats és la causa."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2108,6 +2185,7 @@ msgstr ""
 "Descanta la condició d’enllaç de dades establertes actualment i fa una "
 "crida a la condició registrada anteriorment."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2580,9 +2658,11 @@ msgstr "Mode de configuració"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Nombre d'elements de dades que no es poden enllaçar"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Gràfic de dispersió"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "amb contorn"
 

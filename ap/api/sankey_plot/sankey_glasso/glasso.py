@@ -1,10 +1,7 @@
-import logging
-
 import numpy as np
+from loguru import logger
 from sklearn.covariance import empirical_covariance, graphical_lasso
 from sklearn.preprocessing import StandardScaler
-
-logger = logging.getLogger(__name__)
 
 
 class GaussianGraphicalModel:

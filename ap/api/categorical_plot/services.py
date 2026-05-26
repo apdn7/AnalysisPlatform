@@ -1,4 +1,3 @@
-import logging
 from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -6,6 +5,7 @@ from typing import Any
 
 import pandas as pd
 from dateutil import tz
+from loguru import logger
 from pandas import DataFrame
 
 from ap import is_internal_version
@@ -95,7 +95,7 @@ from ap.common.constants import (
     DataType,
     DBType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import to_string_with_na_adjust
 from ap.common.path_utils import get_basename, get_view_path, make_dir_from_file_path
@@ -109,8 +109,6 @@ from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summaries, calc_summaries_cate_var
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.setting_module.models import CfgDataSource, CfgProcess
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()

@@ -244,5 +244,19 @@
             "common/js/cat_facet_label_filter_modal.js"
         ],
         "css": ["analyze/css/graphical_lasso.css"]
+    },
+    "crp": {
+        "js": [
+            "common/js/ap_plot.js",
+            "causal_relation_plot/js/causal_relation_bar_chart.js",
+            "causal_relation_plot/js/causal_relation_main.js",
+            "causal_relation_plot/js/causal_relation_vis_network.js",
+            "common/js/cat_facet_label_filter_modal.js",
+            "modules/vis/vis-network.min.js"
+        ],
+        "css": [
+            "causal_relation_plot/css/causal_relation_plot.css",
+            "modules/vis/vis-network.min.css"
+        ]
     }
 }

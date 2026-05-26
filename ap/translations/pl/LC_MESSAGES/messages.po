@@ -1595,6 +1595,7 @@ msgstr ""
 "Cała praca została zatrzymana. Możesz bezpiecznie zamknąć przeglądarkę i "
 "konsolę."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2170,6 +2171,7 @@ msgstr ""
 "Odrzuca aktualnie ustawiony warunek łączenia danych i wywołuje wcześniej "
 "zarejestrowany warunek."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

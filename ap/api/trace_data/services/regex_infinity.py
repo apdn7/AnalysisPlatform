@@ -8,7 +8,7 @@ import pandas as pd
 from pandas import DataFrame
 
 from ap.common.constants import ID, INDEX, ROWID, TIME_COL
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.pandas_helper import append_series, isin_with_na
 
 # Refer <https://trello.com/c/YtbtrFUk/213-13e-import-data-with-column-name-is-empty>

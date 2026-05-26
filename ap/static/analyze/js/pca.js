@@ -488,23 +488,6 @@ const appendSensors = (sensors = []) => {
     addClickEventAllRows();
 };
 
-const loadSensors = () => {
-    $(eles.spinner).addClass('spinner-grow');
-
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-    const requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-    };
-    fetch('/ap/api/analyze/sensor', requestOptions)
-        .then((response) => response.text())
-        .catch((error) => console.log('error', error));
-    setTimeout(() => {
-        $(eles.spinner).removeClass('spinner-grow');
-    }, 20000);
-};
-
 let table = null;
 
 $(() => {

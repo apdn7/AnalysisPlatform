@@ -1,10 +1,12 @@
 import io
-import logging
 import os.path
 import shutil
+from datetime import UTC, datetime
 from pathlib import Path
 from time import sleep
 from zipfile import ZIP_DEFLATED, ZipFile
+
+from loguru import logger
 
 from ap import scheduler
 from ap.common.constants import (
@@ -13,6 +15,7 @@ from ap.common.constants import (
 )
 from ap.common.jobs.jobs import RunningJobs, RunningJobStatus
 from ap.common.jobs.utils import kill_all_jobs
+from ap.common.log import BASE_FILENAME_FORMAT, get_datetime_from_file, get_datetime_from_zip_log_file
 from ap.common.multiprocess_sharing import EventQueue
 from ap.common.path_utils import (
     get_config_db_path,
@@ -23,7 +26,7 @@ from ap.common.path_utils import (
     get_scheduler_db_path,
     get_transaction_folder_path,
 )
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.services.import_export_config_n_data import (
     download_zip_file,
 )
@@ -31,8 +34,6 @@ from ap.setting_module.models import CfgProcess
 from ap.trace_data.transaction_model import TransactionData
 
 PREVIEW_DATA_FILE_NAME = 'data_preview.zip'
-
-logger = logging.getLogger(__name__)
 
 
 def zip_preview_folder_to_byte() -> io.BytesIO | None:
@@ -52,6 +53,116 @@ def zip_preview_folder_to_byte() -> io.BytesIO | None:
                 ) as f,
             ):
                 file.write(f.read())
+
+    return archive
+
+
+def create_archive(data_dir, start_date=None, end_date=None, date_format='%Y-%m-%d %H:%M:%S'):
+    """
+    Create zip archive containing files (including zip files) filtered by date range.
+
+    Args:
+        data_dir (str | Path): target export data path
+        start_date (str | None): ex: '2026-03-01 00:00:00'
+        end_date (str | None): ex: '2026-03-10 23:59:59'
+        date_format (str): datetime format
+
+    Returns:
+        BytesIO | None
+    """
+    data_path = Path(data_dir)
+
+    if not data_path.is_dir():
+        return None
+
+    # parse string -> datetime
+    start_dt = datetime.strptime(start_date, date_format).replace(tzinfo=UTC) if start_date else None
+    end_dt = datetime.strptime(end_date, date_format).replace(tzinfo=UTC) if end_date else None
+
+    archive = io.BytesIO()
+
+    with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=9) as zip_archive:
+        for file_path in data_path.rglob('*'):
+            if not file_path.is_file():
+                continue
+
+            file_time = datetime.fromtimestamp(file_path.stat().st_mtime, tz=UTC)
+
+            if start_dt and file_time < start_dt:
+                continue
+
+            if end_dt and file_time >= end_dt:
+                continue
+
+            arc_name = file_path.relative_to(data_path)
+            zip_archive.write(file_path, arc_name)
+
+    archive.seek(0)
+
+    return archive
+
+
+def create_archive_log_folder(data_dir, start_date=None, end_date=None, date_format='%Y-%m-%d %H:%M:%S'):
+    """
+    Create zip archive containing files (including zip files) filtered by date range.
+
+    Args:
+        data_dir (str | Path): target export data path
+        start_date (str | None): ex: '2026-03-01 00:00:00'
+        end_date (str | None): ex: '2026-03-10 23:59:59'
+        date_format (str): datetime format
+
+    Returns:
+        BytesIO | None
+    """
+    data_path = Path(data_dir)
+
+    if not data_path.is_dir():
+        return None
+
+    # parse string -> datetime
+    start_dt = datetime.strptime(start_date, date_format) if start_date else None
+    end_dt = datetime.strptime(end_date, date_format) if end_date else None
+
+    archive = io.BytesIO()
+
+    with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=9) as zip_archive:
+        for file_path in data_path.rglob('*'):
+            if not file_path.is_file():
+                continue
+
+            # get datetime from filename
+            file_name = file_path.name
+            if file_path.suffix == '.zip':
+                file_time_start, file_time_end = get_datetime_from_zip_log_file(file_name)
+                if not file_time_start or not file_time_end:
+                    continue
+
+                # filter
+                if start_dt and file_time_end < start_dt:
+                    continue
+
+                if end_dt and file_time_start >= end_dt:
+                    continue
+
+                # ========================
+                # HANDLE NORMAL FILE
+                # ========================
+            else:
+                file_time = get_datetime_from_file(file_name, BASE_FILENAME_FORMAT)
+
+                if not file_time:
+                    continue
+
+                if start_dt and file_time < start_dt:
+                    continue
+
+                if end_dt and file_time >= end_dt:
+                    continue
+            arc_name = file_path.relative_to(data_path)
+            zip_archive.write(file_path, arc_name)
+
+    archive.seek(0)
 
     return archive
 
@@ -91,16 +202,20 @@ def import_config_and_master(file_path):
 def truncate_datatables():
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for i, tran_data in enumerate(trans):
-        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id), True) as db_instance:
+        with (
+            TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=False) as data_con,
+            TxnMetaConnection(process_id=tran_data.process_id) as meta_con,
+        ):
             transaction_tbls = [
-                tran_data.table_name,
                 tran_data.data_count_table_name,
                 tran_data.import_history_table_name,
                 tran_data.export_history_table_name,
             ]
+            sql = f'DELETE FROM {tran_data.table_name};'
+            data_con.run_sql(sql)
             for tbl_name in transaction_tbls:
                 sql = f'DELETE FROM {tbl_name};'
-                db_instance.run_sql(sql)
+                meta_con.run_sql(sql)
 
     return True
 
@@ -108,9 +223,9 @@ def truncate_datatables():
 def delete_t_process_tables():
     trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
     for i, tran_data in enumerate(trans):
-        with DbProxy(gen_data_source_of_universal_db(tran_data.process_id), True) as db_instance:
+        with TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=False) as data_con:
             sql = f'DELETE FROM {tran_data.table_name};'
-            db_instance.run_sql(sql)
+            data_con.run_sql(sql)
 
     return True
 

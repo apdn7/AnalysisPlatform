@@ -1,14 +1,12 @@
 import contextlib
 import datetime as dt
-import logging
 import re
 
 import oracledb
 from dateutil import tz
+from loguru import logger
 
 from ap.common.common_utils import strip_all_quote
-
-logger = logging.getLogger(__name__)
 
 
 class Oracle:

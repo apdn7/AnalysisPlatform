@@ -1591,6 +1591,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "Kaikki työ on lopetettu. Voit sulkea selaimen ja konsolin turvallisesti."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2167,6 +2168,7 @@ msgstr ""
 "Hylkää tällä hetkellä asetetut tiedot, jotka yhdistävät ehdon ja kutsuu "
 "aiemmin rekisteröidyn ehdon."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

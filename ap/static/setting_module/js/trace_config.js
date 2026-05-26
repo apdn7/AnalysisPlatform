@@ -13,6 +13,11 @@ const moveToOptions = configOption.moveto || {};
 const nodes = new vis.DataSet();
 const edges = new vis.DataSet();
 
+if (window.Cypress) {
+    window.edges = edges;
+    window.nodes = nodes;
+}
+
 // currently visjs doesn't allow us to save many information to edge -> use a global map
 const mapIdFromIdTo2Edge = {};
 
@@ -1614,8 +1619,13 @@ const drawEdgeToGUI = (edgeData) => {
     if (_.isEmpty(currentEditEdge)) {
         edges.add(edgeData);
     } else {
-        // remove current edge in mapIdFromIdTo2Edge before update
-        delete mapIdFromIdTo2Edge[`${currentEditEdge.from}-${currentEditEdge.to}`];
+        // remove current edge in mapIdFromIdTo2Edge before update if from and to is changed (edit target of edge)
+        if (
+            Number(edgeData.from) !== Number(currentEditEdge.from) ||
+            Number(edgeData.to) !== Number(currentEditEdge.to)
+        ) {
+            delete mapIdFromIdTo2Edge[`${currentEditEdge.from}-${currentEditEdge.to}`];
+        }
 
         // update with new edge data
         edges.update(edgeData);

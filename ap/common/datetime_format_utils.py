@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import datetime
-import logging
 import re
 from typing import Final
 
 import arrow
 import pandas as pd
+from loguru import logger
 
-from ap import log_execution_time
 from ap.common.common_utils import SQLiteFormatStrings
 from ap.common.constants import (
     COMMA_BETWEEN_NUMBERS_REGEX,
@@ -20,8 +19,7 @@ from ap.common.constants import (
     TIME_TYPE_REGEX,
     DataType,
 )
-
-logger = logging.getLogger(__name__)
+from ap.common.log import log_execution_time
 
 
 class DateTimeFormatUtils(object):

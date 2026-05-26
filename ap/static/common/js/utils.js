@@ -479,7 +479,7 @@ const setHideSettingPage = () => {
 // set log_level
 const setLogLevel = () => {
     $('header.main-header').removeClass('green-header');
-    if (appContext.log_level === 'False') {
+    if (appContext.log_level === 'DEBUG') {
         $('header.main-header').addClass('green-header');
     }
 };
@@ -3712,8 +3712,8 @@ const getCurrentTimeStr = () => {
     return timeStr;
 };
 
-const downloadTextFile = (url, filename = null) => {
-    fetch(url)
+const downloadTextFile = (url, filename = null, option) => {
+    fetch(url, option)
         .then((response) => {
             return response.blob();
         })
@@ -4531,11 +4531,11 @@ const handleSearchFilterInTable = (tableID) => {
         let regex = makeRegexForSearchCondition(value);
         regex = new RegExp(regex, 'i');
         const isSearchLabel = searchType === 'label';
-        const showAllLabels = isShowAllLabels();
+        const showAllLabelsInUse = isShowAllLabelsInUse();
         $(`#${tableID} tbody tr`).filter(function f() {
             const colVal = isSearchLabel ? getLabelsOfProcess(this, colIdx) : getCellValue(this, colIdx);
             if (isSearchLabel) {
-                $(this).toggle(showAllLabels || colVal.filter((label) => labelState[label]).length > 0);
+                $(this).toggle(showAllLabelsInUse || colVal.filter((label) => labelState[label]).length > 0);
             } else {
                 $(this).toggle(regex.test(colVal));
             }
@@ -5049,7 +5049,8 @@ const exportData = async (url, type, formData) => {
         const filename = `${generateDefaultNameExport()}.${type}`;
         await downloadTextFile(endpoint, filename);
         loadingHide();
-        showToastrStartedCSV();
+        const isCsv = type === 'csv';
+        showToastrStartedCSV(isCsv);
     }
 };
 

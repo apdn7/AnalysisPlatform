@@ -1,12 +1,10 @@
-import logging
 import os
 import sys
 
 import pandas as pd
+from loguru import logger
 
-from ap.common.logger import log_execution_time
-
-logger = logging.getLogger(__name__)
+from ap.common.log import log_execution_time
 
 
 @log_execution_time()

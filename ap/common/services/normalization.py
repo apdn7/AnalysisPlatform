@@ -5,7 +5,7 @@ import pandas as pd
 from pandas import DataFrame, Series
 
 from ap.common.constants import EMPTY_STRING, ENCODING_ASCII
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.services.data_type import convert_df_str_to_others
 
 NORMALIZE_FORM_NFKC = 'NFKC'

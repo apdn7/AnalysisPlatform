@@ -254,9 +254,11 @@ function updateBtnStyleWithValidation(btnDOM = '', isValid = true) {
     if (!isValid) {
         btnDOM.addClass('btn-secondary');
         btnDOM.removeClass('btn-primary');
+        btnDOM.prop('disabled', true);
     } else {
         btnDOM.addClass('btn-primary');
         btnDOM.removeClass('btn-secondary');
+        btnDOM.prop('disabled', false);
     }
 }
 

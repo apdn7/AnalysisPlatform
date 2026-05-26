@@ -311,6 +311,8 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
 const parseProcDatetimeFormatSampleData = async (dataType, values) => {
     const condition = displayDatetimeFormatCondition();
     const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
+    const isAllEmpty = values.every((val) => val === '' || val === null);
+    if (isAllEmpty) return values;
     if (condition.showRawData) {
         return values;
     } else {

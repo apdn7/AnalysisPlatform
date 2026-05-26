@@ -1,5 +1,11 @@
 let i18nCommon = {};
 const MAX_DYNAMIC_CARD = 50;
+const Y_SCALE_MODES = {
+    AUTO: 'AUTO',
+    LINEAR: 'LINEAR',
+    LOG_SCALE: 'LOG_SCALE',
+};
+let yScaleMode = Y_SCALE_MODES.AUTO;
 
 // use this config for select2
 const select2ConfigI18n = {
@@ -209,17 +215,6 @@ const endProcSortable = () => {
                 $(el).attr('order', i);
             });
         },
-    });
-};
-
-/**
- * Handle objective variable input event
- */
-const objectiveInputEventHandle = () => {
-    $('input[name="objectiveVar"]').on('change', (e) => {
-        const isChecked = e.currentTarget.checked;
-        const parentRow = $(e.target).closest('li.list-group-item.form-check');
-        isChecked && parentRow.find('input[type=checkbox][name^=GET02_VALS_SELECT]').prop('checked', true);
     });
 };
 
@@ -595,16 +590,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const isRequiredInput = props.isRequired ? requiredInputClass : '';
         let objectiveSelectionDOM = '';
-        const isCategoryVar = [DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType);
-        const showObjInput =
-            !props.allowObjectiveForRealOnly ||
-            (props.allowObjectiveForRealOnly &&
-                !isCategoryVar &&
-                !(props.disableSerialAsObjective && colDataTypeShowName === DataTypes.SERIAL.short));
+        const isCategoryVar =
+            [DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType) ||
+            [DataTypes.CATEGORY.short, DataTypes.SERIAL.short].includes(colDataTypeShowName);
+        const showObjInput = !props.allowObjectiveForRealOnly || !isCategoryVar;
         if (props.showObjectiveInput && showObjInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
             const uncheckRadio = props.optionalObjective ? ' uncheck-when-click' : '';
-            objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="changeObjectiveVarEvent()"
+            objectiveSelectionDOM = `<input title="" type="radio" name="objectiveVar" onchange="changeObjectiveVarEvent(this)"
                 class="custom-control-input ${isRequiredInput}" value="${itemId}"
                 id="${objectiveChkBoxId}" data-autoselect="false" 
                 data-is-target="${props.shouldObjectiveIsTarget || false}">
@@ -860,7 +853,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             </div>
             ${label ? '</div>' : ''}
         </div>`;
-    $(`#${parentId}`).append(groupList);
+    $(`#${parentId}`).empty().append(groupList);
 
     // show sensors as a floating list when hover for 1s
     showSensorAsFloatingList(sensorListId);
@@ -1012,22 +1005,6 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
     handleSearchItems(id);
 
-    // objectiveVar only choose one
-    $(`#${parentId} input:checkbox[name=objectiveVar]`).on('change', function () {
-        // in the handler, 'this' refers to the box clicked on
-        const $box = $(this);
-        if ($box.is(':checked')) {
-            // the name of the box is retrieved using the .attr() method
-            // as it is assumed and expected to be immutable
-            const group = `input:checkbox[name='${$box.attr('name')}']`;
-            // the checked state of the group/box on the other hand will change
-            // and the current value is retrieved using .prop() method
-            $(group).prop('checked', false);
-            $box.prop('checked', true);
-        } else {
-            $box.prop('checked', false);
-        }
-    });
     addAttributeToElement(`#${parentId}`, {}, props);
     if (parentId.includes('cond-proc-others')) {
         // in case of other filters, use another box id
@@ -1036,8 +1013,6 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         inputCheckInlineEvents(parentId);
     }
     onchangeRequiredInput();
-    objectiveInputEventHandle();
-    // endProcSortable();
 };
 
 /**
@@ -1521,6 +1496,9 @@ const showSensorAsFloatingList = (sensorListId) => {
  * @param {jQuery} selectParent
  */
 const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
+    // only show graph page
+    if (!getCurrentPage()) return;
+
     let selectedItems = [];
     let allSelected;
     if (isCategoryItem) {
@@ -2120,10 +2098,11 @@ const changeFacetLevel = (e) => {
 
     // uncheck target variable for STP
     if (formID.endsWith('categoricalPlotForm')) {
-        const targetVarDOM = $(e).closest('.row').find('input[name^=GET02_VALS_SELECT]');
+        const targetVarDOM = $(e).closest('.item-row').find('input[name^=GET02_VALS_SELECT]');
         const targetVarSelected = targetVarDOM.is(':checked');
         if (currentLevelSet && targetVarSelected) {
-            targetVarDOM.prop('checked', false);
+            // trigger change for counting checked sensors again
+            targetVarDOM.prop('checked', false).trigger('change');
         }
     }
 
@@ -2362,7 +2341,7 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
 /**
  * Handle objective variable change event
  */
-const changeObjectiveVarEvent = () => {
+const changeObjectiveVarEvent = (e) => {
     const stringColInputElms = $('.is-string-col input');
     const stringColLabelElms = $('.is-string-col label');
     const hasObjectiveCol = $('input[name=objectiveVar]:checked').length;
@@ -2373,13 +2352,18 @@ const changeObjectiveVarEvent = () => {
         stringColLabelElms.each(function () {
             const beforeStyle = window.getComputedStyle(this, '::before');
             if (beforeStyle && beforeStyle.visibility === 'hidden') {
-                $(this).parent().find('input').prop('checked', false);
+                $(this).parent().find('input').prop('checked', false).trigger('change');
             }
         });
     } else {
         stringColInputElms.addClass('show-ele');
         stringColLabelElms.addClass('show-ele');
     }
+    // auto check sensor column when objective var checked
+    const isChecked = e.checked;
+    const parentRow = $(e).closest('li.list-group-item.form-check');
+    isChecked &&
+        parentRow.find('input[type=checkbox][name^=GET02_VALS_SELECT]').prop('checked', true).trigger('change');
     compareSettingChange();
 };
 
@@ -2437,7 +2421,8 @@ const setColorRelativeStartEndProc = () => {
  * Check if all selected processes are linked
  */
 const checkIfProcessesAreLinked = async () => {
-    if (isSettingLoading) {
+    // if isSettingLoading or if not show graph page then return
+    if (isSettingLoading || !getCurrentPage()) {
         return;
     }
     const startProcVal = getStartProcId();
@@ -2640,4 +2625,132 @@ const handleTableRowEvents = (tableId) => {
     tbodyRow.off('mouseenter').on('mouseenter', onMouseenter);
     tbodyRow.off('mouseleave').on('mouseleave', onMouseleave);
     tbodyRow.off('click').on('click', onClick);
+};
+
+/**
+ * Handle change yScaleModes
+ * @param {HTMLSelectElement} element
+ */
+const yScaleModeChange = (element) => {
+    yScaleMode = $(element).val();
+    // re-show charts by button click
+    handleSubmit(false, false);
+};
+
+const showTickLabelTooltip = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const tooltip = $('#fullTickLabel');
+    const tooltipHeight = tooltip.height();
+    const windowHeight = $(window).height();
+    const left = e.clientX;
+    let top = e.clientY + 5;
+    if (windowHeight - top < tooltipHeight) {
+        top -= tooltipHeight;
+    }
+    tooltip.css({
+        left: `${left}px`,
+        top: `${top}px`,
+        display: 'block',
+    });
+
+    return false;
+};
+
+const plotTickEles = {
+    X: '.xtick text',
+    Y: '.ytick text',
+    Y_AXIS_LAYER: '.yaxislayer-above',
+    TOOLTIP: '#fullTickLabel',
+};
+
+const hideTickLabelTooltip = () => {
+    $(plotTickEles.TOOLTIP).text('');
+    $(plotTickEles.TOOLTIP).hide();
+};
+
+// wrapper for ticks text
+// default value: show 19 characters
+const wraptext = (text, maxLength = 19) => {
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return text.slice(0, maxLength) + '...';
+};
+
+const attachTickHovers = (canvasID) => {
+    const gd = document.getElementById(canvasID);
+    if (!gd) return;
+
+    const $barChart = $(gd);
+
+    const applyWrapText = () => {
+        $barChart.find(plotTickEles.Y).each(function () {
+            const rawText = this.getAttribute('data-unformatted') || this.textContent;
+            const wrapped = wraptext(rawText, 19);
+
+            // assign directly to ensure it not duplicated event register
+            if (this.innerHTML !== wrapped) {
+                this.innerHTML = wrapped;
+            }
+        });
+    };
+    applyWrapText();
+
+    // Bắt sự kiện Zoom/Pan (Relayout)
+    gd.on('plotly_relayout', (eventData) => {
+        window.requestAnimationFrame(() => {
+            applyWrapText();
+        });
+    });
+
+    // Event Delegation cho Hover
+    $barChart.off('mouseenter mouseleave', plotTickEles.Y);
+    $barChart.on('mouseenter', plotTickEles.Y, function (e) {
+        e.stopPropagation();
+
+        const node = e.currentTarget;
+        const fullTickLabel =
+            node.getAttribute('data-unformatted') || (node.__data__ && node.__data__.text) || node.textContent;
+
+        if (!fullTickLabel) return;
+
+        $(plotTickEles.TOOLTIP).text(fullTickLabel);
+        showTickLabelTooltip(e);
+    });
+
+    $barChart.on('mouseleave', plotTickEles.Y, function () {
+        hideTickLabelTooltip();
+    });
+};
+
+/**
+ * Attach hover event to Y-axis title to show full title
+ * @param {string} canvasID
+ */
+const attachYTitleHovers = (canvasID) => {
+    const gd = document.getElementById(canvasID);
+    if (!gd) return;
+
+    const $barChart = $(gd);
+    const yTitleSelector = '.g-ytitle';
+
+    // Event Delegation cho Hover
+    $barChart.off('mouseenter mouseleave', yTitleSelector);
+    $barChart.on('mouseenter', yTitleSelector, function (e) {
+        e.stopPropagation();
+
+        const node = e.currentTarget;
+        const fullTitle = node.getAttribute('data-unformatted') || node.textContent;
+
+        if (!fullTitle) return;
+
+        $(plotTickEles.TOOLTIP).text(fullTitle);
+        showTickLabelTooltip(e);
+    });
+
+    $barChart.on('mouseleave', yTitleSelector, function () {
+        hideTickLabelTooltip();
+    });
 };

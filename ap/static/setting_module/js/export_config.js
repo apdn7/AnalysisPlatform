@@ -25,6 +25,16 @@ const formElements = {
     endProcSelectedItem: '#end-proc-row select',
 };
 
+function mergeAndSort(arr1, arr2) {
+    const set2 = new Set(arr2);
+
+    const ordered = arr2.filter((x) => arr1.includes(x));
+
+    const rest = arr1.filter((x) => !set2.has(x));
+
+    return [...ordered, ...rest];
+}
+
 async function checkFolderPath(folderPath) {
     const url = `${window.location.origin}/ap/api/setting/check_folder_path`;
     const requestData = { folder_path: folderPath };
@@ -48,8 +58,12 @@ async function getAllExportConfigs() {
             const exportElement = new ExportConfigComponent(exportConfig);
             exportConfig.uuid = exportElement.uuid;
             ExportConfigs.push(exportConfig);
+            // get default sorted list after load Api first time
+            for (const exportDetail of exportConfig.export_details) {
+                exportElement.sortedColumnsList.push(`${exportConfig.process_id}-${exportDetail.process_column_id}`);
+            }
+            sortedColumnsByExportConfig[exportConfig.uuid] = exportElement.sortedColumnsList;
         }
-        // $(formElements.endProcSelectedItem).trigger('change')
     }
 }
 
@@ -197,16 +211,20 @@ class ExportConfig {
 }
 
 const hasGraphCfgsFilterDetails = [];
+const sortedColumnsByExportConfig = {};
 
 class ExportConfigComponent {
     contentDivId = '';
 
     constructor(exportConfig, parentDiv) {
         this.uuid = makeUID();
+        this.columnOrderModalId = `exportColumnOrderModal${this.uuid}`;
         exportConfig.uuid = this.uuid;
         this.exportConfig = new ExportConfig(exportConfig);
         this.parentDiv = $('#export-list-content div');
         this.contentDivId = `#end-proc-val-div-${this.uuid}`;
+        this.sortedColumnsList = [];
+        sortedColumnsByExportConfig[this.uuid] = [];
         this.addExportConfigContent();
         initializeDateTimeRangePicker(null, true);
         initializeDateTimePicker(null, true);
@@ -239,6 +257,7 @@ class ExportConfigComponent {
         endProcItem();
         addAttributeToElement();
         this.handleOnClickBtn();
+        this.handleShowColumnOrderModal();
         this.handleOnchangeEndProc();
     }
 
@@ -271,6 +290,13 @@ class ExportConfigComponent {
             i18nOncePerWeek: $('#i18nOncePerWeek').text(),
             i18nFilter: $('#i18nFilter').text(),
             i18nRegister: $('#i18nRegister').text(),
+            i18nProcessName: $('#i18nProcessNameWithoutName').text(),
+            i18nOrder: $('#i18nOrder').text(),
+            i18nEnglishName: $('#i18nEnglishName').text(),
+            i18nShownName: $('#i18nShownName').text(),
+            i18nDataType: $('#i18nDataType').text(),
+            i18nVariableDislayOrdering: $('#i18nVariableDisplayOrdering').text(),
+            i18nCancel: $('#i18nCancel').text(),
         };
     }
 
@@ -321,6 +347,10 @@ class ExportConfigComponent {
                                            ${this.titleInputElement()}
                                            ${this.exportFolderElement()}
                                            ${this.fileTypeElement()}
+                                           ${this.columnOrderModal()}
+                                           <button id="btnSortCol${this.uuid}" name="btnSortCol${this.uuid}" type="button" class="btn simple-btn mr-3 graph-area-setting-btn">
+                                                <i class="fa fa-list-ol"></i>
+                                           </button>
                                            <button id="saveExportConfig" onclick="ExportConfigComponent.saveExportConfig('${this.uuid}')" class="btn btn-primary">
                                                <i class="far fa-save"></i> 
                                                ${this.i18nMsg().i18nRegister}
@@ -342,6 +372,59 @@ class ExportConfigComponent {
         $(`#deleteExportConfig${this.uuid}`).on('click', (e) => {
             ExportConfigComponent.deleteExportConfig(this.uuid).then();
         });
+    }
+
+    /**
+     * @description get sorted list of column from checked checkbox in GUI and concat with sorted columns list of export config
+     */
+    getSortedColumnList() {
+        let defaultColumns = getSelectedEndColIds(`#export-config-${this.uuid}`);
+        // order by saved order
+        return sortByOrder(defaultColumns, sortedColumnsByExportConfig[this.uuid]);
+    }
+
+    handleShowColumnOrderModal() {
+        $(`#btnSortCol${this.uuid}`).on('click', () => {
+            // load column ordering into modal
+            const orderedList = this.getSortedColumnList();
+            this.generateProcessColumnInOrderModal(orderedList);
+            $('#' + this.columnOrderModalId).modal('show');
+        });
+
+        $(`#${this.columnOrderModalId}OKBtn`).on('click', () => {
+            // collect column order by order in modal
+            this.sortedColumnsList = [];
+            $(`#table_${this.columnOrderModalId}`)
+                .find('tr')
+                .each((_, element) => {
+                    const colId = $(element).attr('data-colId');
+                    const procId = $(element).attr('data-procId');
+                    if (colId) {
+                        this.sortedColumnsList.push(`${procId}-${colId}`);
+                    }
+                });
+            // assign to this export config object
+            sortedColumnsByExportConfig[this.uuid] = this.sortedColumnsList;
+        });
+
+        $(`#${this.columnOrderModalId}ResetBtn`).on('click', () => {
+            // order by column id
+            console.log(this.exportConfig);
+            // get current shown list of modal
+            let orderList = getSelectedEndColIds(`#export-config-${this.uuid}`);
+            // order by process_id
+            orderList = orderList.sort((a, b) => {
+                return Number(a.split('-')[1]) > Number(b.split('-')[1]) ? 1 : -1;
+            });
+
+            this.generateProcessColumnInOrderModal(orderList);
+        });
+    }
+
+    generateProcessColumnInOrderModal(orderList) {
+        generateSortOrderColumn(orderList, '', `#table_${this.columnOrderModalId}`);
+        // remove delete btn column
+        $('.delete-order-column').remove();
     }
 
     filterElement() {
@@ -587,6 +670,76 @@ class ExportConfigComponent {
         `;
     }
 
+    columnOrderModal() {
+        const exportModalId = `exportColumnOrderModal${this.uuid}`;
+        return `
+            <div
+                id="${exportModalId}"
+                class="modal in endColOrderTable"
+                data-backdrop="static"
+            >
+                <div class="modal-dialog modal-confirm modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">
+                                ${this.i18nMsg().i18nVariableDislayOrdering}
+                            </h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                ×
+                            </button>
+                        </div>
+                        <div class="modal-body py-0">
+                            <div
+                                class="table-responsive"
+                                id="table_${exportModalId}_wrap"
+                                style="max-height: 75vh"
+                            >
+                                <table
+                                    id="table_${exportModalId}"
+                                    class="table table-bordered table-main table-bordered table-dark table-fixed table-striped table-hover table-hover-light endColOrderTable"
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" style="max-width: 20px">
+                                                ${this.i18nMsg().i18nOrder}
+                                            </th>
+                                            <th class="text-center">${this.i18nMsg().i18nProcessName}</th>
+                                            <th class="text-center">${this.i18nMsg().i18nProcessName}</th>
+                                            <th class="text-center">${this.i18nMsg().i18nEnglishName}</th>
+                                            <th class="text-center">${this.i18nMsg().i18nShownName}</th>
+                                            <th class="text-center">${this.i18nMsg().i18nDataType}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer d-flex justify-content-between py-2">
+                            <button id="${exportModalId}ResetBtn" type="button" class="btn btn-success">Reset</button>
+                            <div>
+                                <button
+                                id="${exportModalId}OKBtn"
+                                class="btn btn-primary"
+                                data-dismiss="modal"
+                                >
+                                    OK
+                                </button>
+                                <button
+                                    id="${exportModalId}CancelBtn"
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal"
+                                >
+                                    ${this.i18nMsg().i18nCancel}
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     static removeExportConfigContent(uuid) {
         $(`#export-config-${uuid}`).remove();
     }
@@ -650,10 +803,17 @@ class ExportConfigComponent {
 
         const selectedProc = $(`#end-proc-process-${uuid}`);
         const [exportFrom, exportTo] = ExportConfigComponent.getExportFromToUTC(uuid);
+        const defaultOrderUI = getSelectedEndColIds(`#export-config-${uuid}`);
+        const allColumnOrdering = mergeAndSort(defaultOrderUI, sortedColumnsByExportConfig[uuid]);
+        const orderMap = new Map(allColumnOrdering.map((v, i) => [v.split('-')[1], i + 1]));
         const requestData = {
             process_id: parseInt(selectedProc[0].value),
             export_details: columnItems.map((item) => {
-                return { process_column_id: $(`#${item}`)[0].value };
+                const colId = $(`#${item}`)[0].value;
+                return {
+                    process_column_id: colId,
+                    order: orderMap.get(colId) || null,
+                };
             }),
             filters: ExportConfigComponent.getFiltersDetails(uuid),
             title: $(`#title${uuid}`).val(),

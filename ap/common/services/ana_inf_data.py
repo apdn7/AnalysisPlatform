@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 from __future__ import annotations
 
-import logging
 from typing import Any
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from loguru import logger
 from pandas import Series
 from scipy.stats import gaussian_kde, iqr
 
@@ -28,13 +28,11 @@ from ap.common.constants import (
     Y_MIN,
     NegRatio,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.statistics import convert_series_to_number
 from ap.common.sigificant_digit import get_fmt_from_array
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -73,7 +71,7 @@ def calculate_kde_for_ridgeline(data_np, grid_points, height=1, use_range=False,
                 g_kde_values = histogram[0]
             else:
                 # use fast algorithm for kernel density estimation for RLP
-                g_kde_values = gen_kde_1d_fft(data_np, x, xmin, xmax, std_value) * height
+                g_kde_values = gen_kde_1d_fft(np.asarray(data_np), x, xmin, xmax, std_value) * height
 
             if use_hist_counts:
                 hist_counts = histogram[0]
@@ -454,24 +452,27 @@ def detect_abnormal_count_values(
 
 @log_execution_time()
 @abort_process_handler()
-def resample_preserve_min_med_max(x, n_after: int):
-    """Resample x, but preserve (minimum, median, and maximum) values
+def resample_preserve_min_med_max(X: npt.NDArray, n_after: int, return_index: bool = False) -> npt.NDArray:
+    """Resample X, but preserve (minimum, median, and maximum) values
     Inputs:
-        x (1D-NumpyArray or a list)
-        n_after (int) Length of x after resampling. Must be < len(x)
+        X (1D-NumpyArray or a list)
+        n_after (int) Length of X after resampling. Must be < len(X)
+        return_index (bool) is True return index of array instead of values
     Return:
-        x (1D-NumpyArray) Resampled data
+        X (1D-NumpyArray) Resampled data
     """
-    if x.shape[0] > n_after:
+    n = len(X)
+    if X.shape[0] > n_after:
         # walkaround: n_after with odd number is easier
         if n_after % 2 == 0:
             n_after += 1
 
-        n = len(x)
         n_half = int((n_after - 1) / 2)
+        # index around median
+        ord_index = np.argsort(X)
+        X = X[ord_index]  # noqa: N806
 
         # index around median
-        x = np.sort(x)
         idx_med = (n + 1) / 2 - 1  # median
         idx_med_l = int(np.ceil(idx_med - 1))  # left of median
         idx_med_r = int(np.floor(idx_med + 1))  # right of median
@@ -482,9 +483,15 @@ def resample_preserve_min_med_max(x, n_after: int):
 
         # resampling
         if n % 2 == 1:
-            med = x[int(idx_med)]
-            x = np.concatenate((x[idx_low], [med], x[idx_upp]))
+            med = X[int(idx_med)]
+            X = np.concatenate((X[idx_low], [med], X[idx_upp]))  # noqa: N806
         else:
-            med = 0.5 * (x[idx_med_l] + x[idx_med_r])
-            x = np.concatenate((x[idx_low], [med], x[idx_upp]))
-    return x
+            med = 0.5 * (X[idx_med_l] + X[idx_med_r])
+            X = np.concatenate((X[idx_low], [med], X[idx_upp]))  # noqa: N806
+        if return_index:
+            orig_idx = np.arange(n)[ord_index]
+            return orig_idx[np.concatenate((idx_low, [int(idx_med)], idx_upp))]
+
+    if return_index:
+        return np.arange(n)
+    return X

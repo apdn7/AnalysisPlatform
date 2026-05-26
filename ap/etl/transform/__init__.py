@@ -1,10 +1,8 @@
-import logging
 from abc import ABC, abstractmethod
 
 import pandas as pd
+from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field
-
-logger = logging.getLogger(__name__)
 
 
 class TransformData(BaseModel):

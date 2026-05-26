@@ -1,20 +1,24 @@
 from __future__ import annotations
 
-import logging
+import datetime as dt
 from collections import namedtuple
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Union
+from functools import cached_property
+from typing import Any, Union
 
+import duckdb
 import pandas as pd
 import sqlalchemy as sa
+from loguru import logger
 from pandas import DataFrame
+from pandas.core.dtypes.base import ExtensionDtype
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.sql.ddl import CreateIndex, CreateTable
 
-from ap import log_execution_time
-from ap.api.common.services.utils import gen_sql_and_params, gen_sql_compiled_stmt
+from ap.api.common.services.utils import gen_sql_compiled_stmt
 from ap.common.common_utils import (
     Bound,
     TimeRange,
@@ -24,37 +28,25 @@ from ap.common.common_utils import (
     gen_export_history_table_name,
     gen_import_history_table_name,
     gen_pull_history_table_name,
-    get_type_all_columns,
 )
 from ap.common.constants import (
     DATE_FORMAT_SQLITE_STR,
-    SEQUENCE_CACHE,
-    SQL_LIMIT,
     SQL_PARAM_SYMBOL,
     BaseEnum,
-    ColumnDTypeToSQLiteDType,
     DataColumnType,
     DataType,
     DuplicateMode,
     JobStatus,
-    ProcessCfgConst,
+    JobType,
 )
-from ap.common.pydn.dblib.db_common import gen_insert_col_str
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.pydn.dblib.mssqlserver import MSSQLServer
-from ap.common.pydn.dblib.mysql import MySQL
-from ap.common.pydn.dblib.oracle import Oracle
-from ap.common.pydn.dblib.postgresql import PostgreSQL
+from ap.common.log import log_execution_time
+from ap.common.pydn.dblib.duckdb.__init__ import DuckDB
 from ap.common.pydn.dblib.sqlite import SQLite3
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.setting_module.models import (
     CfgProcess,
     CfgProcessColumn,
-    CfgTrace,
-    CfgTraceKey,
 )
-from ap.trace_data.database_index import ColumnInfo, MultipleIndexes, SingleIndex, add_multiple_indexes_to_set
-
-logger = logging.getLogger(__name__)
 
 
 class TransactionData:
@@ -204,190 +196,46 @@ class TransactionData:
                 self.main_time_column = cfg_process_column
                 continue
 
-    def get_new_columns(
-        self,
-        db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer],
-        table_name: str | None = None,
-    ) -> list[CfgProcessColumn]:
-        table_name = table_name or self.table_name
-        exist_columns = self.get_table_columns(db_instance, table_name)
-        new_columns = []
-        for cfg_process_column in self.cfg_process_columns:
-            if cfg_process_column.bridge_column_name not in exist_columns:
-                new_columns.append(cfg_process_column)
-        return new_columns
-
-    def count_data(self, db_instance: Union[PostgreSQL, SQLite3]):
-        # sql = f'SELECT COUNT(1) FROM {self.table_name}'
-        sql = f'SELECT SUM({DataCountTable.count.name}) FROM {self.data_count_table_name}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return rows[0][0] or 0
+    def count_data(self, data_con: DuckDB) -> int:
+        sql = sa.select(sa.func.count(1)).select_from(sa.table(self.table_name))
+        return data_con.run_sql(sql).fetchone()[0] or 0
 
     @log_execution_time()
-    def get_column_dtype(self, db_instance: Union[PostgreSQL, SQLite3], columns):
-        sql = f"PRAGMA table_info('{self.table_name}')"
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        df = pd.DataFrame(rows, columns=cols)
-        col_dtypes = {col: df.loc[df['name'] == col, 'type'].iloc[0].lower() for col in columns}
-        if not col_dtypes:
-            # empty table will return none instead of column data type
-            # so it should find and return type from CfgProcessColumn
-            for col in self.cfg_process_columns:
-                col_dtypes[col.bridge_column_name] = ColumnDTypeToSQLiteDType[col.data_type].value
-        return col_dtypes
+    def get_pandas_column_dtypes(self, data_con: DuckDB) -> dict[str, ExtensionDtype]:
+        duckdb_dtypes = data_con.column_types(self.table_name)
+        return {column_name: duckdb_dtype.to_pandas_type() for column_name, duckdb_dtype in duckdb_dtypes.items()}
 
     @log_execution_time()
-    def get_data_for_check_duplicate(self, db_instance: Union[PostgreSQL, SQLite3], start_dt, end_dt):
+    def get_data_for_check_duplicate(self, data_con: DuckDB, start_dt: str, end_dt: str) -> pd.DataFrame:
         date_col = self.getdate_column.bridge_column_name
         sql = f'SELECT * FROM {self.table_name} WHERE {date_col} BETWEEN {SQL_PARAM_SYMBOL} AND {SQL_PARAM_SYMBOL}'
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=[start_dt, end_dt])
-        return cols, rows
+        return data_con.run_sql(sql, params=[start_dt, end_dt]).fetchdf()
 
-    def create_table(self, db_instance, table_name: str | None = None, auto_commit: bool = True):
-        dict_col_with_types = self.get_cols_with_types()
-        table_name = table_name or self.table_name
-        if table_name in db_instance.list_tables():
-            new_columns = self.get_new_columns(db_instance, table_name=table_name)
-            if new_columns:
-                dict_new_col_with_type = {column.bridge_column_name: column.data_type for column in new_columns}
-                self.add_columns(db_instance, self.table_name, dict_new_col_with_type, auto_commit=auto_commit)
-            # TODO: Update data-type only when needed (add condition)
-            self.update_data_types(db_instance, dict_col_with_types, auto_commit=auto_commit)
+    def create_table(self, data_con: DuckDB, meta_con: SQLite3, auto_commit: bool = True):
+        if self.table_name in data_con.list_tables():
+            self.sync_columns_to_transaction(data_con)
         else:
-            # self.__create_sequence_table(db_instance)
-            sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
+            dict_col_with_types = self.get_cfg_column_types()
+            sql = f'CREATE TABLE IF NOT EXISTS {self.table_name}'
             sql_col = ''
-            for col_name, _data_type in dict_col_with_types.items():
-                data_type = (
-                    DataType.TEXT.name
-                    if _data_type in [DataType.DATETIME.name, DataType.DATE.name, DataType.TIME.name]
-                    else DataType.INTEGER.name
-                    if _data_type == DataType.CATEGORY.name
-                    else _data_type
-                )
-                sql_col += f'{col_name} {data_type}, '
+            for col_name, data_type in dict_col_with_types.items():
+                sql_col += f'{col_name} {data_type.duckdb_type()}, '
             sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
-
-            # make at least one column if no column of table for testing
-            if not sql_col:
-                sql_col = 'created_at datetime'
-
             sql = f'{sql} ({sql_col})'
-            db_instance.execute_sql(sql, auto_commit=auto_commit)
+            data_con.run_sql(sql)
 
         # create data count table
-        self.create_data_count_table(db_instance, auto_commit=auto_commit)
+        self.create_data_count_table(meta_con, auto_commit=auto_commit)
         # create import history table
-        self.create_import_history_table(db_instance, auto_commit=auto_commit)
+        self.create_import_history_table(meta_con, auto_commit=auto_commit)
         # create export history table
-        self.create_export_history_table(db_instance, auto_commit=auto_commit)
+        self.create_export_history_table(meta_con, auto_commit=auto_commit)
 
-        return table_name
-
-    def cast_data_type_for_columns(
-        self,
-        db_instance,
-        transaction_data_obj,
-        process: CfgProcess,
-        proc_data: dict,
-    ):
-        """
-        Do change data type for request columns
-        :param db_instance: a database instance of PostgreSQL instance
-        :param process: a process object
-        :param proc_data: a dictionary with process columns data
-        :return: True, None if all columns changed successfully otherwise return False and list of failed change columns
-        """
-        db_columns: list[CfgProcessColumn] = process.columns
-        request_columns: list[CfgProcessColumn] = proc_data[ProcessCfgConst.PROC_COLUMNS.value]
-        failed_change_columns: list[CfgProcessColumn] = []
-        if self.table_name not in db_instance.list_tables():
-            # In case of non-exist table, do nothing
-            return True, None
-
-        # transaction_data_obj = TransactionData(process.id)
-        # if not transaction_data_obj.is_exist_data(db_instance):
-        #     return True, None
-
-        # cat_counts = transaction_data_obj.get_count_by_category(db_instance)
-        # dic_cat_count = {_dic_cat['data_id']: _dic_cat for _dic_cat in cat_counts}
-        dic_db_cols = {col.column_name: col for col in db_columns}  # TODO: Use id
-        for request_column in request_columns:
-            column = dic_db_cols.get(request_column.column_name)
-            if column is None:
-                continue
-
-            # Filter out un-change columns
-            if request_column.data_type == column.data_type:
-                continue
-
-            is_success = self.cast_data_type(
-                db_instance,
-                transaction_data_obj,
-                column.bridge_column_name,
-                request_column.data_type,
-            )
-
-            if not is_success:
-                request_column.origin_raw_data_type = column.data_type
-                failed_change_columns.append(request_column)
-
-            # Must roll back and commit every loop to keep session alive for next loop or process later
-            if failed_change_columns:
-                db_instance.connection.rollback()
-
-        if failed_change_columns:
-            return False, failed_change_columns
-        else:
-            return True, None
-
-    def cast_data_type(
-        self,
-        db_instance,
-        transaction_data_obj,
-        column_name: str,
-        new_data_type: str,
-    ) -> bool:  # TODO: check can update float to int???
-        """
-        Change data type of column in table t_process_...
-        :param db_instance: a database instance
-        :param column_name: a column name
-        :param new_data_type: new data type dict_data_type_db
-        :return: True if success, False otherwise
-        """
-        if column_name == self.getdate_column.bridge_column_name:  # can not update for column get_date
-            return True
-
-        dict_convert_date_type_db_to_pandas = {
-            DataType.INTEGER.name: 'int',
-            DataType.REAL.name: 'float',
-            DataType.TEXT.name: 'string',
-            DataType.DATETIME.name: 'string',
-            DataType.REAL_SEP.name: 'float',
-            DataType.INTEGER_SEP.name: 'float',
-            DataType.EU_REAL_SEP.name: 'float',
-            DataType.EU_INTEGER_SEP.name: 'int',
-            DataType.K_SEP_NULL.name: 'float',
-            DataType.BOOLEAN.name: 'boolean',
-            DataType.DATE.name: 'string',
-            DataType.TIME.name: 'string',
-            DataType.CATEGORY.name: 'int',
-        }
-        distinct_values = transaction_data_obj.select_distinct_data(db_instance, column_name, SQL_LIMIT)
-        series_distinct_value = pd.Series(distinct_values)
-        as_type = dict_convert_date_type_db_to_pandas.get(new_data_type, 'string')
-        try:
-            series_distinct_value.astype(as_type)
-        except Exception as e:
-            logger.error(e)
-            return False
-
-        return True
-
-    def create_data_count_table(self, db_instance, auto_commit: bool = True):
+    def create_data_count_table(self, meta_con: SQLite3, auto_commit: bool = True):
+        # TODO(khanhdq-duckdb): we should use duckdb for this
         dict_col_with_type = DataCountTable.to_dict()
         table_name = self.data_count_table_name
-        if table_name in db_instance.list_tables():
+        if table_name in meta_con.list_tables():
             return table_name
 
         sql = f'CREATE TABLE IF NOT EXISTS {table_name}'
@@ -396,55 +244,50 @@ class TransactionData:
             sql_col += f'{col_name} {data_type}, '
         sql_col = sql_col.rstrip(', ')  # Remove trailing comma and whitespace
         sql = f'{sql} ({sql_col})'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
 
         # index
         col_name = DataCountTable.get_date_col()
         sql = f'CREATE INDEX IF NOT EXISTS idx_{col_name} ON {table_name}({col_name})'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
         return table_name
 
-    def create_import_history_table(self, db_instance, auto_commit: bool = True):
+    def create_import_history_table(self, meta_con: SQLite3, auto_commit: bool = True):
         table_name = self.import_history_table_name
-        if table_name in db_instance.list_tables():
+        if table_name in meta_con.list_tables():
             return table_name
 
         sql = ImportHistoryTable.create_table_sql(self.process_id)
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
 
         sql = ImportHistoryTable.create_index_sql(self.process_id)
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
 
         return table_name
 
-    def create_export_history_table(self, db_instance, auto_commit: bool = True):
+    def create_export_history_table(self, meta_con: SQLite3, auto_commit: bool = True):
         table_name = self.export_history_table_name
-        if table_name in db_instance.list_tables():
+        if table_name in meta_con.list_tables():
             return table_name
 
         sql = ExportHistoryTable.create_table_sql(self.process_id)
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
 
         return table_name
 
-    @staticmethod
-    def vacuum_data(db_instance):
-        db_instance.execute_sql('VACUUM;')
-
-    def clean_data_with_limit_import(self, db_instance, limit: int) -> bool:
+    def clean_data_with_limit_import(self, data_con: DuckDB, meta_con: SQLite3, limit: int) -> int:
         # change created_at to get_date column
         if limit <= 0:
-            return False
-        data_count = db_instance.run_sql(f'SELECT COUNT(ROWID) AS COUNT FROM {self.table_name}')[1][0]['COUNT']
+            return 0
+        data_count = data_con.run_sql(f'SELECT COUNT(ROWID) AS COUNT FROM {self.table_name}').fetchone()[0]
         delete_row = data_count - limit
         if delete_row <= 0:
-            return False
+            return 0
 
         from ap.api.setting_module.services.data_import import (
             gen_bulk_insert_sql,
             get_insert_params,
             get_proc_data_count_df,
-            insert_data,
         )
 
         get_date_column_name = self.getdate_column.bridge_column_name
@@ -458,265 +301,72 @@ class TransactionData:
             )
             RETURNING {get_date_column_name};
         """
+        deleted_records = 0
 
-        cols, rows = db_instance.run_sql(sql)
+        for df in data_con.fetch_many_df(sql):
+            # TODO: this is duplicated code.
+            # TODO: this is inefficient because we returning all the rows from the DELETING.
+            # TODO: this is inefficient because we add a lot of negative rows into data_finder,
+            #   making query to data finder slow.
+            deleted_records += len(df)
+            count_df = get_proc_data_count_df(df, get_date_col=get_date_column_name, decrease=True, is_db=True)
+            agg_keys = {DataCountTable.count.name: 'sum', DataCountTable.count_file.name: 'sum'}
+            aggregated_df = count_df.groupby(DataCountTable.datetime.name).agg(agg_keys).reset_index()
+            sql_vals = aggregated_df.to_records(index=False).tolist()
+            sql_params = get_insert_params(DataCountTable.get_keys())
+            sql_data_count_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(self.process_id), *sql_params)
 
-        # TODO: this is duplicated code.
-        # TODO: this is inefficient because we returning all the rows from the DELETING.
-        # TODO: this is inefficient because we add a lot of negative rows into data_finder,
-        #   making query to data finder slow.
-        df = pd.DataFrame(rows, columns=cols)
-        count_df = get_proc_data_count_df(df, get_date_col=get_date_column_name, decrease=True, is_db=True)
-        agg_keys = {DataCountTable.count.name: 'sum', DataCountTable.count_file.name: 'sum'}
-        aggregated_df = count_df.groupby(DataCountTable.datetime.name).agg(agg_keys).reset_index()
-        sql_vals = aggregated_df.to_records(index=False).tolist()
-        sql_params = get_insert_params(DataCountTable.get_keys())
-        sql_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(self.process_id), *sql_params)
+            meta_con.execute_sql_in_transaction(sql_data_count_insert, sql_vals)
 
-        insert_data(db_instance, sql_insert, sql_vals)
+        return deleted_records
 
-        return True
+    def is_table_exist(self, data_con: DuckDB) -> bool:
+        return self.table_name in data_con.list_tables()
 
-    def __create_sequence_table(self, db_instance):
-        sql = f"""
-            CREATE SEQUENCE IF NOT EXISTS {self.table_name}_id_seq
-            START WITH 1
-            INCREMENT BY 1
-            CACHE {SEQUENCE_CACHE};
-        """
-        db_instance.execute_sql(sql)
-
-    def delete_sequence_table(self, db_instance, table_name: str | None = None, auto_commit: bool = True):
-        table_name = table_name or self.table_name
-        # sql = f'DROP SEQUENCE {self.table_name}_id_seq CASCADE;'
-        sql = f'DROP TABLE IF EXISTS {table_name};'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
-
-    @staticmethod
-    def rename_sequence_table(db_instance, old_table_name: str, new_table_name: str, auto_commit: bool = True):
-        sql = f'ALTER TABLE {old_table_name} RENAME TO {new_table_name};'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
-
-    def rename_column(self, df: DataFrame):
-        df_columns = list(df.columns)
-        rename_columns = self.cfg_process_columns  # column of current version
-        dict_rename_col = dict(zip(df_columns, rename_columns, strict=False))
-        df = df.rename(columns=dict_rename_col)
-        return df
-
-    def add_default_indexes_column(
-        self,
-        set_multiple_indexes: set[MultipleIndexes] | None = None,
-    ) -> set[MultipleIndexes]:
-        set_indexes = set_multiple_indexes or set()
-        # add default index columns
-        data_time = self.getdate_column.bridge_column_name if self.getdate_column else None
-        default_indexes = []
-        if data_time is not None:
-            default_indexes.append(SingleIndex(data_time))
-        add_multiple_indexes_to_set(set_indexes, MultipleIndexes(default_indexes))
-        return set_indexes
-
-    def __get_table_indexes(self, db_instance) -> set[MultipleIndexes]:
-        """Get all index columns of process"""
-        # sql = f'''
-        #     SELECT indexdef
-        #     FROM pg_indexes
-        #     WHERE schemaname = 'public' and tablename = '{self.table_name}'
-        #     ORDER BY indexdef;
-        #     '''
-        sql = f"""
-            SELECT sql
-            FROM sqlite_master
-            WHERE type = 'index' AND tbl_name = '{self.table_name}';
-        """
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        table_indexes: set[MultipleIndexes] = set()
-        for col_dat in rows:
-            multiple_indexes = MultipleIndexes.from_str(col_dat[0])
-            table_indexes.add(multiple_indexes)
-        return table_indexes
-
-    def __get_missing_indexes(self, db_instance, new_link_key_indexes: set[MultipleIndexes]):
-        already_indexes = self.__get_table_indexes(db_instance)
-        return new_link_key_indexes - already_indexes
-
-    def __get_expired_indexes(self, db_instance, link_key_indexes: set[MultipleIndexes]):
-        """Get expired indexes to remove"""
-        already_indexes = self.__get_table_indexes(db_instance)
-        return already_indexes - link_key_indexes
-
-    def __gen_index_col_name(self, index: MultipleIndexes) -> str:
-        """Generate indexes alias name for column"""
-        return index.to_idx(prefix=self.table_name)
-
-    def create_index(self, db_instance, new_link_key_indexes: set[MultipleIndexes], auto_commit: bool = True):
-        """Create composite indexes"""
-        # get missing indexes
-        missing_indexes = self.__get_missing_indexes(db_instance, new_link_key_indexes=new_link_key_indexes)
-        for multiple_indexes in missing_indexes:
-            index_alias = self.__gen_index_col_name(multiple_indexes)
-            sql = f'CREATE INDEX IF NOT EXISTS {index_alias} ON {self.table_name} {multiple_indexes}'
-            db_instance.execute_sql(sql, auto_commit=auto_commit)
-
-        return missing_indexes
-
-    def remove_index(self, db_instance, new_link_key_indexes: set[MultipleIndexes], auto_commit=False):
-        """
-        Remove unused indexes
-        in case of import data, remove before import
-        after that, import data then create indexes again
-        """
-        # retrieve unused indexes
-        expired_indexes = self.__get_expired_indexes(db_instance, link_key_indexes=new_link_key_indexes)
-        # remove unused indexes
+    def get_transaction_columns(self, data_con: DuckDB) -> list[str]:
         try:
-            for multiple_indexes in expired_indexes:
-                # drop index, sub index on partition will be removed too
-                # column is index_alias
-                sql = f'DROP INDEX IF EXISTS {self.__gen_index_col_name(multiple_indexes)};'
-                db_instance.execute_sql(sql)
-            if auto_commit:
-                db_instance.connection.commit()
-        except Exception as e:
-            db_instance.connection.rollback()
-            raise e
+            df = data_con.run_sql(f'PRAGMA table_info({self.table_name});').fetchdf()
+            return df['name'].tolist()
+        except duckdb.CatalogException as e:
+            logger.exception(e)
+            return []
 
-        return expired_indexes
+    def sync_columns_to_transaction(self, data_con: DuckDB):
+        """During importing, we may have new columns when users change cfg_process.
+        We need to:
+        - Add new columns to the table if it is missing
+        - Remove columns that are not in cfg_process
+        """
+        (
+            current_duckdb_types,  # physical columns in transaction table
+            column_types,  # columns in the config
+        ) = data_con.column_types(self.table_name), self.get_cfg_column_types()
 
-    def purge_index(self, db_instance, auto_commit: bool = True):
-        """Force remove all indexes (use for delete column)"""
-        # retrieve unused indexes
-        multiple_indexes = self.__get_link_key_indexes()
-        # remove unused indexes
-        try:
-            for multiple_indexes in multiple_indexes:
-                self.drop_index(db_instance, self.__gen_index_col_name(multiple_indexes), auto_commit=auto_commit)
-        except Exception as e:
-            db_instance.connection.rollback()
-            raise e
+        # add missing columns (column in config, but not in real table)
+        for column_name, data_type in column_types.items():
+            if column_name not in current_duckdb_types:
+                data_con.add_column(self.table_name, column_name, data_type.duckdb_type())
 
-    @staticmethod
-    def drop_index(db_instance, index: str, auto_commit: bool = True):
-        sql = f'DROP INDEX IF EXISTS {index};'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        # remove redundant columns (columns in the real table, but not in the config)
+        for column_name in current_duckdb_types.keys():
+            if column_name not in column_types:
+                data_con.remove_column(self.table_name, column_name)
 
-    def get_indexes_by_column_name(self, db_instance, column_name: str):
-        sql = f"""SELECT name
-FROM sqlite_master
-WHERE type = 'index'
-  and tbl_name = '{self.table_name}'
-  and sql like '%{column_name}%';
-"""
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return [row[0] for row in rows] if rows else []
-
-    def __get_link_key_indexes(self) -> set[MultipleIndexes]:
-        """Get all link_keys of process from CfgTrace"""
-        edges: list[CfgTrace] = CfgTrace.get_traces_of_proc([self.process_id])
-        link_key_indexes: set[MultipleIndexes] = set()
-
-        for trace in edges:
-            # indexes = [SingleIndex(self.getdate_column.bridge_column_name)]
-            indexes = []
-
-            is_swap = trace.self_process_id != self.process_id
-            trace_key: CfgTraceKey
-            for trace_key in trace.trace_keys:
-                self_info = ColumnInfo(
-                    bridge_column_name=trace_key.self_column.bridge_column_name,
-                    column_type=trace_key.self_column.column_type,
-                    data_type=trace_key.self_column.data_type,
-                    substr_from=trace_key.self_column_substr_from,
-                    substr_to=trace_key.self_column_substr_to,
-                )
-
-                target_info = ColumnInfo(
-                    bridge_column_name=trace_key.target_column.bridge_column_name,
-                    column_type=trace_key.target_column.column_type,
-                    data_type=trace_key.target_column.data_type,
-                    substr_from=trace_key.target_column_substr_from,
-                    substr_to=trace_key.target_column_substr_to,
-                )
-
-                if is_swap:
-                    self_info, target_info = target_info, self_info
-
-                # we cast it to substr any way if it's need to
-                if self_info.is_substr_key():
-                    index = self_info.to_substr_index()
-                else:
-                    index_should_be_text = target_info.is_substr_key() or target_info.is_text()
-                    if index_should_be_text and not self_info.is_text():
-                        index = self_info.to_cast_text_index()
-                    else:
-                        index = self_info.to_single_index()
-                indexes.append(index)
-
-            if not indexes:
+        # change column types (columns both exists in config and real table)
+        for column_name, data_type in column_types.items():
+            if column_name not in current_duckdb_types:
                 continue
+            current_duckdb_type = current_duckdb_types.get(column_name)
+            if current_duckdb_type != data_type.duckdb_type():
+                data_con.cast_column_type(self.table_name, column_name, data_type.duckdb_type())
 
-            multiple_indexes = MultipleIndexes(indexes)
-
-            # don't short date_time index, datetime index should always be the first one
-            multiple_indexes.sort_from(start_index=0)
-            add_multiple_indexes_to_set(link_key_indexes, multiple_indexes)
-
-        # add default index columns
-        link_key_indexes = self.add_default_indexes_column(link_key_indexes)
-
-        return link_key_indexes
-
-    def is_table_exist(self, db_instance):
-        sql = f"SELECT name FROM sqlite_master WHERE type = 'table' AND name = '{self.table_name}'"
-        _, row = db_instance.run_sql(sql, row_is_dict=False)
-        return len(row)
-
-    def re_structure_index(self, db_instance):
-        """Restructure index: add new or remove unused index base on cfg_trace"""
-        # check if process table is already existing
-        table_existing = self.is_table_exist(db_instance)
-        if table_existing:
-            new_link_key_indexes = self.__get_link_key_indexes()
-
-            # remove unused indexes
-            self.remove_index(db_instance, new_link_key_indexes=new_link_key_indexes)
-
-            # create (composite) indexes
-            self.create_index(db_instance, new_link_key_indexes=new_link_key_indexes)
-
-    @staticmethod
-    def get_table_columns(db_instance, table_name: str):
-        sql = f'SELECT * FROM {table_name} WHERE 1=2;'
-        exist_columns, _ = db_instance.run_sql(sql)
-        return exist_columns
-
-    @staticmethod
-    def add_columns(db_instance, table_name: str, dict_col_with_type: dict[str, str], auto_commit: bool = True):
-        exist_columns = TransactionData.get_table_columns(db_instance, table_name)
-        for column_name, _data_type in dict_col_with_type.items():
-            if column_name in exist_columns:
-                continue
-
-            data_type = DataType.correct_data_type(_data_type)
-            TransactionData.add_column(db_instance, table_name, column_name, data_type, auto_commit=auto_commit)
-
-    def get_column_name(self, column_id, brs_column_name=True):
+    def get_column_name(self, column_id: int, brs_column_name=True) -> str | None:
         for cfg_process_column in self.cfg_process_columns:
             if cfg_process_column.id == column_id:
                 if brs_column_name:
                     return cfg_process_column.bridge_column_name
                 return cfg_process_column.column_name
-
-    def get_column_id(self, column_name, is_compare_bridge_column_name=True):
-        for cfg_process_column in self.cfg_process_columns:
-            compare_name = (
-                cfg_process_column.bridge_column_name
-                if is_compare_bridge_column_name
-                else cfg_process_column.column_name
-            )
-            if compare_name == column_name:
-                return cfg_process_column.id
+        return None
 
     def get_cfg_column_by_name(self, column_name, is_compare_bridge_column_name=True) -> CfgProcessColumn | None:
         for cfg_process_column in self.cfg_process_columns:
@@ -727,11 +377,7 @@ WHERE type = 'index'
             )
             if compare_name == column_name:
                 return cfg_process_column
-
-    def get_bs_col_name_by_column_name(self, column_name):
-        for cfg_process_column in self.cfg_process_columns:
-            if cfg_process_column.column_name == column_name:
-                return cfg_process_column.bridge_column_name
+        return None
 
     def get_cfg_column_by_id(self, column_id) -> CfgProcessColumn | None:
         for cfg_process_column in self.cfg_process_columns:
@@ -739,166 +385,39 @@ WHERE type = 'index'
                 return cfg_process_column
         return None
 
-    def delete_columns(self, db_instance, column_names: list, auto_commit: bool = True):
-        table = self.table_name
-        exist_columns = self.get_table_columns(db_instance, table)
-        delete_columns = [column_name for column_name in column_names if column_name in exist_columns]
-        if not delete_columns:
-            return
+    def remove_transaction_by_time_range(self, data_con: DuckDB, start_time: dt.datetime, end_time: dt.datetime):
+        # TODO: we should use TimeRange
+        sql = sa.delete(sa.table(self.table_name)).where(
+            sa.column(self.getdate_column.bridge_column_name) >= start_time.strftime(DATE_FORMAT_SQLITE_STR),
+            sa.column(self.getdate_column.bridge_column_name) < end_time.strftime(DATE_FORMAT_SQLITE_STR),
+        )
+        data_con.run_sql(sql)
 
-        # In SQLite, we cannot drop multi columns in one query statement
-        sql = f'ALTER TABLE {table} DROP COLUMN {{}}'
-        for column_name in delete_columns:
-            db_instance.execute_sql(sql.format(column_name), auto_commit=auto_commit)
+    def get_max_date_time_by_process_id(self, data_con: DuckDB) -> dt.datetime | str | None:
+        sql = sa.select(sa.func.max(sa.column(self.getdate_column.bridge_column_name))).select_from(self.table_model)
+        return data_con.run_sql(sql).fetchone()[0]
 
-    def update_data_types(self, db_instance, dict_col_with_type, auto_commit: bool = True):
-        current_dict_col_with_type = get_type_all_columns(db_instance, self.table_name)
-        new_data_types = {}
-        for column_name, data_type in dict_col_with_type.items():
-            current_data_type = current_dict_col_with_type.get(column_name)
-            new_data_type = data_type if data_type != DataType.DATETIME.name else DataType.TEXT.name
-            datetime_col_name = self.getdate_column.bridge_column_name if self.getdate_column else None
-            if (
-                column_name and column_name != datetime_col_name and new_data_type != current_data_type
-            ):  # can not update for column get_date
-                new_data_type = DataType.correct_data_type(new_data_type)
-                new_data_types[column_name] = new_data_type
+    def get_min_date_time_by_process_id(self, data_con: DuckDB) -> dt.datetime | str | None:
+        sql = sa.select(sa.func.min(sa.column(self.getdate_column.bridge_column_name))).select_from(self.table_model)
+        return data_con.run_sql(sql).fetchone()[0]
 
-        if new_data_types:
-            self.purge_index(db_instance, auto_commit=auto_commit)
-            for column_name, new_data_type in new_data_types.items():
-                new_column_name = f'{column_name}_{datetime.now().strftime("%Y%m%d%H%M%S")}'
-                self.add_column(db_instance, self.table_name, new_column_name, new_data_type, auto_commit=auto_commit)
-                self.update_and_cast_date_type(
-                    db_instance,
-                    column_name,
-                    new_column_name,
-                    new_data_type,
-                    auto_commit=auto_commit,
-                )
-                self.delete_columns(db_instance, [column_name], auto_commit=auto_commit)
-                # self.rename_column_name(
-                #     db_instance,
-                #     column_name,
-                #     f'{new_column_name}_1',
-                # )  # TODO: remove if update version sqlite
-                self.rename_column_name(db_instance, new_column_name, column_name, auto_commit=auto_commit)
-            self.create_index(db_instance, self.__get_link_key_indexes())
+    def get_ct_range(self, data_con: DuckDB) -> tuple[dt.datetime | str | None, dt.datetime | str | None]:
+        sql = sa.select(
+            sa.func.min(sa.column(self.getdate_column.bridge_column_name)),
+            sa.func.max(sa.column(self.getdate_column.bridge_column_name)),
+        ).select_from(sa.table(self.table_name))
+        min_time, max_time = data_con.run_sql(sql).fetchone()
+        return min_time, max_time
 
-    @staticmethod
-    def add_column(db_instance, table_name: str, new_column_name: str, data_type: str, auto_commit: bool = True):
-        sql = f"""
-        ALTER TABLE {table_name} ADD COLUMN {new_column_name} {data_type}
-        """
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+    def get_latest_records_by_process_id(self, data_con: DuckDB, limit: int | None = None) -> pd.DataFrame:
+        sql = sa.select(self.table_model).order_by(sa.column(self.getdate_column.bridge_column_name))
+        if limit is not None:
+            sql = sql.limit(limit)
+        return data_con.run_sql(sql).fetchdf()
 
-    def update_and_cast_date_type(
-        self,
-        db_instance,
-        old_column_name,
-        new_column_name,
-        new_data_type,
-        auto_commit: bool = True,
-    ):
-        sql = f'UPDATE {self.table_name} SET {new_column_name} = CAST({old_column_name} AS {new_data_type}) WHERE 1=1'
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
-
-    def rename_column_name(self, db_instance, old_column_name, new_column_name, auto_commit: bool = True):
-        sql = f"""
-        ALTER TABLE {self.table_name} RENAME COLUMN {old_column_name} TO {new_column_name};
-        """
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
-
-    def delete_process(self, db_instance):
-        table_name = self.table_name
-        if table_name in db_instance.list_tables():
-            sql = f'DROP TABLE IF EXISTS {self.table_name};'
-            db_instance.execute_sql(sql)
-            db_instance.connection.commit()
-
-    def remove_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time):
-        sql = f"""
-            DELETE
-            FROM {self.table_name}
-            WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
-                AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
-        """
-        params = [start_time, end_time]
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
-        df = pd.DataFrame(rows, columns=cols, dtype='object')
-        return df
-
-    def get_max_date_time_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3]):
-        max_time = 'max_time'
-        sql = f'SELECT max({self.getdate_column.bridge_column_name}) as {max_time} FROM {self.table_name}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=True)
-        return rows[0].get(max_time)
-
-    def get_min_date_time_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3]):
-        min_time = 'min_time'
-        sql = f'SELECT min({self.getdate_column.bridge_column_name}) as {min_time} FROM {self.table_name}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=True)
-        return rows[0].get(min_time)
-
-    def get_latest_records_by_process_id(self, db_instance: Union[PostgreSQL, SQLite3], limit=5):
-        sql = f'SELECT * FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} LIMIT {limit}'
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return cols, rows
-
-    def get_datetime_value(self, db_instance: Union[PostgreSQL, SQLite3]):
-        sql = f"""SELECT {self.getdate_column.bridge_column_name}
-        FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} DESC"""
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return list(sum(rows, ()))
-
-    def get_column_value_by_id(self, db_instance: Union[PostgreSQL, SQLite3], col_id):
-        col = self.get_cfg_column_by_id(col_id)
-        time_col = self.getdate_column.bridge_column_name
-        sql = f'SELECT {col.bridge_column_name} FROM {self.table_name} ORDER BY {time_col} DESC'
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return list(sum(rows, ()))
-
-    # def get_transaction_distinct_values(
-    #         self,
-    #         db_instance: Union[PostgreSQL, Oracle, MySQL, MSSQLServer],
-    #         cfg_process_col: CfgProcessColumn,
-    #         sql_limit: int = 10000,
-    # ):
-    #     sql = f'''
-    #         SELECT DISTINCT SUB.{cfg_process_col.bridge_column_name}
-    #         FROM (SELECT {cfg_process_col.bridge_column_name}
-    #               FROM {self.table_name}
-    #               LIMIT {sql_limit}) SUB;
-    #     '''
-    #     cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-    #     rows = list(map(lambda x: x[0], rows))
-    #     if cfg_process_col.raw_data_type in [
-    #         RawDataTypeDB.CATEGORY_TEXT.value,
-    #         RawDataTypeDB.CATEGORY_INTEGER.value,
-    #     ]:
-    #         m_column_group = MColumnGroup.get_by_data_ids([cfg_process_col.id])
-    #         if not m_column_group:
-    #             return []
-    #         group_id = m_column_group[0].group_id
-    #         values = []
-    #         for chunk_rows in chunks(rows, THIN_DATA_CHUNK):
-    #             dic_conditions = {
-    #                 SemiMaster.Columns.factor.name: [(SqlComparisonOperator.IN, tuple(chunk_rows))],
-    #                 SemiMaster.Columns.group_id.name: group_id,
-    #             }
-    #             _, _rows = SemiMaster.select_records(
-    #                 db_instance,
-    #                 dic_conditions=dic_conditions,
-    #                 row_is_dict=False,
-    #                 select_cols=[SemiMaster.Columns.value_text.name],
-    #             )
-    #             values.extend(list(map(lambda x: x[0], _rows)))
-    #         rows = values
-    #
-    #     return rows
-
-    @property
+    @cached_property
     def table_model(self) -> sa.Table:
+        # TODO(khanhdq-duckdb): this can be made simpler
         columns = [
             sa.Column(self.id_col_name, sa.Integer),
             sa.Column(self.getdate_column.bridge_column_name, sa.DateTime),
@@ -919,96 +438,89 @@ WHERE type = 'index'
 
         return sa.Table(self.table_name, sa.MetaData(), *columns)
 
-    def update_timezone(self, db_instance, tz_offset):
+    def update_timezone(self, data_con: DuckDB, hour_offset: int):
         col = self.getdate_column.bridge_column_name
-        sql = f"""UPDATE {self.table_name}
-        SET {col} = strftime("{DATE_FORMAT_SQLITE_STR}",DATETIME({col},"{tz_offset}")) || SUBSTR({col},-8) """
-        db_instance.execute_sql(sql)
 
-    def select_distinct_data(self, db_instance, col_name, limit=1000):
-        sql = f'SELECT DISTINCT {col_name} FROM {self.table_name} ORDER BY {col_name} ASC LIMIT {limit}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        vals = [row[0] for row in rows if row[0] is not None]
-        return vals
+        if hour_offset > 0:
+            cast_sql = f'CAST({col} AS TIMESTAMP) + INTERVAL {hour_offset} HOUR'
+        else:
+            cast_sql = f'CAST({col} AS TIMESTAMP) - INTERVAL {-hour_offset} HOUR'
 
-    def select_data(self, db_instance, col_names, limit=1000):
-        cols_str = gen_insert_col_str(col_names)
-        sql = f'SELECT {cols_str} FROM {self.table_name} LIMIT {limit}'
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        vals = sorted({row[0] for row in rows})
-        return vals
-
-    def get_ct_range(self, db_instance):
-        # TODO get from data count for better performance
-        time_col = self.getdate_column.bridge_column_name
-        sql = f'SELECT MIN({time_col}) as min_time, MAX({time_col}) as max_time FROM {self.table_name}'
-        _, rows = db_instance.run_sql(sql, row_is_dict=False)
-        min_time = rows[0][0]
-        max_time = rows[0][1]
-        return min_time, max_time
-
-    def get_all(self, db_instance: Union[PostgreSQL, SQLite3], order_by_time=False):
-        sql = f'SELECT * FROM {self.table_name}'
-        if order_by_time:
-            sql = f'{sql} ORDER BY {self.getdate_column.bridge_column_name}'
-
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        return cols, rows
-
-    def get_all_data_by_chunk(self, db_instance: Union[PostgreSQL, SQLite3], chunk_size=1_000_000):
-        sql = f'SELECT * FROM {self.table_name}'
-        data = db_instance.fetch_many(sql, size=chunk_size)
-        if not data:
-            return None
-
-        yield from data
-
-    def get_transaction_by_time_range(self, db_instance: Union[SQLite3], start_time, end_time, limit=1_000_000):
         sql = f"""
-            SELECT *
-            FROM {self.table_name}
-            WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
-                AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL}
-            LIMIT {limit};
-        """
-        params = [start_time, end_time]
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
-        df = pd.DataFrame(rows, columns=cols, dtype='object')
-        return df
+UPDATE {self.table_name}
+SET {col} = strftime('{DATE_FORMAT_SQLITE_STR}', {cast_sql}) || SUBSTR({col},-8)
+"""
+        data_con.run_sql(sql)
+
+    def select_distinct_data(self, data_con: DuckDB, col_name: str, limit: int = 1000) -> list[Any]:
+        sql = (
+            sa.select(sa.distinct(sa.column(col_name)))
+            .select_from(sa.table(self.table_name))
+            .where(sa.column(col_name).isnot(None))
+            .order_by(sa.column(col_name))
+            .limit(limit)
+        )
+        return data_con.fetch_df(sql)[col_name].dropna().tolist()
+
+    def get_all(self, data_con: DuckDB, order_by_time: bool = False) -> pd.DataFrame:
+        sql = sa.select(sa.literal_column('*')).select_from(sa.table(self.table_name))
+        if order_by_time:
+            sql = sql.order_by(sa.column(self.getdate_column.bridge_column_name))
+        return data_con.run_sql(sql).fetchdf()
+
+    def get_all_data_by_chunk(self, data_con: DuckDB, chunk_size: int = 1_000_000) -> Iterator[pd.DataFrame]:
+        sql = sa.select(sa.literal_column('*')).select_from(sa.table(self.table_name))
+        yield from data_con.fetch_many_df(sql=sql, chunk_size=chunk_size)
+
+    def get_transaction_by_time_range(
+        self, data_con: DuckDB, start_time: dt.datetime, end_time: dt.datetime, limit=1_000_000
+    ) -> pd.DataFrame:
+        sql = (
+            sa.select(sa.literal_column('*'))
+            .select_from(sa.table(self.table_name))
+            .where(
+                sa.column(self.getdate_column.bridge_column_name) >= start_time.strftime(DATE_FORMAT_SQLITE_STR),
+                sa.column(self.getdate_column.bridge_column_name) < end_time.strftime(DATE_FORMAT_SQLITE_STR),
+            )
+            .limit(limit)
+        )
+        return data_con.fetch_df(sql)
 
     def get_data_count_by_time_range(
         self,
-        db_instance: Union[PostgreSQL, SQLite3],
+        data_con: DuckDB,
         start_date=None,
         end_date=None,
     ):
         """
         Get data count from data_count_table_name by time range
         Args:
-            db_instance: DBInstance
+            data_con: DuckDB,
             start_date: datetime
             end_date: datetime
 
         Returns:
             rows: dict
         """
-        sql = f"""
-                    SELECT count(*) as {DataCountTable.count.name}
-                    FROM {self.table_name}
-                    WHERE  {self.getdate_column.bridge_column_name} >= {SQL_PARAM_SYMBOL}
-                        AND {self.getdate_column.bridge_column_name} < {SQL_PARAM_SYMBOL};
-                """
-        params = [start_date, end_date]
-        _, [count, *_] = db_instance.run_sql(sql, params=params)
-        return count
+        sql = (
+            sa.select(sa.func.count(sa.literal_column('*')))
+            .select_from(sa.table(self.table_name))
+            .where(
+                sa.column(self.getdate_column.bridge_column_name) >= start_date,
+                sa.column(self.getdate_column.bridge_column_name) < end_date,
+            )
+        )
+        return data_con.run_sql(sql).fetchone()[0] or 0
 
     def select_data_count(
         self,
-        db_instance: Union[PostgreSQL, SQLite3],
-        start_date=None,
-        end_date=None,
+        meta_con: SQLite3,
+        start_date: str | None = None,
+        end_date: str | None = None,
         count_in_file: bool = False,
     ):
+        # TODO(khanhdq-duckdb): we should use TimeRange
+        # TODO(khanhdq-duckdb): we should store data count table in duckdb for faster query
         datetime_col = DataCountTable.datetime.name
         count_col = DataCountTable.count_file.name if count_in_file else DataCountTable.count.name
         sql = (
@@ -1021,35 +533,31 @@ WHERE type = 'index'
 
         sql += f' GROUP BY {datetime_col}'
 
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False, params=params)
+        cols, rows = meta_con.run_sql(sql, row_is_dict=False, params=params)
         return cols, rows
 
-    def get_all_import_history(self, db_instance) -> list[ImportHistoryTable]:
+    def get_all_import_history(self, meta_con: SQLite3) -> list[ImportHistoryTable]:
         table = ImportHistoryTable.table(self.process_id)
-
-        stmt = table.select().order_by(table.c.job_id)
-
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql)
+        sql = table.select().order_by(table.c.job_id)
+        _, rows = meta_con.run_sql(sql)
         return list(map(ImportHistoryTable.model_validate, rows))
 
-    def get_import_history_last_fatal(self, db_instance) -> list[ImportHistoryTable]:
+    def get_import_history_last_fatal(self, meta_con: SQLite3) -> list[ImportHistoryTable]:
         table = ImportHistoryTable.table(self.process_id)
 
-        stmt = table.select().where(
+        sql = table.select().where(
             sa.and_(
                 table.c.job_id.in_(sa.select(sa.func.max(table.c.job_id))),
                 table.c.status.in_([JobStatus.FATAL.name, JobStatus.PROCESSING.name]),
             ),
         )
 
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params)
+        _, rows = meta_con.run_sql(sql)
         return list(map(ImportHistoryTable.model_validate, rows))
 
     ImportHistoryLatestDone = namedtuple('ImportHistoryLatestDone', ['file_name', 'start_tm', 'imported_row', 'status'])
 
-    def get_import_history_latest_done_files(self, db_instance) -> list[ImportHistoryLatestDone]:
+    def get_import_history_latest_done_files(self, meta_con: SQLite3) -> list[ImportHistoryLatestDone]:
         table = ImportHistoryTable.table(self.process_id)
 
         stmt = (
@@ -1063,11 +571,10 @@ WHERE type = 'index'
             .group_by(table.c.file_name)
         )
 
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params)
+        _, rows = meta_con.run_sql(stmt)
         return [self.ImportHistoryLatestDone(**row) for row in rows]
 
-    def get_import_history_records(self, db_instance, import_type: str) -> list[ImportHistoryTable]:
+    def get_import_history_records(self, meta_con: SQLite3, import_type: str) -> list[ImportHistoryTable]:
         table = ImportHistoryTable.table(self.process_id)
 
         stmt = (
@@ -1081,67 +588,72 @@ WHERE type = 'index'
             .order_by(sa.asc(table.c.created_at))
         )
 
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params)
+        _, rows = meta_con.run_sql(stmt)
         return [ImportHistoryRecord.model_validate(row) for row in rows]
 
-    def get_import_history_first_import(self, db_instance, import_type: str) -> ImportHistoryTable | None:
+    def get_import_history_first_import(self, meta_con: SQLite3, import_type: JobType) -> ImportHistoryTable | None:
         table = ImportHistoryTable.table(self.process_id)
 
         stmt = (
             table.select()
             .where(
                 sa.and_(
-                    table.c.import_type == import_type,
-                    table.c.status.in_([import_type, JobStatus.DONE.name, JobStatus.FAILED.name]),
+                    table.c.import_type == import_type.name,
+                    table.c.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]),
                 ),
             )
             .order_by(sa.asc(table.c.created_at))
             .limit(1)
         )
 
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params)
+        _, rows = meta_con.run_sql(stmt)
         if len(rows):
             return ImportHistoryTable.model_validate(rows[0])
         return None
 
-    def get_import_history_last_import(self, db_instance, import_type):
+    def get_import_history_last_import(self, meta_con: SQLite3, import_type: JobType):
         table = ImportHistoryTable.table(self.process_id)
 
         stmt = (
             table.select()
             .where(
                 sa.and_(
-                    table.c.import_type == import_type,
-                    table.c.status.in_([import_type, JobStatus.DONE.name, JobStatus.FAILED.name]),
+                    table.c.import_type == import_type.name,
+                    table.c.status.in_([JobStatus.DONE.name, JobStatus.FAILED.name]),
                 ),
             )
             .order_by(sa.desc(table.c.created_at))
             .limit(1)
         )
 
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params)
+        _, rows = meta_con.run_sql(stmt)
         if len(rows):
             return ImportHistoryTable.model_validate(rows[0])
         return None
 
-    def get_import_history_error_jobs(self, db_instance, job_id):
-        table_name = self.import_history_table_name
-        sql = f' SELECT * FROM {table_name} WHERE job_id = {SQL_PARAM_SYMBOL} AND status != {SQL_PARAM_SYMBOL}'
-        params = [job_id, JobStatus.DONE.name]
-        _, data = db_instance.run_sql(sql, params=params)
+    def get_import_history_error_jobs(self, meta_con: SQLite3, job_id: str):
+        sql = (
+            sa.select(sa.literal_column('*'))
+            .select_from(sa.table(self.import_history_table_name))
+            .where(
+                sa.column('job_id') == job_id,
+                sa.column('status') != JobStatus.DONE.name,
+            )
+        )
+        _, data = meta_con.run_sql(sql)
         return data
 
-    def get_total_imported_row(self, db_instance, import_type):
-        table_name = self.import_history_table_name
-        sql = f' SELECT SUM(imported_row) AS total FROM {table_name} WHERE import_type = {SQL_PARAM_SYMBOL}'
-        params = [import_type]
-        _, data = db_instance.run_sql(sql, params=params)
+    def get_total_imported_row(self, meta_con: SQLite3, import_type: JobType) -> int:
+        sql = (
+            sa.select(sa.func.sum(sa.column('imported_row')).label('total'))
+            .select_from(sa.table(self.import_history_table_name))
+            .where(sa.column('import_type') == import_type.name)
+        )
+        _, data = meta_con.run_sql(sql)
         return data[0]['total'] or 0
 
-    def get_sample_data(self, db_instance: Union[SQLite3], columns: list, limit=5) -> pd.DataFrame:
+    def get_sample_data(self, data_con: DuckDB, columns: list[CfgProcessColumn], limit=5) -> pd.DataFrame:
+        # TODO: remove this, use comon methods
         """
         Get sample data for process link purpose
         return df with column name are cfg_process_column's id
@@ -1155,12 +667,26 @@ WHERE type = 'index'
             ORDER BY {self.getdate_column.bridge_column_name} DESC
             LIMIT {limit};
         """
-        cols, rows = db_instance.run_sql(sql, row_is_dict=False)
-        df = pd.DataFrame(rows, columns=cols, dtype='object')
-        return df
+        return data_con.run_sql(sql).fetchdf()
 
-    def get_cols_with_types(self):
-        return {column.bridge_column_name: column.data_type for column in self.cfg_process_columns}
+    def get_cfg_column_types(self) -> dict[str, DataType]:
+        """Get physical columns types"""
+        return {
+            column.bridge_column_name: DataType[column.data_type]
+            for column in self.cfg_process_columns
+            if column.is_transaction_column
+        }
+
+    def get_column_value_by_id(self, data_con: DuckDB, col_id):
+        col = self.get_cfg_column_by_id(col_id)
+        time_col = self.getdate_column.bridge_column_name
+        sql = f'SELECT {col.bridge_column_name} FROM {self.table_name} ORDER BY {time_col} DESC;'
+        return data_con.run_sql(sql).fetch_df()[col.bridge_column_name].dropna().tolist()
+
+    def get_datetime_value(self, data_con: DuckDB):
+        sql = f"""SELECT {self.getdate_column.bridge_column_name}
+        FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} DESC"""
+        return data_con.run_sql(sql).fetch_df()[self.getdate_column.bridge_column_name].dropna().tolist()
 
 
 class DataCountTable(BaseEnum):
@@ -1311,13 +837,12 @@ class ImportHistoryTable(BaseModel):
     @classmethod
     def get_import_history(cls, process_id: int) -> ImportHistoryRecord | None:
         table = cls.table(process_id)
-        stmt = sa.select(
+        sql = sa.select(
             sa.func.min(table.c.import_from).label('import_from'),
             sa.func.max(table.c.import_to).label('import_to'),
         ).select_from(table)
-        sql, params = gen_sql_and_params(stmt)
-        with DbProxy(gen_data_source_of_universal_db(process_id), True) as db_instance:
-            _, rows = db_instance.run_sql(sql)
+        with TxnMetaConnection(process_id=process_id) as meta_con:
+            _, rows = meta_con.run_sql(sql)
         output = ImportHistoryRecord.model_validate(rows[0]) if rows and rows[0]['import_from'] is not None else None
 
         return output
@@ -1398,26 +923,23 @@ class PullHistoryTable:
         return sqlite3_compiled_stmt.string
 
     @classmethod
-    def create_table(cls, db_instance, process_id: int, auto_commit: bool = True):
+    def create_table(cls, meta_con: SQLite3, process_id: int, auto_commit: bool = True):
         table_name = cls.get_table_name(process_id)
-        if table_name in db_instance.list_tables():
+        if table_name in meta_con.list_tables():
             return table_name
 
         sql = cls.create_table_sql(process_id)
-        db_instance.execute_sql(sql, auto_commit=auto_commit)
+        meta_con.execute_sql(sql, auto_commit=auto_commit)
 
         return table_name
 
     @classmethod
-    def get(cls, db_instance, process_id: int) -> PullHistoryRecord | None:
-        table = cls.table(process_id)
-        stmt = table.select()
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql)
+    def get(cls, meta_con: SQLite3, process_id: int) -> PullHistoryRecord | None:
+        _, rows = meta_con.run_sql(sa.select(cls.table(process_id)))
         return next(map(PullHistoryRecord.model_validate, rows), PullHistoryRecord(pull_from=None, pull_to=None))
 
     @classmethod
-    def set(cls, db_instance, process_id: int, record: PullHistoryRecord):
+    def set(cls, meta_con: SQLite3, process_id: int, record: PullHistoryRecord):
         table = cls.table(process_id)
         upsert_stmt = sa.sql.text(
             f"""
@@ -1426,8 +948,7 @@ INSERT OR REPLACE INTO {table.name}
 (:{table.c.id.name}, :{table.c.pull_from.name}, :{table.c.pull_to.name})
 """
         ).bindparams(id=record.id, pull_from=record.pull_from, pull_to=record.pull_to)
-        sql, params = gen_sql_and_params(upsert_stmt)
-        db_instance.run_sql(sql, params=params)
+        meta_con.run_sql(upsert_stmt)
 
 
 class ExportHistoryRecord(BaseModel):
@@ -1492,21 +1013,19 @@ class ExportHistoryTable:
         )
 
     @classmethod
-    def insert(cls, db_instance, proc_id: int, record: ExportHistoryRecord):
+    def insert(cls, meta_con: SQLite3, proc_id: int, record: ExportHistoryRecord):
         table = cls.table(proc_id)
         stmt = table.insert().values(**record.model_dump())
-        sql, params = gen_sql_and_params(stmt)
-        db_instance.run_sql(sql, params=params)
+        meta_con.run_sql(stmt)
 
     @classmethod
-    def exported_range(cls, db_instance, proc_id: int, export_id: int) -> TimeRange:
+    def exported_range(cls, meta_con: SQLite3, proc_id: int, export_id: int) -> TimeRange:
         """Get the maximum export to from export history table"""
         table = cls.table(proc_id)
         stmt = sa.select(sa.func.min(table.c.export_from), sa.func.max(table.c.export_to)).where(
             table.c.export_id == export_id
         )
-        sql, params = gen_sql_and_params(stmt)
-        _, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
+        _, rows = meta_con.run_sql(stmt, row_is_dict=False)
         min_ts, max_ts = rows[0]
         return TimeRange(min=Bound.included(min_ts), max=Bound.included(max_ts))
 
@@ -1516,3 +1035,14 @@ class ExportHistoryTable:
         create_table_stmt = CreateTable(table, if_not_exists=True)
         sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_table_stmt)
         return sqlite3_compiled_stmt.string
+
+
+def create_all_transaction_tables():
+    processes: list[CfgProcess] = CfgProcess.get_all()
+    for process in processes:
+        with (
+            TxnMetaConnection(process_id=process.id) as meta_conn,
+            TxnDataConnection(process_id=process.id, readonly_transaction=False) as data_con,
+        ):
+            trans = TransactionData(process)
+            trans.create_table(data_con, meta_conn)

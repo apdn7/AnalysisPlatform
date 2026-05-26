@@ -34,7 +34,7 @@ const saveLabelStateInLocalStorage = () => {
 const filterProcessConfigPlain = (procConfigsList) => {
     const procConfigs = {};
     for (let procConfig of procConfigsList) {
-        if (isShowAllLabels()) {
+        if (isShowAllLabelsInUse()) {
             procConfigs[procConfig.id] = procConfig;
         } else if (procConfig.labels.filter((label) => labelState[label.name]).length > 0) {
             procConfigs[procConfig.id] = procConfig;
@@ -46,13 +46,17 @@ const filterProcessConfigPlain = (procConfigsList) => {
 const filterTraceProcessConfig = (procConfigsList) => {
     return procConfigsList.map((procConfig) => {
         const newProcConfig = { ...procConfig, hidden: true };
-        if (isShowAllLabels()) {
+        if (isShowAllLabelsInUse()) {
             newProcConfig.hidden = false;
         } else if (newProcConfig.labels.filter((label) => labelState[label.name]).length > 0) {
             newProcConfig.hidden = false;
         }
         return newProcConfig;
     });
+};
+
+const getInUseLabelsFromDb = async () => {
+    return await fetchData('/ap/api/setting/labels_in_use', {}, 'GET');
 };
 
 const getAllLabelsFromDb = async () => {
@@ -64,8 +68,8 @@ const getAllLabelsFromDb = async () => {
  * @returns {Promise<void>}
  */
 
-const showAllLabels = async () => {
-    const labels = await getAllLabelsFromDb();
+const showAllLabelsInUse = async () => {
+    const labels = await getInUseLabelsFromDb();
     labelState = getLabelStateFromLocalStorage();
     removeUnusedLabels(labels);
     const labelList = $(labelElements.processLabelList);
@@ -90,7 +94,7 @@ const showAllLabels = async () => {
 
         toggleClassActiveLabel(target);
         const isActive = $(target).hasClass('active');
-        const otherLabels = $(`.process-label[data-name=${label}]`);
+        const otherLabels = $(`.process-label[data-name="${label}"]`);
         otherLabels.toggleClass('active', isActive);
         labelState[label] = isActive;
 
@@ -183,7 +187,7 @@ const filterListOfProcessInTable = () => {
  * @description LabelState have and all labels are false -> show all
  * @returns {boolean}
  */
-const isShowAllLabels = () => {
+const isShowAllLabelsInUse = () => {
     const labelState = getLabelStateFromLocalStorage();
     return !Object.keys(labelState).length || Object.values(labelState).every((v) => !v);
 };
@@ -201,6 +205,12 @@ const removeUnusedLabels = (labels) => {
     }
 };
 
+/**
+ * @description Update options of select after filter labels
+ * @param processSelectorId if none get all select has class .process-selector
+ * @param processConfigs list of process configs
+ */
+
 const updateProcessListAfterFilter = (processSelectorId = '', processConfigs) => {
     const selectors = processSelectorId ? $(`#${processSelectorId}`) : $('.process-selector');
 
@@ -213,7 +223,6 @@ const updateProcessListAfterFilter = (processSelectorId = '', processConfigs) =>
             noDataLinkOptionEl.length > 0 ? `<option value="0">${noDataLinkOptionEl[0].text}</option>` : null;
         const endProcs = genProcessDropdownData(processConfigs);
         const options = genProcessSelectOptions(endProcs.ids, endProcs.names, noDataLinkOption);
-
         // update filtered option values
         _thisSelector.empty().append(options);
         _thisSelector.val(currentValue);
@@ -224,6 +233,7 @@ const updateProcessListAfterFilter = (processSelectorId = '', processConfigs) =>
             _thisSelector.parents('.cond-proc').find('.list-item').remove();
         }
     });
+    updateSelectedItems();
 };
 
 const sendDataGAWhenClickFilterButton = (filterButtonPosition = '') => {
@@ -241,7 +251,7 @@ const sendDataGAWhenClickFilterButton = (filterButtonPosition = '') => {
 };
 
 $(() => {
-    showAllLabels();
+    showAllLabelsInUse();
 
     $('.filter-label-btn-event').on('click', (e) => {
         const position = e.currentTarget.getAttribute('data-position');

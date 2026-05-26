@@ -217,6 +217,7 @@ msgstr "Naziv procesa"
 msgid "Table Name"
 msgstr "Naziv stola"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Detalj"
@@ -566,18 +567,23 @@ msgstr "Y-osi raspon: max"
 msgid "Part No"
 msgstr "Dio ne"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "završiti sa"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Početi sa"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like pretraživanje)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Složiti se"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Redovni izrazi"
 
@@ -842,6 +848,7 @@ msgstr "Djelomični meč"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Nevažeća selekcija znamenke"
 
@@ -849,33 +856,43 @@ msgstr "Nevažeća selekcija znamenke"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "Duljina znaka koja se koristi za povezivanje je drugačija."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Bez filtera"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Sve crte"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "situacija"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Lista posla"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "svi"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Uvoz završen."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Uvoz"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Neuspjelo uvoz"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "Učitani podaci će se izbrisati. Je li u redu? (Ne odražava se promjena "
 "dok se ne pritisne gumb za registraciju)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Lista posla"
 
@@ -890,54 +908,71 @@ msgstr "Lista posla"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "Id posla"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Naziv posla"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Generacija povezanogID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Posao generiranja za prikaz ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Podaci o uvozu"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Uvoz prošlih tvorničkih podataka"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Pokažite uvoz posla prošlih tvorničkih podataka"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Uvoz podataka"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Izbrišite stare podatke"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Vrijeme početka"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "Proteklo vrijeme"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Baza podataka/CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Napredak"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Postupak"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Popis histograma"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Registrirajte se kao vrijednost epidemije"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Neregistriran"
 
@@ -961,24 +996,31 @@ msgstr "Prikaži popis histograma"
 msgid "Last update time"
 msgstr "Posljednje vrijeme ažuriranja"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Otkazana je registracija nadležnosti."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Registriran kao vanjski"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Vanjski"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Samo jednom"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Pojedinosti o poslu"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Kopirati u međuspremnik"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Višestruko raspršivanje"
 
@@ -1015,9 +1057,11 @@ msgstr "Kategorička varijabla"
 msgid "Stratify by term"
 msgstr "Stratify po terminu (izravno)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Otkrivanje anomalije"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Ocjena glavne komponente podataka o testiranju podataka"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Ocjena glavne komponente podataka o treningu"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Serijski grafikon T2 statistike"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Serijski grafikon Q statistike"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. SLOBON PRIJAVE T2 Statistike"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Shema doprinosa Q statistike"
 
@@ -1460,6 +1510,7 @@ msgstr "Kvaliteta podataka"
 msgid "Viewer"
 msgstr "Gledatelj"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Uvoz podataka"
 
@@ -1467,9 +1518,11 @@ msgstr "Uvoz podataka"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Naziv izvora podataka"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Vrsta izvora podataka"
 
@@ -1477,9 +1530,11 @@ msgstr "Vrsta izvora podataka"
 msgid "Do you want to save changes?"
 msgstr "Jeste li sigurni da spremate promjene?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Prisilne OS informacije o postavkama vremenske zone."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Napredne postavke"
 
@@ -1532,6 +1587,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "Sav posao je zaustavljen. Možete sigurno zatvoriti preglednik i konzolu."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1541,6 +1597,7 @@ msgstr "Konfiguriranje izvora podataka"
 msgid "Data Source Import Config"
 msgstr "Konfiguriranje izvora izvora podataka"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1548,15 +1605,19 @@ msgstr ""
 ": Stupci su pronašli nekoliko stupaca znakova. Provjerite je li stupac "
 "numeričkog tipa itd. Može se pogrešno prepoznati."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Predmet filtra"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Vrijednost filtra"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Datum isteka (početak)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Datum isteka (kraj)"
 
@@ -1622,9 +1683,11 @@ msgstr "Interval"
 msgid "Window length"
 msgstr "Dužina prozora"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Tip"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Ime"
 
@@ -1696,9 +1759,11 @@ msgstr "Filter Config"
 msgid "Master Config"
 msgstr "Master Config"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "Iz filtra config"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Pokaži sve"
 
@@ -1747,34 +1812,41 @@ msgstr ""
 "normalni podaci (T2/Q). Ako imate drugačiju situaciju, možete provjeriti "
 "glavne čimbenike na parceli doprinosa."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Stratificirani filter kategorije: Ograničava podatke koji se prikazuju na"
 " podskupinu. (Kategorija: Broj dijela, stanica br., Itd.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Varijable kategorija (kao što su broj dijela, stanica br., Itd.) "
 "Prikazane su kao naljepnice na vrhu parcela kako bi se pronašli "
 "promjenjivi bodovi."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Grafički filter: Ograničava podatke koji se prikazuju na podskupinu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Postavite podatke o učenju koji se tumače kao normalna situacija. "
 "Postavite odjeljak podataka koji ne sadrži NG podataka. Ako su uključeni,"
 " oni koji su bliski podacima NG također se ocjenjuju kao normalni podaci."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Postavite testne podatke koji će se ocjenjivati."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Filter predmeta: Ograniči podatke (analizirati i prikazati) koji će se "
 "prikazati u podskupinu."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1783,6 +1855,7 @@ msgstr ""
 "glavnim komponentama) višedimenzionalnih podataka o provjeri. Ako su "
 "podaci u središtu, mogu se tumačiti kao blizu normalno."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1792,6 +1865,7 @@ msgstr ""
 "cilj određuje se podacima učenja, tako da bi većina podataka o učenju "
 "trebala biti u cilju."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1803,6 +1877,7 @@ msgstr ""
 " Kliknite točku Data da biste vidjeli crtež doprinosa koji elementi čine "
 "situaciju."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1814,6 +1889,7 @@ msgstr ""
 " Kliknite točku Data da biste vidjeli crtež doprinosa koji elementi čine "
 "situaciju."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1822,6 +1898,7 @@ msgstr ""
 "statističkoj ploči. Što je duljina duljina, to je vjerojatnije da je "
 "uzrok."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2078,6 +2155,7 @@ msgstr ""
 "Odbacuje trenutno postavljeni uvjet povezivanja podataka i poziva "
 "prethodno registrirano stanje."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2546,9 +2624,11 @@ msgstr "Način postavljanja"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Broj stavki podataka koje se ne mogu povezati"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Zaplet raspršivanja"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "konturom"
 

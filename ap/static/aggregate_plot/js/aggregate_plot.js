@@ -56,6 +56,8 @@ const i18n = {
     outlier: $('#i18nOutlierVal').text(),
     graphCfg: $('#i18nSettingScale').text(),
     thresholdCfg: $('#i18nThresholdLine').text(),
+    overUniqueLimit: $('#i18nOverUniqueLimitWarning').text(),
+    overUniqueLimitRequest: $('#i18nOverUniqueLimitRequest').text(),
 };
 
 const formElements = {
@@ -372,6 +374,12 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         useDivFromTo = [...divFromTo];
 
         drawAGP(res, scaleOption.xAxisOrder, scaleOption.yScale, yAxisDisplayMode, true);
+
+        // show warning in case of div nuniques > 128
+        if (!res.safety_div_unique) {
+            const warningMsg = `${i18n.overUniqueLimit}.\r\n${i18n.overUniqueLimitRequest}`;
+            showToastrMsg(warningMsg);
+        }
 
         // show info table
         showInfoTable(res);

@@ -1,10 +1,7 @@
-import logging
 from collections.abc import Iterable
 
 from ap.common.cache.jobs import CacheJobs
 from ap.common.memoize import OptionalCacheConfig
-
-logger = logging.getLogger(__name__)
 
 
 class CacheHandler(CacheJobs):

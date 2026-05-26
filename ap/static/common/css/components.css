@@ -1,6 +1,7 @@
 .grouplist-checkbox-with-search {
     max-height: 150px;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .grouplist-checkbox-with-search.disable-max-height {

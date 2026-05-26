@@ -64,13 +64,13 @@ class JudgeFormula(ConversionFormula):
         """Convert raw values to judge values (1, 0, NA) by defined rule.
 
         1. In a normal case that defined positive value is NOT pd.NA, then convert
-           - 1 for positive values.
-           - 0 for other values (except pd.NA).
+           - True for positive values.
+           - False for other values (except pd.NA).
            - pd.NA for None values.
 
         2. In 2025-10-13, we add a new judge rule that allows using pd.NA as a positive value, it means
-           - 1 for pd.NA values.
-           - 0 for other values (except pd.NA).
+           - True for pd.NA values.
+           - False for other values (except pd.NA).
         """
         if self.positive in JUDGE_NA_VALUES:
             is_positive = series.isna()
@@ -79,15 +79,17 @@ class JudgeFormula(ConversionFormula):
             is_positive = series == self.positive
             is_negative = ~series.isna() & ~is_positive
 
-        result_series = pd.Series(pd.NA, index=series.index, dtype=pd.Int8Dtype())
-        result_series[is_positive] = 1
-        result_series[is_negative] = 0
+        result_series = pd.Series(pd.NA, index=series.index, dtype=pd.BooleanDtype())
+        result_series[is_positive] = True
+        result_series[is_negative] = False
 
         return result_series
 
     def revert(self, series: pd.Series) -> pd.Series:
-        series = series.astype('object')
-        return series.replace({1: self.positive_display, 0: self.negative_display})
+        result_series = pd.Series(pd.NA, index=series.index, dtype=pd.StringDtype())
+        result_series[series] = self.positive_display
+        result_series[~series.isna() & ~series] = self.negative_display
+        return result_series
 
     @override
     @classmethod

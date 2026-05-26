@@ -1,16 +1,17 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 import re
 import time
 from contextlib import suppress
 from itertools import islice
+from typing import Any
 
 import numpy as np
 import pandas as pd
 from flask_babel import get_locale
+from loguru import logger
 
 from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter, df_transform
 from ap.api.setting_module.services.csv_import import (
@@ -75,8 +76,7 @@ from ap.common.constants import (
     MasterDBType,
     ProcessColumnConst,
 )
-from ap.common.cryptography_utils import decrypt_pwd
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.path_utils import (
     check_exist,
@@ -87,8 +87,8 @@ from ap.common.path_utils import (
     make_dir_from_file_path,
 )
 from ap.common.pydn.dblib import mssqlserver, oracle
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import (
     check_exception_case,
@@ -130,8 +130,6 @@ from ap.setting_module.models import (
 from ap.setting_module.schemas import VisualizationSchema
 from ap.setting_module.services.process_config import get_process_columns
 from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 
 def get_latest_records(
@@ -249,7 +247,7 @@ def get_latest_records(
         web_api = WebAPI(
             api_url,
             username=data_source.web_detail.username,
-            password=decrypt_pwd(data_source.web_detail.password),
+            encrypted_password=data_source.web_detail.password,
             authentication_type=authentication_type,
         )
         api_data = web_api.get_data(limit=DATA_TYPE_ESTIMATION_LIMIT)
@@ -383,6 +381,8 @@ def get_latest_records(
                     df_unique_sample_processing[col],
                 )
                 if data_type_by_cols[col] == DataType.INTEGER.name:
+                    # TODO: this line always emit errors if our data has empty string!!!!
+                    # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/138
                     df_rows[col] = df_rows[col].astype('float64').astype('Int64')
 
                 if data_type_by_cols[col] == DataType.TEXT.name:
@@ -602,15 +602,15 @@ def get_info_from_db_software_workshop(
 
 
 @log_execution_time()
-def get_last_distinct_sensor_values(cfg_col_id):
+def get_last_distinct_sensor_values(cfg_col_id: int) -> list[Any]:
     cfg_col: CfgProcessColumn = CfgProcessColumn.query.get(cfg_col_id)
     trans_data = TransactionData(cfg_col.process_id)
     if len(cfg_col.function_details):  # in db not save data of function column
         return []
 
     col_name = cfg_col.bridge_column_name
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(cfg_col.process_id), is_universal_db=True) as db_instance:
-        unique_sensor_vals = trans_data.select_distinct_data(db_instance, col_name, limit=1000)
+    with TxnDataConnection(process_id=cfg_col.process_id, readonly_transaction=True) as data_con:
+        unique_sensor_vals = trans_data.select_distinct_data(data_con, col_name)
 
     return unique_sensor_vals
 
@@ -1922,6 +1922,6 @@ def check_datasource_connection(data_source: CfgDataSource):
             raise FileNotFoundError('File not found')
         return connection_result
     else:
-        db_instance = DbProxy(data_source)
+        db_instance = ReadOnlyDbProxy(data_source)
         connection_result = db_instance.check_db_connection(data_source)
         return connection_result

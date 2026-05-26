@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from pathlib import Path
@@ -15,12 +14,10 @@ from ap.common.common_utils import (
     TimeRange,
     get_data_path,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.pydn.dblib.snowflake import Snowflake
 from ap.etl.pull.common import PullBase, PullDataType
-from ap.setting_module.models import CfgProcess
-
-logger = logging.getLogger(__name__)
+from ap.setting_module.models import CfgProcess, JobManagement
 
 
 class PullSoftwareWorkshop(PullBase, ABC):
@@ -91,10 +88,7 @@ class PullSoftwareWorkshop(PullBase, ABC):
         cols, ret = factory_db_instance.run_sql(sql, row_is_dict=False)
         self.save_meta_data(ret, cols, PullDataType.CODE)
 
-    def pull_data(
-        self,
-        factory_db_instance: Snowflake,
-    ):
+    def pull_data(self, factory_db_instance: Snowflake, job_management: JobManagement):
         self.pull_master_data(
             factory_db_instance=factory_db_instance,
         )
@@ -103,6 +97,7 @@ class PullSoftwareWorkshop(PullBase, ABC):
         )
         super().pull_data(
             factory_db_instance=factory_db_instance,
+            job_management=job_management,
         )
 
     @log_execution_time()
@@ -129,12 +124,12 @@ class PullSoftwareWorkshop(PullBase, ABC):
 
     @log_execution_time()
     def save_transaction_data(
-        self,
-        data: Union[list[tuple], list[dict]],
-        columns: list[str],
+        self, data: Union[list[tuple], list[dict]], columns: list[str], job_management: JobManagement
     ):
         df = pd.DataFrame(data, columns=columns)
         group_cols = [self.software_workshop_def().child_equip_id]
         for (child_equip_id, *_), process_df in df.groupby(by=group_cols, dropna=False, sort=False):
             process: CfgProcess = next(filter(lambda x: x.process_factid == child_equip_id, self.processes))
+            pull_target = next(target for target in job_management.info.pull_targets if target.process_id == process.id)
+            pull_target.imported_records = len(process_df)
             self.save_transaction_data_for_one_process(process_df, process)

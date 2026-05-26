@@ -2,9 +2,10 @@ from types import SimpleNamespace
 from typing import Any
 
 import pandas as pd
+from loguru import logger
 
-from ap import logger
 from ap.common.common_utils import WebAuthenticationType
+from ap.common.cryptography_utils import decrypt_pwd
 from ap.etl.extract.web_api import WebApiExtractor
 from ap.etl.transform import TransformData
 from ap.etl.transform.web_api import WebAPITransformer
@@ -17,12 +18,12 @@ class WebAPI:
         self,
         api_url,
         username: str | None = None,
-        password: str | None = None,
+        encrypted_password: str | None = None,
         authentication_type: WebAuthenticationType = WebAuthenticationType.NONE,
     ) -> None:
         self.api_url = api_url
         self.username = username
-        self.password = password
+        self.password = decrypt_pwd(encrypted_password)
         self.authentication_type = authentication_type
         self.extractor = WebApiExtractor(
             api_url=self.api_url,

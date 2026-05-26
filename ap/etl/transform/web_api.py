@@ -1,10 +1,6 @@
-import logging
-
 import pandas as pd
 
 from ap.etl.transform import BaseTransformer, TransformData
-
-logger = logging.getLogger(__name__)
 
 
 class WebAPITransformer(BaseTransformer):

@@ -337,6 +337,18 @@ const getProcInfo = async (procId) => {
 
             // date time format
             initDatetimeFormatCheckboxAndInput();
+
+            // toggle dropdown and file input
+            if (DB_CONFIG_CSV_TYPES.includes(res.tables.ds_type.toLowerCase())) {
+                $(procModalElements.fileInputPreview).show();
+                $(procModalElements.grTableDropdown).hide();
+            } else if (res.tables.ds_type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type) {
+                $(procModalElements.fileInputPreview).hide();
+                $(procModalElements.grTableDropdown).hide();
+            } else if (res.tables.tables.length) {
+                $(procModalElements.fileInputPreview).hide();
+                $(procModalElements.grTableDropdown).show();
+            }
         },
     });
 };
@@ -634,11 +646,11 @@ const addProcToTable = ({
     const $procTable = $(procElements.tableProcList);
     if (!$procTable.find(`#proc_${procId}`).length) {
         $procTable.append(newRecord);
-        const showAllLabels = isShowAllLabels();
+        const showAllLabelsInUse = isShowAllLabelsInUse();
         if (labels.length > 0) {
             labels.forEach((label) => {
                 addLabelIfNotExist(label.name);
-                if (!showAllLabels) {
+                if (!showAllLabelsInUse) {
                     activateLabel(label.name);
                 }
             });
@@ -774,11 +786,11 @@ const addDisabledProcToTable = (
     const $procTable = $(procElements.tableProcList);
     if (!$procTable.find(`#proc_${procId}`).length) {
         $procTable.append(newRecord);
-        const showAllLabels = isShowAllLabels();
+        const showAllLabelsInUse = isShowAllLabelsInUse();
         if (labels.length > 0) {
             labels.forEach((label) => {
                 addLabelIfNotExist(label.name);
-                if (!showAllLabels) {
+                if (!showAllLabelsInUse) {
                     activateLabel(label.name);
                 }
             });

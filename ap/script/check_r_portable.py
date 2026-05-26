@@ -3,11 +3,12 @@ import shutil
 import time
 import traceback
 
-import logging
 
-logger = logging.getLogger(__name__)
 
-from ap import get_basic_yaml_obj, log_execution_time
+from ap.common.log import log_execution_time
+
+from loguru import logger
+
 from ap.common.common_utils import resource_path
 from ap.common.constants import AbsPath, R_PORTABLE, YAML_INFO, YAML_R_PATH, R_LIB_VERSION
 
@@ -78,9 +79,7 @@ def should_update_r(source_dir, dest_dir):
 
 
 @log_execution_time()
-def check_and_copy_r_portable():
-    basic_config_yaml = get_basic_yaml_obj()
-    source = basic_config_yaml.get_node([YAML_INFO, YAML_R_PATH])
+def check_and_copy_r_portable(source: str | None):
     if not source:
         return
 

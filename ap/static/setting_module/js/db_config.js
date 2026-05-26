@@ -270,7 +270,7 @@ const checkFolderResources = async (folderUrl, originFolderUrl) => {
     });
 };
 
-const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = false) => {
+const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true) => {
     $(csvResourceElements.fileName).text(res.file_name);
     $(`${csvResourceElements.dataTbl} table thead tr`).html('');
     $(`${csvResourceElements.dataTbl} table tbody`).html('');
@@ -283,6 +283,7 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
         $(csvResourceElements.dummyHeaderModalMsg).text($(i18nDBCfg.partialDummyHeader).text());
         $(csvResourceElements.dummyHeaderModal).modal('show');
     }
+    const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
     let hasDuplCols = false;
     const predictedDatatypes = res.dataType;
     const dummyDatetimeIdx = res.dummy_datetime_idx;
@@ -324,11 +325,12 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true, isV2 = fal
     $(csvResourceElements.skipTail).val(res.skip_tail);
     $(csvResourceElements.isFileChecker).val(res.is_file_checker);
     $(`${csvResourceElements.dataTbl}`).show();
-    updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
-    if (!isV2 && res.file_name && hasDT && ((res.has_dupl_cols && useSuffix) || !res.has_dupl_cols)) {
-        // if show preview table ok, enable submit button
-        $('button.saveDBInfoBtn[data-csv="1"]').removeAttr('disabled');
-        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
+    if (!isV2) {
+        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
+        if (res.file_name && hasDT && ((res.has_dupl_cols && useSuffix) || !res.has_dupl_cols)) {
+            // if show preview table ok, enable submit button
+            updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
+        }
     }
     // show message in case of has duplicated cols
     if (hasDuplCols) {
@@ -469,7 +471,7 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
                 showDuplColModal();
                 latestRecords = res;
             } else {
-                showLatestRecordsFromDS(res, true, true, !!res.v2_processes);
+                showLatestRecordsFromDS(res, true, true);
             }
 
             if (isV2 && res.is_process_null) {
@@ -480,45 +482,8 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
             if (res.v2_processes && res.v2_processes.length) {
                 const v2ProcessList = res.v2_processes;
                 const v2ProcessShownNameList = res.v2_processes_shown_name || res.v2_processes;
-                const initSelectedProcessesVal = getCheckedV2Processes();
 
                 addProcessList(v2ProcessList, v2ProcessShownNameList);
-
-                // add list and check the checkbox
-                $('input[name="v2Process"]').each((_, input) => {
-                    const processName = $(input).val();
-                    if (initSelectedProcessesVal.includes(processName)) {
-                        $(input).prop('checked', true);
-                        $(input).attr('data-observer', 'true');
-                    } else {
-                        $(input).attr('data-observer', 'false');
-                    }
-                });
-
-                $('input[name="v2Process"]').on('change', () => {
-                    const selectedProcess = getCheckedV2Processes();
-                    if (selectedProcess.length) {
-                        // enable OK button
-                        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
-                        $('button.saveDBInfoBtn[data-csv="1"]').prop('disabled', false);
-                    } else {
-                        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
-                        $('button.saveDBInfoBtn[data-csv="1"]').prop('disabled', true);
-                    }
-                });
-
-                // fix issue https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/823
-                // In case all processes are selected, "全部" option will be checked.
-                const processCount = $('[name="v2Process"]:not([value="All"])').length;
-                const selectedProcessCount = $('[name="v2Process"]:not([value="All"]):checked').length;
-                if (processCount > 0 && processCount === selectedProcessCount) {
-                    $('[name="v2Process"][value="All"]').prop('checked', true);
-                }
-                // In case at least one process is selected, "OK" button will be enabled.
-                if (processCount > 0) {
-                    updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
-                    $(csvResourceElements.csvSubmitBtn).prop('disabled', false);
-                }
 
                 // update observer
                 inputMutationObserver = new InputChangeObserver(document.getElementById('modal-db-csv'));
@@ -547,11 +512,56 @@ const addProcessList = (
     parentId = 'v2ProcessSelection',
     name = 'v2Process',
 ) => {
+    const initSelectedProcessesVal = getCheckedV2Processes();
     $(`#${parentId}`).empty();
     addGroupListCheckboxWithSearch(parentId, parentId + '__selection', '', procsIds, processList, {
         name: name,
         checkedIds: checkedIds,
     });
+
+    handleCheckInputV2Process(initSelectedProcessesVal);
+};
+
+const handleCheckInputV2Process = (initSelectedProcessesVal) => {
+    const v2Input = 'input[name="v2Process"]';
+
+    // add list and check the checkbox
+    $(v2Input).each((_, input) => {
+        const processName = $(input).val();
+        if (initSelectedProcessesVal.includes(processName)) {
+            $(input).prop('checked', true);
+            $(input).attr('data-observer', 'true');
+        } else {
+            $(input).attr('data-observer', 'false');
+        }
+    });
+
+    $(v2Input).off('change', handleOnChangeV2Process);
+    $(v2Input).on('change', handleOnChangeV2Process);
+
+    // fix issue https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/823
+    // In case all processes are selected, "全部" option will be checked.
+    const processCount = $(`${v2Input}:not([value="All"])`).length;
+    const selectedProcessCount = $(`${v2Input}:not([value="All"]):checked`).length;
+    if (processCount > 0 && processCount === selectedProcessCount) {
+        $(`${v2Input}[value="All"]`).prop('checked', true);
+    }
+    // In case at least one process is selected, "OK" button will be enabled.
+    if (selectedProcessCount > 0) {
+        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
+    } else {
+        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
+    }
+};
+
+const handleOnChangeV2Process = () => {
+    const selectedProcess = getCheckedV2Processes();
+    if (selectedProcess.length) {
+        // enable OK button
+        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), true);
+    } else {
+        updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
+    }
 };
 
 const validateDBName = () => {

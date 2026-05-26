@@ -1592,6 +1592,7 @@ msgstr ""
 "အလုပ်အားလုံးကိုရပ်တန့်လိုက်ပြီ သင်၏ browser နှင့် console "
 "ကိုလုံခြုံစွာပိတ်နိုင်သည်။"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2175,6 +2176,7 @@ msgstr "လက်ရှိချိတ်ဆက်မှုအခြေအနေ
 msgid "Reload Hover"
 msgstr "လက်ရှိသတ်မှတ်ထားသောအချက်အလက်များကိုချိတ်ဆက်ထားသည့်အခြေအနေကိုစွန့်ပစ်ပြီးယခင်ကမှတ်ပုံတင်ထားသောအခြေအနေကိုခေါ်ဆိုပါ။"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

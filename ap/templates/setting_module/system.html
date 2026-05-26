@@ -99,7 +99,7 @@
                                 <div class="col-md-2 mt-2" id="logFolderTitle">
                                     <h5>Log Folder</h5>
                                 </div>
-                                <div class="col-md-10">
+                                <div class="col-md-10 d-flex align-items-center">
                                     <button
                                         id="btnShowDeleteLogDataModal"
                                         onclick="showDeleteLogDataModal()"
@@ -111,6 +111,25 @@
                                     >
                                         Delete
                                     </button>
+                                    <div class="ml-1 d-flex log-export">
+                                        <button
+                                            class="mr-1 btn btn-primary"
+                                            onclick="handleExportZipLogFolder()"
+                                            type="button"
+                                        >
+                                            Export
+                                        </button>
+                                        <input
+                                            type="text"
+                                            id="exportLogFilePeriod"
+                                            class="datetimepicker form-control"
+                                            name="DATETIME_RANGE_PICKER"
+                                            autocomplete="off"
+                                            show-recent-dates="True"
+                                            set-default-value="True"
+                                            is-show-time-picker="True"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div class="col row mt-2">
@@ -128,6 +147,21 @@
                                         {% endif %}
                                     >
                                         Delete
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col row mt-2">
+                                <div class="col-md-2 mt-2" id="dataFolderTitle">
+                                    <h5>Error Folder</h5>
+                                </div>
+                                <div class="col-md-10">
+                                    <button
+                                        id="btnShowExportErrorFolder"
+                                        onclick="handleExportZipErrorFolder()"
+                                        class="btn btn-primary btn-left"
+                                        type="button"
+                                    >
+                                        Export
                                     </button>
                                 </div>
                             </div>

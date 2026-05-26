@@ -52,7 +52,7 @@ from ap.common.constants import (
     CacheType,
     DataType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.request_time_out_handler import (
@@ -231,82 +231,6 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
             dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: None})
         else:
             dic_param[SERIAL_DATA][proc_id] = pd.Series()
-
-
-# @log_execution_time()
-# @abort_process_handler()
-# def get_cond_data(proc: ConditionProc, start_relate_ids=None, start_tm=None, end_tm=None, use_global_id=True):
-#     """generate subquery for every condition procs"""
-#     # get sensor info ex: sensor id , data type (int,real,text)
-#     filter_query = Sensor.query.filter(Sensor.process_id == proc.proc_id)
-#
-#     # filter
-#     cycle_cls = find_cycle_class(proc.proc_id)
-#     if use_global_id:
-#         data = db.session.query(cycle_cls.global_id)
-#     else:
-#         data = db.session.query(cycle_cls.id)
-#
-#     data = data.filter(cycle_cls.process_id == proc.proc_id)
-#
-#     # for filter_sensor in filter_sensors:
-#     for col_name, filter_details in proc.dic_col_name_filters.items():
-#         sensor = filter_query.filter(Sensor.column_name == col_name).first()
-#         sensor_val = find_sensor_class(sensor.id, DataType(sensor.type), auto_alias=True)
-#
-#         ands = []
-#         for filter_detail in filter_details:
-#             comp_ins = []
-#             comp_likes = []
-#             comp_regexps = []
-#             cfg_filter_detail: CfgFilterDetail
-#             for cfg_filter_detail in filter_detail.cfg_filter_details:
-#                 val = cfg_filter_detail.filter_condition
-#                 if cfg_filter_detail.filter_function == FilterFunc.REGEX.name:
-#                     comp_regexps.append(val)
-#                 elif (
-#                         not cfg_filter_detail.filter_function
-#                         or cfg_filter_detail.filter_function == FilterFunc.MATCHES.name
-#                 ):
-#                     comp_ins.append(val)
-#                 else:
-#                     comp_likes.extend(
-#                         gen_sql_like_value(
-#                             val,
-#                             FilterFunc[cfg_filter_detail.filter_function],
-#                             position=cfg_filter_detail.filter_from_pos,
-#                         )
-#                     )
-#
-#             ands.append(
-#                 or_(
-#                     sensor_val.value.in_(comp_ins),
-#                     *[sensor_val.value.op(SQL_REGEXP_FUNC)(val) for val in comp_regexps if val is not None],
-#                     *[sensor_val.value.like(val) for val in comp_likes if val is not None],
-#                 )
-#             )
-#
-#         data = data.join(
-#             sensor_val,
-#             and_(
-#                 sensor_val.cycle_id == cycle_cls.id,
-#                 sensor_val.sensor_id == sensor.id,
-#                 *ands,
-#             ),
-#         )
-#
-#     # chunk
-#     if start_relate_ids:
-#         records = []
-#         for ids in start_relate_ids:
-#             temp = data.filter(cycle_cls.global_id.in_(ids))
-#             records += temp.all()
-#     else:
-#         data = data.filter(cycle_cls.time >= start_tm)
-#         data = data.filter(cycle_cls.time < end_tm)
-#         records = data.all()
-#
-#     return records
 
 
 @log_execution_time()

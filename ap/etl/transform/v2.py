@@ -1,13 +1,11 @@
 import itertools
-import logging
 import uuid
 
 import pandas as pd
+from loguru import logger
 
 from ap.common.constants import BaseEnum
 from ap.etl.transform import BaseTransformer, TransformData
-
-logger = logging.getLogger(__name__)
 
 
 class BaseNameColumns(BaseEnum):

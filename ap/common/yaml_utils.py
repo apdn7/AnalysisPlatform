@@ -1,9 +1,9 @@
-import logging
 import os
 from collections import OrderedDict
-from dataclasses import dataclass, fields, is_dataclass
-from typing import Final, TypeVar, Union
+from dataclasses import fields, is_dataclass
+from typing import Final, TypeVar
 
+from loguru import logger
 from ruamel.yaml import YAML, resolver
 
 from ap.common.common_utils import (
@@ -14,10 +14,7 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import AP_TILE, DN7_TILE, SEARCH_USAGE, TILE_JUMP_CFG, TILE_MASTER
 
-logger = logging.getLogger(__name__)
-
 # yaml config files name
-YAML_CONFIG_BASIC_FILE_NAME = 'basic_config.yml'
 YAML_CONFIG_DB_FILE_NAME = 'db_config.yml'
 YAML_CONFIG_PROC_FILE_NAME = 'proc_config.yml'
 YAML_CONFIG_AP_FILE_NAME = 'ap_config.yml'
@@ -26,7 +23,6 @@ YAML_TILE_INTERFACE_DN7 = 'tile_interface_dn7.yml'
 YAML_TILE_INTERFACE_AP = 'tile_interface_analysis_platform.yml'
 YAML_TILE_INTERFACE_USAGE = 'tile_interface_search_by_use.yml'
 YAML_TILE_JUMP = 'tile_interface_jump.yml'
-YAML_START_UP_FILE_NAME = 'startup.yaml'
 
 
 class YamlConfig:
@@ -148,29 +144,6 @@ class YamlConfig:
             self.clear_node_by_key_path(keys)
 
 
-class BasicConfigYaml(YamlConfig):
-    """Basic Config Yaml class"""
-
-    # keywords
-    INFO = 'info'
-    VERSION = 'version'
-
-    def __init__(self, file_name) -> None:
-        super().__init__(file_name)
-
-    def get_version(self):
-        return YamlConfig.get_node(self.dic_config, [self.INFO, self.VERSION], '0')
-
-    def set_version(self, ver):
-        self.dic_config[self.INFO][self.VERSION] = ver
-
-    def get_node(self, keys, default_val=None):
-        return YamlConfig.get_node(self.dic_config, keys, default_val)
-
-    def set_node(self, keys, val=None):
-        return YamlConfig.set_node(self.dic_config, keys, val)
-
-
 def parse_bool_value(value):
     variants = {'true': True, 't': True, '1': True, 'false': False, 'f': False, '0': False}
 
@@ -221,27 +194,3 @@ def from_dict[T](cls: type[T], data: dict) -> T:
             # Ignore keys not in dataclass fields or handle dynamically if you want
             pass
     return cls(**kwargs)
-
-
-@dataclass
-class StartupSettings:
-    """Extract data from Startup Yaml"""
-
-    port: int | None = None
-    language: str | None = None
-    subtitle: str | None = None
-    proxy_http: str | None = None
-    proxy_https: str | None = None
-    network_nck: bool = False
-    env_ap: str | None = 'prod'  # production
-    flask_debug: bool = False
-    # todo: use bool instead of int in yaml
-    update_R: int | None = 0
-    enable_file_log: Union[bool, int] = 0
-    enable_ga_tracking: Union[bool, int] = 0
-    enable_dump_trace_log: Union[bool, int] = 0
-    disable_config_from_external: bool = False
-
-    @classmethod
-    def from_dict(cls, data: dict):
-        return from_dict(cls, data)

@@ -26,3 +26,9 @@ def pca():
 def gl():
     output_dict = get_common_config_data()
     return render_template('graphical_lasso.html', **output_dict)
+
+
+@analyze_blueprint.route('/structure_learning/crp')
+def crp():
+    output_dict = get_common_config_data()
+    return render_template('causal_relation_plot.html', **output_dict)

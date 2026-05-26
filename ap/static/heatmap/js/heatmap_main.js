@@ -1165,15 +1165,6 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     });
 };
 
-// This function to check currentXY and 2 latest items in latestSortColIds
-// In case: change or delete variable  without click "Display graph"
-const checkIsUpdateXY = (newXY, currentXY) => {
-    if (newXY.length !== currentXY.length) return false;
-    const sortedNewXY = [...newXY].sort();
-    const sortedCurrentXY = [...currentXY].sort();
-    return sortedNewXY.every((val, idx) => val === sortedCurrentXY[idx]);
-};
-
 const transformXY = (formData) => {
     const XYDataTemp = latestSortColIds.slice(-2);
     const isUpdateXY = checkIsUpdateXY(XYDataTemp, currentXY);
@@ -1202,8 +1193,10 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
     }
     let formData = getFormData(formElements.formID, clearOnFlyFilter);
 
-    // transfer for switch XY
-    formData = transformXY(formData);
+    if (!clearOnFlyFilter) {
+        // transfer for switch XY
+        formData = transformXY(formData);
+    }
     return formData;
 };
 

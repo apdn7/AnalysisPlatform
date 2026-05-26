@@ -11,6 +11,7 @@ const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
 const STR_PREFIX = '*_/&＠*_$%#';
 const COLOR_TIME_SORT_MIN_VAL = 1;
+const MAX_DROPDOWN_HEIGHT = 100;
 
 const formElements = {
     formID: '#traceDataForm',
@@ -1166,61 +1167,92 @@ const genVLabels = (vLabels, parentId = 'sctr-card', chartHeight, figSize, xName
 };
 
 const setChartSize = (scpMatrix, chartHeight, hasColorbar, hTileISBreakLine) => {
+    // ----- Guard: handle empty matrix safely -----
+    if (!scpMatrix || scpMatrix.length === 0 || !scpMatrix[0] || scpMatrix[0].length === 0) {
+        $('#sctr-card').height(0).width(0);
+        return [0, 0];
+    }
+
+    // ----- Init (keep original behavior) -----
     SCATTER_MARGIN.X_NORMAL = X_NORMAL;
     SCATTER_MARGIN.Y_NORMAL = Y_NORMAL;
 
-    const MIN_X_MARGIN = 70;
-    const MIN_Y_MARGIN = 35;
+    // ---- Requirements: MIN values are tile-to-tile gaps (readability first) ----
+    const MIN_X_GAP = 70; // Minimum horizontal gap between tiles (px)
+    const MIN_Y_GAP = 35; // Minimum vertical gap between tiles (px)
 
     const nRow = scpMatrix.length;
     const nCol = scpMatrix[0].length;
+
+    // Horizontal constraint uses the parent container width (no horizontal scrolling)
     const xPage = $('#sctr-card').parent().width();
-    const yPage = chartHeight;
-    const xM1 = 70;
-    const xM3 = hasColorbar ? 170 : 130;
-    const chartWidth = xPage - xM1 - xM3;
-    const xM2 = chartWidth * SCATTER_MARGIN.X_NORMAL;
-    let xFig = (chartWidth - xM2 * (nCol - 1)) / nCol;
 
-    const hOffset = 90;
-    const chartH = yPage - hOffset;
-    const yM2 = chartH * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN ? MIN_Y_MARGIN : chartH * SCATTER_MARGIN.Y_NORMAL;
-    let yFig = (chartH - yM2 * (nRow - 1)) / nRow;
+    // Fixed outer margins (non-tile area), kept from the original code
+    const xM1 = 70; // left margin
+    const xM3 = hasColorbar ? 170 : 130; // right margin (depends on colorbar)
+    const hOffset = 90; // top offset (header / UI)
 
-    // Aspect ratio 1:1
-    const size = Math.min(xFig, yFig);
-    xFig = yFig = size;
+    // Top UI reservation (e.g., dropdown area). If undefined, treat as 0.
+    const dropdownH = typeof MAX_DROPDOWN_HEIGHT === 'number' ? MAX_DROPDOWN_HEIGHT : 0;
 
-    // Actual page layout
-    let actualXPage = xFig * nCol + xM1 + xM3 + xM2 * (nCol - 1);
-    let actualYPage = yFig * nRow + hOffset + yM2 * (nRow - 1);
+    // ----- Tile-to-tile gaps (only between tiles) -----
+    // If there is only one column/row, there is no "between tiles" gap.
+    const xGap = nCol >= 2 ? MIN_X_GAP : 0;
+    const yGap = nRow >= 2 ? MIN_Y_GAP : 0;
 
-    if (actualXPage < xPage) {
-        actualXPage = xPage;
-        yFig = actualXPage / nCol;
-        actualYPage = yFig * nRow - (hOffset + yM2 * (nRow - 1));
-    }
+    // ----- Horizontal constraint (MUST: no horizontal scrolling) -----
+    // Available width for the tile grid area (excluding outer margins)
+    const tileAreaW = Math.max(0, xPage - xM1 - xM3);
 
-    if (actualXPage * SCATTER_MARGIN.X_NORMAL < MIN_X_MARGIN) {
-        const addMargin = (MIN_X_MARGIN - actualYPage * SCATTER_MARGIN.X_NORMAL) * (nCol - 1);
-        if (actualXPage + addMargin < xPage) {
-            actualXPage += addMargin;
-            SCATTER_MARGIN.X_NORMAL = MIN_X_MARGIN / actualXPage;
-        }
-    }
+    // Total horizontal gaps across columns
+    const totalXGap = xGap * Math.max(0, nCol - 1);
 
-    if (hTileISBreakLine && actualYPage * SCATTER_MARGIN.Y_NORMAL < MIN_Y_MARGIN) {
-        const addMargin = (MIN_Y_MARGIN - actualYPage * SCATTER_MARGIN.Y_NORMAL) * (nRow - 1);
-        actualYPage += addMargin;
-        SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
-    }
+    // Maximum tile size allowed by width
+    let tileByW = nCol > 0 ? (tileAreaW - totalXGap) / nCol : 0;
+    if (!isFinite(tileByW) || tileByW < 0) tileByW = 0;
 
-    if (actualYPage * SCATTER_MARGIN.Y_NORMAL > MIN_Y_MARGIN) {
-        SCATTER_MARGIN.Y_NORMAL = MIN_Y_MARGIN / actualYPage;
-    }
+    // ----- Vertical constraint (MUST: first row visible in viewport) -----
+    // Available height in the viewport for the chart area (excluding UI/header)
+    const firstRowAreaH_view = Math.max(0, window.innerHeight - dropdownH - hOffset);
 
+    // Also respect the layout-defined height constraint (chartHeight)
+    const firstRowAreaH_chart = Math.max(0, chartHeight - hOffset);
+
+    // Use the smaller one to be safe
+    const firstRowAreaH = Math.min(firstRowAreaH_view, firstRowAreaH_chart);
+
+    // If there are 2+ rows, the gap below the first row must also be visible
+    const reserveBelowFirstRow = nRow >= 2 ? yGap : 0;
+
+    // Maximum tile size allowed to keep the first row (plus its below-gap) visible
+    let tileByH_firstRow = firstRowAreaH - reserveBelowFirstRow;
+    if (!isFinite(tileByH_firstRow) || tileByH_firstRow < 0) tileByH_firstRow = 0;
+
+    // ----- Final tile size (MUST: 1:1 aspect ratio) -----
+    // Tile size is limited by both width and the "first row must fit" height constraint
+    const tile = Math.max(0, Math.min(tileByW, tileByH_firstRow));
+    const xFig = tile;
+    const yFig = tile;
+
+    // ----- Actual page size (container size) -----
+    const actualXPage = xM1 + xM3 + xFig * nCol + totalXGap;
+
+    const totalYGap = yGap * Math.max(0, nRow - 1);
+    // Note: For nRow >= 2, total height may exceed viewport (vertical scrolling allowed),
+    // but the first row (plus the gap below it) is guaranteed to fit.
+    const actualYPage = hOffset + yFig * nRow + totalYGap;
+
+    // ----- Optional: store the realized gap ratios (if other modules rely on ratio form) -----
+    // When there is no gap (single row/col), set ratio to 0.
+    SCATTER_MARGIN.X_NORMAL = actualXPage > 0 && xGap > 0 ? xGap / actualXPage : 0;
+    SCATTER_MARGIN.Y_NORMAL = actualYPage > 0 && yGap > 0 ? yGap / actualYPage : 0;
+
+    // ----- Apply to DOM -----
+    // MUST: no horizontal scrolling -> clamp width to parent width (defensive)
+    $('#sctr-card').width(Math.min(actualXPage, xPage));
     $('#sctr-card').height(actualYPage);
-    $('#sctr-card').width(actualXPage);
+
+    // Defensive max-width rule (kept from original)
     $('#sctr-card').css({ maxWidth: `calc(100vw - 100px)` });
 
     return [actualYPage, xFig];
@@ -1290,7 +1322,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 if (scpMatrix && scpMatrix.length > MAX_MATRIX) {
                     chartHeight = scpMatrix.length * oneRowHeight;
                 }
-                chartHeight -= 100;
+                chartHeight -= MAX_DROPDOWN_HEIGHT;
                 $('#sctr-card').height(chartHeight);
                 let actualHeight;
                 let figSize;
@@ -2013,15 +2045,6 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     });
 };
 
-// This function to check currentXY and 2 latest items in latestSortColIds
-// In case: change or delete variable  without click "Display graph"
-const checkIsUpdateXY = (newXY, currentXY) => {
-    if (newXY.length !== currentXY.length) return false;
-    const sortedNewXY = [...newXY].sort();
-    const sortedCurrentXY = [...currentXY].sort();
-    return sortedNewXY.every((val, idx) => val === sortedCurrentXY[idx]);
-};
-
 const transformXY = (formData) => {
     const XYDataTemp = latestSortColIds.slice(-2);
     const isUpdateXY = checkIsUpdateXY(XYDataTemp, currentXY);
@@ -2065,10 +2088,11 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         formData = lastUsedFormData;
         // transform cat label filter
         formData = transformCatFilterParams(formData);
+
+        // transfer for switch XY
+        formData = transformXY(formData);
     }
 
-    // transfer for switch XY
-    formData = transformXY(formData);
     return formData;
 };
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {

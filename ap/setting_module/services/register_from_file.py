@@ -33,8 +33,7 @@ from ap.common.constants import (
     max_graph_number,
 )
 from ap.common.path_utils import get_sorted_files
-from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.common.services.jp_to_romaji_utils import to_romaji
 
 # from ap.common.pydn.dblib.postgresql import PostgreSQL
@@ -64,10 +63,11 @@ def get_url_to_redirect(request, proc_ids, page):
     target_col_ids = ','.join(col_ids)
 
     # get start_datetime and end_datetime
-    trans_data = TransactionData(proc_ids[0])
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_ids[0]), is_universal_db=True) as db_instance:
-        max_datetime = trans_data.get_max_date_time_by_process_id(db_instance)
-        min_datetime = trans_data.get_min_date_time_by_process_id(db_instance)
+    [first_proc_id, *_] = proc_ids
+    trans_data = TransactionData(first_proc_id)
+    with TxnDataConnection(process_id=first_proc_id, readonly_transaction=True) as data_con:
+        max_datetime = trans_data.get_max_date_time_by_process_id(data_con)
+        min_datetime = trans_data.get_min_date_time_by_process_id(data_con)
 
     host_url = request.host_url
     param_is_dummy_datetime = '&is_dummy_datetime=1' if page in PagePath.FPP.value else ''
