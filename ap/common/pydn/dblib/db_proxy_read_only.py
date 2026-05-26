@@ -12,7 +12,6 @@ class ReadOnlyDbProxy(DbProxy):
         data_src: Union[CfgDataSource, CfgDataSourceDB, int],
         force_connect: bool = False,
         is_universal_db=False,
-        dic_db_files=None,
         proc_id=None,
     ) -> None:
         """cfg_data_source_db: CfgDataSourceDB object"""
@@ -21,7 +20,6 @@ class ReadOnlyDbProxy(DbProxy):
             read_only=True,
             force_connect=force_connect,
             is_universal_db=is_universal_db,
-            dic_db_files=dic_db_files,
             proc_id=proc_id,
         )
 

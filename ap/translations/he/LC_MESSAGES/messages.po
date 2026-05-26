@@ -1574,6 +1574,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "כל העבודה הופסקה. אתה יכול לסגור בבטחה את הדפדפן והקונסולה שלך."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2122,6 +2123,7 @@ msgstr "אפשר לחזות כמה נתונים יקושרו על ידי תנא�
 msgid "Reload Hover"
 msgstr "השלכת את מצב קישור הנתונים שנקבעו כעת ומתקשר למצב הרשום בעבר."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID נוצר באופן פנימי כדי לשייך נתונים לתנאי הקישור."

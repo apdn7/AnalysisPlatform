@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import datetime as dt
-import logging
 
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
@@ -9,7 +8,7 @@ from pytz import utc
 
 from ap.api.setting_module.services.import_data import add_import_transaction_data_job
 from ap.common.constants import DBType, JobType, MasterDBType, ProcessStatus
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.scheduler import scheduler_app_context
@@ -19,8 +18,6 @@ from ap.etl.pull.software_workshop_history import PullSoftwareWorkshopHistory
 from ap.etl.pull.software_workshop_measurement import PullSoftwareWorkshopMeasurement
 from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement
 from ap.setting_module.services.background_process import send_processing_info
-
-logger = logging.getLogger(__name__)
 
 
 def group_pull_instances(processes: list[CfgProcess]) -> list[PullBase]:
@@ -58,7 +55,7 @@ def group_pull_instances(processes: list[CfgProcess]) -> list[PullBase]:
 
 
 @log_execution_time()
-def pull_transaction_data(data_source_id: int):
+def pull_transaction_data(data_source_id: int, job_management: JobManagement):
     yield 1
 
     data_source: CfgDataSource = CfgDataSource.get_by_id(id=data_source_id)
@@ -78,13 +75,13 @@ def pull_transaction_data(data_source_id: int):
 
     with ReadOnlyDbProxy(data_source) as factory_db_instance:
         for pull_instance in pull_instances:
-            sql = pull_instance.get_transaction_data_query_union_all(factory_db_instance)
+            sql = pull_instance.get_transaction_data_query_union_all(factory_db_instance, job_management=job_management)
 
             # no new data for pulling
             if sql is None:
                 continue
 
-            pull_instance.pull_data(factory_db_instance)
+            pull_instance.pull_data(factory_db_instance, job_management=job_management)
     yield 99
 
     for process in processes:
@@ -94,7 +91,7 @@ def pull_transaction_data(data_source_id: int):
 
 @scheduler_app_context
 def pull_transaction_data_job(data_source_id: int, job_management: JobManagement):
-    gen = pull_transaction_data(data_source_id)
+    gen = pull_transaction_data(data_source_id, job_management=job_management)
     send_processing_info(
         gen,
         job_management=job_management,

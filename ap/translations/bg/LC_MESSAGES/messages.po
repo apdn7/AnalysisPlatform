@@ -217,6 +217,7 @@ msgstr "Име на процеса"
 msgid "Table Name"
 msgstr "Име на таблицата"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Подробности"
@@ -566,18 +567,23 @@ msgstr "Y-оси диапазон: макс"
 msgid "Part No"
 msgstr "Част №"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "завършват с"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Започни с"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like Търсене)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Съгласен"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Редовни изрази"
 
@@ -842,6 +848,7 @@ msgstr "Частично съвпадение"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Невалидна цифрена селекция"
 
@@ -849,33 +856,43 @@ msgstr "Невалидна цифрена селекция"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "Дължината на характера, използван за свързване, е различна."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Без филтър"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Всички линии"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "ситуация"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Списък на работата"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "всичко"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Внос завършено."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Импортиране"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Неуспешно импортиране"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "Заредените данни ще бъдат изтрити. Добре ли е? (Не се отразява промяна, "
 "докато бутонът за регистрация не бъде натиснат)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Списък на работата"
 
@@ -890,54 +908,71 @@ msgstr "Списък на работата"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "Идентификационен номер на работа"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Име на работа"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Генериране на свързани ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Показване на генериране на работа на връзка ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Импортирайте фабрични данни"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Импортирайте минали фабрични данни"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Показване на импортиране на работа на минали фабрични данни"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Импортиране на данни"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Изтриване на стари данни"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Начален час"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "изминалото време"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "База данни/CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Напредък"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Процес"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Списък с хистограма"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Регистрирайте се като стойност на огнището"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Нерегистърски външно"
 
@@ -961,24 +996,31 @@ msgstr "Показване на списъка с хистограма"
 msgid "Last update time"
 msgstr "Последно актуализиране"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Регистрацията на външни е отменена."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Регистриран като външен човек"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Външен"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Само веднъж"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Подробности за работата"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Копиране в клипборда"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Мулти разпръснат график"
 
@@ -1015,9 +1057,11 @@ msgstr "Категорична променлива"
 msgid "Stratify by term"
 msgstr "Стратифициране по срок (директно)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Откриване на аномалия"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Основен компонент оценка на данните за тестване"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Основен компонент оценка на данните за обучение"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Серия диаграма на статистиката на T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Серийна диаграма на Q статистиката"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. График на принос на статистиката на T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. График на принос на Q статистиката"
 
@@ -1467,6 +1517,7 @@ msgstr "Качество на данните"
 msgid "Viewer"
 msgstr "Зрител"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Данни за импортиране"
 
@@ -1474,9 +1525,11 @@ msgstr "Данни за импортиране"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Име на източника на данни"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Тип източник на данни"
 
@@ -1484,9 +1537,11 @@ msgstr "Тип източник на данни"
 msgid "Do you want to save changes?"
 msgstr "Сигурни ли сте, че спестявате промени?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Информация за принудителна ОС в настройките на часовата зона."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Разширена настройка"
 
@@ -1543,6 +1598,7 @@ msgstr ""
 "Цялата работа е спряна. Можете спокойно да затворите браузъра и конзолата"
 " си."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1552,6 +1608,7 @@ msgstr "Източник на данни Конфигурация"
 msgid "Data Source Import Config"
 msgstr "Конфигурация за импортиране на източници на данни"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1559,15 +1616,19 @@ msgstr ""
 ": Колони намериха няколко колони за символи. Проверете дали колоната с "
 "цифров тип и т.н. може да бъде разпозната погрешно."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Филтър елемент"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Стойност на филтъра"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Дата на изтичане (Старт)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Дата на изтичане (край)"
 
@@ -1634,9 +1695,11 @@ msgstr "Интервал"
 msgid "Window length"
 msgstr "Дължина на прозореца"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Тип"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Име"
 
@@ -1710,9 +1773,11 @@ msgstr "Филтър конфигурация"
 msgid "Master Config"
 msgstr "Master Config"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "От филтърна конфигурация"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Покажи всички"
 
@@ -1762,22 +1827,26 @@ msgstr ""
 "нормалните му данни (T2/Q). Ако имате различна ситуация, можете да "
 "проверите основните фактори в сюжета на приноса."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Стратифициран филтър за категория: ограничава данните, които трябва да се"
 " показват в подмножество. (Категория: Номер на част, станция № и т.н.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Категория променливи (като номер на част, станция № и т.н.), показвани "
 "като етикети в горната част на парцелите, за да се намерят променящи се "
 "точки."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Графичен филтър: Ограничава данните, които трябва да се показват на "
 "подмножество."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Задайте данните за обучението, интерпретирани като нормална ситуация. "
@@ -1785,14 +1854,17 @@ msgstr ""
 "тези, които са близки до данните NG, също се преценяват като нормални "
 "данни."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Задайте тестови данни, които да бъдат оценени."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Филтър за артикули: Ограничава данните (анализ и дисплей), които трябва "
 "да се показват на подмножество."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1801,6 +1873,7 @@ msgstr ""
 "компоненти) на многоизмерни данни за проверка. Ако данните са в центъра, "
 "тя може да се тълкува като близо до нормалното."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1810,6 +1883,7 @@ msgstr ""
 "определя от данните за обучение, така че повечето от данните за обучение "
 "трябва да бъдат в целта."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1822,6 +1896,7 @@ msgstr ""
 "да видите сюжета на приноса на това, което елементите съставляват "
 "ситуацията."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1834,6 +1909,7 @@ msgstr ""
 "данни, за да видите сюжета на приноса на това, което елементите "
 "съставляват ситуацията."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1842,6 +1918,7 @@ msgstr ""
 " статистическия график на T2. Колкото по -дълга е дължината, толкова по "
 "-голяма е причината."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2102,6 +2179,7 @@ msgstr ""
 "Изхвърля текущо зададените условия за свързване на данни и извиква "
 "предварително регистрираното условие."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2577,9 +2655,11 @@ msgstr "Режим на настройка"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Брой елементи от данни, които не могат да бъдат свързани"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Разпръснат сюжет"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "с контур"
 

@@ -217,6 +217,7 @@ msgstr "प्रक्रिया का नाम"
 msgid "Table Name"
 msgstr "तालिका नाम"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "विवरण"
@@ -566,18 +567,23 @@ msgstr "Y- अक्ष रेंज: अधिकतम"
 msgid "Part No"
 msgstr "भाग नहीं"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "के साथ समाप्त करना"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "के साथ शुरू"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like खोज)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "इस बात से सहमत"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "नियमित अभिव्यक्ति"
 
@@ -842,6 +848,7 @@ msgstr "आंशिक मैच"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "अमान्य अंक चयन"
 
@@ -849,33 +856,43 @@ msgstr "अमान्य अंक चयन"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "लिंकिंग के लिए उपयोग किए जाने वाले चरित्र की लंबाई अलग है।"
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "कोई फिल्टर नहीं"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "सभी पंक्तियाँ"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "परिस्थिति"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "नौकरी सूची"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "सभी"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "आयात पूरा हुआ।"
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "आयात कर रहा है"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "असफल आयात"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "लोड किए गए डेटा को हटा दिया जाएगा। ठीक है न? (पंजीकरण बटन दबाने तक कोई "
 "परिवर्तन परिलक्षित नहीं होता है)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "नौकरी सूची"
 
@@ -890,54 +908,71 @@ msgstr "नौकरी सूची"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "नौकरी आईडी"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "कार्य नाम"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "लिंक्डID की पीढ़ी"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "लिंक ID की जनरेशन जॉब का प्रदर्शन करें"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "आयात कारखाना आंकड़ा"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "पिछले कारखाने के आंकड़ों का आयात करें"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "पिछले कारखाने के डेटा का आयात आयात दिखाएं"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV आयात डेटा"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "पुराने डेटा को हटाएं"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "समय शुरू"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "बीता हुआ समय"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "डेटाबेस/सीएसवी"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "प्रगति"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "प्रक्रिया"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "हिस्टोग्राम सूची"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "एक प्रकोप मूल्य के रूप में पंजीकरण करें"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "अपंजीकृत आउटलियर"
 
@@ -961,24 +996,31 @@ msgstr "हिस्टोग्राम सूची दिखाएं"
 msgid "Last update time"
 msgstr "अंतिम अद्यतन समय"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "बाहरी पंजीकरण रद्द कर दिया गया है।"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "एक बाहरी के रूप में पंजीकृत"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "ग़ैर"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "सिर्फ एक बार"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "नौकरी विवरण"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "क्लिपबोर्ड पर कॉपी करें"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "बहु बिखरने की साजिश"
 
@@ -1015,9 +1057,11 @@ msgstr "श्रेणीगत चर"
 msgid "Stratify by term"
 msgstr "अवधि द्वारा स्तरीकृत (प्रत्यक्ष)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "असंगति का पता लगाये"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. परीक्षण डेटा का प्रमुख घटक स्कोर"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. प्रशिक्षण डेटा का प्रमुख घटक स्कोर"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. टी 2 सांख्यिकी की श्रृंखला चार्ट"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. क्यू सांख्यिकी की श्रृंखला चार्ट"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. टी 2 आंकड़ों का योगदान प्लॉट"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. क्यू सांख्यिकी का योगदान प्लॉट"
 
@@ -1461,6 +1511,7 @@ msgstr "आधार सामग्री की गुणवत्ता"
 msgid "Viewer"
 msgstr "दर्शक"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "आयात आंकड़ा"
 
@@ -1468,9 +1519,11 @@ msgstr "आयात आंकड़ा"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "आंकड़ा स्रोत नाम"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "आंकड़ा स्रोत प्रकार"
 
@@ -1478,9 +1531,11 @@ msgstr "आंकड़ा स्रोत प्रकार"
 msgid "Do you want to save changes?"
 msgstr "क्या आप परिवर्तन सहेजना सुनिश्चित करते हैं?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "समय क्षेत्र सेटिंग्स के लिए मजबूर ओएस जानकारी।"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "उन्नत व्यवस्था"
 
@@ -1534,6 +1589,7 @@ msgstr ""
 "सारी नौकरी रोक दी गई है। आप अपने ब्राउज़र और कंसोल को सुरक्षित रूप से बंद"
 " कर सकते हैं।"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1543,6 +1599,7 @@ msgstr "आंकड़ा स्रोत विन्यास"
 msgid "Data Source Import Config"
 msgstr "आंकड़ा स्रोत आयात विन्यास"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1550,15 +1607,19 @@ msgstr ""
 ": कॉलम में कुछ चरित्र कॉलम मिले। जांचें कि संख्यात्मक प्रकार के स्तंभ आदि"
 " को गलत समझा जा सकता है।"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "फ़िल्टर आइटम"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "फ़िल्टर मूल्य"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "समाप्ति तिथि (प्रारंभ)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "समाप्ति तिथि"
 
@@ -1622,9 +1683,11 @@ msgstr "मध्यान्तर"
 msgid "Window length"
 msgstr "खिड़की की लंबाई"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "टाइप"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "नाम"
 
@@ -1698,9 +1761,11 @@ msgstr "फ़िल्टर कॉन्फ़िगर"
 msgid "Master Config"
 msgstr "मास्टर कॉन्फ़िगर"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "फ़िल्टर कॉन्फ़िग से"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "सब दिखाएं"
 
@@ -1747,33 +1812,40 @@ msgstr ""
 "स्थिति है। यदि आपके पास एक अलग स्थिति है, तो आप योगदान भूखंड में मुख्य "
 "कारकों की जांच कर सकते हैं।"
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "स्तरीकृत श्रेणी फ़िल्टर: एक उपसमूह में प्रदर्शित होने वाले डेटा को सीमित "
 "करता है। (श्रेणी: भाग संख्या, स्टेशन संख्या, आदि)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "श्रेणी चर (जैसे कि भाग संख्या, स्टेशन नहीं, आदि) को बदलते बिंदुओं को "
 "खोजने के लिए भूखंडों के शीर्ष पर लेबल के रूप में प्रदर्शित किया जाता है।"
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "ग्राफ फ़िल्टर: एक सबसेट पर प्रदर्शित होने वाले डेटा को सीमित करता है।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "एक सामान्य स्थिति के रूप में व्याख्या किए गए शिक्षण डेटा को सेट करें। "
 "डेटा अनुभाग सेट करें जिसमें कोई NG डेटा न हो। यदि शामिल है, तो जो NG डेटा"
 " के करीब हैं, उन्हें भी सामान्य डेटा के रूप में आंका जाता है।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "न्याय करने के लिए परीक्षण डेटा सेट करें।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "आइटम फ़िल्टर: एक सबसेट पर प्रदर्शित होने के लिए डेटा (विश्लेषण और "
 "प्रदर्शन) को सीमित करता है।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1782,6 +1854,7 @@ msgstr ""
 " आयामी संपीड़न) है। यदि डेटा केंद्र में है, तो इसे सामान्य के करीब की "
 "व्याख्या की जा सकती है।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1790,6 +1863,7 @@ msgstr ""
 "आयामी संपीड़न) है। केंद्रीय लक्ष्य सीखने के डेटा द्वारा निर्धारित किया "
 "जाता है, इसलिए अधिकांश सीखने के डेटा लक्ष्य में होने चाहिए।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1800,6 +1874,7 @@ msgstr ""
 "की जाती है, स्थिति विचलन की अधिक संभावना है। क्या तत्वों को बनाने के लिए "
 "योगदान की साजिश को देखने के लिए डेटा पॉइंट पर क्लिक करें।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1811,6 +1886,7 @@ msgstr ""
 "तत्वों को बनाने के लिए योगदान की साजिश को देखने के लिए डेटा पॉइंट पर "
 "क्लिक करें।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1818,6 +1894,7 @@ msgstr ""
 "टी 2 स्टेटिस्टिक प्लॉट में चुने गए बिंदु पर किस चर की स्थिति में योगदान "
 "होता है। लंबाई जितनी अधिक होगी, उतनी ही अधिक संभावना होगी।"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2076,6 +2153,7 @@ msgstr ""
 "वर्तमान में सेट डेटा लिंकिंग कंडीशन को छोड़ दें और पहले से पंजीकृत स्थिति"
 " को कॉल करें।"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2537,9 +2615,11 @@ msgstr "सेटिंग मोड"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "डेटा आइटम की संख्या जो लिंक नहीं की जा सकती है"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "स्कैटर प्लॉट"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "समोच्च के साथ"
 

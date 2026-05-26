@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 from ap.api.common.services.show_graph_database import (
     get_all_process_ids,
@@ -9,8 +9,6 @@ from ap.common.memoize import OptionalCacheConfig
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgProcess, JobManagement
 from ap.setting_module.services.background_process import send_processing_info
-
-logger = logging.getLogger(__name__)
 
 
 class CacheFunctions:
@@ -40,6 +38,10 @@ class CacheFunctions:
             process_ids = CfgProcess.get_all_ids(with_parent=True)
 
         def generator():
+            if not process_ids:
+                yield 100
+                return
+
             progress_percent = 0
             yield progress_percent
 

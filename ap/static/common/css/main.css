@@ -579,16 +579,6 @@ ul#traceDataSubmenu li a.sidebar-is-searching {
     }
 }
 
-.btn-setting {
-    border-radius: 0px;
-    background-color: #303030;
-    border: 1px solid #303030;
-}
-
-.btn-setting:hover {
-    border: 1px solid white;
-}
-
 .hint-text {
     padding-bottom: 1px;
     border-bottom: 1px solid white !important;
@@ -663,6 +653,10 @@ textarea {
 .select2-search--dropdown {
     background-color: #222 !important;
     color: #ffffff !important;
+}
+
+.select2 {
+    width: 100% !important;
 }
 
 .select2-container {
@@ -1073,6 +1067,16 @@ label span {
     background-color: #be7b00;
 }
 
+.btn-setting {
+    border-radius: 0px;
+    background-color: #303030;
+    border: 1px solid #303030;
+}
+
+.btn-setting:hover {
+    border: 1px solid white;
+}
+
 .section-label {
     /* copy from lib */
     font-size: 1.171875rem;
@@ -1251,7 +1255,7 @@ body {
 }
 
 .scale-dropdown {
-    padding: 4px 5px;
+    padding: 4px 15px 4px 5px;
     height: auto;
     cursor: pointer;
 }
@@ -1969,6 +1973,10 @@ span.deleteicon span:hover {
     color: #efefef;
 }
 
+thead th span.remove-search {
+    font-weight: 100 !important;
+}
+
 span.deleteicon input {
     box-sizing: border-box;
 }
@@ -2014,7 +2022,6 @@ span.deleteicon input {
 
 .custom-selection-section {
     position: relative;
-    min-width: 200px;
 }
 
 .custom-selection-content {
@@ -2046,7 +2053,7 @@ span.deleteicon input {
     border-radius: 5px;
     padding-left: 8px;
     cursor: pointer;
-    height: 30px;
+    height: 32px;
 }
 
 .custom-selection.gui-custom-selection {
@@ -2410,9 +2417,11 @@ label.checkbox-all-label h6 {
     height: 70vh;
     overflow-y: scroll;
 }
-.jump-btn {
+.graph-area-setting-btn {
     height: 29px;
-    width: 30px;
+    width: 29px;
+}
+.jump-btn {
     padding: 5px;
 }
 svg.svg-inline--fa.fa-circle-right {
@@ -2465,8 +2474,9 @@ svg.svg-inline--fa.fa-circle-right {
 .dn-custom-select--select:after {
     position: absolute;
     content: '';
-    top: 14px;
-    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 7px;
     width: 0;
     height: 0;
     border-top: 6px solid transparent;
@@ -2485,7 +2495,7 @@ svg.svg-inline--fa.fa-circle-right {
 .dn-custom-select--select--list div,
 .dn-custom-select--select {
     color: #ffffff;
-    padding: 4px 8px;
+    padding: 4px 15px 4px 4px;
     border: 1px solid transparent;
     border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
     cursor: pointer;
@@ -2792,6 +2802,13 @@ table#tblImportCondition td {
     padding: 2px 10px;
     font-size: 13px;
     display: none;
+    z-index: 1060;
+}
+
+.ytick text,
+.xtick text {
+    pointer-events: all !important;
+    cursor: pointer !important;
 }
 
 .modal {
@@ -2827,7 +2844,7 @@ table#tblImportCondition td {
     -moz-border-radius: 1.25rem;
     border-style: solid;
     border-width: 0.125rem;
-    padding: 0.1rem 0.25rem;
+    padding: 0.1rem 0.25rem 0;
     font-family: 'Heebo', sans-serif;
     font-size: 0.7rem;
     font-weight: 500;
@@ -2862,7 +2879,7 @@ table#tblImportCondition td {
     border-color: #ff6b6b;
     background-color: transparent;
     color: #ff6b6b;
-    padding: 0.1rem 0.5rem;
+    padding: 0.1rem 0.5rem 0;
     margin-right: 8px;
 }
 
@@ -2870,4 +2887,51 @@ table#tblImportCondition td {
     background-color: #ff6b6b;
     color: white;
     filter: brightness(1.2);
+}
+
+.circle-reset-button {
+    width: 25px;
+    border: 1px solid;
+    height: 25px;
+    border-radius: 24px;
+    font-size: 13px;
+    padding: 3px;
+    background-color: #222222;
+    color: white;
+}
+
+.bookmark-button .custom-selection {
+    width: 18px;
+    height: 100%;
+    padding: 0px;
+    border-radius: 0px;
+    background-color: transparent;
+    border: none;
+}
+
+.bookmark-button .custom-selection .selection__arrow {
+    right: -2px;
+}
+
+/* Style select's arrow same with select2's arrow */
+.dropdown-btn::after {
+    display: none !important;
+}
+
+select.form-control,
+.dropdown-btn {
+    appearance: none; /* Disable the default arrow */
+    -webkit-appearance: none; /* For WebKit-based browsers */
+    -moz-appearance: none; /* For Firefox */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 10L12 17L15 10Z" fill="%23ffffff"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0 center;
+    background-size: 19px;
+    cursor: pointer;
+}
+
+.g-ytitle text,
+.g-xtitle text {
+    pointer-events: all !important;
+    cursor: pointer !important;
 }

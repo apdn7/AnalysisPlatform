@@ -7,7 +7,7 @@ from apscheduler.triggers import interval
 from pytz import utc
 
 from ap.common.constants import JobType
-from ap.common.logger import (
+from ap.common.log import (
     CLEAN_ZIP_INTERVAL,
     ZIP_LOG_INTERVAL,
     ZipFileHandler,

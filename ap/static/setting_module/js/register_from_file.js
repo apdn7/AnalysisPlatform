@@ -228,7 +228,7 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
         await handleResponseData(request);
         enableRegisterDataFileBtn();
     } catch (e) {
-        if (e.statusText == 'abort') {
+        if (e.statusText === 'abort') {
             // clear content when process is aborted
             resetPreviewSection();
             resetProgressBar();
@@ -925,6 +925,7 @@ const resetPage = () => {
     resetProgressBar();
     resetPreviewTableContent();
     hiddenPreviewContentData();
+    window.RegisterByFileRequestID = undefined;
 };
 
 /**

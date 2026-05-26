@@ -10,10 +10,9 @@ from ap.common.constants import (
     CacheType,
     DataCountType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
-from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.timezone_utils import from_utc_to_localtime
 from ap.trace_data.transaction_model import DataCountTable, TransactionData
 
@@ -83,9 +82,9 @@ def get_process_full_data_range(proc_id):
         from: datetime, to: datetime
 
     """
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+    with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
         trans_data = TransactionData(proc_id)
-        min_time, max_time = trans_data.get_ct_range(db_instance)
+        min_time, max_time = trans_data.get_ct_range(data_con)
         # add one minute for max_time to get full data when showing graph
         max_time = datetime.strptime(max_time, DATE_FORMAT_STR)
         max_time = max_time + timedelta(minutes=1)
@@ -105,22 +104,24 @@ def get_process_data_count_by_timerange(proc_id, start_date, end_date):
     Returns:
         data_count: int
     """
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+    with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
         trans_data = TransactionData(proc_id)
-        data_count = trans_data.get_data_count_by_time_range(db_instance, start_date, end_date)
+        data_count = trans_data.get_data_count_by_time_range(data_con, start_date, end_date)
     return data_count
 
 
 @log_execution_time()
 @CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
-def get_data_count_by_time_range(proc_id, start_date, end_date, query_type, local_tz, count_in_file: bool):
+def get_data_count_by_time_range(
+    proc_id: int, start_date: str, end_date: str, query_type: str, local_tz, count_in_file: bool
+):
     data = None
     min_val = None
     max_val = None
 
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
+    with TxnMetaConnection(process_id=proc_id) as meta_con:
         trans_data = TransactionData(proc_id)
-        _, data_count = trans_data.select_data_count(db_instance, start_date, end_date, count_in_file)
+        _, data_count = trans_data.select_data_count(meta_con, start_date, end_date, count_in_file)
 
     # data_count = ProcDataCount.get_by_proc_id(proc_id, start_date, end_date)
     # data_count = [[r.datetime, r.count] for r in data_count]

@@ -1,3 +1,5 @@
+const qContributionChartId = 'qContributionChart';
+
 const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     if (!json) return;
 
@@ -23,11 +25,13 @@ const drawQContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
 
     // const tickTexts = figure.layout.yaxis.ticktext;
     // figure.layout.yaxis.ticktext = tickTexts.map(v => (v.length > 10 ? `${v.substring(0, 9)}...` : v));
-    Plotly.newPlot('qContributionChart', figure.data, figure.layout, {
+    Plotly.newPlot(qContributionChartId, figure.data, figure.layout, {
         ...genPlotlyIconSettings(),
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
         style: { width: '100%', height: '100%' }, // responsive histogram
+    }).then(() => {
+        attachTickHovers(qContributionChartId);
     });
 
     // send plotting time event
@@ -57,17 +61,16 @@ const drawQContributionChartFromObj = (
     if (!objData) return;
     const startTime = performance.now();
 
-    Plotly.newPlot(
-        'qContributionChart',
-        genContributionChartData(objData, 'q', dpInfo),
-        contributionChartLayout(objData, 'q', sampleNo),
-        {
-            ...genPlotlyIconSettings(),
-            responsive: true, // responsive histogram
-            useResizeHandler: true, // responsive histogram
-            style: { width: '100%', height: '100%' }, // responsive histogram
-        },
-    );
+    const layout = contributionChartLayout(objData, 'q', sampleNo);
+
+    Plotly.newPlot(qContributionChartId, genContributionChartData(objData, 'q', dpInfo), layout, {
+        ...genPlotlyIconSettings(),
+        responsive: true, // responsive histogram
+        useResizeHandler: true, // responsive histogram
+        style: { width: '100%', height: '100%' }, // responsive histogram
+    }).then(() => {
+        attachTickHovers(qContributionChartId);
+    });
 
     // send plotting time event
     const endTime = performance.now();

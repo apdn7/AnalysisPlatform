@@ -1598,6 +1598,7 @@ msgstr ""
 "Todo el trabajo ha sido detenido. Puede cerrar con seguridad su navegador"
 " y consola."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2183,6 +2184,7 @@ msgstr ""
 "Descarte la condición de enlace de datos establecida actualmente y llama "
 "a la condición registrada previamente."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

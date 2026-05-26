@@ -1,12 +1,9 @@
-import logging
 from typing import Any
 
 from ap.api.setting_module.services.software_workshop_etl_services import POSTGRES_SOFTWARE_WORKSHOP_DEF
 from ap.common.common_utils import TimeRange
 from ap.common.constants import MasterDBType
 from ap.etl.factory_import.common import ImportBase
-
-logger = logging.getLogger(__name__)
 
 
 class ImportSoftwareWorkshop(ImportBase):

@@ -3,10 +3,11 @@ from typing import Union
 
 from apscheduler.jobstores.base import JobLookupError
 
-from ap import log_execution_time, scheduler
+from ap import scheduler
 from ap.common.common_utils import generate_job_id
 from ap.common.constants import JobType
 from ap.common.jobs.jobs import RunningJob, RunningJobs
+from ap.common.log import log_execution_time
 
 
 def remove_job(job_id: str, process_id: Union[str, int] | None = None):

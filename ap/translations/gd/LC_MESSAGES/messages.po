@@ -217,6 +217,7 @@ msgstr "Ainm a 'phròiseas"
 msgid "Table Name"
 msgstr "Ainm Clàr"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Mion-fhiosrachadh"
@@ -566,18 +567,23 @@ msgstr "Tha W-Axes Rap: Max"
 msgid "Part No"
 msgstr "Pàirt no"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "deireadh le"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Tòiseachadh le"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like sgrùdadh)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Aontachadh"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Abairtean cunbhalach"
 
@@ -842,6 +848,7 @@ msgstr "Maids pàirt"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Taghadh digit neo-dhligheach"
 
@@ -849,35 +856,45 @@ msgstr "Taghadh digit neo-dhligheach"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr ""
 "Tha fad a 'charactar a thathas a' cleachdadh airson an ceangal eadar-"
 "dhealaichte."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Gun chriathrag"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "A h-uile loidhne"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "suidheachadh"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Liosta obrach"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "Uile"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "In-mhalairt crìochnaichte."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Cureachadh"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Air a thoirt a-steach a dh 'fhàillig"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -886,6 +903,7 @@ msgstr ""
 "eil atharrachadh sam bith air a nochdadh gus am bi am putan Clàraidh air "
 "a bhrùthadh)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Liosta obrach"
 
@@ -893,54 +911,71 @@ msgstr "Liosta obrach"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "ID obrach"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Ainm obrach"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Ginealach de cheangal a cheangalID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Iob ginealach taisbeanaidh de cheangal ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Dàta factaraidh in-mhalairt"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Cuir a-steach dàta factaraidh a chaidh a-steach"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Seall obair a thoirt a-steach do dhàta factaraidh a chaidh seachad"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV dàta in-mhalairt"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Cuir às do sheann dàta"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Ùine tòiseachaidh"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "ùine a bharrachd"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Stòr-dàta / CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Adhartas"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Pròiseas"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Liosta histogram"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Clàraich mar luach a-muigh"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Outlier neo-chinnteach"
 
@@ -964,24 +999,31 @@ msgstr "Liosta bhidio taisbeanaidh"
 msgid "Last update time"
 msgstr "Ùine Ùrachadh mu dheireadh"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Chaidh clàradh a-mach a chuir dheth."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Clàraichte mar outlier"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Outlier"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Dìreach aon uair"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Mion-fhiosrachadh obrach"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Dèan lethbhreac gu clipboard"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Cuilbheart ioma-sgeul"
 
@@ -1018,9 +1060,11 @@ msgstr "Caochladair seòrsachaidh"
 msgid "Stratify by term"
 msgstr "Stratify a rèir teirm (dìreach)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Lorg neo-riaghailteach"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1028,21 +1072,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Prìomh sgòr a 'co-phàirt de dhàta deuchainn"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Prìomh sgòr den dàta trèanaidh"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Clàr sreath de staitistig T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Clàr nan sreath de staitistig q"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Cuilbheart tabhartais de staitistig T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Plot tabhartais de staitistig q"
 
@@ -1476,6 +1526,7 @@ msgstr "Càileachd Dàta"
 msgid "Viewer"
 msgstr "Seallawer"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Dàta in-mhalairt"
 
@@ -1483,9 +1534,11 @@ msgstr "Dàta in-mhalairt"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Ainm stòr dàta"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Seòrsa stòr dàta"
 
@@ -1493,9 +1546,11 @@ msgstr "Seòrsa stòr dàta"
 msgid "Do you want to save changes?"
 msgstr "A bheil thu cinnteach gun sàbhail thu atharrachaidhean?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "FIOSRACHADH OS AIR A DHÈANAMH GU COMHAIRLE Sòn Ùine."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Suidheachadh adhartach"
 
@@ -1552,6 +1607,7 @@ msgstr ""
 "Chaidh stad a chuir air a h-uile obair. Faodaidh tu do bhrobhsair agus an"
 " consol a dhùnadh gu sàbhailte."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1561,6 +1617,7 @@ msgstr "Contig stòr dàta"
 msgid "Data Source Import Config"
 msgstr "Config stòr dàta dàta"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1568,15 +1625,19 @@ msgstr ""
 ": Colbhan lorg mòran de cholbhan caractar. Dèan cinnteach gum bi an colbh"
 " seòrsa àireamhach msaa air a mhì-mhisneachadh."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Sìoltachain nì"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Luach sìoltachain"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Ceann-latha crìochnachaidh (tòiseachadh)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Ceann-latha crìochnachaidh (deireadh)"
 
@@ -1647,9 +1708,11 @@ msgstr "Eadar-ama"
 msgid "Window length"
 msgstr "Fad uinneig"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Seòrsa"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Ainm"
 
@@ -1724,9 +1787,11 @@ msgstr "Contraig filter"
 msgid "Master Config"
 msgstr "Prìomh chroit"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "Bho config sìoltach"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Seall a h-uile càil"
 
@@ -1777,20 +1842,24 @@ msgstr ""
 "Ma tha suidheachadh eadar-dhealaichte agad, faodaidh tu sgrùdadh a "
 "dhèanamh air na prìomh nithean anns a 'chuilbheart tabhartais."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Filter Roinnean Stratachaidh: a 'crìochnachadh dàta ri thaisbeanadh gu "
 "fo-ghnè. (Roinn-seòrsa: Àireamh Pàirt, stèisean Chan eil, msaa)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Caochlaidhean roinn-seòrsa (leithid àireamh Pàirt, stèisean Chan eil, "
 "msaa) air a thaisbeanadh mar bhileagan aig mullach plotaichean gus "
 "puingean ag atharrachadh a lorg."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Filter Graf: a 'cuingealachadh dàta ri thaisbeanadh gu fo-ghnè."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Suidhich an dàta ionnsachaidh air a mhìneachadh mar shuidheachadh "
@@ -1799,14 +1868,17 @@ msgstr ""
 "'bhreithneachadh a dhèanamh air an dàta NG cuideachd mar dàta "
 "àbhaisteach."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Suidhich dàta deuchainn ri breithneachadh."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Filter Patter: A 'chrìochan dàta (mion-sgrùdadh & Taisbeanadh) Ri "
 "fhaicinn do fo-sheata."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1815,6 +1887,7 @@ msgstr ""
 "phàirtean) de dhàta dearbhaidh ioma-mheadhain. Ma tha an dàta sa "
 "mheadhan, faodar a mhìneachadh mar faisg air àbhaisteach."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1824,6 +1897,7 @@ msgstr ""
 "thargaid air a dhearbhadh leis an dàta ionnsachaidh, agus mar sin bu "
 "chòir a 'mhòr-chuid den dàta ionnsachaidh a bhith san targaid."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1836,6 +1910,7 @@ msgstr ""
 "coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais"
 " de na thaeamaidean a dhèanamh suas an suidheachadh."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1848,6 +1923,7 @@ msgstr ""
 "coltaiche a bhith a 'gluasad. Cliog air Puing Dàta gus an clàr tabhartais"
 " de na thaeamaidean a dhèanamh suas an suidheachadh."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1856,6 +1932,7 @@ msgstr ""
 "ìre a chaidh a thaghadh ann an cuilbheart stalc T2. Mar as fhaide air an "
 "fhaid, is dòcha gur e an adhbhar as coltaiche ris an adhbhar."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2130,6 +2207,7 @@ msgstr ""
 "Cuir às do dh 'ainm an àite a tha a' suidheachadh an-dràsta agus a 'gairm"
 " air a' chumha clàraichte roimhe."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2616,9 +2694,11 @@ msgstr "Modh suidheachadh"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Àireamh de nithean dàta nach gabh ceangal a dhèanamh"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Cuilbheart sgapte"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "le contour"
 

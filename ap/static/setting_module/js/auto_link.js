@@ -268,12 +268,20 @@ const keepNodeStatus = (processObj) => {
     for (const path of Object.keys(processObj)) {
         const procs = processObj[path];
         if (procs.length > 1) {
+            const hiddenNodeIds = new Set();
+            const showNodeIds = new Set();
             for (const i in procs) {
                 const proc = procs[i];
                 const isHidden = proc.hidden || !proc.isChecked;
+                if (isHidden) {
+                    hiddenNodeIds.add(Number(proc.id));
+                } else {
+                    showNodeIds.add(Number(proc.id));
+                }
                 updateProcessState(proc.id, proc.datalink_tree_directory, proc.isChecked, proc.id);
-                toggleNodeById(proc.id, isHidden);
             }
+            toggleNodeByIds([...hiddenNodeIds], true);
+            toggleNodeByIds([...showNodeIds], false);
         } else {
             const proc = procs[0];
             const isHidden = proc.hidden || !proc.isChecked;
@@ -372,40 +380,31 @@ const groupProcessesByPath = (processes) => {
 
 /**
  * @description Toggle show or hide the node by nodeId (processId) and show or hide the edge of this node.
- * @param nodeId
- * @param isHidden
+ * @param {number} nodeId
+ * @param {boolean} isHidden
  */
 
 const toggleNodeById = (nodeId, isHidden) => {
-    const node = nodes.get(nodeId);
     nodes.update({
-        ...node,
+        id: nodeId,
         hidden: isHidden,
     });
+};
 
-    // hide id of hidden node
-    for (const edgeId of edges.getIds()) {
-        const edgeData = edges.get(edgeId);
-        const { from, to } = edgeData;
-        if (isHidden) {
-            if (Number(from) === nodeId || Number(to) === nodeId) {
-                edges.update({
-                    ...edgeData,
-                    hidden: true,
-                });
-            }
-        } else {
-            // show edge if from and to node is shown
-            const fromNode = nodes.get(Number(from));
-            const toNode = nodes.get(Number(to));
-            if (fromNode && !fromNode.hidden && toNode && !toNode.hidden) {
-                edges.update({
-                    ...edgeData,
-                    hidden: false,
-                });
-            }
-        }
-    }
+/**
+ * @description Toggle show or hide the node by nodeIds (processIds) and show or hide the edge of this node.
+ * @param {number[]} nodeIds
+ * @param {boolean} isHidden
+ */
+
+const toggleNodeByIds = (nodeIds, isHidden) => {
+    const nodeList = nodes.get(nodeIds);
+    const updates = nodeList.map((node) => ({
+        id: Number(node.id),
+        hidden: isHidden,
+    }));
+
+    nodes.update(updates);
 };
 
 /**
@@ -425,10 +424,12 @@ const toggleNodes = (group = '', dbSourceId, isHidden) => {
         checkEls = [...$(`.tree input[name=process][data-path=${dbSourceId}]`)];
     }
 
+    const updatedIds = new Set();
     for (const el of checkEls) {
         const id = Number($(el).val());
-        toggleNodeById(id, isHidden);
+        updatedIds.add(id);
     }
+    toggleNodeByIds([...updatedIds], isHidden);
 };
 
 const collectCheckedProcess = () => {

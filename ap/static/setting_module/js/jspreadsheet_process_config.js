@@ -67,7 +67,9 @@ class SpreadSheetProcessConfig {
             loadingEl = document.createElement('div');
             loadingEl.id = `configProcessLoading-${tableId}`;
             loadingEl.classList.add('loading');
-            tableEl.appendChild(loadingEl);
+            if (tableEl) {
+                tableEl.appendChild(loadingEl);
+            }
         }
 
         // Show loading animation when table data is being loaded

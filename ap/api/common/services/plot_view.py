@@ -35,7 +35,7 @@ from ap.common.constants import (
     TIME_COL,
     TIME_FORMAT,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.services.data_type import na_values
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one
 from ap.common.services.statistics import calc_summaries
@@ -528,19 +528,6 @@ def build_dic_param_plot_view(dic_form, start_proc_local_time):
     dic_param = parse_multi_filter_into_one(dic_form)
 
     return dic_param
-
-
-# def order_proc_as_trace_config(proc_ids):
-#     edges = CfgTrace.get_all()
-#     ordered_edges: list[CfgTrace] = order_before_mapping_data(edges)
-#     ordered_proc_ids = [(edge.self_process_id, edge.target_process_id) for edge in ordered_edges]
-#     ordered_proc_ids = list(itertools.chain.from_iterable(ordered_proc_ids))
-#     reversed_proc_ids = list(reversed(ordered_proc_ids))
-#     ordered_proc_ids = []
-#     for proc_id in reversed_proc_ids:
-#         if proc_id in proc_ids and proc_id not in ordered_proc_ids:
-#             ordered_proc_ids.append(proc_id)
-#     return list(reversed(ordered_proc_ids)) or proc_ids
 
 
 def build_graph_param(graph_param, paths=None):

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import itertools
 import json
-import logging
 import os
 import tempfile
 from contextlib import suppress
@@ -19,6 +18,7 @@ from apscheduler.triggers.date import DateTrigger
 from flask import Blueprint, Response, jsonify, request
 from flask_babel import get_locale
 from flask_babel import gettext as _
+from loguru import logger
 from pytz import utc
 
 from ap import background_jobs, close_sessions, dic_config, max_graph_config, scheduler
@@ -31,7 +31,6 @@ from ap.api.setting_module.services.common import (
     get_all_user_settings,
     get_page_top_setting,
     get_setting,
-    is_local_client,
     is_title_exist,
     save_user_settings,
 )
@@ -44,7 +43,6 @@ from ap.api.setting_module.services.equations import (
     EquationSampleData,
     validate_functions,
 )
-from ap.api.setting_module.services.export_config import DataExport
 from ap.api.setting_module.services.filter_settings import (
     delete_cfg_filter_by_ids,
     delete_cfg_filter_from_db,
@@ -93,7 +91,6 @@ from ap.api.setting_module.services.show_latest_record import (
 from ap.api.setting_module.services.shutdown_app import shut_down_app
 from ap.api.trace_data.services.proc_link import (
     add_gen_proc_link_job,
-    add_restructure_indexes_job,
     get_first_valid_value_for_proc_link_preview,
     proc_link_count_job,
     show_proc_link_info,
@@ -119,6 +116,7 @@ from ap.common.constants import (
     OSERR,
     SHUTDOWN,
     UI_ORDER_DB,
+    UNDER_SCORE,
     UNIVERSAL_DB_FILE,
     WITH_CHANGE_ALL_FREQ_SAME_DS,
     WITH_IMPORT_OPTIONS,
@@ -144,15 +142,17 @@ from ap.common.db_maintenance import backup_config_db
 from ap.common.memoize import clear_cache
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.multiprocess_sharing.events import EventKillJobs
-from ap.common.path_utils import get_export_setting_path, get_files, get_log_path, make_dir
-from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.path_utils import get_error_trace_path, get_export_setting_path, get_files, get_log_path, make_dir
+from ap.common.pydn.dblib.transaction import TxnDataConnection
+from ap.common.scheduler import run_after_request
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_and_master_data import (
     backup_instance_folder,
     cleanup_backup_data,
     clear_db_n_data,
     clear_event_queue,
+    create_archive,
+    create_archive_log_folder,
     delete_file_and_folder_by_path,
     delete_folder_data,
     export_data,
@@ -163,6 +163,7 @@ from ap.common.services.import_export_config_and_master_data import (
     revert_instance_folder,
     wait_done_jobs,
 )
+from ap.common.services.import_export_config_n_data import download_zip_file
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import remove_non_ascii_chars
 from ap.common.services.sse import MessageAnnouncer
@@ -217,7 +218,6 @@ from ap.setting_module.services.trace_config import (
 )
 from ap.trace_data.transaction_model import TransactionData
 
-logger = logging.getLogger(__name__)
 api_setting_module_blueprint = Blueprint('api_setting_module', __name__, url_prefix='/ap/api/setting')
 
 
@@ -765,9 +765,6 @@ def delete_datasource_cfg():
 @login_required
 def stop_jobs():
     try:
-        if not is_local_client(request):
-            return jsonify({}), 403
-
         # Interrupt import/update jobs before shutdown app
         target_job_types = [
             JobType.CSV_IMPORT,
@@ -775,7 +772,6 @@ def stop_jobs():
             JobType.FACTORY_PAST_IMPORT,
             JobType.WEB_API_IMPORT,
             JobType.IMPORT_DATA,
-            JobType.RESTRUCTURE_INDEXES,
             JobType.USER_BACKUP_DATABASE,
             JobType.USER_RESTORE_DATABASE,
             JobType.UPDATE_TRANSACTION_TABLE,
@@ -849,15 +845,13 @@ def post_sw_register():
                 if process_id:
                     # in case of the process is already existing, do not re-register
                     continue
-                table_name = item.get(ProcessCfgConst.TABLE_NAME.value, '')
                 master_type = str(item.get(ProcessCfgConst.MASTER_TYPE.value))
                 master_type = MasterDBType[master_type] if MasterDBType.has_key(master_type) else None
-                history_suffix = (
-                    f'_{master_type.get_data_type()}'
-                    if master_type is not MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT
-                    else ''
-                )
-                proc_name = f'{data_src.name}_{table_name}{history_suffix}'
+                master_type_suffix = master_type.get_data_type()
+
+                # same method of generating table_name as get_list_process_software_workshop
+                table_name = f'{item.get(ProcessCfgConst.TABLE_NAME.value, "")}{UNDER_SCORE}{master_type_suffix}'
+                proc_name = f'{data_src.name}{UNDER_SCORE}{table_name}'
                 proc_name_en = to_romaji(proc_name)
                 process_factid = str(item.get(ProcessCfgConst.CHILD_EQUIP_ID.value))
 
@@ -913,6 +907,31 @@ def post_sw_register():
         logger.exception(e)
         message = {'message': _('Database Setting failed to save'), 'is_error': True}
         return jsonify(flask_message=message), 500
+
+
+@run_after_request
+def add_update_transaction_table_job(
+    process: CfgProcess,
+    old_main_serial_cfg_process_column: CfgProcessColumn,
+    is_show_warning_message: bool,
+    next_run_time: datetime,
+):
+    EventQueue.put(
+        EventAddJob(
+            fn=update_transaction_table_job,
+            kwargs={
+                'process_id': process.id,
+                'old_main_serial_cfg_process_column': old_main_serial_cfg_process_column,
+                'is_show_warning_message': is_show_warning_message,
+            },
+            job_type=JobType.UPDATE_TRANSACTION_TABLE,
+            process_id=process.id,
+            replace_existing=True,
+            trigger=DateTrigger(next_run_time, timezone=utc),
+            next_run_time=next_run_time,
+            max_instances=1,
+        ),
+    )
 
 
 @api_setting_module_blueprint.route('/proc_config', methods=['POST'])
@@ -975,7 +994,6 @@ def post_proc_config():
                 JobType.FACTORY_IMPORT,
                 JobType.FACTORY_PAST_IMPORT,
                 JobType.WEB_API_IMPORT,
-                JobType.RESTRUCTURE_INDEXES,
                 JobType.USER_BACKUP_DATABASE,
                 JobType.USER_RESTORE_DATABASE,
                 JobType.UPDATE_TRANSACTION_TABLE,
@@ -1016,21 +1034,11 @@ def post_proc_config():
 
                 # Add UPDATE_TRANSACTION_TABLE job
                 next_run_time = datetime.now().astimezone(utc)
-                EventQueue.put(
-                    EventAddJob(
-                        fn=update_transaction_table_job,
-                        kwargs={
-                            'process_id': process.id,
-                            'old_main_serial_cfg_process_column': old_main_serial_cfg_process_column,
-                            'is_show_warning_message': is_show_warning_message,
-                        },
-                        job_type=JobType.UPDATE_TRANSACTION_TABLE,
-                        process_id=process.id,
-                        replace_existing=True,
-                        trigger=DateTrigger(next_run_time, timezone=utc),
-                        next_run_time=next_run_time,
-                        max_instances=1,
-                    ),
+                add_update_transaction_table_job(
+                    process,
+                    old_main_serial_cfg_process_column,
+                    is_show_warning_message,
+                    next_run_time,
                 )
                 processes_to_queue_jobs = CfgProcess.get_all_parents_and_children_processes(
                     request_process.id,
@@ -1096,7 +1104,6 @@ def save_trace_configs():
     try:
         traces = json.loads(request.data)
         trace_config_crud(traces)
-        add_restructure_indexes_job()
         add_gen_proc_link_job(is_user_request=True)
     except Exception as e:
         logger.exception(e)
@@ -1674,6 +1681,31 @@ def zip_export_database():
     return response
 
 
+@api_setting_module_blueprint.route('/zip_export_log', methods=['GET'])
+def zip_export_log_folder():
+    """Zip export log folder
+
+    Returns:
+        [type] -- [description]
+    """
+    start_date = request.args.get('start_date', None)
+    end_date = request.args.get('end_date', None)
+
+    archive = create_archive_log_folder(get_log_path(), start_date, end_date)
+    return download_zip_file(archive_file=archive)
+
+
+@api_setting_module_blueprint.route('/zip_export_error', methods=['GET'])
+def zip_export_error_folder():
+    """Zip export error folder
+
+    Returns:
+        [type] -- [description]
+    """
+    archive = create_archive(get_error_trace_path())
+    return download_zip_file(archive_file=archive)
+
+
 @api_setting_module_blueprint.route('/function_config/sample_data', methods=['POST'])
 def equations_sample_data():
     # convert json to EquationSampleData
@@ -1940,9 +1972,9 @@ def proc_link_preview():
         if process_id:
             # get_sample_transaction
             trans_data = TransactionData(process_id)
-            with ReadOnlyDbProxy(gen_data_source_of_universal_db(process_id), is_universal_db=True) as db_instance:
+            with TxnDataConnection(process_id=process_id, readonly_transaction=True) as data_con:
                 link_cols = trans_data.cfg_process.get_linking_columns()
-                samples = trans_data.get_sample_data(db_instance, columns=link_cols)
+                samples = trans_data.get_sample_data(data_con, columns=link_cols)
                 samples = get_first_valid_value_for_proc_link_preview(samples)
                 if samples.empty:
                     # get data from preview_data of process
@@ -2011,7 +2043,6 @@ def zip_import_database():
             max_graph_config[key] = CfgConstant.get_value_by_type_first(key, int)
 
         add_idle_monitoring_job()
-        add_restructure_indexes_job()
 
         change_polling_all_interval_jobs(run_now=True)
 
@@ -2180,22 +2211,15 @@ def check_export_folder_path():
     return jsonify({'is_valid': is_valid, 'message': message}), 200
 
 
-@api_setting_module_blueprint.route('/export/<process_id>', methods=['GET'])
-def export_data(process_id):  # noqa: F811
-    [export_config, *_] = CfgExport.get_by_process_id(int(process_id))
-    exporter = DataExport(export_config=export_config)
-    outfile = exporter.export()
-    return jsonify(
-        {
-            'status': 'OK',
-            'message': f'ExportConfig ID {export_config.id} was successful. The file has been exported to: {outfile}',
-        }
-    ), 200
-
-
 @api_setting_module_blueprint.route('/labels', methods=['GET'])
 def all_labels():
     labels = CfgLabel.query.all()
+    return LabelSchema(many=True).dump(labels)
+
+
+@api_setting_module_blueprint.route('/labels_in_use', methods=['GET'])
+def get_labels_in_use():
+    labels = CfgLabel.query.filter(CfgLabel.processes.any()).all()
     return LabelSchema(many=True).dump(labels)
 
 

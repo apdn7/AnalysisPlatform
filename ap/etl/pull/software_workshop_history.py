@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-import logging
-
 import sqlalchemy as sa
 
 from ap.common.common_utils import TimeRange
 from ap.etl.pull.software_workshop import PullSoftwareWorkshop
 from ap.setting_module.models import CfgProcess
-
-logger = logging.getLogger(__name__)
 
 
 class PullSoftwareWorkshopHistory(PullSoftwareWorkshop):

@@ -1,17 +1,16 @@
 from __future__ import annotations
 
 import contextlib
-import logging
 import multiprocessing
 import queue
 import threading
 from collections.abc import Callable
 from typing import Any, ClassVar
 
+from loguru import logger
+
 from ap.common.multiprocess_sharing.events import Event
 from ap.common.multiprocess_sharing.manager import CustomManager
-
-logger = logging.getLogger(__name__)
 
 
 class EventQueue:

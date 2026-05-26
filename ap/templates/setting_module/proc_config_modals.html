@@ -135,36 +135,38 @@
                                     <h5>{{ _("Table Name") }}</h5>
                                 </label>
                                 <div class="col-sm-9">
-                                    <div class="d-flex">
-                                        <div id="dbTableList" style="width: calc((100% - 140px) / 2);">
+                                    <div class="d-flex align-items-center">
+                                        <div id="dbTableList" style="width: 60%;">
                                             <select
                                                 class="form-control select2-selection--single"
                                                 name="tableName"
                                                 id="tableName"
                                             ></select>
                                         </div>
-                                        <label
-                                            for="cfgOptionalFunction"
-                                            class="col-form-label label-right ml-3 mr-2"
-                                            style="min-width: 140px"
-                                        >
-                                            <h5 title="{{ _('Process config optional function Hover') }}">
-                                                <span class="hint-text">{{ _("Optional function") }}</span>
-                                            </h5>
-                                        </label>
-                                        <div id="optionalFunctionList" style="width: calc((100% - 140px) / 2);">
+                                        <div class="d-flex justify-content-center align-items-center flex-grow-1">
                                             <label
-                                                type="button"
-                                                class="btn mb-0 p-md-0 btn-warning-mark"
-                                                style="display: block"
+                                                for="cfgOptionalFunction"
+                                                class="col-form-label label-right ml-3 mr-2"
+                                                style="min-width: 140px"
                                             >
-                                                <i
-                                                    id="optional-func-warning-mark"
-                                                    class="fas fa-triangle-exclamation position-absolute blink"
-                                                    style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
-                                                ></i>
+                                                <h5 title="{{ _('Process config optional function Hover') }}">
+                                                    <span class="hint-text">{{ _("Optional function") }}</span>
+                                                </h5>
                                             </label>
-                                            {{ macros.etl_optional_function_dropdown('cfgOptionalFunction', 'cfgOptionalFunction', true, py_etl_scripts) }}
+                                            <div id="optionalFunctionList" style="width: 100%;">
+                                                <label
+                                                    type="button"
+                                                    class="btn mb-0 p-md-0 btn-warning-mark"
+                                                    style="display: block"
+                                                >
+                                                    <i
+                                                        id="optional-func-warning-mark"
+                                                        class="fas fa-triangle-exclamation position-absolute blink"
+                                                        style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                                    ></i>
+                                                </label>
+                                                {{ macros.etl_optional_function_dropdown('cfgOptionalFunction', 'cfgOptionalFunction', true, py_etl_scripts) }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1270,8 +1272,8 @@
                                         <h5>{{ _("Child Process Table Name") }}</h5>
                                     </label>
                                     <div class="col-sm-8">
-                                        <div class="d-flex">
-                                            <div id="dbTableList" style="width: calc((100% - 140px) / 2);">
+                                        <div class="d-flex align-items-center">
+                                            <div id="dbTableList" style="width: 60%">
                                                 <select
                                                     class="form-control select2-selection--single"
                                                     name="childTableName"
@@ -1287,22 +1289,21 @@
                                                     <span class="hint-text">{{ _("Optional function") }}</span>
                                                 </h5>
                                             </label>
-                                            <div
-                                                id="childOptionalFunctionList"
-                                                style="width: calc((100% - 140px) / 2);"
-                                            >
-                                                <label
-                                                    type="button"
-                                                    class="btn mb-0 p-md-0 btn-warning-mark"
-                                                    style="display: block"
-                                                >
-                                                    <i
-                                                        id="optional-func-warning-mark"
-                                                        class="fas fa-triangle-exclamation position-absolute blink"
-                                                        style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
-                                                    ></i>
-                                                </label>
-                                                {{ macros.etl_optional_function_dropdown('cfgOptionalFunctionChild', 'cfgOptionalFunctionChild', true, py_etl_scripts) }}
+                                            <div class="d-flex justify-content-center align-items-center flex-grow-1">
+                                                <div id="childOptionalFunctionList" style="width: 100%">
+                                                    <label
+                                                        type="button"
+                                                        class="btn mb-0 p-md-0 btn-warning-mark"
+                                                        style="display: block"
+                                                    >
+                                                        <i
+                                                            id="optional-func-warning-mark"
+                                                            class="fas fa-triangle-exclamation position-absolute blink"
+                                                            style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                                        ></i>
+                                                    </label>
+                                                    {{ macros.etl_optional_function_dropdown('cfgOptionalFunctionChild', 'cfgOptionalFunctionChild', true, py_etl_scripts) }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -9,7 +9,7 @@ import pandas as pd
 from pandas import Series
 
 from ap.common.constants import INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 
 na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf]
 datetime_pattern = (

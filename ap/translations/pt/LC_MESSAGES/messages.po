@@ -1602,6 +1602,7 @@ msgstr ""
 "Todo o trabalho foi parado. Você pode fechar com segurança seu navegador "
 "e console."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2181,6 +2182,7 @@ msgstr ""
 "Dispa a condição de vinculação de dados definida no momento e chama a "
 "condição registrada anteriormente."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

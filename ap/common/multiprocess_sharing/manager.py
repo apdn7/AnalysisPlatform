@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import atexit
-import logging
 import multiprocessing
 import os
 import threading
@@ -11,10 +10,9 @@ from queue import Queue
 from typing import Any
 
 import filelock
+from loguru import logger
 
 from ap.common.path_utils import get_data_path
-
-logger = logging.getLogger(__name__)
 
 
 class AcquirerProxy(BaseProxy):

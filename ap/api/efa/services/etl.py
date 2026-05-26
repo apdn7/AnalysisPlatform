@@ -1,11 +1,11 @@
 import importlib.util
-import logging
 import os
 from abc import ABC, abstractmethod
 from typing import Union
 from uuid import uuid4
 
 import pandas as pd
+from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from ap import is_internal_version
@@ -14,7 +14,7 @@ from ap.common.common_utils import (
     safe_import,
 )
 from ap.common.constants import CfgConstantType, CsvDelimiter, CSVExtTypes
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import (
     get_base_dir,
     get_etl_path,
@@ -32,8 +32,6 @@ FILE = 'etl_spray_shape.R'
 
 UNKNOWN_ERROR_MESSAGE = 'NO OUTPUT FROM R SCRIPT'
 NO_DATA_ERROR = 'NoDataError'
-
-logger = logging.getLogger(__name__)
 
 
 class ETLException(Exception):

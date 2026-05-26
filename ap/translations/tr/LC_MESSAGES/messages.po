@@ -1588,6 +1588,7 @@ msgstr ""
 "Tüm işler durduruldu. Tarayıcınızı ve konsolunuzu güvenli bir şekilde "
 "kapatabilirsiniz."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2157,6 +2158,7 @@ msgstr ""
 "Şu anda ayarlanan veri bağlama koşulunu atar ve daha önce kaydedilmiş "
 "koşulu çağırır."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

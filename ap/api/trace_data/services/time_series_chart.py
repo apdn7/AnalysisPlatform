@@ -86,7 +86,7 @@ from ap.common.constants import (
     DataColumnType,
     NegRatio,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
@@ -124,7 +124,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
         temp_serial_order,
         temp_serial_process,
         temp_x_option,
-        is_log_scale_mode,
+        y_scale_mode,
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
@@ -217,7 +217,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
                 dic_param[ARRAY_PLOTDATA][index][NegRatio.NEG_RATIO.value] = bin_df.to_dict(orient='records')
                 dic_param[ARRAY_PLOTDATA][index][NEG_CUMSUM] = cumulative_sum.to_dict(orient='records')
     # calculate_summaries
-    calc_summaries(dic_param, is_log_scale_mode)
+    calc_summaries(dic_param, y_scale_mode)
 
     # calc common scale y min max
     min_max_list, all_graph_min, all_graph_max = calc_raw_common_scale_y(dic_param.get(ARRAY_PLOTDATA, []), str_cols)
@@ -305,7 +305,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     )
 
     # kde
-    gen_kde_data_trace_data(dic_param, full_arrays, is_log_scale_mode)
+    gen_kde_data_trace_data(dic_param, full_arrays, y_scale_mode)
 
     # add unique category values
     for dic_cate in dic_param.get(CATEGORY_DATA) or []:

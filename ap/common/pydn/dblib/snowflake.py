@@ -6,13 +6,12 @@ from typing import Any, Union
 
 import snowflake.connector
 import sqlalchemy as sa
+from loguru import logger
 from snowflake.connector import SnowflakeConnection
 from snowflake.sqlalchemy import snowdialect
 
 from ap.common.common_utils import convert_sa_sql_to_sa_str, handle_read_only, strip_all_quote
-from ap.common.logger import log_execution_time
-
-logger = logging.getLogger(__name__)
+from ap.common.log import log_execution_time
 
 # Reduce debug noise that error from AWS Botocore throw out
 logging.getLogger('botocore').setLevel(logging.WARNING)

@@ -7,8 +7,9 @@ def create_module(app, **_kwargs: Mapping[str, Any]):
     from .analyze.controllers import api_analyze_module_blueprint
     from .calendar_heatmap.controllers import api_calendar_heatmap_blueprint
     from .categorical_plot.controllers import api_categorical_plot_blueprint
+    from .causal_relation_plot.controllers import api_causal_relation_plot
     from .co_occurrence.controllers import api_co_occurrence_blueprint
-    from .common.controlllers import api_common_blueprint
+    from .common.controllers import api_common_blueprint
     from .external_api.controllers import external_api_v1_blueprint
     from .graphical_lasso.controllers import api_gl_blueprint
     from .heatmap.controllers import api_heatmap_blueprint
@@ -40,3 +41,4 @@ def create_module(app, **_kwargs: Mapping[str, Any]):
     app.register_blueprint(api_gl_blueprint)
     app.register_blueprint(external_api_v1_blueprint)
     app.register_blueprint(api_waveform_plot_blueprint)
+    app.register_blueprint(api_causal_relation_plot)

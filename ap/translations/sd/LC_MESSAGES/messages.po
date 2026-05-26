@@ -1589,6 +1589,7 @@ msgstr ""
 "سڀ نوڪري بند ٿي وئي آهي. توهان محفوظ طور تي پنهنجو برائوزر ۽ ڪنسول بند "
 "ڪري سگهو ٿا."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2141,6 +2142,7 @@ msgstr ""
 "موجوده ڊيٽا لنڪنگ واري حالت کي رد ڪري ڇڏيو ۽ اڳوڻي رجسٽرڊ حالت کي ڪال ڪري"
 " ٿو."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID ترتيب ڏنل ڊيٽا کي سيٽ ڪرڻ واري حالت سان ڊيٽا کي اجايو ويندو آهي."

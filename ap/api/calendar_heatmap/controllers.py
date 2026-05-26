@@ -6,13 +6,9 @@ from flask import Blueprint, request
 from ap.api.calendar_heatmap.services import gen_heatmap_data
 from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_jump_function import get_graph_context_param
 from ap.api.trace_data.services.csv_export import gen_csv_data
 from ap.common.constants import (
-    ARRAY_FORMVAL,
-    COMMON,
-    END_PROC,
-    START_PROC,
     CSVExtTypes,
 )
 from ap.common.services.csv_content import zip_file_to_response
@@ -25,13 +21,11 @@ from ap.common.services.form_env import (
 )
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
-    get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
-    save_input_data_to_file,
     trace_log_params,
 )
 
@@ -52,34 +46,16 @@ def generate_heatmap():
     else:
         dic_form['step'] = dic_form['step_hour']
 
-    # save dic_form to pickle (for future debug)
-    save_input_data_to_file(dic_form, EventType.CHM)
+    graph_context = get_graph_context_param(dic_form, EventType.CHM)
 
-    dic_param = parse_multi_filter_into_one(dic_form)
-
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
-
-    start_proc = dic_param[COMMON].get(START_PROC)
-    dic_param[COMMON][START_PROC] = start_proc if start_proc else dic_param[ARRAY_FORMVAL][0][END_PROC]
-
-    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
-
-    if not cache_dic_param:
-        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-    else:
-        dic_param = cache_dic_param
-        dic_proc_cfgs = graph_param.dic_proc_cfgs
-        trace_graph = graph_param.trace_graph
-        dic_card_orders = graph_param.dic_card_orders
-
-    customize_dict_param(dic_param)
-    org_dic_param = deepcopy(dic_param)
-    dic_params = get_end_procs_param(dic_param, dic_proc_cfgs)
+    org_dic_param = deepcopy(graph_context.dic_param)
+    dic_params = get_end_procs_param(graph_context.dic_param, graph_context.dic_proc_cfgs)
 
     for single_dic_param in dic_params:
-        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, single_dic_param)
-        heatmap_dat = gen_heatmap_data(graph_param, single_dic_param, df)
+        graph_param = bind_dic_param_to_class(
+            graph_context.dic_proc_cfgs, graph_context.trace_graph, graph_context.dic_card_orders, single_dic_param
+        )
+        heatmap_dat = gen_heatmap_data(graph_param, single_dic_param, graph_context.df)
         org_dic_param = update_data_from_multiple_dic_params(org_dic_param, heatmap_dat)
 
     stop = timeit.default_timer()

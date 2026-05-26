@@ -1,5 +1,3 @@
-import logging
-
 from ap import scheduler
 from ap.common import multiprocess_sharing
 from ap.common.jobs.utils import kill_jobs, remove_jobs
@@ -16,8 +14,6 @@ from ap.common.multiprocess_sharing import (
 )
 from ap.common.multiprocess_sharing.events import EventKillJobs
 from ap.common.services.sse import MessageAnnouncer
-
-logger = logging.getLogger(__name__)
 
 
 class EventListener:

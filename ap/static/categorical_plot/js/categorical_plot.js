@@ -470,7 +470,7 @@ const resetSetting = (eleIdPrefix) => {
 
     $(`select[name=${eleIdPrefix}${eles.frequencyScale}]`).val(frequencyOptions.COMMON);
 
-    $(`select[name=${eleIdPrefix}HistScale]`).val(scaleOptionConst.COMMON);
+    $(`select[name=${eleIdPrefix}${eles.histScale}]`).val(scaleOptionConst.COMMON);
 };
 
 const showMessageIfFacetNotSelected = (res) => {
@@ -513,11 +513,6 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     // close sidebar
     beforeShowGraphCommon(clearOnFlyFilter);
 
-    if (clearOnFlyFilter) {
-        // reset sumary option
-        resetSetting(eleIdPrefix);
-    }
-
     const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
     showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
         // set summary bar for prefix
@@ -536,6 +531,11 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
             } else {
                 currentTraceDataCyclicTerm = res;
             }
+        }
+        // issue-918: Reset after setNameWithPrefix
+        if (clearOnFlyFilter) {
+            // reset sumary option
+            resetSetting(eleIdPrefix);
         }
 
         setScaleOption(eleIdPrefix);

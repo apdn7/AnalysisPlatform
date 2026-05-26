@@ -7,7 +7,6 @@ import csv
 import io
 
 # https://stackoverrun.com/ja/q/6869533
-import logging
 from collections.abc import Mapping
 from datetime import datetime
 from itertools import islice
@@ -33,11 +32,9 @@ from ap.common.constants import (
     WINDOWS_31J,
     CSVExtTypes,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import is_normal_zip, open_with_zip
 from ap.common.services.normalization import normalize_list
-
-logger = logging.getLogger(__name__)
 
 
 def gen_csv_fname(export_type=CSVExtTypes.CSV.value):

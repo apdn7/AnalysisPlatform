@@ -1,5 +1,4 @@
 import http.client
-import logging
 import time
 from collections.abc import Mapping
 from enum import Enum, auto
@@ -9,16 +8,14 @@ from typing import Any
 from urllib.parse import urlencode
 
 from flask import current_app, g
+from loguru import logger
 from pandas import DataFrame
 
 from ap import ENABLE_DUMP_TRACE_LOG
 from ap.common.common_utils import create_file_path, write_to_pickle
 from ap.common.constants import IS_EXPORT_MODE, MPS, TESTING, CsvDelimiter, FlaskGKey
 from ap.common.ga import GTAG_DEFAULT_TIMEOUT
-from ap.common.logger import log_execution_time
-
-logger = logging.getLogger(__name__)
-
+from ap.common.log import log_execution_time
 
 waiting_trace_records = []
 
@@ -112,6 +109,8 @@ class EventType(Enum):
     GL = 'GL'
     HMP = 'HMp'
     APP = 'App'
+    WFP = 'WFP'
+    CRP = 'CRP'
 
 
 class EventAction(Enum):

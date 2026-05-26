@@ -1,17 +1,15 @@
-import logging
 from datetime import datetime, timedelta
 
 import pytz
 from apscheduler.triggers.cron import CronTrigger
+from loguru import logger
 
 from ap import db
 from ap.common.constants import JobType
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgRequest
-
-logger = logging.getLogger(__name__)
 
 
 def get_expired_reqs():

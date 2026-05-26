@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import logging
 import re
 from abc import abstractmethod
 from collections.abc import Mapping
@@ -12,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pydantic
 from dateutil import tz
+from loguru import logger
 from pydantic import BaseModel, ConfigDict
 from pydantic.functional_validators import field_validator
 
@@ -25,8 +25,6 @@ from ap.common.constants import (
 from ap.common.memoize import CustomCache
 from ap.equations.error import INVALID_VALUE_MSG, MUST_HAVE_THE_SAME_TYPE_MSG, ErrorField, FunctionFieldError
 from ap.setting_module.models import MFunction
-
-logger = logging.getLogger(__name__)
 
 BOOLEAN_DICT_VALUES = {
     'true': True,
@@ -2003,12 +2001,16 @@ EQUATION_DEFINITION = {
     14: ExpTransform,
     15: PowTransform,
     16: LogTransform,
+    17: NumberRemoval,
+    18: RangeRemoval,
+    19: OutOfRangeRemoval,
     20: HexToDec,
     21: HexToBin,
     22: HexToLogical,
     28: RadiusPosition,
     29: AngularPosition,
     30: StringExtraction,
+    31: StringRemoval,
     32: CategoryGeneration,
     40: Datetime,
     41: DatetimeFromDateAndTime,

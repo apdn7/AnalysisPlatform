@@ -5,7 +5,7 @@ from ap.common.constants import (
     CacheType,
     CfgConstantType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.services.trace_graph import TraceGraph
 from ap.setting_module.models import CfgConstant, CfgProcess, CfgProcessColumn, CfgTrace, make_session
@@ -130,3 +130,18 @@ def _get_cols(cols):
 
 def gen_dict_procs(proc_ids):
     return {proc.id: proc for proc in CfgProcess.get_procs(proc_ids)}
+
+
+@log_execution_time()
+@CustomCache.memoize(cache_type=CacheType.CONFIG_DATA)
+def get_trace_graph_of_show_graph_processes(process_ids: list[int]) -> TraceGraph:
+    trace_schema = TraceSchema(many=True)
+    cfg_traces = CfgTrace.get_traces_of_proc(process_ids)
+
+    # dumps to remove unneeded keys, and detach session
+    traces = trace_schema.dump(cfg_traces)
+
+    # load again to have enough keys
+    traces = trace_schema.load(traces)
+
+    return TraceGraph(traces)

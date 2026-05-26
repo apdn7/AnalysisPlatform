@@ -1,9 +1,9 @@
 import itertools
-import logging
 
 import numpy as np
 import pandas as pd
 from flask_babel import gettext as _
+from loguru import logger
 from pandas import DataFrame
 
 from ap.common.constants import CUM_RATIO_VALUE, AggregateBy
@@ -11,8 +11,6 @@ from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
 from ap.common.yaml_utils import YamlConfig
-
-logger = logging.getLogger(__name__)
 
 dic_colors = {
     'bar_highlight': '#729e44',  # green, same as other charts

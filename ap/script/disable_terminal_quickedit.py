@@ -1,11 +1,11 @@
 import msvcrt
 import ctypes
 
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 
-import logging
 
-logger = logging.getLogger(__name__)
+
+from loguru import logger
 
 
 @log_execution_time()

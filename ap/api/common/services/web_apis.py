@@ -1,11 +1,8 @@
-import logging
 from types import SimpleNamespace
 from typing import Any
 
 from ap.api.setting_module.services.web_api import WebAPI
 from ap.common.common_utils import WebAuthenticationType
-
-logger = logging.getLogger(__name__)
 
 
 class APIConnection(SimpleNamespace):
@@ -41,6 +38,6 @@ def check_web_con(
             "data": dict | None
         }
     """
-    web_api = WebAPI(url, username=username, password=password, authentication_type=authentication_type)
+    web_api = WebAPI(url, username=username, encrypted_password=password, authentication_type=authentication_type)
     data = web_api.check_connection()
     return APIConnection(url=url, connected=True, message='Connected', data=data)

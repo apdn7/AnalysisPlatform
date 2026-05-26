@@ -1594,6 +1594,7 @@ msgstr ""
 "सबै काम रोकिएको छ। तपाईं आफ्नो ब्राउजर र कन्सोल सुरक्षित रूपमा बन्द गर्न "
 "सक्नुहुन्छ।"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2151,6 +2152,7 @@ msgstr ""
 "हाल सेट डेटा लि linking ्क लिंक गरिएको कन्फर्लिंग डिस्डरहरू रद्द "
 "गर्नुहोस् र पहिले दर्ता गरिएको अवस्थालाई कल गर्नुहोस्।"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

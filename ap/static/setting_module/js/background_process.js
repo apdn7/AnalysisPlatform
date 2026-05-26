@@ -349,6 +349,10 @@ $(() => {
     // Search content of table
     onSearchTableContent('searchJobList', 'jobTable');
     sortableTable('jobTable', [0, 1, 2, 3, 4, 5, 6, 7, 8], null, false, false);
+    const jobTableEl = $(ids.jobTable);
+    jobTableEl.find('thead input.filterCol').each((_, input) => {
+        initCommonSearchInput($(input), 'w-100');
+    });
 
     // show load settings menu
     handleLoadSettingBtns();

@@ -10,6 +10,7 @@ from ap.common.constants import (
     ARRAY_X,
     ARRAY_Y,
     CHART_INFOS,
+    IS_LOG_SCALE_KEY,
     NONE_IDXS,
     PRC_MAX,
     PRC_MIN,
@@ -18,9 +19,35 @@ from ap.common.constants import (
     THRESH_LOW,
     TIME_COL,
     NegRatio,
+    YScaleModes,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.sigificant_digit import signify_digit
+from ap.etl.pull.common import should_use_log_scale
+
+
+def _calculate_and_set_log_scale_mode(plotdata: dict, y_scale_mode: YScaleModes, full_array_y) -> bool:
+    """Calculate and set log scale mode for a plot, returning the computed value."""
+    if IS_LOG_SCALE_KEY not in plotdata:
+        plotdata[IS_LOG_SCALE_KEY] = determine_log_scale_mode(y_scale_mode, full_array_y)
+    return plotdata[IS_LOG_SCALE_KEY]
+
+
+def determine_log_scale_mode(y_scale_mode: YScaleModes, array_y) -> bool:
+    """Determine if log scale mode should be applied based on y_scale_mode and data.
+
+    Args:
+        y_scale_mode: The scale mode setting (AUTO, LOG_SCALE, or LINEAR)
+        array_y: The data array to check for log scale applicability
+
+    Returns:
+        bool: True if log scale mode should be applied, False otherwise
+    """
+    if y_scale_mode is YScaleModes.AUTO:
+        return should_use_log_scale(array_y)
+    elif y_scale_mode is YScaleModes.LOG_SCALE:
+        return True
+    return False  # LINEAR
 
 
 @log_execution_time()
@@ -349,9 +376,11 @@ def calc_summary_elements(plot, is_log_scale_mode=False):
 
 
 @log_execution_time()
-def calc_summaries(dic_param, is_log_scale_mode=False):
+def calc_summaries(dic_param, y_scale_mode: YScaleModes = YScaleModes.AUTO):
     for plot in dic_param.get(ARRAY_PLOTDATA, []):
         try:
+            # check log_scale if it's not existing in plotdata
+            is_log_scale_mode = _calculate_and_set_log_scale_mode(plot, y_scale_mode, plot[ARRAY_Y])
             plot[SUMMARIES] = calc_summary_elements(plot, is_log_scale_mode=is_log_scale_mode)
         except Exception:
             plot[SUMMARIES] = {'count': {}, 'basic_statistics': {}, 'non_parametric': {}}

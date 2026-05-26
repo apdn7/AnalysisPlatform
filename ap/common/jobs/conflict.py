@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import contextlib
-import logging
 from multiprocessing.managers import DictProxy
+
+from loguru import logger
 
 from ap.common.constants import JobType
 from ap.common.jobs.jobs import RunningJob, RunningJobStatus
-
-logger = logging.getLogger(__name__)
 
 PRIORITY_JOBS = [
     JobType.UPDATE_TRANSACTION_TABLE.name,
@@ -23,18 +22,15 @@ PRIORITY_JOBS = [
 #       True: Need to check key between 2 job , if key is not the same , they can run parallel
 CONFLICT_PAIR = {
     (JobType.GEN_GLOBAL.name, JobType.GEN_GLOBAL.name),
-    (JobType.GEN_GLOBAL.name, JobType.RESTRUCTURE_INDEXES.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.CSV_IMPORT.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.FACTORY_IMPORT.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.FACTORY_PAST_IMPORT.name),
-    (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.RESTRUCTURE_INDEXES.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.USER_BACKUP_DATABASE.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.UPDATE_TRANSACTION_TABLE.name),
     (JobType.DEL_TRANSACTION_DATA_BY_LIMIT.name, JobType.USER_RESTORE_DATABASE.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.CSV_IMPORT.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.FACTORY_IMPORT.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.FACTORY_PAST_IMPORT.name),
-    (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.RESTRUCTURE_INDEXES.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.USER_BACKUP_DATABASE.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.UPDATE_TRANSACTION_TABLE.name),
     (JobType.DEL_ALL_TRANSACTION_DATA.name, JobType.USER_RESTORE_DATABASE.name),
@@ -45,7 +41,6 @@ CONFLICT_PAIR_JOBS_WITH_IDS = {
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.CSV_IMPORT.name),
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.FACTORY_IMPORT.name),
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.FACTORY_PAST_IMPORT.name),
-    (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.RESTRUCTURE_INDEXES.name),
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.USER_BACKUP_DATABASE.name),
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.USER_RESTORE_DATABASE.name),
     (JobType.UPDATE_TRANSACTION_TABLE.name, JobType.UPDATE_TRANSACTION_TABLE.name),

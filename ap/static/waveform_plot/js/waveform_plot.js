@@ -67,6 +67,7 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
             // waveform_plot draw chart
             waveform.draw();
             waveform.onHover();
+            waveform.onYTitleHover();
         });
     }
     // scroll to chart
@@ -186,13 +187,6 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     waveformTraceData(clearOnFlyFilter, setting);
 };
 
-const checkIsUpdateXY = (newXY, currentXY) => {
-    if (newXY.length !== currentXY.length) return false;
-    const sortedNewXY = [...newXY].sort();
-    const sortedCurrentXY = [...currentXY].sort();
-    return sortedNewXY.every((val, idx) => val === sortedCurrentXY[idx]);
-};
-
 const transformXY = (formData) => {
     const XYDataTemp = latestSortColIds.slice(-2);
     const isUpdateXY = checkIsUpdateXY(XYDataTemp, currentXY);
@@ -230,9 +224,10 @@ const getwaveformFormData = (formEleID, clearOnFlyFilter = null) => {
         formData = lastUsedFormData;
         // transform cat label filter
         formData = transformCatFilterParams(formData);
+
+        // transfer for switch XY
+        formData = transformXY(formData);
     }
-    // transfer for switch XY
-    formData = transformXY(formData);
     return formData;
 };
 

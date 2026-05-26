@@ -2,8 +2,10 @@ import copy
 import uuid
 from typing import Any, Union
 
+import numpy as np
 import pandas as pd
 from dateutil.tz import tz
+from natsort import natsort_keygen
 from pandas.core.groupby import DataFrameGroupBy, SeriesGroupBy
 from scipy.stats import iqr
 
@@ -56,6 +58,8 @@ from ap.common.constants import (
     REMOVED_OUTLIERS,
     RL_CATEGORY,
     RL_DIRECT_TERM,
+    SAFETY_DIV_UNIQUE_KEY,
+    SAFETY_DIV_UNIQUE_THRESHOLD,
     START_DATE,
     START_DT,
     START_TM,
@@ -71,7 +75,7 @@ from ap.common.constants import (
     X,
     Y,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series, assign_group_labels_for_dataframe
 from ap.common.services.request_time_out_handler import (
@@ -162,10 +166,13 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
             graph_param.common.divide_calendar_labels,
         )
 
-    dic_data, str_cols, is_graph_limited, export_agp_plot_data = gen_agp_data_from_df(df, graph_param, max_graph)
+    dic_data, str_cols, is_graph_limited, export_agp_plot_data, is_safety_div_uniques = gen_agp_data_from_df(
+        df, graph_param, max_graph
+    )
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     dic_param[REMOVED_OUTLIERS] = graph_param.common.outliers
+    dic_param[SAFETY_DIV_UNIQUE_KEY] = is_safety_div_uniques
     chart_infos, original_graph_configs = get_chart_infos(graph_param)
     for plot in dic_param[ARRAY_PLOTDATA]:
         set_chart_infos_to_plotdata(plot[END_COL_ID], chart_infos, original_graph_configs, plot)
@@ -278,6 +285,39 @@ def gen_divide_format_column(
     return df
 
 
+def df_processing_with_div_limit(
+    df: pd.DataFrame, div_col_name: str, div_uniques: pd.Series | list | np.ndarray
+) -> pd.DataFrame:
+    """
+    Filter DataFrame to keep only rows where div_col_name value is in div_uniques.
+
+    Args:
+        df: Input DataFrame to filter
+        div_col_name: Column name to filter on
+        div_uniques: Values to keep (Series, list, or array)
+
+    Returns:
+        Filtered DataFrame containing only rows where column value is in div_uniques
+
+    Raises:
+        ValueError: If column doesn't exist or inputs are invalid
+    """
+    # Validation 1: Check DataFrame is not empty
+    if df.empty:
+        return df.copy()
+
+    # Validation 2: Check column exists
+    if div_col_name not in df.columns:
+        raise ValueError(f"Column '{div_col_name}' not found in DataFrame. Available columns: {list(df.columns)}")
+
+    # Validation 3: Check div_uniques is not empty
+    if div_uniques is None or len(div_uniques) == 0:
+        return pd.DataFrame(columns=df.columns)  # Return empty DataFrame with same structure
+
+    # Filter and return
+    return df[df[div_col_name].isin(div_uniques)].copy()
+
+
 @log_execution_time()
 def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int | None = None) -> list[dict[Any, Any]]:
     plot_data = []
@@ -293,6 +333,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
     # handle color display for judge formula
     formula = next((JudgeFormula.from_formula(col.formula) for col in cols if col.is_judge), None)
 
+    is_safety_div_unique = True
     # same_color_dfs = {}
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
@@ -331,10 +372,21 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
 
         # get unique sorted div
         div_col_name = get_div_col_name(graph_param)
+        unique_div_vars = pd.Series(df[div_col_name].dropna().unique())
         if graph_param.common.compare_type == RL_CATEGORY:
-            unique_div_vars = sorted(df[div_col_name].astype(pd.StringDtype()).dropna().unique())
-        else:
-            unique_div_vars = df[div_col_name].astype(pd.StringDtype()).dropna().unique()
+            # unique_div_vars = unique_div_vars.sort_values() # default
+            unique_div_vars = category_sort(unique_div_vars)
+
+            # if divs is equal 129, show warning
+            is_safety_div_unique = len(list(unique_div_vars)) < SAFETY_DIV_UNIQUE_THRESHOLD
+            # cut df by first 129 div
+            if not is_safety_div_unique:
+                # get first 129 div
+                unique_div_vars = unique_div_vars[:SAFETY_DIV_UNIQUE_THRESHOLD]
+                df = df_processing_with_div_limit(df, div_col_name, unique_div_vars)
+
+        unique_div_vars = unique_div_vars.astype(pd.StringDtype())
+
         if general_col_info is None:
             continue
 
@@ -395,7 +447,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             for facet in facets:
                 if len(plot_data) >= max_graph:
                     is_graph_limited = True
-                    return plot_data, str_cols, is_graph_limited, export_agp_plot_data
+                    return plot_data, str_cols, is_graph_limited, export_agp_plot_data, is_safety_div_unique
 
                 data, array_y = get_data_for_target_var_without_facets(
                     agg_df.xs(facet),
@@ -472,7 +524,7 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         )
 
     export_agp_plot_data = merge_df_by_colors(export_agp_plot_data)
-    return plot_data, str_cols, is_graph_limited, export_agp_plot_data
+    return plot_data, str_cols, is_graph_limited, export_agp_plot_data, is_safety_div_unique
 
 
 def get_common_columns(list_df):
@@ -518,6 +570,7 @@ def merge_full_df_with_common_columns(list_df, common_columns):
 
 
 def sort_ok_ng(unique_div_vars: list[str]):
+    unique_div_vars = list(unique_div_vars)
     ok_index = unique_div_vars.index('OK') if 'OK' in unique_div_vars else None
     ng_index = unique_div_vars.index('NG') if 'NG' in unique_div_vars else None
 
@@ -768,3 +821,11 @@ def gen_ticks_format(data):
     # get fmt from first list of data instead of all data
     ticks_format = get_fmt_from_array(data[0]['y'])
     return ticks_format
+
+
+def category_sort(category_data: pd.Series) -> pd.Series:
+    """Category sorting with natsort"""
+    natsort_key = natsort_keygen()
+    _category_data = category_data.to_list()
+    _category_data.sort(key=natsort_key)  # inplace sort
+    return pd.Series(_category_data)

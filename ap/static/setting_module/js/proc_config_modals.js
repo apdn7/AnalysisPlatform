@@ -525,8 +525,8 @@ const loadTableNameSelectOptions = (data, optSelected, elemTbl) => {
 };
 
 const toggleDBTableAndFileName = () => {
-    $(procModalElements.grTableDropdown).toggleClass('hide');
-    $(procModalElements.fileInputPreview).toggleClass('hide');
+    $(procModalElements.grTableDropdown).toggle();
+    $(procModalElements.fileInputPreview).toggle();
 };
 // load current proc name, database name and tables name
 
@@ -573,14 +573,16 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
 
         const selectedDbInfo = dbInfo.filter((db) => Number(db.id) === Number(currentDs))[0];
 
-        // hide 'table' dropdown if there is CSV datasource
-        const isHiddenFileInput = $(procModalElements.fileInputPreview).hasClass('hide');
-        const isHiddenDbTble = $(procModalElements.grTableDropdown).hasClass('hide');
         const isCSVDS = selectedDbInfo && DB_CONFIG_CSV_TYPES.includes(selectedDbInfo.type.toLowerCase());
-        const isWebDS = selectedDbInfo && [''].includes(selectedDbInfo.type.toLowerCase());
-        if ((isCSVDS && isHiddenFileInput) || (!isCSVDS && isHiddenDbTble)) {
-            toggleDBTableAndFileName();
-        }
+
+        // hide 'table' dropdown if there is CSV datasource
+        $(procModalElements.procModal).on('shown.bs.modal', () => {
+            const isHiddenFileInput = $(procModalElements.fileInputPreview).is(':hidden');
+            const isHiddenDbTble = $(procModalElements.grTableDropdown).is(':hidden');
+            if ((isCSVDS && isHiddenFileInput) || (!isCSVDS && isHiddenDbTble)) {
+                toggleDBTableAndFileName();
+            }
+        });
 
         // do not enable isShowFileName for non csv-v2 data sources
         if (!isCSVDS) {
@@ -1313,7 +1315,7 @@ const getProcessPreviewWith1000Data = async (rows) => {
     currentProcDataCols = procModalCurrentProcId ? currentProcDataCols : currentLatestProcDataCols;
 
     // convert data to {col_a: [...], col_b: [...]}
-    const json1000 = rows.slice(0, 1000);
+    const json1000 = [...rows];
 
     // create obj = {columnName1: id1, ...}
     const columnIdNameObj = currentProcDataCols.reduce((acc, cur) => {
@@ -1404,7 +1406,7 @@ const parseDataByDataType = async (dataType, values, isBigInt = false, isJudge =
             });
             break;
         default:
-            values = values.map((value) => trimBoth(String(value)));
+            values = values.map((value) => (value === null ? '' : trimBoth(String(value))));
             break;
     }
     return values;
@@ -1901,14 +1903,14 @@ const updateProcessConfig = (res) => {
             $(currentProcItem).attr('data-test-id', res.data.shown_name);
 
             //show new labels
-            const isShowAllLabel = isShowAllLabels();
+            const isShowAllLabel = isShowAllLabelsInUse();
             res.data.labels?.forEach((label) => {
                 addLabelIfNotExist(label.name);
                 if (!isShowAllLabel) {
                     activateLabel(label.name);
                 }
             });
-            showAllLabels();
+            showAllLabelsInUse();
         }
     } else {
         if (res['errorType'] === 'CastError') {

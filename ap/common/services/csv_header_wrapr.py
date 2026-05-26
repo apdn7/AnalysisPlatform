@@ -1,7 +1,6 @@
 import datetime
 import io
 import itertools
-import logging
 import re
 import unicodedata
 from collections import Counter
@@ -9,11 +8,10 @@ from itertools import tee
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from ap.common.constants import UNDER_SCORE, WR_CTGY, WR_HEAD, WR_HEADER_NAMES, WR_RPLC, WR_TYPES, WR_VALUES, DataType
 from ap.common.services.normalization import normalize_list
-
-logger = logging.getLogger(__name__)
 
 
 def get_file_info_py(target_file):

@@ -24,7 +24,7 @@ from ap.api.common.services.sql_generator import (
     gen_tracing_cte,
     gen_tracing_cte_with_delta_time_cut_off,
 )
-from ap.api.common.services.utils import gen_proc_time_label, gen_sql_and_params
+from ap.api.common.services.utils import gen_proc_time_label
 from ap.api.external_api.services import save_params_and_odf_data_of_request
 from ap.api.trace_data.services.filter_function_condition import filter_function_column
 from ap.api.trace_data.services.regex_infinity import (
@@ -149,11 +149,11 @@ from ap.common.constants import (
     SUMMARIES,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
-    TEMP_LOG_SCALE_MODE,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
     TEMP_X_OPTION,
+    TEMP_Y_SCALE_MODE,
     THIN_DATA_CHUNK,
     THIN_DATA_COUNT,
     THRESH_HIGH,
@@ -182,19 +182,19 @@ from ap.common.constants import (
     FilterFunc,
     N,
     RemoveOutlierType,
+    YScaleModes,
     YType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import drop_dataframe_duplicated_columns
-from ap.common.path_utils import gen_sqlite3_file_name
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
-from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.duckdb import DuckDB
+from ap.common.pydn.dblib.transaction import TxnMultiDataConnection
 from ap.common.services.ana_inf_data import calculate_kde_trace_data, detect_abnormal_count_values
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.sse import MessageAnnouncer
-from ap.common.services.statistics import convert_series_to_number, get_mode
+from ap.common.services.statistics import _calculate_and_set_log_scale_mode, convert_series_to_number, get_mode
 from ap.common.services.trace_graph import ConnectedTraceKeys, TraceGraph
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, Target, save_df_to_file, trace_log
@@ -216,7 +216,7 @@ CACHED_PARAMS = (
     DIC_CAT_FILTERS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
-    TEMP_LOG_SCALE_MODE,
+    TEMP_Y_SCALE_MODE,
 )
 
 
@@ -497,7 +497,8 @@ def customize_dic_param_for_reuse_cache(dic_param):
     )
     cat_exp = [int(id) for id in dic_param[COMMON].get(TEMP_CAT_EXP, []) if id]
     cat_procs = dic_param[COMMON].get(TEMP_CAT_PROCS, [])
-    log_scale_mode = dic_param[COMMON].get(TEMP_LOG_SCALE_MODE, False)
+    y_scale_mode = dic_param[COMMON].get(TEMP_Y_SCALE_MODE, YScaleModes.AUTO.name)
+    y_scale_mode = YScaleModes[y_scale_mode] if y_scale_mode in YScaleModes.__members__ else YScaleModes.AUTO
 
     for name in CACHED_PARAMS:
         if name in dic_param[COMMON]:
@@ -531,7 +532,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         temp_serial_order,
         temp_serial_process,
         temp_x_option,
-        log_scale_mode,
+        y_scale_mode,
         matrix_col,
         color_order,
     )
@@ -1097,7 +1098,6 @@ def gen_graph_df(
     end_procs: list[EndProc],
     cond_procs,
     common_paths,
-    short_procs,
     duplicate_serial_show=None,
     duplicated_serials_count=None,
     is_order_by_time=True,
@@ -1109,7 +1109,6 @@ def gen_graph_df(
         end_procs,
         trace_graph,
         common_paths,
-        short_procs,
         duplicate_serial_show,
         duplicated_serials_count,
         is_order_by_time,
@@ -1159,7 +1158,6 @@ def gen_trace_procs_df(
     end_procs,
     trace_graph: TraceGraph,
     common_paths: list[tuple[list[int], bool]],
-    short_procs,
     duplicate_serial_show: DuplicateSerialShow,
     duplicated_serials_count: DuplicateSerialCount,
     is_order_by_time: bool,
@@ -1174,26 +1172,16 @@ def gen_trace_procs_df(
 
     list_sql_objs = []
     time_cols = set()
-    dic_db_files = {}
     for _path, is_trace_forward in common_paths:
         path = list(reversed(_path)) if not is_trace_forward else _path
-        sql_objs = gen_trace_procs_sqls(path, trace_graph, start_tm, end_tm, end_procs, short_procs)
+        sql_objs = gen_trace_procs_sqls(path, trace_graph, start_tm, end_tm, end_procs)
         list_sql_objs.append(sql_objs)
         time_cols.update(sql_obj.gen_proc_time_label(is_start_proc=idx == 0) for idx, sql_obj in enumerate(sql_objs))
 
-        # attach db
-        for sql_obj in sql_objs:
-            file_name = gen_sqlite3_file_name(sql_obj.process_id)
-            dic_db_files[sql_obj.process_id] = file_name
+    list_process_ids = [sql_obj.process_id for sql_objs in list_sql_objs for sql_obj in sql_objs]
 
-    first_proc_id = next(iter(dic_db_files.keys()))
-    with ReadOnlyDbProxy(
-        gen_data_source_of_universal_db(first_proc_id),
-        is_universal_db=True,
-        dic_db_files=dic_db_files,
-        proc_id=first_proc_id,
-    ) as db_instance:
-        df = gen_trace_procs_df_detail(db_instance, list_sql_objs, cond_procs, duplicate_serial_show)
+    with TxnMultiDataConnection(process_ids=list_process_ids) as data_con:
+        df = gen_trace_procs_df_detail(data_con, list_sql_objs, cond_procs, duplicate_serial_show)
 
         if df.empty:
             return df, 0, 0
@@ -1225,7 +1213,7 @@ def gen_trace_procs_df(
             unique_record_number = len(df_unique)
         else:
             df_full = gen_trace_procs_df_detail(
-                db_instance,
+                data_con,
                 list_sql_objs,
                 cond_procs,
                 duplicate_serial_show,
@@ -1237,15 +1225,15 @@ def gen_trace_procs_df(
 
 
 @log_execution_time()
-def reduce_graph(end_procs, trace_graph: TraceGraph, start_proc_id):
+def reduce_graph(
+    end_procs, trace_graph: TraceGraph, start_proc_id
+) -> tuple[list[tuple[list[int], bool]], dict[int, tuple[list[int], list[str]]]]:
     # get all paths between start and end procs
     paths: list[tuple[list[int], bool]] = []
-    short_procs: set[int] = set()
-    dic_end_proc_cols = {}
+    dic_end_proc_cols: dict[int, tuple[list[int], list[str]]] = {}
     for end_proc_obj in end_procs:
         end_proc = end_proc_obj.proc_id
         dic_end_proc_cols[end_proc] = (end_proc_obj.col_ids, end_proc_obj.col_names)
-        undirected_graph = False
 
         # forward
         is_trace_forward = True
@@ -1260,26 +1248,16 @@ def reduce_graph(end_procs, trace_graph: TraceGraph, start_proc_id):
         if not connected_paths:
             is_trace_forward = True
             # must use undirected graph
-            undirected_graph = True
             connected_paths = trace_graph.get_all_paths(
                 start_proc=start_proc_id,
                 end_proc=end_proc,
                 undirected_graph=True,
             )
 
-        # store `short_procs` and ignore processes that are not in short procs when constructing sql.
-        # This is to improve performance for processes having many (100) middle processes between them.
-        # But we shouldn't do this because it create incorrect records. For example: if proc1 -> proc2 -> proc3
-        # but proc2 doesn't have any records ---> the sql result is incorrect if we remove proc2.
-        for path in connected_paths:
-            # remove middle nodes
-            short_path = trace_graph.remove_middle_nodes(path, undirected_graph=undirected_graph)
-            short_procs.update(short_path)
-
         paths.extend((p, is_trace_forward) for p in connected_paths)
 
     common_paths = get_common_longest_paths(paths)
-    return common_paths, dic_end_proc_cols, short_procs
+    return common_paths, dic_end_proc_cols
 
 
 def gen_create_temp_table_sql():
@@ -1287,7 +1265,7 @@ def gen_create_temp_table_sql():
     return sql
 
 
-def get_common_longest_paths(paths):
+def get_common_longest_paths(paths: list[tuple[list[int], bool]]) -> list[tuple[list[int], bool]]:
     if not paths:
         return []
 
@@ -2568,22 +2546,23 @@ def calc_scale_info(
 
 
 @log_execution_time()
-def gen_kde_data_trace_data(dic_param, full_arrays=None, is_log_scale_mode=False):
+def gen_kde_data_trace_data(dic_param, full_arrays, y_scale_mode: YScaleModes = YScaleModes.AUTO):
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
     for num, plotdata in enumerate(array_plotdata):
         full_array_y = full_arrays[num] if full_arrays else None
+        is_log_scale_mode = _calculate_and_set_log_scale_mode(plotdata, y_scale_mode, full_array_y)
         kde_list = calculate_kde_trace_data(plotdata, full_array_y=full_array_y, is_log_scale_mode=is_log_scale_mode)
-        (
-            plotdata[SCALE_SETTING][KDE_DATA],
-            plotdata[SCALE_COMMON][KDE_DATA],
-            plotdata[SCALE_THRESHOLD][KDE_DATA],
-            plotdata[SCALE_AUTO][KDE_DATA],
-            plotdata[SCALE_FULL][KDE_DATA],
-        ) = kde_list
+        _assign_kde_data_to_scales(plotdata, kde_list)
 
     calculate_histogram_count_common(array_plotdata)
-
     return dic_param
+
+
+def _assign_kde_data_to_scales(plotdata: dict, kde_list: tuple) -> None:
+    """Assign KDE data to all scale types in plotdata."""
+    scale_keys = [SCALE_SETTING, SCALE_COMMON, SCALE_THRESHOLD, SCALE_AUTO, SCALE_FULL]
+    for scale_key, kde_data in zip(scale_keys, kde_list, strict=False):
+        plotdata[scale_key][KDE_DATA] = kde_data
 
 
 def extend_min_max(y_min, y_max, is_y_min_none=None, is_y_max_none=None, dic_scale_auto=None):
@@ -3447,7 +3426,7 @@ def get_df_from_db(
     duplicate_serial_show = graph_param.common.duplicate_serial_show
     duplicated_serials_count = graph_param.common.duplicated_serials_count
 
-    common_paths, dic_end_proc_cols, short_procs = reduce_graph(
+    common_paths, dic_end_proc_cols = reduce_graph(
         graph_param.array_formval,
         graph_param.trace_graph,
         graph_param.common.start_proc,
@@ -3459,7 +3438,6 @@ def get_df_from_db(
         graph_param.array_formval,
         graph_param.common.cond_procs,
         common_paths,
-        short_procs,
         duplicate_serial_show,
         duplicated_serials_count,
         optional_cache_config=optional_cache_config,
@@ -3468,9 +3446,6 @@ def get_df_from_db(
 
     # sort by time
     df[TIME_COL] = df[gen_proc_time_label(graph_param.common.start_proc)]
-    if graph_param.common.is_order_by_time:
-        time_cols = sorted([col for col in df.columns if str(col).startswith(TIME_COL)])
-        df = df.sort_values(time_cols)
 
     # check empty
     if df is None or not len(df):
@@ -3536,25 +3511,20 @@ def add_facet_position_to_dic_param(dic_param):
     return dic_param
 
 
-def reduce_dic_proc_cfgs(dic_proc_cfgs, short_procs):
-    dic_reduce = {proc_id: dic_proc_cfgs[proc_id] for proc_id in short_procs}
-    return dic_reduce
-
-
 def gen_trace_procs_sqls(
-    path: list[int], trace_graph: TraceGraph, start_tm, end_tm, end_procs: list[EndProc], short_procs
+    path: list[int],
+    trace_graph: TraceGraph,
+    start_tm,
+    end_tm,
+    end_procs: list[EndProc],
 ):
     sql_objs: list[SqlProcLink] = []
     end_proc_start_tm, end_proc_end_tm = gen_end_proc_start_end_time(start_tm, end_tm)
     start_proc = path[0]
     dic_processes = {proc_id: TransactionData(proc_id) for proc_id in path}
-    # create table if not exist
-    for proc_id, trans_data in dic_processes.items():
-        with DbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
-            trans_data.create_table(db_instance)
 
-    if len(short_procs) == 1:
-        proc_id = next(iter(short_procs))
+    if len(path) == 1:
+        proc_id = start_proc
         trans_data: TransactionData = dic_processes[proc_id]
         proc_link_sql = SqlProcLink()
         proc_link_sql.trans_data = trans_data
@@ -3587,9 +3557,6 @@ def gen_trace_procs_sqls(
             edge_cols = (target_sensor_keys, self_sensor_keys)
 
         for idx, proc_id in enumerate(edge_id):
-            if short_procs and proc_id not in short_procs:
-                continue
-
             link_keys = edge_cols[idx]
             if not link_keys:
                 continue
@@ -3663,7 +3630,7 @@ def gen_sensor_time_range(db_instance, temp_table_name):
 
 @log_execution_time()
 def gen_trace_procs_df_detail(
-    db_instance,
+    data_con: DuckDB,
     list_sql_objs: list[list[SqlProcLink]],
     cond_procs: list[ConditionProc],
     duplicate_serial_show: DuplicateSerialShow,
@@ -3671,16 +3638,14 @@ def gen_trace_procs_df_detail(
 ) -> DataFrame:
     df = None
 
+    # TODO: use one sql for this
+    # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/134
     for sql_objs in list_sql_objs:
-        sql, params = gen_proc_link_from_sql(sql_objs, cond_procs, duplicate_serial_show, for_count=for_count)
-        cols, rows = db_instance.run_sql(sql, params=params, row_is_dict=False)
-        _df = pd.DataFrame(rows, columns=cols)
+        sql = gen_proc_link_from_sql(sql_objs, cond_procs, duplicate_serial_show, for_count=for_count)
+        _df = data_con.fetch_df(sql)
         keep = 'last'
         if duplicate_serial_show is DuplicateSerialShow.SHOW_FIRST:
             keep = 'first'
-
-        _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
-        _df = _df.drop_duplicates(subset=_filter_subset, keep=keep)
 
         if duplicate_serial_show is not DuplicateSerialShow.SHOW_BOTH and not for_count:
             # TODO: drop_duplicates_by_link_keys MUST delete per end proc
@@ -3690,6 +3655,12 @@ def gen_trace_procs_df_detail(
                 duplicate_serial_show,
             )
             _df = dropped_duplicates_df
+
+        # TODO: move this to sql!
+        # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/131
+        # We don't need marker_0
+        _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
+        _df = _df.drop_duplicates(subset=_filter_subset, keep=keep)
 
         if df is None:
             df = _df
@@ -3782,10 +3753,7 @@ def gen_proc_link_from_sql(
 
     cte_tracing_delta_time_cut_off = gen_tracing_cte_with_delta_time_cut_off(cte_tracing=cte_tracing, sql_objs=sql_objs)
 
-    stmt = gen_show_stmt(cte_tracing=cte_tracing_delta_time_cut_off, sql_objs=sql_objs)
-
-    sql, params = gen_sql_and_params(stmt)
-    return sql, params
+    return gen_show_stmt(cte_tracing=cte_tracing_delta_time_cut_off, sql_objs=sql_objs)
 
 
 class DropDuplicatesTraceProcs:
@@ -3816,7 +3784,6 @@ class DropDuplicatesTraceProcs:
         duplicate_serial_show: DuplicateSerialShow,
     ) -> DataFrame:
         # sort by times
-        time_cols = [sql_obj.gen_proc_time_label(is_start_proc=idx == 0) for idx, sql_obj in enumerate(sql_objs)]
         link_cols = set()
         for sql_obj in sql_objs:
             link_cols.update(sql_obj.all_link_keys_labels)
@@ -3826,7 +3793,7 @@ class DropDuplicatesTraceProcs:
             return df
 
         keep = 'last' if duplicate_serial_show is DuplicateSerialShow.SHOW_LAST else 'first'
-        return df.sort_values(time_cols).drop_duplicates(subset=list(link_cols), keep=keep)
+        return df.drop_duplicates(subset=list(link_cols), keep=keep)
 
 
 @log_execution_time()

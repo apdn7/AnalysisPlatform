@@ -217,6 +217,7 @@ msgstr "Prozessname"
 msgid "Table Name"
 msgstr "Tabellenname"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Detail"
@@ -566,18 +567,23 @@ msgstr "Y-Achsenbereich: maximal"
 msgid "Part No"
 msgstr "Teil Nr"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "Ende mit"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Beginnen mit"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like Suche)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Zustimmen"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Reguläre Ausdrücke"
 
@@ -842,6 +848,7 @@ msgstr "Teilweise Übereinstimmung"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Ungültige Ziffernauswahl"
 
@@ -849,35 +856,45 @@ msgstr "Ungültige Ziffernauswahl"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr ""
 "Die Länge des für die Verknüpfung verwendeten Zeichens ist "
 "unterschiedlich."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Kein Filter"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "Alle Linien"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "Lage"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Job-Liste"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "Alle"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Import abgeschlossen."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Import"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Fehlgeschlagener Import"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -885,6 +902,7 @@ msgstr ""
 "Die geladenen Daten werden gelöscht. Ist es o.k? (Es wird keine Änderung "
 "reflektiert, bis die Registrierungsknopf gedrückt wird.)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Job-Liste"
 
@@ -892,54 +910,71 @@ msgstr "Job-Liste"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "Job-ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Berufsbezeichnung"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Generation von LinkedID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Display Generation Job of Link ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Fabrikdaten importieren"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Vergangene Fabrikdaten importieren"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Importieren des Jobs in früheren Fabrikdaten importieren"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Daten importieren"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Alte Daten löschen"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Startzeit"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "verstrichene Zeit"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Datenbank/CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Fortschritt"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Verfahren"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Histogrammliste"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Registrieren Sie sich als Ausbruchswert"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Unregisterer Ausreißer"
 
@@ -963,24 +998,31 @@ msgstr "Histogrammliste anzeigen"
 msgid "Last update time"
 msgstr "Letzte Update -Zeit"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Die Ausreißerregistrierung wurde storniert."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Als Ausreißer registriert"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "Ausreißer"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Nur einmal"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Jobdetails"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "In die Zwischenablage kopieren"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Multi -Scatter -Diagramm"
 
@@ -1017,9 +1059,11 @@ msgstr "Kategoriale Variable"
 msgid "Stratify by term"
 msgstr "Nach Begriff stratifizieren (direkt)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Anomalieerkennung"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1027,21 +1071,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Hauptkomponentenbewertung von Testdaten"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Hauptkomponentenbewertung von Trainingsdaten"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Seriendiagramm der T2 -Statistik"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Seriendiagramm der Q -Statistik"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Beitragsdiagramm der T2 -Statistik"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Beitragsdiagramm von Q -Statistiken"
 
@@ -1476,6 +1526,7 @@ msgstr "Datenqualität"
 msgid "Viewer"
 msgstr "Zuschauer"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Daten importieren"
 
@@ -1483,9 +1534,11 @@ msgstr "Daten importieren"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Datenquellenname"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Datenquellentyp"
 
@@ -1493,9 +1546,11 @@ msgstr "Datenquellentyp"
 msgid "Do you want to save changes?"
 msgstr "Sind Sie sicher, Änderungen zu sparen?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Erzwungene Betriebssysteminformationen zu Zeitzoneneinstellungen."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Erweiterte Einstellung"
 
@@ -1552,6 +1607,7 @@ msgstr ""
 "Alle Jobs wurden gestoppt. Sie können Ihren Browser und Ihre Konsole "
 "sicher schließen."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1561,6 +1617,7 @@ msgstr "Datenquellenkonfiguration"
 msgid "Data Source Import Config"
 msgstr "Datenquellenimportkonfiguration"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1568,15 +1625,19 @@ msgstr ""
 ": Spalten fanden nur wenige Zeichenspalten. Überprüfen Sie, ob die "
 "numerische Spalte usw. möglicherweise falsch anerkannt werden."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Filterartikel"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Filterwert"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Ablaufdatum (Start)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Ablaufdatum (Ende)"
 
@@ -1646,9 +1707,11 @@ msgstr "Intervall"
 msgid "Window length"
 msgstr "Fensterlänge"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Typ"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Name"
 
@@ -1722,9 +1785,11 @@ msgstr "Filterkonfiguration"
 msgid "Master Config"
 msgstr "Master -Konfiguration"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "Aus Filterkonfiguration"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Zeige alles"
 
@@ -1775,22 +1840,26 @@ msgstr ""
 "eine andere Situation haben, können Sie die Hauptfaktoren im "
 "Beitragsdiagramm überprüfen."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Geschichteter Kategoriefilter: Begrenzt die Daten, die auf eine Teilmenge"
 " angezeigt werden sollen. (Kategorie: Teilenummer, Station Nr. Usw.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Kategorievariablen (wie Teilzahl, Station Nr. Usw.), die als Etiketten "
 "oben auf den Diagrammen angezeigt werden, um sich ändernde Punkte zu "
 "finden."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Graphfilter: Begrenzt die Daten, die auf eine Teilmenge angezeigt werden "
 "sollen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Legen Sie die Lerndaten als normale Situation fest. Legen Sie den "
@@ -1798,14 +1867,17 @@ msgstr ""
 "auch diejenigen, die sich den NG -Daten befinden, auch als normale Daten "
 "beurteilt."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Legen Sie die zu beurteilten Testdaten fest."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Elementfilter: Die Daten begrenzt (analysieren und Anzeigen), die in "
 "einer Teilmenge angezeigt werden sollen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1815,6 +1887,7 @@ msgstr ""
 "Verifizierungsdaten. Wenn sich die Daten in der Mitte befinden, kann sie "
 "so nahe am normalen interpretiert werden."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1824,6 +1897,7 @@ msgstr ""
 "Das zentrale Ziel wird durch die Lerndaten bestimmt, sodass die meisten "
 "Lerndaten im Ziel sein sollten."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1836,6 +1910,7 @@ msgstr ""
 "Datenpunkt, um das Beitragsdiagramm zu sehen, welche Elemente die "
 "Situation ausmachen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1848,6 +1923,7 @@ msgstr ""
 "Datenpunkt, um das Beitragsdiagramm zu sehen, welche Elemente die "
 "Situation ausmachen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1856,6 +1932,7 @@ msgstr ""
 "-statistischen Diagramm ausgewählten Punkt beitragen. Je länger die Länge"
 " ist, desto wahrscheinlicher ist die Ursache."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2124,6 +2201,7 @@ msgstr ""
 "Verwaltet die aktuell Datenverknüpfungsbedingung und ruft die zuvor "
 "registrierte Bedingung auf."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2599,9 +2677,11 @@ msgstr "Einstellungsmodus"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Anzahl der Datenelemente, die nicht verknüpft werden können"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Streudiagramm"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "mit Kontur"
 

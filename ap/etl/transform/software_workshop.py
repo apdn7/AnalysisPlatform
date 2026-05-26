@@ -1,8 +1,8 @@
 import json
-import logging
 from pathlib import Path
 
 import pandas as pd
+from loguru import logger
 
 from ap.api.setting_module.services.software_workshop_etl_services import (
     SNOWFLAKE_SOFTWARE_WORKSHOP_DEF,
@@ -14,8 +14,6 @@ from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.etl.pull.common import PullDataType
 from ap.etl.transform import BaseTransformer, TransformData
 from ap.setting_module.models import CfgDataSource
-
-logger = logging.getLogger(__name__)
 
 
 class SoftwareWorkshopJsonTransformer(BaseTransformer):

@@ -34,6 +34,14 @@ class APPlot {
     }
 
     /**
+     * ticks hover definition
+     * @abstract
+     */
+    get onTickHover() {
+        throw new Error('Not implemented');
+    }
+
+    /**
      *  default setting of plot
      *  @returns {Object}
      */

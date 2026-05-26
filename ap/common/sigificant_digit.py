@@ -1,13 +1,10 @@
-import logging
 import math
 
 import numpy as np
 import pandas as pd
 
-from ap import log_execution_time
 from ap.common.constants import ColorOrder
-
-logger = logging.getLogger(__name__)
+from ap.common.log import log_execution_time
 
 
 def signify_digit_pca(x, sig_dig=4):
@@ -78,7 +75,7 @@ def get_fmt_from_array(arr, sig_dit=4):
     return signify_digit_fmt(max_number, sig_dit)
 
 
-def signify_digit_pca_vector(input_array, sig_dig=4):
+def signify_digit_pca_vector(input_array: list, sig_dig=4):
     """
     Signify an array.
     :param input_array:

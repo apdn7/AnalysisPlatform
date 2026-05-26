@@ -1552,6 +1552,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "所有工作都被停止了。您可以安全地关闭浏览器和控制台。"
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2016,6 +2017,7 @@ msgstr "可以预测当前设置的链接条件将链接多少数据。"
 msgid "Reload Hover"
 msgstr "丢弃当前设置的数据链接条件，并调用先前注册的条件。"
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID是在内部生成的，以将数据与设置链接条件相关联。"

@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 # Author: Masato Yasuda (2018/01/04)
 
-import logging
+
 import threading
 
 from dateutil import parser
+from loguru import logger
 from pymssql import connect as mssqlconnect
 
 from ap.common.common_utils import strip_all_quote
 from ap.common.constants import DATABASE_LOGIN_TIMEOUT
-
-logger = logging.getLogger(__name__)
 
 # import pyodbc
 

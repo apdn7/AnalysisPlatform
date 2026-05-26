@@ -1,4 +1,4 @@
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.setting_module.models import CfgProcess, CfgTrace, CfgTraceKey, make_session
 from ap.setting_module.schemas import VisProcessTraceOutSchema
 

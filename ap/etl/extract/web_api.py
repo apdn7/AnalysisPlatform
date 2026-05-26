@@ -1,12 +1,9 @@
-from logging import getLogger
 from pathlib import Path
 
 import requests
 
 from ap.common.common_utils import WebAuthenticationType
 from ap.etl.extract import BaseExtractor
-
-logger = getLogger(__name__)
 
 
 class WebApiExtractor(BaseExtractor):

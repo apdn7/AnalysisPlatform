@@ -1,8 +1,8 @@
 import colorsys
-import logging
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from sklearn.covariance import empirical_covariance, graphical_lasso, shrunk_covariance
 from sklearn.preprocessing import StandardScaler
 
@@ -38,15 +38,13 @@ from ap.common.constants import (
     UNMATCHED_FILTER_IDS,
     CacheType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
     request_timeout_handling,
 )
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time('[TRACE DATA]')

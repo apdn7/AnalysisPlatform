@@ -11,6 +11,7 @@
   - skd
   - pca
   - gl
+  - wfp
 - tiles:
     fpp:
       recommends:
@@ -97,5 +98,13 @@
     wfp:
       recommends:
         - fpp
+      unavailable:
+        - pca
+    crp:
+      recommends:
+        - pcp
+        - rlp
+        - fpp
+        - skd
       unavailable:
         - pca

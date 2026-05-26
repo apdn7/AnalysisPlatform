@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import shutil
 import sys
@@ -17,7 +18,7 @@ from ap.common.constants import (
     AbsPath,
     CSVExtTypes,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 
 
 def check_exist(file_path):
@@ -261,10 +262,17 @@ def get_export_setting_path():
     return resource_path(folder_name, level=AbsPath.SHOW) if abs else folder_name
 
 
-def gen_sqlite3_file_name(proc_id=None):
+def gen_sqlite3_file_name(proc_id: int) -> str:
     from ap import dic_config
 
-    file_name = f't_process_{proc_id}.sqlite3' if proc_id else 'universal.sqlite3'
+    file_name = f't_process_{proc_id}.sqlite3'
+    return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
+
+
+def gen_duckdb_file_name(proc_id: int) -> str:
+    from ap import dic_config
+
+    file_name = f't_process_{proc_id}.duckdb'
     return os.path.join(dic_config[UNIVERSAL_DB_FILE], file_name)
 
 
@@ -349,8 +357,9 @@ def make_dir_from_file_path(file_path):
     return dirname
 
 
-def delete_file(file_path):
-    if os.path.exists(file_path):
+def delete_file(file_path: str):
+    """Try catch here, in case other process delete this before us"""
+    with contextlib.suppress(Exception):
         os.remove(file_path)
 
 

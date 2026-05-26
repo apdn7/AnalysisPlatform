@@ -1,16 +1,15 @@
 # This file contains specific google analytic.
 # This file should never import other files rather than `contansts.py`, or `commons_utils.py`
 import dataclasses
-import logging
 import os
 import platform
 from enum import Enum
 from typing import Union
 
+from loguru import logger
+
 from ap.common.constants import APP_TYPE_ENV, EMPTY_STRING, BaseEnum
 from ap.common.memoize import CustomCache
-
-logger = logging.getLogger(__name__)
 
 GTAG_DEFAULT_TIMEOUT = 3
 

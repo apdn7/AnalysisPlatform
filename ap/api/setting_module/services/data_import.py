@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-import logging
 import os.path
 from datetime import datetime
 from re import findall
@@ -11,6 +10,7 @@ import numpy as np
 import pandas as pd
 import pydantic
 from dateutil import tz, zoneinfo
+from loguru import logger
 from pandas import DataFrame, Series
 from pytz import timezone
 from pytz.exceptions import NonExistentTimeError
@@ -20,7 +20,6 @@ from ap.common.common_utils import (
     WebAuthenticationType,
     convert_numeric_by_type,
     convert_time,
-    gen_transaction_table_name,
     get_csv_delimiter,
     get_current_timestamp,
     parse_int_value,
@@ -47,9 +46,9 @@ from ap.common.constants import (
     JobStatus,
     JobType,
 )
-from ap.common.cryptography_utils import decrypt_pwd
+from ap.common.cryptography_utils import encrypt
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventExpireCache, EventQueue
 from ap.common.path_utils import (
     get_basename,
@@ -60,8 +59,9 @@ from ap.common.path_utils import (
     make_dir_from_file_path,
     split_path_to_list,
 )
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.sqlite import SQLite3
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import read_data
 from ap.common.services.jp_to_romaji_utils import to_romaji
@@ -77,8 +77,6 @@ from ap.setting_module.models import (
     CfgProcessColumn,
 )
 from ap.trace_data.transaction_model import DataCountTable, ImportHistoryTable, TransactionData
-
-logger = logging.getLogger(__name__)
 
 # csv_import : max id of cycles
 # ( because of csv import performance, we make a deposit/a guess of cycle id number
@@ -129,38 +127,44 @@ ERR_COLS_NAME = '___ERR0R_C0LS___'
 
 
 @log_execution_time('[DATA IMPORT]')
-def import_data(df, target_cfg_process: CfgProcess, get_date_col, job_info=None, child_cfg_proc=None):
+def import_data(
+    df: pd.DataFrame,
+    target_cfg_process: CfgProcess,
+    get_date_col: str,
+    job_info=None,
+    child_cfg_proc: CfgProcess | None = None,
+):
     df = import_filter_from_df(df, target_cfg_process)
     cycles_len = len(df)
     if not cycles_len:
         return 0
 
-    insert_vals = gen_insert_cycle_values(df)
     # updated importing records number
     if not job_info.committed_count:
         job_info.committed_count = df.shape[0]
 
-    # insert cycles
-    # get cycle and sensor columns for insert sql
-    dic_cfg_cols = {cfg_col.column_name: cfg_col for cfg_col in target_cfg_process.get_transaction_process_columns()}
-    table_name = gen_transaction_table_name(target_cfg_process.id)
-    dic_col_with_type = {dic_cfg_cols[col].bridge_column_name: dic_cfg_cols[col].data_type for col in df.columns}
-    col_names = dic_col_with_type.keys()
+    trans_data = TransactionData(target_cfg_process)
+    # rename to bridge_column_name to import
+    dic_rename_cols = {c.column_name: c.bridge_column_name for c in trans_data.cfg_process_columns}
+    # If use Khanh's code, order row will be changed and insert wrong order
+    # => getting data will be changed in show graph page.
+    # Therefore, we MUST do nothing here and same logic with v4.9.0.283
+    # # TODO: only sort by weeks, days or some serial?
+    # # https://duckdb.org/2025/05/14/sorting-for-fast-selective-queries.html
+    # # df_insert = df.sort_values(by=get_date_col).rename(columns=dic_rename_cols)
+    df_insert = df.rename(columns=dic_rename_cols)
 
-    sql_params = get_insert_params(col_names)
-    sql_insert = gen_bulk_insert_sql(table_name, *sql_params)
-    with DbProxy(
-        gen_data_source_of_universal_db(target_cfg_process.id),
-        True,
-    ) as db_instance:
-        # add new column name if not exits
-        TransactionData.add_columns(db_instance, table_name, dic_col_with_type)
+    with (
+        TxnMetaConnection(process_id=target_cfg_process.id) as meta_con,
+        TxnDataConnection(process_id=target_cfg_process.id, readonly_transaction=False) as data_con,
+    ):
+        trans_data.sync_columns_to_transaction(data_con)
 
         # insert transaction data
-        insert_data(db_instance, sql_insert, insert_vals)
+        data_con.insert_from_df(df_insert, trans_data.table_name)
 
         # insert data count
-        save_proc_data_count(db_instance, df, target_cfg_process.id, get_date_col)
+        save_proc_data_count(meta_con, df, target_cfg_process.id, get_date_col)
 
     # update actual imported rows
     job_info.committed_count = df.shape[0]
@@ -239,30 +243,48 @@ class DbConnectionParam(pydantic.BaseModel):
         return db_type.upper()
 
     @pydantic.model_validator(mode='after')
-    def decrypt_password(self):
+    def encrypt_password(self):
+        """Params to check database connection when registering new datasource
+        - If user provides passwords:
+            Encrypt and use it
+        - If user does not provide passwords, and the data source is already register
+            Use the same password from database
+
+        To make it easier to understand, here is the table
+
+        |                                                      | self.password | db.password | Action              |
+        |------------------------------------------------------|---------------|-------------|---------------------|
+        | New data source                                      | TEXT          | None        | Use `self.password` |
+        | Registered data source, user doesn't change password | None          | TEXT        | Use `db.password`   |
+        | Registered data source, user changes password        | TEXT          | TEXT        | Use `self.password` |
+        """
         if not self.password:
             self.password = None
+        else:
+            self.password = encrypt(self.password)
+
         if not self.snowflake_access_token:
             self.snowflake_access_token = None
+        else:
+            self.snowflake_access_token = encrypt(self.snowflake_access_token)
+
         if not self.snowflake_private_key_file_pwd:
             self.snowflake_private_key_file_pwd = None
+        else:
+            self.snowflake_private_key_file_pwd = encrypt(self.snowflake_private_key_file_pwd)
 
+        # the data source is already registered, use it if user does not provide any password
         if self.id is not None:
             db: CfgDataSourceDB = CfgDataSourceDB.get_by_id(self.id)
-            # new connection, use the password that users passed on (even if it is None)
-            if db is None:
-                return self
-
-            # otherwise, use existing password in database if user doesn't specified
 
             if self.password is None and db.password:
-                self.password = decrypt_pwd(db.password)
+                self.password = db.password
 
             if self.snowflake_access_token is None and db.snowflake_access_token:
-                self.snowflake_access_token = decrypt_pwd(db.snowflake_access_token)
+                self.snowflake_access_token = db.snowflake_access_token
 
             if self.snowflake_private_key_file_pwd is None and db.snowflake_private_key_file_pwd:
-                self.snowflake_private_key_file_pwd = decrypt_pwd(db.snowflake_private_key_file_pwd)
+                self.snowflake_private_key_file_pwd = db.snowflake_private_key_file_pwd
 
         return self
 
@@ -300,21 +322,20 @@ class WebConnectionParam(pydantic.BaseModel):
     authentication_type: WebAuthenticationType = WebAuthenticationType.NONE
 
     @pydantic.model_validator(mode='after')
-    def decrypt_password(self):
+    def encrypt_password(self):
+        """See DbConnectionParam.encrypt_password"""
         if self.authentication_type == WebAuthenticationType.NONE:
             return self
+
         if not self.password:
             self.password = None
+        else:
+            self.password = encrypt(self.password)
 
-        if self.id is not None:
+        # use the already register password if user doesn't provide them
+        if self.password is None and self.id is not None:
             db: CfgDataSourceDB = CfgDataSourceWeb.get_by_id(self.id)
-            # new connection, use the password that users passed on (even if it is None)
-            if db is None:
-                return self
-
-            # otherwise, use existing password in database if user doesn't specified
-            if self.password is None and db.password:
-                self.password = decrypt_pwd(db.password)
+            self.password = db.password
 
         return self
 
@@ -397,11 +418,9 @@ def write_error_import(
 def get_latest_records(cfg_process: CfgProcess):
     trans_data = TransactionData(cfg_process)
     dic_cols = {cfg_col.bridge_column_name: cfg_col.column_name for cfg_col in trans_data.cfg_process_columns}
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(cfg_process.id), is_universal_db=True) as db_instance:
-        cols, rows = trans_data.get_latest_records_by_process_id(db_instance)
-
-    df = pd.DataFrame(rows, columns=[dic_cols[col_name] for col_name in cols])
-    return df
+    with TxnDataConnection(process_id=cfg_process.id, readonly_transaction=True) as data_con:
+        df = trans_data.get_latest_records_by_process_id(data_con, limit=5)
+        return df.rename(columns=dic_cols)
 
 
 @log_execution_time()
@@ -1215,18 +1234,17 @@ def check_update_time_by_changed_tz(proc_cfg: CfgProcess, time_zone=None):
     if check_timezone_changed(proc_cfg.id, use_os_tz):
         # convert to local or convert from local
         if use_os_tz:
-            # calculate offset +/-HH:MM
-            tz_offset = calc_offset_between_two_tz(time_zone, tz.tzlocal())
+            hour_offset = calc_offset_between_two_tz(time_zone, tz.tzlocal())
         else:
-            tz_offset = calc_offset_between_two_tz(tz.tzlocal(), time_zone)
+            hour_offset = calc_offset_between_two_tz(tz.tzlocal(), time_zone)
 
-        if tz_offset is None:
+        if hour_offset == 0:
             return None
 
         # update time to new time zone
         trans_data = TransactionData(proc_cfg.id)
-        with DbProxy(gen_data_source_of_universal_db(proc_cfg.id), True, True) as db_instance:
-            trans_data.update_timezone(db_instance, tz_offset)
+        with TxnDataConnection(process_id=proc_cfg.id, readonly_transaction=False) as data_con:
+            trans_data.update_timezone(data_con, hour_offset)
 
     # save latest use os time zone flag to db
     save_use_os_timezone_to_db(proc_cfg.id, use_os_tz)
@@ -1336,15 +1354,6 @@ def get_record_from_obj(columns, object_data):
     return [object_data[col] for col in columns]
 
 
-@log_execution_time()
-def insert_data_to_db(cycle_vals, sql_insert_cycle):
-    with DbProxy(gen_data_source_of_universal_db(), True) as db_instance:
-        # insert cycle
-        insert_data(db_instance, sql_insert_cycle, cycle_vals)
-
-    EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
-
-
 def get_df_first_n_last(df: DataFrame, first_count=10, last_count=10):
     if len(df) <= first_count + last_count:
         return df
@@ -1352,9 +1361,9 @@ def get_df_first_n_last(df: DataFrame, first_count=10, last_count=10):
 
 
 @log_execution_time()
-def save_proc_data_count(db_instance, df, proc_id, get_date_col):
+def save_proc_data_count(meta_con: SQLite3, df: pd.DataFrame, proc_id: int, get_date_col: str):
     save_proc_data_count_multiple_dfs(
-        db_instance,
+        meta_con,
         proc_id=proc_id,
         get_date_col=get_date_col,
         dfs_push_to_db=df,
@@ -1362,10 +1371,10 @@ def save_proc_data_count(db_instance, df, proc_id, get_date_col):
 
 
 def save_proc_data_count_multiple_dfs(
-    db_instance,
+    meta_con: SQLite3,
     *,
-    proc_id,
-    get_date_col,
+    proc_id: int,
+    get_date_col: str,
     dfs_push_to_db: list[pd.DataFrame] | pd.DataFrame = None,
     dfs_pop_from_db: list[pd.DataFrame] | pd.DataFrame = None,
     dfs_push_to_file: list[pd.DataFrame] | pd.DataFrame = None,
@@ -1416,7 +1425,7 @@ def save_proc_data_count_multiple_dfs(
     sql_params = get_insert_params(DataCountTable.get_keys())
     sql_insert = gen_bulk_insert_sql(DataCountTable.get_table_name(proc_id), *sql_params)
 
-    insert_data(db_instance, sql_insert, sql_vals)
+    meta_con.execute_sql_in_transaction(sql_insert, sql_vals)
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
 
@@ -1433,7 +1442,7 @@ def get_proc_data_count_df(df, *, get_date_col, decrease: bool, is_db: bool):
 
 
 @log_execution_time()
-def save_import_history(proc_id, job_info):
+def save_import_history(proc_id: int, job_info):
     if not job_info.dic_imported_row:
         job_info.dic_imported_row = {0: (job_info.target, job_info.committed_count)}
 
@@ -1483,8 +1492,8 @@ def save_import_history(proc_id, job_info):
         sql_params.append(params)
 
     if sql is not None:
-        with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
-            insert_data(db_instance, sql, sql_params)
+        with TxnMetaConnection(process_id=proc_id) as meta_con:
+            meta_con.execute_sql_in_transaction(sql, sql_params)
 
 
 @log_execution_time()

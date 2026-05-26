@@ -1154,7 +1154,7 @@
 {% macro multiple_target_period(rlp=False, dataNumber=false, scp=false, DivisionNumberHover='', WindowLengthHover=_('Window length Hover'), IntervalHover=_('Interval Hover'), cyclicTermDefault=120, cyclicCalender=False, cyclicIntervalDefault=0.5) %}
     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
         <div class="d-flex align-items-center">
-            <div class="dn-custom-select" style="width: 200px">
+            <div class="dn-custom-select" style="width: auto; min-width: 200px;">
                 <select
                     class="form-control"
                     id="divideOption"
@@ -1538,7 +1538,7 @@
 <!-- info I mark html -->
 {% macro info_i_mark() %}
     <div id="sim" class="setting-inform-modal show-filter-info">
-        <div class="setting-inform border-white">
+        <div class="setting-inform border-white graph-area-setting-btn">
             <span><i class="fas fa-info-circle"></i></span>
         </div>
         <div id="settingHoverContent" class="setting-inform-content show-filter-info">
@@ -1557,7 +1557,7 @@
 {% macro export_gui(disable_plot=False) %}
     <div class="dropdown ml-3">
         <button
-            class="btn dropdown-toggle form-control"
+            class="btn dropdown-toggle dropdown-btn form-control"
             type="button"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -1640,7 +1640,7 @@
 {% macro pcp_export_data_selected_gui() %}
     <div class="dropdown ml-3">
         <button
-            class="btn dropdown-toggle form-control border-white"
+            class="btn dropdown-toggle form-control dropdown-btn border-white"
             type="button"
             data-toggle="dropdown"
             aria-haspopup="true"
@@ -1971,9 +1971,9 @@
     </select>
 {% endmacro %}
 
-{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedValue='', cl='', onChange='', defaultValue='', customSelect=False) %}
+{% macro graph_select_box(id='', name='', label='', values=[], texts=[], selectedValue='', cl='', onChange='', defaultValue='', customSelect=False, title='') %}
     <div class="d-flex align-items-center {{ cl }}">
-        <span class="mr-2"> {{ label }} </span>
+        <span class="mr-2 {{ 'hint-text' if title else '' }}" title="{{ title }}"> {{ label }} </span>
         {% if customSelect %}
             <div class="dn-custom-select">
                 {{ graph_select_box_inner(id=id, name=name, values=values, texts=texts, selectedValue=selectedValue, onChange=onChange, defaultValue=defaultValue) }}
@@ -2179,7 +2179,7 @@
     <div id="onDemandFilter" class="summary-menu ml-2">
         <button
             id="onDemandFilterBtn"
-            class="btn btn-sm border-white on-demand-btn show-detail"
+            class="btn btn-sm border-white on-demand-btn show-detail graph-area-setting-btn"
             title="{{ _('You can filter categorical data used for graph drawing.') }}"
         ></button>
     </div>
@@ -2257,7 +2257,7 @@
         name="btnSortCol"
         onclick="showSortColModal({{ graphArea }}, {{ callbackFunc }})"
         type="button"
-        class="btn {{ 'btn-sm border-white ml-2' if graphArea != '0' else 'simple-btn mr-3' }}"
+        class="btn {{ 'btn-sm border-white ml-2' if graphArea != '0' else 'simple-btn mr-3' }} graph-area-setting-btn"
     >
         <i class="fa-solid fa-list-ol"></i>
     </button>
@@ -2271,7 +2271,7 @@
     <div class="summary-menu ml-2">
         <button
             onclick="showJumpModal();"
-            class="btn btn-sm border-white jump-btn"
+            class="btn btn-sm border-white jump-btn graph-area-setting-btn"
             title="{{ _('Jump to other pages') }}"
         >
             <i class="fa fa-arrow-alt-circle-right"></i>

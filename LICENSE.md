@@ -316,6 +316,18 @@ This software does not include, but uses following Python packages.
 - Apache License Version 2.0
 - https://github.com/grantjenks/python-diskcache
 
+### duckdb 1.4.0
+
+- Copyright 2018-2026 Stichting DuckDB Foundation
+- MIT License
+- https://github.com/duckdb/duckdb
+
+### duckdb-engine 0.17.0
+
+- Copyright (c) 2020-present Elliana May
+- MIT license
+- https://github.com/Mause/duckdb_engine
+
 ### filelock 3.13.1
 
 - Unlicense
@@ -412,6 +424,12 @@ This software does not include, but uses following Python packages.
 - Copyright 2008-2021 Gael Varoquaux
 - BSD License
 - https://joblib.readthedocs.io
+
+### lingam 1.12.1
+
+- Copyright (c) 2019 T.Ikeuchi, G.Haraoka, M.Ide, W.Kurebayashi, S.Shimizu
+- MIT License
+- https://github.com/cdt15/lingam
 
 ### markdown2 2.3.9
 

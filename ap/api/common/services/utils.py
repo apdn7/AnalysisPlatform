@@ -9,7 +9,7 @@ from flask_sqlalchemy.query import Query
 from sqlalchemy.dialects import sqlite
 
 from ap.common.constants import TIME_COL, WELL_KNOWN_COLUMNS, DataGroupType, MasterDBType
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.pydn.dblib.sqlite import SQLite3
 from ap.setting_module.models import CfgProcess

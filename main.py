@@ -1,22 +1,21 @@
 import contextlib
-import logging
 import os
 import sys
 from datetime import UTC
 from pathlib import Path
 
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
+from loguru import logger
 
 root = os.path.dirname(Path(__file__).resolve())
 if root not in sys.path:
     sys.path.insert(0, root)
 
+
 from ap import (
     SHUTDOWN,
     create_app,
     dic_config,
-    get_basic_yaml_obj,
-    get_start_up_yaml_obj,
     is_internal_version,
     max_graph_config,
 )
@@ -25,9 +24,9 @@ from ap.common.cache.handler import CacheHandler
 from ap.common.constants import ANALYSIS_INTERFACE_ENV, PORT
 from ap.common.event_listeners import EventListener
 from ap.common.jobs.executor import mark_finished_job_done
-from ap.common.logger import LOG_FORMAT, get_log_handlers, get_log_level, is_enable_log_file
 from ap.common.multiprocess_sharing import EventQueue
 from ap.common.services.sse import MessageAnnouncer
+from ap.configs.schema import BasicConfigYaml, StartUpYaml
 
 env = os.environ.get(ANALYSIS_INTERFACE_ENV, 'prod')
 
@@ -35,21 +34,8 @@ is_main = __name__ == '__main__'
 
 app = create_app(f'config.{env.capitalize()}Config', is_main)
 
-basic_config_yaml = get_basic_yaml_obj()
-start_up_yaml = get_start_up_yaml_obj()
-
-log_handlers = get_log_handlers(
-    log_dir=dic_config.get('INIT_LOG_DIR'),
-    log_level=get_log_level(basic_config_yaml),
-    enable_log_file=is_enable_log_file(start_up_yaml),
-    is_main=is_main,
-)
-
-# We set log level debug here to write many log to console.
-# However, this setting does not affect to files because we force set them inside handler.
-logging.basicConfig(format=LOG_FORMAT, level=logging.DEBUG, handlers=log_handlers)
-
-logger = logging.getLogger(__name__)
+basic_config_yaml = BasicConfigYaml.from_app(app)
+start_up_yaml = StartUpYaml.from_app(app)
 
 if is_main:
     from datetime import datetime, timedelta
@@ -60,7 +46,7 @@ if is_main:
     from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
     from ap.common.common_utils import bundle_assets
     from ap.common.constants import APP_DB_FILE, CfgConstantType
-    from ap.common.db_maintenance import add_backup_dbs_job, add_vacuum_dbs_job
+    from ap.common.db_maintenance import add_backup_dbs_job
     from ap.common.memoize import clear_cache
     from ap.common.trace_data_log import (
         EventAction,
@@ -74,14 +60,9 @@ if is_main:
     python_main_start_time = datetime.now()
     multiprocess_sharing.start_sharing_instance_server()
 
-    port = None
-
-    dic_start_up = start_up_yaml.dic_config
-    if dic_start_up:
-        port = dic_start_up['setting_startup'].get('port', None)
-
+    port = start_up_yaml.setting_startup.port
     if not port:
-        port = basic_config_yaml.dic_config['info'].get('port-no') or app.config.get(PORT)
+        port = basic_config_yaml.info.port_no or app.config.get(PORT)
 
     check_available_port(port)
 
@@ -114,22 +95,22 @@ if is_main:
 
     MessageAnnouncer.start_background_cleanup_streamers()
 
-    # Universal DB init
-    # init_db(app)
-
     true_values = [True, 'true', '1', 1]
 
     # import yaml
     with app.app_context():
         # init cfg_constants for usage_disk
-        from ap.api.setting_module.services.import_function_column import reschedule_update_transaction_table
+        from ap.api.setting_module.services.import_function_column import (
+            reschedule_update_transaction_table,
+        )
         from ap.api.setting_module.services.polling_frequency import (
             add_delete_transaction_data_job,
             add_idle_monitoring_job,
             change_polling_all_interval_jobs,
         )
-        from ap.api.trace_data.services.proc_link import add_restructure_indexes_job, proc_link_count_job
+        from ap.api.trace_data.services.proc_link import proc_link_count_job
         from ap.setting_module.models import CfgConstant
+        from ap.trace_data.transaction_model import create_all_transaction_tables
 
         # unlock db
         try:
@@ -152,12 +133,12 @@ if is_main:
         for key, _ in max_graph_config.items():
             max_graph_config[key] = CfgConstant.get_value_by_type_first(key, int)
 
+        create_all_transaction_tables()
         reschedule_update_transaction_table()
         add_job_zip_all_previous_log_files()
         add_job_delete_old_zipped_log_files()
         add_idle_monitoring_job()
         change_polling_all_interval_jobs(run_now=True)
-        add_restructure_indexes_job()
 
         # defer to run this a bit
         proc_link_count_job(is_user_request=True, run_time=datetime.now() + timedelta(seconds=3))
@@ -177,7 +158,7 @@ if is_main:
         if should_update_r_lib and should_update_r_lib.lower() in true_values:
             from ap.script.check_r_portable import check_and_copy_r_portable
 
-            check_and_copy_r_portable()
+            check_and_copy_r_portable(basic_config_yaml.info.r_path)
 
     # disable quick edit of terminal to avoid pause
     is_debug = app.config.get('DEBUG')
@@ -186,15 +167,11 @@ if is_main:
             from ap.script.disable_terminal_quickedit import disable_quickedit
 
             disable_quickedit()
-            # from ap.script.hide_exe_root_folder import hide_bundle_folder, heartbeat_bundle_folder
-            # heartbeat_bundle_folder()
-            # hide_bundle_folder()
         except Exception:
             pass
 
     # add job when app started
     add_backup_dbs_job()
-    add_vacuum_dbs_job()
 
     # BRIDGE STATION - Refactor DN & OSS version
     if is_internal_version:

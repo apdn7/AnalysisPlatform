@@ -5,7 +5,7 @@ import pandas as pd
 from flask import Blueprint, request
 
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_jump_function import get_graph_context_param
 from ap.api.multi_scatter_plot.services import calc_partial_corr
 from ap.api.parallel_plot.services import gen_graph_paracords, generate_mask_from_constraint
 from ap.api.trace_data.services.csv_export import export_preprocessing, gen_df_export, make_graph_param, to_csv
@@ -26,13 +26,11 @@ from ap.common.services.csv_content import zip_file_to_response
 from ap.common.services.form_env import bind_dic_param_to_class, parse_multi_filter_into_one, parse_request_params
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_n_data import (
-    get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
-    save_input_data_to_file,
     trace_log_params,
 )
 
@@ -47,18 +45,10 @@ def trace_data():
     """
     start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
-    save_input_data_to_file(dic_form, EventType.PCP)
-    dic_param = parse_multi_filter_into_one(dic_form)
 
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
-    cache_dic_param, graph_param, df = get_jump_emd_data(dic_form)
+    graph_context = get_graph_context_param(dic_form, EventType.PCP)
 
-    if not graph_param:
-        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-        graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
-
-    dic_param = gen_graph_paracords(graph_param, cache_dic_param or dic_param, df)
+    dic_param = gen_graph_paracords(graph_context.graph_param, graph_context.dic_param, graph_context.df)
     calc_partial_corr(dic_param)
 
     stop = timeit.default_timer()

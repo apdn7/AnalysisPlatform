@@ -217,6 +217,7 @@ msgstr "Prozess Numm"
 msgid "Table Name"
 msgstr "Dëschwëtz"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "Detail déck"
@@ -566,18 +567,23 @@ msgstr "Y-Axen Gamme: Max"
 msgid "Part No"
 msgstr "Deeléng"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "Schluss mat"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "Um follegen"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like Sich)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "Astinist sinn"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "Regelméisseg Ausdréck"
 
@@ -842,6 +848,7 @@ msgstr "Partiell Match"
 msgid "th character"
 msgstr "#NAME?"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "Ongëlteg Ziffer Auswiel"
 
@@ -849,33 +856,43 @@ msgstr "Ongëlteg Ziffer Auswiel"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "D'Längt vum Charakter dat benotzt gëtt fir d'Link ass anescht."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "Keen Filter"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "All Zréck"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "gutt gutt"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "Aarbecht vun der Aarbecht"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "Alles"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "Import ofgeschloss."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "Importéieren"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "Failed Importer"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "Déi gelueden Date ginn geläscht. Ass et ok? (Keng Ännerung gëtt "
 "reflektéiert bis d'Aschreiwung Knäppchen gedréckt gëtt)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "Aarbecht vun der Aarbecht"
 
@@ -890,54 +908,71 @@ msgstr "Aarbecht vun der Aarbecht"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "Jobs ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "Jojag"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "Generatioun vu verbonneID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "Weist Generatioun Job vum Link ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "Import Fabréck Daten"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "Import laanscht Fabréck Daten"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "Show importéierend Aarbecht vun der vergaangener Fabréck Daten"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV Import Daten"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "Läschen al Daten"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "Startzäit"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "Zäitzäit"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "Datebank / CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "Kontrad"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "Prozess"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "Akscholdoglëscht"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "Registréiert als Ausbrochwäert"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "Onregistréiert Ausléiser"
 
@@ -961,24 +996,31 @@ msgstr "Show Histogramm Lëscht"
 msgid "Last update time"
 msgstr "Lescht Update Zäit"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "Outlier-Umeldung ass annuléiert."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "Registréiert als outlier"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "OFFLER"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "Nëmmen eng Kéier"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "Beruffsdetailer)"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "Kopie op Clipboard"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "Multi scatter Komplott"
 
@@ -1015,9 +1057,11 @@ msgstr "Kategoresch Variabel"
 msgid "Stratify by term"
 msgstr "Stratify vum Begrëff (direkt)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "Anomaly Detektioun"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. Principal Komponent Score vun Testdaten"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. Principal Komponent Score vun Trainingsdaten"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. Serie Charts vun T2 Statistiken"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. Serie Charts vun q Statistiken"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. Bäitrag Komplott vun T2 Statistiken"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. Bäitrag Komplott vun q Statistiken"
 
@@ -1471,6 +1521,7 @@ msgstr "Nis Persoritär"
 msgid "Viewer"
 msgstr "Viewer"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "Import Daten"
 
@@ -1478,9 +1529,11 @@ msgstr "Import Daten"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "Data Quell Numm"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "Datenquell Type"
 
@@ -1488,9 +1541,11 @@ msgstr "Datenquell Type"
 msgid "Do you want to save changes?"
 msgstr "Sidd Dir sécher Ännerungen ze späicheren?"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "Forcéiert OS Informatioun zu Zäitzone Astellunge."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "Fortgeschratt Astellung"
 
@@ -1543,6 +1598,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "All Aarbecht ass gestoppt ginn. Dir kënnt Äre Browser a Konsol gesinn."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1552,6 +1608,7 @@ msgstr "Datenquell konfiguréieren"
 msgid "Data Source Import Config"
 msgstr "DATA SOURCE CONDDAG"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1559,15 +1616,19 @@ msgstr ""
 ": Sailen hunn e puer Charakter Kolonnen fonnt. Préift datt d'numeresch "
 "Typ Kolonn etc. ka falsch knaschteg ginn."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "Filter Element"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "Filterwert"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "Verfallsdatum (Start)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "Verfallsdatum (Enn)"
 
@@ -1636,9 +1697,11 @@ msgstr "Intervmentéierung"
 msgid "Window length"
 msgstr "Fënster Längt"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "Tipps"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "Numm vum Numm"
 
@@ -1712,9 +1775,11 @@ msgstr "Filter Konfigur"
 msgid "Master Config"
 msgstr "Master Master Konfigur"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "Vum Filter Konfigur"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "Alles ganz weisen"
 
@@ -1764,33 +1829,40 @@ msgstr ""
 "Situatioun wéi seng normal Daten (T2 / Q). Wann Dir eng aner Situatioun "
 "hutt, kënnt Dir d'Haaptfaktoren am Bansragsplot kontrolléieren."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "Stratifizéiert Kategorie Filter: Limiten Daten fir op en Ënnerdeel ze "
 "weisen. (Kategorie: Deelnummer, Statioun Nee, asw.)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "Kategorie Variabelen (wéi Deelnummer, Station Nr.) Als Etiketten als "
 "Etiketten uewen op Plooschter ugewisen ze fannen."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "Grafike Filter: Limiten Daten fir op en Ënnerdeel ze weisen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "Setzt d'Léier Daten interpretéiert als normal Situatioun. Setzt d'Daten "
 "Sektioun déi keng NG Daten enthält. Wann abegraff, déi sinn no bei den "
 "NGdate sinn och als normal Daten beurteelt."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "Setzt Testdaten fir beurteelt ze ginn."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr ""
 "Artikel Filter: Limitts Daten (Analyséieren & Display) fir op en "
 "Ënnerdeel ze weisen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1800,6 +1872,7 @@ msgstr ""
 "Daten. Wann d'Donnéeën am Zentrum ass, kann et als enk als normal "
 "interpreëss ginn."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1809,6 +1882,7 @@ msgstr ""
 " vun de Léierendate bestëmmt, sou wéi déi meescht vun den Lagenddaten, "
 "soll si vum Zil sinn."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1820,6 +1894,7 @@ msgstr ""
 "méiglecherweis d'Situatioun ass ofwäichen. Klickt op Datepunkt fir de "
 "Bäitragsplote vu wéi Elementer d'Situatioun ausmaachen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1831,6 +1906,7 @@ msgstr ""
 "méiglecherweis d'Situatioun ass ofwäichen. Klickt op Datepunkt fir de "
 "Bäitragsplote vu wéi Elementer d'Situatioun ausmaachen."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1839,6 +1915,7 @@ msgstr ""
 "Punkt an der T2 statistesche Komplott ausgewielt. Heiansdo ass d'Längt, "
 "wat méi méiglech ass déi Saach."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2102,6 +2179,7 @@ msgstr ""
 "Entholl de Moment set den aktuelle Linking Zoustand an rifft déi virdru "
 "registréiert Bedingung."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""
@@ -2578,9 +2656,11 @@ msgstr "Astellung"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "Zuel vun den Datenartikelen déi net verbonne sinn"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "Scatter Komplott"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "mat Kontur"
 

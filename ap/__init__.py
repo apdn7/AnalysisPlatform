@@ -1,6 +1,13 @@
+from loguru import logger
+
+from ap.common.log import setup_console_logger, setup_logfile_logger
+
+# Setup logger to the console. We need this to be the first thing to run, before importing any other modules
+logger.remove()
+setup_console_logger(log_level='DEBUG')
+
 import atexit
 import contextlib
-import logging
 import os
 import time
 from collections.abc import Mapping
@@ -10,7 +17,6 @@ from typing import Any
 import flask_migrate
 import pandas as pd
 import sqlalchemy as sa
-import wtforms_json
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, Response, g, render_template
 from flask_apscheduler import STATE_STOPPED
@@ -19,6 +25,7 @@ from flask_compress import Compress
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from loguru import logger
 from pytz import utc
 from sqlalchemy import MetaData, NullPool
 from sqlalchemy.orm import DeclarativeBase, create_session, scoped_session
@@ -40,47 +47,38 @@ from ap.common.constants import (
     GA_TRACKING_ID_KEY,
     HTML_CODE_304,
     INIT_APP_DB_FILE,
-    INIT_BASIC_CFG_FILE,
     LAST_REQUEST_TIME,
-    LOG_LEVEL,
     MAIN_THREAD,
     NO_CACHING_ENDPOINTS,
     PORT,
     PROCESS_QUEUE,
     REQUEST_THREAD_ID,
+    RUN_AFTER_REQUEST,
     SHUTDOWN,
     SQLITE_CONFIG_DIR,
     TESTING,
     UNIVERSAL_DB_FILE,
     YAML_CONFIG_AP,
-    YAML_CONFIG_BASIC,
     YAML_CONFIG_DB,
     YAML_CONFIG_PROC,
     YAML_CONFIG_VERSION,
-    YAML_START_UP,
-    ApLogLevel,
     FlaskGKey,
     MaxGraphNumber,
 )
 from ap.common.ga import GA, GA_TRACKING_ID, VERSION_FILE_NAME, AppGroup, AppSource, get_app_group
 from ap.common.jobs.scheduler import CustomizeScheduler
-from ap.common.logger import log_execution_time
 from ap.common.path_utils import count_file_in_folder, make_dir, resource_path
 from ap.common.services.http_content import json_dumps
 from ap.common.services.request_time_out_handler import RequestTimeOutAPI, set_request_g_dict
 from ap.common.trace_data_log import TraceErrKey, get_log_attr
 from ap.common.yaml_utils import (
     YAML_CONFIG_AP_FILE_NAME,
-    YAML_CONFIG_BASIC_FILE_NAME,
     YAML_CONFIG_DB_FILE_NAME,
     YAML_CONFIG_PROC_FILE_NAME,
-    YAML_START_UP_FILE_NAME,
-    BasicConfigYaml,
-    StartupSettings,
 )
+from ap.configs.schema import BasicConfigYaml, StartUpYaml
 from ap.equations.error import FunctionErrors, FunctionFieldError
-
-logger = logging.getLogger(__name__)
+from config import ConfigKey
 
 # Enable pandas copy on write optimization
 # See more: <https://pandas.pydata.org/docs/user_guide/copy_on_write.html#copy-on-write-optimizations>
@@ -185,13 +183,12 @@ db = SQLAlchemy(
 migrate = Migrate()
 scheduler = CustomizeScheduler(BackgroundScheduler(timezone=utc))
 ma = Marshmallow()
-wtforms_json.init()
 
 background_jobs = {}
 
 LOG_IGNORE_CONTENTS = ('.html', '.js', '.css', '.ico', '.png')
 # yaml config files
-dic_yaml_config_file = {'basic': None, 'db': None, 'proc': None, 'ap': None, 'version': 0}
+dic_yaml_config_file = {'db': None, 'proc': None, 'ap': None, 'version': 0}
 
 # last request time
 dic_request_info = {LAST_REQUEST_TIME: datetime.utcnow()}
@@ -200,7 +197,6 @@ dic_request_info = {LAST_REQUEST_TIME: datetime.utcnow()}
 db_engine = None
 
 # basic yaml
-dic_yaml_config_instance = {}
 
 
 def init_engine(uri, **kwargs: Mapping[str, Any]):
@@ -256,7 +252,7 @@ def create_app(object_name=None, is_main=False):
     from .calendar_heatmap import create_module as calendar_heatmap_create_module
     from .categorical_plot import create_module as categorical_create_module
     from .co_occurrence import create_module as co_occurrence_create_module
-    from .common.logger import bind_user_info
+    from .common.log import bind_user_info
     from .heatmap import create_module as heatmap_create_module
     from .multiple_scatter_plot import create_module as multiple_scatter_create_module
     from .parallel_plot import create_module as parallel_create_module
@@ -271,10 +267,6 @@ def create_app(object_name=None, is_main=False):
 
     app = Flask(__name__)
     app.config.from_object(object_name)
-
-    # app.config.update(
-    #     SCHEDULER_JOBSTORES={'default': SQLAlchemyJobStore(url=app.config['SQLALCHEMY_DATABASE_APP_URI'])},
-    # )
 
     # db directory
     dic_config[SQLITE_CONFIG_DIR] = app.config[SQLITE_CONFIG_DIR]
@@ -311,14 +303,12 @@ def create_app(object_name=None, is_main=False):
 
     # yaml files path
     yaml_config_dir = app.config.get('YAML_CONFIG_DIR')
-    dic_yaml_config_file[YAML_CONFIG_BASIC] = os.path.join(yaml_config_dir, YAML_CONFIG_BASIC_FILE_NAME)
     dic_yaml_config_file[YAML_CONFIG_DB] = os.path.join(yaml_config_dir, YAML_CONFIG_DB_FILE_NAME)
     dic_yaml_config_file[YAML_CONFIG_PROC] = os.path.join(yaml_config_dir, YAML_CONFIG_PROC_FILE_NAME)
     dic_yaml_config_file[YAML_CONFIG_AP] = os.path.join(yaml_config_dir, YAML_CONFIG_AP_FILE_NAME)
-    dic_yaml_config_file[YAML_START_UP] = os.path.join(os.getcwd(), YAML_START_UP_FILE_NAME)
 
     # check and copy basic config file if not existing
-    init_config(dic_yaml_config_file[YAML_CONFIG_BASIC], app.config[INIT_BASIC_CFG_FILE])
+    init_config(app.config[ConfigKey.BASIC_CONFIG_FILE], app.config[ConfigKey.INIT_BASIC_CONFIG_FILE])
 
     # db secret key
     dic_config[DB_SECRET_KEY] = app.config[DB_SECRET_KEY]
@@ -350,34 +340,34 @@ def create_app(object_name=None, is_main=False):
 
     app.add_url_rule('/', endpoint='tile_interface.tile_interface')
 
-    basic_config_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_CONFIG_BASIC])
-    start_up_yaml = BasicConfigYaml(dic_yaml_config_file[YAML_START_UP])
-    hide_setting_page = basic_config_yaml.get_node(['info', 'hide-setting-page'], False)
-    default_log_level = basic_config_yaml.get_node(['info', LOG_LEVEL], ApLogLevel.INFO.name)
-    is_default_log_level = default_log_level == ApLogLevel.INFO.name
-    dic_yaml_config_instance[YAML_CONFIG_BASIC] = basic_config_yaml
-    dic_yaml_config_instance[YAML_START_UP] = start_up_yaml
+    basic_config_yaml = BasicConfigYaml.from_app(app)
+    start_up_yaml = StartUpYaml.from_app(app)
+    if start_up_yaml.setting_startup.enable_file_log:
+        setup_logfile_logger(
+            log_dir=app.config[ConfigKey.INIT_LOG_DIR],
+            log_level=basic_config_yaml.info.log_level.value,
+            is_main=is_main,
+        )
+
     # BRIDGE STATION - Refactor DN & OSS version
     dic_yaml_config_file[YAML_CONFIG_VERSION] = config_ver
 
-    startup_settings = StartupSettings.from_dict(start_up_yaml.dic_config.get('setting_startup', {}))
-    sub_title = startup_settings.subtitle
     # app config
-    app.config[GA_TRACKING_ID_KEY] = GA_TRACKING_ID if startup_settings.enable_ga_tracking else ''
-    app.config[ENABLE_DUMP_TRACE_LOG] = bool(startup_settings.enable_dump_trace_log)
-    app.config[DISABLE_CONFIG_FROM_EXTERNAL_KEY] = bool(startup_settings.disable_config_from_external)
+    app.config[GA_TRACKING_ID_KEY] = GA_TRACKING_ID if start_up_yaml.setting_startup.enable_ga_tracking else ''
+    app.config[ENABLE_DUMP_TRACE_LOG] = start_up_yaml.setting_startup.enable_dump_trace_log
+    app.config[DISABLE_CONFIG_FROM_EXTERNAL_KEY] = start_up_yaml.setting_startup.disable_config_from_external
     # language
-    lang = startup_settings.language
+    lang = start_up_yaml.setting_startup.language
     if lang is None or not lang:
-        lang = basic_config_yaml.get_node(['info', 'language'], False)
+        lang = basic_config_yaml.info.language
     lang = find_babel_locale(lang)
     lang = lang or app.config['BABEL_DEFAULT_LOCALE']
 
     # create prefix for cookie key to prevent using same cookie between ports when runiing app
     def key_port(key):
-        port = startup_settings.port
+        port = start_up_yaml.setting_startup.port
         if not port:
-            port = basic_config_yaml.get_node(['info', 'port-no'], '7770')
+            port = basic_config_yaml.info.port_no
         return f'{port}_{key}'
 
     def get_locale():
@@ -425,7 +415,7 @@ def create_app(object_name=None, is_main=False):
         dict_capacity = get_disk_capacity_to_load_ui()
         is_admin = int(is_admin_request())
         # "hide_setting_page: true" apply only to ip address/pc address instead of localhost
-        is_hide_setting_page = hide_setting_page and not is_admin_request()
+        is_hide_setting_page = basic_config_yaml.info.hide_setting_page and not is_admin_request()
         app_startup_time = (
             str(app.config.get('app_startup_time').strftime(DATE_FORMAT_STR))
             if app.config.get('app_startup_time')
@@ -434,9 +424,9 @@ def create_app(object_name=None, is_main=False):
         return {
             'app_context': {
                 'disk_capacity': dict_capacity,
-                'sub_title': sub_title,
+                'sub_title': start_up_yaml.setting_startup.subtitle,
                 'is_admin': str(is_admin),
-                'log_level': str(is_default_log_level),
+                'log_level': basic_config_yaml.info.log_level.name,
                 'hide_setting_page': str(is_hide_setting_page),
                 'app_startup_time': app_startup_time,
                 'app_group': ga_info.app_group.value,
@@ -484,6 +474,19 @@ def create_app(object_name=None, is_main=False):
             response.cache_control.max_age = 60 * 5
             response.cache_control.must_revalidate = True
 
+        # run function after request
+        if RUN_AFTER_REQUEST in g:
+            after_funcs = g.run_after_request
+            while after_funcs:
+                fn, args, kwargs = after_funcs[0]
+                try:
+                    fn(*args, **kwargs)
+                except Exception as e:
+                    logger.exception(e)
+                finally:
+                    after_funcs.pop(0)
+            del g.run_after_request
+
         response.direct_passthrough = False
         response.add_etag()
         response.make_conditional(request)
@@ -523,19 +526,6 @@ def create_app(object_name=None, is_main=False):
         status = 500
         return Response(response=response, status=status)
 
-    # @app.errorhandler(Exception)
-    # def unhandled_exception(e):
-    #     # close app db session
-    #     close_sessions()
-    #     logger.exception(e)
-    #
-    #     response = json.dumps({
-    #         "code": e.status_code,
-    #         "message": e.message,
-    #         "dataset_id": get_log_attr(TraceErrKey.DATASET)
-    #     })
-    #     return Response(response=response)
-
     @app.errorhandler(RequestTimeOutAPI)
     def request_timeout_api_error(e):
         """Return JSON instead of HTML for HTTP errors."""
@@ -574,13 +564,3 @@ def create_app(object_name=None, is_main=False):
         Session.remove()
 
     return app
-
-
-@log_execution_time()
-def get_basic_yaml_obj():
-    return dic_yaml_config_instance[YAML_CONFIG_BASIC]
-
-
-@log_execution_time()
-def get_start_up_yaml_obj():
-    return dic_yaml_config_instance[YAML_START_UP]

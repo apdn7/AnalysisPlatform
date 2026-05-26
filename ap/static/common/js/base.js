@@ -2249,3 +2249,13 @@ function delay(func, ms, ...extendArgs) {
     }
     return inner;
 }
+
+// This function to check currentXY and 2 latest items in latestSortColIds
+// In case: change or delete variable  without click "Display graph"
+const checkIsUpdateXY = (newXY, currentXY) => {
+    if (newXY.length !== currentXY.length) return true;
+    for (let i = 0; i < newXY.length; i++) {
+        if (newXY[i] !== currentXY[i]) return true;
+    }
+    return false;
+};

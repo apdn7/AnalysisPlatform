@@ -1,6 +1,3 @@
-from typing import Tuple, Optional, List, Union
-
-from ap.common.logger import logger
 from ap.api.efa.services.etl import PyETLInterface
 import pandas as pd
 

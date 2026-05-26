@@ -1596,6 +1596,7 @@ msgstr ""
 "Вся работа была остановлена. Вы можете безопасно закрыть свой браузер и "
 "консоли."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2177,6 +2178,7 @@ msgstr ""
 "Отбросьте в настоящее время установленное условие связывания данных и "
 "вызывает ранее зарегистрированное условие."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

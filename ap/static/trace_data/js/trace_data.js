@@ -11,7 +11,6 @@ let xAxisShowSettings;
 let availableOrderingSettings = {};
 let isShowIndexInGraphArea = false;
 let updateOrderCols = false;
-let logScaleActivated = false;
 let fppScaleOption = {
     xAxis: null,
     yAxis: null,
@@ -64,7 +63,7 @@ const formElements = {
     labelPlotContextMenu: '#showAnchorLabelPlotContextMenu',
     duplicatedSerial: '#duplicatedSerialTemp',
     timeSeriesPlotView: '#timeSeriesPlotView',
-    logScaleEnableBtn: '#logScaleEnableBtn',
+    yScaleModesSelection: '#yScaleModesSelection',
 };
 
 const i18n = {
@@ -868,6 +867,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             negCumsum: plotData.neg_cumsum,
             NGLabel: plotData.judge_negative_display,
             OKLabel: plotData.judge_positive_display,
+            is_log_scale: plotData?.is_log_scale || false,
         };
 
         const histParamObj = {
@@ -890,6 +890,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             xAxisOption,
             isCatLimited,
             isJudge: plotData.end_col_column_type === masterDataGroup.JUDGE,
+            is_log_scale: plotData?.is_log_scale || false,
         };
 
         // 今回はAjaxでupdateが必要が無いのでオブジェクトを返さない
@@ -1148,6 +1149,8 @@ const resetGraphSetting = () => {
     $(`select[name=${formElements.frequencyScale}]`).val(frequencyOptions.AUTO);
     $(`input[name=${formElements.summaryOption}][value=none]`).prop('checked', true);
     $(formElements.yScaleOption).val(1);
+    // reset y-log-scale
+    $('select#yScaleModesSelection').val(Y_SCALE_MODES.AUTO);
 };
 
 const traceDataWithDBChecking = (action) => {
@@ -1236,6 +1239,7 @@ const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
         formData = lastUsedFormData;
         // transform cat label filter
         formData = transformCatFilterParams(formData);
+        formData = addYScaleOption(formData);
 
         // transform index order
         formData = transformIndexOrderParams(formData, formElements.formID);
@@ -1263,16 +1267,14 @@ const deleteFormDataKeysDuplicate = (formData, keyRemove) => {
     return uniqueFormData;
 };
 
-const getLogScaleOption = (formData) => {
-    if (logScaleActivated) {
-        formData.set('temp_log_scale_mode', true);
-    }
+const addYScaleOption = (formData) => {
+    // get yScaleMode from GUI
+    formData.set('temp_y_scale_mode', yScaleMode);
     return formData;
 };
 
 const traceData = (clearOnFlyFilter, autoUpdate) => {
     let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
-    formData = getLogScaleOption(formData);
     formData = deleteFormDataKeysDuplicate(formData, 'GET02_CATE_SELECT');
     formData = handleXSettingOnGUI(formData);
     showGraphCallApi('/ap/api/fpp/index', formData, REQUEST_TIMEOUT, async (res) => {
@@ -1616,10 +1618,4 @@ const goToGraphConfigPageFPP = (url) => {
 
     const procId = graphStore.getArrayPlotData(selectedCanvasId).end_proc_id;
     goToOtherPage(`${url}?proc_id=${procId}`, false);
-};
-
-const logScaleToggle = (ele) => {
-    logScaleActivated = $(ele).is(':checked');
-    // re-show charts by button click
-    handleSubmit(false, false);
 };

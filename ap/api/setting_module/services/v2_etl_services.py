@@ -1,11 +1,11 @@
 import csv
-import logging
 import re
 from pathlib import Path
 from typing import Any, Union
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from pandas import DataFrame, Series
 from pandas.errors import ParserError
 from sqlalchemy.orm import scoped_session
@@ -34,7 +34,7 @@ from ap.common.constants import (
     DBType,
     v2_PART_NO_REGEX,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import open_with_zip
 from ap.common.services.csv_content import get_metadata
 from ap.common.services.csv_header_wrapr import add_suffix_if_duplicated
@@ -50,8 +50,6 @@ from ap.setting_module.models import (
     use_meta_session,
 )
 from ap.setting_module.schemas import ProcessColumnSchema
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()

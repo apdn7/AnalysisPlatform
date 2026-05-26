@@ -8,7 +8,6 @@ import importlib
 import inspect
 import json
 import locale
-import logging
 import os
 import pickle
 import re
@@ -29,13 +28,13 @@ import chardet
 import numpy as np
 import pandas as pd
 import pytz
-import sqlalchemy as sa
 
 # from charset_normalizer import detect
 from dateutil import parser, tz
 from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
+from loguru import logger
 from pandas import DataFrame, Series
 from pandas.core.arrays.integer import NUMPY_INT_TO_DTYPE
 from pandas.io import parquet
@@ -72,7 +71,7 @@ from ap.common.constants import (
     FlaskGKey,
     JobType,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.path_utils import (
     check_exist,
     get_data_path,
@@ -83,8 +82,6 @@ from ap.common.path_utils import (
 )
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.normalization import normalize_str, unicode_normalize
-
-logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -499,14 +496,15 @@ def convert_sa_sql_to_sa_str(fn):
         if isinstance(sql, str):
             return fn(self, **kwargs)
 
-        if isinstance(sql, (sa.GenerativeSelect, sa.TextClause)):
+        # sqlachemy statement has compile methods.
+        if hasattr(sql, 'compile'):
             if kwargs.get('params') is not None:
                 sql = sql.bindparams(**kwargs['params'])
             sql, params = self.gen_sql_and_params(sql)
             kwargs['sql'] = sql
             kwargs['params'] = params
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'Unsupported type: {type(sql)} for `convert_sa_sql_to_sa_str`: {sql}')
 
         return fn(self, **kwargs)
 
@@ -569,11 +567,6 @@ def get_csv_delimiter(csv_delimiter):
         return csv_delimiter.value
 
     return CsvDelimiter[csv_delimiter].value
-
-
-def sql_regexp(expr, item):
-    reg = re.compile(expr, re.IGNORECASE)
-    return reg.search(str(item if item is not None else '')) is not None
 
 
 def set_sqlite_params(conn):
@@ -1127,16 +1120,6 @@ def sort_processes_by_parent_children_relationship(processes):
         return cmp_key(lhs_key, rhs_key)
 
     return sorted(processes, key=functools.cmp_to_key(cmp_proc))
-
-
-def get_type_all_columns(db_instance, table_name: str):
-    sql = f'PRAGMA table_info({table_name})'
-    cols, rows = db_instance.run_sql(sql)
-    df = pd.DataFrame(rows, columns=cols)
-    names = df['name'].tolist()
-    types = df['type'].tolist()
-    dict_name_type = dict(zip(names, types, strict=False))
-    return dict_name_type
 
 
 def get_month_diff(str_min_datetime, str_max_datetime):
@@ -1719,6 +1702,22 @@ class TimeRange(RangeBound[dt.datetime]):
             min=self.min.map(lambda m: m.strftime(fmt)),
             max=self.max.map(lambda m: m.strftime(fmt)),
         )
+
+    def chunk(self, days: int) -> list[Self]:
+        chunked_time_ranges = []
+        next_time_range = TimeRange(
+            min=Bound(kind=self.min.kind, value=self.min.value),
+            max=Bound(kind=BoundType.INCLUDED, value=self.min.value + timedelta(days=days)),
+        )
+        next_time_range = next_time_range.intersect(self)
+        while next_time_range is not None:
+            chunked_time_ranges.append(next_time_range)
+            next_time_range = TimeRange(
+                min=Bound(kind=BoundType.EXCLUDED, value=next_time_range.max.value),
+                max=Bound(kind=BoundType.INCLUDED, value=next_time_range.max.value + timedelta(days=days)),
+            )
+            next_time_range = next_time_range.intersect(self)
+        return chunked_time_ranges
 
 
 class WebAuthenticationType(Enum):

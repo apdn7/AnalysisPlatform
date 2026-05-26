@@ -1590,6 +1590,7 @@ msgstr ""
 "Semua pekerjaan telah dihentikan. Anda dapat dengan aman menutup browser "
 "dan konsol Anda."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2166,6 +2167,7 @@ msgstr ""
 "Buang kondisi penghubung data yang saat ini ditetapkan dan memanggil "
 "kondisi yang terdaftar sebelumnya."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

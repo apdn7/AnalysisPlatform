@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Iterable
 from datetime import datetime
 from typing import Final, Union
@@ -11,8 +10,6 @@ from ap.common.cache.functions import CacheFunctions
 from ap.common.constants import UNDER_SCORE, JobType
 from ap.common.memoize import OptionalCacheConfig
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
-
-logger = logging.getLogger(__name__)
 
 
 class CacheJobs(CacheFunctions):

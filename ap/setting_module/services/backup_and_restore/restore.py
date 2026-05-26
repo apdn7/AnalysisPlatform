@@ -1,15 +1,12 @@
 import pandas as pd
 
 from ap.api.setting_module.services.data_import import (
-    gen_bulk_insert_sql,
-    get_insert_params,
-    insert_data,
     save_proc_data_count_multiple_dfs,
 )
 from ap.common.constants import DATE_FORMAT_STR, AnnounceEvent
 from ap.common.jobs.job_info_schema import UserRestoreDatabaseJobInfo
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.setting_module.models import JobManagement
 from ap.setting_module.services.backup_and_restore.backup_file_manager import BackupKey, BackupKeysManager
 from ap.setting_module.services.backup_and_restore.duplicated_check import (
@@ -55,10 +52,10 @@ def restore_db_data_from_file(
         backup_key.delete_file()
         return
 
-    with DbProxy(
-        gen_data_source_of_universal_db(proc_id=transaction_data.process_id),
-        True,
-    ) as db_instance:
+    with (
+        TxnDataConnection(process_id=transaction_data.process_id, readonly_transaction=False) as data_con,
+        TxnMetaConnection(process_id=transaction_data.process_id) as meta_con,
+    ):
         get_date_col = transaction_data.getdate_column.bridge_column_name
         df_file[get_date_col] = pd.to_datetime(df_file[get_date_col])
 
@@ -73,7 +70,7 @@ def restore_db_data_from_file(
 
         # get data from db to drop duplicates
         df_from_db: pd.DataFrame = transaction_data.get_transaction_by_time_range(
-            db_instance,
+            data_con,
             backup_keys_manager.get_start_time(backup_key),
             backup_keys_manager.get_end_time(backup_key),
         )
@@ -88,14 +85,12 @@ def restore_db_data_from_file(
         )
 
         if not df_insert.empty:
-            sql_params = get_insert_params(df_insert.columns)
-            sql_insert = gen_bulk_insert_sql(transaction_data.table_name, *sql_params)
             # need to convert to correct datetime format before inserting to database
             df_insert[get_date_col] = df_insert[get_date_col].dt.strftime(DATE_FORMAT_STR)
-            insert_data(db_instance, sql_insert, df_insert.to_numpy().tolist())
+            data_con.insert_from_df(df_insert, transaction_data.table_name)
 
         save_proc_data_count_multiple_dfs(
-            db_instance,
+            meta_con,
             proc_id=backup_key.process_id,
             get_date_col=get_date_col,
             dfs_push_to_db=df_insert,

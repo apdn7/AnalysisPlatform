@@ -67,9 +67,12 @@ const sortGraphs = (array, ColKey, sortedColIds) => {
     return [...sortedCols, ...notOrderCols];
 };
 
-const getSelectedEndColIds = () => {
+const getSelectedEndColIds = (parentId = '') => {
     const colIds = [];
-    $('#end-proc-row .end-proc').each((_, endProc) => {
+    // show graph pages sort for all end procs so no id is passed
+    // export config passes an id so that only the selected end proc is the target
+    parentId = parentId ? `${parentId} ` : '';
+    $(`${parentId}#end-proc-row .end-proc`).each((_, endProc) => {
         const procId = $(endProc).find('[name*="end_proc"] option:selected').val();
         const cols = $(endProc).find('li [name*=GET02_VALS_SELECT]:checked');
         cols.each((_, element) => {
@@ -90,13 +93,13 @@ const getSelectedEndProcIds = () => {
     return procIds;
 };
 
-const generateSortOrderColumn = (sortList, graphArea) => {
+const generateSortOrderColumn = (sortList, graphArea, tableID = orderingEls.endColOrderTable) => {
     if (graphArea) {
         sortList = [...latestSortColIds];
     }
     let isReset = true;
     if (!sortList.length) {
-        $(`${orderingEls.endColOrderTable + graphArea} tbody`).empty();
+        $(`${tableID + graphArea} tbody`).empty();
     }
 
     // for scp or heatmap => get 2 last item in sortList
@@ -123,7 +126,7 @@ const generateSortOrderColumn = (sortList, graphArea) => {
         const dataType = dataTypeShort(dicCols[colId]);
         const procEnName = cfgProc.name_en;
         showColOrderingSetting(
-            orderingEls.endColOrderTable + graphArea,
+            tableID + graphArea,
             colId,
             cfgProc.id,
             cfgProc.shown_name,
@@ -147,6 +150,11 @@ const getSensorOrderFromGUI = (sortedIds = []) => {
     const selectedSensors = getSelectedEndColIds();
     return sortedIds.filter((id) => selectedSensors.includes(id));
 };
+
+function sortByOrder(arr1, arr2) {
+    const order = new Map(arr2.map((v, i) => [v, i]));
+    return arr1.sort((a, b) => (order.get(a) ?? Infinity) - (order.get(b) ?? Infinity));
+}
 
 const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callback = null) => {
     sortedColIds = isDropDownChanged() ? getSensorOrderFromGUI(latestSortColIds) : sortedColIds;
@@ -261,7 +269,7 @@ const htmlEndColOrderRowTemplate = (
        ${
            !graphArea
                ? `
-        <td style="text-align: center">
+        <td class="delete-order-column" style="text-align: center">
             <button onclick="handleDeleteColumn(this)" type="button" class="btn btn-secondary icon-btn btn-right">
                 <i class="fas fa-trash-alt icon-secondary"></i>
             </button>

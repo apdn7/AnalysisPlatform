@@ -4,7 +4,7 @@ from ap.api.setting_module.services.data_import import save_proc_data_count_mult
 from ap.common.constants import AnnounceEvent
 from ap.common.jobs.job_info_schema import UserBackupDatabaseJobInfo
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.setting_module.models import JobManagement
 from ap.setting_module.services.backup_and_restore.backup_file_manager import BackupKey, BackupKeysManager
 from ap.setting_module.services.backup_and_restore.duplicated_check import (
@@ -46,13 +46,13 @@ def backup_db_data_from_key(
     backup_keys_manager: BackupKeysManager,
     backup_key: BackupKey,
 ):
-    with DbProxy(
-        gen_data_source_of_universal_db(proc_id=transaction_data.process_id),
-        True,
-    ) as db_instance:
+    with (
+        TxnDataConnection(process_id=transaction_data.process_id, readonly_transaction=False) as data_con,
+        TxnMetaConnection(process_id=transaction_data.process_id) as meta_con,
+    ):
         get_date_col = transaction_data.getdate_column.bridge_column_name
         df_from_db: pd.DataFrame = transaction_data.get_transaction_by_time_range(
-            db_instance,
+            data_con,
             backup_keys_manager.get_start_time(backup_key),
             backup_keys_manager.get_end_time(backup_key),
         )
@@ -61,7 +61,7 @@ def backup_db_data_from_key(
 
         # remove data in transaction table
         transaction_data.remove_transaction_by_time_range(
-            db_instance,
+            data_con,
             backup_keys_manager.get_start_time(backup_key),
             backup_keys_manager.get_end_time(backup_key),
         )
@@ -85,7 +85,7 @@ def backup_db_data_from_key(
         )
 
         save_proc_data_count_multiple_dfs(
-            db_instance,
+            meta_con,
             proc_id=backup_key.process_id,
             get_date_col=get_date_col,
             dfs_pop_from_db=df_from_db,

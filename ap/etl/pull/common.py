@@ -3,25 +3,26 @@ from __future__ import annotations
 import dataclasses
 import datetime as dt
 import enum
-import logging
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Union
 
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
+from loguru import logger
 
 from ap.common.common_utils import Bound, BoundType, TimeRange, to_pydatetime
-from ap.common.constants import DATE_FORMAT_STR_ONLY_DIGIT, SQL_DAYS_AGO, BaseEnum
-from ap.common.logger import log_execution_time
+from ap.common.constants import DATE_FORMAT_STR_ONLY_DIGIT, LOG_SCALE_THRESHOLD, SQL_DAYS_AGO, BaseEnum
+from ap.common.jobs.job_info_schema import PullDataJobInfo
+from ap.common.log import log_execution_time
 from ap.common.path_utils import get_data_path
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.pydn.dblib.db_proxy import gen_data_source_of_universal_db
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.timezone_utils import detect_timezone
-from ap.setting_module.models import CfgProcess
-from ap.trace_data.transaction_model import PullHistoryRecord, PullHistoryTable
-
-logger = logging.getLogger(__name__)
+from ap.setting_module.models import CfgProcess, JobManagement
+from ap.trace_data.transaction_model import PullHistoryRecord, PullHistoryTable, TransactionData
 
 FETCH_MANY_SIZE = 1_000_000
 FILE_CHUNK_SIZE = 20_000
@@ -32,6 +33,7 @@ class PullBase(ABC):
     """Base class for pull data"""
 
     processes: list[CfgProcess]
+    pull_data_job_info: PullDataJobInfo = dataclasses.field(default_factory=PullDataJobInfo)
     sql: Union[sa.Select, sa.CompoundSelect] | None = None
 
     @classmethod
@@ -42,7 +44,9 @@ class PullBase(ABC):
     def get_factory_time_range_per_process(self, factory_db_instance) -> dict[int, TimeRange]: ...
 
     @abstractmethod
-    def save_transaction_data(self, data: Union[list[tuple], list[dict]], columns: list[str]): ...
+    def save_transaction_data(
+        self, data: Union[list[tuple], list[dict]], columns: list[str], job_management: JobManagement
+    ): ...
 
     @classmethod
     def detect_query_datetime_range(
@@ -91,22 +95,32 @@ class PullBase(ABC):
 
         return selectable_time_range.different(pulled_time_range)
 
-    def get_transaction_data_query_union_all(self, factory_db_instance) -> Union[sa.Select, sa.CompoundSelect] | None:
+    def get_transaction_data_query_union_all(
+        self, factory_db_instance, job_management: JobManagement
+    ) -> Union[sa.Select, sa.CompoundSelect] | None:
         sql_selects: list[sa.Select] = []
-
+        job_management.info = self.pull_data_job_info
         process_id_and_factory_time_range = self.get_factory_time_range_per_process(factory_db_instance)
-
         for process in self.processes:
             factory_time_range = process_id_and_factory_time_range.get(process.id)
+            target_info = PullDataJobInfo.PullDataTargetInfo(
+                process_id=process.id, import_from=factory_time_range.min.value, import_to=factory_time_range.max.value
+            )
+            self.pull_data_job_info.pull_targets.append(target_info)
             # table is empty, skip
             if factory_time_range is None or factory_time_range.is_empty():
                 logger.warning(f'table for process {process.id} is empty. Please check.')
                 continue
 
-            data_source = gen_data_source_of_universal_db(process.id)
-            with DbProxy(data_source, True) as db_instance:
-                PullHistoryTable.create_table(db_instance, process.id)
-                pull_history = PullHistoryTable.get(db_instance, process.id)
+            gen_data_source_of_universal_db(process.id)
+            trans_data = TransactionData(process)
+            with (
+                TxnMetaConnection(process_id=process.id) as meta_con,
+                TxnDataConnection(process_id=process.id, readonly_transaction=False) as data_con,
+            ):
+                trans_data.create_table(data_con, meta_con)
+                PullHistoryTable.create_table(meta_con, process.id)
+                pull_history = PullHistoryTable.get(meta_con, process.id)
 
             query_time_ranges = self.detect_query_datetime_range(
                 process,
@@ -133,17 +147,14 @@ class PullBase(ABC):
         return self.sql
 
     @log_execution_time()
-    def pull_data(
-        self,
-        factory_db_instance,
-    ):
+    def pull_data(self, factory_db_instance, job_management: JobManagement):
         data = factory_db_instance.fetch_many(self.sql, size=FETCH_MANY_SIZE)
         columns = next(data)
         for ret in data:
             if not ret or len(ret) == 0:
                 break
 
-            self.save_transaction_data(ret, columns)
+            self.save_transaction_data(ret, columns, job_management=job_management)
 
     @log_execution_time()
     def save_transaction_data_for_one_process(
@@ -185,10 +196,10 @@ class PullBase(ABC):
     @classmethod
     def save_pull_history(cls, process: CfgProcess, min_date: dt.datetime, max_date: dt.datetime):
         """TODO: make use of `TimeRange`"""
-        with DbProxy(gen_data_source_of_universal_db(process.id), True) as db_instance:
+        with TxnMetaConnection(process_id=process.id) as meta_con:
             timezone = detect_timezone(min_date)
-            PullHistoryTable.create_table(db_instance, process.id)
-            pull_history_record = PullHistoryTable.get(db_instance, process.id)
+            PullHistoryTable.create_table(meta_con, process.id)
+            pull_history_record = PullHistoryTable.get(meta_con, process.id)
             if pull_history_record.pull_from is None and pull_history_record.pull_to is None:
                 pull_history_record.set_pull_from(min_date)
                 pull_history_record.set_pull_to(max_date)
@@ -198,7 +209,7 @@ class PullBase(ABC):
                     pull_history_record.set_pull_from(min_date)
                 if pull_time_range.max.value < max_date:
                     pull_history_record.set_pull_to(max_date)
-            PullHistoryTable.set(db_instance, process.id, pull_history_record)
+            PullHistoryTable.set(meta_con, process.id, pull_history_record)
 
 
 class PullDataType(BaseEnum):
@@ -217,3 +228,47 @@ class PullDataType(BaseEnum):
     MASTER = enum.auto()
     CODE = enum.auto()
     TRANSACTION = enum.auto()
+
+
+def should_use_log_scale(data: pd.Series) -> bool:
+    """Determine if log scale should be used for sensor visualization in GUI.
+
+    Uses IQR (Interquartile Range) ratio to decide if log scale is appropriate.
+    Log scale is recommended when the data spans multiple orders of magnitude.
+
+    Args:
+        data: Series of numeric data to analyze (can be Series, array, or list)
+
+    Returns:
+        True if log scale is recommended, False otherwise
+    """
+    # Convert to pandas Series for easier handling
+    series = pd.Series(data)
+
+    if series.empty:
+        return False
+
+    # Remove NA/None values
+    series = series.dropna()
+
+    if len(series) == 0:
+        return False
+
+    # if data is datetime return False
+    if pd.api.types.is_datetime64_any_dtype(series):
+        return False
+
+    # if not (all data is > 0) return False
+    if not (series > 0).all():
+        return False
+
+    # compute IQR of data
+    q1 = series.quantile(0.25)
+    q3 = series.quantile(0.75)
+
+    # this statement is equal to IQR(log10(X))
+    log_iqr_ratio = np.log10(q3 / q1)
+
+    # if log10(q3/q1) >= 1 use log-scale for visualization
+    # Convert to Python bool to ensure consistent return type
+    return bool(log_iqr_ratio >= LOG_SCALE_THRESHOLD)

@@ -1602,6 +1602,7 @@ msgstr ""
 "Целата работа е запрена. Можете безбедно да ги затворите прелистувачот и "
 "конзолата."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2192,6 +2193,7 @@ msgstr ""
 "Ја отфрла тековната поставена состојба на поврзување на податоците и ја "
 "повикува претходно регистрираната состојба."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

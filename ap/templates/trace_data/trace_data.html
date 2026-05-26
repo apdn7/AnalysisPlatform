@@ -93,14 +93,14 @@
             {{ macros.scale_option(name='yScaleOption', className='ml-4') }}
             <!-- Enable log-scale for y-axis -->
             {{
-                macros.switch_button(
-                id='logScaleEnableBtn',
-                name='logScaleEnableBtn',
-                label=_("Log-scale"),
-                title=_('Enable log-scale for y-axis'),
-                cl='mr-3 ml-3',
-                onChange='logScaleToggle(this)',
-                defaultVal=False)
+                macros.graph_select_box(
+                id='yScaleModesSelection',
+                name='yScaleModesSelection',
+                values=['AUTO', 'LINEAR', 'LOG_SCALE'],
+                texts=[_("Auto"), _('Linear scale'), _('Log-scale')],
+                onChange='yScaleModeChange(this)',
+                cl='ml-4',
+                customSelect=True)
             }}
         </div>
         <ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">

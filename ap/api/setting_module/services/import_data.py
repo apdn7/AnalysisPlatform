@@ -4,7 +4,6 @@ from pathlib import Path
 from apscheduler.triggers.date import DateTrigger
 from pytz import utc
 
-from ap import log_execution_time
 from ap.api.setting_module.services.csv_import import convert_csv_timezone, remove_duplicates
 from ap.api.setting_module.services.data_import import (
     data_pre_processing,
@@ -32,9 +31,10 @@ from ap.common.constants import (
     JobType,
     MasterDBType,
 )
+from ap.common.jobs.job_info_schema import ImportDataJobInfo
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.path_utils import get_data_path
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.scheduler import scheduler_app_context
 from ap.etl.transform import TransformData
 from ap.etl.transform.pipeline import (
@@ -43,13 +43,13 @@ from ap.etl.transform.pipeline import (
 )
 from ap.setting_module.models import CfgProcess, CfgProcessColumn, JobManagement
 from ap.setting_module.services.background_process import JobInfo, send_processing_info
-from ap.trace_data.transaction_model import TransactionData
 
 
 def import_transaction_data_from_files(
     *,
     process: CfgProcess,
     job_info: JobInfo,
+    job_management: JobManagement,
 ):
     """
     Imports and processes Snowflake data from feather files for a specific software workshop,
@@ -66,6 +66,8 @@ def import_transaction_data_from_files(
             for the transaction processing.
         job_info (JobInfo): The job information object used to manage job status,
             progress tracking, and reporting.
+        job_management (JobManagement): The job management object for storing
+            job information. If provided, job info will be saved to the database.
 
     Yields:
         JobInfo: An updated job information object with progress status at each step
@@ -91,11 +93,11 @@ def import_transaction_data_from_files(
 
     master_type = MasterDBType[process.master_type] if process.master_type is not None else None
 
-    with DbProxy(gen_data_source_of_universal_db(process.id), True) as db_instance:
-        trans_data = TransactionData(process)
-        trans_data.create_table(db_instance)
-
     auto_increment_col = process.get_auto_increment_col_else_get_date()
+
+    # Initialize job info
+    import_data_job_info = ImportDataJobInfo()
+    job_management.info = import_data_job_info
 
     data_path = Path(get_data_path()) / str(process.id)
     files = list(data_path.glob('TRANSACTION-*'))
@@ -105,6 +107,7 @@ def import_transaction_data_from_files(
         # dataframe
         df = read_feather_file(file)
         transformed_data = TransformData(df=df)
+        import_target_info = ImportDataJobInfo.ImportTargetInfo()
 
         if master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT:
             transformed_data = software_workshop_snowflake_measurement_transform_pipeline_local(
@@ -132,6 +135,7 @@ def import_transaction_data_from_files(
             error_type = IMPORT_FACTOR_EMPTY_DATA
             save_failed_import_history(process.id, job_info, error_type)
             file.unlink()
+            import_data_job_info.warning('No data to import after transformation.')
             continue
 
         # Convert UTC time
@@ -171,16 +175,23 @@ def import_transaction_data_from_files(
             write_error_trace(df_error_trace, process.name)
             write_error_import(df_error, process.name)
             error_type = DATA_TYPE_ERROR_MSG
-
+            import_data_job_info.error(f'{df_error_cnt} record(s) failed validation and were excluded.')
+            import_target_info.error_target_records = df_error_cnt
+            import_data_job_info.error_records += import_target_info.error_target_records
         # no records
         if not len(df):
             error_type = IMPORT_FACTOR_EMPTY_DATA
             save_failed_import_history(process.id, job_info, error_type)
             file.unlink()
+            import_data_job_info.warning(f'All records ({len(orig_df)}) failed validation. No data imported.')
             continue
 
         job_info.import_from = df[auto_increment_col].min()
         job_info.import_to = df[auto_increment_col].max()
+
+        # update job info
+        import_target_info.import_from = job_info.import_from
+        import_target_info.import_to = job_info.import_to
 
         # merge mode
         target_cfg_process = process
@@ -217,6 +228,10 @@ def import_transaction_data_from_files(
                 job_info.job_id,
             )
             error_type = DATA_TYPE_DUPLICATE_MSG
+            import_data_job_info.warning(
+                f'{df_duplicate_cnt} duplicate record(s) from '
+                f'{import_target_info.import_from} to {import_target_info.import_to} detected and skipped. '
+            )
 
         # import data
         # FIXME: need to tell job_info import from and to for each chunk...
@@ -230,6 +245,11 @@ def import_transaction_data_from_files(
         df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
         save_res = import_data(df, target_cfg_process, target_get_date_col, job_info, child_cfg_proc=child_cfg_proc)
         gen_import_job_info(job_info, save_res, err_cnt=df_error_cnt)
+
+        # update job info with imported records count
+        import_target_info.imported_target_records = job_info.committed_count
+        import_data_job_info.imported_records += import_target_info.imported_target_records
+        import_data_job_info.import_targets.append(import_target_info)
 
         # FIXME: we set this as processing, to avoid showing DONE on SSE, but this is wrong.
         # fix later when we implement proper error reporting
@@ -253,7 +273,7 @@ def import_transaction_data_from_files(
 
 
 @log_execution_time()
-def import_transaction_data(process_id: int):
+def import_transaction_data(process_id: int, job_management: JobManagement):
     """
     Decorator function to log the execution time of the method and import necessary data based on
     provided process ID. Processes records in distinct use cases like software workshop measurement
@@ -263,6 +283,8 @@ def import_transaction_data(process_id: int):
     Parameters:
     proc_id: int
         The ID of the process to be used for data import.
+    job_management: JobManagement
+        The job management object for storing job information.
 
     Yields:
     int
@@ -287,7 +309,7 @@ def import_transaction_data(process_id: int):
     job_id = t_job_management.id if t_job_management else None
     job_info.job_id = job_id
 
-    yield from import_transaction_data_from_files(process=process, job_info=job_info)
+    yield from import_transaction_data_from_files(process=process, job_info=job_info, job_management=job_management)
 
 
 @scheduler_app_context
@@ -310,7 +332,7 @@ def import_transaction_data_job(process_id: int, job_management: JobManagement):
         Any exceptions raised during data processing will originate from the
         respective methods invoked within this function.
     """
-    generator = import_transaction_data(process_id)
+    generator = import_transaction_data(process_id, job_management=job_management)
     send_processing_info(
         generator,
         job_management=job_management,

@@ -1,16 +1,14 @@
 import datetime as dt
-import logging
 from typing import Union
 
 import pandas as pd
 import sqlalchemy as sa
+from loguru import logger
 
-from ap import log_execution_time
 from ap.common.common_utils import Bound, BoundType, TimeRange
+from ap.common.log import log_execution_time
 from ap.etl.pull.common import PullBase
-from ap.setting_module.models import CfgProcess
-
-logger = logging.getLogger(__name__)
+from ap.setting_module.models import CfgProcess, JobManagement
 
 
 class PullOthers(PullBase):
@@ -95,10 +93,10 @@ FROM {process.table_name}
 
     @log_execution_time()
     def save_transaction_data(
-        self,
-        data: Union[list[tuple], list[dict]],
-        columns: list[str],
+        self, data: Union[list[tuple], list[dict]], columns: list[str], job_management: JobManagement
     ):
         process_df = pd.DataFrame(data, columns=columns)
         process: CfgProcess = self.processes[0]
+        pull_target = next(target for target in job_management.info.pull_targets if target.process_id == process.id)
+        pull_target.imported_records = len(process_df)
         self.save_transaction_data_for_one_process(process_df, process)

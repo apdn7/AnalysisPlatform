@@ -1586,6 +1586,7 @@ msgstr ""
 "සියලුම රැකියාව නතර කර ඇත. ඔබේ බ්රව්සරය සහ කොන්සෝලය ආරක්ෂිතව වසා දැමිය "
 "හැකිය."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2151,6 +2152,7 @@ msgstr ""
 "දැනට තබා ඇති දත්ත සම්බන්ධ කිරීමේ තත්ත්වය සහ කලින් ලියාපදිංචි කළ තත්වය "
 "සපුරාලයි."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

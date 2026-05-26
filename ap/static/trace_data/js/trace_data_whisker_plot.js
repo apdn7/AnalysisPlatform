@@ -108,7 +108,7 @@ const whiskerPlot = (ctx, prop) => {
     };
 
     let lowerWhisker = prop.p0_org;
-    if (lowerWhisker < 0 && logScaleActivated) {
+    if (prop.is_log_scale && lowerWhisker < 0) {
         lowerWhisker = EPSILON;
     }
 
@@ -203,10 +203,10 @@ const whiskerPlot = (ctx, prop) => {
         console.log(e);
     }
 
-    // Redraw the chart with a logarithmic scale if logScaleActivated is true.
+    // Redraw the chart with a logarithmic scale if yScaleMode is true.
     // This applies only to numeric data, as whisker plots are shown for numeric data only.
     // No need to check for category chart types.
-    if (logScaleActivated) {
+    if (prop.is_log_scale) {
         chartOptions.scales.y.type = 'logarithmic';
     }
 
@@ -242,6 +242,8 @@ const getChartInforIndex = (plotData, clickedVal) => {
 const genProp = (plotData, chartInforIndex = null, cfgYMin = null, cfgYMax = null) => {
     const nonParametric = getNode(plotData.summaries[chartInforIndex], ['non_parametric']) || {};
     const stats = getNode(plotData.summaries[chartInforIndex], ['basic_statistics']) || {};
+    // y log-scale
+    const isLogScale = plotData?.is_log_scale || false;
 
     let yMax = cfgYMax;
     let yMin = cfgYMin;
@@ -282,6 +284,7 @@ const genProp = (plotData, chartInforIndex = null, cfgYMin = null, cfgYMax = nul
         t_avg_p_sigma: stats.t_avg_p_sigma,
         t_avg_m_sigma: stats.t_avg_m_sigma,
         t_avg_m_3sigma: stats.t_avg_m_3sigma,
+        is_log_scale: isLogScale,
     };
 };
 

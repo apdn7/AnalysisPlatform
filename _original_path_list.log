@@ -23,7 +23,6 @@
 .\ap\analyze\__init__.py
 .\ap\analyze\controllers.py
 .\ap\analyze\services\__init__.py
-.\ap\analyze\services\sensor_list.py
 .\ap\api\__init__.py
 .\ap\api\aggregate_plot\__init__.py
 .\ap\api\aggregate_plot\controllers.py
@@ -38,8 +37,13 @@
 .\ap\api\categorical_plot\__init__.py
 .\ap\api\categorical_plot\controllers.py
 .\ap\api\categorical_plot\services.py
+.\ap\api\causal_relation_plot\__init__.py
+.\ap\api\causal_relation_plot\controllers.py
+.\ap\api\causal_relation_plot\services\__init__.py
+.\ap\api\causal_relation_plot\services\causal_discovery.py
+.\ap\api\causal_relation_plot\services\causal_relation_services.py
 .\ap\api\common\__init__.py
-.\ap\api\common\controlllers.py
+.\ap\api\common\controllers.py
 .\ap\api\common\services\__init__.py
 .\ap\api\common\services\plot_view.py
 .\ap\api\common\services\services.py
@@ -143,6 +147,7 @@
 .\ap\common\disk_usage.py
 .\ap\common\event_listeners.py
 .\ap\common\ga.py
+.\ap\common\log.py
 .\ap\common\logger.py
 .\ap\common\memoize.py
 .\ap\common\pandas_helper.py
@@ -179,6 +184,10 @@
 .\ap\common\pydn\dblib\postgresql.py
 .\ap\common\pydn\dblib\snowflake.py
 .\ap\common\pydn\dblib\sqlite.py
+.\ap\common\pydn\dblib\transaction.py
+.\ap\common\pydn\dblib\duckdb\__init__.py
+.\ap\common\pydn\dblib\duckdb\core.py
+.\ap\common\pydn\dblib\duckdb\lock.py
 .\ap\common\services\__init__.py
 .\ap\common\services\ana_inf_data.py
 .\ap\common\services\api_exceptions.py
@@ -231,6 +240,8 @@
 .\ap\config\image\water-solid.png
 .\ap\config\image\waveformIcon.png
 .\ap\config\image\WfP.png
+.\ap\configs\__init__.py
+.\ap\configs\schema.py
 .\ap\conversion_formula\__init__.py
 .\ap\conversion_formula\core.py
 .\ap\conversion_formula\date.py
@@ -291,6 +302,7 @@
 .\ap\script\convert_user_setting.py
 .\ap\script\disable_terminal_close_button.py
 .\ap\script\disable_terminal_quickedit.py
+.\ap\script\extract_duckdb_and_sqlite3.py
 .\ap\script\generate_db_secret_key.py
 .\ap\script\hide_exe_root_folder.py
 .\ap\script\migrate_cfg_data_source_csv.py
@@ -302,6 +314,8 @@
 .\ap\script\migrate_csv_save_graph_settings.py
 .\ap\script\migrate_delta_time.py
 .\ap\script\migrate_process_file_name_column.py
+.\ap\script\setup_for_e2e_sample_bookmarks.py
+.\ap\script\setup_for_e2e_utils.py
 .\ap\script\test_fetchmany_perf.py
 .\ap\script\unlock_db.py
 .\ap\script\user_scripts\py\template.py
@@ -347,6 +361,10 @@
 .\ap\static\categorical_plot\js\categorical_histogram_with_density_curve.js
 .\ap\static\categorical_plot\js\categorical_plot_utils.js
 .\ap\static\categorical_plot\js\categorical_plot.js
+.\ap\static\causal_relation_plot\css\causal_relation_plot.css
+.\ap\static\causal_relation_plot\js\causal_relation_bar_chart.js
+.\ap\static\causal_relation_plot\js\causal_relation_main.js
+.\ap\static\causal_relation_plot\js\causal_relation_vis_network.js
 .\ap\static\common\css\all.min.css
 .\ap\static\common\css\bootstrap-select.min.css
 .\ap\static\common\css\bootstrap-table.min.css
@@ -774,6 +792,7 @@
 .\ap\templates\none.html
 .\ap\templates\sidebar.html
 .\ap\templates\aggregate_plot\aggregate_plot.html
+.\ap\templates\analyze\causal_relation_plot.html
 .\ap\templates\analyze\graphical_lasso.html
 .\ap\templates\analyze\hotelling_tsquare.html
 .\ap\templates\calendar_heatmap\calendar_heatmap.html
@@ -821,7 +840,6 @@
 .\ap\tile_interface\services\utils.py
 .\ap\trace_data\__init__.py
 .\ap\trace_data\controllers.py
-.\ap\trace_data\database_index.py
 .\ap\trace_data\schemas.py
 .\ap\trace_data\transaction_model.py
 .\ap\trace_data\services\__init__.py
@@ -960,6 +978,10 @@
 .\migrations\versions\2025_11_21_10_35_49b1b6cb43d3_add_cfg_label.py
 .\migrations\versions\2025_12_10_15_13_f5dbe7fdfab2_add_export_column_name_type_to_cfgexport.py
 .\migrations\versions\2026_01_12_16_13_c4272af5047c_job_management_add_info.py
+.\migrations\versions\2026_02_26_15_42_6d36f1142d66_add_mfunction.py
+.\migrations\versions\2026_03_02_15_24_a2e10a4ef7f4_remove_hashed.py
+.\migrations\versions\2026_03_23_14_16_354bd613ea30_add_order_column_to_cfg_export_detail.py
+.\requirements\ci-open-app.txt
 .\requirements\common.txt
 .\requirements\oss_prod.txt
 .\sample_data\reference.txt

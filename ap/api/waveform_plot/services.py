@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from ap import MaxGraphNumber, log_execution_time, max_graph_config
+from ap import MaxGraphNumber, max_graph_config
 from ap.api.common.services.show_graph_services import (
     calc_auto_scale_y,
     calc_setting_scale_y,
@@ -41,6 +41,7 @@ from ap.common.constants import (
     DataType,
     JudgeDisplay,
 )
+from ap.common.log import log_execution_time
 from ap.common.memoize import OptionalCacheConfig
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.sigificant_digit import get_fmt_from_array
@@ -192,10 +193,10 @@ def gen_waveform_plot_plotdata(
 ):
     df = drop_missing_data(df, [x_label, y_label, cat_div_col_label, color_col_label, *levels])
 
-    # if x label is not numeric then sort by time
-    if not pd.api.types.is_numeric_dtype(df[x_label]):
-        time_cols = sorted([col for col in df.columns if str(col).startswith(TIME_COL)])
-        df = df.sort_values(time_cols)
+    # if x label is numeric then sort by x_label
+    # (for duckdb it auto sort by dt so need to re-order by sort by x_label)
+    if pd.api.types.is_numeric_dtype(df[x_label]):
+        df = df.sort_values(by=x_label)
     h_group_cols = []
     h_group_cols += [color_col_label] if color_col_label else []
     h_group_cols += [cat_div_col_label] if cat_div_col_label else []

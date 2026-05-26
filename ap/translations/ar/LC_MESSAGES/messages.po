@@ -217,6 +217,7 @@ msgstr "اسم العملية"
 msgid "Table Name"
 msgstr "اسم الطاولة"
 
+# ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
 msgstr "التفاصيل"
@@ -566,18 +567,23 @@ msgstr "نطاق المحاور ص: كحد أقصى"
 msgid "Part No"
 msgstr "الجزء رقم"
 
+# ap/templates/setting_module/_filter_partno.html:46
 msgid "Ends With"
 msgstr "انتهت ب"
 
+# ap/templates/setting_module/_filter_partno.html:47
 msgid "Starts With"
 msgstr "أبدا ب"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Contains"
 msgstr "(Like البحث)"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Matches"
 msgstr "يوافق على"
 
+# ap/templates/setting_module/_filter_partno.html:48
 msgid "Regular expressions"
 msgstr "تعبيرات منتظمة"
 
@@ -842,6 +848,7 @@ msgstr "مباراة جزئية"
 msgid "th character"
 msgstr "شخصية"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Invalid digit selection"
 msgstr "اختيار رقم غير صالح"
 
@@ -849,33 +856,43 @@ msgstr "اختيار رقم غير صالح"
 msgid "Delta time and cut off must be Float"
 msgstr "Delta time and cut off must be Float"
 
+# ap/templates/setting_module/trace_config.html
 msgid "Character length for tracing is different"
 msgstr "طول الحرف المستخدم للربط مختلف."
 
+# ap/templates/trace_data/trace_data.html
 msgid "No filter"
 msgstr "لا مرشح"
 
+# ap/templates/trace_data/trace_data.html
 msgid "All line"
 msgstr "جميع الخطوط"
 
+# ap/templates/setting_module/db_config.html
 msgid "Status"
 msgstr "الموقف"
 
+# ap/templates/setting_module/db_config.html
 msgid "Job list"
 msgstr "قائمة الوظائف"
 
+# ap/templates/setting_module/db_config.html
 msgid "All"
 msgstr "الجميع"
 
+# ap/templates/setting_module/db_config.html
 msgid "Finished Importing"
 msgstr "استيراد الانتهاء."
 
+# ap/templates/setting_module/db_config.html
 msgid "Importing"
 msgstr "الاستيراد"
 
+# ap/templates/setting_module/db_config.html
 msgid "Failed Importing"
 msgstr "فشل الاستيراد"
 
+# ap/templates/setting_module/db_config.html
 msgid ""
 "Imported data will be deleted. (Data will not be deleted until register "
 "button is clicked)"
@@ -883,6 +900,7 @@ msgstr ""
 "سيتم حذف البيانات المحملة. هل الامور على ما يرام؟ (لا ينعكس أي تغيير حتى "
 "يتم الضغط على زر التسجيل)"
 
+# ap/setting_module/controllers.py
 msgid "Job List"
 msgstr "قائمة الوظائف"
 
@@ -890,54 +908,71 @@ msgstr "قائمة الوظائف"
 msgid "Failed Job List"
 msgstr "Failed Job List"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job ID"
 msgstr "معرف الوظيفة"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Name"
 msgstr "اسم العمل"
 
+# ap/templates/setting_module/background_process.html
 msgid "GEN_GLOBAL"
 msgstr "جيل من linkedID"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_GEN_GLOBAL"
 msgstr "عرض توليد وظيفة الرابط ID"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_IMPORT"
 msgstr "استيراد بيانات مصنع"
 
+# ap/templates/setting_module/background_process.html
 msgid "FACTORY_PAST_IMPORT"
 msgstr "استيراد بيانات المصنع الماضية"
 
+# ap/templates/setting_module/background_process.html
 msgid "SHOW_FACTORY_PAST_IMPORT"
 msgstr "إظهار مهمة استيراد بيانات المصنع السابقة"
 
+# ap/templates/setting_module/background_process.html
 msgid "CSV_IMPORT"
 msgstr "CSV استيراد البيانات"
 
+# ap/templates/setting_module/background_process.html
 msgid "CLEAN_DATA"
 msgstr "حذف البيانات القديمة"
 
+# ap/templates/setting_module/background_process.html
 msgid "Started"
 msgstr "وقت البدء"
 
+# ap/templates/setting_module/background_process.html
 msgid "Duration"
 msgstr "الوقت المنقضي"
 
+# ap/templates/setting_module/background_process.html
 msgid "Database/CSV "
 msgstr "قاعدة البيانات/CSV"
 
+# ap/templates/setting_module/background_process.html
 msgid "Succeed/Total"
 msgstr "تقدم"
 
+# ap/templates/setting_module/background_process.html
 msgid "Process "
 msgstr "معالجة"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "List of Histograms"
 msgstr "قائمة الرسم البياني"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Register as an outlier"
 msgstr "التسجيل كقيمة تفشي"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Remove outlier flag"
 msgstr "unregister outlier"
 
@@ -961,24 +996,31 @@ msgstr "عرض قائمة الرسم البياني"
 msgid "Last update time"
 msgstr "آخر وقت التحديث"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Removed outlier flag"
 msgstr "تم إلغاء التسجيل الخارجي."
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Registered as an outlier"
 msgstr "مسجل كخارج"
 
+# ap/templates/trace_data/list_of_histograms.html
 msgid "Abnormal data point"
 msgstr "خارجي"
 
+# ap/templates/setting_module/db_config_modals.html
 msgid "Only once"
 msgstr "مرة واحدة فقط"
 
+# ap/templates/setting_module/background_process.html
 msgid "Job Details"
 msgstr "تفاصيل الوظيفة"
 
+# ap/templates/setting_module/background_process.html
 msgid "Copy to clipboard"
 msgstr "نسخ إلى الحافظة"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Multi Scatter Plot"
 msgstr "مؤامرة مبعثرة متعددة"
 
@@ -1015,9 +1057,11 @@ msgstr "المتغير الفئوي"
 msgid "Stratify by term"
 msgstr "طبقية حسب المصطلح (مباشر)"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Anomaly Detection"
 msgstr "إكتشاف عيب خلقي"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Hotelling&rsquo;s T&sup2;"
 msgstr "T&sup2;"
 
@@ -1025,21 +1069,27 @@ msgstr "T&sup2;"
 msgid "Principal Component Analysis"
 msgstr "Principal Component Analysis"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Target Data"
 msgstr "1. درجة المكون الرئيسي لبيانات الاختبار"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Principal Component Score of Training Data"
 msgstr "2. درجة المكون الرئيسي لبيانات التدريب"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of T2 Statistics"
 msgstr "3. مخطط سلسلة من إحصائيات T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Series Chart of Q Statistics"
 msgstr "4. سلسلة مخطط إحصائيات Q"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of T2 Statistics"
 msgstr "5. مؤامرة مساهمة إحصائيات T2"
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Contribution Plot of Q Statistics"
 msgstr "6. مؤامرة مساهمة إحصائيات Q"
 
@@ -1459,6 +1509,7 @@ msgstr "جودة البيانات"
 msgid "Viewer"
 msgstr "مشاهد"
 
+# ap/template/setting_module/config.html
 msgid "ImportData"
 msgstr "بيانات الاستيراد"
 
@@ -1466,9 +1517,11 @@ msgstr "بيانات الاستيراد"
 msgid "ChangeAllFreqSameDataSourceType"
 msgstr "Change All Same Data Source Type"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Name"
 msgstr "اسم مصدر البيانات"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "نوع مصدر البيانات"
 
@@ -1476,9 +1529,11 @@ msgstr "نوع مصدر البيانات"
 msgid "Do you want to save changes?"
 msgstr "هل أنت متأكد من حفظ التغييرات؟"
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Force to OS locale time zone."
 msgstr "معلومات نظام التشغيل القسري إلى إعدادات المنطقة الزمنية."
 
+# ap/template/setting_module/db_config_modals.html
 msgid "Advanced Setting"
 msgstr "إعدادات متقدمة"
 
@@ -1528,6 +1583,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "تم إيقاف كل وظيفة. يمكنك إغلاق متصفحك ووحدة التحكم بأمان."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -1537,6 +1593,7 @@ msgstr "تكوين مصدر البيانات"
 msgid "Data Source Import Config"
 msgstr "مصدر استيراد مصدر البيانات"
 
+# ap/template/setting_module/db_config_modals.html
 msgid ""
 "string columns are detected. There is a possibility that numeric columns "
 "are mis-estimated. Please check data type."
@@ -1544,15 +1601,19 @@ msgstr ""
 ": عثرت الأعمدة على عدد قليل من أعمدة الأحرف. تأكد من أن عمود النوع الرقمي"
 " وما إلى ذلك قد يتم إساءة معرفته."
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Item"
 msgstr "عنصر التصفية"
 
+# ap/template/setting_module/master_config.html
 msgid "Filter Value"
 msgstr "قيمة المرشح"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid from"
 msgstr "تاريخ انتهاء الصلاحية (ابدأ)"
 
+# ap/template/setting_module/master_config.html
 msgid "Valid to"
 msgstr "تاريخ انتهاء الصلاحية (نهاية)"
 
@@ -1618,9 +1679,11 @@ msgstr "فترة"
 msgid "Window length"
 msgstr "طول النافذة"
 
+# ap/template/setting_module/master_config.html
 msgid "Type"
 msgstr "يكتب"
 
+# ap/template/setting_module/master_config.html
 msgid "Name"
 msgstr "اسم"
 
@@ -1692,9 +1755,11 @@ msgstr "تصفية التكوين"
 msgid "Master Config"
 msgstr "التكوين الرئيسي"
 
+# ap/template/setting_module/master_config.html
 msgid "From Filter Config"
 msgstr "من تصفية التكوين"
 
+# ap/template/setting_module/master_config.html
 msgid "Show all"
 msgstr "عرض الكل"
 
@@ -1740,31 +1805,38 @@ msgstr ""
 "هي نفس الموقف مثل بياناتها العادية (T2/Q). إذا كان لديك موقف مختلف ، "
 "فيمكنك التحقق من العوامل الرئيسية في مؤامرة المساهمة."
 
+# ap/template/setting_module/categorical_plot.html
 msgid "Stratified Category Filter: Limits data to be displayed to a subset."
 msgstr ""
 "مرشح الفئة الطبقية: يحد البيانات التي سيتم عرضها على مجموعة فرعية. "
 "(الفئة: رقم الجزء ، المحطة رقم ، إلخ)"
 
+# ap/template/setting_module/trace_data.html
 msgid "Category variables that appears as a label at the head of graphs."
 msgstr ""
 "متغيرات الفئة (مثل رقم الجزء ، المحطة رقم ، إلخ) معروضة كعلامات في الجزء "
 "العلوي من المؤامرات للعثور على نقاط تغيير."
 
+# ap/template/setting_module/trace_data.html
 msgid "Graph Filter: Limits data to be displayed to a subset."
 msgstr "مرشح الرسم البياني: يحد البيانات التي سيتم عرضها على مجموعة فرعية."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set training data to be regarded as normal situation."
 msgstr ""
 "اضبط بيانات التعلم التي تم تفسيرها على أنها موقف طبيعي. قم بتعيين قسم "
 "البيانات الذي لا يحتوي على أي بيانات NG. إذا تم تضمينها ، يتم الحكم على "
 "تلك القريبة من بيانات NG كبيانات طبيعية."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Set test data to be judged."
 msgstr "تعيين بيانات الاختبار ليتم الحكم عليها."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid "Item Filter: Limits data (analyse & display) to be displayed to a subset."
 msgstr "فلتر العنصر: يحد البيانات (تحليل وعرض) ليتم عرضه على مجموعة فرعية."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional test data."
@@ -1773,6 +1845,7 @@ msgstr ""
 "لبيانات التحقق متعددة الأبعاد. إذا كانت البيانات في الوسط ، فيمكن تفسيرها"
 " على أنها قريبة من الطبيب."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is aggregate 2-dimensional plot (dimensional compression by "
 "principal components) of multidimensional training data."
@@ -1781,6 +1854,7 @@ msgstr ""
 "لبيانات التعلم متعددة الأبعاد. يتم تحديد الهدف المركزي من خلال بيانات "
 "التعلم ، لذلك يجب أن تكون معظم بيانات التعلم في الهدف."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is T2 statistic plot (monitor essential part [principal component] "
 "of this data)."
@@ -1791,6 +1865,7 @@ msgstr ""
 " بالبيانات البيضاء ، زاد احتمال انحراف الموقف. انقر فوق نقطة البيانات "
 "لمعرفة مؤامرة مساهمة ما تشكل العناصر الموقف."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is Q statistic plot (ｍonitor non-essential parts [residual] of this "
 "data)."
@@ -1801,6 +1876,7 @@ msgstr ""
 "بيانات التحقق من الصحة بالبيانات البيضاء ، زاد احتمال انحراف الموقف. انقر"
 " فوق نقطة البيانات لمعرفة مؤامرة مساهمة ما تشكل العناصر الموقف."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in T2 statistic plot."
@@ -1808,6 +1884,7 @@ msgstr ""
 "ترتيب المتغيرات تساهم في الموقف عند النقطة المحددة في مؤامرة T2 "
 "الإحصائية. كلما طال الطول ، زاد السبب."
 
+# ap/template/analyze/hotelling_tsquare.html
 msgid ""
 "This is an ordered barplot of variables that contribute to the state at "
 "the point selected in Q statistic plot."
@@ -2060,6 +2137,7 @@ msgstr ""
 msgid "Reload Hover"
 msgstr "يتجاهل شرط ربط البيانات المحدد حاليًا ويستدعي الشرط المسجل مسبقًا."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID يتم إنشاؤه داخليًا لربط البيانات بالشروط الربطية."
@@ -2516,9 +2594,11 @@ msgstr "وضع الإعداد"
 msgid "Number_of_data_that_are_not_linked"
 msgstr "عدد عناصر البيانات التي لا يمكن ربطها"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "Only scatter plot"
 msgstr "مؤامرة مبعثرة"
 
+# ap/templates/scatter_plot/scatter_plot.html
 msgid "with shading"
 msgstr "مع كفاف"
 

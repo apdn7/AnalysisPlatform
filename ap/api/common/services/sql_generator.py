@@ -11,13 +11,13 @@ import sqlalchemy as sa
 from ap.api.common.services.utils import gen_proc_time_label
 from ap.common.common_utils import BoundType, TimeRangeStr, gen_sql_label, gen_sql_like_value
 from ap.common.constants import (
+    EPOCH,
     TIME_COL,
-    UNIXEPOCH,
     DuplicateSerialShow,
     FilterFunc,
     RawDataTypeDB,
 )
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.setting_module.models import CfgFilterDetail, CfgProcessColumn, CfgTrace
 from ap.trace_data.schemas import ConditionProc, ConditionProcDetail
 from ap.trace_data.transaction_model import TransactionData
@@ -128,8 +128,8 @@ class SqlProcLinkKey:
         return self.cfg_col.gen_sql_label()
 
     @property
-    def unixepoch_sql_label(self) -> str:
-        return f'{self.sql_label}_{UNIXEPOCH}'
+    def epoch_sql_label(self) -> str:
+        return f'{self.sql_label}_{EPOCH}'
 
 
 class SqlProcLink:
@@ -297,32 +297,34 @@ class SqlProcLink:
         if not for_count and duplicated_serial_show != DuplicateSerialShow.SHOW_BOTH:
             distinct_cols = [col for col in link_cols if col.name != self.time_col]
             if distinct_cols:
-                query_builder.distinct(columns=distinct_cols)
-                if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST:
-                    query_builder.having(columns=[sa.func.min(query_builder_time_col)])
-                else:
-                    query_builder.having(columns=[sa.func.max(query_builder_time_col)])
+                # sqlalchemy 2.1 support qualify, we can use them later
+                # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/132
+                query_builder.qualify(
+                    column=query_builder_time_col,
+                    group_bys=distinct_cols,
+                    func=sa.func.min if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST else sa.func.max,
+                )
 
         cte = query_builder.build().cte(f'{CTE_PROCESS_PREFIX}{idx}')
         cte = self.apply_filter(cte)
-        cte = self.gen_cached_unixepoch_cte(cte)
+        cte = self.gen_cached_epoch_cte(cte)
 
         return cte
 
-    def gen_cached_unixepoch_cte(self, cte: sa.CTE) -> sa.CTE:
-        unixepoch_cols = []
+    def gen_cached_epoch_cte(self, cte: sa.CTE) -> sa.CTE:
+        epoch_cols = []
         for key in self.link_keys:
             if key.is_delta_time_cut_off_linked:
                 column = cte.c.get(key.sql_label)
                 if column is None:
                     raise ValueError(f'{key.name} must existed in CTE')
-                unixepoch_col = convert_to_unixepoch(column)
-                unixepoch_cols.append(unixepoch_col.label(key.unixepoch_sql_label))
+                epoch_col = convert_to_epoch(column)
+                epoch_cols.append(epoch_col.label(key.epoch_sql_label))
 
-        if not unixepoch_cols:
+        if not epoch_cols:
             return cte
 
-        return sa.select(*unixepoch_cols, *cte.c).cte(f'{cte.description}_{UNIXEPOCH}').prefix_with('MATERIALIZED')
+        return sa.select(*epoch_cols, *cte.c).cte(f'{cte.description}_{EPOCH}').prefix_with('MATERIALIZED')
 
 
 def cast_col_to_text(col: sa.ColumnClause, raw_data_type: str) -> Union[sa.ColumnClause, sa.ColumnOperators]:
@@ -370,8 +372,9 @@ def make_comparison_column_with_cast_and_substr(
     return modified_col1 == modified_col2
 
 
-def convert_to_unixepoch(col: sa.ColumnClause) -> sa.ColumnClause:
-    return sa.func.unixepoch(col)
+def convert_to_epoch(col: sa.ColumnClause) -> sa.ColumnClause:
+    # https://duckdb.org/docs/stable/sql/functions/timestamp#epochtimestamp
+    return sa.func.epoch(sa.cast(col, sa.TIMESTAMP))
 
 
 def make_comparisons_column_delta_time_and_cut_off(
@@ -467,8 +470,8 @@ def gen_tracing_cte(
         comparisons = []
         for from_key, to_key in zip(link_keys, prev_link_keys, strict=False):
             if from_key.is_delta_time_cut_off_linked:
-                from_col = cte_proc.c.get(from_key.unixepoch_sql_label)
-                to_col = prev_cte_proc.c.get(to_key.unixepoch_sql_label)
+                from_col = cte_proc.c.get(from_key.epoch_sql_label)
+                to_col = prev_cte_proc.c.get(to_key.epoch_sql_label)
             else:
                 from_col = cte_proc.c.get(from_key.sql_label)
                 to_col = prev_cte_proc.c.get(to_key.sql_label)
@@ -547,7 +550,9 @@ def gen_sql_condition_per_col(
         if like_vals:
             ors.extend(text_col.like(like_val) for like_val in like_vals)
         if regex_vals:
-            ors.extend(text_col.regexp_match(regex_val) for regex_val in regex_vals)
+            # Duckdb support regexp matches by default:
+            # https://duckdb.org/docs/stable/sql/functions/regular_expressions#using-regexp_matches
+            ors.extend(sa.func.regexp_matches(text_col, regex_val) for regex_val in regex_vals)
         if ors:
             ands.append(sa.or_(*ors))
     return sa.and_(*ands)
@@ -560,8 +565,8 @@ def gen_tracing_cte_with_delta_time_cut_off(cte_tracing: sa.CTE, sql_objs: list[
         prev_link_keys = prev_sql_obj.next_link_keys or prev_sql_obj.link_keys
         for from_key, to_key in zip(link_keys, prev_link_keys, strict=False):
             if from_key.is_delta_time_cut_off_linked or to_key.is_delta_time_cut_off_linked:
-                from_col = cte_tracing.c.get(from_key.unixepoch_sql_label)
-                to_col = cte_tracing.c.get(to_key.unixepoch_sql_label)
+                from_col = cte_tracing.c.get(from_key.epoch_sql_label)
+                to_col = cte_tracing.c.get(to_key.epoch_sql_label)
                 timediff_cols.append(make_delta_time_diff(from_col, from_key, to_col, to_key))
 
     if not timediff_cols:
@@ -599,6 +604,7 @@ def gen_show_stmt(
     # we must add id and time to shown_cols
     shown_cols = [cte_tracing.c.get(TransactionData.id_col_name).label(TransactionData.id_col_name)]
 
+    time_cols = []
     for idx, sql_obj in enumerate(sql_objs):
         is_start_proc = idx == 0
         # we get the time column
@@ -606,22 +612,25 @@ def gen_show_stmt(
         time_col = cte_tracing.c.get(time_col_alias_name)
         # assert time_col is not None, "If time_col is None, sql_obj.get() function isn't written correctly"
         time_col_alias = time_col.label(time_col_alias_name)
-        shown_cols.append(time_col_alias)
+        time_cols.append(time_col_alias)
 
         # TODO: do we need this?
         # we add our start proc as time_{id}
         if is_start_proc:
             time_col_alias_with_id = sql_obj.gen_proc_time_label(is_start_proc=False)
             time_col_alias = time_col.label(time_col_alias_with_id)
-            shown_cols.append(time_col_alias)
+            time_cols.append(time_col_alias)
 
+    shown_cols.extend(time_cols)
     for sql_obj in sql_objs:
         for cfg_col in sql_obj.all_cfg_columns:
             col = cte_tracing.c.get(cfg_col.gen_sql_label())
 
             shown_cols.append(col)
 
-    return sa.select(*shown_cols)
+    order_bys = sorted(time_cols, key=lambda c: c.name)
+    order_bys += ['rowid']  # MUST sort rowid column to make data order same with SQLite3
+    return sa.select(*shown_cols).order_by(*order_bys)
 
 
 def gen_id_stmt(cte_tracing: sa.CTE) -> sa.Select:
@@ -684,6 +693,24 @@ def is_has_condition(proc_id, dict_cond_procs):
     return any(cond_proc.dic_col_id_filters for cond_proc in dict_cond_procs[proc_id])
 
 
+QUALIFY_CONDITION_AGG_LABEL = '__QUALIFY_CONDITION_AGG'
+QUALIFY_CONDITION_ROWID_LABEL = '__QUALIFY_CONDITION_ROWID'
+
+
+@dataclass
+class QualifyCondition:
+    """
+    This is support for show first, last, but sqlalchemy doesn't support qualify for duckdb (yet)
+    https://duckdb.org/docs/stable/sql/query_syntax/qualify
+    we can remove this after:
+    https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/132
+    """
+
+    column: sa.Column
+    group_bys: list[sa.Column]
+    func: Any  # this is sa.func
+
+
 class TransactionDataQueryBuilder:
     """Builder class for constructing SQL queries on transaction data.
 
@@ -724,12 +751,11 @@ class TransactionDataQueryBuilder:
         self.table = self.trans_model.table_model
 
         self.selected_columns: list[sa.Label] = []
-        self.join_conditions: sa.Join | None = None
         self.where_clauses = []
 
-        self.distinct_columns = []
         self.orderby_columns = []
-        self.having_columns = []
+
+        self.qualify_condition: QualifyCondition | None = None
 
         self.joined_r_factory_machine = False
         self.joined_r_prod_part = False
@@ -753,19 +779,22 @@ class TransactionDataQueryBuilder:
         label: str | None = None,
     ) -> None:
         if isinstance(column, str):
-            column = self.table_column(column)
+            # rowid of DuckDB is less 1 than SQLite3. Therefore, add 1 to the same
+            # https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/work_items/982
+            if column == 'rowid':
+                _column = self.table_column(column)
+                column = (_column + 1).label(_column.name)
+            else:
+                column = self.table_column(column)
         if label is not None:
             column = column.label(label)
         self.selected_columns.append(column)
 
-    def distinct(self, *, columns: list[sa.Column | sa.Label]) -> None:
-        self.distinct_columns = columns
-
     def order_by(self, *, columns: list[sa.Column | sa.Label]) -> None:
         self.orderby_columns = columns
 
-    def having(self, *, columns: list[sa.Column | sa.Label]) -> None:
-        self.having_columns = columns
+    def qualify(self, *, column: sa.Column, group_bys: list[sa.Column], func: Any):
+        self.qualify_condition = QualifyCondition(column=column, group_bys=group_bys, func=func)
 
     def between(self, *, start_tm: str | None, end_tm: str | None) -> None:
         time_col = self.table_column(self.trans_model.getdate_column.bridge_column_name)
@@ -878,17 +907,35 @@ class TransactionDataQueryBuilder:
 
     def build(self, limit: int | None = None) -> sa.Select:
         stmt = sa.select(*self.selected_columns)
-        # FIXME: change this to list self.join_conditions, so we can chain the builder
-        if self.join_conditions is not None:
-            stmt = stmt.select_from(self.join_conditions)
-        stmt = (
-            stmt.where(*self.where_clauses)
-            # SQLITE3 use HAVING for distinct some columns in SELECT
-            .group_by(*self.distinct_columns)
-            .having(*self.having_columns)
-            .order_by(*self.orderby_columns)
-            .limit(limit)
-        )
+
+        # this is our hack for `QUALIFY`.
+        # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/132
+        if self.qualify_condition is not None:
+            # what we do here?
+            # - distinct using `qualify_condition.group_bys`
+            # - select first (`func = sa.min`) or last (`func = sa.max`)
+            # - use `rowid` as tie-breaker
+            subquery = (
+                sa.select(
+                    *self.qualify_condition.group_bys,
+                    self.qualify_condition.func(self.qualify_condition.column).label(QUALIFY_CONDITION_AGG_LABEL),
+                    self.qualify_condition.func(sa.Column('rowid')).label(QUALIFY_CONDITION_ROWID_LABEL),
+                )
+                .group_by(*self.qualify_condition.group_bys)
+                .where(*self.where_clauses)
+                .subquery()
+            )
+
+            # select from the subquery above, use `rowid` as tie-breaker
+            stmt = stmt.join(
+                target=subquery,
+                onclause=sa.and_(
+                    self.qualify_condition.column == subquery.c[QUALIFY_CONDITION_AGG_LABEL],
+                    sa.Column('rowid') == subquery.c[QUALIFY_CONDITION_ROWID_LABEL],
+                ),
+            )
+
+        stmt = stmt.where(*self.where_clauses).order_by(*self.orderby_columns).limit(limit)
         del self
         return stmt
 
@@ -940,25 +987,23 @@ class TransactionDataProcLinkQueryBuilder:
             query_builder.add_column(column=key.cfg_col.bridge_column_name, label=key.sql_label)
         stmt = query_builder.build(self.limit)
         self.cte = stmt.cte(self.table_alias)
-        self.cte = self.gen_cached_unixepoch_cte()
+        self.cte = self.gen_cached_epoch_cte()
         return self
 
-    def gen_cached_unixepoch_cte(self) -> sa.CTE:
-        unixepoch_cols = []
+    def gen_cached_epoch_cte(self) -> sa.CTE:
+        epoch_cols = []
         for key in self.proc_link_keys:
             if key.is_delta_time_cut_off_linked:
                 column = self.cte.c.get(key.sql_label)
                 if column is None:
                     raise ValueError(f'{key.name} must existed in CTE')
-                unixepoch_col = convert_to_unixepoch(column)
-                unixepoch_cols.append(unixepoch_col.label(key.unixepoch_sql_label))
+                epoch_col = convert_to_epoch(column)
+                epoch_cols.append(epoch_col.label(key.epoch_sql_label))
 
-        if not unixepoch_cols:
+        if not epoch_cols:
             return self.cte
 
-        return (
-            sa.select(*unixepoch_cols, *self.cte.c).cte(f'{self.table_alias}_{UNIXEPOCH}').prefix_with('MATERIALIZED')
-        )
+        return sa.select(*epoch_cols, *self.cte.c).cte(f'{self.table_alias}_{EPOCH}')
 
     def get_column_by_label(self, label: str) -> sa.ColumnClause | None:
         return self.cte.c.get(label)
@@ -967,8 +1012,8 @@ class TransactionDataProcLinkQueryBuilder:
         comparisons = []
         for key, other_key in zip(self.proc_link_keys, other.proc_link_keys, strict=False):
             if key.is_delta_time_cut_off_linked:
-                column = self.get_column_by_label(key.unixepoch_sql_label)
-                other_column = other.get_column_by_label(other_key.unixepoch_sql_label)
+                column = self.get_column_by_label(key.epoch_sql_label)
+                other_column = other.get_column_by_label(other_key.epoch_sql_label)
             else:
                 column = self.get_column_by_label(key.sql_label)
                 other_column = other.get_column_by_label(other_key.sql_label)

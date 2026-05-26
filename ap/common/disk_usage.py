@@ -1,13 +1,12 @@
-import logging
 import shutil
 import socket
 
+from loguru import logger
+
 from ap.common.constants import DiskUsageStatus
-from ap.common.logger import log_execution_time
+from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.setting_module.models import CfgConstant
-
-logger = logging.getLogger(__name__)
 
 # Workaround for unnecessarily failing gethostbyname from a worker thread (https://bugs.python.org/issue29288)
 ''.encode('idna')

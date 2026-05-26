@@ -3,8 +3,7 @@ import timeit
 
 from flask import Blueprint, current_app, request
 
-from ap.api.common.services.show_graph_database import get_config_data
-from ap.api.common.services.show_graph_jump_function import get_jump_emd_data
+from ap.api.common.services.show_graph_jump_function import get_graph_context_param
 from ap.api.multi_scatter_plot.services import (
     clear_unused_data,
     gen_scatter_n_contour_data,
@@ -24,19 +23,15 @@ from ap.common.constants import (
 )
 from ap.common.pysize import get_size
 from ap.common.services.form_env import (
-    bind_dic_param_to_class,
     get_valid_order_array_formval,
-    parse_multi_filter_into_one,
 )
 from ap.common.services.http_content import orjson_dumps
 from ap.common.services.import_export_config_n_data import (
-    get_dic_form_from_debug_info,
     set_export_dataset_id_to_dic_param,
 )
 from ap.common.trace_data_log import (
     EventType,
     save_draw_graph_trace,
-    save_input_data_to_file,
     trace_log_params,
 )
 
@@ -51,26 +46,19 @@ def trace_data():
     """
     start = timeit.default_timer()
     dic_form = request.form.to_dict(flat=False)
-    save_input_data_to_file(dic_form, EventType.MSP)
 
     use_contour = int(request.form.get(USE_CONTOUR)) if request.form.get(USE_CONTOUR) else 0
     # show heatmap as default
     use_heatmap = int(request.form.get(USE_HEATMAP)) if request.form.get(USE_HEATMAP) else 1
     order_array_formval = json.loads(request.form.get(ORDER_ARRAY_FORMVAL, '[]'))
-    dic_param = parse_multi_filter_into_one(dic_form)
 
-    # check if we run debug mode (import mode)
-    dic_param = get_dic_form_from_debug_info(dic_param)
-
+    graph_context = get_graph_context_param(dic_form, EventType.MSP)
     # if universal call gen_dframe else gen_results
     orig_send_ga_flg = current_app.config.get('IS_SEND_GOOGLE_ANALYTICS')
 
-    cache_dic_param, orig_graph_param, df = get_jump_emd_data(dic_form)
-
-    if not orig_graph_param:
-        dic_proc_cfgs, trace_graph, dic_card_orders = get_config_data()
-        orig_graph_param = bind_dic_param_to_class(dic_proc_cfgs, trace_graph, dic_card_orders, dic_param)
-    dic_param, dic_data = gen_scatter_plot(orig_graph_param, cache_dic_param or dic_param, df, order_array_formval)
+    dic_param, dic_data = gen_scatter_plot(
+        graph_context.graph_param, graph_context.dic_param, graph_context.df, order_array_formval
+    )
 
     # generate SCATTER_CONTOUR
     if order_array_formval:

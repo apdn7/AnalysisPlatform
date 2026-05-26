@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 import re
 import socket as s
@@ -82,7 +81,8 @@ class StageErrorCodes(Enum):
     TIMEOUT = 999
 
 
-logger = logging.getLogger(__name__)
+from loguru import logger
+
 with open(r'.\start_ap\startup_errors.yaml', 'rb') as stream:
     startup_stages = yaml.load(stream, Loader=yaml.SafeLoader)
     stream.close()

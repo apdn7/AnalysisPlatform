@@ -1,3 +1,4 @@
+const t2ContributionChartId = 't2ContributionChart';
 const drawT2ContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
     if (!json) return;
 
@@ -22,11 +23,13 @@ const drawT2ContributionChart = (json, chartConfig = {}, sizeOfData = null) => {
         figure.data[len - 1].marker.colorbar.thickness = 10;
     }
 
-    Plotly.newPlot('t2ContributionChart', figure.data, figure.layout, {
+    Plotly.newPlot(t2ContributionChartId, figure.data, figure.layout, {
         ...genPlotlyIconSettings(),
         responsive: true, // responsive histogram
         useResizeHandler: true, // responsive histogram
         style: { width: '100%', height: '100%' }, // responsive histogram
+    }).then(() => {
+        attachTickHovers(t2ContributionChartId);
     });
 
     // send plotting time event
@@ -57,14 +60,16 @@ const drawT2ContributionChartFromObj = (
     const startTime = performance.now();
 
     Plotly.newPlot(
-        't2ContributionChart',
+        t2ContributionChartId,
         genContributionChartData(objData, 't2', dpInfo),
         contributionChartLayout(objData, 't2', sampleNo, chartConfig, shortName),
         {
             responsive: true,
             ...genPlotlyIconSettings(),
         },
-    );
+    ).then(() => {
+        attachTickHovers(t2ContributionChartId);
+    });
 
     // send plotting time event
     const endTime = performance.now();

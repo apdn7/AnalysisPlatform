@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from collections.abc import Generator
 
 from ap.api.setting_module.services.data_import import (
@@ -15,17 +14,13 @@ from ap.api.setting_module.services.data_import import (
 from ap.api.setting_module.services.web_api import WebAPI
 from ap.api.trace_data.services.proc_link import add_gen_proc_link_job, finished_transaction_import
 from ap.common.common_utils import WebAuthenticationType
-from ap.common.cryptography_utils import decrypt_pwd
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
+from ap.common.jobs.job_info_schema import WebAPIImportJobInfo
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgProcess, JobManagement
 from ap.setting_module.services.background_process import (
     JobInfo,
     send_processing_info,
 )
-from ap.trace_data.transaction_model import TransactionData
-
-logger = logging.getLogger(__name__)
 
 
 @scheduler_app_context
@@ -35,7 +30,7 @@ def import_web_api_job(
     is_user_request: bool = False,
 ):
     """Scheduler job import web api data"""
-    gen = import_web_api(process_id)
+    gen = import_web_api(process_id, job_management)
     send_processing_info(
         gen,
         job_management=job_management,
@@ -45,7 +40,7 @@ def import_web_api_job(
     add_gen_proc_link_job(process_id=process_id, is_user_request=True, publish=True)
 
 
-def import_web_api(process_id: int) -> Generator:
+def import_web_api(process_id: int, job_management: JobManagement) -> Generator:
     yield 0
     proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(process_id)
     if not proc_cfg:
@@ -54,9 +49,7 @@ def import_web_api(process_id: int) -> Generator:
     # check db connection
     # DbProxy.check_db_connection(proc_cfg.data_source.db_detail)
 
-    trans_data = TransactionData(proc_cfg)
-    with DbProxy(gen_data_source_of_universal_db(proc_cfg.id), True) as db_instance:
-        trans_data.create_table(db_instance)
+    job_management.info = WebAPIImportJobInfo()
 
     # columns info
     transaction_columns = proc_cfg.get_transaction_process_columns()
@@ -67,12 +60,12 @@ def import_web_api(process_id: int) -> Generator:
 
     api_url = proc_cfg.data_source.web_detail.url
     username = proc_cfg.data_source.web_detail.username
-    password = decrypt_pwd(proc_cfg.data_source.web_detail.password)
+    password = proc_cfg.data_source.web_detail.password
     authentication_type: WebAuthenticationType = WebAuthenticationType[
         proc_cfg.data_source.web_detail.authentication_type
     ]
 
-    web_api = WebAPI(api_url, username=username, password=password, authentication_type=authentication_type)
+    web_api = WebAPI(api_url, username=username, encrypted_password=password, authentication_type=authentication_type)
     df = web_api.get_data().df_rows
 
     # data pre-processing
@@ -94,11 +87,13 @@ def import_web_api(process_id: int) -> Generator:
         )
         write_error_trace(df_error_trace, proc_cfg.name)
         write_error_import(df_error, proc_cfg.name)
+        job_management.info.error_count = df_error_cnt
 
     job_info = JobInfo()
     job_info.target = proc_cfg.name
     if len(df):
         save_res = import_data(df, proc_cfg, get_date_col, job_info)
         gen_import_job_info(job_info, save_res, err_cnt=df_error_cnt)
+        job_management.info.imported_count = save_res
 
     yield 100

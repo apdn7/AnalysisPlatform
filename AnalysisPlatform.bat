@@ -73,7 +73,7 @@ if exist "%file_prod_dn%" (
 )
 call :logStartap startTime "Product Type: %prod%"
 if "prod"=="app_prd" (
-  call :logStartap startTime "Product Type: Match %prod%" app: 
+  call :logStartap startTime "Product Type: Match %prod%" app:
 )
 echo.
 
@@ -689,7 +689,7 @@ exit
     call :logStartap lapTime "Download by BITS%tab%%tgt%"
     echo ---- Try BITS
     call :downloadViaBITS "%url%" "%dst%"
-  ) 
+  )
   if not errorlevel 4 (
     if          errorlevel 3 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via NoProxy"
     ) else ( if errorlevel 2 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via Proxy"
@@ -698,7 +698,7 @@ exit
   ) else (
     call :logStartap lapTime "Download by CAUt%tab%%tgt%"
     echo ---- Try Certutil
-    certutil -urlcache -split -f "%url%" "%dst%"  
+    certutil -urlcache -split -f "%url%" "%dst%"
   )
   if not errorlevel 1 (
     call :logStartap lapTime "Get File by CAUt%tab%%tgt%"
@@ -715,7 +715,7 @@ exit
 :end
 
 : _____________________________________________________________________________
-: Subroutine: Check Python library 
+: Subroutine: Check Python library
 :      In/Out - |In -
 :checkPythonLib_rough
   echo   Check python libraries
@@ -800,7 +800,7 @@ exit
       call :logStageStatus 200
       exit /b 1
     )
-  ) 
+  )
 
   echo Unzip python
   if exist "%path_py_zip%" (
@@ -852,7 +852,7 @@ setlocal EnableExtensions EnableDelayedExpansion
       pause
       endlocal & exit /b 1
     )
-    
+
     if /i "%arg1%"==":downloadOracleInstance" (
       echo Install Completed%tab%%path_oc_zip%
       call :logStartap startTime "Background Install Completed: Oracle.lib"
@@ -990,7 +990,7 @@ endlocal & exit /b 0
   set "cmd_pip=""%main_python%"" -I -m pip install %pkg% --find-links ""%rapid_dirCache%"""
   set "cmd_pip=%cmd_pip% --no-index --only-binary=:all: --no-warn-script-location --retries 2"
   call :pyGetComp "%cmd_pip%" "InstallPre  seed" "seed.exe"
-  
+
   exit /b 0
 :end
 
@@ -1109,7 +1109,7 @@ endlocal & exit /b 0
     Start-Sleep -Milliseconds 100; ^
     $x=940; $y=40; ^
     [X.Win]::SetWindowPos($hWnd, [X.Win]::HWND_TOP, $x, $y, 0, 0, [X.Win]::SWP_NOSIZE -bor [X.Win]::SWP_NOZORDER) ^| Out-Null
-  
+
   :: Setting com.exe
   @REM color 70
   @REM set "cl_Base=%esc%[30;47m"
@@ -1237,7 +1237,7 @@ endlocal & exit /b 0
   set "url_oracle=https://download.oracle.com/otn_software/nt/instantclient/213000/instantclient-basic-windows.x64-21.3.0.0.0.zip"
   set "url_python=https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip"
   if "%ver_pyt%"=="39" set "url_python=https://www.python.org/ftp/python/3.9.13/python-3.9.13-embed-amd64.zip"
-  
+
   :: Rapid Install
   set "rapid_async_DL=True"
   set "rapid_useCache=True"
@@ -1258,13 +1258,13 @@ endlocal & exit /b 0
   set /a wait_netcheck=%wait_netcheck_appl%
 
   : Settings from start batch
-  :: Remove all '"'  
+  :: Remove all '"'
   set "port=%port:"=%"
   set "lang=%lang:"=%"
   set "prxy=%prxy:"=%"
   set "prxs=%prxs:"=%"
   set "subt=%subt:"=%"
-  :: Remove all ' '  
+  :: Remove all ' '
   set "port=%port: =%"
   set "lang=%lang: =%"
   set "prxy=%prxy: =%"
@@ -1307,7 +1307,7 @@ endlocal & exit /b 0
     ) else (
       call set "ini_acc=%%ini_acc%%;%%idx%% %%a%%tab%%[%%b]"
     )
-  )  
+  )
   call :logStartap lapTime "%ini_acc%"
   if not defined ini_acc (
     call :logStartap lapTime "%idx%: [Error] %idx%: Fail to read ini file."
@@ -1347,7 +1347,7 @@ endlocal & exit /b 0
     call :logStageStatus 101 "Bad Port: Out of Range"
     exit /b 1
   )
-  
+
   : Check Port Available
   %pshell% -Command ^
     $ErrorActionPreference='Stop'; $p=$env:var; ^
@@ -1383,7 +1383,7 @@ endlocal & exit /b 0
       echo   Forcing process to continue...
       call :logStartap lapTime "Check Port: Forced execution by user"
     )
-  
+
   rem call :stopLoadingApp
   : Kill process using port and python
   %pshell% -Command ^
@@ -1559,7 +1559,7 @@ endlocal & exit /b 0
         call :logStageStatus 102 "Unable to communicate via proxy" "NoCount"
       )
     )
-    
+
   : Get WinHTTP Setting
    :Get_WinHTTP_Setting
   set "winhttp_proxy="

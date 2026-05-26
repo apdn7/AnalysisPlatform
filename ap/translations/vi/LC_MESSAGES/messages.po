@@ -1593,6 +1593,7 @@ msgstr ""
 "Tất cả tiến trình đã được dừng lại. Bạn có thể đóng trình duyệt và bảng "
 "điều khiển của bạn một cách an toàn."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2165,6 +2166,7 @@ msgstr ""
 "Loại bỏ điều kiện liên kết dữ liệu hiện đang đặt và chọn điều kiện đã "
 "đăng ký trước đó."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr "ID được tạo nội bộ để liên kết dữ liệu với các điều kiện liên kết tập hợp."

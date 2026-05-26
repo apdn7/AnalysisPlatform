@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -10,24 +9,12 @@ from ap.common.constants import DATETIME_PICKER, DATETIME_RANGE_PICKER, EN_DASH
 from ap.setting_module.models import CfgUserSetting, make_session
 from ap.setting_module.schemas import CfgUserSettingSchema
 
-logger = logging.getLogger(__name__)
-
-
-def is_local_client(req):
-    try:
-        client_ip = req.environ.get('X-Forwarded-For') or req.remote_addr
-        accepted_ips = ['127.0.0.1', 'localhost']
-        if client_ip in accepted_ips:
-            return True
-    except Exception as ex:
-        logger.exception(ex)
-
-    return False
-
 
 def save_user_settings(request_params, exclude_columns=None):
     with make_session() as meta_session:
         cfg_user_setting = parse_user_setting(request_params)
+        for col in exclude_columns or []:
+            delattr(cfg_user_setting, col)
         new_setting = meta_session.merge(cfg_user_setting)
         meta_session.commit()
     return new_setting
@@ -44,7 +31,7 @@ def parse_user_setting(params):
     description = params.get('description') or ''
     share_info = bool(params.get('share_info'))
     save_graph_settings = bool(params.get('save_graph_settings'))
-    settings = params.get('settings') or '[]'
+    settings = params.get('settings') or '{}'
     settings = convert_datetime_from_local_to_utc(settings)
 
     cfg_user_setting = CfgUserSetting(

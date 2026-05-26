@@ -1600,6 +1600,7 @@ msgstr ""
 msgid "Jobs Stopped"
 msgstr "Alle klus is gestopt. U kunt uw browser en console veilig sluiten."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2189,6 +2190,7 @@ msgstr ""
 "Vergist de momenteel ingestelde gegevenskoppelingsvoorwaarde en roept de "
 "eerder geregistreerde toestand aan."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

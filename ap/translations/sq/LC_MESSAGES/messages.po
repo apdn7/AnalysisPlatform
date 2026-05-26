@@ -1597,6 +1597,7 @@ msgstr ""
 "E gjithë puna është ndalur. Ju mund të mbyllni me siguri shfletuesin dhe "
 "tastierën tuaj."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2187,6 +2188,7 @@ msgstr ""
 "Hidhni poshtë gjendjen e lidhjes së të dhënave të vendosura aktualisht "
 "dhe thërret gjendjen e regjistruar më parë."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

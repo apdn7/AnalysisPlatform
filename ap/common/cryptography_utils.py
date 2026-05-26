@@ -27,19 +27,6 @@ def encrypt(plain_text: str | bytes | None) -> bytes | None:
     return cipher_text
 
 
-def decrypt(cipher_text: str | bytes) -> bytes:
-    """
-    Decoding a text with a key using Fernet.
-    :param cipher_text:
-    :return: plain_text
-    """
-    cipher_suite = encode_db_secret_key()
-    cipher_text_bytes = str.encode(cipher_text)
-    plain_text = cipher_suite.decrypt(cipher_text_bytes)
-
-    return plain_text
-
-
 def decrypt_pwd(cipher_text: str | bytes | None) -> str | None:
     """
     Decoding a text with a key using Fernet.

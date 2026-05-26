@@ -1607,6 +1607,7 @@ msgstr ""
 "Ang lahat ng trabaho ay tumigil. Maaari mong ligtas na isara ang iyong "
 "browser at console."
 
+# ap/templates/setting_module/background_process.html
 #: ap/template/setting_module/db_config_modals.html
 #: ap/templates/templates/sidebar.html
 msgid "Data Source Config"
@@ -2207,6 +2208,7 @@ msgstr ""
 "Itinapon ang kasalukuyang itinakda na kondisyon ng pag -uugnay ng data at"
 " tinawag ang dating nakarehistrong kondisyon."
 
+# ap/templates/trace_data/list_of_histograms.html
 #: ap/templates/templates/i18n.html
 msgid "Register Trace Config Hover"
 msgstr ""

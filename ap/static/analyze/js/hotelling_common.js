@@ -225,7 +225,7 @@ const broadcastClickEvent = (dataPoint, startingChart, jsonPCAScoreTest = {}) =>
 };
 
 const contributionChartLayout = (objData, type = 't2', sampleNo = null) => {
-    const textVar = objData.Var.reverse();
+    const textVar = [...objData.Var].reverse();
     const layout = {
         margin: {
             t: 38.139200221392,

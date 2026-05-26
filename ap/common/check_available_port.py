@@ -1,11 +1,10 @@
-import logging
 import socket as s
 import sys
 
-from ap.common.common_utils import parse_int_value
-from ap.common.logger import log_execution_time
+from loguru import logger
 
-logger = logging.getLogger(__name__)
+from ap.common.common_utils import parse_int_value
+from ap.common.log import log_execution_time
 
 
 @log_execution_time()

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import logging
 from datetime import datetime
 
 import pandas as pd
 import pytz
+from loguru import logger
 from pandas import DataFrame
 
 from ap.api.efa.services.etl import df_transform
@@ -49,11 +49,12 @@ from ap.common.constants import (
     MasterDBType,
 )
 from ap.common.disk_usage import get_ip_address
-from ap.common.logger import log_execution_time
+from ap.common.jobs.job_info_schema import FactoryImportJobInfo, FactoryPastImportJobInfo
+from ap.common.log import log_execution_time
 from ap.common.pandas_helper import check_if_array_is_repeating
 from ap.common.pydn.dblib import mssqlserver, mysql, oracle, sqlite
-from ap.common.pydn.dblib.db_proxy import DbProxy, gen_data_source_of_universal_db
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
 from ap.common.timezone_utils import (
     detect_timezone,
@@ -76,8 +77,6 @@ from ap.setting_module.services.background_process import (
 )
 from ap.trace_data.transaction_model import ImportHistoryTable, TransactionData
 
-logger = logging.getLogger(__name__)
-
 MAX_RECORD = 1_000_000
 SQL_FACTORY_LIMIT = 5_000_000
 SOFTWARE_WORKSHOP_FACTORY_LIMIT = 20_000
@@ -96,7 +95,7 @@ def factory_import_job(
     is_user_request: bool = False,
 ):
     """Scheduler job import factory data"""
-    gen = factory_import(process_id)
+    gen = factory_import(process_id, job_management=job_management)
     send_processing_info(
         gen,
         job_management=job_management,
@@ -107,7 +106,7 @@ def factory_import_job(
 
 
 @log_execution_time()
-def factory_import(proc_id):
+def factory_import(proc_id, job_management: JobManagement):
     """Transform data and then import from factory db to universal db
 
     Arguments:
@@ -141,8 +140,13 @@ def factory_import(proc_id):
     ReadOnlyDbProxy.check_db_connection(data_src)
 
     trans_data = TransactionData(proc_cfg)
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
-        trans_data.create_table(db_instance)
+    with (
+        TxnMetaConnection(process_id=proc_id) as meta_con,
+        TxnDataConnection(process_id=proc_id, readonly_transaction=False) as data_con,
+    ):
+        # last import date
+        # TODO: need to improve to not create table here
+        trans_data.create_table(data_con=data_con, meta_con=meta_con)
 
     # columns info
     proc_name = proc_cfg.name
@@ -174,16 +178,19 @@ def factory_import(proc_id):
     job_info.auto_increment_col_timezone = is_tz_col
     job_info.target = proc_cfg.name
 
+    factory_job_info = FactoryImportJobInfo()
+    job_management.info = factory_job_info
+
     if factory_time_range is None:
         job_info.percent = 100
         error_type = IMPORT_FACTOR_EMPTY_DATA
         save_failed_import_history(proc_cfg.id, job_info, error_type)
+        factory_job_info.warning(error_type)
         yield job_info
         return
 
     # get current job id
-    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_IMPORT.name)
-    job_id = int(t_job_management.id) if t_job_management else None
+    job_id = int(job_management.id) if job_management else None
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
@@ -195,6 +202,7 @@ def factory_import(proc_id):
         )
         if selectable_time_range is None:
             # In case there are no matched time range to collect data, it means that out of range or no new future data.
+            factory_job_info.warning('No selectable time range was found')
             return
 
         start_time = format_factory_date_to_meta_data(
@@ -203,6 +211,9 @@ def factory_import(proc_id):
         end_time = format_factory_date_to_meta_data(
             selectable_time_range.max.value, is_tz_col=is_tz_col, db_type=proc_cfg.data_source.type
         )
+
+        factory_job_info.start_time = selectable_time_range.max.value
+        factory_job_info.end_time = selectable_time_range.min.value
 
         data = factory_import_obj.get_factory_data(selectable_time_range)
 
@@ -233,6 +244,13 @@ def factory_import(proc_id):
             # to save into import history
             imported_start_time = str(df[auto_increment_col].min())
             imported_end_time = str(df[auto_increment_col].max())
+            data_frame_info = FactoryImportJobInfo.FactoryImportDataFrameInfo(
+                size=len(df),
+                imported_start_time=format_factory_date_to_meta_data(df[auto_increment_col].min(), is_tz_col=is_tz_col),
+                imported_end_time=format_factory_date_to_meta_data(df[auto_increment_col].max(), is_tz_col=is_tz_col),
+            )
+            factory_job_info.data_frame_info_objects.append(data_frame_info)
+
             # pivot if this is vertical data
             if MasterDBType.is_software_workshop(proc_cfg.master_type):
                 if proc_cfg.master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT.name:
@@ -244,6 +262,7 @@ def factory_import(proc_id):
                 elif proc_cfg.master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY.name:
                     pipeline = software_workshop_postgres_history_transform_pipeline()
                 else:
+                    factory_job_info.error(f'Unsupported master type: {proc_cfg.master_type}')
                     raise NotImplementedError(f'unsupported {proc_cfg.master_type} for software workshop')
                 transformed_data = pipeline.run(TransformData(df=df))
                 df = transformed_data.df.rename(columns={col.column_raw_name: col.column_name for col in cfg_columns})
@@ -251,6 +270,7 @@ def factory_import(proc_id):
             # no records
             if not len(df):
                 error_type = IMPORT_FACTOR_EMPTY_DATA
+                factory_job_info.warning(error_type)
                 save_failed_import_history(proc_id, job_info, error_type)
                 continue
 
@@ -294,11 +314,13 @@ def factory_import(proc_id):
                 write_error_trace(df_error_trace, proc_cfg.name)
                 write_error_import(df_error, proc_cfg.name)
                 error_type = DATA_TYPE_ERROR_MSG
+                data_frame_info.error_rows = df_error_cnt
 
             # no records
             if not len(df):
                 error_type = IMPORT_FACTOR_EMPTY_DATA
                 save_failed_import_history(proc_id, job_info, error_type)
+                factory_job_info.warning(error_type)
                 continue
 
             # merge mode
@@ -341,6 +363,7 @@ def factory_import(proc_id):
                     job_id,
                 )
                 error_type = DATA_TYPE_DUPLICATE_MSG
+                data_frame_info.duplicate_rows = df_duplicate_cnt
 
             # import data
             job_info.import_type = JobType.FACTORY_IMPORT.name
@@ -360,12 +383,13 @@ def factory_import(proc_id):
             df = remove_non_exist_columns_in_df(df, [col.column_name for col in target_cfg_columns])
             save_res = import_data(df, target_cfg_process, target_get_date_col, job_info, child_cfg_proc)
             gen_import_job_info(job_info, save_res, imported_start_time, imported_end_time, err_cnt=df_error_cnt)
-
+            data_frame_info.imported_rows = len(df)
             # total row of one job
             total_row = job_info.row_count
             inserted_row_count += total_row
 
             job_info.calc_percent(inserted_row_count, MAX_RECORD)
+
             with job_info.interruptible() as job_info:
                 yield job_info
 
@@ -373,17 +397,23 @@ def factory_import(proc_id):
             if job_info.status is JobStatus.FATAL:
                 raise job_info.exception
 
-            # calc range of days to gen sql
-            logger.info(
-                f'FACTORY DATA IMPORT SQL('
-                f'records = {total_row}, '
-                f'query_start={start_time}, '
-                f'query_end={end_time}, '
-                f'import_from={imported_start_time}, '
-                f'import_to={imported_end_time}'
-                f')',
-            )
+            log_str = f'Imported {total_row} records, range={job_info.import_from} - {job_info.import_to}'
+            factory_job_info.info(content=log_str)
+            logger.info(log_str)
+
+        log_str = (
+            f'FACTORY DATA IMPORT SQL('
+            f'total_imported_rows={factory_job_info.total_imported_rows}, '
+            f'total_duplicate_rows={factory_job_info.total_duplicate_rows}, '
+            f'total_error_rows={factory_job_info.total_error_rows}, '
+            f'import_from={start_time}, '
+            f'import_to={end_time}'
+            f')'
+        )
+        factory_job_info.info(content=log_str)
+        logger.info(log_str)
     except Exception as e:
+        factory_job_info.error(f'Exception raised: {e!s}')
         raise e
 
 
@@ -609,7 +639,7 @@ def get_tzoffset_of_random_record(data_source, table_name, get_date_col):
 @scheduler_app_context
 def factory_past_import_job(process_id: int, job_management: JobManagement):
     """Scheduler job import factory data"""
-    gen = factory_past_import(process_id)
+    gen = factory_past_import(process_id, job_management)
     send_processing_info(
         gen,
         job_management=job_management,
@@ -620,25 +650,31 @@ def factory_past_import_job(process_id: int, job_management: JobManagement):
 
 
 @log_execution_time()
-def factory_past_import(proc_id):
+def factory_past_import(proc_id: int, job_management: JobManagement):
     """Transform data and then import from factory db to universal db
 
     Arguments:
-        proc_id {[type]} -- [description]
+        proc_id {int} -- The process id
+        job_management {JobManagement} -- The job management info
 
     Yields:
         [type] -- [description]
     """
     # start job
+    past_import_job_info = FactoryPastImportJobInfo()
+    job_management.info = past_import_job_info
     yield 0
 
     # get process id in edge db
     proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
     if not proc_cfg:
+        past_import_job_info.error(content=f'Process id={proc_id} does not exist.')
         return
 
     if proc_cfg.data_source.type == DBType.SNOWFLAKE_SOFTWARE_WORKSHOP.name:
-        raise ValueError('Do not run past import for snowflake, we can implement it in pull past data later')
+        error_msg = 'Do not run past import for snowflake, we can implement it in pull past data later'
+        past_import_job_info.error(content=error_msg)
+        raise ValueError(error_msg)
 
     # Isolate object that not link to SQLAlchemy to avoid changes in other session
     proc_cfg = proc_cfg.clone()
@@ -667,31 +703,39 @@ def factory_past_import(proc_id):
     if proc_cfg.parent_id:
         parent_cfg_proc: CfgProcess | None = CfgProcess.get_proc_by_id(proc_cfg.parent_id)
         parent_cfg_columns: list[CfgProcessColumn] | None = parent_cfg_proc.get_transaction_process_columns()
-    with DbProxy(gen_data_source_of_universal_db(proc_id), True) as db_instance:
-        trans_data.create_table(db_instance)
+    with (
+        TxnMetaConnection(process_id=proc_id) as meta_con,
+        TxnDataConnection(process_id=proc_id, readonly_transaction=False) as data_con,
+    ):
+        trans_data.create_table(data_con=data_con, meta_con=meta_con)
         # last import date
-        last_import = trans_data.get_import_history_last_import(db_instance, JobType.FACTORY_PAST_IMPORT.name)
+        last_import = trans_data.get_import_history_last_import(meta_con, JobType.FACTORY_PAST_IMPORT)
 
         if not last_import:
             # check if first time factory import was DONE !
-            last_import = trans_data.get_import_history_first_import(db_instance, JobType.FACTORY_IMPORT.name)
+            last_import = trans_data.get_import_history_first_import(meta_con, JobType.FACTORY_IMPORT)
 
         # the first time import data
         if not last_import:
+            past_import_job_info.warning(f'There is no existing past import job for process id={proc_id}.')
             yield 100
             return
 
     filter_time = last_import.import_from
 
     if not filter_time or filter_time < convert_time(add_years(years=-1)):
+        past_import_job_info.info('Datetime for query was not found, or is more than one year away.')
         yield 100
         return
 
     # return if already inserted 2 millions
-    with ReadOnlyDbProxy(gen_data_source_of_universal_db(proc_id), is_universal_db=True) as db_instance:
-        data_cnt = trans_data.count_data(db_instance)
+    with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
+        data_cnt = trans_data.count_data(data_con)
 
     if data_cnt > PAST_IMPORT_LIMIT_DATA_COUNT:
+        past_import_job_info.info(
+            content=f'Imported records is over limit ({data_cnt} > {PAST_IMPORT_LIMIT_DATA_COUNT}).'
+        )
         yield 100
         return
 
@@ -727,10 +771,11 @@ def factory_past_import(proc_id):
     import_factory_obj: ImportBase = ImportBase.get_instance(proc_cfg)
     time_range = import_factory_obj.get_time_range_from_start_end_time(start_time, end_time, True)
     data = import_factory_obj.get_factory_data(time_range)
+    past_import_job_info.start_time = time_range.min
+    past_import_job_info.end_time = time_range.max
 
     # get current job id
-    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.FACTORY_PAST_IMPORT.name)
-    job_id = int(t_job_management.id) if t_job_management else None
+    job_id = int(job_management.id) if job_management else None
     job_info.job_id = job_id
     data_source_name = proc_cfg.data_source.name
     table_name = proc_cfg.table_name
@@ -742,7 +787,6 @@ def factory_past_import(proc_id):
     has_data = False
     error_type = None
     for _rows in data:
-        has_data = True
         is_import, rows, remain_rows = gen_import_data(_rows, remain_rows, cols, auto_increment_col)
         if not is_import:
             continue
@@ -761,6 +805,14 @@ def factory_past_import(proc_id):
         else:
             # dataframe
             df = pd.DataFrame(rows, columns=cols)
+
+        # to save into import history
+        data_frame_info = FactoryPastImportJobInfo.FactoryImportDataFrameInfo(
+            size=len(df),
+            imported_start_time=format_factory_date_to_meta_data(df[auto_increment_col].min(), is_tz_col=is_tz_col),
+            imported_end_time=format_factory_date_to_meta_data(df[auto_increment_col].max(), is_tz_col=is_tz_col),
+        )
+        past_import_job_info.data_frame_info_objects.append(data_frame_info)
         # pivot if this is vertical data
         if MasterDBType.is_software_workshop(proc_cfg.master_type):
             if proc_cfg.master_type == MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT.name:
@@ -772,16 +824,20 @@ def factory_past_import(proc_id):
             elif proc_cfg.master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY.name:
                 pipeline = software_workshop_postgres_history_transform_pipeline()
             else:
-                raise NotImplementedError(f'unsupported {proc_cfg.master_type} for software workshop')
+                error_msg = f'unsupported {proc_cfg.master_type} for software workshop'
+                past_import_job_info.error(error_msg)
+                raise NotImplementedError(error_msg)
             transformed_data = pipeline.run(TransformData(df=df))
             df = transformed_data.df.rename(columns={col.column_raw_name: col.column_name for col in cfg_columns})
 
         # no records
         if not len(df):
             error_type = IMPORT_FACTOR_EMPTY_DATA
+            past_import_job_info.warning(error_type)
             save_failed_import_history(proc_id, job_info, error_type)
             continue
 
+        has_data = True
         for col, cfg_col in dic_use_cols.items():
             dtype = cfg_col.data_type
             df = convert_with_formula_for_factory_import(cfg_col, df)
@@ -822,6 +878,7 @@ def factory_past_import(proc_id):
             write_error_trace(df_error_trace, proc_cfg.name)
             write_error_import(df_error, proc_cfg.name)
             error_type = DATA_TYPE_ERROR_MSG
+            data_frame_info.error_rows = df_error_cnt
 
         # merge mode
         target_cfg_process = proc_cfg
@@ -861,11 +918,14 @@ def factory_past_import(proc_id):
                 job_id,
             )
             error_type = DATA_TYPE_DUPLICATE_MSG
+            data_frame_info.duplicate_rows = df_duplicate_cnt
 
         # import data
         job_info.import_type = JobType.FACTORY_PAST_IMPORT.name
 
         # to save into import history
+        # imported time range is always 24h, NOT get time range from df object (real data range)
+        # because in the past, we assume that there are no new data will be inserted in the past. => rotation 24h
         job_info.import_from = start_time
         job_info.import_to = end_time
 
@@ -887,7 +947,7 @@ def factory_past_import(proc_id):
 
         # update job info
         gen_import_job_info(job_info, save_res, start_time, end_time, err_cnt=df_error_cnt)
-
+        data_frame_info.imported_rows = len(df)
         # total row of one job
         total_row = job_info.row_count
         inserted_row_count += total_row
@@ -898,11 +958,25 @@ def factory_past_import(proc_id):
 
         # raise exception if FATAL error happened
         if job_info.status is JobStatus.FATAL:
+            past_import_job_info.error(content=str(job_info.exception))
             raise job_info.exception
 
-        # output log
-        log_str = 'FACTORY PAST DATA IMPORT SQL(days={}, records={}, range={}-{})'
-        logger.info(log_str.format(SQL_PAST_DAYS_AGO, total_row, start_time, end_time))
+        log_str = f'Imported {total_row} records, range={job_info.import_from} - {job_info.import_to}'
+        past_import_job_info.info(content=log_str)
+        logger.info(log_str)
+
+    log_str = (
+        f'FACTORY PAST DATA IMPORT SQL('
+        f'days={SQL_PAST_DAYS_AGO}, '
+        f'total_imported_rows={past_import_job_info.total_imported_rows}, '
+        f'total_duplicate_rows={past_import_job_info.total_duplicate_rows}, '
+        f'total_error_rows={past_import_job_info.total_error_rows}, '
+        f'import_from={start_time}, '
+        f'import_to={end_time}'
+        f')'
+    )
+    past_import_job_info.info(content=log_str)
+    logger.info(log_str)
 
     if not has_data:
         gen_import_job_info(job_info, 0, start_time, end_time)
@@ -950,11 +1024,11 @@ def handle_time_zone(proc_cfg, get_date_col):
 
 
 @log_execution_time()
-def gen_import_data(rows, remain_rows, cols, auto_increment_col):
+def gen_import_data(rows: tuple, remain_rows: tuple, cols: tuple, auto_increment_col: str) -> tuple[bool, tuple, tuple]:
     is_allow_import = True
     # last fetch
     if len(rows) < FETCH_MANY_SIZE:
-        return is_allow_import, remain_rows + rows, []
+        return is_allow_import, remain_rows + rows, ()
 
     # rows with the largest grp_id of the previous chunk should be at the BEGINNING of the current chunk
     rows = remain_rows + rows
@@ -966,7 +1040,7 @@ def gen_import_data(rows, remain_rows, cols, auto_increment_col):
     group_ids = group_ids.to_numpy()
     if check_if_array_is_repeating(group_ids):
         is_allow_import = False
-        return is_allow_import, [], rows
+        return is_allow_import, (), rows
 
     return is_allow_import, rows[:split_idx], rows[split_idx:]
 

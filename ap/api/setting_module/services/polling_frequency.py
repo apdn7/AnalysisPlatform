@@ -1,5 +1,4 @@
 import collections
-import logging
 from datetime import datetime
 from typing import Union
 
@@ -35,15 +34,14 @@ from ap.common.constants import (
     ProcessColumnConst,
     ProcessStatus,
 )
-from ap.common.logger import log_execution_time
+from ap.common.jobs.job_info_schema import DataExportJobInfo
+from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.scheduler import scheduler_app_context
 from ap.etl.pull.pull_data import add_pull_transaction_data_job
 from ap.setting_module.models import CfgDataSource, CfgExport, CfgProcess, JobManagement, make_session
 from ap.setting_module.schemas import ProcessColumnSchema, ProcessSchema
 from ap.setting_module.services.background_process import send_processing_info
-
-logger = logging.getLogger(__name__)
 
 
 @log_execution_time()
@@ -249,7 +247,9 @@ def add_import_job(
 def export_job_func(config_id: int, job_management: JobManagement):
     export_config = CfgExport.get_by_id(config_id)
     if export_config is not None:
-        gen = DataExport(export_config).export_as_gen()
+        job_management.info = DataExportJobInfo()
+        data_export_job_info = job_management.info
+        gen = DataExport(export_config, data_export_job_info).export_as_gen()
         send_processing_info(
             gen,
             job_management=job_management,
@@ -266,6 +266,7 @@ def add_export_job(export_config: CfgExport):
         EventAddJob(
             fn=export_job_func,
             kwargs=kwargs,
+            process_id=export_config.process_id,
             job_type=JobType.DATA_EXPORT,
             job_id_suffix=f'{export_config.process_id}_{export_config.id}',
             replace_existing=True,
