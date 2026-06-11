@@ -18,6 +18,7 @@ const ele = {
     tblViewerSpinner: '#tblViewerSpinner',
     dbsCodeInput: $('input[name=databaseCode]'),
     tableNameInput: $('input[name=tableSelection]'),
+    procId: '',
 };
 
 const buildOptionHTML = (value = '', text = '', title = '') => {
@@ -85,7 +86,7 @@ const showSortColumnOptions = async (procId) => {
 
     const tableName = procCfg.data_source.db_detail ? procCfg.table_name : '';
 
-    setDbsAndTableInfo(procCfg.data_source.id, tableName);
+    setDbsAndTableInfo(procCfg.data_source.id, tableName, procId);
     // show loading icon
     $(ele.tblViewerSpinner).toggleClass('spinner-grow');
 
@@ -117,6 +118,7 @@ const queryRecordsFromDB = (
         sort_column: sortColumn,
         sort_order: sortOrder,
         limit,
+        proc_id: ele.procId,
     };
     fetch('api/table_viewer/table_records', {
         method: 'POST',
@@ -140,9 +142,10 @@ const queryRecordsFromDB = (
         });
 };
 
-const setDbsAndTableInfo = (dbsCode, tableName) => {
+const setDbsAndTableInfo = (dbsCode, tableName, procId) => {
     ele.dbsCodeInput.val(dbsCode);
     ele.tableNameInput.val(tableName);
+    ele.procId = procId;
 };
 
 const getFormInput = () => {
@@ -208,7 +211,12 @@ const showRecordsToViewTable = (json) => {
     cleanViewTable();
     dataTableInstance = $(ele.tableViewDataId).DataTable({
         data: rows,
-        columns: cols,
+        columns: cols.map((col) => {
+            return {
+                title: col.title,
+                data: (row) => row[col.title] ?? '',
+            };
+        }),
         scrollX: true,
         scrollY: 410,
         paging: false,
@@ -216,6 +224,7 @@ const showRecordsToViewTable = (json) => {
         ordering: false,
         info: false,
         lengthChange: true,
+        autoWidth: false,
         language: {
             url: getLanguage(),
         },

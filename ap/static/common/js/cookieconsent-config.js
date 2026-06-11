@@ -142,6 +142,9 @@ CookieConsent.run({
     onChange: ({ cookie }) => {
         if (!cookie.categories.includes('performance')) {
             CookieConsent.eraseCookies(/^_ga/);
+            if (typeof gtag === 'undefined') {
+                return;
+            }
             gtag('consent', 'default', {
                 ad_storage: 'denied',
                 analytics_storage: 'denied',

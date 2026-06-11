@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./ap",
+    "paths": {
+      "@/*": ["src/*"] // todo check this config is not effect
+    },
+    "target": "ES6",
+    "module": "ESNext",
+   "useDefineForClassFields": true,
+    "lib": ["ES2015", "DOM", "DOM.Iterable", "ES2020"],
+    "allowJs": true,           // Allow JS files
+    "checkJs": false,          // Don't type-check JS files
+    "outDir": "./dist",
+    "rootDir": "./ap",
+    "strict": false,           // Lenient for gradual migration
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "declaration": false,
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node"]
+  },
+  "include": [
+    "ap/src/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

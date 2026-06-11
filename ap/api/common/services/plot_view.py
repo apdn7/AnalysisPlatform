@@ -46,7 +46,9 @@ from ap.trace_data.schemas import DicParam, EndProc
 
 
 @log_execution_time()
-def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, point_time, target_proc_id, target_id):
+def gen_graph_plot_view(
+    graph_param: DicParam, dic_param, dic_form, cycle_id, point_time, target_proc_id, target_id, start_proc_id
+):
     """Tracing data to show graph
     1 start point x n end point
     filter by condition point
@@ -99,7 +101,7 @@ def gen_graph_plot_view(graph_param: DicParam, dic_param, dic_form, cycle_id, po
     list_tbl_header, list_tbl_rows = gen_list_table(graph_param, df, client_timezone)
 
     # all paths
-    paths = graph_param.trace_graph.get_all_paths(target_proc_id)
+    paths = graph_param.trace_graph.get_all_paths(start_proc=start_proc_id)
     path_proc_ids = [proc_id for proc_ids in paths for proc_id in proc_ids] if paths else [target_proc_id]
     # Stats table
     stats_tbl_header, stats_tbl_data = gen_stats_table(

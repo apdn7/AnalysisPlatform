@@ -688,6 +688,24 @@ SET {col} = strftime('{DATE_FORMAT_SQLITE_STR}', {cast_sql}) || SUBSTR({col},-8)
         FROM {self.table_name} ORDER BY {self.getdate_column.bridge_column_name} DESC"""
         return data_con.run_sql(sql).fetch_df()[self.getdate_column.bridge_column_name].dropna().tolist()
 
+    def select_columns(
+        self,
+        data_con: DuckDB,
+        column_names: list[str],
+        limit: int | None = None,
+        is_distinct: bool = False,
+    ) -> pd.DataFrame:
+        if not column_names:
+            return pd.DataFrame()
+
+        sql = sa.select(*[sa.column(col_name) for col_name in column_names]).select_from(sa.table(self.table_name))
+        if is_distinct:
+            sql = sql.distinct()
+        if limit is not None:
+            sql = sql.limit(limit)
+
+        return data_con.fetch_df(sql)
+
 
 class DataCountTable(BaseEnum):
     """Enum-based data count table definition.
@@ -766,7 +784,6 @@ class ImportHistoryTable(BaseModel):
         import_to: End datetime for factory imports.
         imported_row: Number of rows imported.
         status: Import status.
-        error_msg: Error message if import failed.
         start_tm: Start time of import.
         end_tm: End time of import.
         created_at: Record creation timestamp.
@@ -790,7 +807,6 @@ class ImportHistoryTable(BaseModel):
     import_to: str | None
     imported_row: int | None
     status: str
-    error_msg: str | None
     start_tm: str
     end_tm: str
     created_at: str | None
@@ -814,7 +830,6 @@ class ImportHistoryTable(BaseModel):
             sa.Column('end_tm', sa.Text),
             sa.Column('imported_row', sa.Integer),
             sa.Column('status', sa.Text),
-            sa.Column('error_msg', sa.Text),
             sa.Column('created_at', sa.Text),
             sa.Column('updated_at', sa.Text),
         )

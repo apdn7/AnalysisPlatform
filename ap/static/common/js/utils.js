@@ -1898,6 +1898,12 @@ const setSelect2Selection = (parent = null, additionalOption = {}, optionsLoadLa
             Object.assign(dicNColsOptions, { allowClear: true });
             Object.assign(dicOptions, { allowClear: true });
         }
+
+        if (ele.hasClass('data-not-allow-clear')) {
+            Object.assign(dicNColsOptions, { allowClear: false });
+            Object.assign(dicOptions, { allowClear: false });
+        }
+
         if (ele.hasClass(nColCls)) {
             select2El = ele.select2(dicNColsOptions);
         } else {
@@ -5147,7 +5153,7 @@ const isDefined = (variable) => {
 function create_UUID() {
     var dt = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (dt + Math.random() * 16) % 16 | 0;
+        var r = ((dt + Math.random() * 16) % 16) | 0;
         dt = Math.floor(dt / 16);
         return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
     });

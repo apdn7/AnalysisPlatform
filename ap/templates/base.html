@@ -29,6 +29,7 @@
         {% assets "css_all" %}
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='dist/style.css') }}" />
         <script type="module" src="/static/common/js/cookieconsent-config.js"></script>
         <script>
             //Dictionaryを生成する。
@@ -169,7 +170,7 @@
     <body style="overflow-x: hidden">
         <div class="wrapper">
             {% include 'i18n.html' %}
-            {% include 'sidebar.html' %}
+            <div class="react-root" data-component="SideBarComponent"></div>
             {% import 'macros.html' as macros %}
             {% block body %}
                 <div id="content">
@@ -196,22 +197,7 @@
                     {% include 'footer.html' %}
                 </div>
             {% endblock %}
-            <script type="text/javascript">
-                $(() => {
-                    // app version
-                    const version = appContext.app_version;
-                    $('#appVersion').text(version);
-
-                    // app Location
-                    const appLocation = appContext.app_source;
-                    if (appLocation) {
-                        $('#appLocation').text(appLocation);
-                    }
-                });
-
-                // collapse sidebar when loading page
-                sidebarCollapse();
-            </script>
+            <script type="module" src="{{ url_for('static', filename='dist/main.bundle.js') }}"></script>
             <div class="cross v left">
                 <div class="cross h left"></div>
             </div>

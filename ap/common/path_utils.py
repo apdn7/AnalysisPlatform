@@ -9,6 +9,8 @@ from os import PathLike
 from pathlib import Path
 from typing import IO, TextIO, Union
 
+import duckdb_extension_sqlite_scanner
+
 from ap.common.constants import (
     CONFIG_DB,
     PREVIEW_DATA_FOLDER,
@@ -494,3 +496,16 @@ def get_etl_scripts(etl_path):
         return get_files(directory=etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
     except (Exception, FileNotFoundError):
         return []
+
+
+def get_sqlite_extension_file_path():
+    """Find duckdb's sqlite_scanner extension from environment"""
+    # Find base path based on imported package
+    base_dir = os.path.dirname(duckdb_extension_sqlite_scanner.__file__)
+
+    # Look for extension file
+    for root, dirs, files in os.walk(base_dir):
+        for file in files:
+            if file.endswith('.duckdb_extension'):
+                return os.path.join(root, file)
+    return None

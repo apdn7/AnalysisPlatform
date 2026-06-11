@@ -85,13 +85,7 @@ def plot_view():
             break
 
     dic_param, stats_table = gen_graph_plot_view(
-        graph_param,
-        dic_param,
-        dic_form,
-        cycle_id,
-        point_time,
-        proc_id,
-        cfg_col.id,
+        graph_param, dic_param, dic_form, cycle_id, point_time, proc_id, cfg_col.id, graph_param.common.start_proc
     )
 
     output_dict = stats_table

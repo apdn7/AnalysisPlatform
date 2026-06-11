@@ -224,6 +224,7 @@ const i18nDBCfg = {
     couldNotReadData: $('#i18nCouldNotReadData'),
     dummyHeader: $('#i18nDummyHeader'),
     partialDummyHeader: $('#i18nPartialDummyHeader'),
+    encodingGuess: $('#i18nEncodingGuess').text(),
     hiddenPlaceholder: $('#i18nPlaceholderHidden').text(),
 };
 
@@ -338,9 +339,10 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true) => {
         showToastrMsg(msgContent);
     }
 
-    // show encoding
-    if (res.encoding) {
-        $('#dbsEncoding').text(`Encoding: ${res.encoding}`);
+    // show guess encoding
+    if (res.encoding && $(csvResourceElements.dsEncodingSelect).val() === 'auto-detect') {
+        $(csvResourceElements.guessEncoding).text(`${i18nDBCfg.encodingGuess}: ${res.encoding}`).val(res.encoding);
+        $(csvResourceElements.encodingOption).removeClass('hide');
     }
 };
 
@@ -408,14 +410,14 @@ async function checkIsFilePath(folderUrl, originFolderUrl) {
     return folderInfo.isFile;
 }
 
-const showResources = async (isFilePath = undefined, isValidFolder = undefined) => {
+const showResources = async (isFilePath = undefined, isValidFolder = undefined, dataSrcId = undefined) => {
     $('#resourceLoading').show();
     const folderUrl = $(csvResourceElements.folderUrlInput).val();
     const originFolderUrl = $(csvResourceElements.folderUrlInput).data('originValue');
     if (isFilePath == undefined) {
         isFilePath = await checkIsFilePath(folderUrl, originFolderUrl);
     }
-    const db_code = $(csvResourceElements.showResourcesBtnId).data('itemId');
+    const dbCode = $(csvResourceElements.showResourcesBtnId).data('data-ds-id');
     const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
     if (isValidFolder == undefined) {
         const checkFolderAPI = '/ap/api/setting/check_folder';
@@ -431,7 +433,17 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
             });
             // hide loading
             $('#resourceLoading').hide();
+
+            // hide preview table
+            $(csvResourceElements.dataTbl).hide();
+            disabledSaveDBBtn();
             return;
+        }
+        if (checkFolderRes.is_valid) {
+            displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
+                message: i18nDBCfg.dirExist,
+                is_error: false,
+            });
         }
     }
     // get line skipping config
@@ -439,11 +451,12 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
     const csvNRows = $(csvResourceElements.csvNRows).val() || null;
     const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
     const isFileChecked = $(csvResourceElements.isFileChecker).val() == 'true';
+    const encoding = $(csvResourceElements.dsEncodingSelect).val();
     $.ajax({
         url: csvResourceElements.apiUrl,
         method: 'POST',
         data: JSON.stringify({
-            db_code,
+            db_code: dataSrcId || dbCode,
             url: folderUrl,
             etl_func: $('[name=optionalFunction]').val(),
             delimiter: $(csvResourceElements.delimiter).val(),
@@ -453,6 +466,7 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
             is_transpose: csvIsTranspose,
             is_file: isFilePath,
             is_file_checker: isFileChecked,
+            encoding: encoding,
         }),
         contentType: 'application/json',
         success: (res) => {
@@ -491,7 +505,7 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined) 
             }
             $('#resourceLoading').hide();
         },
-        error: (error) => {
+        error: (jqXHR, textStatus, errorThrown) => {
             $('#resourceLoading').hide();
             // disabled OK Button
             disabledSaveDBBtn();
@@ -1017,6 +1031,7 @@ const genCsvInfo = async () => {
     const [columnNames, columnTypes, orders] = getCsvColumns();
     const isDummyHeader = $(csvResourceElements.isDummyHeader).val();
     const isFilePath = $(csvResourceElements.isFilePathHidden).val().toLowerCase() === 'true';
+    const { isAutoEncoding, encoding } = getEncoding();
 
     // Get csv Information
     const csvColumns = [];
@@ -1034,6 +1049,8 @@ const genCsvInfo = async () => {
         dummy_header: isDummyHeader,
         is_file_path: isFilePath,
         is_file_checker: isFileChecker,
+        encoding,
+        auto_encoding: isAutoEncoding,
     };
 
     const dictDataSrc = {
@@ -1684,8 +1701,8 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             $(csvResourceElements.alertMsgCheckFolder).hide();
             $(csvResourceElements.dataTbl).hide();
 
-            $(`${dbConfigElements.csvModal} #okBtn`).data('itemId', dictDataSrc.id);
-            $(`${dbConfigElements.csvModal} #showResources`).data('itemId', dictDataSrc.id);
+            $(`${dbConfigElements.csvModal} #okBtn`).attr('data-ds-id', dictDataSrc.id);
+            $(`${dbConfigElements.csvModal} #showResources`).attr('data-ds-id', dictDataSrc.id);
 
             // Clear old input data
             $(csvResourceElements.isFilePathHidden).val('');
@@ -1753,6 +1770,19 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
                         .val(dictDataSrc.csv_detail.etl_func)
                         .trigger('change');
                     $(dictDataSrc.csv_detail.etl_func).attr('data-observer', dictDataSrc.csv_detail.etl_func);
+                }
+
+                if (dictDataSrc.csv_detail.auto_encoding) {
+                    $(csvResourceElements.dsEncodingSelect).select2().val('auto-detect');
+                    $(csvResourceElements.dsEncodingSelect).attr('data-observer', 'auto-detect');
+                    showDatasourceGuessEncoding();
+                }
+
+                if (dictDataSrc.csv_detail.encoding && !dictDataSrc.csv_detail.auto_encoding) {
+                    $(csvResourceElements.dsEncodingSelect).select2().val(dictDataSrc.csv_detail.encoding);
+                    $(csvResourceElements.dsEncodingSelect).attr('data-observer', dictDataSrc.csv_detail.encoding);
+                    $(csvResourceElements.guessEncoding).val('');
+                    showDatasourceGuessEncoding(false);
                 }
             }
 
@@ -1881,9 +1911,9 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
     }
 
     //  TODO: refactor modal ID
-    $(`#modal-db-${domModalPrefix} input`).data('itemId', dictDataSrc.id);
-    $(`#modal-db-${domModalPrefix} select`).data('itemId', dictDataSrc.id);
-    $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data('itemId', dictDataSrc.id);
+    // $(`#modal-db-${domModalPrefix} input`).data('itemId', dictDataSrc.id);
+    // $(`#modal-db-${domModalPrefix} select`).data('itemId', dictDataSrc.id);
+    // $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data('itemId', dictDataSrc.id);
     $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data('dbType', dictDataSrc.type);
     $(`#modal-db-${domModalPrefix}`).modal('show');
     addAttributeToElement();
@@ -2079,7 +2109,7 @@ const loadDetail = (self) => {
             .then((json) => {
                 if (json) {
                     bindDBItemToModal(dsType, json);
-                    showResources();
+                    showResources(undefined, undefined, dataSrcId);
                 }
             });
     }
@@ -2147,9 +2177,8 @@ $(() => {
 
     $(csvResourceElements.connectResourceBtn).on('click', () => {
         $(csvResourceElements.alertInternalError).hide();
-        const folderUrl = $(csvResourceElements.folderUrlInput).val();
-        const originFolderUrl = $(csvResourceElements.folderUrlInput).data('originValue');
-        checkFolderResources(folderUrl, originFolderUrl).then(() => {});
+        // Same logic as clicking the "Show Preview" button.
+        showResources();
     });
     $(csvResourceElements.showResourcesBtnId).on('click', () => {
         $('#resourceLoading').show();
@@ -2207,8 +2236,7 @@ $(() => {
                 $(dbConfigElements.csvDBSourceName).val(lastFolderName);
             }
             // handle show data when enter a path to the input in Data Source Config
-            $(csvResourceElements.connectResourceBtn).trigger('click');
-            // $(csvResourceElements.showResourcesBtnId).trigger('click');
+            $(csvResourceElements.showResourcesBtnId).trigger('click');
         }, 300); // delay input 300ms
     });
 
@@ -2228,6 +2256,21 @@ $(() => {
     });
 
     PollingFrequencyOption.handleOnChangeMainPollingFrequency();
+
+    // event on change encoding
+    $(csvResourceElements.dsEncodingSelect).on('change', () => {
+        if (!$(csvResourceElements.folderUrlInput).val()) {
+            return;
+        }
+        $(csvResourceElements.showResourcesBtnId).trigger('click');
+
+        if ($(csvResourceElements.dsEncodingSelect).val() === 'auto-detect') {
+            showDatasourceGuessEncoding();
+        } else {
+            $(csvResourceElements.guessEncoding).text('').val('');
+            showDatasourceGuessEncoding(false);
+        }
+    });
 
     // searchDataSource
     onSearchTableContent('searchDataSource', 'tblDbConfig');
@@ -2422,4 +2465,20 @@ const switchAuthTypeForWebAPI = (e) => {
         $('#webAuthInputArea').find('input').attr('disabled', true);
         $('#webAuthInputArea').find('input').val('');
     }
+};
+
+const getEncoding = () => {
+    const isAutoEncoding = $(csvResourceElements.dsEncodingSelect).val() === 'auto-detect';
+    let encoding;
+    if (isAutoEncoding) {
+        encoding = $(csvResourceElements.guessEncoding).val();
+    } else {
+        encoding = $(csvResourceElements.dsEncodingSelect).val();
+    }
+    return { isAutoEncoding, encoding };
+};
+
+const showDatasourceGuessEncoding = (show = true) => {
+    show && $(csvResourceElements.guessEncoding).removeClass('hide');
+    !show && $(csvResourceElements.guessEncoding).addClass('hide');
 };

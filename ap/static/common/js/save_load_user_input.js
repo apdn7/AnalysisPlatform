@@ -2017,37 +2017,7 @@ const checkExistTitleSetting = async (title) => {
     });
 };
 
-$(document).ready(() => {
-    // save user input
-    const inputForms = $('form');
-    const saveUserBtn = $('#saveUserBtn');
-    const loadUserBtn = $('#loadUserBtn');
-    if (inputForms.length > 0) {
-        $(saveUserBtn).show();
-        $(loadUserBtn).show();
-    } else {
-        $(saveUserBtn).hide();
-        $(loadUserBtn).hide();
-    }
-    $(saveUserBtn).click(() => {
-        inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
-            userInput(false);
-        });
-    });
-
-    $(loadUserBtn).click(() => {
-        inputForms.each((i, form) => {
-            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
-            userInput();
-        });
-    });
-
-    settingDataTableInit();
-
-    // save user setting to DB
-    mainFormSettings = $(settingModals.mainSettingForm);
-
+const setUpEvents = () => {
     // trigger to validate data input before saving user setting
     $(settingModals.saveSettingConfirmBtn).on('click', async () => {
         // clear error message
@@ -2118,27 +2088,6 @@ $(document).ready(() => {
         updateUserNameForSettingModal();
     });
 
-    const dragAreaCls = '.import-drag-area';
-    const selectFileBtnId = '#importSelectFileBtn';
-    const selectFileInputId = '#importSelectFileInput';
-    genTriggerFileSetting(dragAreaCls, selectFileBtnId, selectFileInputId);
-
-    // init
-    setTimeout(() => {
-        if (currentFormID) {
-            const form = $(currentFormID);
-            currentFromDataFromLoadSetting = new FormData(form[0]);
-            form.find('input').on('change', () => {
-                compareSettingChange();
-            });
-
-            form.find('select').on('change', () => {
-                compareSettingChange();
-            });
-        }
-        isSettingLoading = false;
-    }, 3500);
-
     $('.go-to-page').on('contextmenu', (e) => {
         const takeOverItems = $('#contextMenuSidebar').find('.takeover-item');
         takeOverItems.hide();
@@ -2161,6 +2110,59 @@ $(document).ready(() => {
             goToOtherPage(href);
         }
     });
+};
+
+$(document).ready(() => {
+    // save user input
+    const inputForms = $('form');
+    const saveUserBtn = $('#saveUserBtn');
+    const loadUserBtn = $('#loadUserBtn');
+    if (inputForms.length > 0) {
+        $(saveUserBtn).show();
+        $(loadUserBtn).show();
+    } else {
+        $(saveUserBtn).hide();
+        $(loadUserBtn).hide();
+    }
+    $(saveUserBtn).click(() => {
+        inputForms.each((i, form) => {
+            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
+            userInput(false);
+        });
+    });
+
+    $(loadUserBtn).click(() => {
+        inputForms.each((i, form) => {
+            const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname);
+            userInput();
+        });
+    });
+
+    settingDataTableInit();
+
+    // save user setting to DB
+    mainFormSettings = $(settingModals.mainSettingForm);
+
+    const dragAreaCls = '.import-drag-area';
+    const selectFileBtnId = '#importSelectFileBtn';
+    const selectFileInputId = '#importSelectFileInput';
+    genTriggerFileSetting(dragAreaCls, selectFileBtnId, selectFileInputId);
+
+    // init
+    setTimeout(() => {
+        if (currentFormID) {
+            const form = $(currentFormID);
+            currentFromDataFromLoadSetting = new FormData(form[0]);
+            form.find('input').on('change', () => {
+                compareSettingChange();
+            });
+
+            form.find('select').on('change', () => {
+                compareSettingChange();
+            });
+        }
+        isSettingLoading = false;
+    }, 3500);
 });
 
 const showGraphWithDebugInfo = () => {

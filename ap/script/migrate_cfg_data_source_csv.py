@@ -1,4 +1,6 @@
 import sqlalchemy as sa
+from ap.api.setting_module.services.show_latest_record import preview_csv_data
+from ap.common.constants import DBType, RelationShip, DATA_TYPE_ESTIMATION_LIMIT, Encoding
 from ap.common.pydn.dblib import sqlite
 from ap.setting_module.models import (
     CfgDataSourceCSV,
@@ -12,6 +14,8 @@ n_rows_column = """alter table cfg_data_source_csv add column n_rows integer;"""
 is_transpose_column = """alter table cfg_data_source_csv add column is_transpose boolean default false;"""
 is_file_path_column = """alter table cfg_data_source_csv add column is_file_path boolean default false;"""
 is_file_checker = """alter table cfg_data_source_csv add column is_file_checker boolean default false;"""
+auto_encoding_column = """alter table cfg_data_source_csv add column auto_encoding boolean default true;"""
+encoding_column = """alter table cfg_data_source_csv add column encoding text;"""
 
 update_dummy_header_default = "update cfg_data_source_csv set dummy_header = false where dummy_header is null;"
 update_is_transpose_default = "update cfg_data_source_csv set is_transpose = false where is_transpose is null;"
@@ -38,6 +42,13 @@ def migrate_cfg_data_source_csv(app_db_src):
     is_file_checker_existing = app_db.is_column_existing(
         CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.is_file_checker.name
     )
+    is_encoding_column_existing = app_db.is_column_existing(
+        CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.encoding.name
+    )
+    is_auto_encoding_column_existing = app_db.is_column_existing(
+        CfgDataSourceCSV.__table__.name, CfgDataSourceCSV.auto_encoding.name
+    )
+
     if not is_process_name_existing:
         app_db.execute_sql(process_name_column)
     if not is_dummy_header_existing:
@@ -58,6 +69,10 @@ def migrate_cfg_data_source_csv(app_db_src):
         app_db.execute_sql(is_file_checker)
     else:
         app_db.execute_sql(update_is_file_checker_default)
+    if not is_encoding_column_existing:
+        app_db.execute_sql(encoding_column)
+    if not is_auto_encoding_column_existing:
+        app_db.execute_sql(auto_encoding_column)
 
     migrate_cfg_process_column(app_db)
     app_db.disconnect()
@@ -117,3 +132,36 @@ def migrate_skip_head_value(conn):
                     *[sa.bindparam(key, value, literal_execute=True) for key, value in csv_detail.items()]
                 )
             )
+
+
+def migrate_csv_encoding(conn):
+    get_ds_csv_sql = "SELECT * FROM cfg_data_source_csv"
+    data_sources = conn.execute(sa.text(get_ds_csv_sql)).fetchall()
+    data_sources: list[dict] = [data_source._asdict() for data_source in data_sources]
+    for data_source in data_sources:
+        # default encoding
+        encoding = Encoding.UTF8.code
+        try:
+            dic_preview = preview_csv_data(
+                folder_url=data_source.directory,
+                etl_func=data_source.etl_func,
+                csv_delimiter=data_source.delimiter,
+                limit=10,
+                return_df=True,
+                max_records=DATA_TYPE_ESTIMATION_LIMIT,
+                file_name=None,
+                is_file_checker=data_source.is_file_checker,
+                n_rows=data_source.n_rows,
+            )
+            encoding = dic_preview.get('encoding')
+        except Exception:
+            pass
+
+        data_source['encoding'] = encoding
+        cols_str = ','.join([k for k in data_source.keys()])
+        param_str = ','.join([f':{key}' for key in data_source.keys()])
+        conn.execute(
+            sa.text(f'INSERT OR REPLACE INTO cfg_data_source_csv ({cols_str}) VALUES ({param_str})').bindparams(
+                *[sa.bindparam(key, value, literal_execute=True) for key, value in data_source.items()]
+            )
+        )

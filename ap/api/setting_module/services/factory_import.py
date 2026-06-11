@@ -117,6 +117,8 @@ def factory_import(proc_id, job_management: JobManagement):
     """
     # start job
     yield 0
+    factory_job_info = FactoryImportJobInfo()
+    job_management.info = factory_job_info
 
     # get process id in edge db
     proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(proc_id)
@@ -177,9 +179,6 @@ def factory_import(proc_id, job_management: JobManagement):
     job_info = JobInfo()
     job_info.auto_increment_col_timezone = is_tz_col
     job_info.target = proc_cfg.name
-
-    factory_job_info = FactoryImportJobInfo()
-    job_management.info = factory_job_info
 
     if factory_time_range is None:
         job_info.percent = 100
@@ -771,8 +770,8 @@ def factory_past_import(proc_id: int, job_management: JobManagement):
     import_factory_obj: ImportBase = ImportBase.get_instance(proc_cfg)
     time_range = import_factory_obj.get_time_range_from_start_end_time(start_time, end_time, True)
     data = import_factory_obj.get_factory_data(time_range)
-    past_import_job_info.start_time = time_range.min
-    past_import_job_info.end_time = time_range.max
+    past_import_job_info.start_time = time_range.min.value
+    past_import_job_info.end_time = time_range.max.value
 
     # get current job id
     job_id = int(job_management.id) if job_management else None

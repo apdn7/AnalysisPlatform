@@ -5475,6 +5475,15 @@ msgstr ""
 "A process that has not been set for data link is set in the filter "
 "conditions."
 
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/register_by_file.html
+msgid "EncodingLabel"
+msgstr "Encoding"
+
+#: ap/templates/setting_module/i18n.html
+msgid "EncodingGuess"
+msgstr "Guess"
+
 #: ap/templates/i18n.html
 msgid "PlaceholderHidden"
 msgstr "hidden"
@@ -5862,4 +5871,34 @@ msgstr ""
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Label"
 msgstr "Label"
+
+#: ap/config/job
+msgid "Past Import"
+msgstr "Past Import"
+
+msgid "DataLink"
+msgstr "DataLink"
+
+msgid "Others"
+msgstr "Others"
+
+msgid "Done"
+msgstr "Done"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Processing"
+msgstr "Processing"
+
+msgid "Status Select"
+msgstr "Status Select"
+
+msgid "Job Select"
+msgstr "Job Select"
+
+msgid "DataTypeEventsHint"
+msgstr ""
+"Single click: Display dropdown\n"
+"Double click: Select the cell"
 

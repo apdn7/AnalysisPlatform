@@ -91,8 +91,8 @@ class SpreadSheetVisualizationConfigData {
         this.upcl = upcl;
         this.ymin = ymin;
         this.ymax = ymax;
-        this.act_from = act_from ? formatDateTime(act_from, 'YYYY-MM-DD HH:mm') : '';
-        this.act_to = act_to ? formatDateTime(act_to, 'YYYY-MM-DD HH:mm') : '';
+        this.act_from = act_from ? formatDateTime(act_from, 'YYYY-MM-DD HH:mm', { isLocalTime: true }) : '';
+        this.act_to = act_to ? formatDateTime(act_to, 'YYYY-MM-DD HH:mm', { isLocalTime: true }) : '';
         this.order = order;
         this.delete_button = delete_button || deleteIcon;
     }

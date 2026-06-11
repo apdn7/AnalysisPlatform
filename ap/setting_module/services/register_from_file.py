@@ -27,6 +27,7 @@ from ap.common.constants import (
     DataType,
     DBType,
     DefinedLabel,
+    Encoding,
     MasterDBType,
     MaxGraphNumber,
     PagePath,
@@ -178,6 +179,7 @@ def get_proc_config_infos(dic_preview: dict, limit: int = 5, is_v2=False, proces
             'delimiter': 'Auto',
             'csv_columns': None,
             'is_file_path': is_file_path,
+            'encoding': dic_preview.get('encoding'),
         },
     }
 
@@ -271,7 +273,12 @@ def proc_config_infos_for_v2(dic_preview: dict) -> dict:
     }
 
 
-def get_latest_records_for_register_by_file(file_name: str | None = None, directory: str | None = None, limit: int = 5):
+def get_latest_records_for_register_by_file(
+    file_name: str | None = None,
+    directory: str | None = None,
+    limit: int = 5,
+    encoding=Encoding.AUTO_DETECT.code,
+):
     delimiter = 'Auto'
     skip_head = None
     etl_func = ''
@@ -286,6 +293,7 @@ def get_latest_records_for_register_by_file(file_name: str | None = None, direct
         file_name=file_name,
         skip_head=skip_head,
         show_file_name_column=True,
+        encoding=encoding,
     )
 
     dic_preview['is_file_path'] = file_name is not None

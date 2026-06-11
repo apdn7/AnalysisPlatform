@@ -224,6 +224,9 @@ const endProcSortable = () => {
  */
 const inputCheckInlineEvents = (parentId) => {
     $(`#${parentId} li.list-group-item`).on('click', function (e) {
+        if ($(e.target).is('input') || ($(e.target).is('label') && $(e.target).attr('for'))) {
+            return;
+        }
         // prevent event click on border of li_tag START
         const boxWidth = $(this).outerWidth();
         const boxHeight = $(this).outerHeight();
@@ -311,7 +314,7 @@ const inputCheckInlineEvents = (parentId) => {
  * Generate Column DOM for list item
  * @param {boolean} isShow
  * @param {string} label
- * @param {string} description
+ * @param {string} descriaption
  * @param {boolean} textCenter
  * @param {boolean} withCheckBox
  * @param {string} id
@@ -1800,14 +1803,16 @@ const condProcOnChange = async (
     }
 
     const filterOthers = getFilterByTypes(procInfo, filterTypes.OTHER);
-    parentId = `${prefix}cond-proc-others-div-${count}`;
+    const othersDiv = $(`#${prefix}cond-proc-others-div-${count}`);
     if (filterOthers.length) {
         filterOthers.forEach((filter, k) => {
+            const otherDivId = `${prefix}cond-proc-filterother-div-${filter.id}-${count}`;
+            othersDiv.append(`<div id="${otherDivId}"></div>`);
             if (filter.title) {
                 const thresholdBoxes = [];
                 filter.ids.forEach((e) => thresholdBoxes.push(hasGraphCfgsFilterDetails.includes(e)));
                 addGroupListCheckboxWithSearch(
-                    parentId,
+                    otherDivId,
                     `${prefix}cond-proc-filterother-${filter.id}-${count}`,
                     filter.title,
                     filter.ids,

@@ -7,8 +7,6 @@ from ap.common.constants import AnnounceEvent, CacheType, CfgConstantType, JobTy
 from ap.common.jobs.job_info_schema import (
     DelAllTransactionDataJobInfo,
     DelTransactionDataByLimit,
-    DelTransactionProcessJobInfo,
-    ProcessJobInfo,
 )
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventExpireCache, EventQueue, EventRemoveJobs
@@ -138,7 +136,9 @@ def delete_all_transaction_data(job_management: JobManagement = None):
         initialize_proc_config(process.id)
         update_process_status(process.id, status=ProcessStatus.REGISTERED)
         add_required_jobs_after_update_transaction_table(process)
-        job_management.info.processes.append(ProcessJobInfo(id=process.id, name=process.name))
+        job_management.info.processes.append(
+            DelAllTransactionDataJobInfo.ProcessJobInfo(id=process.id, name=process.name)
+        )
         yield 100 / ((idx + 1) * len(processes))
 
     job_management.info.info('Delete all transaction data')
@@ -162,7 +162,7 @@ def delete_transaction_data(job_management: JobManagement):
         ):
             deleted_records = trans_data.clean_data_with_limit_import(data_con, meta_con, import_limit)
             job_management.info.processes.append(
-                DelTransactionProcessJobInfo(
+                DelTransactionDataByLimit.DelTransactionProcessJobInfo(
                     id=process_id, name=trans_data.cfg_process.name, deleted_records=deleted_records
                 )
             )

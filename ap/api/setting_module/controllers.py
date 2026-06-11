@@ -4,7 +4,6 @@ import itertools
 import json
 import os
 import tempfile
-from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -16,7 +15,6 @@ import pandas as pd
 import requests.exceptions
 from apscheduler.triggers.date import DateTrigger
 from flask import Blueprint, Response, jsonify, request
-from flask_babel import get_locale
 from flask_babel import gettext as _
 from loguru import logger
 from pytz import utc
@@ -103,6 +101,7 @@ from ap.common.common_utils import (
     WebAuthenticationType,
     get_current_timestamp,
     get_hostname,
+    is_ja_locale,
     is_none_or_empty,
     parse_int_value,
 )
@@ -128,6 +127,7 @@ from ap.common.constants import (
     DataColumnType,
     DBType,
     DefinedLabel,
+    Encoding,
     FormulaType,
     JobStatus,
     JobType,
@@ -169,6 +169,7 @@ from ap.common.services.normalization import remove_non_ascii_chars
 from ap.common.services.sse import MessageAnnouncer
 from ap.conversion_formula import JudgeFormula, conversion_formula, gen_formula_type
 from ap.import_filter.utils import get_import_filters_from_process
+from ap.setting_module.dtos import SearchParamsDTO
 from ap.setting_module.models import (
     AppLog,
     CfgConstant,
@@ -193,7 +194,7 @@ from ap.setting_module.schemas import (
     ProcessVisualizationSchema,
     SWProcessSchema,
 )
-from ap.setting_module.services.background_process import get_background_jobs_service, get_job_detail_service
+from ap.setting_module.services.background_process import get_background_jobs_service
 from ap.setting_module.services.backup_and_restore.jobs import add_backup_data_job, add_restore_data_job
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
@@ -431,7 +432,8 @@ def show_latest_records_for_register_by_file():
     file_name = dic_form.get('fileName') or None
     limit = parse_int_value(dic_form.get('limit')) or 10
     folder = dic_form.get('folder') or None
-    latest_rec = get_latest_records_for_register_by_file(file_name, folder, limit)
+    encoding = request.form.get('encoding') or Encoding.AUTO_DETECT.code
+    latest_rec = get_latest_records_for_register_by_file(file_name, folder, limit, encoding=encoding)
     return json_dumps(latest_rec)
 
 
@@ -594,6 +596,16 @@ def get_csv_resources():
     is_transpose = request.json.get('is_transpose')
     is_file = request.json.get('is_file')
     is_file_checker = request.json.get('is_file_checker') or False
+    datasource_id = request.json.get('db_code')
+    is_file_checker = False
+    if datasource_id:
+        csv_resource = CfgDataSource.get_ds(datasource_id).csv_detail
+        # Read file with skip_head value saved in db
+        if csv_resource and not csv_resource.is_file_checker and not csv_resource.etl_func:
+            skip_head = csv_resource.skip_head
+        # Reuse saved flag if the URL hasn't changed
+        if csv_resource and csv_resource.directory == folder_url:
+            is_file_checker = csv_resource.is_file_checker
 
     # todo: is_show_raw_data to handle raw data for datasource preview, but datetime is wrong <- check it again
     if is_v2:
@@ -616,6 +628,7 @@ def get_csv_resources():
             file_name=folder_url if is_file else None,
             is_show_raw_data=False,
             is_file_checker=is_file_checker,
+            encoding=request.json.get('encoding'),
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -701,16 +714,6 @@ def check_folder_or_file():
                 'isFolder': False,
             },
         )
-
-
-@api_setting_module_blueprint.route('/job_detail/<job_id>', methods=['GET'])
-def get_job_detail(job_id):
-    """[Summary] Get get job details
-    Returns:
-        [json] -- [job details content]
-    """
-    job_details = get_job_detail_service(job_id=job_id)
-    return jsonify(job_details), 200
 
 
 @api_setting_module_blueprint.route('/delete_process', methods=['POST'])
@@ -810,10 +813,8 @@ def shutdown():
 @api_setting_module_blueprint.route('/sw_register', methods=['POST'])
 def post_sw_register():
     """Software workshop datasource bulk register and import"""
-    ja_locale = False
-    with suppress(Exception):
-        ja_locale = get_locale().language == 'ja'
     try:
+        ja_locale = is_ja_locale()
         payload = json.loads(request.data)
         datasource = payload.get('datasource')
         processes = payload.get('processes')
@@ -891,6 +892,7 @@ def post_sw_register():
                 proc_ids=[proc.get('id') for proc in output_procs],
                 is_directly_import=is_directly_import,
                 ds_id=data_src.id,
+                ja_locale=ja_locale,
             )
 
         message = {'message': _('Database Setting saved.'), 'is_error': False}
@@ -1588,26 +1590,12 @@ def get_autolink_groups():
 
 @api_setting_module_blueprint.route('/get_jobs', methods=['GET'])
 def get_jobs():
-    offset = request.args.get('offset')
-    per_page = request.args.get('limit')
-    sort = request.args.get('sort')
-    order = request.args.get('order')
-    show_past_import_job = request.args.get('show_past_import_job')
-    error_page = request.args.get('error_page')
-    ignore_job_types = []
-    if not show_past_import_job or show_past_import_job == 'false':
-        ignore_job_types.append(JobType.FACTORY_PAST_IMPORT.name)
-
-    if offset and per_page:
-        offset = int(offset)
-        per_page = int(per_page)
-        page = offset // per_page + 1
-    else:
-        page = 1
-        per_page = 50
+    params = SearchParamsDTO(**request.args)
+    if not params.show_past_import_job or params.show_past_import_job is False:
+        params.ignore_job_types.append(JobType.FACTORY_PAST_IMPORT.name)
 
     dic_jobs = {}
-    rows, jobs = get_background_jobs_service(page, per_page, sort, order, ignore_job_types, error_page)
+    rows, jobs = get_background_jobs_service(params)
     dic_jobs['rows'] = [row.model_dump(by_alias=True) for row in rows]
     dic_jobs['total'] = jobs.total
 

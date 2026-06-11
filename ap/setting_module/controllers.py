@@ -14,6 +14,7 @@ from ap.common.common_utils import (
 from ap.common.constants import (
     CfgConstantType,
     DBType,
+    Encoding,
 )
 from ap.common.path_utils import (
     get_about_md_file,
@@ -76,6 +77,7 @@ def config_screen():
         'data_path': get_data_path(),
         'all_function': dumps(all_functions),
         'import_limit': import_limit,
+        'encoding': Encoding.as_dict(),
         # 'ds_tables': ds_tables
         'is_authorized': is_authorized(),
         'datasource_types': datasource_types,
@@ -175,7 +177,10 @@ def master_config():
 
 @setting_module_blueprint.route('/register_by_file')
 def register_by_file_page():
-    return render_template('register_by_file.html')
+    output_dict = {
+        'encoding': Encoding.as_dict(),
+    }
+    return render_template('register_by_file.html', **output_dict)
 
 
 @setting_module_blueprint.route('/config/export_config')

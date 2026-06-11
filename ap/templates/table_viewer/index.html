@@ -30,7 +30,7 @@
                             >
                                 <option value="">---</option>
                                 {% for proc in procs %}
-                                    {% if proc.data_source.type not in ['V2', 'POSTGRES_SOFTWARE_WORKSHOP'] %}
+                                    {% if proc.data_source.type %}
                                         {% set title_name = '' %}
                                         {% if proc.data_source.csv_detail %}
                                             {% set title_name = proc.shown_name ~ '(' ~ proc.data_source.type ~ "," ~ proc.data_source.csv_detail.directory ~ ')' %}
@@ -99,7 +99,7 @@
                             <option value="1000">1000</option>
                         </select>
                     </div>
-                    <div class="col-md-12 text-center">
+                    <div class="col-md-12 text-center pb-2">
                         <button type="button" id="btnViewData" class="btn btn-primary center">{{ _('Show') }}</button>
                     </div>
                 </div>

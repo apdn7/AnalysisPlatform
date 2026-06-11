@@ -6,7 +6,7 @@ import unicodedata
 from collections.abc import Generator, Mapping
 from contextlib import contextmanager
 from copy import copy
-from datetime import datetime
+from datetime import datetime, tzinfo
 from functools import wraps
 from typing import Any, ClassVar, Optional, Self, Union
 
@@ -15,7 +15,6 @@ import sqlalchemy
 import sqlalchemy as sa
 from flask import g
 from flask_babel import get_locale
-from pytz import tzinfo
 from sqlalchemy import Column, ForeignKey, Integer, PrimaryKeyConstraint, Table, and_, asc, desc, func, null, or_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
@@ -60,6 +59,7 @@ from ap.common.constants import (
     DataType,
     DBType,
     DiskUsageStatus,
+    Encoding,
     FlaskGKey,
     FunctionCastDataType,
     JobStatus,
@@ -218,7 +218,6 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
         status (str): The current status of the job.
         done_percent (float): The percentage of job completion, defaulting to 0.
         duration (float): The time taken for the job, in seconds, defaulting to 0.
-        error_msg (Optional[str]): Error messages associated with the job, if any.
         info (Optional[SqlAlchemyJobInfoType]): Additional job information.
         created_at (str): Timestamp when the job record was created.
         updated_at (str): Timestamp when the job record was last updated.
@@ -244,7 +243,6 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
     status: Mapped[str]
     done_percent: Mapped[float] = mapped_column(default=0)
     duration: Mapped[float] = mapped_column(default=0)
-    error_msg: Mapped[Optional[str]]
     info: Mapped[Optional[BaseJobInfo]] = mapped_column(SqlAlchemyJobInfoType(), nullable=True)
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
@@ -264,7 +262,7 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
 
     def set_killed_status_job(self, session: scoped_session = None):
         self.status = JobStatus.KILLED.name
-        self.error_msg = "Running job is killed by a stopping job's request."
+        self.info.error("Running job is killed by a stopping job's request.")
         (session or JobManagement.query.session).merge(self)
 
     @classmethod
@@ -293,6 +291,14 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
             meta_session.query(cls).filter(cls.status == JobStatus.PROCESSING.name).update(
                 {cls.status: JobStatus.KILLED.name},
             )
+
+    @classmethod
+    def delete_old_jobs(cls, older_than: str, session: scoped_session = None) -> int:
+        """Delete old jobs that have created_at less than {older_than}
+        :return: number of deleted jobs
+        """
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.created_at <= older_than).delete()
 
 
 class ProcLinkCount(db.Model):
@@ -3006,9 +3012,11 @@ class CfgDataSourceCSV(db.Model):
     skip_tail: Mapped[int] = mapped_column(default=0)
     n_rows: Mapped[Optional[int]]
     is_transpose: Mapped[bool] = mapped_column(default=False)
-    delimiter: Mapped[str] = mapped_column(default=CsvDelimiter.CSV.name)
+    delimiter: Mapped[str] = mapped_column(default=CsvDelimiter.Auto.name)
     etl_func: Mapped[Optional[str]]
     process_name: Mapped[Optional[str]]
+    encoding: Mapped[Optional[str]] = mapped_column(default=Encoding.UTF8.code)
+    auto_encoding: Mapped[Optional[bool]] = mapped_column(default=True)
     dummy_header: Mapped[bool] = mapped_column(default=False)
     is_file_checker: Mapped[bool] = mapped_column(default=False)
     is_file_path: Mapped[bool] = mapped_column(default=False)
