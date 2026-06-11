@@ -52,7 +52,7 @@ set /a status_run_app=1
 if exist "%file_stat%" (
   for /f "tokens=1,* delims==" %%a in ('findstr /r /c:"^[^;].*=" "%file_stat%"') do (
     set "%%a=%%b"
-  )  
+  )
 )
 %pshell% -Command if($env:install_vers -match '^\d{3,4}$'){} else {exit 1} || set /a install_vers=0
 if %app_ver% gtr %install_vers% (

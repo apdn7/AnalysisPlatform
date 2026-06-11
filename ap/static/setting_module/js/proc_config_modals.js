@@ -288,6 +288,7 @@ const procModali18n = {
     i18nProcessRegisterFailedMsg: '#i18nProcessRegisterFailedMsg',
     i18nMsgErrorUncheckColumn: '#i18nErrorUncheckColumn',
     i18nloadTablesFailedMsg: $('#i18nloadTablesFailedMsg').text(),
+    i18nDataTypeEventsHint: '#i18nDataTypeEventsHint',
 };
 
 const COLUMN_IS_CHECKED_NAME = 'is_checked';
@@ -478,7 +479,6 @@ const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
         }
     } catch (e) {
         showToastrMsg(procModali18n.i18nloadTablesFailedMsg, MESSAGE_LEVEL.ERROR);
-        throw e;
     } finally {
         loadingObj.hide();
     }
@@ -856,17 +856,6 @@ const generateProcessList = async (
         // inject events for process table's input
         inputMutationObserver.injectEvents();
     }
-};
-
-const updateGeneratedDateTimeSampleData = (rows, cols) => {
-    const dateCol = cols.find((col) => col.data_type === DataTypes.DATE.name);
-    const timeCol = cols.find((col) => col.data_type === DataTypes.TIME.name);
-    rows.forEach((row) => {
-        if (dateCol && timeCol && !row[procModalElements.generatedDateTimeColumnName]) {
-            row[procModalElements.generatedDateTimeColumnName] =
-                `${parseDatetimeStr(row[dateCol.column_name], true)} ${parseTimeStr(row[timeCol.column_name])}`;
-        }
-    });
 };
 
 const showTotalCheckedColumns = (ele, totalColumns, totalCheckedColumn) => {
@@ -2745,6 +2734,8 @@ const fixedName = {
         japanese: '判定',
     },
 };
+
+const dataTypeEventHints = $(procModali18n.i18nDataTypeEventsHint).text();
 
 const datatypeI18nText = {
     is_get_date: $(procModali18n.i18nMainDatetime).text(),

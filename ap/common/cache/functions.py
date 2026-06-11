@@ -5,6 +5,11 @@ from ap.api.common.services.show_graph_database import (
     get_config_process_and_card_order_per_process,
     get_traces_graph_config_data,
 )
+from ap.common.jobs.job_info_schema import (
+    ComputeAllProcessIdsCacheJobInfo,
+    ComputeAllTracesCacheJobInfo,
+    ComputeProcessCacheJobInfo,
+)
 from ap.common.memoize import OptionalCacheConfig
 from ap.common.scheduler import scheduler_app_context
 from ap.setting_module.models import CfgProcess, JobManagement
@@ -38,6 +43,9 @@ class CacheFunctions:
             process_ids = CfgProcess.get_all_ids(with_parent=True)
 
         def generator():
+            cache_job_info = ComputeProcessCacheJobInfo()
+            job_management.info = cache_job_info
+
             if not process_ids:
                 yield 100
                 return
@@ -48,9 +56,15 @@ class CacheFunctions:
             increase_step = 100 / len(process_ids)
             for process_id in process_ids:
                 logger.debug(f'[COMPUTE_CACHE] process_id: {process_id}')
-                get_config_process_and_card_order_per_process(
+                cfg_process, *_ = get_config_process_and_card_order_per_process(
                     process_id,
                     optional_cache_config=optional_cache_config,
+                )
+                cache_job_info.cached_processes.append(
+                    ComputeProcessCacheJobInfo.CachedProcess(
+                        id=cfg_process.id,
+                        name=cfg_process.name,
+                    )
                 )
                 progress_percent += increase_step
                 yield progress_percent
@@ -61,9 +75,18 @@ class CacheFunctions:
     @scheduler_app_context
     def get_all_process_ids_job(job_management: JobManagement, optional_cache_config=OptionalCacheConfig()):
         def generator():
+            cache_job_info = ComputeAllProcessIdsCacheJobInfo()
+            job_management.info = cache_job_info
             yield 0
             logger.debug('[COMPUTE_CACHE] get_all_process_ids')
-            get_all_process_ids(optional_cache_config=optional_cache_config)
+            process_ids = get_all_process_ids(optional_cache_config=optional_cache_config)
+            for process_id in process_ids:
+                cache_job_info.cached_process_ids.append(
+                    ComputeAllProcessIdsCacheJobInfo.CachedProcessId(
+                        id=process_id,
+                    )
+                )
+
             yield 100
 
         send_processing_info(generator(), job_management=job_management)
@@ -75,9 +98,17 @@ class CacheFunctions:
         optional_cache_config=OptionalCacheConfig(),
     ):
         def generator():
+            cache_job_info = ComputeAllTracesCacheJobInfo()
+            job_management.info = cache_job_info
             yield 0
             logger.debug('[COMPUTE_CACHE] trace config')
-            get_traces_graph_config_data(optional_cache_config=optional_cache_config)
+            trace_graph = get_traces_graph_config_data(optional_cache_config=optional_cache_config)
+            cache_job_info.leaf_start_nodes.extend(
+                [ComputeAllTracesCacheJobInfo.TraceNode(id=x) for x in trace_graph.leaf_start_nodes]
+            )
+            cache_job_info.leaf_end_nodes.extend(
+                [ComputeAllTracesCacheJobInfo.TraceNode(id=x) for x in trace_graph.leaf_end_nodes]
+            )
             yield 100
 
         send_processing_info(generator(), job_management=job_management)

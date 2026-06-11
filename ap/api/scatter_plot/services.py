@@ -493,7 +493,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
                 # resample_data = df_sub[number_col]
                 # resample_data = resample_by_sort(df_sub[number_col], max_n_per_violin)
-                resample_data = resample_preserve_min_med_max(np.asarray(df_sub[number_col]), max_n_per_violin)
+                resample_data = resample_preserve_min_med_max(df_sub[number_col], max_n_per_violin)
                 # todo: remove q2 computing after demonstration
                 # if df_sub[number_col].size:
                 #     q2_raw_data = np.quantile(df_sub[number_col], [0.5])

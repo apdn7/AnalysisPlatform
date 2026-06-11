@@ -463,8 +463,8 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const table = spreadsheet.table;
         const beforeRowData = spreadsheet.table.getRowDataByIndex(rowIndex);
         const beforeColumnType = beforeRowData.column_type;
+        const beforeDataType = beforeRowData.data_type;
         // this.handleCheckDuplicateMainSerial(procConfigTable, rowIndex, shownDataType, dataType, columnType);
-
         if (!isFirstLoad) {
             // change data type
             this.changeDataType(table, dataType, rowIndex);
@@ -494,7 +494,12 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             this.parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode);
         }
 
-        if ([masterDataGroup.MAIN_DATETIME].includes(columnType)) {
+        // Prevent false data type change triggers from paste events
+        if (
+            [masterDataGroup.MAIN_DATETIME].includes(columnType) &&
+            beforeColumnType !== columnType &&
+            beforeDataType !== dataType
+        ) {
             // remove dummy datetime
             const dummyDatetimeRow = spreadsheet.dummyDateTimeRow();
             if (dummyDatetimeRow && !isFirstLoad) {

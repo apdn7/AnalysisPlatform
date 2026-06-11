@@ -37,6 +37,24 @@ from ap.common.path_utils import is_normal_zip, open_with_zip
 from ap.common.services.normalization import normalize_list
 
 
+class EncodingException(Exception):
+    """Base class for exceptions when using encoding to read a file"""
+
+    def __init__(self, filename, encoding) -> None:
+        super().__init__()
+        self.code = 998  # todo: defined exception code for AP
+        self.filename = filename
+        self.encoding = encoding
+
+    def __str__(self) -> str:
+        """Magic method to return the exception as string"""
+        return (
+            f'Encoding error: '
+            f"Unable to verify the file {self.filename} with the '{self.encoding}' encoding. "
+            f"Please verify the file's encoding or choose a different one."
+        )
+
+
 def gen_csv_fname(export_type=CSVExtTypes.CSV.value):
     timestr = datetime.utcnow().strftime('%Y%m%d_%H%M%S.%f')[:-3]
     csv_fname = f'{timestr:s}_out.{export_type:s}'
@@ -54,16 +72,30 @@ def get_encoding_name(encoding):
     return encoding
 
 
-def get_delimiter_encoding(f_name, preview=False, skip_head: int | None = None):
+def verify_encoding(f_name, delimiter, encoding):
+    try:
+        pd.read_csv(f_name, sep=delimiter, encoding=encoding, nrows=1000, on_bad_lines='skip')
+    except Exception as e:
+        raise EncodingException(f_name, encoding) from e
+
+
+def get_delimiter_encoding(f_name, preview=False, skip_head: int | None = None, encoding=None):
     with open_with_zip(f_name, 'rb') as f:
         if skip_head is not None and skip_head != 0:
             f.readlines(skip_head)
         metadata = get_metadata(f, is_full_scan_metadata=True, default_csv_delimiter=',')
         delimiter = metadata.get(DELIMITER_KW)
-        encoding = metadata.get(ENCODING_KW)
 
-        if preview:
-            encoding = get_encoding_name(encoding)
+        # if encoding is not set, get from metadata
+        if not encoding:
+            encoding = metadata.get(ENCODING_KW)
+
+        # verify encoding again
+        verify_encoding(f_name, delimiter, encoding)
+
+        # todo: verify pandas read_csv with BOM
+        # if preview:
+        #     encoding = get_encoding_name(encoding)
         return delimiter, encoding
 
 
@@ -235,49 +267,6 @@ def check_exception_case(data_headers, data_rows):
         if is_exception_case:
             return True
     return False
-
-
-@log_execution_time()
-def is_normal_csv(f_name, delimiter=',', skip_head=None, n_rows: int | None = None, is_transpose: bool = False):
-    """
-    @param f_name:
-    @param delimiter:
-    @param skip_head:
-    @param n_rows:
-    @param is_transpose:
-    @return:
-    """
-    if not delimiter:
-        delimiter, _ = get_delimiter_encoding(f_name)
-
-    data = read_data(
-        f_name,
-        n_rows=n_rows,
-        delimiter=delimiter,
-        do_normalize=False,
-        skip_head=skip_head,
-        is_transpose=is_transpose,
-        limit=20,
-    )
-    data = list(data)
-    if not data:
-        return True
-
-    headers = data[0] or []
-    rows = data[1:] or []
-
-    # column name is duplicate
-    # from sprint164 - accept duplicated columns
-    # and apply add_suffix_if_duplicated
-    # if len(headers) != len(set(headers)):
-    #     return False
-
-    is_exception = check_exception_case(headers, rows)
-    if is_exception:
-        return True
-
-    # check column number of header vs data
-    return all(len(row) == len(headers) for row in rows)
 
 
 def get_metadata(file_stream, is_full_scan_metadata, default_csv_delimiter):

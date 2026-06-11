@@ -30,6 +30,11 @@ const formElements = {
     yScaleOption: 'select[name=yScaleOption]',
 };
 
+const i18n = {
+    thinDataShown: $('#i18nThinDataShown').text(),
+    traceResulLimited: $('#i18nTraceResultLimited').text(),
+};
+
 const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) => {
     $(formElements.waveformSettingGrp).css('display', 'block');
     const chartParentEleID = 'card-parent';
@@ -124,6 +129,10 @@ const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
             if (res.is_res_limited) {
                 showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
             }
+
+            // if (res.is_thin_data) {
+            //     showToastrMsg(i18n.thinDataShown);
+            // }
 
             // show info table
             showInfoTable(res);

@@ -3,27 +3,27 @@ from __future__ import annotations
 import json
 import os
 import re
-import time
 from contextlib import suppress
-from itertools import islice
+from itertools import chain
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from flask_babel import get_locale
 from loguru import logger
 
-from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter, df_transform
+from ap.api.common.services.file_reader import StructuredFileReader
+from ap.api.efa.services.etl import df_transform
 from ap.api.setting_module.services.csv_import import (
     convert_csv_timezone,
     gen_dummy_header,
 )
 from ap.api.setting_module.services.data_import import (
+    NA_VALUES,
     PANDAS_DEFAULT_NA,
-    strip_special_symbol,
     validate_data,
     validate_datetime,
 )
+from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
 from ap.api.setting_module.services.master_data_transform_pattern import ColumnRawNameRule
 from ap.api.setting_module.services.software_workshop_etl_services import (
     POSTGRES_SOFTWARE_WORKSHOP_DEF,
@@ -43,6 +43,7 @@ from ap.common.common_utils import (
     convert_eu_decimal_series,
     convert_numeric_by_type,
     get_csv_delimiter,
+    is_ja_locale,
 )
 from ap.common.constants import (
     COL_DATA_TYPE,
@@ -56,7 +57,6 @@ from ap.common.constants import (
     IS_JUDGE,
     JUDGE_AVAILABLE,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
-    PREVIEW_DATA_TIMEOUT,
     RE_ID_PATTERN,
     RE_SERIAL_PATTERN,
     REVERSED_WELL_KNOWN_COLUMNS,
@@ -65,9 +65,7 @@ from ap.common.constants import (
     SUB_PART_NO_PREFIX,
     SUB_PART_NO_SUFFIX,
     UNDER_SCORE,
-    WR_HEADER_NAMES,
-    WR_TYPES,
-    WR_VALUES,
+    V2_PREVIEW_LIMIT,
     DataColumnType,
     DataGroupType,
     DataType,
@@ -83,18 +81,13 @@ from ap.common.path_utils import (
     get_preview_data_file_folder,
     get_sorted_files,
     get_sorted_files_by_size,
-    get_sorted_files_by_size_and_time,
     make_dir_from_file_path,
 )
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.pydn.dblib.transaction import TxnDataConnection
-from ap.common.services import csv_header_wrapr as chw
 from ap.common.services.csv_content import (
-    check_exception_case,
     get_delimiter_encoding,
-    is_normal_csv,
-    read_data,
 )
 from ap.common.services.csv_header_wrapr import (
     convert_wellknown_col_name,
@@ -112,6 +105,7 @@ from ap.common.services.normalization import (
 from ap.common.timezone_utils import gen_dummy_datetime, gen_dummy_datetime_data
 from ap.conversion_formula import JudgeFormula
 from ap.conversion_formula.judge import JUDGE_NAME_REGEX
+from ap.equations.utils import get_function_class_by_id
 from ap.etl.transform import TransformData
 from ap.etl.transform.pipeline import (
     software_workshop_postgres_history_transform_pipeline,
@@ -146,6 +140,7 @@ def get_latest_records(
     etl_func: str = '',
     import_filter=None,
     api_url: str | None = None,
+    ja_locale: bool | None = None,
 ):
     previewed_files = None
     cols_with_types = []
@@ -158,6 +153,9 @@ def get_latest_records(
     file_name_col_idx = None
     is_file_checker = False
     data_source: CfgDataSource | None = None
+
+    if ja_locale is None:
+        ja_locale = is_ja_locale()
 
     if data_source_id:
         data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
@@ -209,6 +207,7 @@ def get_latest_records(
                 show_file_name_column=True,
                 current_process_id=current_process_id,
                 is_file_checker=is_file_checker,
+                encoding=(data_source.csv_detail.encoding if data_source else None),
             )
         column_raw_names = dic_preview.get('org_headers')
         headers = normalize_list(dic_preview.get('header'))
@@ -232,6 +231,7 @@ def get_latest_records(
                 is_gen_cols=is_gen_cols,
                 import_filter=import_filter,
                 master_type=master_type,
+                ja_locale=ja_locale,
             )
 
         # sort columns
@@ -261,6 +261,7 @@ def get_latest_records(
                 same_values,
                 column_raw_name=cols,
                 dict_column_name_and_unit=dict_column_name_and_unit,
+                ja_locale=ja_locale,
             )
     else:
         if current_process_id is not None:
@@ -288,6 +289,7 @@ def get_latest_records(
                 dict_column_name_and_unit=dict_column_name_and_unit,
                 import_filter=import_filter,
                 master_type=master_type,
+                ja_locale=ja_locale,
             )
 
     # change name if romaji cols is duplicated
@@ -347,7 +349,11 @@ def get_latest_records(
         for index, col in enumerate(df_rows.columns):
             # check name includes Judge or 判定
             # the detected datatype should also be TEXT
-            if JUDGE_NAME_REGEX.search(col) and cols_with_types[index][COL_DATA_TYPE] == DataType.TEXT.name:
+            if (
+                JUDGE_NAME_REGEX.search(col)
+                and cols_with_types[index][JUDGE_AVAILABLE]
+                and cols_with_types[index][COL_DATA_TYPE] == DataType.TEXT.name
+            ):
                 cols_with_types[index][IS_JUDGE] = True
                 # force assign boolean datatype to column detected as judge (#676)
                 # TODO: should be actually use raw_data_type here? (it was never available in this flow)
@@ -605,8 +611,8 @@ def get_info_from_db_software_workshop(
 def get_last_distinct_sensor_values(cfg_col_id: int) -> list[Any]:
     cfg_col: CfgProcessColumn = CfgProcessColumn.query.get(cfg_col_id)
     trans_data = TransactionData(cfg_col.process_id)
-    if len(cfg_col.function_details):  # in db not save data of function column
-        return []
+    if len(cfg_col.function_details):
+        return get_function_column_unique_values(cfg_col, trans_data)
 
     col_name = cfg_col.bridge_column_name
     with TxnDataConnection(process_id=cfg_col.process_id, readonly_transaction=True) as data_con:
@@ -631,6 +637,21 @@ def save_master_vis_config(proc_id, cfg_jsons) -> CfgProcess | None:
     return None
 
 
+def get_result(file_reader, is_file_checker=False):
+    """Generate metadata of file with dummy header processing"""
+    return (
+        *gen_dummy_header(
+            file_reader.headers,
+            file_reader.data,
+            file_reader.skip_head,
+        ),
+        file_reader.encoding,
+        file_reader.skip_tail,
+        file_reader.skip_head,
+        is_file_checker,
+    )
+
+
 @log_execution_time()
 def get_csv_data_from_files(
     sorted_files,
@@ -641,133 +662,34 @@ def get_csv_data_from_files(
     csv_delimiter,
     max_records=5,
     is_file_checker=False,
+    encoding=None,
 ):
-    csv_file = sorted_files[0]
-    skip_tail = 0
-    encoding = None
-    skip_head_detected = None
-    header_names = []
-    data_details = []
-
-    # call efa etl
-    has_data_file = None
-    if etl_func:
-        # try to get file which has data to detect data types + get col names
-        for file_path in sorted_files:
-            preview_file_path = csv_transform(file_path, etl_func)
-            if preview_file_path and not isinstance(preview_file_path, Exception):
-                has_data_file = True
-                csv_file = preview_file_path
-                csv_delimiter = detect_file_path_delimiter(csv_file, csv_delimiter)
-                break
-
-        if has_data_file:
-            for i in range(2):
-                data = None
-                try:
-                    data = read_data(
-                        csv_file,
-                        skip_head=skip_head,
-                        n_rows=n_rows,
-                        is_transpose=is_transpose,
-                        delimiter=csv_delimiter,
-                        do_normalize=False,
-                    )
-                    header_names = next(data)
-
-                    # strip special symbols
-                    if i == 0:
-                        data = strip_special_symbol(data)
-
-                    # get 5 rows
-                    data_details = list(islice(data, max_records))
-                finally:
-                    if data:
-                        data.close()
-
-                if data_details:
-                    break
-    elif (
-        is_normal_csv(csv_file, csv_delimiter, skip_head=skip_head, n_rows=n_rows, is_transpose=is_transpose)
-        and not is_file_checker
-    ):
-        header_names, data_details, encoding = retrieve_data_from_several_files(
-            None,
-            csv_delimiter,
-            max_records,
-            csv_file,
-            skip_head=skip_head,
-            n_rows=n_rows,
-            is_transpose=is_transpose,
-        )
-    else:
-        # try to get file which has data to detect data types + get col names
-        dic_file_info, csv_file, is_file_checker = get_etl_good_file(sorted_files)
-        if dic_file_info and csv_file:
-            skip_head = chw.get_skip_head(dic_file_info)
-            skip_head_detected = skip_head
-            skip_tail = chw.get_skip_tail(dic_file_info)
-            header_names = chw.get_columns_name(dic_file_info)
-            etl_headers = chw.get_etl_headers(dic_file_info)
-            data_types = chw.get_data_type(dic_file_info)
-            for i in range(2):
-                data = None
-                try:
-                    data = read_data(
-                        csv_file,
-                        headers=header_names,
-                        skip_head=skip_head,
-                        delimiter=csv_delimiter,
-                        do_normalize=False,
-                    )
-                    # non-use header
-                    next(data)
-
-                    # strip special symbols
-                    if i == 0:
-                        data = strip_special_symbol(data)
-
-                    # get 5 rows
-                    get_limit = max_records + skip_tail if max_records else None
-                    data_details = list(islice(data, get_limit))
-                    data_details = data_details[: len(data_details) - skip_tail]
-                finally:
-                    if data:
-                        data.close()
-
-                if data_details:
-                    break
-
-            # Merge heads with Machine, Line, Process
-            if etl_headers[WR_VALUES]:
-                header_names += etl_headers[WR_HEADER_NAMES]
-                data_types += etl_headers[WR_TYPES]
-                data_details = chw.merge_etl_heads(etl_headers[WR_VALUES], data_details)
-
-        else:
-            raise ValueError('Cannot get headers_name and data_details')
-
-    # check for header and generate column name
-    # TODO: We should make use of dummy_header variable of data_src if data_src already exists and not check again
-    org_header, header_names, dummy_header, partial_dummy_header, data_details, is_gen_cols = gen_dummy_header(
-        header_names,
-        data_details,
-        skip_head,
+    file_reader = StructuredFileReader(
+        filenames=sorted_files,
+        delimiter=csv_delimiter,
+        encoding=encoding,
+        skip_head=skip_head,
+        is_transpose=is_transpose,
+        max_results=max_records,
+        limit=(n_rows or DATA_TYPE_ESTIMATION_LIMIT),
+        etl_func=etl_func,
+        is_file_checker=is_file_checker,
     )
+    header, data = file_reader.read()
+    if not header and not data:
+        raise ValueError('Cannot get headers_name and data_details')
 
-    skip_head = skip_head_detected if skip_head_detected else skip_head
-    return (
-        org_header,
-        header_names,
-        dummy_header,
-        partial_dummy_header,
-        data_details,
-        encoding,
-        skip_tail,
-        skip_head,
-        is_gen_cols,
-        is_file_checker,
-    )
+    preview_data = get_result(file_reader, is_file_checker=file_reader.is_file_checker)
+    return (*preview_data,)
+
+
+def clean_na_columns(col_data):
+    """Clean NA values in df for preview in table"""
+    na_values_lowers = [str(val).lower() for val in NA_VALUES]
+    if pd.api.types.is_string_dtype(col_data):
+        mask = col_data.astype(str).str.lower().isin(na_values_lowers)
+        return col_data.where(~mask, '')
+    return col_data
 
 
 @log_execution_time()
@@ -787,6 +709,7 @@ def preview_csv_data(
     is_convert_datetime=False,
     is_file_checker=False,
     is_show_raw_data=False,
+    encoding=None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
 
@@ -824,10 +747,10 @@ def preview_csv_data(
         dummy_header,
         partial_dummy_header,
         data_details,
+        is_gen_cols,
         encoding,
         skip_tail,
         skip_head_detected,
-        is_gen_cols,
         is_file_checker,
     ) = get_csv_data_from_files(
         sorted_files,
@@ -838,6 +761,7 @@ def preview_csv_data(
         csv_delimiter=csv_delimiter,
         max_records=max_records,
         is_file_checker=is_file_checker,
+        encoding=encoding,
     )
 
     # normalize data detail
@@ -946,6 +870,8 @@ def preview_csv_data(
 
         same_values = check_same_values_in_df(df_data_details, header_names)
 
+        # Convert data detail to string to avoid NAType JSON serialization error
+        df_data_details = df_data_details.apply(clean_na_columns)
         if not return_df:
             df_data_details = df_data_details.to_records(index=False).tolist()
     elif not return_df:
@@ -1069,25 +995,14 @@ def preview_v2_data(
         )
 
         csv_file = sorted_files[0]
-        _, encoding = get_delimiter_encoding(csv_file, preview=True)
-        for i in range(2):
-            data = None
-            try:
-                data = read_data(csv_file, delimiter=csv_delimiter, do_normalize=False)
-                header_names = next(data)
-
-                # strip special symbols
-                if i == 0:
-                    data = strip_special_symbol(data)
-
-                # get 5 rows
-                data_details = list(islice(data, 1000))
-            finally:
-                if data:
-                    data.close()
-
-            if data_details:
-                break
+        file_reader = StructuredFileReader(
+            filenames=[csv_file],
+            delimiter=csv_delimiter,
+            max_results=V2_PREVIEW_LIMIT,
+        )
+        # preview V2 file
+        header_names, data_details = file_reader.read(target_file=csv_file)
+        encoding = file_reader.encoding
 
     org_headers = header_names.copy()
 
@@ -1224,35 +1139,6 @@ def check_same_values_in_df(df, cols):
 
 
 @log_execution_time()
-def get_etl_good_file(sorted_files):
-    csv_file = None
-    dic_file_info = None
-    is_file_checker = False
-    try:
-        for file_path in sorted_files:
-            check_result = chw.get_file_info_py(file_path)
-            if isinstance(check_result, Exception):
-                continue
-
-            dic_file_info, is_empty_file = check_result
-
-            if dic_file_info is None or isinstance(dic_file_info, Exception):
-                continue
-
-            if is_empty_file:
-                continue
-
-            if dic_file_info:
-                is_file_checker = True
-
-            csv_file = file_path
-            break
-    except IndexError:
-        pass
-    return dic_file_info, csv_file, is_file_checker
-
-
-@log_execution_time()
 def gen_v2_history_sub_part_no_column(column_name):
     column_name = unicode_normalize(column_name)
     sub_part_no_idxs = re.findall(r'\d+', column_name)
@@ -1279,15 +1165,16 @@ def gen_cols_with_types(
     is_gen_cols=[],
     import_filter=None,
     master_type: MasterDBType | None = None,
+    ja_locale: bool | None = None,
 ):
     cols_with_types = []
-    ja_locale = False
+
+    if ja_locale is None:
+        ja_locale = is_ja_locale()
 
     if not len(is_gen_cols):
         is_gen_cols = [False] * len(cols)
 
-    with suppress(Exception):
-        ja_locale = get_locale().language == 'ja'
     has_is_get_date_col = False
     has_is_serial_no_col = False
     if not column_raw_name:
@@ -1498,77 +1385,6 @@ def gen_v2_columns_with_types(v2_datasrc):
         data_type = int(v2_data_preview.get('dataType')[i])
         v2_columns.append({'column_name': column, 'data_type': DataType(data_type).name, 'order': i})
     return v2_columns
-
-
-@log_execution_time()
-def retrieve_data_from_several_files(
-    csv_files,
-    csv_delimiter,
-    max_record=1000,
-    file_name=None,
-    skip_head=None,
-    n_rows: int | None = None,
-    is_transpose: bool = False,
-):
-    header_names = []
-    data_details = []
-    sorted_list = get_sorted_files_by_size_and_time(csv_files) if not file_name else [file_name]
-    start_time = time.time()
-    encoding = None
-    for i in range(len(sorted_list)):
-        data = None
-        csv_file = sorted_list[i]
-        try:
-            delimiter, encoding = get_delimiter_encoding(csv_file, preview=True)
-            csv_delimiter = csv_delimiter or delimiter
-            data = read_data(
-                csv_file,
-                delimiter=csv_delimiter,
-                do_normalize=False,
-                skip_head=skip_head,
-                n_rows=n_rows,
-                is_transpose=is_transpose,
-            )
-            header_names = next(data)
-            # strip special symbols
-            if i == 0:
-                data = strip_special_symbol(data)
-
-            data_details += list(islice(data, max_record))
-        except UnicodeDecodeError:
-            delimiter, encoding = get_delimiter_encoding(csv_file, preview=True)
-            csv_delimiter = csv_delimiter or delimiter
-            data = read_data(
-                csv_file,
-                delimiter=csv_delimiter,
-                do_normalize=False,
-                skip_head=skip_head,
-                n_rows=n_rows,
-                is_transpose=is_transpose,
-                encoding=None,
-            )
-            header_names = next(data)
-            # strip special symbols
-            if i == 0:
-                data = strip_special_symbol(data)
-
-            data_details += list(islice(data, max_record))
-        finally:
-            if data:
-                data.close()
-
-        current_time = time.time()
-        over_timeout = (current_time - start_time) > PREVIEW_DATA_TIMEOUT
-        if (max_record and len(data_details) >= max_record) or over_timeout:
-            break
-
-    if data_details:
-        is_exception = check_exception_case(header_names, data_details)
-        # remove end column because there is trailing comma
-        if is_exception:
-            data_details = [row[:-1] for row in data_details]
-
-    return header_names, data_details, encoding
 
 
 @log_execution_time()
@@ -1917,7 +1733,10 @@ def parse_unique_as_int_cat(data):
 def check_datasource_connection(data_source: CfgDataSource):
     if data_source.is_csv_or_v2():
         data_source_csv_detail = data_source.csv_detail
-        connection_result = len(get_sorted_files(data_source_csv_detail.directory)) > 0
+        if data_source_csv_detail.is_file_path:
+            connection_result = os.path.isfile(data_source_csv_detail.directory)
+        else:
+            connection_result = len(get_sorted_files(data_source_csv_detail.directory)) > 0
         if not connection_result:
             raise FileNotFoundError('File not found')
         return connection_result
@@ -1925,3 +1744,151 @@ def check_datasource_connection(data_source: CfgDataSource):
         db_instance = ReadOnlyDbProxy(data_source)
         connection_result = db_instance.check_db_connection(data_source)
         return connection_result
+
+
+def get_function_column_unique_values(cfg_col, trans_data) -> list:
+    """Retrieve sorted unique values for a function-based process column.
+
+    Resolves all dependent normal and function columns for the given column,
+    fetches the raw transaction data, evaluates the function chain, and returns
+    the distinct non-null values of the resulting column.
+
+    Args:
+        cfg_col (CfgProcessColumn): The function column.
+        trans_data (TransactionData): Transaction data object providing the table name.
+
+    Returns:
+        list: Sorted list of unique non-null values for the function column.
+              Returns an empty list if no normal columns are found or the result
+              column is absent from the evaluated DataFrame.
+    """
+    relation_cfg_cols, relation_normal_cols, sorted_cfg_function_cols = _get_relation_cols(cfg_col)
+    if not relation_normal_cols:
+        return []
+
+    df = _fetch_raw_data(trans_data, relation_normal_cols)
+    df = _evaluate_function_columns(df, relation_cfg_cols, sorted_cfg_function_cols)
+
+    result_col = cfg_col.bridge_column_name
+    if result_col not in df.columns:
+        return []
+
+    return _get_limited_distinct_values(df[result_col], limit=1000)
+
+
+def _get_relation_cols(cfg_col: CfgProcessColumn) -> tuple[dict, list, list]:
+    """Resolve all columns related to a function column, separated by type.
+
+    Traverses the column dependency graph to collect all normal (non-function)
+    columns and function detail columns that are required to evaluate the given
+    function column. Function detail columns are sorted by their execution order.
+
+    Args:
+        cfg_col (CfgProcessColumn): The target function column to resolve dependencies for.
+
+    Returns:
+        tuple[dict, list, list]: A 3-tuple containing:
+            - relation_cfg_cols (dict): Mapping of column ID to CfgProcessColumn for all
+              related columns (both normal and function columns).
+            - relation_normal_cols (list): List of CfgProcessColumn objects that are plain
+              transaction columns (no function details).
+            - sorted_cfg_function_cols (list): List of function detail objects sorted
+              ascending by their ``order`` attribute, representing the evaluation sequence.
+    """
+    relation_column_ids = get_all_normal_columns_for_functions([cfg_col.id], cfg_col.cfg_process.columns)
+    relation_column_ids.append(cfg_col.id)
+    relation_cfg_cols = {col.id: col for col in cfg_col.cfg_process.columns if col.id in relation_column_ids}
+
+    relation_normal_cols = [
+        col for col in relation_cfg_cols.values() if not col.function_details and col.is_transaction_column
+    ]
+    sorted_cfg_function_cols = sorted(
+        chain.from_iterable(col.function_details for col in relation_cfg_cols.values() if col.function_details),
+        key=lambda col: col.order,
+    )
+    return relation_cfg_cols, relation_normal_cols, sorted_cfg_function_cols
+
+
+def _fetch_raw_data(trans_data: TransactionData, normal_cols: list) -> pd.DataFrame:
+    """Fetch raw transaction data for the specified normal columns from the database.
+
+    Opens a read-only transaction connection for the given process and executes
+    a SELECT query to retrieve only the bridge columns corresponding to the
+    provided normal column configurations.
+
+    Args:
+        trans_data (TransactionData): Transaction data object of the process.
+        normal_cols (list): List of CfgProcessColumn objects representing the columns
+            to select; their ``bridge_column_name`` attributes are used as column names.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the fetched rows with bridge column names
+            as column headers.
+    """
+    col_names = [col.bridge_column_name for col in normal_cols]
+    with TxnDataConnection(process_id=trans_data.process_id, readonly_transaction=True) as data_con:
+        return trans_data.select_columns(data_con=data_con, column_names=col_names, limit=1000, is_distinct=True)
+
+
+def _get_limited_distinct_values(data: pd.Series, limit: int = 1000) -> list[Any]:
+    """Extract sorted distinct non-null values with a hard limit."""
+    unique_vals = pd.Series(pd.unique(data.dropna())).tolist()
+    unique_vals = unique_vals[:limit]
+    with suppress(TypeError):
+        unique_vals = sorted(unique_vals)
+    return unique_vals
+
+
+def _evaluate_function_columns(
+    df: pd.DataFrame,
+    relation_cfg_cols: dict,
+    sorted_cfg_function_cols: list,
+) -> pd.DataFrame:
+    """Apply function column equations sequentially to the DataFrame.
+
+    Missing input columns are filled with NaN before evaluation.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing raw transaction data.
+        relation_cfg_cols (dict): Mapping of column ID to CfgProcessColumn for all
+            related columns, used to resolve input and output column metadata.
+        sorted_cfg_function_cols (list): Ordered list of function detail objects
+            (sorted by ``order``) that define the equations to evaluate.
+
+    Returns:
+        pd.DataFrame: The DataFrame with all function column results appended or
+            updated as new columns.
+    """
+    for cfg_func_col in sorted_cfg_function_cols:
+        equation_class = get_function_class_by_id(cfg_func_col.function_id)
+        equation = equation_class.from_kwargs(**cfg_func_col.as_dict())
+
+        cfg_col_x = relation_cfg_cols.get(cfg_func_col.var_x)
+        cfg_col_y = relation_cfg_cols.get(cfg_func_col.var_y)
+
+        column_x, x_dtype = (cfg_col_x.bridge_column_name, cfg_col_x.raw_data_type) if cfg_col_x else (None, None)
+        column_y, y_dtype = (cfg_col_y.bridge_column_name, cfg_col_y.raw_data_type) if cfg_col_y else (None, None)
+
+        if column_x and column_x not in df.columns:
+            df[column_x] = np.nan
+        if column_y and column_y not in df.columns:
+            df[column_y] = np.nan
+
+        output_cfg_col = relation_cfg_cols.get(cfg_func_col.process_column_id)
+        if output_cfg_col is None:
+            logger.warning(
+                f'Skip evaluating function column: output config column not found '
+                f'(process_column_id={cfg_func_col.process_column_id}, function_id={cfg_func_col.function_id})'
+            )
+            continue
+
+        df = equation.evaluate(
+            df,
+            out_col=output_cfg_col.bridge_column_name,
+            x_col=column_x,
+            y_col=column_y,
+            x_dtype=x_dtype,
+            y_dtype=y_dtype,
+        )
+
+    return df

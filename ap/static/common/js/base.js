@@ -802,8 +802,6 @@ $(async () => {
     setUserRule();
     showHideShutDownButton();
 
-    sidebarCollapseHandle();
-
     $('[name=pasteCard]').click((e) => {
         const divTarget = e.currentTarget.closest('.card-body');
         // console.log(divTarget);

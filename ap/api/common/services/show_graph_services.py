@@ -1118,6 +1118,9 @@ def gen_graph_df(
     if df is None:
         return pd.DataFrame(), 0, 0
 
+    if df.empty:
+        return df, 0, 0
+
     # get equation data
     for end_proc in end_procs:
         df = get_equation_data(df, end_proc.cfg_proc, end_proc.col_ids)
@@ -1512,7 +1515,11 @@ def get_chart_infos(graph_param: DicParam, dic_data=None, start_proc_times=None,
         start_tm = start_of_minute(graph_param.common.start_date, graph_param.common.start_time)
         end_tm = end_of_minute(graph_param.common.end_date, graph_param.common.end_time)
         end_proc = proc.proc_id
-        end_proc_times = dic_data[proc.proc_id].get(TIME_COL) if dic_data else pd.Series()
+        end_proc_times = (
+            dic_data[proc.proc_id].get(TIME_COL)
+            if dic_data and dic_data[proc.proc_id].get(TIME_COL) is not None
+            else pd.Series()
+        )
         df = pd.DataFrame({START_TIME_COL: start_proc_times, END_TIME_COL: end_proc_times})
         for col_id in proc.col_ids:
             orig_graph_cfg, graph_cfg = get_chart_info_detail(
@@ -2931,7 +2938,9 @@ def remove_outlier(df: DataFrame, sensor_labels, graph_param):
         df.loc[condition, target_col] = pd.NA
         outliers += condition.sum()
 
-    graph_param.common.outliers = int(outliers)
+    if graph_param.common.outliers is None:
+        graph_param.common.outliers = 0
+    graph_param.common.outliers += int(outliers)
     return df
 
 
@@ -3355,31 +3364,34 @@ def get_data_from_db(
     if dic_filter:
         df = filter_df(graph_param.dic_proc_cfgs, df, dic_filter)
 
-    if graph_param.common.abnormal_count:
-        numeric_cols = [col for col in cfg_cols if not col.is_category]
-        df = validate_abnormal_count(df, numeric_cols, sensor_labels)
+    facet_labels = [
+        gen_sql_label(facet_col.id, facet_col.column_name)
+        for facet_col in graph_param.get_col_cfgs(graph_param.common.cat_exp)
+    ]
 
-    if graph_param.common.is_remove_outlier:
-        df = remove_outlier(df, sensor_labels, graph_param)
+    def processing_df(group_df):
+        columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols]
+        if graph_param.common.abnormal_count:
+            numeric_cols = [col for col in cfg_cols if not col.is_category]
+            group_df = validate_abnormal_count(group_df, numeric_cols, columns)
 
-    outliers = None
-    if graph_param.common.remove_outlier_objective_var:
-        objective_id = graph_param.common.objective_var
-        sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
-        df = remove_outlier(df, sensor_labels, graph_param)
-        outliers = graph_param.common.outliers
+        if graph_param.common.is_remove_outlier:
+            group_df = remove_outlier(group_df, columns, graph_param)
 
-    if graph_param.common.remove_outlier_explanatory_var:
-        objective_id = graph_param.common.objective_var
-        sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
-        df = remove_outlier(df, sensor_labels, graph_param)
-        if graph_param.common.outliers is not None:
-            if outliers is None:
-                outliers = graph_param.common.outliers
-            else:
-                outliers += graph_param.common.outliers
-        # outliers count
-        graph_param.common.outliers = outliers
+        # outliers = None
+        if graph_param.common.remove_outlier_objective_var:
+            objective_id = graph_param.common.objective_var
+            columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
+            group_df = remove_outlier(group_df, columns, graph_param)
+
+        if graph_param.common.remove_outlier_explanatory_var:
+            objective_id = graph_param.common.objective_var
+            columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
+            group_df = remove_outlier(group_df, columns, graph_param)
+
+        return group_df
+
+    df = df.groupby(facet_labels, group_keys=False).apply(processing_df) if facet_labels else processing_df(df)
 
     df = cast_df_number(df, graph_param)
     return df, actual_total_record, unique_serial_number
@@ -3444,12 +3456,12 @@ def get_df_from_db(
         is_order_by_time=graph_param.common.is_order_by_time,
     )
 
-    # sort by time
-    df[TIME_COL] = df[gen_proc_time_label(graph_param.common.start_proc)]
-
     # check empty
     if df is None or not len(df):
         return df, 0, 0
+
+    # sort by time
+    df[TIME_COL] = df[gen_proc_time_label(graph_param.common.start_proc)]
 
     _, is_show_duplicated = is_show_duplicated_serials(
         duplicate_serial_show,

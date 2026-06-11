@@ -14,10 +14,6 @@ from sqlalchemy.dialects import postgresql
 from ap.common.common_utils import convert_sa_sql_to_sa_str, handle_read_only, strip_all_quote
 from ap.common.log import log_execution_time
 
-# See this for more, https://www.psycopg.org/docs/usage.html#server-side-cursors
-# This avoid out of memory when running query without limit
-# PSYCOPG2_SERVER_SIZE_CURSOR_ITERSIZE = 2000
-
 
 class PostgreSQL:
     """PostgreSQL database connection and operations handler.

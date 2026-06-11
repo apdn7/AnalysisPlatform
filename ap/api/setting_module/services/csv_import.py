@@ -13,7 +13,8 @@ import pandas as pd
 from pandas import DataFrame
 from pandas.core.dtypes.base import ExtensionDtype
 
-from ap.api.efa.services.etl import csv_transform, detect_file_path_delimiter
+from ap.api.common.services.file_reader import StructuredFileReader
+from ap.api.efa.services.etl import csv_transform
 from ap.api.setting_module.services.data_import import (
     FILE_IDX_COL,
     INDEX_COL,
@@ -58,6 +59,7 @@ from ap.common.constants import (
     COMPLETED_PERCENT,
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_MSG,
+    DATA_TYPE_ESTIMATION_LIMIT,
     DATE_FORMAT,
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_ONLY_DIGIT,
@@ -85,10 +87,9 @@ from ap.common.pydn.dblib.sqlite import SQLite3
 from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
 from ap.common.services.csv_content import (
+    EncodingException,
     get_limit_records,
-    is_normal_csv,
     read_csv_with_transpose,
-    read_data,
 )
 from ap.common.services.csv_header_wrapr import (
     add_suffix_if_duplicated,
@@ -226,20 +227,25 @@ def import_csv(
     default_csv_param = {}
     use_col_names = []
     skip_head = data_src.skip_head if data_src else None
-    n_rows = data_src.n_rows if data_src else None
-    is_transpose = data_src.is_transpose if data_src else False
-    if (
-        data_src.is_file_checker
-        or not data_src.etl_func
-        and import_targets
-        and not is_normal_csv(
-            import_targets[-1][0],
-            csv_delimiter,
-            skip_head=skip_head,
-            n_rows=n_rows,
-            is_transpose=is_transpose,
-        )
-    ):
+
+    is_file_checker = data_src.is_file_checker
+    file_reader = StructuredFileReader(
+        delimiter=csv_delimiter,
+        encoding=data_src.encoding,
+        skip_head=data_src.skip_head,
+        is_transpose=data_src.is_transpose,
+        limit=(data_src.n_rows or DATA_TYPE_ESTIMATION_LIMIT),  # to preview only, update when need
+        etl_func=data_src.etl_func,
+        is_file_checker=is_file_checker,
+    )
+    # To preview data
+    file_reader.read(target_file=import_targets[-1][0])
+
+    is_invalid_csv = import_targets and not file_reader.is_valid and not data_src.etl_func
+    is_same_number_of_rows_and_headers = not file_reader.is_mismatched_cols
+
+    # EFA or abnormal CSV (mismatched columns file is excluding)
+    if is_file_checker or (is_invalid_csv and is_same_number_of_rows_and_headers):
         is_abnormal = True
         default_csv_param['names'] = headers
         use_col_names = headers
@@ -249,6 +255,7 @@ def import_csv(
         data_first_row = (skip_head if skip_head is not None else 0) + 1
         head_skips = list(range(data_first_row))
     else:
+        # normal csv or mismatched columns
         is_abnormal = False
         data_first_row = (skip_head if skip_head is not None else 0) + 1
         head_skips = list(range(skip_head if skip_head is not None else 0))
@@ -309,15 +316,29 @@ def import_csv(
             import_target_info.error = str(transformed_file)
             continue
 
-        # delimiter check
-        transformed_file_delimiter, encoding = detect_file_path_delimiter(
-            transformed_file,
-            csv_delimiter,
-            with_encoding=True,
-        )
+        file_reader.update(headers=[])
+        try:
+            # To get metadata from transformed file
+            file_header, file_data = (
+                file_reader.read(transformed_file)
+                if file_reader.is_mismatched_cols
+                else file_reader.read_data_normal_file(transformed_file)
+            )
+        except (EncodingException, UnicodeDecodeError, Exception) as e:
+            # get error_info job
+            error_info = JobInfo()
+            error_info.job_id = job_id
+            error_info.import_type = JobType.CSV_IMPORT.name
+            error_info.dic_imported_row = {0: (csv_file_name, 0)}
 
-        import_target_info.encoding = encoding
+            # to save error file into transaction import history
+            save_failed_import_history(proc_id, error_info, str(e))
+            # yield to show error file in toast
+            yield from yield_job_info(error_info, csv_file_name)
 
+            # go to next file if it is encoding error
+            continue
+        transformed_file_delimiter, encoding = file_reader.delimiter, file_reader.encoding
         # check missing columns
         partial_dummy_header = False
         if is_abnormal is False:
@@ -326,17 +347,9 @@ def import_csv(
             csv_cols = headers
             # in case if v2, assume that there is not missing columns from v2 files
             if not is_v2_datasource:
-                # check missing columns
-                # TODO: Tuan refactor
-                check_file = read_data(
-                    transformed_file,
-                    skip_head=data_src.skip_head,
-                    n_rows=data_src.n_rows,
-                    is_transpose=data_src.is_transpose,
-                    delimiter=transformed_file_delimiter,
-                    do_normalize=False,
-                )
-                org_csv_cols = next(check_file)
+                # Copy file_reader.header to avoid shared reference
+                org_csv_cols = list(file_header)
+                # to check missing columns
                 if data_src.dummy_header:
                     # generate column name if there is not header in file
                     org_csv_cols, csv_cols, *_ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
@@ -369,7 +382,6 @@ def import_csv(
                 org_csv_cols, *_ = add_suffix_if_duplicated(org_csv_cols)
                 dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols, strict=False))
 
-                check_file.close()
             # missing_cols = set(dic_use_cols).difference(csv_cols)
             # find same columns between csv file and db
             valid_columns = list(set(dic_use_cols).intersection(csv_cols))
@@ -474,6 +486,7 @@ def import_csv(
                 if col_name not in default_csv_param['dtype']:
                     default_csv_param['dtype'][col_name] = 'string'
 
+        df_one_file = pd.DataFrame()  # empty dataframe
         if is_v2_datasource:
             datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(transformed_file)
             if datasource_type == DBType.V2_HISTORY:
@@ -503,7 +516,7 @@ def import_csv(
             if has_remaining_cols:
                 dic_use_cols = get_config_sensor(proc_cfg)
 
-        else:
+        elif not is_file_checker:
             # skip_rows = 0 if (is_abnormal or len(head_skips)) else data_src.skip_head
             df_one_file = csv_to_df(
                 transformed_file,
@@ -520,6 +533,24 @@ def import_csv(
             )
             # validate column name
             validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
+        elif is_file_checker:
+            # update setting to get all records from file
+            file_reader.update(
+                filenames=[transformed_file],
+                max_results=None,
+                limit=None,
+                headers=[],
+                preview=False,
+            )
+            # extract data for EFA by file_checker
+            file_header, file_data = file_reader.read_data_with_file_checker()
+            if file_reader.is_valid:
+                df_one_file = pd.DataFrame(file_data, columns=file_header)
+                dic_use_cols_for_abnormal = dic_use_cols.copy()
+                if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
+                    dic_use_cols_for_abnormal.pop(dummy_datetime_col)
+                # remove unused columns
+                df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
 
         file_record_count = len(df_one_file)
         import_target_info.file_record_count = file_record_count
@@ -1323,6 +1354,9 @@ def gen_dummy_header(header_names, data_details=None, skip_head=None):
     """
     dummy_header = False
     partial_dummy_header = False
+    # in case of skip_head != 0, maybe the detected header is including numeric
+    # it should be converted to string before use join/strip in below logic
+    header_names = list(map(str, header_names))
     org_header = header_names.copy()
 
     is_blank = skip_head is None

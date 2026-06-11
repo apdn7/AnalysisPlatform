@@ -37,20 +37,21 @@ table.dataTable tbody tr td:first-child {
     text-align: center !important;
 }
 
-#backgroundJosTbl td {
+#backgroundJobsTbl td {
     vertical-align: middle !important;
     border: 1px solid #444;
     text-align: left;
+    padding: 0.1rem 0.3rem;
 }
 
-#backgroundJosTbl td.job-duration {
+#backgroundJobsTbl td.job-duration {
     max-width: 125px;
 }
-#backgroundJosTbl td:first-child {
+#backgroundJobsTbl td:first-child {
     text-align: center;
 }
 
-table#jobErrorDetailTable thead tr th {
+table#jobDetailTable thead tr th {
     border: 1px solid #444;
     vertical-align: middle !important;
     text-align: center;
@@ -68,7 +69,7 @@ table#jobErrorDetailTable thead tr th {
     overflow-x: auto;
 }
 
-#jobErrorDetailTable pre {
+#jobDetailTable pre {
     white-space: pre-wrap;
 }
 
@@ -83,7 +84,7 @@ table#jobErrorDetailTable thead tr th {
 
 .bootstrap-table .fixed-table-container .db-name-col,
 .bootstrap-table .fixed-table-container .proc-name-col {
-    width: 17% !important;
+    width: 20% !important;
     max-width: 300px;
     white-space: nowrap;
     overflow: hidden;
@@ -93,19 +94,38 @@ table#jobErrorDetailTable thead tr th {
 .bootstrap-table .fixed-table-container .job-id-col,
 .bootstrap-table .fixed-table-container .job-progress-col,
 .bootstrap-table .fixed-table-container .job-status-col {
-    width: 5.5% !important;
+    width: 6% !important;
 }
 
 .bootstrap-table .fixed-table-container .job-name-col {
-    width: 11% !important;
+    max-width: 140px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .bootstrap-table .fixed-table-container .duration-col {
-    width: 8.32% !important;
+    width: 10% !important;
 }
 
 .bootstrap-table .fixed-table-container .detail-col {
-    width: 22% !important;
+    width: 12% !important;
+    max-width: 200px;
+}
+
+.bootstrap-table .fixed-table-container .detail-col.hidden,
+.bootstrap-table .fixed-table-container .job-detail.hidden {
+    display: none !important;
+}
+
+#btn-extend-toggle-container-job:hover #btn-extend-toggle-job {
+    color: gray;
+}
+
+#btn-extend-toggle-job {
+    padding: 2px 5px;
+    line-height: 1;
+    text-decoration: underline;
 }
 
 button.dropdown-toggle {
@@ -127,4 +147,42 @@ span.btn-group.dropdown {
 
 .fixed-table-loading.table.table-bordered.table-hover {
     background-color: #303030 !important;
+}
+
+#backgroundJobsTbl tr.selected-row td {
+    background-color: #4b4b4b !important;
+}
+
+#backgroundJobsTbl tr.selected-row td:hover {
+    background-color: #375a7f !important;
+}
+
+.job-side-panel {
+    width: 25%;
+    display: flex;
+    padding: 50px 5px 5px;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+.job-side-details {
+    color: white;
+    overflow: auto;
+    max-height: 500px;
+    min-height: 300px;
+}
+
+.job-list-content {
+    width: 100%;
+    height: calc(100vh - 200px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+}
+
+.job-list-main {
+    width: 100%;
+    flex: 1;
+    overflow: auto;
 }

@@ -24,6 +24,8 @@ const registerFromFileEles = {
     processJapaneseName: 'input[name=processJapaneseName]',
     processLocalName: 'input[name=processLocalName]',
     processOriginName: 'input[name=processOriginName]',
+    encodingSelect: '#registerFromFileEncodingSelect',
+    registerFromFileEncoding: '#registerFromFileEncoding',
 };
 
 // override from db_config.js to use generateProcessList function from proc_config_modal.js todo move to common js file
@@ -65,6 +67,7 @@ const i18n = {
     sampleDataLabel: document.getElementById('i18nSampleDataLabel').textContent,
     recordsDisplayModeLabel: document.getElementById('i18nRecordsDisplayModeLabel').textContent,
     uniqueDisplayModeLabel: document.getElementById('i18nUniqueDisplayModeLabel').textContent,
+    encodingGuess: $('#i18nEncodingGuess').text(),
 };
 
 const registerI18n = {
@@ -139,6 +142,7 @@ async function validateInputUrlAndFile() {
         disableRegisterDataFileBtn();
         resetPreviewTableContent();
         clearCacheDatasourceConfig();
+        removeGuessEncoding();
         showHideRefFile(false);
         return false;
     }
@@ -223,6 +227,8 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
         formData.set('fileName', urlInfo.fileUrl);
     }
 
+    formData.set('encoding', $(registerFromFileEles.encodingSelect).val());
+
     try {
         const request = getLatestRecord(formData);
         await handleResponseData(request);
@@ -255,6 +261,14 @@ const fillDatasourceName = (url, isFile) => {
 
     $(registerFromFileEles.databaseName).val(folderName);
     $(registerFromFileEles.databaseName)[0].dataset.originalValue = folderName;
+};
+
+const fillDatasourceEncoding = (config) => {
+    config.csv_detail.encoding &&
+        $(registerFromFileEles.encodingSelect).val() === 'auto-detect' &&
+        $(registerFromFileEles.registerFromFileEncoding)
+            .text(`${i18n.encodingGuess}: ${config.csv_detail.encoding}`)
+            .val(config.csv_detail.encoding);
 };
 
 /**
@@ -469,6 +483,8 @@ const getLatestRecord = (data) =>
 async function renderDatasourceConfig(data) {
     const urlInfo = await getUrlInfo();
     fillDatasourceName(urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url, urlInfo.isFile);
+
+    fillDatasourceEncoding(data.datasourceConfig);
 
     const datasourceNameElement = document.getElementById('databaseName');
     data.datasourceConfig.name = datasourceNameElement.value.trim();
@@ -807,6 +823,9 @@ function collectProcessConfigInfos() {
 function collectDatasourceInfo() {
     const datasourceNameElement = document.getElementById('databaseName');
     datasourceNameElement.__cache__.name = datasourceNameElement.value.trim();
+    const { isRegisterFromFileAutoEncoding, encoding } = getRegisterFromFileEncoding();
+    datasourceNameElement.__cache__.csv_detail.encoding = encoding;
+    datasourceNameElement.__cache__.csv_detail.auto_encoding = isRegisterFromFileAutoEncoding;
     return datasourceNameElement.__cache__;
 }
 
@@ -925,6 +944,7 @@ const resetPage = () => {
     resetProgressBar();
     resetPreviewTableContent();
     hiddenPreviewContentData();
+    removeGuessEncoding();
     window.RegisterByFileRequestID = undefined;
 };
 
@@ -1168,4 +1188,26 @@ jQuery(function () {
             handleOnChangeFolderAndFileUrl(false).then(() => {});
         }, 300); // Delay input 300ms
     });
+
+    $(registerFromFileEles.encodingSelect).on('change', () => {
+        handleOnChangeFolderAndFileUrl(false).then(() => {});
+        if ($(registerFromFileEles.encodingSelect).val() !== 'auto-detect') {
+            removeGuessEncoding();
+        }
+    });
 });
+
+const getRegisterFromFileEncoding = () => {
+    const isRegisterFromFileAutoEncoding = $(registerFromFileEles.encodingSelect).val() === 'auto-detect';
+    let encoding;
+    if (isRegisterFromFileAutoEncoding) {
+        encoding = $(registerFromFileEles.registerFromFileEncoding).val();
+    } else {
+        encoding = $(registerFromFileEles.encodingSelect).val();
+    }
+    return { isRegisterFromFileAutoEncoding, encoding };
+};
+
+const removeGuessEncoding = () => {
+    $(registerFromFileEles.registerFromFileEncoding).text('').val('');
+};

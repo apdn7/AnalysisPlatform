@@ -41,12 +41,14 @@ if is_main:
     from datetime import datetime, timedelta
 
     from ap import scheduler
+    from ap.common.backup_job_history import add_backup_job_history_job
     from ap.common.check_available_port import check_available_port
     from ap.common.clean_expired_request import add_job_delete_expired_request
     from ap.common.clean_old_data import add_job_delete_old_zipped_log_files, add_job_zip_all_previous_log_files
+    from ap.common.cleanup_job_history import add_cleanup_job_history_job
     from ap.common.common_utils import bundle_assets
     from ap.common.constants import APP_DB_FILE, CfgConstantType
-    from ap.common.db_maintenance import add_backup_dbs_job
+    from ap.common.db_maintenance import add_backup_dbs_job, add_vacuum_db_job
     from ap.common.memoize import clear_cache
     from ap.common.trace_data_log import (
         EventAction,
@@ -172,6 +174,9 @@ if is_main:
 
     # add job when app started
     add_backup_dbs_job()
+    add_vacuum_db_job()
+    add_backup_job_history_job()
+    add_cleanup_job_history_job()
 
     # BRIDGE STATION - Refactor DN & OSS version
     if is_internal_version:
@@ -199,6 +204,10 @@ if is_main:
     try:
         app.config.update({'app_startup_time': datetime.now(UTC)})
         if env == 'dev':
+            from ap.script.convert_po_to_json import convert_po_to_json
+
+            # convert file po to json for react
+            convert_po_to_json()
             logger.info('Development Flask server !!!')
             app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
         else:

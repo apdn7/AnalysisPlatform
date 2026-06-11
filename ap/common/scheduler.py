@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Mapping
+from datetime import datetime, timedelta
 from functools import wraps
 from typing import Any
 
+from apscheduler.triggers.date import DateTrigger
 from flask import g, has_request_context
 from loguru import logger
+from pytz import utc
 
 from ap import close_sessions, dic_config, scheduler
 from ap.common.constants import PROCESS_QUEUE, RUN_AFTER_REQUEST, JobStatus, JobType, ListenNotifyType
 from ap.common.log import log_execution_time
+from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.setting_module.models import CfgDataSource, CfgProcess, JobManagement, make_session
 
 # RESCHEDULE_SECONDS
@@ -83,6 +87,28 @@ def scheduler_app_context(fn):
             return result
 
     return inner
+
+
+def add_retry_job(function_job, job_type: JobType, retry_after: int = RESCHEDULE_SECONDS):
+    """Add job run once after {retry_after} seconds with prefix job id is RETRY
+
+    Arguments:
+        function_job [function] -- function job
+        job_type [JobType] -- type of job
+        retry_after [int] -- second
+    """
+    next_run_time = datetime.now(utc) + timedelta(seconds=retry_after)
+    trigger = DateTrigger(next_run_time, timezone=utc)
+    EventQueue.put(
+        EventAddJob(
+            fn=function_job,
+            job_type=job_type,
+            replace_existing=True,
+            job_id_prefix='RETRY',
+            trigger=trigger,
+            next_run_time=next_run_time,
+        ),
+    )
 
 
 def convert_kwargs_from_old_scheduler(kwargs: dict[str, Any]) -> dict[str, Any]:

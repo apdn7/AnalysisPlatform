@@ -184,3 +184,8 @@ select.col-md-5,
     max-width: 40vw;
     min-width: 40vw;
 }
+
+table.dataTable th,
+table.dataTable td {
+    white-space: nowrap !important;
+}

@@ -1,5 +1,13 @@
 # Releases
 
+## 4.9.3
+
+This version is a minor update including below bugfixes:
+
+- Register by File: Fixed an issue where preview data could not be displayed for processes registered using a single file
+- Filter Configuration: Fixed an issue where only one set of filters was displayed in the “Other” section
+- Data Source Configuration: Fixed an issue where Japanese names were not registered when bulk registering Software Workshop ETL processes
+
 ## 4.9.2
 
 Core changes

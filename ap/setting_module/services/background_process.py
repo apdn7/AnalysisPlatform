@@ -19,7 +19,6 @@ from ap.common.constants import (
     COMPLETED_PERCENT,
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_FACTORY_DB,
-    ID,
     UNKNOWN_ERROR_TEXT,
     AnnounceEvent,
     DBType,
@@ -36,16 +35,16 @@ from ap.common.multiprocess_sharing import (
     EventQueue,
     EventRunFunction,
 )
-from ap.common.pydn.dblib.transaction import TxnMetaConnection
+from ap.common.scheduler import add_retry_job
 from ap.common.services.error_message_handler import ErrorMessageHandler
 from ap.common.timezone_utils import choose_utc_convert_func
+from ap.setting_module.dtos import JobStatusFilter, JobTypeFilter, SearchParamsDTO
 from ap.setting_module.models import (
     CfgProcess,
     JobManagement,
     ProcLinkCount,
     make_session,
 )
-from ap.trace_data.transaction_model import TransactionData
 
 previous_disk_status = DiskUsageStatus.Normal
 
@@ -67,7 +66,6 @@ class JobSerializedOutput(BaseModel):
     status: str = ''
     done_percent: float = 0.0
     duration: float = 0.0
-    error_msg: str | None
     detail: str = ''
     data_type_error: bool = False
     info: JobInfoUnion | None
@@ -77,21 +75,64 @@ class JobSerializedOutput(BaseModel):
         return round(duration, 2)
 
     @computed_field
+    @property
     def job_name(self) -> str:
         # get job information and send to UI
         return generate_job_id(JobType[self.job_type], process_id=self.process_id, data_source_id=self.db_code)
 
-    @computed_field()
+    @computed_field
+    @property
     def process_master_name(self) -> str:
         return self.process_name
 
-    @computed_field()
+    @computed_field
+    @property
     def summary(self) -> str | None:
-        return self.info.summary if self.info else None
+        return getattr(self.info, 'summary', None) if self.info else None
 
-    @computed_field()
-    def details(self) -> list[str] | None:
-        return self.info.details if self.info else None
+    @computed_field
+    @property
+    def details(self) -> list | None:
+        return getattr(self.info, 'details', None) if self.info else None
+
+    @computed_field
+    @property
+    def error_info(self) -> list | None:
+        return getattr(self.info, 'messages', None) if self.info else None
+
+    @computed_field
+    @property
+    def job_status_category(self) -> str:
+        """Categorize job status into filter groups.
+
+        Returns:
+            str: Status filter category name (ERROR, PROCESSING, DONE, or OTHERS).
+        """
+        if self.status in JobStatus.failed_statuses():
+            return JobStatusFilter.ERROR.name
+        if self.status in JobStatus.others_statuses():
+            return JobStatusFilter.OTHERS.name
+        return self.status
+
+    @computed_field
+    @property
+    def job_type_category(self) -> str:
+        """Categorize job type into filter groups.
+
+        Maps individual job types to their corresponding filter categories
+        (IMPORT, PAST_IMPORT, DATA_LINK, or OTHERS).
+
+        Returns:
+            str: Job type filter category name.
+        """
+        if self.job_type in JobType.jobs_import():
+            return JobTypeFilter.IMPORT.name
+        elif self.job_type in JobType.jobs_past_import():
+            return JobTypeFilter.PAST_IMPORT.name
+        elif self.job_type in JobType.jobs_data_link():
+            return JobTypeFilter.DATA_LINK.name
+        else:
+            return JobTypeFilter.OTHERS.name
 
 
 def get_all_proc_shown_names():
@@ -99,35 +140,34 @@ def get_all_proc_shown_names():
 
 
 @log_execution_time()
-def get_background_jobs_service(
-    page=1,
-    per_page=50,
-    sort_by='',
-    order='',
-    ignore_job_types=None,
-    error_page=False,
-) -> tuple[list[JobSerializedOutput], QueryPagination]:
+def get_background_jobs_service(search_params: SearchParamsDTO) -> tuple[list[JobSerializedOutput], QueryPagination]:
     """Get background jobs from JobManagement table"""
     jobs = JobManagement.query
-    if error_page:
+    if search_params.error_page:
         jobs = jobs.filter(JobManagement.status.in_(JobStatus.failed_statuses()))
 
-    if ignore_job_types:
-        jobs = jobs.filter(JobManagement.job_type.notin_(ignore_job_types))
+    if search_params.ignore_job_types:
+        jobs = jobs.filter(JobManagement.job_type.notin_(search_params.ignore_job_types))
 
-    if sort_by != '':
-        sort_by_col = JobManagement.job_sorts(order)
-        jobs = jobs.order_by(sort_by_col[sort_by])
+    if len(search_params.statuses):
+        jobs = jobs.filter(JobManagement.status.in_(search_params.statuses))
+
+    if len(search_params.job_types):
+        jobs = jobs.filter(JobManagement.job_type.in_(search_params.job_types))
+
+    if search_params.sort != '':
+        sort_by_col = JobManagement.job_sorts(search_params.order)
+        jobs = jobs.order_by(sort_by_col[search_params.sort])
     else:
         jobs = jobs.order_by(JobManagement.id.desc())
 
-    jobs = jobs.paginate(page=page, per_page=per_page, error_out=False)
+    jobs = jobs.paginate(page=search_params.page, per_page=search_params.limit, error_out=False)
     dic_procs = get_all_proc_shown_names()
     rows: list[JobSerializedOutput] = []
     for _job in jobs.items:
         job = JobSerializedOutput.model_validate(_job.as_dict())
 
-        if not error_page and job.process_id is not None and job.process_id not in dic_procs:
+        if not search_params.error_page and job.process_id is not None and job.process_id not in dic_procs:
             # do not show deleted process in job normal page -> show only job error page
             continue
 
@@ -148,6 +188,8 @@ def send_processing_info(
     after_success_func=None,
     after_success_func_kwargs=None,
     is_check_disk=True,
+    retry_if_fail: bool = False,
+    retry_function_job=None,
 ):
     """Send percent, status to client
 
@@ -250,6 +292,8 @@ def send_processing_info(
             message = error_msg_handler.msg_from_exception(exception=e)
             job_management = update_job_management(job_management, message)
             logger.exception(e)
+            if retry_if_fail:
+                add_retry_job(retry_function_job, job_type)
             break
         finally:
             # notify if data type error greater than 100
@@ -268,6 +312,7 @@ def send_processing_info(
             # emit info
             dic_res[job_management.id].done_percent = job_management.done_percent
             dic_res[job_management.id].end_tm = job_management.end_tm
+            dic_res[job_management.id].info = job_management.info
             dic_res[job_management.id].duration = (
                 dt.datetime.utcnow() - dt.datetime.strptime(job_management.start_tm, DATE_FORMAT_STR)
             ).total_seconds()
@@ -297,16 +342,11 @@ def update_job_management(job: JobManagement, err=None) -> JobSerializedOutput:
         done_percent {[type]} -- [description]
     """
     with make_session() as meta_session:
-        if (
-            not err
-            and not job.error_msg
-            and (
-                job.done_percent == COMPLETED_PERCENT or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)
-            )
+        if not err and (
+            job.done_percent == COMPLETED_PERCENT or job.status in (JobStatus.PROCESSING.name, JobStatus.DONE.name)
         ):
             job.status = JobStatus.DONE.name
             job.done_percent = 100
-            job.error_msg = None
         else:
             if job.status == JobStatus.FATAL:
                 job.status = JobStatus.FATAL.name
@@ -314,7 +354,7 @@ def update_job_management(job: JobManagement, err=None) -> JobSerializedOutput:
                 job.status = JobStatus.KILLED.name
             else:
                 job.status = JobStatus.FAILED.name
-            job.error_msg = err or job.error_msg or UNKNOWN_ERROR_TEXT
+            job.info.error(err or UNKNOWN_ERROR_TEXT)
 
         job.duration = (dt.datetime.utcnow() - dt.datetime.strptime(job.start_tm, DATE_FORMAT_STR)).total_seconds()
         job.end_tm = get_current_timestamp()
@@ -465,6 +505,8 @@ def format_factory_date_to_meta_data(
     if is_tz_col:
         convert_utc_func, _ = choose_utc_convert_func(date_val)
         date_val = convert_utc_func(date_val)
+        if not date_val:
+            date_val = ''
         date_val = date_val.replace('T', ' ')
 
         # store millisecond for mssqlserver and oracle
@@ -478,38 +520,6 @@ def format_factory_date_to_meta_data(
         date_val = convert_time(date_val, format_str=DATE_FORMAT_STR_FACTORY_DB)
 
     return date_val
-
-
-@log_execution_time()
-def get_job_detail_service(job_id):
-    """
-    Get all job details of a job
-    :param job_id:
-    :return:
-    """
-    job = db.session.query(JobManagement).filter(JobManagement.id == job_id).first()
-    job_details_as_dict = {}
-    if job and job.process_id:
-        job_details = []
-        try:
-            trans_data = TransactionData(job.process_id)
-            with (
-                TxnMetaConnection(process_id=job.process_id) as meta_con,
-            ):
-                job_details = trans_data.get_import_history_error_jobs(meta_con, job_id)
-        except Exception:
-            pass
-        if not isinstance(job_details, list):
-            job_details = [job_details]
-
-        if job.error_msg:
-            job_details = [job, *job_details]
-
-        for job_detail in job_details:
-            job_details_as_dict[job_id] = row2dict(job_detail) if not isinstance(job_detail, dict) else job_detail
-            if ID not in job_details_as_dict[job_id]:
-                job_details_as_dict[job_id][ID] = job_id
-    return job_details_as_dict
 
 
 @log_execution_time()
@@ -562,10 +572,7 @@ def update_job_management_status_n_error(
         job.status = job_info.status.name
 
     if job_info.err_msg:
-        if job.error_msg:
-            job.error_msg += job_info.err_msg
-        else:
-            job.error_msg = job_info.err_msg
+        job.info.error(job_info.err_msg)
 
     # reset job info
     job_info.err_msg = None

@@ -780,6 +780,14 @@ class SpreadSheetProcessConfig {
     }
 
     /**
+     * Update hint text for Data Type dropdown column.
+     * @param {...ExcelTableRow} rows
+     */
+    updateTooltips(...rows) {
+        rows.map((r) => r.shown_data_type.td).forEach((r) => (r.title = dataTypeEventHints));
+    }
+
+    /**
      * Handle search input in table.
      * @param {string} value
      * @param {string} key
@@ -1203,6 +1211,7 @@ class SpreadSheetProcessConfig {
 
                 spreadsheet.updateOriginalValueSampleData(...allRows);
                 spreadsheet.updateColumnClassName(...allRows);
+                spreadsheet.updateTooltips(...allRows);
 
                 spreadsheet.table.customCheckbox(...allRows);
 
@@ -1263,6 +1272,7 @@ class SpreadSheetProcessConfig {
                 spreadsheet.updateOriginalValueSampleData(...rows);
                 spreadsheet.updateColumnClassName(...rows);
                 spreadsheet.table.customCheckbox(...rows);
+                spreadsheet.updateTooltips(...rows);
             },
 
             /**

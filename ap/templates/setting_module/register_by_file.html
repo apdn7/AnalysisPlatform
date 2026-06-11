@@ -40,8 +40,9 @@
             <div class="d-flex">
                 <div class="data-source-config">
                     <div id="fileFolderBrowser" class="file-folder-browser d-flex border-dash-gray d-flex mb-3">
-                        <div class="section-title mr-3" style="padding-top: 6px;">
+                        <div class="section-title mr-3" style="padding-top: 6px">
                             <h5>{{ _('RegisterDataSource') }}</h5>
+                            <h5 style="padding-top: 12px">{{ _('EncodingLabel') }}</h5>
                         </div>
                         <div class="directory-form">
                             <div id="folderBrowser" class="folder-browser">
@@ -54,22 +55,47 @@
                                         placeholder="{{ _('SourceFileBrowsePlaceholder') }}"
                                     />
                                 </div>
-                                <div
-                                    id="containerReferenceFile"
-                                    class="d-flex flex-row"
-                                    style="display: none !important;"
-                                >
-                                    <label class="align-content-center mb-0 pl-0 mr-2" for="refFileUrl"
-                                        >{{ _('ReferenceFileLabel') }}</label
+                                <div class="position-relative d-flex">
+                                    <div class="position-relative" id="registerByFileEncoding" style="width: 150px">
+                                        <select
+                                            type="select"
+                                            name="encodingSelect"
+                                            class="form-control data-not-allow-clear function-var select2-selection--single select2-hidden-accessible select-n-columns"
+                                            id="registerFromFileEncodingSelect"
+                                            data-observer
+                                        >
+                                            {% for key, value in encoding.items() %}
+                                                <option
+                                                    class="encoding-option"
+                                                    value="{{ value.code }}"
+                                                    title="{{ value.language }}"
+                                                    style="display: block"
+                                                >
+                                                    {{ value.code }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="position-relative mx-3" style="align-self: center; width: 100px">
+                                        <div class="file-encoding" id="registerFromFileEncoding"></div>
+                                    </div>
+                                    <div
+                                        id="containerReferenceFile"
+                                        class="position-relative d-flex flex-shrink-1 flex-grow-1"
+                                        style="display: none !important;"
                                     >
-                                    <div class="px-0 flex-shrink-1 flex-grow-1 position-relative">
-                                        <input
-                                            type="text"
-                                            name="fileName"
-                                            class="form-control already-convert-hankaku"
-                                            id="refFileUrl"
-                                            placeholder="{{ _('RefFilePlaceholder') }}"
-                                        />
+                                        <label class="align-content-center mb-0 pl-0 mx-2" for="refFileUrl"
+                                            >{{ _('ReferenceFileLabel') }}</label
+                                        >
+                                        <div class="px-0 position-relative flex-shrink-1 flex-grow-1">
+                                            <input
+                                                type="text"
+                                                name="fileName"
+                                                class="form-control already-convert-hankaku"
+                                                id="refFileUrl"
+                                                placeholder="{{ _('RefFilePlaceholder') }}"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>

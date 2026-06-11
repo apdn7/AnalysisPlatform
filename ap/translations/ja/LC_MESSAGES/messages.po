@@ -4918,6 +4918,15 @@ msgstr "Ctrlを押すとホットキーのヒントが表示されます"
 msgid "NoDataLinkFilterProcMsg"
 msgstr "紐付設定がされていない工程がフィルタ条件に設定されています。"
 
+#: ap/templates/setting_module/db_config_modals.html
+#: ap/templates/setting_module/register_by_file.html
+msgid "EncodingLabel"
+msgstr "エンコーディング"
+
+#: ap/templates/setting_module/i18n.html
+msgid "EncodingGuess"
+msgstr "推定"
+
 #: ap/templates/i18n.html
 msgid "PlaceholderHidden"
 msgstr "非表示"
@@ -5265,4 +5274,34 @@ msgstr ""
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Label"
 msgstr "ラベル"
+
+#: ap/config/job
+msgid "Past Import"
+msgstr "過去のデータ読込"
+
+msgid "DataLink"
+msgstr "データ紐づけ"
+
+msgid "Others"
+msgstr "その他"
+
+msgid "Done"
+msgstr "終了"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Processing"
+msgstr "処理中"
+
+msgid "Status Select"
+msgstr "Status Select"
+
+msgid "Job Select"
+msgstr "Job Select"
+
+msgid "DataTypeEventsHint"
+msgstr ""
+"1回クリック：ドロップダウン表示\n"
+"2回クリック：セル選択"
 

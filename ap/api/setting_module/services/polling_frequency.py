@@ -34,7 +34,10 @@ from ap.common.constants import (
     ProcessColumnConst,
     ProcessStatus,
 )
-from ap.common.jobs.job_info_schema import DataExportJobInfo
+from ap.common.jobs.job_info_schema import (
+    BulkProcessRegisterJobInfo,
+    DataExportJobInfo,
+)
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.scheduler import scheduler_app_context
@@ -278,18 +281,18 @@ def add_export_job(export_config: CfgExport):
 
 @scheduler_app_context
 def bulk_register_process_func(
-    data_source_id: int, proc_ids: list[int], is_directly_import: bool, job_management: JobManagement
+    data_source_id: int, proc_ids: list[int], is_directly_import: bool, ja_locale: bool, job_management: JobManagement
 ):
-    gen = bulk_register_process(data_source_id, proc_ids, is_directly_import)
+    gen = bulk_register_process(data_source_id, proc_ids, is_directly_import, ja_locale, job_management)
     send_processing_info(gen, job_management=job_management)
 
 
-def add_bulk_register_process_job(proc_ids: list[int], is_directly_import: bool, ds_id: int):
+def add_bulk_register_process_job(proc_ids: list[int], is_directly_import: bool, ds_id: int, ja_locale: bool):
     EventQueue.put(
         EventAddJob(
             fn=bulk_register_process_func,
             job_type=JobType.BULK_PROCESS_REGISTER,
-            kwargs={'proc_ids': proc_ids, 'is_directly_import': is_directly_import},
+            kwargs={'proc_ids': proc_ids, 'is_directly_import': is_directly_import, 'ja_locale': ja_locale},
             replace_existing=True,
             data_source_id=ds_id,
             trigger=DateTrigger(datetime.now().astimezone(utc), timezone=utc),
@@ -299,7 +302,7 @@ def add_bulk_register_process_job(proc_ids: list[int], is_directly_import: bool,
     )
 
 
-def update_process_info(process_id: int, status: ProcessStatus) -> CfgProcess:
+def update_process_info(process_id: int, status: ProcessStatus, ja_locale: bool) -> CfgProcess:
     """
     Update process info after run bulk register from SW datasource
         - columns
@@ -313,6 +316,7 @@ def update_process_info(process_id: int, status: ProcessStatus) -> CfgProcess:
             limit=1000,
             process_factid=process.process_factid,
             master_type=MasterDBType[process.master_type],
+            ja_locale=ja_locale,
         )
         sw_columns = []
         for col in detected_columns:
@@ -347,8 +351,16 @@ def update_process_info(process_id: int, status: ProcessStatus) -> CfgProcess:
 
 
 @log_execution_time()
-def bulk_register_process(data_source_id: int, proc_ids: list[int], is_directly_import: bool):
+def bulk_register_process(
+    data_source_id: int, proc_ids: list[int], is_directly_import: bool, ja_locale: bool, job_management: JobManagement
+):
     yield 0
+
+    bulk_process_register_job_info = BulkProcessRegisterJobInfo(
+        is_directly_import=is_directly_import,
+    )
+    job_management.info = bulk_process_register_job_info
+
     process_status = ProcessStatus.REGISTERED if is_directly_import else ProcessStatus.INITIALIZED
     data_source = CfgDataSource.get_by_id(data_source_id)
     is_snowflake_datasource = data_source.type in [DBType.SNOWFLAKE.name, DBType.SNOWFLAKE_SOFTWARE_WORKSHOP.name]
@@ -356,7 +368,15 @@ def bulk_register_process(data_source_id: int, proc_ids: list[int], is_directly_
     for idx, pid in enumerate(proc_ids):
         error_message = None
         try:
-            process = update_process_info(pid, status=process_status)
+            process = update_process_info(pid, status=process_status, ja_locale=ja_locale)
+            bulk_process_register_job_info.registered_process_count += 1
+            bulk_process_register_job_info.success_processes.append(
+                BulkProcessRegisterJobInfo.BulkProcessRegisterSuccessData(
+                    process_name=process.name,
+                    process_factid=process.process_factid,
+                )
+            )
+            bulk_process_register_job_info.info(f'Process "{process.name}" registered successfully.')
             if is_directly_import and not is_snowflake_datasource:
                 # CAUTION:
                 # In case of BULK REGISTER, the `add_import_job` function is not use for snowflake processes
@@ -376,6 +396,14 @@ def bulk_register_process(data_source_id: int, proc_ids: list[int], is_directly_
                 process = meta_session.query(CfgProcess).get(pid)
                 process.status = ProcessStatus.INIT_FAIL.value
             error_message = e.__str__()
+            bulk_process_register_job_info.error(f'Failed to register process "{process.name}": {error_message}')
+            bulk_process_register_job_info.failed_processes.append(
+                BulkProcessRegisterJobInfo.BulkProcessRegisterErrorData(
+                    process_name=process.name,
+                    process_factid=process.process_factid,
+                    error_message=error_message,
+                )
+            )
             error_data.append(
                 BulkRegisterProcessErrorData(
                     process_name=process.name,

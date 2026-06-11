@@ -1116,7 +1116,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
             if (dataOriginAttr != null) {
                 return dataOriginAttr;
             }
-            const inputEl = td.querySelector('input[type="text"]');
+            const inputEl = td.querySelector('input[type="text"]:not([hidden])');
             if (inputEl != null) {
                 return inputEl.value.trim();
             }
@@ -1671,7 +1671,7 @@ const getTextOfSelectBox = (e) => {
 const getSettingModeData = (tableId) => {
     const tableIdWithSharp = `#${tableId}`;
     const func = genJsonfromHTML(tableIdWithSharp, tableId, true);
-    let data;
+    let data = { tableId: {} };
     $(tableIdWithSharp)
         .find('input')
         .each((_, ele) => {

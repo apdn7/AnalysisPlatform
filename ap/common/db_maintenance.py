@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+import sqlalchemy as sa
 from apscheduler.triggers.cron import CronTrigger
 from dateutil import tz
 from loguru import logger
@@ -11,13 +12,14 @@ from ap import (
     SQLITE_CONFIG_DIR,
     dic_config,
 )
+from ap.common.common_utils import create_trigger_everyweek, function_to_generator
 from ap.common.constants import JobType
-from ap.common.jobs.job_info_schema import BackupDatabaseJobInfo
+from ap.common.jobs.job_info_schema import BackupDatabaseJobInfo, VacuumDbJobInfo
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventQueue
 from ap.common.path_utils import copy_file, make_dir
 from ap.common.scheduler import scheduler_app_context
-from ap.setting_module.models import JobManagement
+from ap.setting_module.models import JobManagement, make_session
 from ap.setting_module.services.background_process import send_processing_info
 
 BACKUP_TRANS_DATA_INTERVAL_DAY = 7
@@ -25,7 +27,8 @@ DB_MAINTENANCE_TIME = (3, 0, 0)  # 3AM local time
 
 
 def get_backup_path():
-    return os.path.join(dic_config[SQLITE_CONFIG_DIR], 'backup')
+    instance_path = dic_config[SQLITE_CONFIG_DIR] or 'instance'
+    return os.path.join(instance_path, 'backup')
 
 
 @log_execution_time()
@@ -110,5 +113,51 @@ def add_backup_dbs_job(is_run_now=None):
             replace_existing=True,
             trigger=trigger,
             next_run_time=next_run_time,
+        ),
+    )
+
+
+@log_execution_time()
+def vacuum_db(job_management: JobManagement):
+    """Run vacuum on the config data (app.sqlite3 database)"""
+    vacuum_db_job_info = VacuumDbJobInfo()
+    job_management.info = vacuum_db_job_info
+
+    # set started time and message
+    vacuum_db_job_info.started_at = datetime.now(utc)
+    vacuum_db_job_info.info('Starting vacuum database')
+
+    with make_session() as meta_session:
+        meta_session.execute(sa.text('VACUUM'))
+        logger.info(f'[{JobType.VACUUM_DB.name}] Database is cleaned up.')
+
+    # finalize info
+    vacuum_db_job_info.finished_at = datetime.now(utc)
+    vacuum_db_job_info.info('Vacuum database finished')
+
+
+@scheduler_app_context
+def vacuum_db_job(job_management: JobManagement):
+    gen = function_to_generator(vacuum_db, job_management)
+    send_processing_info(
+        gen,
+        job_management=job_management,
+        retry_if_fail=True,
+        retry_function_job=vacuum_db_job,
+    )
+
+
+def add_vacuum_db_job():
+    """
+    Registers a new cron job to run the vacuum operation weekly.
+    Note: the schedule time to 3:00 AM local time every week start from current day.
+    """
+    trigger = create_trigger_everyweek()
+    EventQueue.put(
+        EventAddJob(
+            fn=vacuum_db_job,
+            job_type=JobType.VACUUM_DB,
+            replace_existing=True,
+            trigger=trigger,
         ),
     )

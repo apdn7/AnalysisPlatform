@@ -1461,7 +1461,6 @@ def save_import_history(proc_id: int, job_info):
             import_to=None,
             imported_row=None,
             status=status,
-            error_msg=job_info.err_msg or None,
             start_tm=job_info.start_tm or get_current_timestamp(),
             end_tm=job_info.end_tm or get_current_timestamp(),
             created_at=get_current_timestamp(),

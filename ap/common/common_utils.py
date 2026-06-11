@@ -16,7 +16,8 @@ import socket
 import sys
 from collections import OrderedDict
 from collections.abc import Callable, Mapping
-from datetime import date, datetime, time, timedelta
+from contextlib import suppress
+from datetime import date, datetime, time, timedelta, tzinfo
 from enum import Enum
 from functools import wraps
 from io import IOBase
@@ -28,18 +29,19 @@ import chardet
 import numpy as np
 import pandas as pd
 import pytz
+from apscheduler.triggers.cron import CronTrigger
 
 # from charset_normalizer import detect
 from dateutil import parser, tz
 from dateutil.relativedelta import relativedelta
 from flask import g
 from flask_assets import Bundle, Environment
+from flask_babel import get_locale
 from loguru import logger
 from pandas import DataFrame, Series
 from pandas.core.arrays.integer import NUMPY_INT_TO_DTYPE
 from pandas.io import parquet
 from pyarrow import feather
-from pytz import tzinfo
 from sqlalchemy import NullPool, create_engine
 
 from ap.common.constants import (
@@ -560,8 +562,8 @@ def get_csv_delimiter(csv_delimiter):
     :param csv_delimiter:
     :return:
     """
-    if csv_delimiter is None:
-        return CsvDelimiter.CSV.value
+    if not csv_delimiter:
+        return CsvDelimiter.Auto.value
 
     if isinstance(csv_delimiter, CsvDelimiter):
         return csv_delimiter.value
@@ -1735,3 +1737,50 @@ class WebAuthenticationType(Enum):
 
     NONE = 'NONE'  # No authentication required
     BASIC = 'BASIC'  # Basic Authentication (username/pw)
+
+
+def date_time_str_from_utc(input_dt: datetime):
+    if not input_dt:
+        input_dt = datetime.now()
+    date_str = input_dt.date().isoformat()
+    time_str = input_dt.strftime('%H:%M')
+
+    return date_str, time_str
+
+
+def create_trigger_everyweek():
+    """Trigger time to 3:00 AM local time every week start from current day."""
+    from ap.common.db_maintenance import DB_MAINTENANCE_TIME
+
+    # job run at 3 AM local time EVERY WEEK
+    run_at = DB_MAINTENANCE_TIME
+
+    # generate datetime of today
+    today = datetime.today()
+    local_datetime = datetime(today.year, today.month, today.day, *run_at)
+
+    # convert to utc
+    utc_datetime = local_datetime.astimezone(tz.tzutc())
+    day_of_week = utc_datetime.weekday()
+
+    return CronTrigger(
+        hour=utc_datetime.hour,
+        minute=utc_datetime.minute,
+        second=utc_datetime.second,
+        day_of_week=day_of_week,
+        timezone=pytz.utc,
+    )
+
+
+def function_to_generator(function, *args: Any, **kwargs: Mapping[str, Any]):
+    yield 0
+    function(*args, **kwargs)
+    yield 100
+
+
+def is_ja_locale() -> bool:
+    """Return true if current locale is japanese, false otherwise."""
+    ja_locale = False
+    with suppress(Exception):
+        ja_locale = get_locale().language == 'ja'
+    return ja_locale

@@ -71,7 +71,7 @@ def calculate_kde_for_ridgeline(data_np, grid_points, height=1, use_range=False,
                 g_kde_values = histogram[0]
             else:
                 # use fast algorithm for kernel density estimation for RLP
-                g_kde_values = gen_kde_1d_fft(np.asarray(data_np), x, xmin, xmax, std_value) * height
+                g_kde_values = gen_kde_1d_fft(data_np, x, xmin, xmax, std_value) * height
 
             if use_hist_counts:
                 hist_counts = histogram[0]
@@ -452,7 +452,7 @@ def detect_abnormal_count_values(
 
 @log_execution_time()
 @abort_process_handler()
-def resample_preserve_min_med_max(X: npt.NDArray, n_after: int, return_index: bool = False) -> npt.NDArray:
+def resample_preserve_min_med_max(X, n_after: int, return_index: bool = False):
     """Resample X, but preserve (minimum, median, and maximum) values
     Inputs:
         X (1D-NumpyArray or a list)

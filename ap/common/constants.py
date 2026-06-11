@@ -40,6 +40,7 @@ REMOVED_OUTLIER_NAN_TEST = 'removed_outlier_nan_test'
 REMOVED_OUTLIERS = 'outliers'
 CAST_INF_VALS = 'cast_inf_vals'
 DATA_TYPE_ESTIMATION_LIMIT = 10000
+V2_PREVIEW_LIMIT = 1000
 SAMPLE_FUNCTION_DATA_UNIQUE = 50
 
 GA_TRACKING_ID_KEY = 'GA_TRACKING_ID'
@@ -981,7 +982,14 @@ class JobStatus(Enum):
     def failed_statuses(cls):
         return [
             cls.FAILED.name,
+            cls.KILLED.name,
             cls.FATAL.name,
+        ]
+
+    @classmethod
+    def others_statuses(cls):
+        return [
+            cls.PENDING.name,
         ]
 
 
@@ -2932,7 +2940,6 @@ class JobType(Enum):
         PROC_LINK_COUNT: Process link count job (12).
         ZIP_LOG: Zip log files job (13).
         CLEAN_ZIP: Clean zip files job (14).
-        RESTRUCTURE_INDEXES: Restructure database indexes job (15).
         CLEAN_EXPIRED_REQUEST: Clean expired requests job (16).
         PROCESS_COMMUNICATE: Process communication job (17).
         UPDATE_TRANSACTION_TABLE: Update transaction table job (18).
@@ -2999,9 +3006,12 @@ class JobType(Enum):
     IMPORT_DATA = 26
     WEB_API_IMPORT = 27
     DEL_TRANSACTION_DATA_BY_LIMIT = 28
+    VACUUM_DB = 29
     DEL_ALL_TRANSACTION_DATA = 30
     DATA_EXPORT = 31
     BULK_PROCESS_REGISTER = 32
+    BACKUP_JOB_HISTORY = 33
+    CLEANUP_JOB_HISTORY = 34
 
     @classmethod
     def jobs_include_process_id(cls):
@@ -3054,6 +3064,32 @@ class JobType(Enum):
             cls.CLEAN_ZIP,
             cls.CLEAN_EXPIRED_REQUEST,
             cls.PROCESS_COMMUNICATE,
+        ]
+
+    @classmethod
+    def jobs_import(cls):
+        return [
+            cls.IMPORT_DATA.name,
+            cls.CSV_IMPORT.name,
+            cls.FACTORY_IMPORT.name,
+            cls.WEB_API_IMPORT.name,
+        ]
+
+    @classmethod
+    def jobs_past_import(cls):
+        return [cls.FACTORY_PAST_IMPORT.name]
+
+    @classmethod
+    def jobs_data_link(cls):
+        return [cls.PROC_LINK_COUNT.name]
+
+    @classmethod
+    def job_others(cls):
+        return [
+            job.name
+            for job in cls
+            if job not in cls.jobs_without_management_info()
+            and job.name not in [*cls.jobs_import(), *cls.jobs_past_import(), *cls.jobs_data_link()]
         ]
 
 
@@ -3628,3 +3664,50 @@ class YScaleModes(Enum):
 # AgP: div has nunique >= 128
 SAFETY_DIV_UNIQUE_THRESHOLD = 129
 SAFETY_DIV_UNIQUE_KEY = 'safety_div_unique'
+
+
+class Encoding(Enum):
+    """Enum for types of encoding"""
+
+    AUTO_DETECT = ('auto-detect', 'Auto detect encoding')
+    ASCII = ('ascii', 'English')
+    UTF8 = ('utf-8', 'All languages')
+    UTF8_SIG = ('utf-8-sig', 'All languages with BOM')
+    UTF16 = ('utf-16', 'All languages')
+    UTF16_BE = ('utf-16-be', 'All languages')
+    UTF16_LE = ('utf-16-le', 'All languages')
+    SHIFT_JIS = ('shift-jis', 'Japanese')
+    CP932 = ('cp932', 'Japanese')
+    ISO8859_1 = ('iso-8859-1', 'Latin1:Western Europe')
+    ISO8859_2 = ('iso-8859-2', 'Latin2:Central and Eastern Europe')
+    ISO8859_3 = ('iso-8859-3', 'Latin3:Esperanto, Maltese')
+    ISO8859_4 = ('iso-8859-4', 'Latin4:Baltic languages')
+    ISO8859_5 = ('iso-8859-5', 'Slavic languages, Cyrillic')
+    ISO8859_6 = ('iso-8859-6', 'Arabic')
+    ISO8859_7 = ('iso-8859-7', 'Greek')
+    ISO8859_8 = ('iso-8859-8', 'Hebrew')
+    ISO8859_9 = ('iso-8859-9', 'Latin5:Turkish')
+    ISO8859_10 = ('iso-8859-10', 'Latin6:Nordic languages')
+    ISO8859_11 = ('iso-8859-11', 'Thai languages')
+    ISO8859_13 = ('iso-8859-13', 'Latin7:Baltic languages')
+    ISO8859_14 = ('iso-8859-14', 'Latin8:Celtic languages')
+    ISO8859_15 = ('iso-8859-15', 'Latin9:Western Europe')
+    ISO8859_16 = ('iso-8859-16', 'Latin10:South-Eastern Europe')
+    CP1250 = ('cp1250', 'Central and Eastern Europe')
+    CP1251 = ('cp1251', 'Slavic languages, Cyrillic')
+    CP1252 = ('cp1252', 'Western Europe')
+    CP850 = ('cp850', 'Western Europe')
+    CP852 = ('cp852', 'Central and Eastern Europe')
+    CP874 = ('cp874', 'Thai')
+    CP949 = ('cp949', 'Korean')
+    CP1256 = ('cp1256', 'Arabic')
+    CP1258 = ('cp1258', 'Vietnamese')
+    GB18030 = ('gb18030', 'Unified Chinese')
+
+    def __init__(self, code, language) -> None:
+        self.code = code
+        self.language = language
+
+    @staticmethod
+    def as_dict() -> dict:
+        return {e.name: {'code': e.code, 'language': e.language} for e in Encoding}

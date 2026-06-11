@@ -53,6 +53,9 @@ const csvResourceElements = {
     dummyHeaderModalMsg: '#dummyHeaderModal .modal-msg',
     isDummyHeader: 'input[name=isDummyHeader]',
     isFileChecker: 'input[name=isFileChecker]',
+    dsEncodingSelect: '#dsEncodingSelect',
+    guessEncoding: '#guessEncoding',
+    encodingOption: '#dsEncoding',
 };
 
 const eles = {
@@ -141,8 +144,9 @@ const clearOldValue = () => {
     $(`.saveDBInfoBtn`).attr('data-isV2', false);
     $(`#showResources`).attr('data-isV2', false);
 
-    $('#dbsEncoding').text('');
-
+    $(csvResourceElements.guessEncoding).text('');
+    $(csvResourceElements.dsEncodingSelect).select2().val('auto-detect');
+    $(csvResourceElements.alertInternalError).hide();
     // clear edited flag
     userEditedDSName = false;
 
