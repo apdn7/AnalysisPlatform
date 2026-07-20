@@ -1,12 +1,15 @@
-import i18n from 'i18next';
-import { docCookies } from '@/shared/utils/cookies';
 import { initReactI18next } from 'react-i18next';
+
+import i18n from 'i18next';
+
+import { docCookies } from '@/shared/utils/cookies';
 
 const initI18n = async () => {
     const locale = docCookies.getLocale();
     const resources = await import(`./locales/${locale}.json`);
-    i18n.use(initReactI18next).init({
+    await i18n.use(initReactI18next).init({
         lng: locale,
+        showSupportNotice: false,
         fallbackLng: 'en',
         resources: {
             [locale]: {
@@ -20,4 +23,4 @@ const initI18n = async () => {
     });
 };
 
-initI18n();
+void initI18n();

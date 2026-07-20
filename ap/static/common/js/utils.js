@@ -64,12 +64,21 @@ const COMMON_CONSTANT = {
     NG_RATE_NAME: 'NG Rate',
     EMD_DRIFT_NAME: 'EMD|Drift',
     EMD_DIFF_NAME: 'EMD|Diff',
+    COLOR_UNSELECTED: 'color_unselected',
 };
 
 const MESSAGE_LEVEL = {
     WARN: 'WARN',
     ERROR: 'ERROR',
     INFO: 'INFO',
+};
+
+// For SkD, PCP, CRP to show message in case of Zero Variance or All NA
+const MSG_MAPPING = {
+    E_ALL_NA: '#i18nE01AllNA',
+    E_PCA_NON_NUMERIC: '#i18nE02NonNumeric',
+    E_ZERO_VARIANCE: '#i18nE03ZeroVariance',
+    W_PCA_INTEGER: '#i18nW01IntegerData',
 };
 
 const scaleOptionConst = {
@@ -2367,7 +2376,7 @@ const hasDivSelection = () => {
     return $('select[name=catExpBox] option:selected').text().includes('Div');
 };
 
-const endProcMultiSelectOnChange = async (count, props, isExportConfig = false) => {
+const endProcMultiSelectOnChange = async (count, props) => {
     const selectedProc = $(`#end-proc-process-${count}`);
     if (selectedProc.length === 0) {
         return;
@@ -2479,6 +2488,7 @@ const endProcMultiSelectOnChange = async (count, props, isExportConfig = false) 
             showLabel: props.showLabel,
             groupIDx: count,
             showColor: props.showColor,
+            colorAsCheckbox: props.colorAsCheckbox,
             hasDiv: props.hasDiv,
             hideStrVariable: props.hideStrVariable,
             hideRealVariable: props.hideRealVariable,
@@ -2506,19 +2516,16 @@ const endProcMultiSelectOnChange = async (count, props, isExportConfig = false) 
 
     // Apply sort by column name for process
     initSortIcon('ul.list-group');
-
-    if (!isExportConfig) {
-        updateSelectedItems();
-        onchangeRequiredInput();
-        DataFinderService.setProcessID();
-        setColorRelativeStartEndProc();
-        checkIfProcessesAreLinked();
-        checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
-        if (startProcId && procId) {
-            const hasLink = await isLinkedWithProcess(startProcId, procId);
-            if (hasLink) {
-                addFilterProcessByProcessId(procId);
-            }
+    updateSelectedItems();
+    onchangeRequiredInput();
+    DataFinderService.setProcessID();
+    setColorRelativeStartEndProc();
+    checkIfProcessesAreLinked();
+    checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
+    if (startProcId && procId) {
+        const hasLink = await isLinkedWithProcess(startProcId, procId);
+        if (hasLink) {
+            addFilterProcessByProcessId(procId);
         }
     }
 };
@@ -2528,6 +2535,7 @@ const endProcessProps = {
     showCatExp: false,
     isRequired: false,
     showColor: false,
+    colorAsCheckbox: false,
     hasDiv: false,
     showFilter: false,
     hideStrVariable: false,
@@ -2563,13 +2571,7 @@ const genProcessSelectOptions = (procIds, procNames, noDataLinkOption = null) =>
 };
 
 // add end proc
-const addEndProcMultiSelect = (
-    procIds,
-    procNames,
-    props = endProcessProps,
-    isExportConfig = false,
-    positionIndex = '',
-) => {
+const addEndProcMultiSelect = (procIds, procNames, props = endProcessProps, positionIndex = '') => {
     let count = positionIndex || 1;
     const innerFunc = (
         onChangeCallbackFunc = null,
@@ -2586,7 +2588,7 @@ const addEndProcMultiSelect = (
         const parentID = `end-proc-process-div-${count}-parent`;
         const processSelectId = `end-proc-process-${count}`;
 
-        const proc = `<div class="${isExportConfig ? 'col-12' : 'col-12 col-xl-6'} col-lg-12 col-md-12 col-sm-12 p-1" style="${isExportConfig ? 'max-height: 450px' : ''}">
+        const proc = `<div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
                 <div class="card end-proc dynamic-element table-bordered py-sm-3" id="${parentID}">
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
@@ -2621,7 +2623,7 @@ const addEndProcMultiSelect = (
             }
             const variableSelected = getEndProcVariableSelected($(e.currentTarget).closest('.card'));
             removeLimitedCheckedList(variableSelected);
-            endProcMultiSelectOnChange(eleNumber, props, isExportConfig).then((r) => {
+            endProcMultiSelectOnChange(eleNumber, props).then((r) => {
                 if (onChangeCallbackFunc) {
                     if (onChangeCallbackDicParam) {
                         onChangeCallbackFunc(onChangeCallbackDicParam);
@@ -2635,7 +2637,7 @@ const addEndProcMultiSelect = (
         });
 
         cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
-        !isExportConfig && updateSelectedItems();
+        updateSelectedItems();
         updateProcessListAfterFilter(processSelectId, procConfigs);
     };
     return innerFunc;
@@ -3529,6 +3531,57 @@ const transformFacetParams = (formData, eleIdPrefix = '') => {
     }
     formData.delete('catExpBox');
     return formData;
+};
+
+/**
+ * @description Transform multiple color var to main colorVar and available_colors_id list. Main colorVar is the first color is selected
+ * @param formData
+ * @return formData
+ */
+const transformColorVars = (formData) => {
+    const colorVars = [];
+    const keys = new Set();
+    let isMultipleColor = false;
+    for (const item of formData.entries()) {
+        const key = item[0];
+        const value = item[1];
+        if (/colorVar\d*$/.test(key)) {
+            isMultipleColor = true;
+            colorVars.push(value);
+            keys.add(key);
+        }
+    }
+
+    if (isMultipleColor) {
+        for (const key of keys) {
+            formData.delete(key);
+        }
+        formData.set('colorVar', colorVars[0]);
+        formData.set('available_colors_id', JSON.stringify(colorVars));
+    }
+
+    return formData;
+};
+
+const initAvailableColorVars = (availableColorVars, callback, isIncludeNoColorOption = true) => {
+    const colorSelect = $('select[name=graphColorVas]');
+    const selectedValue = lastUsedFormData.get('temp_color_var') || lastUsedFormData.get('colorVar');
+    const noColorOption = `<option value="${COMMON_CONSTANT.COLOR_UNSELECTED}" ${selectedValue && selectedValue === COMMON_CONSTANT.COLOR_UNSELECTED ? 'selected' : ''}>---</option>`;
+    var options = [];
+    if (isIncludeNoColorOption) options.push(noColorOption);
+    options = options.concat(
+        availableColorVars?.map((col) => {
+            const selected = selectedValue && selectedValue === col.id ? 'selected' : '';
+            return `<option value="${col.id}" ${selected}>${col.column_name}</option>`;
+        }),
+    );
+    colorSelect.html(options);
+    colorSelect.off('change');
+    colorSelect.on('change', (e) => {
+        const colorVar = e.currentTarget.value;
+        lastUsedFormData.set('temp_color_var', colorVar);
+        callback();
+    });
 };
 
 const getSetFacetValue = (value, name, formData, eleIdPrefix) => {
@@ -5352,6 +5405,17 @@ const showRemoveProblematicColsMdl = (resPlotData = null, multipleTimeRange = fa
     }, 1000);
 };
 
+const showErrorToastr = (errors) => {
+    if (!errors) {
+        return;
+    }
+
+    errors.forEach((error) => {
+        const msgContent = `<p>${$(MSG_MAPPING[error]).text() || error}</p>`;
+        showToastrMsg(msgContent, MESSAGE_LEVEL.WARN);
+    });
+};
+
 const genSelect2Param = (type = 1, data = []) => {
     const params = {
         width: '100%',
@@ -5387,7 +5451,7 @@ const updatePriority = (tableID) => {
         }
 
         // Display X and Y in SCP or HMp
-        if (isScpOrHmpPage) {
+        if (isXYAxisPage) {
             $(row)
                 .find(tdChildElement)
                 .text(rowIdx === 0 ? 'X' : 'Y');

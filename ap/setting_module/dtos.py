@@ -125,3 +125,31 @@ class SearchParamsDTO(BaseModel):
                     types.append(job_type)
 
         return types
+
+
+class ExportConfigPeriodicDTO(BaseModel):
+    """
+    Data Transfer Object for periodic export configuration.
+
+    Defines the scheduling parameters for periodic export operations,
+    including interval settings and trigger times.
+
+    Attributes:
+        client_timezone: Timezone identifier for the client (e.g., 'UTC', 'America/New_York')
+        interval_unit: Time unit for export frequency ('day' or 'hour')
+        interval_value: Numeric value for the interval (e.g., 2 for every 2 days/hours)
+        start_time: datetime
+
+    Raises:
+        ValueError: If validation fails for any field or model-level constraints
+
+    Example:
+        >>> config = ExportConfigPeriodicDTO(
+        ...     client_timezone='UTC', interval_unit='day', interval_value=1, start_time='2026-05-14 07:00'
+        ... )
+    """
+
+    client_timezone: str
+    interval_unit: str
+    interval_value: int
+    start_time: str

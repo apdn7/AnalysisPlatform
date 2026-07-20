@@ -4,7 +4,8 @@ let showOrderModalClick = 0;
 let showOrderModalGraphAreaClick = 0;
 let removeColIds = [];
 let latestSortColIdsJumpPage = [];
-const isScpOrHmpPage =
+const XYAxis = { 0: 'X', 1: 'Y' };
+const isXYAxisPage =
     getCurrentPage() === PAGE_NAME.scp || getCurrentPage() === PAGE_NAME.hmp || getCurrentPage() === PAGE_NAME.wfp;
 
 const orderingEls = {
@@ -103,14 +104,14 @@ const generateSortOrderColumn = (sortList, graphArea, tableID = orderingEls.endC
     }
 
     // for scp or heatmap => get 2 last item in sortList
-    sortList = isScpOrHmpPage ? sortList.slice(-2) : sortList;
+    sortList = isXYAxisPage ? sortList.slice(-2) : sortList;
     const $okBtnInChart = $(orderingEls.endColOrderModalOkBtn + graphArea);
     // in SCP and Heatmap page, if sortedlist <2 => disable OK button
-    if (isScpOrHmpPage && sortList.length < 2) {
+    if (isXYAxisPage && sortList.length < 2) {
         $okBtnInChart.prop('disabled', true);
         $okBtnInChart.removeClass('btn-primary');
         $okBtnInChart.addClass('btn-secondary');
-    } else if (isScpOrHmpPage && sortList.length === 2) {
+    } else if (isXYAxisPage && sortList.length === 2) {
         $okBtnInChart.prop('disabled', false);
         $okBtnInChart.addClass('btn-primary');
         $okBtnInChart.removeClass('btn-secondary');
@@ -184,6 +185,12 @@ const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callbac
                         sortedColIds.push(`${procId}-${colId}`);
                     }
                 });
+            // handle change XY-axis
+            sortedColIds.forEach((id, index) => {
+                if (XYAxis[index]) {
+                    $(`#xy-axis-${id}`).text(XYAxis[index]);
+                }
+            });
         });
 
         $(orderingEls.endColOrderModalCancelBtn).on('click', (e) => {
@@ -237,7 +244,7 @@ const initShowGraphCommon = () => {
         if (!sortedColIds.length) {
             sortedColIds = getSensorOrderFromGUI(latestSortColIds);
         }
-        if (!useEMD && !isSaveColumnOrdering() && !isScpOrHmpPage) {
+        if (!useEMD && !isSaveColumnOrdering() && !isXYAxisPage) {
             latestSortColIds = [...sortedColIds];
         } else {
             // filer checked sensor with latest records
@@ -298,7 +305,7 @@ const showColOrderingSetting = (
     graphArea,
 ) => {
     const calcPriority = () => {
-        if (isScpOrHmpPage) {
+        if (isXYAxisPage) {
             return $(`${tableId} tbody tr`).length === 0 ? 'X' : 'Y';
         } else {
             return $(`${tableId} tbody tr`).length + 1;

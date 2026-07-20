@@ -15,7 +15,19 @@ import sqlalchemy
 import sqlalchemy as sa
 from flask import g
 from flask_babel import get_locale
-from sqlalchemy import Column, ForeignKey, Integer, PrimaryKeyConstraint, Table, and_, asc, desc, func, null, or_
+from sqlalchemy import (
+    Column,
+    ForeignKey,
+    Integer,
+    PrimaryKeyConstraint,
+    Table,
+    and_,
+    asc,
+    desc,
+    func,
+    null,
+    or_,
+)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import (
@@ -30,6 +42,8 @@ from sqlalchemy.orm import (
 
 from ap import Session, db
 from ap.common.common_utils import (
+    Bound,
+    TimeRange,
     chunks,
     convert_to_datetime,
     dict_deep_merge,
@@ -52,7 +66,6 @@ from ap.common.constants import (
     VAR_X,
     VAR_Y,
     CfgConstantType,
-    ColumnNameType,
     CsvDelimiter,
     CSVExtTypes,
     DataColumnType,
@@ -1071,6 +1084,7 @@ class CfgProcessColumn(db.Model):
     raw_data_type: Mapped[Optional[str]]
     column_type: Mapped[Optional[int]]
     is_serial_no: Mapped[bool] = mapped_column(default=False)
+    is_physical_func_col: Mapped[bool] = mapped_column(default=False)
     is_get_date: Mapped[bool] = mapped_column(default=False)
     is_dummy_datetime: Mapped[bool] = mapped_column(default=False)
     is_auto_increment: Mapped[bool] = mapped_column(default=False)
@@ -1153,7 +1167,12 @@ class CfgProcessColumn(db.Model):
 
     @hybrid_property
     def is_transaction_column(self) -> bool:
-        return self.is_normal_column or self.is_main_serial_function_column or self.is_main_datetime_function_column
+        return (
+            self.is_normal_column
+            or self.is_main_serial_function_column
+            or self.is_main_datetime_function_column
+            or self.is_physical_func_col
+        )
 
     @hybrid_property
     def shown_name(self):
@@ -1605,8 +1624,12 @@ class CfgProcess(db.Model):
     )
     exports: Mapped[list[CfgExport]] = relationship(
         back_populates='process',
-        foreign_keys='CfgExport.process_id',
-        # export config cannot exists without process -> delete-orphan
+        foreign_keys='CfgExport.main_process_id',
+        cascade='all, delete, delete-orphan',
+    )
+    export_filters: Mapped[CfgExportFilter] = relationship(
+        back_populates='process',
+        # export with filter cannot exists without filter -> delete-orphan
         cascade='all, delete, delete-orphan',
     )
 
@@ -1673,7 +1696,12 @@ class CfgProcess(db.Model):
         return [
             col
             for col in self.columns
-            if col.is_normal_column or col.is_main_serial_function_column or col.is_main_datetime_function_column
+            if (
+                col.is_normal_column
+                or col.is_main_serial_function_column
+                or col.is_main_datetime_function_column
+                or col.is_physical_func_col
+            )
         ]
 
     def get_date_col(self, column_name_only=True):
@@ -1706,6 +1734,12 @@ class CfgProcess(db.Model):
     def get_main_datetime_function_col(self) -> CfgProcessColumn | None:
         return next(
             (col for col in self.columns if col.is_main_datetime_function_column),
+            None,
+        )
+
+    def get_physical_func_col(self) -> CfgProcessColumn | None:
+        return next(
+            (col for col in self.columns if col.is_physical_func_col),
             None,
         )
 
@@ -3521,73 +3555,157 @@ class MUnit(db.Model):
         return result
 
 
-class CfgExport(CommonModel):
-    """Database model for data export configuration.
+class ExportHistory(CommonModel):
+    """
+    Stores the execution history of data export tasks.
 
-    Manages data export configurations including scheduling, file formats, export
-    destinations, and column selections. Supports scheduled exports with configurable
-    frequency, time ranges, and filter criteria. Used extensively in data export
-    operations to define what data to export, when to export it, and where to save it.
+    This model is used for auditing, performance monitoring, and calculating
+    the scheduled time for subsequent export runs.
 
     Attributes:
-        id: Primary key for the export configuration.
-        title: Display title for the export configuration.
-        export_from: Export start time or date.
-        export_to: Export end time or date (optional).
-        process_id: Foreign key to cfg_process.
-        export_frequency: Export frequency in seconds (optional).
-        folder_path: Destination folder path for exported files.
-        file_type: Export file type (e.g., CSV, Excel).
-        export_column_name_type: Column name type for export (SYSTEM_NAME/JAPANESE_NAME/LOCAL_NAME).
-        created_at: Record creation timestamp.
-        updated_at: Record last update timestamp.
-        process: Relationship to CfgProcess.
-        export_details: List of CfgExportDetail defining which columns to export.
-        filters: List of CfgExportFilter defining filter criteria for export.
+        id: Primary key (Auto-increment).
+        export_id: Foreign key linking to the export configuration (cfg_export).
+        export_from: Start timestamp of the data range included in the export.
+        export_to: End timestamp of the data range included in the export.
+        export_rows: Total number of rows successfully exported.
+        export_file_path: Absolute path to the generated output file.
+        start_time: Timestamp when the export process started.
+        end_time: Timestamp when the export process completed.
+        next_run: Calculated timestamp for the next scheduled execution.
+        created_at: Timestamp when this history record was created.
+    """
 
-    Methods:
-        get_all: Retrieves all export configurations.
-        get_by_id: Retrieves export configuration by ID.
-        get_by_process_id: Gets export configurations for a process.
-        delete_by_id: Deletes export configuration by ID.
-        clone: Creates isolated copy without database references.
+    __tablename__ = 't_export_history'
+    __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
 
-    Generated by Duo.
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id', ondelete='CASCADE'), nullable=False)
+
+    # Data range and results
+    export_from: Mapped[Optional[str]] = mapped_column(nullable=True)
+    export_to: Mapped[Optional[str]] = mapped_column(nullable=True)
+    export_rows: Mapped[Optional[int]] = mapped_column(nullable=True)
+    export_file_path: Mapped[Optional[str]] = mapped_column(nullable=True)
+
+    # Execution timing
+    start_time: Mapped[str] = mapped_column(nullable=False)
+    end_time: Mapped[Optional[str]] = mapped_column(nullable=True)
+    created_at: Mapped[str] = mapped_column(nullable=False, default=get_current_timestamp)
+
+    # Relationship to parent configuration
+    export: Mapped[CfgExport] = relationship(back_populates='history')
+
+    @classmethod
+    def exported_range(cls, export_id: int) -> TimeRange:
+        """Get the maximum export to from export history table"""
+        result = (
+            cls.query.with_entities(func.min(cls.export_from).label('min_ts'), func.max(cls.export_to).label('max_ts'))
+            .filter(cls.export_id == export_id)
+            .one()
+        )
+        return TimeRange(min=Bound.included(result.min_ts), max=Bound.included(result.max_ts))
+
+
+class CfgExportPeriodic(CommonModel):
+    """
+    Defines the recurrence schedule for automated export tasks.
+    Attributes:
+        id: Primary key (Auto-increment).
+        interval_unit: The unit of time for the recurrence (e.g., 'HOUR', 'DAY', 'MIN').
+        interval_value: The frequency of the interval (e.g., every 2 hours, every 1 day).
+        start_time: The start time of periodic
+    """
+
+    __tablename__ = 'cfg_export_periodic'
+    __table_args__: ClassVar[dict] = {'sqlite_autoincrement': True}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    interval_unit: Mapped[str] = mapped_column(nullable=False)
+    interval_value: Mapped[int] = mapped_column(nullable=False)
+    start_time: Mapped[str] = mapped_column(nullable=False)
+
+    # Relationship to configurations using this schedule
+    export: Mapped[CfgExport] = relationship(back_populates='cycle')
+
+
+class CfgExport(CommonModel):
+    """
+    Core model for managing data export configurations.
+
+    Acts as the central entity connecting data sources (Processes),
+    scheduling logic (Periodic), and column mappings (Details).
+
+    Relationships:
+        cycle: Many-to-One link with CfgExportPeriodic. Optional if type is 'ONCE'.
+        process: Reference to the primary data source.
+        export_details: One-to-Many list defining columns to be exported.
+        history: One-to-Many list of execution logs for this configuration.
     """
 
     __tablename__ = 'cfg_export'
-    __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(nullable=False)
-    export_from: Mapped[str] = mapped_column(nullable=False)
-    export_to: Mapped[Optional[str]] = mapped_column(nullable=True)
-    process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
-    export_frequency: Mapped[int] = mapped_column(nullable=True)
-    folder_path: Mapped[str] = mapped_column(nullable=False)
-    file_type: Mapped[str] = mapped_column(nullable=False)
-    export_column_name_type: Mapped[int] = mapped_column(
-        Integer, server_default=str(ColumnNameType.SYSTEM_NAME.value), nullable=False
-    )
+    __table_args__: ClassVar[dict] = {'sqlite_autoincrement': True}
 
-    process: Mapped[CfgProcess] = relationship(
-        back_populates='exports',
-        foreign_keys=[process_id],
-    )
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    type: Mapped[str] = mapped_column(nullable=False, server_default='once')  # Allowed values: 'ONCE', 'PERIODIC'
+    title: Mapped[str] = mapped_column(nullable=False)
+    created_by: Mapped[Optional[str]] = mapped_column(nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(nullable=True)
+
+    # Destination settings
+    folder_path: Mapped[str] = mapped_column(nullable=False)
+    sub_folder: Mapped[Optional[str]] = mapped_column(nullable=True)
+    file_format: Mapped[Optional[str]] = mapped_column(nullable=True, server_default='tsv', default='tsv')
+    filename_identifier: Mapped[Optional[str]] = mapped_column(nullable=True)
+    filename_format: Mapped[str] = mapped_column(nullable=False)
+
+    # Processing options
+    split_file_by: Mapped[Optional[int]] = mapped_column(nullable=True)
+
+    # Outlier removing options
+    remove_exception: Mapped[bool] = mapped_column(default=False)  # Exception
+    remove_outlier: Mapped[Optional[str]] = mapped_column(nullable=True)  # Outlier
+    remove_abnormal_count: Mapped[bool] = mapped_column(default=False)  # Pulsed
+    duplicated_check_type: Mapped[Optional[str]] = mapped_column(
+        nullable=True, server_default='all'
+    )  # Dup: all/first/last
+    duplicated_check: Mapped[Optional[str]] = mapped_column(
+        nullable=True, server_default='auto'
+    )  # Dup check: auto/check/skip
+
+    # Foreign Keys
+    # periodic_id is Optional to support 'ONCE' type exports
+    periodic_id: Mapped[Optional[int]] = mapped_column(ForeignKey('cfg_export_periodic.id'), nullable=True)
+    main_process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id'), nullable=False)
+
+    # Default data range filters
+    export_from: Mapped[Optional[str]] = mapped_column(nullable=True)
+    export_to: Mapped[Optional[str]] = mapped_column(nullable=True)
+
+    # Export column name type: Japanese|English Column Name
+    export_column_name_type: Mapped[int] = mapped_column(nullable=True, server_default='0')
+
+    # Metadata
+    client_timezone: Mapped[str] = mapped_column(nullable=False)
+    created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
+    updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
+
+    # Relationships
+    cycle: Mapped[Optional[CfgExportPeriodic]] = relationship(back_populates='export', cascade='all, delete')
+    process: Mapped[CfgProcess] = relationship(back_populates='exports')
+
     export_details: Mapped[list[CfgExportDetail]] = relationship(
         back_populates='export',
-        # export details cannot exists without export -> delete-orphan
         cascade='all, delete, delete-orphan',
         order_by='CfgExportDetail.order',
     )
-    # export with filters
     filters: Mapped[list[CfgExportFilter]] = relationship(
         back_populates='export',
-        # export filter cannot exists without export -> delete-orphan
         cascade='all, delete, delete-orphan',
     )
-
-    created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
-    updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
+    history: Mapped[list[ExportHistory]] = relationship(
+        back_populates='export',
+        cascade='all, delete, delete-orphan',
+    )
 
     @classmethod
     def get_all(cls):
@@ -3600,69 +3718,61 @@ class CfgExport(CommonModel):
 
     @classmethod
     def get_by_process_id(cls, process_id):
-        return cls.query.filter(cls.process_id == process_id).all()
+        return cls.query.filter(cls.main_process_id == process_id).all()
 
     @classmethod
     def delete_by_id(cls, meta_session, config_id):
         export_config = meta_session.query(cls).get(config_id)
         if export_config:
+            periodic_config = export_config.cycle
             meta_session.delete(export_config)
+            if periodic_config:
+                meta_session.delete(periodic_config)
+                meta_session.commit()
 
     def clone(self) -> CfgExport:
         return CfgExport(**self.as_dict())
 
 
 class CfgExportDetail(CommonModel):
-    """Database model for export column details.
-
-    Defines which columns are included in export configurations. Acts as a
-    many-to-many relationship between CfgExport and CfgProcessColumn, allowing
-    selective column export. Used to specify the exact columns to include in
-    data export operations.
-
-    Attributes:
-        export_id: Foreign key to cfg_export (part of composite primary key).
-        process_column_id: Foreign key to cfg_process_column (part of composite primary key).
-        process_column: Relationship to CfgProcessColumn.
-        export: Relationship to CfgExport.
-
-    Generated by Duo.
-    """
+    """Junction table defining specific columns included in an export configuration."""
 
     __tablename__ = 'cfg_export_detail'
     __table_args__ = (PrimaryKeyConstraint('export_id', 'process_column_id'),)
-    export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id'))
-    process_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id'))
-    order: Mapped[int] = mapped_column(Integer, nullable=True, server_default='1')
 
+    export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id', ondelete='CASCADE'), nullable=False)
+    process_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id'), nullable=False)
+    process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id'), nullable=False)
+
+    # Sort order of the column in the output file
+    order: Mapped[int] = mapped_column(nullable=False, default=0)
+
+    # Relationships
     process_column: Mapped[CfgProcessColumn] = relationship(
         back_populates='export_details',
         foreign_keys=[process_column_id],
     )
     export: Mapped[CfgExport] = relationship(back_populates='export_details', foreign_keys=[export_id])
+    process: Mapped[CfgProcess] = relationship(foreign_keys=[process_id])
 
 
 class CfgExportFilter(CommonModel):
-    """Database model for export filter configuration.
-
-    Associates filter criteria with export configurations to filter exported data.
-    Acts as a many-to-many relationship between CfgExport and CfgFilterDetail,
-    enabling filtered data exports. Used to apply specific filter conditions to
-    data export operations, ensuring only relevant data is exported.
-
-    Attributes:
-        export_id: Foreign key to cfg_export (part of composite primary key).
-        filter_detail_id: Foreign key to cfg_filter_detail (part of composite primary key).
-        filter: Relationship to CfgFilterDetail.
-        export: Relationship to CfgExport.
-
-    Generated by Duo.
-    """
+    """Junction table associating filters with export configurations."""
 
     __tablename__ = 'cfg_export_filter'
     __table_args__ = (PrimaryKeyConstraint('export_id', 'filter_detail_id'),)
-    export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id', ondelete='CASCADE'))
-    filter_detail_id: Mapped[int] = mapped_column(ForeignKey('cfg_filter_detail.id', ondelete='CASCADE'))
+
+    export_id: Mapped[int] = mapped_column(ForeignKey('cfg_export.id', ondelete='CASCADE'), nullable=False)
+    process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'), nullable=False)
+    filter_detail_id: Mapped[int] = mapped_column(
+        ForeignKey('cfg_filter_detail.id', ondelete='CASCADE'), nullable=False
+    )
+
+    # Relationships
+    process: Mapped[CfgProcess] = relationship(
+        back_populates='export_filters',
+        foreign_keys=[process_id],
+    )
     filter: Mapped[CfgFilterDetail] = relationship(
         back_populates='export_filters',
         foreign_keys=[filter_detail_id],

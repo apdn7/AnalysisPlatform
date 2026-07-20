@@ -137,6 +137,10 @@ msgstr "चुन्नु"
 msgid "Do you want to delete this record?"
 msgstr "के तपाइँ यस रेकर्ड मेट्न चाहानुहुन्छ?"
 
+#: ap/templates/i18n.html
+msgid "this record"
+msgstr "this record"
+
 #: ap/templates/setting_module/db_config.html:152
 #: ap/templates/setting_module/trace_config.html:72
 #: ap/templates/setting_module/trace_config.html:88
@@ -655,6 +659,26 @@ msgstr "जोड्नु"
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per hour"
 msgstr "एक घण्टा एक पटक"
+
+#: ap/templates/i18n.html
+msgid "Once per 2 hours"
+msgstr "Every 2 hours"
+
+#: ap/templates/i18n.html
+msgid "Once per 3 hours"
+msgstr "Every 3 hours"
+
+#: ap/templates/i18n.html
+msgid "Once per 4 hours"
+msgstr "Every 4 hours"
+
+#: ap/templates/i18n.html
+msgid "Once per 6 hours"
+msgstr "Every 6 hours"
+
+#: ap/templates/i18n.html
+msgid "Once per 12 hours"
+msgstr "Every 12 hours"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per day"
@@ -2340,12 +2364,12 @@ msgid "Aggregated by"
 msgstr "द्वारा समग्र"
 
 # co-occurrence
-msgid "Hour"
-msgstr "घण्टा"
+msgid "aggregateByHour"
+msgstr "Hour"
 
 # co-occurrence
-msgid "Day"
-msgstr "समय"
+msgid "aggregateByDay"
+msgstr "Day"
 
 #: ap/templates/templates/i18n.html
 msgid "Edit Mode"
@@ -4626,6 +4650,10 @@ msgstr ""
 msgid "LinkConfigurationNotExist"
 msgstr "The graph is not displayed because no linking settings have been made."
 
+#: ap/templates/i18n.html
+msgid "ExportFileNotExportedNoLinkConfig"
+msgstr "File export is not available because no linking settings have been made."
+
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Japanese name is duplicated"
 msgstr "Japanese name is duplicated"
@@ -5516,16 +5544,21 @@ msgstr ""
 " that the preceding character is at the end, and “|” means OR.\n"
 "Note: The quotation marks are not needed when entering the values.)"
 
-#: ap/templates/i18n.html
+# : ap/templates/i18n.html
 msgid "HoverConversationFormulaMsg"
 msgstr ""
-"Enter the unit. It will be displayed in the plot area, etc. Only units "
-"defined in the system can be registered.\n"
-"If the DataType is a judgment, the conversion formula Pos~p0|Neg=p1|n1 "
-"will be displayed.\n"
-"p0 is the original data value of the positive example judge value, p1 and"
-" n1 are the display values for the positive and negative examples, "
-"respectively (e.g., OK and NG for products)."
+"Transformation rule used to define how judgment results are displayed.\n"
+"This is used in graphs and other visualizations.\n"
+"When the data type is Judge, the formula (e.g., Pos=p0|p1, Neg=n1) is "
+"applied.\n"
+"\n"
+"- p0: Value of the positive case in the raw data (e.g., \"Pass\")\n"
+"- p1: Display value for the positive case (e.g., \"OK\")\n"
+"- n1: Display value for the negative case (e.g., \"NG\")\n"
+"\n"
+"Values that match p0 are transformed to p1;\n"
+"all other values are transformed to n1 for display.\n"
+"If no positive case exists (e.g., defect history data), set p0 to Null."
 
 #: ap/templates/i18n.html
 msgid "SelectJudgeDatatypeModalMsg"
@@ -5913,4 +5946,185 @@ msgid "DataTypeEventsHint"
 msgstr ""
 "Single click: Display dropdown\n"
 "Double click: Select the cell"
+
+msgid "Export config saved successfully"
+msgstr "Export config saved successfully"
+
+#: ap/config/export_config
+msgid "Export Schedule"
+msgstr "Export Schedule"
+
+msgid "Schedule Preview"
+msgstr "Schedule Preview"
+
+msgid "Export Settings"
+msgstr "Export Settings"
+
+msgid "Filename identifier"
+msgstr "Filename identifier"
+
+msgid "Filename format"
+msgstr "Filename format"
+
+msgid "Column Name Type"
+msgstr "Column Name Type"
+
+msgid "Split file by"
+msgstr "Split file by"
+
+msgid "Sub-folder"
+msgstr "Sub-folder"
+
+msgid "File format"
+msgstr "File format"
+
+msgid "ExportFileNameDragdropItemLabel"
+msgstr "Label"
+
+msgid "Filename Preview"
+msgstr "Filename Preview"
+
+msgid "Failed to save export configuration"
+msgstr "Failed to save export configuration"
+
+msgid "Period from"
+msgstr "Period from"
+
+msgid "Period to"
+msgstr "Period to"
+
+msgid "Export past data since"
+msgstr "Export past data since"
+
+msgid "Next 3 runs"
+msgstr "Next 3 runs"
+
+msgid "Run now"
+msgstr "Run now"
+
+msgid "Periodic"
+msgstr "Periodic"
+
+msgid "Timing"
+msgstr "Timing"
+
+msgid "Main Process"
+msgstr "Main Process"
+
+msgid "Parameters"
+msgstr "Parameters"
+
+msgid "Last run"
+msgstr "Last run"
+
+msgid "Latest export data"
+msgstr "Latest export data"
+
+msgid "Next run"
+msgstr "Next run"
+
+msgid "Creator"
+msgstr "Creator"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "PeriodicDay"
+msgstr "Day"
+
+msgid "PeriodicHour"
+msgstr "Hour"
+
+msgid "Export Variables"
+msgstr "Export Variables"
+
+msgid "An unknown error occurred while validating the folder path."
+msgstr "An unknown error occurred while validating the folder path."
+
+msgid "Network error occurred. Please check your connection."
+msgstr "Network error occurred. Please check your connection."
+
+msgid "The provided folder path is invalid."
+msgstr "The provided folder path is invalid."
+
+msgid "The field must not be empty."
+msgstr "The field must not be empty."
+
+msgid "Filename preview is empty."
+msgstr "Filename preview is empty."
+
+msgid "Single"
+msgstr "Single"
+
+msgid "PeriodicMin"
+msgstr "Minute"
+
+msgid "Once every"
+msgstr "Once every"
+
+msgid "Begin at"
+msgstr "Begin at"
+
+msgid "Begin From"
+msgstr "Begin From"
+
+msgid "Daily"
+msgstr "Daily"
+
+msgid "Weekly"
+msgstr "Weekly"
+
+msgid "Monthly"
+msgstr "Monthly"
+
+msgid "Confirm export registration"
+msgstr "Confirm export registration"
+
+msgid "Note: Corresponding processes will also be deleted:"
+msgstr "Note: Corresponding processes will also be deleted:"
+
+msgid "ExportSettingTitle"
+msgstr "Title"
+
+msgid "ExportFileNameIdentifierTooltipText"
+msgstr ""
+"Optional text for the file name\n"
+"(position is defined in the filename format)"
+
+msgid "ExportFileNameStructureTooltipText"
+msgstr "Define how the file name is built (e.g., label + date + process)"
+
+msgid "ExportSubfolderTooltipText"
+msgstr ""
+"Files are automatically exported into\n"
+"subfolders created based on the selected time unit.\n"
+"\n"
+"Examples:\n"
+"Daily: 20260101\n"
+"Weekly: 2026-W01 (ISO week number)\n"
+"Monthly: 2026-01"
+
+msgid "ExportFileSplitTooltipText"
+msgstr ""
+"Prevents creating oversized files.\n"
+"If the row limit or 100MB size is exceeded,\n"
+"the output is split into multiple files.\n"
+"\n"
+"Split files are numbered (e.g., dat_1.csv, dat_2.csv)."
+
+#~ msgid "HoverConversationFormulaMsg"
+#~ msgstr ""
+#~ "Enter the unit. It will be "
+#~ "displayed in the plot area, etc. "
+#~ "Only units defined in the system "
+#~ "can be registered.\n"
+#~ "If the DataType is a judgment, the"
+#~ " conversion formula Pos~p0|Neg=p1|n1 will "
+#~ "be displayed.\n"
+#~ "p0 is the original data value of"
+#~ " the positive example judge value, p1"
+#~ " and n1 are the display values "
+#~ "for the positive and negative examples,"
+#~ " respectively (e.g., OK and NG for"
+#~ " products)."
 

@@ -254,6 +254,10 @@ h6 {
     max-width: 55px;
 }
 
+.fit-xy {
+    max-width: 20px;
+}
+
 .small-col {
     width: 48px;
     max-width: 48px;
@@ -435,4 +439,10 @@ table tbody tr.hovered {
 
 #softwareWorkshopCfgForm .form-group {
     margin-bottom: 0.6rem !important;
+}
+
+.xy-axis {
+    font-weight: bold;
+    color: #868686;
+    width: 17px;
 }

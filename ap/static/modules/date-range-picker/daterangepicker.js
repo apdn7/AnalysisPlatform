@@ -1548,6 +1548,8 @@
                 if (!this.singleDatePicker) {
                     newValue += this.locale.separator + this.endDate.format(this.locale.format);
                 }
+
+                this.element.trigger('reactdaterangepicker', newValue);
                 if (newValue !== this.element.val()) {
                     this.element.val(newValue).trigger('change');
                 }

@@ -13,6 +13,7 @@ from loguru import logger
 
 from ap.api.common.services.file_reader import StructuredFileReader
 from ap.api.efa.services.etl import df_transform
+from ap.api.setting_module.services.archive_handler import cleanup_temp_files, expand_archive_sources_to_temp_files
 from ap.api.setting_module.services.csv_import import (
     convert_csv_timezone,
     gen_dummy_header,
@@ -46,6 +47,7 @@ from ap.common.common_utils import (
     is_ja_locale,
 )
 from ap.common.constants import (
+    ARCHIVE_MAX_FILES_DEFAULT,
     COL_DATA_TYPE,
     DATA_TYPE_ESTIMATION_LIMIT,
     DATE_FORMAT_SIMPLE,
@@ -66,6 +68,7 @@ from ap.common.constants import (
     SUB_PART_NO_SUFFIX,
     UNDER_SCORE,
     V2_PREVIEW_LIMIT,
+    CSVExtTypes,
     DataColumnType,
     DataGroupType,
     DataType,
@@ -692,6 +695,16 @@ def clean_na_columns(col_data):
     return col_data
 
 
+def _prioritize_preview_files_with_data(sorted_files: list[str], temp_file_set: set[str]) -> list[str]:
+    if not temp_file_set:
+        return sorted_files
+
+    temp_files = [file_path for file_path in sorted_files if file_path in temp_file_set]
+    other_files = [file_path for file_path in sorted_files if file_path not in temp_file_set]
+    temp_files = sorted(temp_files, key=lambda file_path: os.path.getsize(file_path), reverse=True)
+    return temp_files + other_files
+
+
 @log_execution_time()
 def preview_csv_data(
     folder_url,
@@ -712,208 +725,241 @@ def preview_csv_data(
     encoding=None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
+    temp_files: list[str] = []
 
-    if not file_name:
-        sorted_files = get_sorted_files(folder_url)
-        sorted_files = sorted_files[0:5]
-    else:
-        sorted_files = [file_name]
+    try:
+        if not file_name:
+            sorted_files = get_sorted_files(folder_url)
+            sorted_files = sorted_files[0:5]
+        else:
+            sorted_files = [file_name]
 
-    csv_file = ''
-    header_names = []
-    data_types = []
-    data_details = []
-    same_values = []
-    if not sorted_files:
+        previewed_files = sorted_files.copy()
+        sorted_files, temp_files = expand_archive_sources_to_temp_files(
+            source_files=sorted_files,
+            target_extensions={CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value},
+            max_files=ARCHIVE_MAX_FILES_DEFAULT,
+            include_non_archive_sources=True,
+            return_metadata=False,
+        )
+        temp_file_set = set(temp_files)
+        sorted_files = _prioritize_preview_files_with_data(sorted_files, temp_file_set)
+
+        csv_file = ''
+        header_names = []
+        data_types = []
+        data_details = []
+        same_values = []
+        if not sorted_files:
+            return {
+                'directory': folder_url,
+                'file_name': csv_file,
+                'header': header_names,
+                'content': [] if return_df else data_details,
+                'dataType': data_types,
+                'skip_head': skip_head,
+                'n_rows': n_rows,
+                'is_transpose': is_transpose,
+                'skip_tail': 0,
+                'previewed_files': previewed_files,
+                'same_values': same_values,
+            }
+
+        csv_file = sorted_files[0]
+        display_file = previewed_files[0] if csv_file in temp_file_set and previewed_files else csv_file
+        preview_file_groups = [sorted_files]
+        if temp_file_set and len(sorted_files) > 1:
+            preview_file_groups.extend([file_path] for file_path in sorted_files)
+
+        org_header = []
+        dummy_header = False
+        partial_dummy_header = False
+        skip_tail = 0
+        skip_head_detected = None
+        is_gen_cols = []
+        for preview_file_group in preview_file_groups:
+            try:
+                (
+                    org_header,
+                    header_names,
+                    dummy_header,
+                    partial_dummy_header,
+                    data_details,
+                    is_gen_cols,
+                    encoding,
+                    skip_tail,
+                    skip_head_detected,
+                    is_file_checker,
+                ) = get_csv_data_from_files(
+                    preview_file_group,
+                    skip_head=skip_head,
+                    n_rows=n_rows,
+                    is_transpose=is_transpose,
+                    etl_func=etl_func,
+                    csv_delimiter=csv_delimiter,
+                    max_records=max_records,
+                    is_file_checker=is_file_checker,
+                    encoding=encoding,
+                )
+            except Exception:
+                logger.exception('Failed to read CSV preview files: {}', preview_file_group)
+                continue
+
+            if data_details:
+                csv_file = preview_file_group[0]
+                break
+
+        # normalize data detail
+        df_data_details, org_headers, header_names, dupl_cols, data_types = extract_data_detail(
+            header_names,
+            data_details,
+            org_header,
+            is_show_raw_data=is_show_raw_data,
+        )
+        has_ct_col = True
+        dummy_datetime_idx = None
+        file_name_col_idx = None
+        if df_data_details is not None:
+            # sort by datetime
+            first_datetime_col_idx = None
+            # convert utc
+            for col, dtype in zip(header_names, data_types, strict=False):
+                if DataType(dtype) in [DataType.DATETIME, DataType.DATE, DataType.TIME]:
+                    df_data_details[col] = df_data_details[col].astype(pd.StringDtype())
+
+                if DataType(dtype) is not DataType.DATETIME:
+                    continue
+                # Convert UTC time
+                df_data_details = validate_datetime(
+                    df_data_details,
+                    col,
+                    is_strip=False,
+                    add_is_error_col=False,
+                    is_convert_datetime=is_convert_datetime,
+                )
+                # When show sample data on Process Config, it will show raw data of datetime value.
+                if is_convert_datetime:
+                    df_data_details = convert_csv_timezone(df_data_details, col)
+                else:
+                    df_data_details[col] = df_data_details[col].astype(pd.StringDtype())
+                df_data_details = df_data_details.dropna(subset=[col])
+
+                # if not first_datetime_col_idx:
+                #     # first ct column is selected as datetime column
+                #     # append datetime to start of list columns
+                #     # and sort preview rows by datetime value
+                #     df_data_details = df_data_details.sort_values(col)
+                #     first_datetime_col_idx = header_names.index(col)
+
+            if DataType.DATETIME.value not in data_types:
+                (
+                    header_names,
+                    df_data_details,
+                    org_headers,
+                    data_types,
+                    dupl_cols,
+                    dummy_datetime_idx,
+                    is_gen_cols,
+                ) = add_dummy_datetime_column(
+                    header_names,
+                    df_data_details,
+                    org_headers,
+                    data_types,
+                    is_gen_cols=is_gen_cols,
+                )
+                has_ct_col = False
+            elif first_datetime_col_idx:
+                header_names = re_order_items_by_datetime_idx(first_datetime_col_idx, header_names)
+                data_types = re_order_items_by_datetime_idx(first_datetime_col_idx, data_types)
+                org_headers = re_order_items_by_datetime_idx(first_datetime_col_idx, org_headers)
+                df_data_details = df_data_details[header_names]
+
+            # add file name
+            if show_file_name_column:
+                (
+                    header_names,
+                    df_data_details,
+                    org_headers,
+                    data_types,
+                    dupl_cols,
+                    file_name_col_idx,
+                    is_gen_cols,
+                ) = add_show_file_name_column(
+                    header_names,
+                    df_data_details,
+                    org_headers,
+                    data_types,
+                    display_file,
+                    is_gen_cols,
+                )
+
+            # check to add generated datetime column
+            if current_process_id is not None:
+                # we check datetime column and add this datetime column into details
+                (
+                    header_names,
+                    df_data_details,
+                    org_headers,
+                    data_types,
+                    dupl_cols,
+                    is_gen_cols,
+                ) = add_generated_datetime_column(
+                    current_process_id,
+                    df_data_details,
+                    org_headers,
+                    header_names,
+                    dupl_cols,
+                    data_types,
+                    is_gen_cols,
+                )
+
+            same_values = check_same_values_in_df(df_data_details, header_names)
+
+            df_data_details = df_data_details.apply(clean_na_columns)
+            if not return_df:
+                df_data_details = df_data_details.to_records(index=False).tolist()
+        elif not return_df:
+            df_data_details = []
+
+        if csv_file:
+            csv_file = display_file.replace('/', os.sep)
+
+        has_dupl_cols = False
+        if len(dupl_cols) and same_values:
+            if dummy_datetime_idx is not None:
+                # for dummy datetime column
+                dupl_cols = [False, *dupl_cols]
+            for key, value in enumerate(same_values):
+                is_dupl_col = bool(dupl_cols[key])
+                same_values[key]['is_dupl'] = is_dupl_col
+                if is_dupl_col:
+                    has_dupl_cols = True
+
         return {
             'directory': folder_url,
             'file_name': csv_file,
             'header': header_names,
-            'content': [] if return_df else data_details,
+            'content': df_data_details,
             'dataType': data_types,
-            'skip_head': skip_head,
+            'skip_head': 0 if dummy_header and not skip_head_detected else skip_head_detected,
+            'skip_tail': skip_tail,
             'n_rows': n_rows,
             'is_transpose': is_transpose,
-            'skip_tail': 0,
-            'previewed_files': sorted_files,
-            'same_values': same_values,
+            'previewed_files': previewed_files,
+            'has_ct_col': has_ct_col,
+            'dummy_datetime_idx': dummy_datetime_idx,
+            'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
+            'has_dupl_cols': False if dummy_header else has_dupl_cols,
+            'org_headers': header_names if dummy_header else org_headers,
+            'encoding': encoding,
+            'is_dummy_header': dummy_header,
+            'partial_dummy_header': partial_dummy_header,
+            'file_name_col_idx': file_name_col_idx,
+            'is_gen_cols': is_gen_cols,
+            'is_file_checker': is_file_checker,
         }
-
-    csv_file = sorted_files[0]
-
-    (
-        org_header,
-        header_names,
-        dummy_header,
-        partial_dummy_header,
-        data_details,
-        is_gen_cols,
-        encoding,
-        skip_tail,
-        skip_head_detected,
-        is_file_checker,
-    ) = get_csv_data_from_files(
-        sorted_files,
-        skip_head=skip_head,
-        n_rows=n_rows,
-        is_transpose=is_transpose,
-        etl_func=etl_func,
-        csv_delimiter=csv_delimiter,
-        max_records=max_records,
-        is_file_checker=is_file_checker,
-        encoding=encoding,
-    )
-
-    # normalize data detail
-    df_data_details, org_headers, header_names, dupl_cols, data_types = extract_data_detail(
-        header_names,
-        data_details,
-        org_header,
-        is_show_raw_data=is_show_raw_data,
-    )
-    has_ct_col = True
-    dummy_datetime_idx = None
-    file_name_col_idx = None
-    if df_data_details is not None:
-        # sort by datetime
-        first_datetime_col_idx = None
-        # convert utc
-        for col, dtype in zip(header_names, data_types, strict=False):
-            if DataType(dtype) in [DataType.DATETIME, DataType.DATE, DataType.TIME]:
-                df_data_details[col] = df_data_details[col].astype(pd.StringDtype())
-
-            if DataType(dtype) is not DataType.DATETIME:
-                continue
-            # Convert UTC time
-            df_data_details = validate_datetime(
-                df_data_details,
-                col,
-                is_strip=False,
-                add_is_error_col=False,
-                is_convert_datetime=is_convert_datetime,
-            )
-            # When show sample data on Process Config, it will show raw data of datetime value.
-            if is_convert_datetime:
-                df_data_details = convert_csv_timezone(df_data_details, col)
-            else:
-                df_data_details[col] = df_data_details[col].astype(pd.StringDtype())
-            df_data_details = df_data_details.dropna(subset=[col])
-
-            # if not first_datetime_col_idx:
-            #     # first ct column is selected as datetime column
-            #     # append datetime to start of list columns
-            #     # and sort preview rows by datetime value
-            #     df_data_details = df_data_details.sort_values(col)
-            #     first_datetime_col_idx = header_names.index(col)
-
-        if DataType.DATETIME.value not in data_types:
-            (
-                header_names,
-                df_data_details,
-                org_headers,
-                data_types,
-                dupl_cols,
-                dummy_datetime_idx,
-                is_gen_cols,
-            ) = add_dummy_datetime_column(
-                header_names,
-                df_data_details,
-                org_headers,
-                data_types,
-                is_gen_cols=is_gen_cols,
-            )
-            has_ct_col = False
-        elif first_datetime_col_idx:
-            header_names = re_order_items_by_datetime_idx(first_datetime_col_idx, header_names)
-            data_types = re_order_items_by_datetime_idx(first_datetime_col_idx, data_types)
-            org_headers = re_order_items_by_datetime_idx(first_datetime_col_idx, org_headers)
-            df_data_details = df_data_details[header_names]
-
-        # check to add generated datetime column
-        if current_process_id is not None:
-            # we check datetime column and add this datetime column into details
-            (
-                header_names,
-                df_data_details,
-                org_headers,
-                data_types,
-                dupl_cols,
-                is_gen_cols,
-            ) = add_generated_datetime_column(
-                current_process_id,
-                df_data_details,
-                org_headers,
-                header_names,
-                dupl_cols,
-                data_types,
-                is_gen_cols,
-            )
-
-        # add file name
-        if show_file_name_column:
-            (
-                header_names,
-                df_data_details,
-                org_headers,
-                data_types,
-                dupl_cols,
-                file_name_col_idx,
-                is_gen_cols,
-            ) = add_show_file_name_column(
-                header_names,
-                df_data_details,
-                org_headers,
-                data_types,
-                csv_file,
-                is_gen_cols,
-            )
-
-        same_values = check_same_values_in_df(df_data_details, header_names)
-
-        # Convert data detail to string to avoid NAType JSON serialization error
-        df_data_details = df_data_details.apply(clean_na_columns)
-        if not return_df:
-            df_data_details = df_data_details.to_records(index=False).tolist()
-    elif not return_df:
-        df_data_details = []
-
-    if csv_file:
-        csv_file = csv_file.replace('/', os.sep)
-
-    has_dupl_cols = False
-    if len(dupl_cols) and same_values:
-        if dummy_datetime_idx is not None:
-            # for dummy datetime column
-            dupl_cols = [False, *dupl_cols]
-        for key, value in enumerate(same_values):
-            is_dupl_col = bool(dupl_cols[key])
-            same_values[key]['is_dupl'] = is_dupl_col
-            if is_dupl_col:
-                has_dupl_cols = True
-
-    return {
-        'directory': folder_url,
-        'file_name': csv_file,
-        'header': header_names,
-        'content': df_data_details,
-        'dataType': data_types,
-        'skip_head': 0 if dummy_header and not skip_head_detected else skip_head_detected,
-        'skip_tail': skip_tail,
-        'n_rows': n_rows,
-        'is_transpose': is_transpose,
-        'previewed_files': sorted_files,
-        'has_ct_col': has_ct_col,
-        'dummy_datetime_idx': dummy_datetime_idx,
-        'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
-        'has_dupl_cols': False if dummy_header else has_dupl_cols,
-        'org_headers': header_names if dummy_header else org_headers,
-        'encoding': encoding,
-        'is_dummy_header': dummy_header,
-        'partial_dummy_header': partial_dummy_header,
-        'file_name_col_idx': file_name_col_idx,
-        'is_gen_cols': is_gen_cols,
-        'is_file_checker': is_file_checker,
-    }
+    finally:
+        cleanup_temp_files(temp_files)
 
 
 @log_execution_time()
@@ -952,171 +998,239 @@ def preview_v2_data(
             'encoding': encoding,
         }
 
-    is_abnormal_v2 = None
-    datasource_type = None
-    if process_name:
-        # V2 preview with the largest file
-        file_data_idx = 0
-        while file_data_idx >= 0:
-            largest_file = sorted_files[file_data_idx]
-            _, encoding = get_delimiter_encoding(largest_file, preview=True)
-            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(largest_file)
-
-            if datasource_type == DBType.V2_HISTORY:
-                data_details = get_df_v2_process_single_file(
-                    largest_file,
-                    process_name,
-                    datasource_type,
-                    is_abnormal_v2,
-                )
-            elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
-                data_details = get_vertical_df_v2_process_single_file(
-                    largest_file,
-                    process_name,
-                    datasource_type,
-                    is_abnormal_v2,
-                    is_en_cols,
-                )
-            else:
-                raise NotImplementedError
-
-            file_data_idx += 1
-            csv_file = os.path.basename(largest_file)
-            if len(data_details) > 0 or file_data_idx >= len(sorted_files):
-                file_data_idx = -1
-
-        data_details = data_details[:1000]
-        header_names = data_details.columns.tolist()
-
-    if not len(header_names):
-        v2_process_names = get_preview_processes_v2(
-            sorted_files,
-            maximum_files=MAXIMUM_V2_PREVIEW_ZIP_FILES,
+    previewed_files = sorted_files.copy()
+    temp_files: list[str] = []
+    try:
+        sorted_files, temp_files = expand_archive_sources_to_temp_files(
+            source_files=sorted_files,
+            target_extensions={CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value},
+            max_files=ARCHIVE_MAX_FILES_DEFAULT,
+            include_non_archive_sources=True,
+            return_metadata=False,
         )
+        temp_file_set = set(temp_files)
+        sorted_files = _prioritize_preview_files_with_data(sorted_files, temp_file_set)
 
-        csv_file = sorted_files[0]
-        file_reader = StructuredFileReader(
-            filenames=[csv_file],
-            delimiter=csv_delimiter,
-            max_results=V2_PREVIEW_LIMIT,
-        )
-        # preview V2 file
-        header_names, data_details = file_reader.read(target_file=csv_file)
-        encoding = file_reader.encoding
+        if not sorted_files:
+            return {
+                'file_name': csv_file,
+                'header': header_names,
+                'content': [] if return_df else data_details,
+                'dataType': data_types,
+                'skip_head': skip_head,
+                'skip_tail': skip_tail,
+                'previewed_files': previewed_files,
+                'same_values': same_values,
+                'encoding': encoding,
+            }
 
-    org_headers = header_names.copy()
+        is_abnormal_v2 = None
+        datasource_type = None
+        if process_name:
+            # V2 preview with the largest file
+            file_data_idx = 0
+            while file_data_idx < len(sorted_files):
+                largest_file = sorted_files[file_data_idx]
+                try:
+                    _, encoding = get_delimiter_encoding(largest_file, preview=True)
+                    datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(largest_file)
 
-    if datasource_type == DBType.V2_HISTORY:
-        org_headers = [org_header.split(SUB_PART_NO_DEFAULT_SUFFIX)[0] for org_header in org_headers]
+                    if datasource_type == DBType.V2_HISTORY:
+                        data_details = get_df_v2_process_single_file(
+                            largest_file,
+                            process_name,
+                            datasource_type,
+                            is_abnormal_v2,
+                        )
+                    elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
+                        data_details = get_vertical_df_v2_process_single_file(
+                            largest_file,
+                            process_name,
+                            datasource_type,
+                            is_abnormal_v2,
+                            is_en_cols,
+                        )
+                    else:
+                        file_data_idx += 1
+                        continue
+                except Exception:
+                    logger.exception('Failed to preview V2 data file: {}', largest_file)
+                    file_data_idx += 1
+                    continue
 
-    # normalization
-    header_names = normalize_list(header_names)
+                if largest_file in temp_file_set and previewed_files:
+                    csv_file = os.path.basename(previewed_files[0])
+                else:
+                    csv_file = os.path.basename(largest_file)
+                if len(data_details) > 0:
+                    break
+                file_data_idx += 1
 
-    if process_name:
-        data_details, *_ = rename_sub_part_no(pd.DataFrame(data_details), datasource_type)
-        header_names = data_details.columns.tolist()
+            if isinstance(data_details, pd.DataFrame):
+                data_details = data_details[:1000]
+                header_names = data_details.columns.tolist()
 
-    # get DB Type and check if there is abnormal history
-    if is_abnormal_v2 is None and not datasource_type:
-        datasource_type, is_abnormal_v2, _ = get_v2_datasource_type_from_file(csv_file)
-
-    header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
-    header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
-    df_data_details = normalize_big_rows(data_details, header_names, is_show_raw_data=is_show_raw_data)
-    data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
-    file_name_col_idx = None
-    if show_file_name_column:
-        (
-            header_names,
-            df_data_details,
-            org_headers,
-            data_types,
-            dupl_cols,
-            file_name_col_idx,
-            _,
-        ) = add_show_file_name_column(
-            header_names,
-            df_data_details,
-            org_headers,
-            data_types,
-            csv_file,
-            is_gen_cols=None,
-        )
-
-    has_ct_col = True
-    dummy_datetime_idx = None
-    if df_data_details is not None:
-        # convert utc
-        for col, dtype in zip(header_names, data_types, strict=False):
-            if DataType(dtype) is not DataType.DATETIME:
-                continue
-            # Convert UTC time
-            df_data_details = validate_datetime(
-                df_data_details,
-                col,
-                False,
-                False,
-                is_convert_datetime=is_convert_datetime,
+        if not len(header_names):
+            v2_process_names = get_preview_processes_v2(
+                sorted_files,
+                maximum_files=MAXIMUM_V2_PREVIEW_ZIP_FILES,
             )
-            if is_convert_datetime:
-                df_data_details = convert_csv_timezone(df_data_details, col)
-            df_data_details = df_data_details.dropna(subset=[col])
-            # TODO: can we do this faster?
-            data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
 
-        df_data_details = df_data_details[0:limit]
-        if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
-            dummy_datetime_idx = 0
-            df_data_details = gen_dummy_datetime(df_data_details)
-            data_types.insert(dummy_datetime_idx, DataType.DATETIME.value)
-            header_names.insert(dummy_datetime_idx, DATETIME_DUMMY)
-            org_headers.insert(dummy_datetime_idx, DATETIME_DUMMY)
-            has_ct_col = False
+            for candidate_file in sorted_files:
+                csv_file = candidate_file
+                try:
+                    candidate_datasource_type, candidate_is_abnormal_v2, candidate_is_en_cols = (
+                        get_v2_datasource_type_from_file(csv_file)
+                    )
+                    if candidate_datasource_type not in [DBType.V2, DBType.V2_MULTI, DBType.V2_HISTORY]:
+                        continue
 
-        same_values = check_same_values_in_df(df_data_details, header_names)
+                    datasource_type = candidate_datasource_type
+                    is_abnormal_v2 = candidate_is_abnormal_v2
+                    is_en_cols = candidate_is_en_cols
+                    file_reader = StructuredFileReader(
+                        filenames=[csv_file],
+                        delimiter=csv_delimiter,
+                        max_results=V2_PREVIEW_LIMIT,
+                    )
+                    header_names, data_details = file_reader.read(target_file=csv_file)
+                    encoding = file_reader.encoding
+                except Exception:
+                    logger.exception('Failed to read V2 preview file: {}', candidate_file)
+                    header_names = []
+                    data_details = []
+                    continue
+                if data_details:
+                    break
 
-        if not return_df:
-            df_data_details = df_data_details.to_records(index=False).tolist()
-    elif not return_df:
-        df_data_details = []
+        if not header_names:
+            return {
+                'file_name': csv_file,
+                'v2_processes': v2_process_names,
+                'header': header_names,
+                'content': [] if return_df else data_details,
+                'dataType': data_types,
+                'skip_head': skip_head,
+                'skip_tail': skip_tail,
+                'previewed_files': previewed_files,
+                'same_values': same_values,
+                'encoding': encoding,
+                'is_process_null': not v2_process_names,
+            }
 
-    if csv_file:
-        csv_file = csv_file.replace('/', os.sep)
+        org_headers = header_names.copy()
 
-    has_dupl_cols = False
-    if len(dupl_cols) and same_values:
-        if dummy_datetime_idx is not None:
-            # for dummy datetime column
-            dupl_cols = [False, *dupl_cols]
-        for key, value in enumerate(same_values):
-            is_dupl_col = bool(dupl_cols[key])
-            same_values[key]['is_dupl'] = is_dupl_col
-            if is_dupl_col:
-                has_dupl_cols = True
+        if datasource_type == DBType.V2_HISTORY:
+            org_headers = [org_header.split(SUB_PART_NO_DEFAULT_SUFFIX)[0] for org_header in org_headers]
 
-    # # replace NA in df to empty
-    if df_data_details is not None and not isinstance(df_data_details, list):
-        df_data_details = df_data_details.astype(pd.StringDtype()).replace(list(PANDAS_DEFAULT_NA), EMPTY_STRING)
-    return {
-        'file_name': csv_file,
-        'v2_processes': v2_process_names,
-        'header': header_names,
-        'content': df_data_details,
-        'dataType': data_types,
-        'skip_head': skip_head,
-        'skip_tail': skip_tail,
-        'previewed_files': sorted_files,
-        'has_ct_col': has_ct_col,
-        'dummy_datetime_idx': dummy_datetime_idx,
-        'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
-        'has_dupl_cols': has_dupl_cols,
-        'org_headers': org_headers,
-        'v2_type': datasource_type.value,
-        'encoding': encoding,
-        'is_process_null': not v2_process_names,
-        'file_name_col_idx': file_name_col_idx,
-        'is_gen_cols': [False] * len(header_names),
-    }
+        header_names = normalize_list(header_names)
+
+        if process_name:
+            data_details, *_ = rename_sub_part_no(pd.DataFrame(data_details), datasource_type)
+            header_names = data_details.columns.tolist()
+
+        # get DB Type and check if there is abnormal history
+        if is_abnormal_v2 is None and not datasource_type:
+            datasource_type, is_abnormal_v2, _ = get_v2_datasource_type_from_file(csv_file)
+
+        header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
+        header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
+        df_data_details = normalize_big_rows(data_details, header_names, is_show_raw_data=is_show_raw_data)
+        data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
+        file_name_col_idx = None
+        if show_file_name_column:
+            (
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                dupl_cols,
+                file_name_col_idx,
+                _,
+            ) = add_show_file_name_column(
+                header_names,
+                df_data_details,
+                org_headers,
+                data_types,
+                previewed_files[0] if csv_file in temp_file_set and previewed_files else csv_file,
+                is_gen_cols=None,
+            )
+
+        has_ct_col = True
+        dummy_datetime_idx = None
+        if df_data_details is not None:
+            for col, dtype in zip(header_names, data_types, strict=False):
+                if DataType(dtype) is not DataType.DATETIME:
+                    continue
+                df_data_details = validate_datetime(
+                    df_data_details,
+                    col,
+                    False,
+                    False,
+                    is_convert_datetime=is_convert_datetime,
+                )
+                if is_convert_datetime:
+                    df_data_details = convert_csv_timezone(df_data_details, col)
+                df_data_details = df_data_details.dropna(subset=[col])
+                data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
+
+            df_data_details = df_data_details[0:limit]
+            if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
+                dummy_datetime_idx = 0
+                df_data_details = gen_dummy_datetime(df_data_details)
+                data_types.insert(dummy_datetime_idx, DataType.DATETIME.value)
+                header_names.insert(dummy_datetime_idx, DATETIME_DUMMY)
+                org_headers.insert(dummy_datetime_idx, DATETIME_DUMMY)
+                has_ct_col = False
+
+            same_values = check_same_values_in_df(df_data_details, header_names)
+
+            if not return_df:
+                df_data_details = df_data_details.to_records(index=False).tolist()
+        elif not return_df:
+            df_data_details = []
+
+        if csv_file:
+            csv_file = csv_file.replace('/', os.sep)
+
+        has_dupl_cols = False
+        if len(dupl_cols) and same_values:
+            if dummy_datetime_idx is not None:
+                # for dummy datetime column
+                dupl_cols = [False, *dupl_cols]
+            for key, value in enumerate(same_values):
+                is_dupl_col = bool(dupl_cols[key])
+                same_values[key]['is_dupl'] = is_dupl_col
+                if is_dupl_col:
+                    has_dupl_cols = True
+
+        # # replace NA in df to empty
+        if df_data_details is not None and not isinstance(df_data_details, list):
+            df_data_details = df_data_details.astype(pd.StringDtype()).replace(list(PANDAS_DEFAULT_NA), EMPTY_STRING)
+
+        return {
+            'file_name': csv_file,
+            'v2_processes': v2_process_names,
+            'header': header_names,
+            'content': df_data_details,
+            'dataType': data_types,
+            'skip_head': skip_head,
+            'skip_tail': skip_tail,
+            'previewed_files': previewed_files,
+            'has_ct_col': has_ct_col,
+            'dummy_datetime_idx': dummy_datetime_idx,
+            'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
+            'has_dupl_cols': has_dupl_cols,
+            'org_headers': org_headers,
+            'v2_type': datasource_type.value,
+            'encoding': encoding,
+            'is_process_null': not v2_process_names,
+            'file_name_col_idx': file_name_col_idx,
+            'is_gen_cols': [False] * len(header_names),
+        }
+
+    finally:
+        cleanup_temp_files(temp_files)
 
 
 @log_execution_time()

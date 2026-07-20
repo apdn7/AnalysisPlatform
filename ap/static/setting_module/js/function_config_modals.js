@@ -51,6 +51,8 @@ const functionConfigElements = {
     /** @type HTMLInputElement */
     isMainSerialCheckboxElement: document.querySelector('#is_main_serial'),
     /** @type HTMLInputElement */
+    isPhysicalFuncColCheckboxEl: document.querySelector('#is_physical_func_column'),
+    /** @type HTMLInputElement */
     isMainDatetimeCheckboxElement: document.querySelector('#is_main_datatime'),
     /** @type HTMLInputElement */
     systemNameElement: document.querySelector('#functionColumnSystemName input'),
@@ -200,6 +202,7 @@ function htmlToElement(html) {
  * @property {{processColumnId: ?number|string, functionColumnId: ?number|string}} varX - id of X column
  * @property {?{processColumnId: ?number|string, functionColumnId: ?number|string}} varY - id of Y column
  * @property {?number|string} index - row Index in Function Table
+ * @property {?boolean} isPhysicalFuncCol - true: function is serial, otherwise
  */
 
 /**
@@ -258,6 +261,7 @@ class FunctionInfo {
             functionName = '',
             output = '',
             isMainSerialNo = false,
+            isPhysicalFuncCol = false,
             isMainDatetime = false,
             systemName = '',
             japaneseName = '',
@@ -281,6 +285,7 @@ class FunctionInfo {
 
         this.functionName = functionName;
         this.isMainSerialNo = String(isMainSerialNo) === 'true';
+        this.isPhysicalFuncCol = String(isPhysicalFuncCol) === 'true';
         this.isMainDatetime = String(isMainDatetime) === 'true';
         this.output = output;
         this.systemName = systemName;
@@ -439,6 +444,7 @@ class FunctionInfo {
         const coeCT = functionConfigElements.coeCTElement.value.trim();
         const note = functionConfigElements.noteElement.value.trim();
         const isMainSerialNo = functionConfigElements.isMainSerialCheckboxElement.checked;
+        const isPhysicalFuncCol = functionConfigElements.isPhysicalFuncColCheckboxEl.checked;
         const isMainDatetime = functionConfigElements.isMainDatetimeCheckboxElement.checked;
 
         const sampleDatas = (functionConfigElements.sampleDataElement.result ?? []).map((element) =>
@@ -449,6 +455,7 @@ class FunctionInfo {
             functionName,
             output,
             isMainSerialNo,
+            isPhysicalFuncCol,
             isMainDatetime,
             systemName,
             japaneseName,
@@ -477,6 +484,15 @@ class FunctionInfo {
      */
     static isMainSerial(outputDatatype) {
         return Object.values(datatypeI18nText['is_main_serial_no']).includes(outputDatatype);
+    }
+
+    /**
+     * Check output is selected as isSerial or not
+     * @param {string} outputDatatype
+     * @return {boolean}
+     */
+    static isPhysicalFuncColCheck(outputDatatype) {
+        return Object.values(datatypeI18nText['is_serial_no']).includes(outputDatatype);
     }
 
     /**
@@ -511,6 +527,7 @@ class FunctionInfo {
         functionConfigElements.coeCTElement.value = String(this.coeCT);
         functionConfigElements.noteElement.value = String(this.note);
         functionConfigElements.isMainSerialCheckboxElement.checked = String(this.isMainSerialNo) === 'true';
+        functionConfigElements.isPhysicalFuncColCheckboxEl.checked = String(this.isPhysicalFuncCol) === 'true';
         functionConfigElements.isMainDatetimeCheckboxElement.checked = String(this.isMainDatetime) === 'true';
     }
 
@@ -790,7 +807,7 @@ class FunctionInfo {
      * Update a function row into Function table
      * @param {boolean} isMainSerial
      */
-    updateFunctionRow(isMainSerial = false, isMainDatetime = false) {
+    updateFunctionRow(isMainSerial = false, isMainDatetime = false, isPhysicalFuncCol = false) {
         // Update row into JSpreadSheet table
         const spreadsheetConfig = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
 
@@ -800,7 +817,9 @@ class FunctionInfo {
             ? spreadsheetConfig.mainSerialRow()
             : isMainDatetime
               ? spreadsheetConfig.mainDatetimeRow()
-              : spreadsheetConfig.selectedRow();
+              : isPhysicalFuncCol
+                ? spreadsheetConfig.physicalFuncColRow()
+                : spreadsheetConfig.selectedRow();
 
         // no row to update
         if (updateRow == null) {
@@ -1106,6 +1125,12 @@ class FunctionInfo {
         functionConfigElements.coeCTElement.value = '';
         functionConfigElements.coeCTElement.required = false;
         functionConfigElements.noteElement.value = '';
+        functionConfigElements.isMainSerialCheckboxElement.checked = false;
+        functionConfigElements.isPhysicalFuncColCheckboxEl.checked = false;
+        functionConfigElements.isMainDatetimeCheckboxElement.checked = false;
+        functionConfigElements.isMainSerialCheckboxElement.disabled = true;
+        functionConfigElements.isPhysicalFuncColCheckboxEl.disabled = true;
+        functionConfigElements.isMainDatetimeCheckboxElement.disabled = true;
         functionConfigElements.sampleDataElement.lastElementChild.querySelectorAll('td').forEach((td) => {
             td.textContent = '';
             td.setAttribute(DATA_ORIGINAL_ATTR, '');
@@ -1439,36 +1464,54 @@ class FunctionInfo {
      * @param rawDataType
      * @param isMainSerialNo
      * @param isMainDatetime
+     * @param isPhysicalFuncCol
      * @return {string} - Label of raw data type
      */
-    static getLabelRawDataType(rawDataType, isMainSerialNo = false, isMainDatetime = false) {
+    static getLabelRawDataType(rawDataType, isMainSerialNo = false, isMainDatetime = false, isPhysicalFuncCol = false) {
         let label = '';
-        switch (rawDataType) {
+        switch (rawDataType.toUpperCase()) {
             case DataTypes.BIG_INT.name:
                 label = document.getElementById(DataTypes.BIG_INT.i18nLabelID).textContent.trim();
                 break;
             case DataTypes.INTEGER.name:
-                label = isMainSerialNo
-                    ? datatypeI18nText['is_main_serial_no'].INTEGER
-                    : DataTypes.INTEGER.selectionBoxDisplay;
+            case datatypeI18nText['is_main_serial_no'].INTEGER.toUpperCase():
+            case datatypeI18nText['is_serial_no'].INTEGER.toUpperCase():
+                if (isMainSerialNo) {
+                    label = datatypeI18nText['is_main_serial_no'].INTEGER;
+                } else if (isPhysicalFuncCol) {
+                    label = datatypeI18nText['is_serial_no'].INTEGER;
+                } else {
+                    label = DataTypes.INTEGER.selectionBoxDisplay;
+                }
                 break;
             case DataTypes.TEXT.name:
-                label = isMainSerialNo
-                    ? datatypeI18nText['is_main_serial_no'].TEXT
-                    : DataTypes.STRING.selectionBoxDisplay;
+            case datatypeI18nText['is_main_serial_no'].TEXT.toUpperCase():
+            case datatypeI18nText['is_serial_no'].TEXT.toUpperCase():
+                if (isMainSerialNo) {
+                    label = datatypeI18nText['is_main_serial_no'].TEXT;
+                } else if (isPhysicalFuncCol) {
+                    label = datatypeI18nText['is_serial_no'].TEXT;
+                } else {
+                    label = DataTypes.STRING.selectionBoxDisplay;
+                }
                 break;
             case DataTypes.REAL.name:
                 label = DataTypes.REAL.selectionBoxDisplay;
                 break;
             case DataTypes.DATETIME.name:
+            case datatypeI18nText['is_get_date'].toUpperCase():
                 label = isMainDatetime ? datatypeI18nText['is_get_date'] : DataTypes.DATETIME.selectionBoxDisplay;
                 break;
             case DataTypes.CATEGORY.name:
                 // Show "main::Serial:Int" for Int(Cat) as main::Serial
                 // link: https://trello.com/c/Y1TSFnPk/189-03b-change-content-of-tooltip-message-when-hover-on-mainserial-checkbox
-                label = isMainSerialNo
-                    ? datatypeI18nText['is_main_serial_no'].INTEGER
-                    : DataTypes.INTEGER_CAT.selectionBoxDisplay;
+                if (isMainSerialNo) {
+                    label = datatypeI18nText['is_main_serial_no'].INTEGER;
+                } else if (isPhysicalFuncCol) {
+                    label = datatypeI18nText['is_serial_no'].INTEGER;
+                } else {
+                    label = DataTypes.INTEGER_CAT.selectionBoxDisplay;
+                }
                 break;
             case DataTypes.BOOLEAN.name:
                 label = DataTypes.BOOLEAN.selectionBoxDisplay;
@@ -1482,14 +1525,22 @@ class FunctionInfo {
      * Set label for output data type of selected function
      * @param {string} rawDataType - a raw data type string
      * @param {boolean} isMainSerialNo - is main serial
+     * @param {boolean} isMainDatetime - is main datetime
+     * @param {boolean} isPhysicalFuncCol - is serial
      */
-    static setOutputDataType(rawDataType, isMainSerialNo = false) {
-        functionConfigElements.outputElement.innerHTML = FunctionInfo.getLabelRawDataType(rawDataType, isMainSerialNo);
+    static setOutputDataType(rawDataType, isMainSerialNo = false, isMainDatetime = false, isPhysicalFuncCol = false) {
+        functionConfigElements.outputElement.innerHTML = FunctionInfo.getLabelRawDataType(
+            rawDataType,
+            isMainSerialNo,
+            isMainDatetime,
+            isPhysicalFuncCol,
+        );
         functionConfigElements.outputElement.dataset.rawDataType = rawDataType;
         // enable/disable checkbox main datetime
         toggleStatusMainDatetimeCheckbox(rawDataType);
         // enable/disable checkbox main serial
-        toggleStatusMainSerialCheckbox(rawDataType);
+        updateSerialAndPhysicalCheckboxState(functionConfigElements.isMainSerialCheckboxElement, rawDataType);
+        updateSerialAndPhysicalCheckboxState(functionConfigElements.isPhysicalFuncColCheckboxEl, rawDataType);
         functionConfigElements.outputElement.dispatchEvent(new Event('change'));
     }
 
@@ -1968,16 +2019,22 @@ function copyAllFunctionInfo(event) {
 function pasteAllFunctionInfo(event) {
     const rawDataTypeTitle = {
         [DataTypes.REAL.name]: [DataTypes.REAL.selectionBoxDisplay],
-        [DataTypes.TEXT.name]: [DataTypes.TEXT.selectionBoxDisplay, datatypeI18nText['is_main_serial_no'].TEXT],
+        [DataTypes.TEXT.name]: [
+            DataTypes.TEXT.selectionBoxDisplay,
+            datatypeI18nText['is_main_serial_no'].TEXT,
+            datatypeI18nText['is_serial_no'].TEXT,
+        ],
         [DataTypes.DATETIME.name]: [DataTypes.DATETIME.selectionBoxDisplay],
         [DataTypes.INTEGER.name]: [
             DataTypes.INTEGER.selectionBoxDisplay,
             datatypeI18nText['is_main_serial_no'].INTEGER,
+            datatypeI18nText['is_serial_no'].INTEGER,
         ],
         [DataTypes.BIG_INT.name]: [DataTypes.BIG_INT.selectionBoxDisplay],
         [DataTypes.CATEGORY.name]: [
             DataTypes.INTEGER_CAT.selectionBoxDisplay,
             datatypeI18nText['is_main_serial_no'].INTEGER,
+            datatypeI18nText['is_serial_no'].INTEGER,
         ],
         [DataTypes.BOOLEAN.name]: [DataTypes.BOOLEAN.selectionBoxDisplay],
         [DataTypes.DATE.name]: [DataTypes.DATE.selectionBoxDisplay],
@@ -2166,7 +2223,7 @@ function pasteAllFunctionInfo(event) {
                 params.functionColumnId = -newId;
             }
 
-            params.index = index;
+            params.index = newId;
             const xFuncCol = pastedFunctions.findLast((func) => func.systemName === params.varXName) ?? {};
             params.varX = FunctionInfo.parseObjectValuesToInt({
                 processColumnId: dicCols[params.varXName] ?? xFuncCol.processColumnId,
@@ -2179,10 +2236,14 @@ function pasteAllFunctionInfo(event) {
             });
             if (params.output.length) {
                 let isMainSerialNo = false;
+                let isPhysicalFuncCol = false;
                 Object.keys(rawDataTypeTitle).find((key) => {
                     if (rawDataTypeTitle[key].includes(params.output.trim())) {
                         if (FunctionInfo.isMainSerial(params.output)) {
                             isMainSerialNo = true;
+                        }
+                        if (FunctionInfo.isPhysicalFuncColCheck(params.output)) {
+                            isPhysicalFuncCol = true;
                         }
                         return true;
                     }
@@ -2190,6 +2251,7 @@ function pasteAllFunctionInfo(event) {
                     return false;
                 });
                 params.isMainSerialNo = isMainSerialNo;
+                params.isPhysicalFuncCol = isPhysicalFuncCol;
             }
 
             const inputFunctionInfo = new FunctionInfo(params);
@@ -2346,13 +2408,26 @@ const handleChangeFunctionNameOrVarXY = () => {
 
 /**
  * Change table output based on function output
+ * @param {Event|null} event
+ * @param {number|string|null} rowIndex
+ * @param {string|null} rawDataType
  */
-const handleChangeFunctionOutput = (rowIndex = null, rawDataType = null) => {
+const handleChangeFunctionOutput = (event = null, rowIndex = null, rawDataType = null) => {
     // if has rowIndex get data in table
     rawDataType = rawDataType !== null ? rawDataType : functionConfigElements.outputElement.dataset.rawDataType;
-    const isMainSerialNo = rowIndex !== null ? false : functionConfigElements.isMainSerialCheckboxElement.checked;
-
-    const dataType = FunctionInfo.getLabelRawDataType(rawDataType, isMainSerialNo);
+    let isMainSerialNo = functionConfigElements.isMainSerialCheckboxElement.checked;
+    let isMainDatetime = functionConfigElements.isMainDatetimeCheckboxElement.checked;
+    let isPhysicalFuncCol = functionConfigElements.isPhysicalFuncColCheckboxEl.checked;
+    if (rowIndex !== null) {
+        const functionColumns = FunctionInfo.collectAllFunctionRows();
+        const rowData = functionColumns.splice(rowIndex, 1)[0];
+        if (rowData != null) {
+            isMainSerialNo = rowData.isMainSerialNo;
+            isMainDatetime = rowData.isMainDatetime;
+            isPhysicalFuncCol = rowData.isPhysicalFuncCol;
+        }
+    }
+    const dataType = FunctionInfo.getLabelRawDataType(rawDataType, isMainSerialNo, isMainDatetime, isPhysicalFuncCol);
 
     const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
     spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.RawOutput, rawDataType, {
@@ -3056,7 +3131,7 @@ const showResultFunctionWithoutDelay = (rowIndex = null) => {
                     const fillRowIndex = selectedRowIndex || rowIndex;
                     const rowElement = speadSheet.table.getRowElementByIndex(fillRowIndex);
                     FunctionInfo.fillSampleDataToFunctionRow(sampleData, isNumber, rowElement);
-                    handleChangeFunctionOutput(isChangeConfig ? null : rowIndex, data.output_type);
+                    handleChangeFunctionOutput(undefined, isChangeConfig ? null : rowIndex, data.output_type);
                 }
             }
         })
@@ -3227,7 +3302,9 @@ function collectFunctionDatasForRegister() {
     const dictProcessFunctionColumn = {};
     FunctionInfo.collectAllFunctionRows().forEach((functionInfo) => {
         const isGetDate = functionInfo.isMainDatetime;
-        const isSerial = functionInfo.isMainSerialNo;
+        const isMainSerial = functionInfo.isMainSerialNo;
+        // check isPhysicalFuncCol: save this function column to db as new column
+        const isPhysicalFuncCol = functionInfo.isPhysicalFuncCol;
         const columnType = masterDataGroup.GENERATED_EQUATION;
 
         if (functionInfo.isMeFunction) {
@@ -3248,7 +3325,8 @@ function collectFunctionDatasForRegister() {
             order: CfgProcess_CONST.CATEGORY_TYPES.includes(functionInfo.output) ? 1 : 0,
             column_type: columnType,
             is_get_date: isGetDate,
-            is_serial_no: isSerial,
+            is_serial_no: isMainSerial,
+            is_physical_func_col: isPhysicalFuncCol,
             function_details: [],
         };
 

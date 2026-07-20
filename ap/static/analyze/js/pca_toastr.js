@@ -4,7 +4,7 @@ const showToastr = (errors) => {
     }
     if (errors instanceof Array) {
         errors.forEach((error) => {
-            const msgContent = `<p>${MSG_MAPPING[error] || JSON.stringify(error)}</p>`;
+            const msgContent = `<p>${$(MSG_MAPPING[error]).text() || JSON.stringify(error)}</p>`;
             showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
         });
     } else if (errors instanceof Object) {
@@ -20,17 +20,17 @@ const showToastr = (errors) => {
         };
         let msgContent = '';
         if (trainDataErr.is_all_na || targetDataErr.is_all_na) {
-            msgContent += `<p>${MSG_MAPPING.E_ALL_NA}</p>`;
+            msgContent += `<p>${$(MSG_MAPPING.E_ALL_NA).text()}</p>`;
         }
         if (trainDataErr.is_zero_var || targetDataErr.is_zero_var) {
-            msgContent += `<p>${MSG_MAPPING.E_ZERO_VARIANCE}</p>`;
+            msgContent += `<p>${$(MSG_MAPPING.E_ZERO_VARIANCE).text()}</p>`;
         }
         if (!msgContent) {
-            msgContent = `<p>${MSG_MAPPING.E_ALL_NA}</p>`;
+            msgContent = `<p>${$(MSG_MAPPING.E_ALL_NA).text()}</p>`;
         }
         showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
     } else {
-        const msgContent = `<p>${MSG_MAPPING[errors] || JSON.stringify(errors)}</p>`;
+        const msgContent = `<p>${$(MSG_MAPPING[errors]).text() || JSON.stringify(errors)}</p>`;
         showToastrMsg(msgContent, MESSAGE_LEVEL.ERROR);
     }
 };

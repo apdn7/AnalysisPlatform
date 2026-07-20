@@ -591,6 +591,7 @@ class SpreadSheetVisualizationConfig {
 
         // get first index of sample data
         const customOptions = {
+            allowManualDeleteRow: true,
             // tableOverflow: true,
             // tableHeight: 'calc(100vh - 370px)',
             // tableWidth: '100%',

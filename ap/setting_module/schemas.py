@@ -471,6 +471,7 @@ class ProcessColumnSchema(BaseSchema):
     is_auto_increment = AnyAsBool()
     is_dummy_datetime = AnyAsBool()
     is_file_name = AnyAsBool()
+    is_physical_func_col = AnyAsBool(allow_none=True)
 
     # hybrid properties go here
     is_main_serial = fields.Boolean(dump_only=True)

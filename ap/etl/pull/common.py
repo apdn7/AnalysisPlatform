@@ -103,8 +103,14 @@ class PullBase(ABC):
         process_id_and_factory_time_range = self.get_factory_time_range_per_process(factory_db_instance)
         for process in self.processes:
             factory_time_range = process_id_and_factory_time_range.get(process.id)
+            import_from = (
+                None if factory_time_range is None or factory_time_range.is_empty() else factory_time_range.min.value
+            )
+            import_to = (
+                None if factory_time_range is None or factory_time_range.is_empty() else factory_time_range.max.value
+            )
             target_info = PullDataJobInfo.PullDataTargetInfo(
-                process_id=process.id, import_from=factory_time_range.min.value, import_to=factory_time_range.max.value
+                process_id=process.id, import_from=import_from, import_to=import_to
             )
             self.pull_data_job_info.pull_targets.append(target_info)
             # table is empty, skip

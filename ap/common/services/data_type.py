@@ -223,26 +223,30 @@ def check_data_type(data):
 
 
 def predict_eu_type(data):
-    # OLD REGEX: r'^[\d,]+$'
-    re_float_sep = r'^[+-]?\d+,\d+$'
-    matches = re.match(re_float_sep, data)
+    re_eu_decimal = r'^[+-]?(?:\d{1,3}(?:\.\d{3})*|\d+),\d+$'
 
-    if matches:
+    if re.match(re_eu_decimal, data):
         try:
-            re_data = data.replace(',', '')
+            re_data = data.replace('.', '').replace(',', '.')  # "1.234,56" → "1234.56"
             float(re_data)
             return DataType.EU_REAL_SEP
         except ValueError:
-            return predict_k_sep(data)
-
+            pass
     return predict_k_sep(data)
 
 
 def predict_k_sep(data):
-    re_k_sep = r'^[+-]?[\d , \.]+$'
-    matches = re.match(re_k_sep, data)
+    re_us = re.compile(r'^[+-]?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$')
+    re_eu = re.compile(r'^[+-]?(?:\d+|\d{1,3}(?:\.\d{3})+)$')
 
-    if matches:
+    if re_us.match(data):
+        try:
+            float(data.replace(',', ''))
+            return DataType.REAL_SEP
+        except ValueError:
+            return DataType.K_SEP_NULL
+
+    if re_eu.match(data):
         try:
             float(data)
             return DataType.REAL_SEP

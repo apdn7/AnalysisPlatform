@@ -14,6 +14,7 @@ from ap.common.constants import (
     AGP_COLOR_VARS,
     ARRAY_FORMVAL,
     ARRAY_PLOTDATA,
+    AVAILABLE_COLORS_ID,
     BOOKMARK_ID,
     CAT_EXP_BOX,
     CAT_ON_DEMAND,
@@ -118,6 +119,7 @@ from ap.common.constants import (
     TBLS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_COLOR_VAR,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
@@ -235,6 +237,8 @@ common_startwith_keys = (
     SCP_HMP_Y_AXIS,
     STRENGTHEN_SELECTION,
     TEMP_Y_SCALE_MODE,  # combine log-scale mode into dic_param
+    TEMP_COLOR_VAR,
+    AVAILABLE_COLORS_ID,
 )
 
 
@@ -338,6 +342,7 @@ def parse_multi_filter_into_one(dic_form):
                 DIVIDE_CALENDAR_DATES,
                 DIVIDE_CALENDAR_LABELS,
                 NOMINAL_VARS,
+                AVAILABLE_COLORS_ID,
             ):
                 dic_parsed[COMMON][key] = json.loads(value)
             elif key.startswith((VAR_TRACE_TIME, TRACE_TIME)):
@@ -612,6 +617,7 @@ def bind_dic_param_to_class(
         nominal_vars=dic_common.get(NOMINAL_VARS, None),
         traincond_procs=train_cond_procs,
         is_order_by_time=is_order_by_time,
+        available_colors_id=dic_common.get(AVAILABLE_COLORS_ID, []),
     )
 
     # use the first end proc as start proc
@@ -643,6 +649,11 @@ def bind_dic_param_to_class(
     # out_param.add_column_to_array_formval(
     #     [col for col in [out_param.common.color_var, out_param.common.div_by_cat] if col]
     # )
+
+    # add available_color
+    out_param.add_column_to_array_formval(
+        [col for col in out_param.common.available_colors_id if col],
+    )
 
     return out_param
 

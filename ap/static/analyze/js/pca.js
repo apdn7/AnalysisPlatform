@@ -22,13 +22,6 @@ const MIN_NUMBER_OF_SENSOR = 0;
 
 const INDEX_AXIS_LABEL = 'Index';
 
-const MSG_MAPPING = {
-    E_ALL_NA: $('#i18nE01AllNA').text(),
-    E_PCA_NON_NUMERIC: $('#i18nE02NonNumeric').text(),
-    E_ZERO_VARIANCE: $('#i18nE03ZeroVariance').text(),
-    W_PCA_INTEGER: $('#i18nW01IntegerData').text(),
-};
-
 const drawPCAPlotJSON = (res, clickOnChart) => {
     const chartConfig = {
         autosize: true,
@@ -155,7 +148,7 @@ const reselectPCAData = (fromShowGraphBtn = false, reselectBtn = true) => {
     loadingHide();
     // warning about integer column has_integer_col
     if (formData.get('has_integer_col') === 'true') {
-        $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
+        $(eles.msgContent).text($(MSG_MAPPING.W_PCA_INTEGER).text() + `\n${i18n.confirmQuestion}`);
         $(eles.msgModal).modal('show');
     } else {
         beforeShowGraphCommon();
@@ -383,7 +376,7 @@ const getPCAPlots = () => {
 
         // warning about integer column has_integer_col
         if (formData.get('has_integer_col') === 'true') {
-            $(eles.msgContent).text(`${MSG_MAPPING.W_PCA_INTEGER}\n${i18n.confirmQuestion}`);
+            $(eles.msgContent).text($(MSG_MAPPING.W_PCA_INTEGER).text() + `\n${i18n.confirmQuestion}`);
             $(eles.msgModal).modal('show');
         } else {
             beforeShowGraphCommon();

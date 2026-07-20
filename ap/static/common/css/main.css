@@ -1889,6 +1889,10 @@ input:disabled + .slider {
     opacity: 0;
 }
 
+.react-root .sortCol span + span {
+    margin-top: -4px;
+}
+
 /* Buttons */
 .table-responsive::-webkit-scrollbar-button:single-button {
     display: block;
@@ -2934,4 +2938,8 @@ select.form-control,
 .g-xtitle text {
     pointer-events: all !important;
     cursor: pointer !important;
+}
+
+.color-yellow {
+    color: yellow;
 }

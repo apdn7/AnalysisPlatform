@@ -176,19 +176,19 @@
 {% endmacro %}
 
 <!-- start proc -->
-{% macro start_proc(procs, selected, traceData=false, title='', width=2, showAutoUpdate=true, showDataFinder=True) %}
+{% macro start_proc(procs, selected, traceData=false, labelText='Target period', title='', width=2, showAutoUpdate=true, showDataFinder=True, periodic=False) %}
     <div class="card-body table-bordered graph-navi" id="srtPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3">
                 <div class="d-flex justify-content-between">
-                    {{ label(_('Target period'), title=title) }}
+                    {{ label(_(labelText), title=title) }}
                     {{ paste_btn() }}
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
                 <div class="row">
                     <div class="col-12 col-xl-6 col-lg-12 col-md-12 col-sm-12 p-1">
-                        {{ start_proc_interval(showAutoUpdate, showDataFinder=showDataFinder) }}
+                        {{ start_proc_interval(showAutoUpdate, showDataFinder=showDataFinder, periodic=periodic) }}
                     </div>
                 </div>
             </div>
@@ -252,13 +252,15 @@
 {% endmacro %}
 
 <!-- end proc -->
-{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false, nominalScale=False) %}
+{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false, nominalScale=False, showPaste=true) %}
     <div class="card-body table-bordered graph-navi" id="endPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     {{ label(_(label_i18n_key), title=title) }}
-                    {{ paste_btn(with_count=True) }}
+                    {% if showPaste %}
+                        {{ paste_btn(with_count=True) }}
+                    {% endif %}
                 </div>
                 {% if nominalScale %}
                     {{ nominal_scale() }}
@@ -413,13 +415,15 @@
 {% endmacro %}
 
 <!-- condition proc -->
-{% macro cond_proc(procs, selected, prefix='', title='', width=2, pysm=4, is_optional=false) %}
+{% macro cond_proc(procs, selected, prefix='', title='', width=2, pysm=4, is_optional=false, showPaste=true) %}
     <div class="card-body table-bordered graph-navi" id="cndPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3">
                 <div class="d-flex justify-content-between">
                     {{ label(_('Filter'), title=title) }}
-                    {{ paste_btn() }}
+                    {% if showPaste %}
+                        {{ paste_btn() }}
+                    {% endif %}
                 </div>
             </div>
             <div class="col-xl-{{ 12 - width }} col-9">
@@ -969,7 +973,7 @@
 {% endmacro %}
 
 <!--  対象期間　日時と最新入り替えボックス  -->
-{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True, cyclicCalender=False, dateRangeHoverMsg='', isShowTimePicker=True) %}
+{% macro start_proc_interval(showAutoUpdate=true, prefix='', disableLatest=false, name='traceTime', commonClass='', wrapID='target-period-wrapper', showDataFinder=True, cyclicCalender=False, dateRangeHoverMsg='', isShowTimePicker=True, periodic=False) %}
     <div class="d-flex" id="{{ wrapID }}">
         <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
             <input
@@ -990,27 +994,49 @@
                 <span class="{{ 'hint-text ' if dateRangeHoverMsg else '' }}sub-label">{{ _('Date range') }}</span>
             </label>
         </div>
-        <div
-            class="custom-control custom-radio grp-height-align mr-lg-5 mr-3 {{ 'visible-hide' if disableLatest else '' }}"
-        >
-            <input
-                class="custom-control-input {{ commonClass }}"
-                type="radio"
-                name="{{ name }}"
-                onchange="handleChangeInterval(this, 'recent-{{ prefix }}')"
-                id="{{ prefix }}radioRecentInterval"
-                value="recent"
-                {{ 'disabled' if disableLatest else '' }}
-            />
-            <label
-                class="custom-control-label"
-                title="{{ _('Select a unit of time and input value.') }}"
-                for="{{ prefix }}radioRecentInterval"
-                class="label-left"
+        {% if periodic %}
+            <div class="custom-control custom-radio grp-height-align mr-lg-5 mr-3">
+                <input
+                    class="custom-control-input {{ commonClass }}"
+                    type="radio"
+                    name="{{ name }}"
+                    onchange="handleChangeInterval(this, 'periodic-{{ prefix }}')"
+                    id="{{ prefix }}radioPeriodic"
+                    value="1"
+                />
+                <label
+                    class="custom-control-label"
+                    title="{{ _('') }}"
+                    for="{{ prefix }}radioPeriodic"
+                    class="label-left"
+                >
+                    <span class="sub-label hint-text">{{ _('Periodic') }}</span>
+                </label>
+            </div>
+        {% else %}
+            <div
+                class="custom-control custom-radio grp-height-align mr-lg-5 mr-3 {{ 'visible-hide' if disableLatest else '' }}"
             >
-                <span class="sub-label hint-text">{{ _('Latest') }}</span>
-            </label>
-        </div>
+                <input
+                    class="custom-control-input {{ commonClass }}"
+                    type="radio"
+                    name="{{ name }}"
+                    onchange="handleChangeInterval(this, 'recent-{{ prefix }}')"
+                    id="{{ prefix }}radioRecentInterval"
+                    value="recent"
+                    {{ 'disabled' if disableLatest else '' }}
+                />
+                <label
+                    class="custom-control-label"
+                    title="{{ _('Select a unit of time and input value.') }}"
+                    for="{{ prefix }}radioRecentInterval"
+                    class="label-left"
+                >
+                    <span class="sub-label hint-text">{{ _('Latest') }}</span>
+                </label>
+            </div>
+        {% endif %}
+
         <!-- switch content -->
         <div class="flex-grow-1">
             <div class="position-relative" id="for-default-{{ prefix }}">
@@ -1089,6 +1115,9 @@
                         </div>
                     {% endif %}
                 </div>
+            </div>
+            <div id="for-periodic-{{ prefix }}" style="display: none">
+                <div class="react-root" data-component="ExportSettingPeriodic"></div>
             </div>
         </div>
     </div>
@@ -2518,7 +2547,7 @@
     </div>
 {% endmacro %}
 
-{% macro polling_frequency_option(dbs_type, polling_frequency, is_authorized, options = [0, 3, 5 ,10, 60, 1440], hide_label = False, className='') %}
+{% macro polling_frequency_option(dbs_type, polling_frequency, is_authorized, options = [0, 3, 5 ,10, 60, 120, 180, 240, 360, 720, 1440], hide_label = False, className='') %}
     {%
         set polling_title = {
             0: _("Only once"),
@@ -2526,6 +2555,11 @@
             5: _("Once per 5 minutes"),
             10: _("Once per 10 minutes"),
             60: _("Once per hour"),
+            120: _("Once per 2 hours"),
+            180: _("Once per 3 hours"),
+            240: _("Once per 4 hours"),
+            360: _("Once per 6 hours"),
+            720: _("Once per 12 hours"),
             1440: _("Once per day")
         }
     %}

@@ -277,6 +277,7 @@ $(() => {
         showCatExp: true,
         isRequired: true,
         showColor: true,
+        colorAsCheckbox: true,
         hasDiv: true,
         showFilter: true,
     });
@@ -2078,6 +2079,7 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         formData = new FormData(traceForm[0]);
         formData = transformFacetParams(formData);
         formData = genDatetimeRange(formData);
+        formData = transformColorVars(formData);
         // Show warning message if x or y is string type but color is not string.
         if (!validateXYColorType(formData)) {
             showToastrMsg(i18n.colorWarningMessage);
@@ -2110,6 +2112,12 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
         if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata.find((d) => !d.is_empty_graph).array_y)) {
             showToastrAnomalGraph();
         }
+
+        // load list availableColors graphColorVas
+        initAvailableColorVars(res.available_colors, () => {
+            const setting = getCurrentSettings();
+            handleSubmit(false, setting);
+        });
 
         await showSCP(res, setting, clearOnFlyFilter);
 

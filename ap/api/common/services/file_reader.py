@@ -101,7 +101,7 @@ class StructuredFileReader:
             same_number_of_rows_and_headers = all(len(row) == len(self.headers) for row in self.data)
             self.is_valid = all_rows_have_trailing_comma or same_number_of_rows_and_headers
 
-    def get_etl_good_file(self):
+    def get_etl_good_file(self, filenames: list[str] | None = None):
         """
         Verify that the ETL file is readable with file_checker.
         If the file passes validation, return its metadata.
@@ -110,7 +110,8 @@ class StructuredFileReader:
         dic_file_info = None
         is_file_checker = False
         try:
-            for file_path in self.filenames:
+            target_files = filenames if filenames is not None else self.filenames
+            for file_path in target_files:
                 check_result = chw.get_file_info_py(file_path)
                 if isinstance(check_result, Exception):
                     continue
@@ -277,11 +278,12 @@ class StructuredFileReader:
             logger.exception(e)
             raise e
 
-    def read_data_with_file_checker(self):
+    def read_data_with_file_checker(self, target_file: str | None = None):
         """If the file is obfuscated cases, read data with file-checker"""
         # try to get file which has data to detect data types + get col names
         try:
-            dic_file_info, csv_file, is_file_checker = self.get_etl_good_file()
+            file_candidates = [target_file] if target_file else None
+            dic_file_info, csv_file, is_file_checker = self.get_etl_good_file(file_candidates)
             if not dic_file_info or not csv_file:
                 error = 'Cannot get headers_name and data_details for filechecker'
                 logger.warning(error)
@@ -371,7 +373,7 @@ class StructuredFileReader:
 
         if self.is_file_checker:
             # Case 2: Already flagged to use file_checker
-            header, data = self.read_data_with_file_checker()
+            header, data = self.read_data_with_file_checker(target_file=target_file)
             if self.is_valid:
                 return header, data
 

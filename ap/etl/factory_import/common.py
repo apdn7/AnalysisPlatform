@@ -201,21 +201,19 @@ class ImportBase(ABC):
         return selected_time_range.intersect(factory_time_range)
 
     @log_execution_time()
-    def _get_factory_data(self, time_range: TimeRange) -> Iterator[tuple]:
+    def _get_factory_data(self, db_instance, time_range: TimeRange) -> Iterator[tuple]:
         """Get data from factory db for the given time range"""
         from ap.api.setting_module.services.factory_import import FETCH_MANY_SIZE, SQL_FACTORY_LIMIT
 
-        # exe sql
-        with ReadOnlyDbProxy(self.process.data_source) as db_instance:
-            sql, params = self.build_query(db_instance, time_range, SQL_FACTORY_LIMIT)
-            data = db_instance.fetch_many(sql, FETCH_MANY_SIZE, params=params)
-            if not data:
-                return None
-
-            for rows in data:
-                yield tuple(rows)
-
+        sql, params = self.build_query(db_instance, time_range, SQL_FACTORY_LIMIT)
+        data = db_instance.fetch_many(sql, FETCH_MANY_SIZE, params=params)
+        if not data:
             return None
+
+        for rows in data:
+            yield tuple(rows)
+
+        return None
 
     @log_execution_time()
     def get_factory_data(self, time_range: TimeRange) -> Iterator[tuple]:
@@ -230,26 +228,27 @@ class ImportBase(ABC):
         """
         from ap.api.setting_module.services.factory_import import FETCH_MANY_SIZE
 
-        chunk_sql_day = 1  # 1 day
-        chunked_time_ranges = time_range.chunk(chunk_sql_day)
+        chunk_sql_hours = 2  # 2 hours
+        chunked_time_ranges = time_range.chunk(hours=chunk_sql_hours)
         buffer = ()
-        for idx, chunked_time_range in enumerate(chunked_time_ranges):
-            generator = self._get_factory_data(chunked_time_range)
-            if idx == 0:
-                # in first SQL it will return cols
-                yield next(generator)
-            else:
-                # from second SQL, we force it only return data
-                _cols = next(generator)
+        with ReadOnlyDbProxy(self.process.data_source) as db_instance:
+            for idx, chunked_time_range in enumerate(chunked_time_ranges):
+                generator = self._get_factory_data(db_instance, chunked_time_range)
+                if idx == 0:
+                    # in first SQL it will return cols
+                    yield next(generator)
+                else:
+                    # from second SQL, we force it only return data
+                    _cols = next(generator)
 
-            # second time is data
-            for rows in generator:
-                buffer += rows
-                if len(buffer) >= FETCH_MANY_SIZE:
-                    yield buffer[:FETCH_MANY_SIZE]
-                    buffer = buffer[FETCH_MANY_SIZE:]
+                # second time is data
+                for rows in generator:
+                    buffer += rows
+                    if len(buffer) >= FETCH_MANY_SIZE:
+                        yield buffer[:FETCH_MANY_SIZE]
+                        buffer = buffer[FETCH_MANY_SIZE:]
 
-        if buffer:
-            yield buffer
+            if buffer:
+                yield buffer
 
         return None

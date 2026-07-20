@@ -71,6 +71,7 @@ from ap.common.constants import (
     COL_DATA_TYPE,
     COL_ID,
     COLOR_ORDER,
+    COLOR_UNSELECTED,
     COMMON,
     COMMON_INFO,
     CYCLE_IDS,
@@ -149,6 +150,7 @@ from ap.common.constants import (
     SUMMARIES,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_COLOR_VAR,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
     TEMP_SERIAL_PROCESS,
@@ -485,6 +487,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         TEMP_SERIAL_ORDER,
         MATRIX_COL,
         COLOR_ORDER,
+        TEMP_COLOR_VAR,
     )
     for name in expired_cache_params:
         if name in dic_param[COMMON]:
@@ -499,6 +502,9 @@ def customize_dic_param_for_reuse_cache(dic_param):
     cat_procs = dic_param[COMMON].get(TEMP_CAT_PROCS, [])
     y_scale_mode = dic_param[COMMON].get(TEMP_Y_SCALE_MODE, YScaleModes.AUTO.name)
     y_scale_mode = YScaleModes[y_scale_mode] if y_scale_mode in YScaleModes.__members__ else YScaleModes.AUTO
+    temp_color_var = dic_param[COMMON].get(TEMP_COLOR_VAR, None)
+    if temp_color_var is not None:
+        temp_color_var = temp_color_var if temp_color_var == COLOR_UNSELECTED else int(temp_color_var)
 
     for name in CACHED_PARAMS:
         if name in dic_param[COMMON]:
@@ -533,6 +539,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         temp_serial_process,
         temp_x_option,
         y_scale_mode,
+        temp_color_var,
         matrix_col,
         color_order,
     )

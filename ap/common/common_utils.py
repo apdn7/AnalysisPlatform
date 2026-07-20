@@ -46,6 +46,7 @@ from sqlalchemy import NullPool, create_engine
 
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
+    COLOR_UNSELECTED,
     DATE_FORMAT_QUERY,
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_ONLY_DIGIT,
@@ -582,7 +583,7 @@ def set_sqlite_params(conn):
 
 
 # get x_y info for scp and heatmap page
-def get_x_y_info(array_formval, dic_param_common):
+def get_x_y_info(graph_param, dic_param_common):
     scatter_xy_ids = []
     scatter_proc_ids = []
     scatter_xy_names = []
@@ -592,10 +593,11 @@ def get_x_y_info(array_formval, dic_param_common):
 
     # if no x_axis or y_axis in payload, no switch XY (may not have this case)
     if not x_axis or not y_axis:
-        for proc in array_formval:
-            scatter_proc_ids.append(proc.proc_id)
-            scatter_xy_ids = scatter_xy_ids + proc.col_ids
-            scatter_xy_names = scatter_xy_names + proc.col_names
+        for proc in graph_param.array_formval:
+            scatter_xy_ids += proc.col_sensor_only_ids
+            scatter_proc_ids += [proc.proc_id]
+        scatter_xy_names = [graph_param.get_col_cfg(col_id).column_name for col_id in scatter_xy_ids]
+
     else:
         x_proc, x_column_id = map(int, x_axis.split('-'))
         y_proc, y_column_id = map(int, y_axis.split('-'))
@@ -610,8 +612,8 @@ def get_x_y_info(array_formval, dic_param_common):
                     index = proc.col_ids.index(find_column_id)
                     return proc.col_names[index]
 
-        x_name = get_name(array_formval, x_proc, x_column_id)
-        y_name = get_name(array_formval, y_proc, y_column_id)
+        x_name = get_name(graph_param.array_formval, x_proc, x_column_id)
+        y_name = get_name(graph_param.array_formval, y_proc, y_column_id)
 
         scatter_xy_names += [x_name, y_name]
 
@@ -1274,16 +1276,20 @@ def generate_job_id(
     export_id: int | None = None,
 ) -> str:
     job_id = job_type.name
-    if process_id is not None and job_type in JobType.jobs_include_process_id():
+
+    # Handle DATA_EXPORT with export_id specially
+    if export_id is not None and process_id is not None and job_type is JobType.DATA_EXPORT:
+        job_id = f'{job_id}_{process_id}_{export_id}'
+    elif process_id is not None and job_type in JobType.jobs_include_process_id():
         job_id = f'{job_id}_{process_id}'
     elif data_source_id is not None and job_type in JobType.jobs_include_data_source_id():
         job_id = f'{job_id}_{data_source_id}'
+
     if prefix is not None:
         job_id = f'{prefix}_{job_id}'
     if suffix is not None:
         job_id = f'{job_id}_{suffix}'
-    if export_id is not None and process_id is not None:
-        job_id = f'{job_id}_{process_id}_{export_id}'
+
     return job_id
 
 
@@ -1705,18 +1711,19 @@ class TimeRange(RangeBound[dt.datetime]):
             max=self.max.map(lambda m: m.strftime(fmt)),
         )
 
-    def chunk(self, days: int) -> list[Self]:
+    def chunk(self, days: float = 0, hours: float = 0, minutes: float = 0) -> list[Self]:
+        time_delta = timedelta(days=days, hours=hours, minutes=minutes)
         chunked_time_ranges = []
         next_time_range = TimeRange(
             min=Bound(kind=self.min.kind, value=self.min.value),
-            max=Bound(kind=BoundType.INCLUDED, value=self.min.value + timedelta(days=days)),
+            max=Bound(kind=BoundType.INCLUDED, value=self.min.value + time_delta),
         )
         next_time_range = next_time_range.intersect(self)
         while next_time_range is not None:
             chunked_time_ranges.append(next_time_range)
             next_time_range = TimeRange(
                 min=Bound(kind=BoundType.EXCLUDED, value=next_time_range.max.value),
-                max=Bound(kind=BoundType.INCLUDED, value=next_time_range.max.value + timedelta(days=days)),
+                max=Bound(kind=BoundType.INCLUDED, value=next_time_range.max.value + time_delta),
             )
             next_time_range = next_time_range.intersect(self)
         return chunked_time_ranges
@@ -1776,6 +1783,16 @@ def function_to_generator(function, *args: Any, **kwargs: Mapping[str, Any]):
     yield 0
     function(*args, **kwargs)
     yield 100
+
+
+def select_between_color_and_temp_color(temp_color_var, graph_param):
+    if temp_color_var is None:
+        color_id = graph_param.common.color_var
+    elif temp_color_var == COLOR_UNSELECTED:
+        color_id = None
+    else:
+        color_id = temp_color_var
+    return color_id
 
 
 def is_ja_locale() -> bool:

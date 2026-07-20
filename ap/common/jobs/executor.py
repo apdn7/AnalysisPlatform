@@ -20,8 +20,9 @@ def mark_finished_job_done(event: JobExecutionEvent):
 
     with RunningJobs.lock():
         running_job = running_jobs.get(event.job_id)
-        running_job.update(status=RunningJobStatus.EXECUTED, running_jobs=running_jobs)
-        logger.info(f'{event.job_id}: mark complete executing job as done')
+        if running_job:
+            running_job.update(status=RunningJobStatus.EXECUTED, running_jobs=running_jobs)
+            logger.info(f'{event.job_id}: mark complete executing job as done')
 
 
 def verify_job_submission(submit_function: Callable[[BaseExecutor, Job, list[Any]], Any]):

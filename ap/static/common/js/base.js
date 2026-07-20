@@ -800,7 +800,6 @@ $(async () => {
     }, 1000);
 
     setUserRule();
-    showHideShutDownButton();
 
     $('[name=pasteCard]').click((e) => {
         const divTarget = e.currentTarget.closest('.card-body');
@@ -1067,9 +1066,6 @@ const handleChangeDivideOption = (e) => {
         }
     });
     isCyclicTermTab = e.value === CYCLIC_TERM.NAME;
-    if (mainDataFinder) {
-        mainDataFinder.setCalendarShowFromOnly(isCyclicTermTab);
-    }
 
     showDateTimeRangeValue();
     compareSettingChange();

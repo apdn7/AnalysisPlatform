@@ -293,6 +293,7 @@ def get_sorted_files(root_name, is_allow_zip: bool = True) -> list[str]:
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
             extension.append(CSVExtTypes.ZIP.value)
+            extension.append(CSVExtTypes.SEVEN_Z.value)
         latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
         latest_files.sort(reverse=True)
@@ -318,6 +319,7 @@ def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> list[
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
             extension.append(CSVExtTypes.ZIP.value)
+            extension.append(CSVExtTypes.SEVEN_Z.value)
         files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         largest_files = get_largest_files_in_list(files)
         return largest_files
@@ -330,6 +332,7 @@ def get_sorted_files_by_size_and_time(root_name: str, is_allow_zip: bool = True)
         extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
         if is_allow_zip:
             extension.append(CSVExtTypes.ZIP.value)
+            extension.append(CSVExtTypes.SEVEN_Z.value)
         files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         largest_files = get_sorted_files_in_list(files)
         return largest_files
@@ -450,7 +453,13 @@ def get_latest_files(root_name: Union[Path, str]) -> list[str]:
             str(root_name),
             depth_from=1,
             depth_to=100,
-            extension=[CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value],
+            extension=[
+                CSVExtTypes.CSV.value,
+                CSVExtTypes.TSV.value,
+                CSVExtTypes.SSV.value,
+                CSVExtTypes.ZIP.value,
+                CSVExtTypes.SEVEN_Z.value,
+            ],
         )
         files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
         files = [f.replace(os.sep, '/') for f in files]

@@ -1,7 +1,7 @@
 """migrate job error to info
 
 Revision ID: 137d4295f66f
-Revises: a2e10a4ef7f4
+Revises: 354bd613ea30
 Create Date: 2026-03-26 09:18:25.788254
 
 """

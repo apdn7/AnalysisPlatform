@@ -85,7 +85,7 @@ const showProcessSettings = async (procId) => {
         visualModule.showSettings(cfgProcess);
 
         // convert hankaku -> zenkaku every input texts except for csv folder
-        addAttributeToElement();
+        addAttributeToElement(null, { allowClear: false });
     }
 };
 

@@ -980,12 +980,13 @@ const saveLoadUserInput = (
         const remainEles = [];
         // load value
         for (const v of data) {
-            if (!v.name) {
+            if (!v.name && !v.id) {
                 continue;
             }
             let input = null;
             let eleSelector;
             if (
+                !v.name ||
                 v.name === CYCLIC_TERM.DIV_CALENDER ||
                 v.name === 'autoUpdateInterval' ||
                 v.name.includes('GET02_CATE_SELECT')
@@ -1064,12 +1065,18 @@ const saveLoadUserInput = (
         const others1 = [];
         const others2 = [];
         const indexVals = [];
-        for (v of data) {
+        for (const v of data) {
             const isCheckboxOrRadioIgnore =
                 endProcCheckBoxes.some((prefix) => v.name?.startsWith(prefix)) ||
                 endProcRadios.some((prefix) => v.name?.startsWith(prefix));
             const isSelectBoxesIgnore = endProcSelectBoxes.some((name) => v.name === name);
             if (v.type === 'radio' || v.type === 'checkbox') {
+                // change colorVar radio to checkbox #1128
+                if (v.type === 'radio' && v.name === 'colorVar' && v.checked) {
+                    v.type = 'checkbox';
+                    v.id = `color-var-${v.value}`;
+                    delete v.name;
+                }
                 if (isCheckboxOrRadioIgnore && !v.checked) continue;
                 radioChecks.push(v);
             } else if (v.isActiveTab) {
@@ -2594,6 +2601,8 @@ const getFormData = (formEleID, clearOnFlyFilter = null) => {
         formData = new FormData(traceForm[0]);
         formData = transformFacetParams(formData);
         formData = genDatetimeRange(formData);
+
+        formData = transformColorVars(formData);
 
         formData = clearEmptyEndProcs(formData);
         lastUsedFormData = formData;

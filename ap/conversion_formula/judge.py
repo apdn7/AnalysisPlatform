@@ -39,6 +39,7 @@ class JudgeFormula(ConversionFormula):
 
     formula_type: FormulaType = FormulaType.JUDGE
     positive: str
+    negative: str | None
     positive_display: str
     negative_display: str
 
@@ -49,7 +50,7 @@ class JudgeFormula(ConversionFormula):
             positive = match.group('positive')
             pos_display = match.group('pos_display')
             neg_display = match.group('neg_display')
-            return cls(positive=positive, positive_display=pos_display, negative_display=neg_display)
+            return cls(positive=positive, negative=None, positive_display=pos_display, negative_display=neg_display)
         else:
             return None
 
@@ -101,10 +102,25 @@ class JudgeFormula(ConversionFormula):
                     if judge_formula.positive in [str(val) for val in series.unique()]:
                         return judge_formula
 
+                # if NG only has in data set positive is Null
+                for i, judge_formula in enumerate(JUDGE_FORMULAS):
+                    if judge_formula.negative in [str(val) for val in series.unique()]:
+                        return JudgeFormula(
+                            positive='Null',
+                            negative=judge_formula.negative,
+                            positive_display=judge_formula.positive_display,
+                            negative_display=judge_formula.negative_display,
+                        )
+
                 # try to cast to int to detect judge
                 int_series = series.astype(pd.Int8Dtype(), errors='ignore')
                 if pd.api.types.is_numeric_dtype(int_series) and 0 <= int_series.max() <= 2:
-                    return JudgeFormula(positive=str(int_series.max()), positive_display='OK', negative_display='NG')
+                    return JudgeFormula(
+                        positive=str(int_series.max()),
+                        negative=None,
+                        positive_display='OK',
+                        negative_display='NG',
+                    )
                 return None
             else:
                 return None
@@ -114,21 +130,22 @@ class JudgeFormula(ConversionFormula):
 
 
 JUDGE_FORMULAS: list[JudgeFormula] = [
-    JudgeFormula(positive='OK', positive_display='OK', negative_display='NG'),
-    JudgeFormula(positive='Positive', positive_display='Positive', negative_display='Negative'),
-    JudgeFormula(positive='Pos', positive_display='Pos', negative_display='Neg'),
-    JudgeFormula(positive='P', positive_display='P', negative_display='N'),
-    JudgeFormula(positive='Good', positive_display='Good', negative_display='Bad'),
-    JudgeFormula(positive='Yes', positive_display='Yes', negative_display='No'),
-    JudgeFormula(positive='Pass', positive_display='Pass', negative_display='Failed'),
-    JudgeFormula(positive='P', positive_display='P', negative_display='F'),
-    JudgeFormula(positive='True', positive_display='True', negative_display='False'),
-    JudgeFormula(positive='T', positive_display='T', negative_display='F'),
-    JudgeFormula(positive='可', positive_display='可', negative_display='否'),
-    JudgeFormula(positive='良', positive_display='良', negative_display='不良'),
-    JudgeFormula(positive='はい', positive_display='はい', negative_display='いいえ'),
-    JudgeFormula(positive='正', positive_display='正', negative_display='誤'),
-    JudgeFormula(positive='有', positive_display='有', negative_display='無'),
-    JudgeFormula(positive='あり', positive_display='あり', negative_display='なし'),
-    JudgeFormula(positive='On', positive_display='On', negative_display='Off'),
+    JudgeFormula(positive='OK', negative='NG', positive_display='OK', negative_display='NG'),
+    JudgeFormula(positive='Positive', negative='Negative', positive_display='Positive', negative_display='Negative'),
+    JudgeFormula(positive='Pos', negative='Neg', positive_display='Pos', negative_display='Neg'),
+    JudgeFormula(positive='P', negative='N', positive_display='P', negative_display='N'),
+    JudgeFormula(positive='Good', negative='Bad', positive_display='Good', negative_display='Bad'),
+    JudgeFormula(positive='Yes', negative='No', positive_display='Yes', negative_display='No'),
+    JudgeFormula(positive='Pass', negative='Failed', positive_display='Pass', negative_display='Failed'),
+    JudgeFormula(positive='P', negative='F', positive_display='P', negative_display='F'),
+    JudgeFormula(positive='True', negative='False', positive_display='True', negative_display='False'),
+    JudgeFormula(positive='T', negative='F', positive_display='T', negative_display='F'),
+    JudgeFormula(positive='可', negative='否', positive_display='可', negative_display='否'),
+    JudgeFormula(positive='良', negative='不良', positive_display='良', negative_display='不良'),
+    JudgeFormula(positive='はい', negative='いいえ', positive_display='はい', negative_display='いいえ'),
+    JudgeFormula(positive='正', negative='誤', positive_display='正', negative_display='誤'),
+    JudgeFormula(positive='有', negative='無', positive_display='有', negative_display='無'),
+    JudgeFormula(positive='あり', negative='なし', positive_display='あり', negative_display='なし'),
+    JudgeFormula(positive='On', negative='Off', positive_display='On', negative_display='Off'),
+    JudgeFormula(positive='良品', negative='不良品', positive_display='良品', negative_display='不良品'),
 ]

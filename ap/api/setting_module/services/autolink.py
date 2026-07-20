@@ -294,9 +294,9 @@ class AutolinkDataProcess:
         return len(self.df) >= AUTOLINK_TOTAL_RECORDS_PER_SOURCE
 
     def calculate_main_function_column(self, df):
-        from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+        from ap.api.setting_module.services.import_function_column import handle_txn_function_columns
 
-        df = handle_main_function_columns(self.cfg_process, df)
+        df = handle_txn_function_columns(self.cfg_process, df)
         return df
 
     def update(self, df: pd.DataFrame):

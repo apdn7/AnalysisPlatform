@@ -84,6 +84,7 @@ class SpreadSheetFunctionConfig {
         // hidden columns
         Index: 'index',
         IsMainSerialNo: 'isMainSerialNo',
+        IsPhysicalFuncCol: 'isPhysicalFuncCol',
         IsMainDatetime: 'isMainDatetime',
         IsMeFunction: 'isMeFunction',
         ShownName: 'shownName',
@@ -132,6 +133,7 @@ class SpreadSheetFunctionConfig {
         // hidden columns
         classes[this.ColumnNames.Index] = ['column-index'];
         classes[this.ColumnNames.IsMainSerialNo] = ['column-is-main-serial-no'];
+        classes[this.ColumnNames.IsPhysicalFuncCol] = ['column-is-physical-col'];
         classes[this.ColumnNames.IsMainDatetime] = ['column-is-main-datetime'];
         classes[this.ColumnNames.IsMeFunction] = ['column-is-me-function'];
         classes[this.ColumnNames.ShownName] = ['column-shown-name'];
@@ -220,6 +222,17 @@ class SpreadSheetFunctionConfig {
         return _.first(
             this.table.findRows({
                 [SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo]: (cell) => cell.data,
+            }),
+        );
+    }
+
+    physicalFuncColRow() {
+        if (!this.isValid()) {
+            return null;
+        }
+        return _.first(
+            this.table.findRows({
+                [SpreadSheetFunctionConfig.ColumnNames.IsPhysicalFuncCol]: (cell) => cell.data,
             }),
         );
     }
@@ -383,6 +396,7 @@ class SpreadSheetFunctionConfig {
      * @param {string} stringValue
      * @param {boolean} recordHistory
      * @Param {boolean} force
+     * @Param {number|null} rowIndex
      */
     syncDataToSelectedRow(columnName, stringValue, { recordHistory = true, force = false, rowIndex = null } = {}) {
         const selectedRow = rowIndex !== null ? this.getRowExcelByIndex(rowIndex) : this.selectedRow();
@@ -843,6 +857,7 @@ class SpreadSheetFunctionConfig {
             functionInfoDict.output.toUpperCase(),
             functionInfoDict.isMainSerialNo,
             functionInfoDict.isMainDatetime,
+            functionInfoDict.isPhysicalFuncCol,
         );
         (functionInfoDict.sampleDatas ?? []).every((sample, idx) => {
             if (idx > 4) return false;
@@ -852,6 +867,7 @@ class SpreadSheetFunctionConfig {
 
         rowData[SpreadSheetFunctionConfig.ColumnNames.Index] = functionInfoDict.index;
         rowData[SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo] = functionInfoDict.isMainSerialNo;
+        rowData[SpreadSheetFunctionConfig.ColumnNames.IsPhysicalFuncCol] = functionInfoDict.isPhysicalFuncCol;
         rowData[SpreadSheetFunctionConfig.ColumnNames.IsMainDatetime] = functionInfoDict.isMainDatetime;
         rowData[SpreadSheetFunctionConfig.ColumnNames.IsMeFunction] = functionInfoDict.isMeFunction;
         rowData[SpreadSheetFunctionConfig.ColumnNames.ShownName] = functionInfoDict.shownName;
@@ -906,6 +922,8 @@ class SpreadSheetFunctionConfig {
 
         functionInfoDict.index = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.Index];
         functionInfoDict.isMainSerialNo = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMainSerialNo];
+        functionInfoDict.isPhysicalFuncCol =
+            spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsPhysicalFuncCol];
         functionInfoDict.isMainDatetime = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMainDatetime];
         functionInfoDict.isMeFunction = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.IsMeFunction];
         functionInfoDict.shownName = spreadsheetFunctionData[SpreadSheetFunctionConfig.ColumnNames.ShownName];
@@ -1083,6 +1101,10 @@ class SpreadSheetFunctionConfig {
             },
             {
                 type: 'hidden',
+                name: this.ColumnNames.IsPhysicalFuncCol,
+            },
+            {
+                type: 'hidden',
                 name: this.ColumnNames.IsMainDatetime,
             },
             {
@@ -1162,6 +1184,7 @@ class SpreadSheetFunctionConfig {
             tableOverflow: true,
             tableHeight: 'calc(100vh - 370px)',
             tableWidth: '100%',
+            allowManualDeleteRow: true,
         };
 
         const customEvents = {

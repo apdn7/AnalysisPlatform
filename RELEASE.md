@@ -1,5 +1,63 @@
 # Releases
 
+## 4.9.4
+
+Core changes
+
+New GUI for Data Export page.  
+
+```
+!!Important!!
+Due to the large changes in data structure,
+all data export configuration from the previous version will be deleted.
+```
+
+- Now we can configure:
+  - `Export timing`: From when, and export interval
+  - `Filename format`: Whether to include {from}, {to}, {process name} or not.
+  - `Export past data since`: How far back in the past should data be exported?
+  - `Sub-folder`: Should we create daily/weekly/monthly sub-folders?
+- We can see the status:
+  - `Last run`: When was the last run of each export?
+  - `Latest exported data`: The latest timestamp of the exported data.
+  - `Next run`: When is the next run?
+
+New features
+
+- (ScP, HmP, WfP)
+  - We can now select multiple "Color" variables, and swith colors with the dropdown list on the graph area.
+  - Now "X" and "Y" are shown on the corresponding variables used for X-axis and Y-axis.
+- (Data Source Config)
+  - CSV files can now be imported from .zip and .7zip files
+- (Process Config)
+  - Function: We can now register a generated column as serial datatype.  
+  For example, we can now extract YYYYMMDD from filename and then use it to link data.
+
+
+Improvements 
+
+- (Data source config)
+  - More options in polling frequency: 2, 3, 4, 6, 12 hours
+  - When deleting a data source, we now shows the processes associated to that data source
+  - Support view tables for Snowflake
+- (Process Config)
+  - Improved `Judge`-type detection. Judge formula is generated also when data has only negative-meaning values
+  - Function: Multiple function columns can now be removed with spreadsheet deletion
+- (FPP)
+  - Added data tooltip for "Judge"-mode chart
+  - Added data tooltip for category data in FPP highspeed mode
+- (Misc)
+  - AP is now able to start even when "ap" folder is moved to another directory
+
+Bug fixes 
+- Fixed an issue where the shutdown button is available even when accessed from non-local environment
+- Fixed an issue where not all filter settings are shown in Show Graph pages
+- Fixed an issue where the Ksep detection warning modal does not appear in Register By File
+- Fixed an issue with Ksep datatype prediction, and the warning modal for Ksep datatype does not appear in Register By File
+- Fixed an issue where Generated Datetime causes the "Datasource has been altered" message to appear
+- To prevent excessive workload on the database, database import now queries a smaller range of data each time
+- Fixed an issue where using Bulk register for Software Workshop databases does not register Japanese name even with JP locale
+
 ## 4.9.3
 
 This version is a minor update including below bugfixes:

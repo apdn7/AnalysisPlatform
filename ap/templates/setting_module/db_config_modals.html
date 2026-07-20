@@ -1126,6 +1126,16 @@
             </div>
             <div class="modal-body">
                 <p class="modal-inform">{{ _('Do you want to delete this record?') }}</p>
+                <div id="deleteDSProcessList" style="display: none">
+                    <p style="margin-bottom: 5px;">{{ _('Note: Corresponding processes will also be deleted:') }}</p>
+                    <div style="max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #444;">
+                        <ul
+                            id="deleteDSProcessUl"
+                            class="mb-0"
+                            style="list-style-type: none; padding-left: 0; color: #f8fbfd;"
+                        ></ul>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button

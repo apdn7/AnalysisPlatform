@@ -542,6 +542,11 @@ call :stopLoadingApp
 : Minimize com.exe window
 call :mode_cmd_run_ap
 
+@REM This is to overwrite the paths in pyenv.conf
+@REM Usually needed when a virtual environment is moved to a different directory
+ECHO Initializing Virtual Environment
+"%main_python%" -I -m virtualenv "%path_env%" --python "%main_python%"
+
 REM run application
 echo Starting Up Analysis Platform...    %clTitle% port:%port%  %cd% %cl_Base%
 echo.

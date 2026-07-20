@@ -868,6 +868,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             NGLabel: plotData.judge_negative_display,
             OKLabel: plotData.judge_positive_display,
             is_log_scale: plotData?.is_log_scale || false,
+            is_category: plotData?.is_category || false,
         };
 
         const histParamObj = {
@@ -891,6 +892,7 @@ const traceDataChart = (data, clearOnFlyFilter) => {
             isCatLimited,
             isJudge: plotData.end_col_column_type === masterDataGroup.JUDGE,
             is_log_scale: plotData?.is_log_scale || false,
+            is_category: plotData?.is_category || false,
         };
 
         // 今回はAjaxでupdateが必要が無いのでオブジェクトを返さない

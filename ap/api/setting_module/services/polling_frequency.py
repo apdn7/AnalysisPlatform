@@ -1,9 +1,11 @@
 import collections
 from datetime import datetime
 from typing import Union
+from zoneinfo import ZoneInfo
 
 from apscheduler.triggers.date import DateTrigger
 from apscheduler.triggers.interval import IntervalTrigger
+from dateutil import tz
 from pytz import utc
 
 from ap import dic_request_info
@@ -27,6 +29,8 @@ from ap.common.constants import (
     AnnounceEvent,
     BulkRegisterProcessError,
     BulkRegisterProcessErrorData,
+    CfgExportPeriodicUnit,
+    CfgExportType,
     DataColumnType,
     DBType,
     JobType,
@@ -41,8 +45,15 @@ from ap.common.jobs.job_info_schema import (
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.scheduler import scheduler_app_context
+from ap.common.timezone_utils import get_datetime_utc_from_str_with_timezone
 from ap.etl.pull.pull_data import add_pull_transaction_data_job
-from ap.setting_module.models import CfgDataSource, CfgExport, CfgProcess, JobManagement, make_session
+from ap.setting_module.models import (
+    CfgDataSource,
+    CfgExport,
+    CfgProcess,
+    JobManagement,
+    make_session,
+)
 from ap.setting_module.schemas import ProcessColumnSchema, ProcessSchema
 from ap.setting_module.services.background_process import send_processing_info
 
@@ -247,36 +258,61 @@ def add_import_job(
 
 
 @scheduler_app_context
-def export_job_func(config_id: int, job_management: JobManagement):
+def export_job_func(config_id: int, job_management: JobManagement, retry_count: int | None = None):
+    """Export Data Job"""
     export_config = CfgExport.get_by_id(config_id)
     if export_config is not None:
-        job_management.info = DataExportJobInfo()
-        data_export_job_info = job_management.info
-        gen = DataExport(export_config, data_export_job_info).export_as_gen()
-        send_processing_info(
-            gen,
-            job_management=job_management,
-        )
+        job_management.info = DataExportJobInfo(export_id=export_config.id, retry_count=retry_count)
+        gen = DataExport(export_config, job_management.info).export_as_gen()
+
+        send_processing_info(gen, job_management=job_management, export_id=export_config.id)
 
 
-def add_export_job(export_config: CfgExport):
+def add_export_job(export_config: CfgExport, run_now=False):
     trigger = DateTrigger(datetime.now().astimezone(utc), timezone=utc)
-    if export_config.export_frequency:
-        trigger = IntervalTrigger(seconds=export_config.export_frequency, timezone=utc)
     kwargs = ExportConfig(config_id=export_config.id).to_dict()
+    if export_config.type == CfgExportType.PERIODIC.value:
+        trigger, _ = trigger_scheduler(export_config.cycle, export_config.client_timezone)
+        # run_now only for periodic mode
+        if run_now:
+            EventQueue.put(
+                EventAddJob(
+                    fn=export_job_func,
+                    kwargs=kwargs,
+                    process_id=export_config.main_process_id,
+                    job_type=JobType.DATA_EXPORT,
+                    job_id_suffix=f'{export_config.main_process_id}_{export_config.id}_RUN_NOW',
+                    replace_existing=True,
+                    trigger=DateTrigger(datetime.now().astimezone(utc), timezone=utc),
+                    next_run_time=datetime.now().astimezone(utc),
+                ),
+            )
 
     EventQueue.put(
         EventAddJob(
             fn=export_job_func,
             kwargs=kwargs,
-            process_id=export_config.process_id,
+            process_id=export_config.main_process_id,
             job_type=JobType.DATA_EXPORT,
-            job_id_suffix=f'{export_config.process_id}_{export_config.id}',
+            job_id_suffix=f'{export_config.main_process_id}_{export_config.id}',
             replace_existing=True,
             trigger=trigger,
-            next_run_time=datetime.now().astimezone(utc),
         ),
     )
+
+
+def trigger_scheduler(export_periodic, client_timezone=None):
+    client_timezone = ZoneInfo(client_timezone) if client_timezone else tz.tzlocal()
+    start_date = get_datetime_utc_from_str_with_timezone(client_timezone, export_periodic.start_time)
+    match export_periodic.interval_unit:
+        case CfgExportPeriodicUnit.DAY.value:
+            return IntervalTrigger(days=export_periodic.interval_value, start_date=start_date), client_timezone
+        case CfgExportPeriodicUnit.HOUR.value:
+            return IntervalTrigger(hours=export_periodic.interval_value, start_date=start_date), client_timezone
+        case CfgExportPeriodicUnit.MINUTE.value:
+            return IntervalTrigger(minutes=export_periodic.interval_value, start_date=start_date), client_timezone
+        case _:
+            raise ValueError('Unsupported unit for export config')
 
 
 @scheduler_app_context

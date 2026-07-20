@@ -118,6 +118,13 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
     const vals = [...$(`#${spreadsheet.table.table.el.id}`).find(`tr:eq(${Number(idx) + 1}) .sample-data`)].map((el) =>
         $(el),
     );
+
+    // only get sample which have value
+    const tableId = spreadsheet.table.tableId;
+    if (procSampleDataLength[tableId] && vals.length) {
+        vals.length = procSampleDataLength[tableId];
+    }
+
     const getParamsForFormatDatetime = () => {
         return {
             dataType: dataType,

@@ -496,6 +496,8 @@ $(() => {
             });
 
             spreadsheet.pasteAll(dataRows);
+            // bind dropdown after paste
+            bindClickDropdown();
             showToastPasteFromClipboardSuccessful();
         }, showToastPasteFromClipboardFailed);
     });

@@ -123,6 +123,10 @@ const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
                 showToastrAnomalGraph();
             }
 
+            initAvailableColorVars(res.available_colors, () => {
+                waveformTraceData(false, setting);
+            });
+
             showWaveformChart(res, setting, clearOnFlyFilter);
 
             // show toastr to inform result was truncated upto 5000
@@ -149,8 +153,7 @@ const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
 };
 
 const handleSetPollingData = () => {
-    const settings = getCurrentSettings();
-    waveformTraceData(false, settings);
+    waveformTraceData(false, {});
 };
 
 const tvTracing = () => {
@@ -228,6 +231,7 @@ const getwaveformFormData = (formEleID, clearOnFlyFilter = null) => {
         formData = genDatetimeRange(formData);
 
         formData = clearEmptyEndProcs(formData);
+        formData = transformColorVars(formData);
         lastUsedFormData = formData;
     } else {
         formData = lastUsedFormData;
@@ -261,6 +265,7 @@ $(() => {
         showCatExp: true,
         isRequired: true,
         showColor: true,
+        colorAsCheckbox: true,
         hasDiv: true,
         showFilter: true,
         hideStrVariable: true,

@@ -1,3 +1,38 @@
+const handlerClickIsPhysicalFuncColumn = (ele) => {
+    const isChecked = ele.checked;
+    if (isChecked) {
+        if (functionConfigElements.functionNameElement.selectedOptions) {
+            const isValid = isCanCheckMainSerial();
+            if (!isValid) {
+                // show message
+                showToastrMsg($('#i18nSkipMainSerialFunctionMsg').text(), MESSAGE_LEVEL.WARN);
+                // uncheck
+                functionConfigElements.isPhysicalFuncColCheckboxEl.checked = false;
+                //disable
+                functionConfigElements.isPhysicalFuncColCheckboxEl.disabled = true;
+                return;
+            }
+        }
+
+        // Uncheck is_main_serial when is_physical_func_column is checked
+        functionConfigElements.isMainSerialCheckboxElement.checked = false;
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsPhysicalFuncCol, true, {
+            recordHistory: false,
+            force: true,
+        });
+        if (mainSerialFunctionColumnInfo) mainSerialFunctionColumnInfo.isSerial = true;
+    } else {
+        const spreadsheet = spreadsheetFuncConfig(FUNCTION_TABLE_CONTAINER);
+        spreadsheet.syncDataToSelectedRow(SpreadSheetFunctionConfig.ColumnNames.IsPhysicalFuncCol, '', {
+            recordHistory: false,
+            force: true,
+        });
+        if (mainSerialFunctionColumnInfo) mainSerialFunctionColumnInfo.isSerial = false;
+    }
+
+    handleChangeFunctionOutput();
+};
 /**
  *  Handler show message when click
  */
@@ -16,6 +51,8 @@ const handlerClickIsMainSerialFunctionColumn = (el) => {
                 return;
             }
         }
+        // Uncheck is_physical_func_column when is_main_serial is checked
+        functionConfigElements.isPhysicalFuncColCheckboxEl.checked = false;
         // check process config has column selected main:serial
         const isMainSerialSelected = isSelectedMainSerialInProcessConfig();
         if (isMainSerialSelected) {
@@ -173,7 +210,7 @@ const handlerConfirmUncheckMainSerialFunctionCol = () => {
             force: true,
             rowIndex: mainSerialFunctionCol.index - 1,
         });
-        handleChangeFunctionOutput(mainSerialFunctionCol.index - 1, mainSerialFunctionCol.output);
+        handleChangeFunctionOutput(undefined, mainSerialFunctionCol.index - 1, mainSerialFunctionCol.output);
     }
     // process config change to main::Serial
     const text = functionConfigElements.confirmUncheckMainSerialFunctionColumnModal.getAttribute('change-text');
@@ -236,11 +273,48 @@ const handleShowConfirmSelectMainSerialInProcessConfig = (currentRowData, value,
     return value;
 };
 
-const toggleStatusMainSerialCheckbox = (rawDataType) => {
-    if ([DataTypes.INTEGER.name, DataTypes.CATEGORY.name, DataTypes.STRING.name].includes(rawDataType)) {
-        functionConfigElements.isMainSerialCheckboxElement.disabled = false;
-    } else {
+const isCategoricalOutput = (rawDataType) =>
+    [DataTypes.INTEGER.name, DataTypes.CATEGORY.name, DataTypes.STRING.name].includes(rawDataType);
+
+/**
+ * Updates the main serial checkbox based on output data type.
+ *
+ * Serial columns are only applicable to categorical data types.
+ * For non-categorical types, the checkbox is disabled and unchecked.
+ *
+ * @param {HTMLInputElement} checkbox
+ * @param {string} rawDataType - Output column data type (e.g., 'TEXT', 'INTEGER')
+ */
+const updateSerialAndPhysicalCheckboxState = (checkbox, rawDataType) => {
+    // Validate element exists
+    if (!checkbox) {
+        console.warn('Serial checkbox element not found in functionConfigElements');
+        return;
+    }
+
+    const isCategorical = isCategoricalOutput(rawDataType);
+
+    // Enable checkbox only for categorical types
+    checkbox.disabled = !isCategorical;
+
+    // Preserve checked state for categorical, uncheck for non-categorical
+    if (!isCategorical) {
+        checkbox.checked = false;
+    }
+
+    // Handle mutual exclusivity between is_main_serial and is_physical_func_column
+    const isMainSerialCheckbox = checkbox === functionConfigElements.isMainSerialCheckboxElement;
+    const isPhysicalFuncColCheckbox = checkbox === functionConfigElements.isPhysicalFuncColCheckboxEl;
+
+    if (isMainSerialCheckbox && checkbox.checked) {
+        // If is_main_serial is checked, uncheck is_physical_func_column
+        functionConfigElements.isPhysicalFuncColCheckboxEl.checked = false;
+    } else if (isPhysicalFuncColCheckbox && checkbox.checked) {
+        // If is_physical_func_column is checked, uncheck is_main_serial
         functionConfigElements.isMainSerialCheckboxElement.checked = false;
-        functionConfigElements.isMainSerialCheckboxElement.disabled = true;
+    } else if (isCategorical) {
+        // If unchecking and data type is categorical, enable the other checkbox
+        functionConfigElements.isPhysicalFuncColCheckboxEl.disabled = false;
+        functionConfigElements.isMainSerialCheckboxElement.disabled = false;
     }
 };

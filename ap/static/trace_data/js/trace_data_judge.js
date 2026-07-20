@@ -362,10 +362,23 @@ function judgeChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIME
             } else {
                 thresholdTr += genTRItems(i18n.value, yVal);
             }
+            if (isThinData) {
+                // show from, to N of slot
+                if (slotFrom && slotFrom[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('From', formatDateTime(slotFrom[dataPoint.dataIndex]));
+                }
+                if (slotTo && slotTo[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('To', formatDateTime(slotTo[dataPoint.dataIndex]));
+                }
+                if (slotCount && slotCount[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('N', applySignificantDigit(slotCount[dataPoint.dataIndex]));
+                }
+            } else {
+                const datetimeVals = getDatTimeObj(dataPoint);
+                thresholdTr += genTRItems(i18n.dateTime, datetimeVals.value);
+            }
 
-            const datetimeVals = getDatTimeObj(dataPoint);
             const serialVals = getSerialObj(dataPoint);
-            thresholdTr += genTRItems(i18n.dateTime, datetimeVals.value);
             serialVals.forEach((serialVal) => {
                 if (serialVal.value) {
                     thresholdTr += genTRItems(i18n.serial, serialVal.value);

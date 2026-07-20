@@ -9,8 +9,9 @@ from typing import Any, Self, Union
 import sqlalchemy as sa
 
 from ap.api.common.services.utils import gen_proc_time_label
-from ap.common.common_utils import BoundType, TimeRangeStr, gen_sql_label, gen_sql_like_value
+from ap.common.common_utils import BoundType, TimeRange, TimeRangeStr, gen_sql_label, gen_sql_like_value
 from ap.common.constants import (
+    DATE_FORMAT_STR_SQLITE,
     EPOCH,
     TIME_COL,
     DuplicateSerialShow,
@@ -187,10 +188,12 @@ class SqlProcLink:
     sql: str
     params: str
     temp_table_name: str
-    time_ranges: list[tuple[str]]
     trans_data: TransactionData
     condition_procs: list[ConditionProc]
     is_start_proc: bool = False
+    # used for data export only
+    # can replace start_tm and end_tm if we switch to between_bound instead of between
+    time_range: TimeRange
 
     @property
     def has_link_keys(self) -> bool:
@@ -284,6 +287,48 @@ class SqlProcLink:
         time_col = self.trans_data.getdate_column
         query_builder.add_column(column=time_col.bridge_column_name, label=self.gen_proc_time_label(is_start_proc))
         query_builder.between(start_tm=self.start_tm, end_tm=self.end_tm)
+        query_builder_time_col = query_builder.column(self.gen_proc_time_label(is_start_proc))
+
+        for cfg_col in self.all_cfg_columns:
+            if cfg_col.existed_in_transaction_table():
+                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
+
+        link_cols = []
+        for col_label in self.all_link_keys_labels:
+            link_cols.append(query_builder.column(col_label))
+
+        if not for_count and duplicated_serial_show != DuplicateSerialShow.SHOW_BOTH:
+            distinct_cols = [col for col in link_cols if col.name != self.time_col]
+            if distinct_cols:
+                # sqlalchemy 2.1 support qualify, we can use them later
+                # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/132
+                query_builder.qualify(
+                    column=query_builder_time_col,
+                    group_bys=distinct_cols,
+                    func=sa.func.min if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST else sa.func.max,
+                )
+
+        cte = query_builder.build().cte(f'{CTE_PROCESS_PREFIX}{idx}')
+        cte = self.apply_filter(cte)
+        cte = self.gen_cached_epoch_cte(cte)
+
+        return cte
+
+    @log_execution_time(SQL_GENERATOR_PREFIX)
+    def gen_cte_export(
+        self,
+        idx: int,
+        duplicated_serial_show: DuplicateSerialShow,
+        is_start_proc: bool = False,
+        for_count: bool = False,
+    ):
+        query_builder = TransactionDataQueryBuilder(self.trans_data)
+        if is_start_proc:
+            query_builder.add_column(column=self.trans_data.id_col_name)
+
+        time_col = self.trans_data.getdate_column
+        query_builder.add_column(column=time_col.bridge_column_name, label=self.gen_proc_time_label(is_start_proc))
+        query_builder.between_bound(time_range=self.time_range.to_time_range_str(DATE_FORMAT_STR_SQLITE))
         query_builder_time_col = query_builder.column(self.gen_proc_time_label(is_start_proc))
 
         for cfg_col in self.all_cfg_columns:

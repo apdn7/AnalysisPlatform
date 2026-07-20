@@ -6,7 +6,7 @@ class PollingFrequencyOption {
     };
 
     static POLLING_FREQUENCY_OPTION = {
-        DEFAULT: [0, 3, 5, 10, 60, 1440],
+        DEFAULT: [0, 3, 5, 10, 60, 120, 180, 240, 360, 720, 1440],
         SNOWFLAKE: [0, 60, 1440],
         WEB_API: [0],
     };
@@ -129,6 +129,11 @@ class PollingFrequencyOption {
             5: $('#i18nOncePer5Minutes').text(),
             10: $('#i18nOncePer10Minutes').text(),
             60: $('#i18nOncePerHour').text(),
+            120: $('#i18nOncePer2Hours').text(),
+            180: $('#i18nOncePer3Hours').text(),
+            240: $('#i18nOncePer4Hours').text(),
+            360: $('#i18nOncePer6Hours').text(),
+            720: $('#i18nOncePer12Hours').text(),
             1440: $('#i18nOncePerDay').text(),
         };
         let optionsHtml = '';
