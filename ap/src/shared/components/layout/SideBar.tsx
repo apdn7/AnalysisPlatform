@@ -1,6 +1,7 @@
-import logo from '@/shared/assets/images/logo.png';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import logo from '@/shared/assets/images/logo.png';
 
 export default function Sidebar() {
     const { t } = useTranslation();
@@ -12,6 +13,7 @@ export default function Sidebar() {
     useEffect(() => {
         setUpEvents();
         sidebarCollapseHandle();
+        showHideShutDownButton();
         // collapse sidebar when loading page
         sidebarCollapse();
         setVersion(appContext.app_version);

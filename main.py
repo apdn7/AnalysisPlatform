@@ -204,10 +204,11 @@ if is_main:
     try:
         app.config.update({'app_startup_time': datetime.now(UTC)})
         if env == 'dev':
+            # convert file po to json for react
             from ap.script.convert_po_to_json import convert_po_to_json
 
-            # convert file po to json for react
             convert_po_to_json()
+
             logger.info('Development Flask server !!!')
             app.run(host='0.0.0.0', port=port, threaded=True, debug=is_debug, use_reloader=False)
         else:

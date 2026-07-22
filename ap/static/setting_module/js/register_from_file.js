@@ -605,6 +605,8 @@ function convertStructureDataV2(data) {
  * @param {ProcessData[]} data - a response data that contains all process config(s) information
  */
 async function renderProcessConfig(data) {
+    // reset the sample data row before every new render
+    procSampleDataLength = {};
     for (const [index, processData] of data.entries()) {
         // TODO: is_checked attribute must be include in response data.
         processData.data.columns.forEach((processColumnConfig) => (processColumnConfig.is_checked = true));

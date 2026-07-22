@@ -314,7 +314,7 @@ const inputCheckInlineEvents = (parentId) => {
  * Generate Column DOM for list item
  * @param {boolean} isShow
  * @param {string} label
- * @param {string} descriaption
+ * @param {string} description
  * @param {boolean} textCenter
  * @param {boolean} withCheckBox
  * @param {string} id
@@ -375,7 +375,6 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         filter: 8,
     };
     let divSelected = false;
-    const isShowColorCheckBox = props ? props.showColor && !props.colorAsDropdown : false;
     const genDetailItem = (
         isHeader = false,
         chkBox,
@@ -391,6 +390,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         colorDOM = null,
         judgeDOM = null,
         itemVal = '',
+        xyAxis = '',
     ) => {
         if (!chkBox) {
             return '';
@@ -432,7 +432,10 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     ${chkBox}
                 </div>
                 <div class="${masterNameClass} shorten-name pr-1 search-col col-without-checkbox jp-name column-name"  title="${shownName}" data-for-sort="${shownNameByDateTime || ' '}">
-                    ${shownNameByDateTime}
+                   ${shownNameByDateTime}
+                </div>
+                <div class="search-col fit-xy">
+                   ${xyAxis}
                 </div>
             `;
             for (let i = 2; i < originalTotalCol.length; i++) {
@@ -464,8 +467,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     if (i === indexDic.color) {
                         // color
                         const largeCol = props.isSelectColorBySelect2 ? 'large-col' : 'small-col';
+                        const controlClass = props.colorAsCheckbox ? 'custom-control custom-checkbox ' : '';
                         html += `
-                            <div class="col fit-item text-center px-1 flex-row-center ${largeCol}" title="">
+                            <div class="col fit-item text-center px-1 flex-row-center ${controlClass} ${largeCol}" title="">
                                   ${colorDOM}
                              </div>
                         `;
@@ -566,7 +570,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         if (props.itemDataTypes) {
             colDataType = DataTypes[props.itemDataTypes[i]].org_type;
             // auto select div for main serial or serial Time vis
-            if (!hasDivSelection() && !divSelected && props.isDivRequired) {
+            if (!hasDivSelection() && !divSelected && props.isDivRequired && !isSettingLoading) {
                 if (props.hasMasterSerial && props.columnInfo[i].columnType === masterDataGroup.MAIN_SERIAL) {
                     autoSelectDiv = 'selected';
                     divSelected = true;
@@ -660,6 +664,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     colorDOM += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
                 }
                 colorDOM += `</select>`;
+            } else if (props.colorAsCheckbox) {
+                const colorCheckBoxId = `color-var-${itemId}`;
+                const group = props.groupIDx || 1;
+                colorDOM = `<input title="" onchange="compareSettingChange()" type="checkbox" name="colorVar${group}"
+                    class="custom-control-input" value="${itemId}"
+                    id="${colorCheckBoxId}" data-autoselect="false">
+                    <label title="" class="custom-control-label" for="${colorCheckBoxId}"></label>`;
             } else {
                 const radioButtonColorId = `scp-color-${itemId}`;
                 colorDOM = `<div class="custom-control custom-radio d-flex pl-0">
@@ -691,14 +702,18 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const hideClass = isHideCheckInput ? ' hidden-input' : '';
 
         const inputEl = !isHideCheckInput
-            ? `<input type="${inputType}" name="${props.name}" ${isShowColorCheckBox ? 'data-order=2' : ''}
+            ? `<input type="${inputType}" name="${props.name}" data-name="${itemVal}" ${isXYAxisPage ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
             id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-type-shown-name="${colDataTypeShowName}" ${dataIsGetDate}>`
             : '';
 
         const option = `
             ${inputEl}
-           <label class="custom-control-label${hideClass} column-name" for="" title="${itemVal}">${itemVal}</label>`;
+           <label class="custom-control-label${hideClass} column-name" for="${chkBoxId}" title="${itemVal}">${itemVal}</label>`;
+
+        const xyAxis = isXYAxisPage
+            ? `<div id="xy-axis-${props.procId}-${itemId}" class="xy-axis fit-xy  ml-auto" ></div>`
+            : '';
 
         const isGetDate = itemId === props.getDateColID;
         itemList.push(
@@ -717,6 +732,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 colorDOM,
                 judgeDOM,
                 itemVal,
+                xyAxis,
             ),
         );
     }
@@ -724,7 +740,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const sensorListId = `list-${id}`;
     let noFilterOption = null;
     let allOption = null;
-    const isShowThreshold = props.noFilter ? false : props.thresholdBoxes;
+    const isShowThreshold = props.noFilter ? false : props.thresholdBoxes?.length;
 
     const thresholdBoxDOM = genColDOM({
         isShow: isShowThreshold,
@@ -775,6 +791,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         description: props.colorAsDropdown ? i18nCommon.agPColorExplanation : i18nCommon.colorExplanation,
         className: props.isSelectColorBySelect2 ? 'large-col' : 'small-col',
     });
+    const xyAxisDOM = genColDOM({
+        isShow: isXYAxisPage,
+        label: '',
+        textCenter: true,
+        className: 'fit-xy',
+        description: '',
+    });
     // const defaultColSize = '';
     if (!props.isRadio) {
         if (props.noFilter) {
@@ -788,8 +811,14 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     <label class="custom-control-label" for="checkbox-no-filter-${id + parentId}">
                         ${i18nCommon.noFilter}</label>
                 </div>
-                <div class="col-sm-1 pl-1"><h6 title="${i18nHoverText.threshold}"
-                    style="text-decoration: underline; min-width: 35px; text-align: center">CL</h6></div>`;
+                ${
+                    props.thresholdBoxes?.length
+                        ? `<div className="col-sm-1 pl-1"><h6 title="${i18nHoverText.threshold}"
+                                                                                    style="text-decoration: underline; min-width: 35px; text-align: center">CL</h6>
+            </div>`
+                        : ''
+                }
+                `;
         } else {
             isChecked =
                 props.checkedIds && !isEmpty(itemIds) && itemIds.every((e) => props.checkedIds.includes(e))
@@ -811,8 +840,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 <div>
                     <input type="${inputType}" name="${props.name}"
                         class="custom-control-input checkbox-all ${requiredClass}"
-                         id="checkbox-all-${id + parentId}" value="All" ${!props.noFilter && isChecked} ${isShowColorCheckBox ? 'hidden disabled' : ''}>
-                    <label class="custom-control-label ${isShowColorCheckBox ? 'd-none' : ''}"
+                         id="checkbox-all-${id + parentId}" data-name="${i18nCommon.allSelection}" value="All" ${!props.noFilter && isChecked} ${isXYAxisPage ? 'hidden disabled' : ''}>
+                    <label class="custom-control-label ${isXYAxisPage ? 'd-none' : ''}"
                         for="checkbox-all-${id + parentId}">${i18nCommon.allSelection}</label>
                 </div>
                 ${createSortButton(0, false)}
@@ -824,6 +853,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 </span>
                 ${createSortButton(1, true)}
             </div>
+            ${xyAxisDOM}
             ${typeColDOM}
             ${thresholdBoxDOM}
             ${categoryLabelColDOM}
@@ -840,7 +870,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const expandArrow = isExpand ? `<span class="arrow ${sensorListId}"></span>` : '';
     const labelContent = label
         ? `<div class="d-flex">
-        <div class="p-2" style="flex-basis:80px;">${label}</div>`
+        <div class="p-2" style="min-width:80px; width: 80px;">${label}</div>`
         : '';
     const groupList = `<div class="form-group list-item mb-0 ${groupLabelClass}" id="${id}"
         style="border-radius: 3px">
@@ -917,9 +947,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             }
             if (isCheckLimit) {
                 limitedCheckedList = limitedCheckedList.filter((el) => $(el).attr('id') !== $(this).attr('id'));
-                if (isShowColorCheckBox) {
+                if (isXYAxisPage) {
                     $(this).removeAttr('data-sensor');
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
+
+                    const attr = $(this).attr('data-proc-id');
+                    const val = $(this).val();
+                    $(`#xy-axis-${attr}-${val}`).empty();
                 }
             }
         } else {
@@ -928,7 +962,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             }
             if (isCheckLimit) {
                 limitedCheckedList.push($(this));
-                if (isShowColorCheckBox) {
+                if (isXYAxisPage) {
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').val('').trigger('change');
                     $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', true);
                 }
@@ -964,16 +998,20 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             $(limitedCheckedList[0]).prop('checked', false);
             countVariables(removedItemParentId, removedItemGroupIdx);
 
-            if (isShowColorCheckBox) {
+            if (isXYAxisPage) {
                 $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
                 // remove data-sensor attr
                 limitedCheckedList[0].removeAttr('data-sensor');
+
+                const attr = limitedCheckedList[0].attr('data-proc-id');
+                const val = limitedCheckedList[0].val();
+                $(`#xy-axis-${attr}-${val}`).empty();
             }
             limitedCheckedList.shift();
         }
 
         // in case of either x or y data type is string, color variable will be changed belong with string sensor.
-        if (isShowColorCheckBox && limitedCheckedList.length > 0) {
+        if (isXYAxisPage && limitedCheckedList.length > 0) {
             const xSensor = limitedCheckedList[0];
             const xSensorType = xSensor ? $(`#dataType-${xSensor.val()}`).val() : '';
             const ySensor = limitedCheckedList[1];
@@ -985,8 +1023,20 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             }
 
             // set x, y flag
-            limitedCheckedList[0] && limitedCheckedList[0].attr('data-sensor', 'x');
-            limitedCheckedList[1] && limitedCheckedList[1].attr('data-sensor', 'y');
+            if (limitedCheckedList[0]) {
+                limitedCheckedList[0].attr('data-sensor', 'x');
+
+                const attr = limitedCheckedList[0].attr('data-proc-id');
+                const val = limitedCheckedList[0].val();
+                $(`#xy-axis-${attr}-${val}`).text('X');
+            }
+            if (limitedCheckedList[1]) {
+                limitedCheckedList[1].attr('data-sensor', 'y');
+
+                const attr = limitedCheckedList[1].attr('data-proc-id');
+                const val = limitedCheckedList[1].val();
+                $(`#xy-axis-${attr}-${val}`).text('Y');
+            }
 
             compareSettingChange();
         }
@@ -1499,9 +1549,6 @@ const showSensorAsFloatingList = (sensorListId) => {
  * @param {jQuery} selectParent
  */
 const updateSelectedItems = (isCategoryItem = false, selectParent = $(formElements.endProcSelectedItem)) => {
-    // only show graph page
-    if (!getCurrentPage()) return;
-
     let selectedItems = [];
     let allSelected;
     if (isCategoryItem) {
@@ -1622,7 +1669,12 @@ const getFilterByTypes = (process, filterType) => {
  * @param {string} prefix
  * @param {object} options
  */
-const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = false, is_pca_filter = false } = {}) => {
+const condLineOnChange = async (
+    selectedLines,
+    count,
+    prefix = '',
+    { isNew = false, is_pca_filter = false, showThresholdBox = true } = {},
+) => {
     const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
     if (selectedLines.length === 0) {
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'none');
@@ -1631,6 +1683,7 @@ const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = fal
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'block');
 
         const procInfo = procConfigs[selectedProc];
+        const procId = procInfo.id;
         const machineIds = [];
         const machineVals = [];
         const checkedIds = [];
@@ -1678,7 +1731,8 @@ const condLineOnChange = async (selectedLines, count, prefix = '', { isNew = fal
                     checkedIds,
                     name: elName,
                     noFilter: true,
-                    thresholdBoxes,
+                    thresholdBoxes: showThresholdBox ? thresholdBoxes : [],
+                    procId,
                 });
             }
         } else {
@@ -1725,6 +1779,7 @@ const condProcOnChange = async (
     parentFormId = '',
     is_pca_filter = false,
     allowCallInnerFunc = true,
+    showThresholdBox = true,
 ) => {
     // remove old elements
     clearFilterContent(prefix, count);
@@ -1737,6 +1792,7 @@ const condProcOnChange = async (
     }
 
     const procInfo = procConfigs[selectedProc];
+    const procId = procInfo.id;
 
     // update proc filters
     await procInfo.updateFilters();
@@ -1760,7 +1816,8 @@ const condProcOnChange = async (
             {
                 name: `${is_pca_filter ? prefix : ''}filter-line-machine-id${count}`,
                 noFilter: true,
-                thresholdBoxes,
+                thresholdBoxes: showThresholdBox ? thresholdBoxes : [],
+                procId,
             },
         );
 
@@ -1773,11 +1830,18 @@ const condProcOnChange = async (
             for (let i = 0; i < lineInputs.length; i++) {
                 if (lineInputs[i].checked) selectedLines.push(lineInputs[i].value.toLowerCase());
             }
-            condLineOnChange(selectedLines, count, prefix, { is_pca_filter: is_pca_filter });
+            condLineOnChange(selectedLines, count, prefix, {
+                is_pca_filter: is_pca_filter,
+                showThresholdBox: showThresholdBox,
+            });
         });
 
         // default show all machine
-        condLineOnChange(['all'], count, prefix, { isNew: true, is_pca_filter: is_pca_filter });
+        condLineOnChange(['all'], count, prefix, {
+            isNew: true,
+            is_pca_filter: is_pca_filter,
+            showThresholdBox: showThresholdBox,
+        });
     }
 
     const [partnoIds, partnoVals] = getFilterByTypes(procInfo, filterTypes.PART_NO);
@@ -1797,7 +1861,8 @@ const condProcOnChange = async (
             {
                 name: `${is_pca_filter ? prefix : ''}filter-partno${count}`,
                 noFilter: true,
-                thresholdBoxes,
+                thresholdBoxes: showThresholdBox ? thresholdBoxes : [],
+                procId,
             },
         );
     }
@@ -1820,7 +1885,8 @@ const condProcOnChange = async (
                     {
                         name: `${is_pca_filter ? prefix : ''}filter-other-${filter.id}-${count}`,
                         noFilter: true,
-                        thresholdBoxes,
+                        thresholdBoxes: showThresholdBox ? thresholdBoxes : [],
+                        procId,
                     },
                 );
             }
@@ -1852,6 +1918,7 @@ const addCondProc = (
     dataGenBtn = 'btn-add-cond-proc',
     is_full_width = false,
     is_pca_filter = false,
+    showThresholdBox = true,
 ) => {
     let count = 1;
     const innerFunc = () => {
@@ -1874,7 +1941,7 @@ const addCondProc = (
                             <div class="w-auto flex-grow-1 position-relative">
                                 <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 30px;"></i>
                                 <select name="${is_pca_filter ? prefix : ''}cond_proc${count}" data-is-pca-filter="${is_pca_filter}" data-prefix="${prefix}" data-count="${count}" data-parent-from-id="${parentFormId}" class="form-control select2-selection--single select-n-columns process-selector" id="${processSelectorId}"
-                                    data-gen-btn="${dataGenBtn}" onchange="condProcOnChange('', ${count},'${prefix}','${parentFormId}', ${is_pca_filter})">
+                                    data-gen-btn="${dataGenBtn}" onchange="condProcOnChange('', ${count},'${prefix}','${parentFormId}', ${is_pca_filter}, ${true}, ${showThresholdBox})">
                                     ${genProcessSelectOptions(procIds, procVals)}
                                 </select>
                             </div>
@@ -2426,8 +2493,8 @@ const setColorRelativeStartEndProc = () => {
  * Check if all selected processes are linked
  */
 const checkIfProcessesAreLinked = async () => {
-    // if isSettingLoading or if not show graph page then return
-    if (isSettingLoading || !getCurrentPage()) {
+    // if isSettingLoading then return
+    if (isSettingLoading) {
         return;
     }
     const startProcVal = getStartProcId();
@@ -2444,11 +2511,17 @@ const checkIfProcessesAreLinked = async () => {
      */
     const displayNoLinkAlertMessage = (displayProcLinkAlert, displayFilterLinkAlert) => {
         let messageContent = '';
+        // Check if we're on the export config page
+        const isExportConfigPage = window.location.pathname.includes('/export_config');
+        const noLinkConfigMsg = isExportConfigPage
+            ? $('#i18nNoLinkConfigExport').text()
+            : $('#i18nNoLinkConfig').text();
+
         if (displayProcLinkAlert && displayFilterLinkAlert) {
-            messageContent = `${$('#i18nNoLinkConfig').text()}<br>${$('#i18nNoFilterLinkConfig').text()}`;
+            messageContent = `${noLinkConfigMsg}<br>${$('#i18nNoFilterLinkConfig').text()}`;
             displayRegisterMessage('#alertNoLinkConfig', { message: messageContent, is_error: true });
         } else if (displayProcLinkAlert) {
-            messageContent = `${$('#i18nNoLinkConfig').text()}`;
+            messageContent = `${noLinkConfigMsg}`;
             displayRegisterMessage('#alertNoLinkConfig', { message: messageContent, is_error: true });
         } else if (displayFilterLinkAlert) {
             messageContent = `${$('#i18nNoFilterLinkConfig').text()}`;

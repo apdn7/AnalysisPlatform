@@ -92,12 +92,34 @@ const collectFormDataCrP = (clearOnFlyFilter = false, autoUpdate = false) => {
     return formData;
 };
 
-const callToBackEndAPI = (clearOnFlyFilter = false, autoUpdate = false) => {
+const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUpdate = false) => {
     const formData = collectFormDataCrP(clearOnFlyFilter, autoUpdate);
 
     showGraphCallApi('/ap/api/analyze/crp/index', formData, REQUEST_TIMEOUT, async (res) => {
         if (!res.actual_record_number) {
             showToastrAnomalGraph();
+            return;
+        }
+        if (res.errors && res.errors.length) {
+            showErrorToastr(res.errors);
+            loadingHide();
+
+            if (clearOnFlyFilter) {
+                // click show graph
+                reselectCallback = callToBackEndAPI;
+            }
+            // Update problematic Data
+            if (!reselectVars) {
+                problematicData = {
+                    null_percent: res.null_percent || {},
+                    zero_variance: res.zero_variance || [],
+                    selected_vars: res.selected_vars || [],
+                };
+            }
+            const errors = res.errors || [];
+            if (problematicData && errors.length) {
+                showRemoveProblematicColsMdl(problematicData);
+            }
             return;
         }
 
@@ -133,7 +155,7 @@ const showCausalRelationChart = (res) => {
 
 const handleSetPollingData = () => {
     const settings = collectFormDataCrP(false);
-    callToBackEndAPI(settings, true);
+    callToBackEndAPI(settings, false, true);
 };
 
 const handleResetVisNetwork = () => {

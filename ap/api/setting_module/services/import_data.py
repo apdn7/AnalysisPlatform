@@ -126,9 +126,9 @@ def import_transaction_data_from_files(
         df = df.rename(columns=raw_to_column_name_dict)
 
         # Handle calculate data for main::Datetime, main::Serial function column
-        from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+        from ap.api.setting_module.services.import_function_column import handle_txn_function_columns
 
-        df = handle_main_function_columns(process, df)
+        df = handle_txn_function_columns(process, df)
 
         # no records
         if not len(df):

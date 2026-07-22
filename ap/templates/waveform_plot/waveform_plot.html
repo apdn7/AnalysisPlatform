@@ -57,6 +57,10 @@
 
                 {{ macros.jump_button() }}
                 {{ macros.scale_option(name='yScaleOption', label=_('Y axis'), onChange='setGraphSetting(this)',  className='mr-4 ml-4') }}
+                <div class="d-flex align-items-center mr-4">
+                    <span class="mr-2">Color</span>
+                    <select name="graphColorVas" class="form-control border-white w-auto scale-dropdown mr-2"></select>
+                </div>
             </div>
         </div>
     </div>

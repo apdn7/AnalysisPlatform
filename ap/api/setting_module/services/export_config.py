@@ -1,38 +1,106 @@
+import copy
+import itertools
+import math
+import re
 from dataclasses import asdict, dataclass
+from datetime import UTC, datetime, timedelta
+from math import ceil
+from os import PathLike
 from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import sqlalchemy as sa
 import tzlocal
+from apscheduler.triggers.date import DateTrigger
+from dateutil import parser
+from loguru import logger
+from pandas import DataFrame
 
+from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_services import (
+    DropDuplicatesTraceProcs,
+    cast_df_number,
     df_from_db_data_conversion,
+    gen_sql_proc_link_key_from_trace_keys,
     get_equation_data,
+    is_show_duplicated_serials,
+    reduce_graph,
 )
-from ap.api.common.services.sql_generator import TransactionDataQueryBuilder
-from ap.api.common.services.utils import gen_sql_and_params
+from ap.api.common.services.sql_generator import (
+    SQL_GENERATOR_PREFIX,
+    SqlProcLink,
+    gen_show_stmt,
+    gen_tracing_cte,
+    gen_tracing_cte_with_delta_time_cut_off,
+)
+from ap.api.common.services.utils import gen_proc_time_label
+from ap.api.setting_module.schemas.export_config import (
+    ExportConfigDetail,
+    ExportConfigGet,
+    ExportConfigSave,
+    ExportPeriodic,
+    ExportSetting,
+)
 from ap.api.setting_module.services.equations import (
     get_all_normal_columns_for_functions,
 )
-from ap.api.trace_data.services.filter_function_condition import filter_df
-from ap.common.common_utils import Bound, TimeRange
+from ap.api.trace_data.services.filter_function_condition import filter_function_column
+from ap.common.common_utils import Bound, BoundType, TimeRange, date_time_str_from_utc, gen_sql_label, to_pydatetime
 from ap.common.constants import (
+    DATE_FORMAT_STR,
     DATE_FORMAT_STR_CSV,
     DATE_FORMAT_STR_SQLITE,
     EMPTY_STRING,
-    EXPORT_DATETIME_FORMAT,
+    EXPORT_FILENAME_ELEMENTS_REGEX,
+    MAX_EXPORT_FILE_SIZE_MB,
+    MAX_RETRY_COUNT,
+    MIN_RETRY_INTERVAL_MINUTES,
+    RETRY_DELAY_MINUTES,
+    SPLIT_SIZE_CHECK_ROWS,
+    TIME_COL,
     UNDER_SCORE,
+    CacheType,
+    CfgExportPeriodicUnit,
+    CfgExportType,
     ColumnNameType,
     CsvDelimiter,
     CSVExtTypes,
     DataType,
+    DuplicateSerialCount,
+    DuplicateSerialShow,
+    ExportCfgEnum,
+    ExportFileNameElements,
+    ExportSubFolderType,
+    JobStatus,
+    JobType,
 )
+from ap.common.disk_usage import MainDiskUsage
 from ap.common.jobs.job_info_schema import DataExportJobInfo
-from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
-from ap.setting_module.models import CfgExport, CfgFilterDetail, CfgProcessColumn
+from ap.common.log import log_execution_time
+from ap.common.memoize import CustomCache
+from ap.common.multiprocess_sharing.events import EventAddJob
+from ap.common.multiprocess_sharing.queue import EventQueue
+from ap.common.pydn.dblib.duckdb.core import DuckDB
+from ap.common.pydn.dblib.transaction import TxnMultiDataConnection
+from ap.common.services.request_time_out_handler import abort_process_handler
+from ap.common.services.trace_graph import TraceGraph
+from ap.common.trace_data_log import EventAction, Target, TraceErrKey, trace_log
+from ap.setting_module.models import (
+    CfgConstant,
+    CfgExport,
+    CfgExportDetail,
+    CfgExportFilter,
+    CfgExportPeriodic,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    ExportHistory,
+    make_session,
+)
+from ap.trace_data.schemas import CommonParam, ConditionProc, ConditionProcDetail, DicParam, EndProc
 from ap.trace_data.transaction_model import (
-    ExportHistoryRecord,
-    ExportHistoryTable,
     TransactionData,
 )
 
@@ -113,20 +181,18 @@ class DataExport:
         - This include datetime and serial columns
         This includes logical columns (such as function columns) as well
         """
-        column_ids: list[int] = [self.config.process.get_date_col(column_name_only=False).id]
+        dic_processes = self.processes()
+        columns = [self.config.process.get_date_col(column_name_only=False)]
         if (serial_column := self.config.process.get_main_serial_column()) is not None:
-            column_ids.append(serial_column.id)
+            columns.append(serial_column)
 
-        # sort to retain consistent order
-        selected_column_ids = [
-            detail.process_column.id for detail in sorted(self.config.export_details, key=lambda d: d.order)
-        ]
-        # Remove duplicate IDs before extending.
-        column_ids = [i for i in column_ids if i not in selected_column_ids]
+        column_ids = [column.id for column in columns]
 
-        column_ids.extend(selected_column_ids)
+        for detail in sorted(self.config.export_details, key=lambda d: d.order):
+            if detail.process_column_id not in column_ids:
+                column = dic_processes[detail.process_id].get_col(detail.process_column_id)
+                columns.append(column)
 
-        columns = self.config.process.get_cols(dict.fromkeys(column_ids))
         return columns
 
     def query_columns(self) -> list[CfgProcessColumn]:
@@ -156,67 +222,35 @@ class DataExport:
         # only use physical columns
         return [c for c in query_columns if c.is_transaction_column]
 
-    def sql_query(self) -> sa.Select | None:
-        with TxnMetaConnection(process_id=self.config.process_id) as meta_con:
-            exported_range = ExportHistoryTable.exported_range(meta_con, self.config.process_id, self.config.id)
+    def get_query_ranges(self) -> list[TimeRange]:
+        exported_range = ExportHistory.exported_range(self.config.id)
         selected_range = TimeRange(
             min=Bound.included(self.config.export_from),
             max=Bound.included(self.config.export_to),
         )
+        if self.config.type == CfgExportType.ONCE.value:
+            return [selected_range]
         query_ranges = selected_range.different(exported_range)
-        queries: list[sa.Select] = []
-        for query_range in query_ranges:
-            query_builder = TransactionDataQueryBuilder(self.transaction_data)
-            for c in self.query_columns():
-                query_builder.add_column(column=c.bridge_column_name, label=c.gen_sql_label())
-            query_range_str = query_range.to_time_range_str(DATE_FORMAT_STR_SQLITE)
-            query_builder.between_bound(time_range=query_range_str)
-            # todo: filter for function column later
-            if self.normal_filters:
-                for c in self.normal_filters:
-                    if c.cfg_filter.column not in self.query_columns():
-                        query_builder.add_column(
-                            column=c.cfg_filter.column.bridge_column_name, label=c.cfg_filter.column.gen_sql_label()
-                        )
-                query_builder.add_conditions(self.normal_filters)
-            queries.append(query_builder.build())
-
-        if len(queries) == 0:
-            return None
-
-        if len(queries) == 1:
-            return queries[0]
-
-        return sa.union_all(*queries)
+        return query_ranges
 
     def get_data(self) -> pd.DataFrame | None:
-        """Get data from transaction DB"""
-        query = self.sql_query()
-        if query is None:
-            return None
+        query_ranges = self.get_query_ranges()
+        dfs = []
+        for query_range in query_ranges:
+            export_params = self.parse_export_params(query_range)
+            _df = _get_df_from_db(export_params, time_range=query_range)
+            if len(_df) > 0:
+                dfs.append(_df)
+        if len(dfs) == 0:
+            return dfs
+        df = pd.concat(dfs)
 
-        with TxnDataConnection(process_id=self.config.process_id, readonly_transaction=True) as data_con:
-            sql, params = gen_sql_and_params(query)
-            df = data_con.run_sql(sql, params=params).fetch_df()
-
-        export_columns = self.export_columns()
-        required_column_ids = [c.id for c in export_columns]
-
-        # need to include columns from filter function columns, to correctly get equation data
-        function_col_ids = list({f.cfg_filter.column.id for f in self.func_filters})
-        df = get_equation_data(df, self.config.process, required_column_ids + function_col_ids)
-
-        # filter for function columns
-        if self.func_filters:
-            df = filter_df(df, filters=self.func_filters)
-
-        # now that we calculated function column, we can drop unneeded columns
-        selected_columns = [c.gen_sql_label() for c in export_columns]
-        df = df[selected_columns]
-        df = df_from_db_data_conversion(df, export_columns)
-
-        # todo: filter for function columns
-        return df
+        # since time, time_{id} columns and rowid are used in removing duplicate serials, etc
+        # we cannot remove them from the sql query
+        # therefore, we remove the unnecessary columns from the dataframe after query
+        df = df[[gen_sql_label(column.id, column.column_name) for column in self.export_columns()]]
+        dfs_by_file = self.split_dataframe(df)
+        return dfs_by_file
 
     def get_exported_timerange(self, df: pd.DataFrame) -> TimeRange:
         """Get exported time range, to record in export history and construct filename"""
@@ -227,21 +261,48 @@ class DataExport:
             max=Bound.included(datetime_series.max()),
         )
 
-    def generate_export_file(self, export_range: TimeRange) -> Path:
-        """Generate full path for exporting file"""
+    def parse_file_name_elements(self):
+        element_keys = re.findall(EXPORT_FILENAME_ELEMENTS_REGEX, self.config.filename_format)
+        return element_keys
+
+    def make_export_folder(self):
+        """Make export folder from folder path, title and subfolder"""
         target_dir = Path(self.config.folder_path)
-        file_ext = CSVExtTypes[(self.config.file_type or CSVExtTypes.CSV)].value
-        time_range = export_range.to_time_range_str(EXPORT_DATETIME_FORMAT).format()
+        sub_folder_name = self.generate_subfolder_name()
+
+        target_dir = target_dir / Path(sub_folder_name)
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        return target_dir
+
+    def generate_export_file(self, export_range: TimeRange, suffix: int) -> Path:
+        """Generate full path for exporting file"""
+        target_dir = self.make_export_folder()
+        file_ext = CSVExtTypes(self.config.file_format or CSVExtTypes.CSV).value
         process_name = self.config.process.name.replace(UNDER_SCORE, EMPTY_STRING)
-        title = self.config.title.replace(UNDER_SCORE, EMPTY_STRING)
-        export_file_name = f'{UNDER_SCORE.join([str(self.config.id), process_name, title, time_range])}.{file_ext}'
+        file_name_element_keys = self.parse_file_name_elements()
+        file_name_elements = []
+        for key in file_name_element_keys:
+            match key:
+                case ExportFileNameElements.EXPORT_TO:
+                    file_name_elements.append(f'{export_range.to_time_range_str("%Y%m%d%H%M%S").max.value}')
+                case ExportFileNameElements.EXPORT_FROM:
+                    file_name_elements.append(f'{export_range.to_time_range_str("%Y%m%d%H%M%S").min.value}')
+                case ExportFileNameElements.PROCESS_NAME:
+                    file_name_elements.append(f'{process_name}')
+                case ExportFileNameElements.IDENTIFIER:
+                    file_name_elements.append(f'{self.config.filename_identifier}'.replace(UNDER_SCORE, EMPTY_STRING))
+        if suffix is not None:
+            file_name_elements.append(f'{suffix}')
+
+        export_file_name = f'{UNDER_SCORE.join(file_name_elements)}.{file_ext}'
         return target_dir / export_file_name
 
     def generate_export_params(self) -> dict:
         """Generate parameters that will be passed to pandas functions for data export."""
-        return PdParams(sep=(CsvDelimiter[self.config.file_type].value or CsvDelimiter.CSV.value)).to_dict()
+        return PdParams(sep=(CsvDelimiter[self.config.file_format.upper()].value or CsvDelimiter.CSV.value)).to_dict()
 
-    def save_data_to_file(self, df: pd.DataFrame, export_range: TimeRange) -> Path:
+    def save_data_to_file(self, df: pd.DataFrame, export_range: TimeRange, suffix: int) -> Path:
         """Save export data to file, this does:
         - Convert datetime column to local time.
         - Convert column name to system name (name_en).
@@ -253,9 +314,10 @@ class DataExport:
         for column in export_columns:
             if column.data_type == DataType.DATETIME.name:
                 column_name = column.gen_sql_label()
-                df[column_name] = (
-                    pd.to_datetime(df[column_name]).dt.tz_convert(local_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
-                )
+                if len(df[column_name]):
+                    df[column_name] = (
+                        pd.to_datetime(df[column_name]).dt.tz_convert(local_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
+                    )
 
         # rename column
         column_name_type = ColumnNameType(self.config.export_column_name_type)
@@ -270,49 +332,1188 @@ class DataExport:
                 raise NotImplementedError(column_name_type)
 
         # save to output
-        export_file = self.generate_export_file(export_range.with_timezone(local_timezone))
+        export_file = self.generate_export_file(export_range.with_timezone(local_timezone), suffix=suffix)
         df.to_csv(export_file, index=False, **self.generate_export_params())
         return export_file
 
-    def export(self) -> Path | None:
+    def has_period_elements_in_filename_format(self) -> bool:
+        """Check if Period From or Period To is selected in filename format"""
+        elements = self.parse_file_name_elements()
+        period_keys = [ExportFileNameElements.EXPORT_FROM, ExportFileNameElements.EXPORT_TO]
+        return any(period_key in elements for period_key in period_keys)
+
+    def save_header_only_file(self) -> Path:
+        """Save a file with only headers when no data to export"""
+        export_columns = self.export_columns()
+        df_empty = pd.DataFrame(columns=[col.gen_sql_label() for col in export_columns])
+
+        # Use current time as placeholder — time elements are not in filename so it won't affect filename
+        now = datetime.now(UTC)
+        export_range = TimeRange(
+            min=Bound.included(now),
+            max=Bound.included(now),
+        )
+        return self.save_data_to_file(df_empty, export_range, suffix=None)
+
+    def export(self):
         """Export data to the specified path
 
         Returns:
             Path | None: Path to the exported file, or None if no data to export
         """
-        data = self.get_data()
-        if data is None or data.empty:
-            self.data_export_job_info.warning('No data to export')
-            return None
+        start_time = datetime.now(UTC).strftime(DATE_FORMAT_STR)
+        dfs = self.get_data()
+        if dfs is None or not len(dfs):
+            # If filename format has no from/to and no data exists, create a header-only file.
+            # If filename format includes from/to and no data exists, do not create file.
+            if self.has_period_elements_in_filename_format():
+                self.data_export_job_info.warning('No data to export')
+                export_file_path = None
+                export_result = None
+            else:
+                # save header-only file when from/to NOT in filename
+                self.data_export_job_info.info('Export empty df to file with header')
+                export_file = self.save_header_only_file()
+                export_file_path = export_file.as_posix()
+                export_result = self.data_export_job_info
 
-        export_range = self.get_exported_timerange(data)
-        export_file = self.save_data_to_file(data, export_range)
-        exported_records = len(data)
+            export_history_record = ExportHistory(
+                export_id=self.config.id,
+                export_from=None,
+                export_to=None,
+                export_rows=0,
+                export_file_path=export_file_path,
+                start_time=start_time,
+                end_time=datetime.now(UTC).strftime(DATE_FORMAT_STR),
+            )
+            with make_session() as meta_session:
+                meta_session.merge(export_history_record)
+            return export_result
 
-        time_range_str = export_range.to_time_range_str(DATE_FORMAT_STR_SQLITE)
-        export_from = time_range_str.min.value
-        export_to = time_range_str.max.value
+        df_full_range = pd.concat(dfs)
+        export_full_range = self.get_exported_timerange(df_full_range)
 
-        # Update job management info
-        self.data_export_job_info.exported_records = exported_records
-        self.data_export_job_info.export_location = export_file.as_posix()
-        self.data_export_job_info.export_from = export_from
-        self.data_export_job_info.export_to = export_to
+        for idx, df in enumerate(dfs, start=1):
+            data_frame_info = DataExportJobInfo.ExportDataFrameInfo()
+            export_range = self.get_exported_timerange(df)
+            export_file = self.save_data_to_file(df, export_full_range, idx if len(dfs) > 1 else None)
+            exported_records = len(df)
 
-        export_history_record = ExportHistoryRecord(
-            export_id=self.config.id,
-            export_from=export_from,
-            export_to=export_to,
-            exported_rows=exported_records,
-            export_file_path=export_file.as_posix(),
-        )
-        with TxnMetaConnection(process_id=self.config.process_id) as meta_con:
-            ExportHistoryTable.insert(meta_con, self.config.process_id, export_history_record)
+            time_range_str = export_range.to_time_range_str(DATE_FORMAT_STR_SQLITE)
+            export_from = time_range_str.min.value
+            export_to = time_range_str.max.value
 
-        return export_file
+            # Update job management info
+            data_frame_info.export_rows = exported_records
+            data_frame_info.export_location = export_file.as_posix()
+            data_frame_info.export_from = to_pydatetime(export_range.min.value)
+            data_frame_info.export_to = to_pydatetime(export_range.max.value)
+
+            end_time = datetime.now(UTC).strftime(DATE_FORMAT_STR)
+            export_history_record = ExportHistory(
+                export_id=self.config.id,
+                export_from=export_from,
+                export_to=export_to,
+                export_rows=exported_records,
+                export_file_path=export_file.as_posix(),
+                start_time=start_time,
+                end_time=end_time,
+            )
+            with make_session() as meta_session:
+                meta_session.merge(export_history_record)
+
+            self.data_export_job_info.data_frame_info_objects.append(data_frame_info)
+
+        return self.data_export_job_info
 
     def export_as_gen(self):
         """Export data as a generator, used in the job context"""
         yield 0
-        self.export()
+        # check disk capacity before run export
+        is_exceed_limit = DataExport.check_target_disk_capacity(self.config.folder_path)
+        if is_exceed_limit:
+            warn_message = 'Export job will be skipped since the target export folder has exceeded its disk capacity.'
+            logger.warning(warn_message)
+            self.data_export_job_info.warning(warn_message)
+            self.data_export_job_info.status = JobStatus.FAILED.name
+        else:
+            self.export()
         yield 100
+
+    def get_process_ids(self):
+        process_ids = list({detail.process.id for detail in self.config.export_details})
+        if self.config.main_process_id not in process_ids:
+            process_ids.append(self.config.main_process_id)
+        return process_ids
+
+    def get_export_column_ids_by_process_id(self, process_id):
+        column_ids = [column.id for column in self.export_columns() if column.process_id == process_id]
+        return column_ids
+
+    def get_filter_process_ids(self):
+        filter_process_ids = list({export_filter.process_id for export_filter in self.config.filters})
+        return filter_process_ids
+
+    def get_filter_details_by_process_id(self, filter_process_id):
+        filter_details = [
+            export_filter.filter
+            for export_filter in self.config.filters
+            if export_filter.process_id == filter_process_id
+        ]
+        return filter_details
+
+    def processes(self):
+        return {
+            process_id: process_cfg
+            for process_id in self.get_process_ids()
+            if process_id and (process_cfg := CfgProcess.get_proc_by_id(process_id))
+        }
+
+    def parse_export_params(self, time_range: TimeRange) -> DicParam:
+        """Parse an export configuration into a DicParam object"""
+        dic_proc_cfgs, trace_graph, _ = get_config_data()
+
+        array_formval = [
+            EndProc(dic_proc_cfgs[process_id], self.get_export_column_ids_by_process_id(process_id))
+            for process_id in self.get_process_ids()
+        ]
+        start_date, start_time = date_time_str_from_utc(time_range.min.value)
+        end_date, end_time = date_time_str_from_utc(time_range.max.value)
+        dic_proc_filter_details = {}
+        cond_procs = []
+        for filter_process_id in self.get_filter_process_ids():
+            cond_details = []
+            if filter_process_id not in dic_proc_filter_details:
+                dic_proc_filter_details[filter_process_id] = CfgProcess.get_proc_by_id(
+                    filter_process_id
+                ).get_dic_filter_details()
+
+            #  group filter detail by filter id
+            dic_filters = {}
+            for filter_detail in self.get_filter_details_by_process_id(filter_process_id):
+                dic_filters.setdefault(filter_detail.filter_id, []).append(filter_detail)
+
+            for filter_details in dic_filters.values():
+                dic_filter_details = {}
+                for cfg_filter_detail in filter_details:
+                    dic_filter_details[cfg_filter_detail.id] = dic_proc_filter_details[filter_process_id].get(
+                        int(cfg_filter_detail.id)
+                    )
+                if dic_filter_details:
+                    cond_details.append(ConditionProcDetail(dic_filter_details))
+
+            # get from normal filters
+            cond_proc = ConditionProc(filter_process_id, cond_details)
+            cond_procs.append(cond_proc)
+
+        common = CommonParam(
+            start_proc=self.config.main_process_id,
+            start_date=start_date,
+            start_time=start_time,
+            end_date=end_date,
+            end_time=end_time,
+            duplicate_serial_show=self.config.duplicated_check_type,
+            duplicated_serials_count=self.config.duplicated_check,
+            cond_procs=cond_procs,
+            cate_procs=[],
+        )
+
+        out_param = DicParam(
+            dic_proc_cfgs,
+            trace_graph,
+            {},
+            0,
+            common,
+            array_formval,
+        )
+
+        return out_param
+
+    def split_dataframe(self, df: pd.DataFrame) -> list[pd.DataFrame]:
+        """
+        Split export data into multiple files based on row-count and size policy.
+
+        Args:
+            df: DataFrame to split.
+
+        Returns:
+            List of DataFrame chunks.
+
+        Flow:
+            - If total rows <= 10,000: keep a single file.
+            - If total rows > 10,000: sample the first 10,000 rows to estimate
+              how many rows fit into the fixed 100MB file-size limit.
+            - Final chunk size is the minimum between:
+              1) user setting `split_file_by` and
+              2) estimated rows from the 100MB limit.
+        """
+        total_rows = len(df)
+        if total_rows == 0:
+            return [df]
+        if total_rows <= SPLIT_SIZE_CHECK_ROWS:
+            return [df]
+
+        user_max_rows = self.config.split_file_by
+        if user_max_rows is None:
+            user_max_rows = total_rows
+
+        # Estimate row density from exactly the first 10,000 rows in the flow.
+        sample_df = df.iloc[:SPLIT_SIZE_CHECK_ROWS]
+        sample_csv = sample_df.to_csv(index=False, **self.generate_export_params())
+        sample_size_mb = len(sample_csv.encode('utf-8')) / (1024 * 1024)
+
+        rows_by_size_limit = user_max_rows
+        if sample_size_mb > 0:
+            estimated_rows = (MAX_EXPORT_FILE_SIZE_MB / sample_size_mb) * SPLIT_SIZE_CHECK_ROWS
+            # Round to the nearest 1,000 rows as defined by the split flow.
+            rows_by_size_limit = max(1, int(round(estimated_rows, -3)))
+
+        # Use the stricter limit between user max rows and size-derived rows.
+        max_rows = max(1, min(user_max_rows, rows_by_size_limit)) if user_max_rows else rows_by_size_limit
+        num_chunks = ceil(total_rows / max_rows)
+        return [df.iloc[i * max_rows : (i + 1) * max_rows] for i in range(num_chunks)]
+
+    def generate_subfolder_name(self, timestamp: datetime | None = None) -> str:
+        """
+        Create a subfolder named by current date, week, or month.
+
+        Args:
+            timestamp: Datetime to use (defaults to now)
+
+        Returns:
+            Path to created subfolder
+        """
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        try:
+            period = self.config.sub_folder
+            if period == ExportSubFolderType.DAILY.value:
+                subfolder_name = timestamp.strftime('%Y%m%d')
+            elif period == ExportSubFolderType.WEEKLY.value:
+                year, week, _ = timestamp.isocalendar()
+                subfolder_name = f'{year}-W{week:02d}'
+            elif period == ExportSubFolderType.MONTHLY.value:
+                subfolder_name = timestamp.strftime('%Y-%m')
+            else:
+                subfolder_name = ''
+
+            return subfolder_name
+        except Exception as e:
+            logger.exception(str(e))
+            return ''
+
+    @staticmethod
+    def check_target_disk_capacity(remote_path: PathLike):
+        """Check remote path was available to export or not"""
+        target_disk_usage = MainDiskUsage.get_disk_usage(remote_path)
+        disk_capacity_limit = CfgConstant.get_error_disk_usage()
+        target_disk_used = target_disk_usage.used * 100 / target_disk_usage.total
+        is_exceed_limit = float(target_disk_used) > float(disk_capacity_limit)
+        return is_exceed_limit
+
+
+class ExportConfigService:
+    """Service class for export configuration operations."""
+
+    @staticmethod
+    def _get_cycle_and_timing(config: CfgExport) -> tuple[str, str]:
+        """Generate cycle name and timing string for display.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Tuple of (cycle_name, timing_string):
+            - For ONCE type: ('Once', '')
+            - For PERIODIC DAY: ('1 Day', '02:30')
+            - For PERIODIC HOUR: ('6 Hour', ':30')
+            - For invalid/missing: ('', '')
+
+        Examples:
+            >>> config = CfgExport(type='ONCE')
+            >>> _get_cycle_and_timing(config)
+            ('Once', '')
+
+            >>> config = CfgExport(
+            ...     type='PERIODIC',
+            ...     cycle=CfgExportPeriodic(interval_type='DAY', interval_value=1, trigger_hour=2, trigger_min=30),
+            ... )
+            >>> _get_cycle_and_timing(config)
+            ('1 Day', '02:30')
+        """
+        # Handle ONCE type exports
+        if config.type == CfgExportType.ONCE.value:
+            return 'Once', ''
+
+        # Handle PERIODIC type exports
+        if not config.cycle:
+            return '', ''
+
+        cycle_name = ExportConfigService._format_cycle_name(config.cycle)
+        timing = ExportConfigService._format_timing(config.cycle, config.client_timezone)
+
+        return cycle_name, timing
+
+    @staticmethod
+    def _format_cycle_name(cycle: CfgExportPeriodic) -> str:
+        """Format cycle name for display.
+
+        Args:
+            cycle: Periodic cycle configuration.
+
+        Returns:
+            Formatted cycle name (e.g., '1 Day', '6 Hours').
+        """
+        interval_value = cycle.interval_value
+        interval_type = cycle.interval_unit.capitalize()
+
+        # Pluralize if needed
+        if interval_value != 1:
+            interval_type = f'{interval_type}s'
+
+        return f'{interval_value} {interval_type}'
+
+    @staticmethod
+    def _format_timing(cycle: CfgExportPeriodic, client_timezone) -> str:
+        """Format timing string for display.
+
+        Args:
+            cycle: Periodic cycle configuration.
+
+        Returns:
+            Formatted timing string:
+            'HH:MM' (e.g., '02:30')
+        """
+        start_time = parser.parse(cycle.start_time)
+        start_time = start_time.replace(tzinfo=ZoneInfo('UTC'))
+        start_time = start_time.astimezone(ZoneInfo(client_timezone))
+
+        trigger_hour = str(start_time.hour).zfill(2)
+        trigger_min = str(start_time.minute).zfill(2)
+
+        return f'{trigger_hour}:{trigger_min}'
+
+    @staticmethod
+    def _format_parameters(config: CfgExport) -> str:
+        """Format export parameters (columns) for display.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Comma-separated list of column names.
+        """
+        if not config.export_details:
+            return ''
+
+        column_names = [
+            detail.process_column.shown_name
+            for detail in sorted(config.export_details, key=lambda x: x.order)
+            if detail.process_column
+        ]
+
+        return ', '.join(column_names)
+
+    @staticmethod
+    def _get_latest_history(config: CfgExport) -> ExportHistory | None:
+        """Get the most recent history record.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Latest history record or None if no history exists.
+        """
+        if not config.history:
+            return None
+        return max(config.history, key=lambda h: h.created_at)
+
+    @staticmethod
+    def _format_last_run(config: CfgExport) -> str:
+        """Get last run timestamp from history.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Last run timestamp or empty string.
+        """
+        latest_history = ExportConfigService._get_latest_history(config)
+        return latest_history.start_time if latest_history else ''
+
+    @staticmethod
+    def _format_latest_export(config: CfgExport) -> str:
+        """Get latest export data info from history.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Latest export timestamp or empty string.
+        """
+        latest_history = ExportConfigService._get_latest_history(config)
+        # lastest export data = last export_to
+        return latest_history.export_to if latest_history else ''
+
+    @staticmethod
+    def _format_next_run(config: CfgExport) -> str:
+        """Calculate next run time.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Next run timestamp or empty string.
+        """
+        if config.type == CfgExportType.ONCE.value:
+            return ''
+
+        # If never run, calculate from current time
+        return ExportConfigService._calculate_next_run(config)
+
+    @staticmethod
+    def _calculate_next_run(config: CfgExport) -> str:
+        """Calculate next run time based on cycle configuration.
+
+        Args:
+            config: Export configuration object.
+
+        Returns:
+            Calculated next run timestamp or empty string if invalid.
+        """
+        if not config.cycle:
+            return ''
+
+        cycle = config.cycle
+
+        try:
+            if cycle.start_time is None:
+                return ''
+            next_run, _, _ = calculate_next_run_time_for_preview(cycle)
+            return next_run.strftime('%Y-%m-%d %H:%M:%S')
+
+        except (ValueError, OverflowError):
+            return ''
+
+    @staticmethod
+    def format_export_config(config: CfgExport) -> ExportConfigGet:
+        """Format export config for table display.
+
+        Args:
+            data: Export configuration schema object to populate.
+            config: Export configuration ORM object.
+
+        Returns:
+            Populated ExportConfigGet object with formatted display data.
+        """
+        data = ExportConfigGet.model_validate(config)
+        data.cycle_name, data.timing = ExportConfigService._get_cycle_and_timing(config)
+        data.parameters = ExportConfigService._format_parameters(config)
+        data.last_run = ExportConfigService._format_last_run(config)
+        data.last_export_data = ExportConfigService._format_latest_export(config)
+        data.next_run = ExportConfigService._format_next_run(config)
+        data.main_process_name = config.process.name if config.process else ''
+        return data.model_dump()
+
+    @staticmethod
+    def get_export_setting(config: CfgExport) -> ExportSetting:
+        """Format export config for showing detail setting
+
+        Args:
+            config: Export configuration ORM object.
+
+        Returns:
+            Populated ExportConfigGet object with formatted display data.
+        """
+        export_config_detail = ExportConfigDetail.model_validate(config)
+        export_periodic = ExportPeriodic.model_validate(config.cycle) if config.cycle else None
+        output = ExportSetting(
+            export_config=export_config_detail,
+            export_periodic=export_periodic,
+        )
+
+        return output.model_dump()
+
+    @staticmethod
+    def handle_periodic_cycle(session: Any, export_config: ExportConfigSave, data: dict) -> int | None:
+        """Handle creation or update of periodic cycle configuration.
+
+        Args:
+            session: Database session
+            export_config: Export configuration schema
+            data: Request data containing periodic config
+
+        Returns:
+            Cycle ID if periodic type, None otherwise
+
+        Raises:
+            ValueError: If periodic data is missing for PERIODIC type
+        """
+        if export_config.type != CfgExportType.PERIODIC.value:
+            return None
+
+        # Validate periodic data exists
+        periodic_data = data.get(ExportCfgEnum.PERIODIC)
+        if not periodic_data:
+            raise ValueError('Periodic configuration is required for PERIODIC export type')
+
+        try:
+            export_periodic = ExportPeriodic(**periodic_data)
+        except Exception as e:
+            raise ValueError('Invalid periodic configuration') from e
+
+        # Convert to ORM and save
+        periodic_orm = export_periodic.to_orm(export_config.client_timezone)
+        session.add(periodic_orm)
+        session.flush()  # Get ID without committing
+
+        return periodic_orm.id
+
+    @staticmethod
+    def save_export_config(
+        session: Any, export_config: ExportConfigSave, periodic_id: int | None, is_update: bool
+    ) -> CfgExport:
+        """Save or update export configuration.
+
+        Args:
+            session: Database session
+            export_config: Export configuration schema
+            periodic_id: Periodic cycle ID (if applicable)
+            is_update: Whether this is an update operation
+
+        Returns:
+            Saved CfgExport ORM object
+        """
+        if is_update:
+            # UPDATE existing record
+            cfg_export = session.get(CfgExport, export_config.id)
+            if not cfg_export:
+                raise ValueError(f'Export config not found with ID: {export_config.id}')
+
+            # Delete old relationships first
+            session.query(CfgExportDetail).filter(CfgExportDetail.export_id == cfg_export.id).delete(
+                synchronize_session=False
+            )
+
+            session.query(CfgExportFilter).filter(CfgExportFilter.export_id == cfg_export.id).delete(
+                synchronize_session=False
+            )
+
+            # convert to utc first
+            export_config.convert_utc()
+
+            # Update scalar fields
+            update_data = export_config.model_dump(exclude={'id', 'export_details', 'filters'}, exclude_unset=True)
+
+            for key, value in update_data.items():
+                setattr(cfg_export, key, value)
+
+            if periodic_id is not None:
+                cfg_export.periodic_id = periodic_id
+
+        else:
+            # CREATE new record
+            cfg_export = export_config.to_orm()
+
+            # Ensure id is None for autoincrement
+            cfg_export.id = None
+            cfg_export.periodic_id = periodic_id
+
+            session.add(cfg_export)
+            session.flush()  # Get auto-generated ID
+
+        # Update relationships
+        ExportConfigService.update_export_details(session, cfg_export, export_config.export_details)
+        ExportConfigService.update_export_filters(session, cfg_export, export_config.filters)
+
+        return cfg_export
+
+    @staticmethod
+    def update_export_details(session: Any, cfg_export: CfgExport, new_details: list):
+        """Update export detail relationships.
+
+        Args:
+            session: Database session
+            cfg_export: Export configuration ORM object
+            new_details: List of new export detail data
+        """
+        if new_details is None:
+            return
+
+        # Remove existing details
+        for detail in cfg_export.export_details:
+            session.delete(detail)
+
+        # Add new details
+        for detail_data in new_details:
+            detail = CfgExportDetail(**detail_data.model_dump(), export_id=cfg_export.id)
+            session.add(detail)
+
+    @staticmethod
+    def update_export_filters(session: Any, cfg_export: CfgExport, new_filters: list):
+        """Update export filter relationships.
+
+        Args:
+            session: Database session
+            cfg_export: Export configuration ORM object
+            new_filters: List of new export filter data
+        """
+        if new_filters is None:
+            return
+
+        # Remove existing filters
+        for filter_obj in cfg_export.filters:
+            session.delete(filter_obj)
+
+        # Add new filters
+        for filter_data in new_filters:
+            filter_obj = CfgExportFilter(**filter_data.model_dump(), export_id=cfg_export.id)
+            session.add(filter_obj)
+
+    @staticmethod
+    def sanitize_folder_name(name: str) -> str:
+        """
+        Sanitizes a subfolder name and ensures the total path length stays within safety limits.
+        Logic: Sanitize the subfolder name (remove illegal chars).
+        Args:
+            name: The desired subfolder name.
+
+        Returns: The sanitized and potentially truncated subfolder name.
+        """
+        # Return default if name is None or an empty string
+        if not name:
+            return 'unnamed_folder'
+
+        # Remove invalid filesystem characters and trim whitespace
+        # Equivalent to /[\\/:*?"<>|]/g in JavaScript
+        sanitized_name = re.sub(r'[\\/:*?"<>|]', '', name).strip()
+
+        # Return default if the string becomes empty after sanitization
+        if not sanitized_name:
+            return 'unnamed_folder'
+
+        return sanitized_name
+
+
+@abort_process_handler()
+@log_execution_time()
+@trace_log((TraceErrKey.ACTION, TraceErrKey.TARGET), (EventAction.READ, Target.DATABASE))
+def _get_df_from_db(
+    graph_param: DicParam,
+    time_range: TimeRange,
+):
+    # add start proc to end procs to get serial data
+    graph_param.add_start_proc_to_array_formval()
+
+    # add category
+    graph_param.add_cate_procs_to_array_formval()
+
+    # add condition procs
+    graph_param.add_cond_procs_to_array_formval()
+
+    # add cat exp
+    graph_param.add_cat_exp_to_array_formval()
+
+    # add NG column
+    graph_param.add_ng_condition_to_array_formval()
+
+    # add column in cfg_equation
+    graph_param.add_function_cols_to_sensor_cols()
+
+    # add color, cat_div
+    duplicate_serial_show = graph_param.common.duplicate_serial_show
+    duplicated_serials_count = graph_param.common.duplicated_serials_count
+
+    common_paths, dic_end_proc_cols = reduce_graph(
+        graph_param.array_formval,
+        graph_param.trace_graph,
+        graph_param.common.start_proc,
+    )
+    df, actual_total_record, unique_record_number = _gen_export_df(
+        graph_param.trace_graph,
+        time_range,
+        graph_param.array_formval,
+        graph_param.common.cond_procs,
+        common_paths,
+        duplicate_serial_show,
+        duplicated_serials_count,
+        is_order_by_time=graph_param.common.is_order_by_time,
+    )
+
+    # check empty
+    if df is None or not len(df):
+        return df
+
+    # sort by time
+    df[TIME_COL] = df[gen_proc_time_label(graph_param.common.start_proc)]
+
+    _, is_show_duplicated = is_show_duplicated_serials(
+        duplicate_serial_show,
+        duplicated_serials_count,
+        actual_total_record,
+    )
+
+    # fill missing columns
+    for proc in graph_param.array_formval:
+        for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
+            label = gen_sql_label(col_id, col_name)
+            if label not in df.columns:
+                df[label] = None
+
+    # reset index
+    df = df.reset_index(drop=True)
+
+    df = cast_df_number(df, graph_param)
+
+    return df
+
+
+@log_execution_time()
+@CustomCache.memoize(cache_type=CacheType.TRANSACTION_DATA)
+def _gen_export_df(
+    trace_graph: TraceGraph,
+    time_range: TimeRange,
+    end_procs: list[EndProc],
+    cond_procs,
+    common_paths,
+    duplicate_serial_show=None,
+    duplicated_serials_count=None,
+    is_order_by_time=True,
+):
+    res = _gen_trace_procs_df(
+        time_range,
+        cond_procs,
+        end_procs,
+        trace_graph,
+        common_paths,
+        duplicate_serial_show,
+        duplicated_serials_count,
+        is_order_by_time,
+    )
+
+    df, actual_record_number, unique_serial = res
+    if df is None:
+        return pd.DataFrame(), 0, 0
+
+    if df.empty:
+        return df, 0, 0
+
+    # get equation data
+    for end_proc in end_procs:
+        df = get_equation_data(df, end_proc.cfg_proc, end_proc.col_ids)
+
+    for end_proc in end_procs:
+        df = df_from_db_data_conversion(df, end_proc.cfg_proc.columns)
+
+    # filter function column
+    for end_proc in end_procs:
+        for condition_proc in cond_procs:
+            df = filter_function_column(df, condition_proc, end_proc)
+
+    return df, actual_record_number, unique_serial
+
+
+@log_execution_time()
+def _gen_trace_procs_df(
+    time_range: TimeRange,
+    cond_procs: list[ConditionProc],
+    end_procs,
+    trace_graph: TraceGraph,
+    common_paths: list[tuple[list[int], bool]],
+    duplicate_serial_show: DuplicateSerialShow,
+    duplicated_serials_count: DuplicateSerialCount,
+    is_order_by_time: bool,
+):
+    """Use two different ways to get dataframe from database
+    The old (legacy) way: calculating using row_numbers, distinct. Drop them by sql.
+    The new way: calculating without using row_numbers, distinct. Drop them by pandas.
+    The only way to use legacy is: we have filter enable and we show first/last.
+    """
+    if not len(common_paths):
+        return pd.DataFrame(), 0, 0
+
+    list_sql_objs = []
+    time_cols = set()
+    for _path, is_trace_forward in common_paths:
+        path = list(reversed(_path)) if not is_trace_forward else _path
+        sql_objs = _gen_trace_procs_sqls(path, trace_graph, time_range, end_procs)
+        list_sql_objs.append(sql_objs)
+        time_cols.update(sql_obj.gen_proc_time_label(is_start_proc=idx == 0) for idx, sql_obj in enumerate(sql_objs))
+
+    list_process_ids = [sql_obj.process_id for sql_objs in list_sql_objs for sql_obj in sql_objs]
+
+    with TxnMultiDataConnection(process_ids=list_process_ids) as data_con:
+        df = _gen_trace_procs_df_detail(data_con, list_sql_objs, cond_procs, duplicate_serial_show)
+
+        if df.empty:
+            return df, 0, 0
+
+        # Sort by time before emitting out df, so the result will be the same with edge server
+        if is_order_by_time:
+            df = df.sort_values(sorted(time_cols))
+
+        actual_record_number = len(df)
+        unique_record_number = len(df)
+        # TODO: how to calc duplicate : on start proc, all procs , or end procs ?
+        duplicated_option, for_count = is_show_duplicated_serials(
+            duplicate_serial_show,
+            duplicated_serials_count,
+            actual_record_number,
+        )
+        if not for_count:
+            return df, actual_record_number, None
+
+        if duplicate_serial_show is DuplicateSerialShow.SHOW_BOTH:
+            df_unique = df
+            for sql_objs in list_sql_objs:
+                df_unique = DropDuplicatesTraceProcs.drop_duplicates_by_link_keys(
+                    df_unique,
+                    sql_objs,
+                    duplicate_serial_show,
+                )
+
+            unique_record_number = len(df_unique)
+        else:
+            df_full = _gen_trace_procs_df_detail(
+                data_con,
+                list_sql_objs,
+                cond_procs,
+                duplicate_serial_show,
+                for_count=for_count,
+            )
+            actual_record_number = len(df_full)
+
+    return df, actual_record_number, unique_record_number
+
+
+def _gen_trace_procs_sqls(
+    path: list[int],
+    trace_graph: TraceGraph,
+    time_range: TimeRange,
+    end_procs: list[EndProc],
+):
+    sql_objs: list[SqlProcLink] = []
+    start_proc = path[0]
+    dic_processes = {proc_id: TransactionData(proc_id) for proc_id in path}
+    end_proc_time_range = copy.deepcopy(time_range)
+    end_proc_time_range.max.value = (
+        time_range.max.value + timedelta(days=14)
+        if time_range.max.kind != BoundType.UNBOUNDED
+        else time_range.max.value
+    )
+    end_proc_time_range.min.value = (
+        time_range.min.value - timedelta(days=14)
+        if time_range.min.kind != BoundType.UNBOUNDED
+        else time_range.min.value
+    )
+
+    if len(path) == 1:
+        proc_id = start_proc
+        trans_data: TransactionData = dic_processes[proc_id]
+        proc_link_sql = SqlProcLink()
+        proc_link_sql.trans_data = trans_data
+        proc_link_sql.process_id = proc_id
+        proc_link_sql.table_name = trans_data.table_name
+        proc_link_sql.time_col = trans_data.getdate_column.bridge_column_name
+
+        end_proc = None
+        for _end_proc in end_procs:
+            if _end_proc.proc_id == proc_id:
+                end_proc = _end_proc
+                break
+
+        proc_link_sql.select_col_ids = end_proc.col_ids
+        proc_link_sql.select_col_names = [trans_data.get_column_name(_id) for _id in end_proc.col_ids]
+        proc_link_sql.link_keys = []
+        proc_link_sql.next_link_keys = []
+        proc_link_sql.time_range = time_range
+        sql_objs.append(proc_link_sql)
+        return sql_objs
+
+    for from_proc, to_proc in itertools.pairwise(path):
+        edge_id = (from_proc, to_proc)
+        connected_trace_keys = trace_graph.get_connected_trace_keys(from_proc, to_proc)
+        self_sensor_keys, target_sensor_keys = gen_sql_proc_link_key_from_trace_keys(connected_trace_keys)
+        if connected_trace_keys.forward:
+            edge_cols = (self_sensor_keys, target_sensor_keys)
+        else:
+            edge_cols = (target_sensor_keys, self_sensor_keys)
+
+        for idx, proc_id in enumerate(edge_id):
+            link_keys = edge_cols[idx]
+            if not link_keys:
+                continue
+
+            # same proc will join by cycle id ( as a bridge to another process)
+            trans_data: TransactionData = dic_processes[proc_id]
+            if sql_objs and sql_objs[-1].process_id == proc_id:
+                if sql_objs[-1].link_keys != link_keys:
+                    sql_objs[-1].next_link_keys = link_keys
+            else:
+                end_proc = None
+                for proc in end_procs:
+                    if proc.proc_id == proc_id:
+                        end_proc = proc
+                        break
+
+                proc_link_sql = SqlProcLink()
+                proc_link_sql.trans_data = trans_data
+                proc_link_sql.process_id = proc_id
+                proc_link_sql.table_name = trans_data.table_name
+                proc_link_sql.time_col = trans_data.getdate_column.bridge_column_name
+                proc_link_sql.select_col_ids = end_proc.col_ids if end_proc else []
+                proc_link_sql.select_col_names = (
+                    [trans_data.get_column_name(_id) for _id in end_proc.col_ids] if end_proc else []
+                )
+                proc_link_sql.link_keys = link_keys
+                proc_link_sql.next_link_keys = []
+                proc_link_sql.time_range = time_range if proc_id == start_proc else end_proc_time_range
+                sql_objs.append(proc_link_sql)
+
+    return sql_objs
+
+
+@log_execution_time()
+def _gen_trace_procs_df_detail(
+    data_con: DuckDB,
+    list_sql_objs: list[list[SqlProcLink]],
+    cond_procs: list[ConditionProc],
+    duplicate_serial_show: DuplicateSerialShow,
+    for_count: bool = False,
+) -> DataFrame:
+    df = None
+
+    # TODO: use one sql for this
+    # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/134
+    for sql_objs in list_sql_objs:
+        sql = _gen_proc_link_from_sql(sql_objs, cond_procs, duplicate_serial_show, for_count=for_count)
+        _df = data_con.fetch_df(sql)
+        keep = 'last'
+        if duplicate_serial_show is DuplicateSerialShow.SHOW_FIRST:
+            keep = 'first'
+
+        if duplicate_serial_show is not DuplicateSerialShow.SHOW_BOTH and not for_count:
+            # TODO: drop_duplicates_by_link_keys MUST delete per end proc
+            dropped_duplicates_df = DropDuplicatesTraceProcs.drop_duplicates_by_link_keys(
+                _df,
+                sql_objs,
+                duplicate_serial_show,
+            )
+            _df = dropped_duplicates_df
+
+        # TODO: move this to sql!
+        # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/131
+        # We don't need marker_0
+        _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
+        _df = _df.drop_duplicates(subset=_filter_subset, keep=keep)
+
+        if df is None:
+            df = _df
+            continue
+
+        _df_cols = _df.columns.difference(df.columns).tolist()
+        if TransactionData.id_col_name in df.columns:
+            df = df.merge(_df[[TransactionData.id_col_name, *_df_cols]], on=TransactionData.id_col_name)
+
+    if df is None:
+        return pd.DataFrame()
+
+    return df
+
+
+@log_execution_time(SQL_GENERATOR_PREFIX)
+def _gen_proc_link_from_sql(
+    sql_objs: list[SqlProcLink],
+    cond_procs: list[ConditionProc],
+    duplicated_serial_show: DuplicateSerialShow,
+    for_count: bool = False,
+) -> sa.Select:
+    cte_proc_list = []
+
+    dict_cond_procs: dict[int, list[ConditionProc]] = {}
+    for cond in cond_procs:
+        if cond.proc_id not in dict_cond_procs:
+            dict_cond_procs[cond.proc_id] = [cond]
+        else:
+            dict_cond_procs[cond.proc_id].append(cond)
+
+    # TODO: this should not happen here
+    for idx, sql_obj in enumerate(sql_objs):
+        sql_objs[idx].condition_procs = dict_cond_procs.get(sql_obj.process_id, [])
+        sql_objs[idx].is_start_proc = idx == 0
+
+    for idx, sql_obj in enumerate(sql_objs):
+        is_start_proc = idx == 0
+
+        cte_proc = sql_obj.gen_cte_export(
+            idx=idx,
+            duplicated_serial_show=duplicated_serial_show,
+            is_start_proc=is_start_proc,
+            for_count=for_count,
+        )
+
+        cte_proc_list.append(cte_proc)
+
+    cte_tracing = gen_tracing_cte(
+        tracing_table_alias='cte_tracing',
+        cte_proc_list=cte_proc_list,
+        sql_objs=sql_objs,
+        duplicated_serial_show=duplicated_serial_show,
+        dict_cond_procs=dict_cond_procs,
+    )
+
+    cte_tracing_delta_time_cut_off = gen_tracing_cte_with_delta_time_cut_off(cte_tracing=cte_tracing, sql_objs=sql_objs)
+
+    return gen_show_stmt(cte_tracing=cte_tracing_delta_time_cut_off, sql_objs=sql_objs)
+
+
+def calculate_next_run_time_for_preview(export_periodic, client_timezone='UTC'):
+    now = datetime.now(tz=ZoneInfo('UTC'))
+    start_time = parser.parse(export_periodic.start_time)
+    start_time = start_time.replace(tzinfo=ZoneInfo(client_timezone))
+    start_time = start_time.astimezone(ZoneInfo('UTC'))
+    match export_periodic.interval_unit:
+        case CfgExportPeriodicUnit.DAY.value:
+            interval = timedelta(days=export_periodic.interval_value)
+        case CfgExportPeriodicUnit.HOUR.value:
+            interval = timedelta(hours=export_periodic.interval_value)
+        case CfgExportPeriodicUnit.MINUTE.value:
+            interval = timedelta(minutes=export_periodic.interval_value)
+        case _:
+            raise ValueError('Unsupported unit for export config')
+
+    if start_time >= now:
+        return start_time, start_time + interval, start_time + 2 * interval
+
+    elapsed = now - start_time
+    intervals_passed = math.floor(elapsed / interval)
+    next_run = start_time + (intervals_passed + 1) * interval
+    return next_run, next_run + interval, next_run + 2 * interval
+
+
+JOB_ID_PATTERN = re.compile(r'^DATA_EXPORT_(?P<process_id>\d+)_(?P<export_id>\d+)(?:_RETRY(?P<retry_count>\d+))?$')
+
+
+def get_retry_data_from_job(job_id: str) -> tuple[int, int, int]:
+    """
+    Extracts process_id, export_id, and the current retry count from a job_id string.
+
+    Args:
+        job_id: The string identifier of the job.
+
+    Returns:
+        A tuple containing (process_id, export_id, current_retry_count).
+
+    Raises:
+        ValueError: If the job_id format is invalid.
+
+    Examples/Doctests:
+        >>> # Case 1: Valid job_id without retry suffix (defaults to 0)
+        >>> get_retry_data_from_job('DATA_EXPORT_1_2')
+        (1, 2, 0)
+
+        >>> # Case 2: Valid job_id with retry suffix
+        >>> get_retry_data_from_job('DATA_EXPORT_1_2_RETRY3')
+        (1, 2, 3)
+
+        >>> # Case 3: RETRY4 is still parsed normally
+        >>> get_retry_data_from_job('DATA_EXPORT_1_2_RETRY4')
+        (1, 2, 4)
+
+        >>> # Case 4: RETRY5 is also parsed normally, max retry is decided by the caller
+        >>> get_retry_data_from_job('DATA_EXPORT_1_2_RETRY5')
+        (1, 2, 5)
+
+        >>> # Case 5: Invalid job_id format (wrong prefix)
+        >>> get_retry_data_from_job('INVALID_PREFIX_1_2')
+        Traceback (most recent call last):
+            ...
+        ValueError: Invalid job_id format or unsupported job type: 'INVALID_PREFIX_1_2'
+
+        >>> # Case 6: Invalid job_id format (non-digit IDs)
+        >>> get_retry_data_from_job('DATA_EXPORT_abc_456')
+        Traceback (most recent call last):
+            ...
+        ValueError: Invalid job_id format or unsupported job type: 'DATA_EXPORT_abc_456'
+    """
+    match = JOB_ID_PATTERN.match(job_id)
+    if not match:
+        raise ValueError(f"Invalid job_id format or unsupported job type: '{job_id}'")
+
+    group_dict = match.groupdict()
+    process_id = int(group_dict['process_id'])
+    export_id = int(group_dict['export_id'])
+
+    # Default to 0 if the RETRY suffix is not present
+    retry_count = int(group_dict['retry_count']) if group_dict['retry_count'] else 0
+
+    return process_id, export_id, retry_count
+
+
+def retry_export_job(job_id: str):
+    """Retry logic for DATA_EXPORT jobs on error.
+
+    Schedules a retry job after a fixed delay if the following conditions are met:
+    - The job_id belongs to a DATA_EXPORT job.
+    - The retry count has not exceeded the maximum allowed attempts.
+    - For periodic exports, the interval is greater than 15 minutes.
+    - For once exports (no cycle), retry is always allowed.
+
+    Args:
+        job_id: job_id string from send_processing_info
+    """
+    if not job_id.startswith(JobType.DATA_EXPORT.name):
+        return
+
+    try:
+        process_id, export_id, retry_count = get_retry_data_from_job(job_id)
+    except ValueError as e:
+        logger.error(f'Failed to parse job_id due to invalid format: {e}')
+        return
+
+    # Stop retrying once the maximum retry count is reached
+    if retry_count >= MAX_RETRY_COUNT:
+        logger.info(f'{job_id}: Reached maximum retry attempts ({MAX_RETRY_COUNT}). Stopping.')
+        return
+
+    next_retry_count = retry_count + 1
+
+    with make_session() as session:
+        export_cfg = session.query(CfgExport).get(export_id)
+        if not export_cfg:
+            return
+
+        if export_cfg.cycle:
+            interval_minutes = 0
+            periodic = export_cfg.cycle
+            if periodic.interval_unit == CfgExportPeriodicUnit.MINUTE.value:
+                interval_minutes = periodic.interval_value
+            elif periodic.interval_unit == CfgExportPeriodicUnit.HOUR.value:
+                interval_minutes = periodic.interval_value * 60
+            elif periodic.interval_unit == CfgExportPeriodicUnit.DAY.value:
+                interval_minutes = periodic.interval_value * 1440
+
+            # Do not retry if the periodic interval is too short
+            if interval_minutes <= MIN_RETRY_INTERVAL_MINUTES:
+                logger.info(f'{job_id}: Interval {interval_minutes}m <= 15m. No retry.')
+                return
+
+        run_time = datetime.now(UTC) + timedelta(minutes=RETRY_DELAY_MINUTES)
+
+        logger.info(f'{job_id}: Scheduling retry {next_retry_count} at {run_time}')
+
+        from ap.api.setting_module.services.polling_frequency import export_job_func
+
+        EventQueue.put(
+            EventAddJob(
+                fn=export_job_func,
+                kwargs={'config_id': export_id, 'retry_count': next_retry_count},
+                process_id=process_id,
+                job_type=JobType.DATA_EXPORT,
+                job_id_suffix=f'{process_id}_{export_id}_RETRY{next_retry_count}',
+                replace_existing=True,
+                trigger=DateTrigger(run_time, timezone=UTC),
+                next_run_time=run_time,
+            )
+        )

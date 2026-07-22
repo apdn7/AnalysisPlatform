@@ -96,6 +96,18 @@ class DataFinder extends DataFinderBase {
         this.yearCalendar.showFromOnly = showFromOnly;
     }
 
+    onClickDataFinderButton() {
+        this.dataFinderEls.dataFinderBtn = `button[name=dataFinderBtn${this.suffix}]`;
+        $(this.dataFinderEls.dataFinderBtn).off('click');
+        $(this.dataFinderEls.dataFinderBtn).on('click', (e) => {
+            this.setProcessID();
+            const dataFromOnly = $(e.currentTarget).attr('data-from-only') === 'true' || isCyclicTermTab;
+            this.setCalendarShowFromOnly(dataFromOnly);
+            this.reloadDataFinder();
+            this.showDataFinderModal(e.currentTarget);
+        });
+    }
+
     initEventClickButton() {
         $(this.dataFinderEls.yearBtn).on('click', () => {
             this.handleGoToCalender(calenderTypes.year);
@@ -117,11 +129,9 @@ class DataFinder extends DataFinderBase {
         $(this.dataFinderEls.closeModalBtn).on('click', () => {
             this.closeCalenderModal();
         });
-        $(this.dataFinderEls.dataFinderBtn).on('click', (e) => {
-            this.setProcessID();
-            this.reloadDataFinder();
-            this.showDataFinderModal(e.currentTarget);
-        });
+
+        this.onClickDataFinderButton();
+
         $(this.dataFinderEls.endProc).on('change', (e) => {
             this.setProcessID(e.currentTarget);
             this.reloadDataFinder();

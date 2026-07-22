@@ -27,6 +27,8 @@ from ap.common.constants import (
     COMMON,
     COMPLETED_PERCENT,
     DATA_SIZE,
+    ERROR_COLS_KEY,
+    ERRORS_KEY,
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
     NULL_PERCENT,
@@ -291,8 +293,8 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
                     dic_param['importance_columns_ids'].append(col_id)
 
         if errors:
-            dic_param['errors'] = errors
-            dic_param['err_cols'] = err_cols
+            dic_param[ERRORS_KEY] = errors
+            dic_param[ERROR_COLS_KEY] = err_cols
 
         dic_var_name = dic_id_name
 

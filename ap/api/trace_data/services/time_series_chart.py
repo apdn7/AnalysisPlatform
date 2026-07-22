@@ -290,6 +290,9 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
                             total_bin=THIN_DATA_CHUNK,
                         )
                         plot[NEG_CUMSUM] = cumulative_sum.to_dict(orient='records')
+                        plot[SLOT_COUNT] = bin_thin_data_df[NegRatio.N.value].tolist()
+                        plot[SLOT_FROM] = bin_thin_data_df[NegRatio.START_DATE.value].tolist()
+                        plot[SLOT_TO] = bin_thin_data_df[NegRatio.END_DATE.value].tolist()
     else:
         dic_param = gen_category_info(dic_param, dic_ranks)
     set_str_rank_to_dic_param(dic_param, dic_ranks, dic_str_cols, full_arrays)
@@ -504,6 +507,9 @@ def gen_df_thin_values(
                     df_cat_exp[sql_label] = df_thin[sql_label]
                     df_cat_exp[sql_label_min] = None
                     df_cat_exp[sql_label_max] = None
+                    df_cat_exp[sql_label_from] = df_from_to_count['min']
+                    df_cat_exp[sql_label_to] = df_from_to_count['max']
+                    df_cat_exp[sql_label_count] = df_from_to_count['count']
                     continue
 
                 # Find the correct original indexes that we want to replace our value.

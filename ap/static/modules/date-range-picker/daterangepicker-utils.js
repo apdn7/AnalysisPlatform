@@ -796,6 +796,8 @@ const handleShowDataCount = async (picker, callApi = true) => {
         if (isCalling) {
             return;
         }
+        const isStatic = picker.element.attr('is-static') === 'True';
+        if (isStatic) return;
         isCalling = true;
         const calendarLeft = picker.leftCalendar.calendar;
         const calendarRight = picker.rightCalendar.calendar;

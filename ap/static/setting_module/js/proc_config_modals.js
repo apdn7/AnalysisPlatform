@@ -19,6 +19,7 @@ let currentProcDataCols = [];
 let userEditedProcName = false;
 let userEditedDSName = false;
 let prcPreviewData;
+let procSampleDataLength = {};
 
 let prcRawDataWith1000Data = {};
 let prcPreviewWith1000Data = {};
@@ -659,6 +660,8 @@ const generateProcessList = async (
         return;
     }
 
+    procSampleDataLength[tableId] = rows.length;
+
     if (!fromRegenerate && Object.values(dicProcessCols).length) {
         // reassign column_type
         cols = cols.map((col) => {
@@ -844,8 +847,12 @@ const generateProcessList = async (
 
     if (!fromRegenerate) {
         showConfirmSameAndNullValueInColumn(sortedCols);
+    }
+
+    if (!isRegisterProc) {
         showConfirmKSepDataModal(colTypes);
     }
+
     handleScrollSampleDataTable(tableId);
     handleHoverProcessColumnsTableRow();
     validateSelectedColumnInput();

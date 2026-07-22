@@ -1,11 +1,16 @@
+import React, { Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import React, { lazy, Suspense } from 'react';
+
 import './shared/i18n';
+import './styles/main.scss';
+
 const REACT_ROOT = '.react-root';
 const DATA_COMPONENT = 'data-component';
 const DATA_PROPS = 'data-props';
 const components = {
-    SideBarComponent: lazy(() => import('./shared/components/layout/side_bar')),
+    SideBarComponent: lazy(() => import('@/shared/components/layout/SideBar.tsx')),
+    ExportSettingTableComponent: lazy(() => import('@/pages/export-config/components/ExportSettingTable.tsx')),
+    ExportConfig: lazy(() => import('@/pages/export-config/components/ExportConfig.tsx')),
 };
 function mountAllComponents() {
     const containers = document.querySelectorAll(REACT_ROOT);

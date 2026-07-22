@@ -548,6 +548,12 @@ This software does not include, but uses following Python packages.
 - Python Software Foundation License
 - https://github.com/mhammond/pywin32
 
+### py7zr 1.1.0
+
+- Copyright (C) 2019-2024 Hiroshi Miura
+- GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999
+- https://github.com/miurahr/py7zr
+
 ### requests 2.32.5
 
 - Copyright Kenneth Reitz

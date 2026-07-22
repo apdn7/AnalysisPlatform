@@ -39,11 +39,13 @@ const i18n = {
     reachFailLimit: $('#i18nReachFailLimit').text(),
     noCTCol: $('#i18nNoCTCol').text(),
     noCTColProc: $('#i18nNoCTColPrc').text(),
-    confirmDeleteProc: $('#i18nConfirmDeleteProc').text(),
+    confirmDeleteProc: $('#i18nConfirmDeleteThisRecord').text(),
     warnDeleteMergedProc: $('#i18nWarDeleteMergedProc').text(),
     confirmIncreaseLimitImport: $('#i18nConfirmIncreaseLimitImport').text(),
     confirmDecreaseLimitImport: $('#i18nConfirmDecreaseLimitImport').text(),
+    thisRecord: $('#i18nThisRecord').text(),
 };
+
 const JOB_STATUS = {
     DONE: {
         title: i18n.statusDone,
@@ -118,13 +120,19 @@ const checkIfProcessIsMerged = async (procId) => {
 const deleteProcess = async (procItem) => {
     currentProcItem = $(procItem).closest('tr');
     const procId = currentProcItem.data('proc-id');
+    const procName =
+        currentProcItem.find('input[name="processName"]').val() ||
+        currentProcItem.find('td:nth-child(2)').text().trim();
+    const procNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${procName} </span>`;
+
     if (procId) {
         $('#btnDeleteProc').attr('data-item-id', procId);
         const isMergedProc = await checkIfProcessIsMerged(procId);
         if (isMergedProc) {
             $(procElements.deleteProcModal).find('.modal-inform').html(i18n.warnDeleteMergedProc);
         } else {
-            $(procElements.deleteProcModal).find('.modal-inform').html(i18n.confirmDeleteProc);
+            const message = i18n.confirmDeleteProc.replace(i18n.thisRecord, procNameHtml);
+            $(procElements.deleteProcModal).find('.modal-inform').html(message);
         }
         $(procElements.deleteProcModal).modal('show');
     } else {

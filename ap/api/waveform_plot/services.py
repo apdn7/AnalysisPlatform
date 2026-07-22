@@ -16,12 +16,13 @@ from ap.api.common.services.show_graph_services import (
     get_serial_and_datetime_data,
 )
 from ap.api.scatter_plot.services import get_v_keys_str
-from ap.common.common_utils import gen_sql_label, get_x_y_info
+from ap.common.common_utils import gen_sql_label, get_x_y_info, select_between_color_and_temp_color
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
     ARRAY_X,
     ARRAY_Y,
+    AVAILABLE_COLORS,
     COL_DATA_TYPE,
     COLOR_NAME,
     COMMON,
@@ -76,12 +77,13 @@ def gen_graph_for_waveform_plot(
         temp_serial_column,
         temp_serial_order,
         *_,
+        temp_color_var,
         matrix_col,
         color_order,
     ) = customize_dic_param_for_reuse_cache(dic_param)
     matrix_col = matrix_col if matrix_col else MATRIX
 
-    xy_ids, xy_names, *_ = get_x_y_info(graph_param.array_formval, dic_param[COMMON])
+    xy_ids, xy_names, *_ = get_x_y_info(graph_param, dic_param[COMMON])
 
     x_id = xy_ids[0]
     y_id = xy_ids[-1]
@@ -99,7 +101,7 @@ def gen_graph_for_waveform_plot(
     if len(xy_ids) == 1:
         x_label = TIME_COL
 
-    color_id = graph_param.common.color_var
+    color_id = select_between_color_and_temp_color(temp_color_var, graph_param)
     cat_div_id = graph_param.common.div_by_cat
     level_ids = graph_param.common.cat_exp
 
@@ -152,6 +154,10 @@ def gen_graph_for_waveform_plot(
     dic_param[SERIALS] = serial_data
     dic_param[DATETIME] = datetime_data
     dic_param[START_PROC] = start_proc_name
+    dic_param[AVAILABLE_COLORS] = [
+        {'id': col_id, 'column_name': graph_param.get_col_cfg(col_id).shown_name}
+        for col_id in graph_param.common.available_colors_id
+    ]
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, [], graph_param, False, [], True)
     dic_param = get_filter_on_demand_data(dic_param)

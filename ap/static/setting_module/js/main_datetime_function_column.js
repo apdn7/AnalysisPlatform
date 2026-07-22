@@ -114,7 +114,7 @@ const handlerConfirmUncheckMainDatetimeFunctionCol = () => {
             force: true,
             rowIndex: mainDatetimeFunctionCol.index - 1,
         });
-        handleChangeFunctionOutput(mainDatetimeFunctionCol.index - 1, mainDatetimeFunctionCol.output);
+        handleChangeFunctionOutput(undefined, mainDatetimeFunctionCol.index - 1, mainDatetimeFunctionCol.output);
     }
 
     // process config change to main::Serial

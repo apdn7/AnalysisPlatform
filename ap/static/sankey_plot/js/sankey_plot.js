@@ -68,11 +68,6 @@ const i18n = {
     SkDPlotHoverProcess: $('#i18nSkDPlotHoverProcess').text(),
 };
 
-const MSG_MAPPING = {
-    E_ALL_NA: $('#i18nE01AllNA').text(),
-    E_ZERO_VARIANCE: $('#i18nE03ZeroVariance').text(),
-};
-
 $(() => {
     // generate tab ID
     while (tabID === null || sessionStorage.getItem(tabID)) {
@@ -844,17 +839,6 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
 
         // show info table
         showInfoTable(res);
-    });
-};
-
-const showErrorToastr = (errors) => {
-    if (!errors) {
-        return;
-    }
-
-    errors.forEach((error) => {
-        const msgContent = `<p>${MSG_MAPPING[error] || error}</p>`;
-        showToastrMsg(msgContent, MESSAGE_LEVEL.WARN);
     });
 };
 

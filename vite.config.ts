@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [],
@@ -21,8 +21,10 @@ export default defineConfig({
             output: {
                 entryFileNames: '[name].bundle.js',
                 chunkFileNames: '[name].js',
+                assetFileNames: '[name][extname]',
             },
         },
+        cssCodeSplit: false,
     },
     server: {
         origin: 'http://localhost:5173',

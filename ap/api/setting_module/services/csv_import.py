@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import math
+import os
 import os.path
 import re
 import uuid
+from collections.abc import Generator, Iterable, Iterator
 from datetime import datetime
 from io import BytesIO
+from itertools import chain
 
 import pandas as pd
 
@@ -15,6 +18,11 @@ from pandas.core.dtypes.base import ExtensionDtype
 
 from ap.api.common.services.file_reader import StructuredFileReader
 from ap.api.efa.services.etl import csv_transform
+from ap.api.setting_module.services import archive_handler
+from ap.api.setting_module.services.archive_handler import (
+    FileEntry,
+    RecursiveArchiveProcessor,
+)
 from ap.api.setting_module.services.data_import import (
     FILE_IDX_COL,
     INDEX_COL,
@@ -56,6 +64,7 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     ALMOST_COMPLETE_PERCENT,
+    ARCHIVE_MAX_FILES_DEFAULT,
     COMPLETED_PERCENT,
     DATA_TYPE_DUPLICATE_MSG,
     DATA_TYPE_ERROR_MSG,
@@ -64,6 +73,7 @@ from ap.common.constants import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_ONLY_DIGIT,
     DATETIME_DUMMY,
+    EMPTY_ARCHIVE_ERROR_MSG,
     EMPTY_CHECK_TIME_PERIOD,
     EMPTY_STRING,
     FILE_NAME,
@@ -110,7 +120,11 @@ from ap.setting_module.models import (
     JobManagement,
 )
 from ap.setting_module.services.background_process import JobInfo, send_processing_info
-from ap.trace_data.transaction_model import TransactionData
+from ap.trace_data.transaction_model import (
+    ImportProcessedSignatureTable,
+    TransactionData,
+    init_processed_signature_table,
+)
 
 
 @scheduler_app_context
@@ -134,6 +148,41 @@ def import_csv_job(
 def get_config_sensor(cfg_process: CfgProcess):
     # check new adding column, save.
     return {col.column_name: col for col in cfg_process.get_transaction_process_columns()}
+
+
+class ArchiveImportContextManager:
+    """Track archive entries by import index and finalize them safely."""
+
+    def __init__(self) -> None:
+        self._contexts: dict[int, tuple[RecursiveArchiveProcessor, FileEntry]] = {}
+
+    def register(
+        self,
+        idx: int,
+        archive_processor: RecursiveArchiveProcessor | None,
+        archive_entry: FileEntry | None,
+    ) -> None:
+        if archive_processor is None or archive_entry is None:
+            return
+        self._contexts[idx] = (archive_processor, archive_entry)
+
+    def mark_success(self, idx: int) -> None:
+        context = self._contexts.pop(idx, None)
+        if context is None:
+            return
+        processor, entry = context
+        processor.mark_success(entry)
+
+    def mark_failed(self, idx: int, err_msg: str) -> None:
+        context = self._contexts.pop(idx, None)
+        if context is None:
+            return
+        processor, entry = context
+        processor.mark_failed(entry, err_msg)
+
+    def mark_all_failed(self, indexes: Iterable[int], err_msg: str) -> None:
+        for idx in list(indexes):
+            self.mark_failed(idx, err_msg)
 
 
 @log_execution_time()
@@ -190,10 +239,19 @@ def import_csv(
         # get import files
         import_targets, no_data_files, toast_skip = get_import_target_files(proc_id, data_src, trans_data, meta_con)
 
-    # job 100% with zero row
     if not import_targets:
         yield 100
         return
+
+    # get current job id
+    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.CSV_IMPORT.name)
+    job_id = int(t_job_management.id) if t_job_management else None
+
+    import_target_iter = _iter_import_targets_for_processing(proc_id, job_id, import_targets)
+    # Get a single file path to detect/check CSV structure before the main loop.
+    # This helper may consume the first streamed item (archive-only case) and then
+    # prepend it back, so iteration order/data is preserved.
+    import_target_iter, check_structure_target = _resolve_check_structure_target(import_targets, import_target_iter)
 
     # csv delimiter
     csv_delimiter = get_csv_delimiter(data_src.delimiter)
@@ -239,7 +297,8 @@ def import_csv(
         is_file_checker=is_file_checker,
     )
     # To preview data
-    file_reader.read(target_file=import_targets[-1][0])
+    if check_structure_target:
+        file_reader.read(target_file=check_structure_target)
 
     is_invalid_csv = import_targets and not file_reader.is_valid and not data_src.etl_func
     is_same_number_of_rows_and_headers = not file_reader.is_mismatched_cols
@@ -266,8 +325,9 @@ def import_csv(
     job_management.info.is_abnormal = is_abnormal
 
     total_percent = 0
-    percent_per_file = 100 / len(import_targets)
+    percent_per_file = 100 / max(1, len(import_targets))
     dic_imported_row = {}
+    archive_context_manager = ArchiveImportContextManager()
     df = pd.DataFrame()
 
     # init job information object
@@ -285,9 +345,6 @@ def import_csv(
         yield from yield_job_info(job_info, csv_file_name, is_safe_interrupt=is_safe_interrupt)
         job_info.empty_files = []
 
-    # get current job id
-    t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.CSV_IMPORT.name)
-    job_id = int(t_job_management.id) if t_job_management else None
     job_info.job_id = job_id
 
     dummy_datetime_from = latest_record
@@ -298,329 +355,459 @@ def import_csv(
     chunk_size = record_per_commit * 100
     origin_default_csv_param = default_csv_param.copy()
     total_imported_row = 0
-    for idx, (csv_file_name, transformed_file) in enumerate(import_targets):
+    # `archive_processor` is the RecursiveArchiveProcessor handling the current archive source.
+    # `archive_entry` is the current FileEntry inside that archive (both are None for non-archive files).
+    for idx, (csv_file_name, transformed_file, is_temp_target, archive_processor, archive_entry) in enumerate(
+        import_target_iter
+    ):
         # Because each file has a different structure, it will read according to different parameters
         default_csv_param = origin_default_csv_param.copy()
         job_info.target = csv_file_name
         import_target_info = CsvImportJobInfo.CsvImportTargetInfo()
         job_management.info.import_targets.append(import_target_info)
         import_target_info.file_name = csv_file_name
-        import_target_info.transform_file = transformed_file
+        # `transformed_file` may be an Exception. Keep this field string-only
+        # to avoid serialization failures when persisting job info.
+        import_target_info.transform_file = transformed_file if isinstance(transformed_file, str) else ''
 
         if not dic_imported_row:
             job_info.start_tm = get_current_timestamp()
 
+        # Keep per-item archive context so later chunk flush / exception handlers
+        # can still mark this archive entry as success/failed reliably.
+        archive_context_manager.register(idx, archive_processor, archive_entry)
+
         # R error check
         if isinstance(transformed_file, Exception):
+            if str(transformed_file) == EMPTY_ARCHIVE_ERROR_MSG:
+                job_info.status = JobStatus.DONE
+                job_info.empty_files = [csv_file_name]
+                job_management.info.empty_files.append(csv_file_name)
+                yield from yield_job_info(job_info, csv_file_name, is_safe_interrupt=True)
+                job_info.empty_files = []
+                continue
+
             yield from yield_job_info(job_info, csv_file_name, err_msgs=str(transformed_file))
             import_target_info.error = str(transformed_file)
+            error_type = DATA_TYPE_ERROR_MSG
             continue
 
-        file_reader.update(headers=[])
         try:
-            # To get metadata from transformed file
-            file_header, file_data = (
-                file_reader.read(transformed_file)
-                if file_reader.is_mismatched_cols
-                else file_reader.read_data_normal_file(transformed_file)
-            )
-        except (EncodingException, UnicodeDecodeError, Exception) as e:
-            # get error_info job
-            error_info = JobInfo()
-            error_info.job_id = job_id
-            error_info.import_type = JobType.CSV_IMPORT.name
-            error_info.dic_imported_row = {0: (csv_file_name, 0)}
+            # Reset per-file reader state that may be changed by preview/file-checker.
+            # Import logic below expects to evaluate each target with datasource defaults.
+            file_reader.update(headers=[], skip_head=data_src.skip_head, skip_tail=data_src.skip_tail or 0)
+            try:
+                # To get metadata from transformed file
+                file_header, file_data = (
+                    file_reader.read(transformed_file)
+                    if file_reader.is_mismatched_cols
+                    else file_reader.read_data_normal_file(transformed_file)
+                )
+            except (EncodingException, UnicodeDecodeError, Exception) as e:
+                # get error_info job
+                error_info = JobInfo()
+                error_info.job_id = job_id
+                error_info.import_type = JobType.CSV_IMPORT.name
+                error_info.dic_imported_row = {0: (csv_file_name, 0)}
 
-            # to save error file into transaction import history
-            save_failed_import_history(proc_id, error_info, str(e))
-            # yield to show error file in toast
-            yield from yield_job_info(error_info, csv_file_name)
+                # to save error file into transaction import history
+                save_failed_import_history(proc_id, error_info, str(e))
+                # yield to show error file in toast
+                yield from yield_job_info(error_info, csv_file_name)
 
-            # go to next file if it is encoding error
-            continue
-        transformed_file_delimiter, encoding = file_reader.delimiter, file_reader.encoding
-        # check missing columns
-        partial_dummy_header = False
-        if is_abnormal is False:
-            dic_csv_cols = None
-            dic_org_csv_cols = None
-            csv_cols = headers
-            # in case if v2, assume that there is not missing columns from v2 files
-            if not is_v2_datasource:
-                # Copy file_reader.header to avoid shared reference
-                org_csv_cols = list(file_header)
-                # to check missing columns
-                if data_src.dummy_header:
-                    # generate column name if there is not header in file
-                    org_csv_cols, csv_cols, *_ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
-                    csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
-                else:
-                    # need to convert header in case of transposed
-                    if data_src.is_transpose:
-                        _, csv_cols, *_ = gen_dummy_header(org_csv_cols)
+                # go to next file if it is encoding error
+                continue
+            transformed_file_delimiter, encoding = file_reader.delimiter, file_reader.encoding
+            import_target_info.encoding = encoding
+            # check missing columns
+            partial_dummy_header = False
+
+            # Both normal and abnormal CSV sources share this parse flow.
+            should_parse_file = True
+            if should_parse_file:
+                dic_csv_cols = None
+                dic_org_csv_cols = None
+                csv_cols = headers
+                # in case if v2, assume that there is not missing columns from v2 files
+                if not is_v2_datasource and not is_abnormal:
+                    # Copy file_reader.header to avoid shared reference
+                    org_csv_cols = list(file_header)
+                    # to check missing columns
+                    if data_src.dummy_header:
+                        # generate column name if there is not header in file
+                        org_csv_cols, csv_cols, *_ = gen_dummy_header(org_csv_cols, skip_head=data_src.skip_head)
                         csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
                     else:
-                        # for the column names with only spaces, we need to generate dummy headers for them
-                        _, csv_cols, _, partial_dummy_header, *_ = gen_dummy_header(org_csv_cols)
-                        csv_cols = normalize_list(csv_cols)
-                    # try to convert ➊ irregular number from csv columns
-                    csv_cols = [normalize_str(col) for col in csv_cols]
+                        # need to convert header in case of transposed
+                        if data_src.is_transpose:
+                            _, csv_cols, *_ = gen_dummy_header(org_csv_cols)
+                            csv_cols, _ = gen_colsname_for_duplicated(csv_cols)
+                        else:
+                            # for the column names with only spaces, we need to generate dummy headers for them
+                            _, csv_cols, _, partial_dummy_header, *_ = gen_dummy_header(org_csv_cols)
+                            csv_cols = normalize_list(csv_cols)
+                        # try to convert ➊ irregular number from csv columns
+                        csv_cols = [normalize_str(col) for col in csv_cols]
 
-                # add file for add suffix same show latest record
-                if proc_cfg.is_show_file_name:
-                    csv_cols.append(FILE_NAME)
-                    org_csv_cols.append(FILE_NAME)
-                if use_dummy_datetime:
-                    csv_cols.append(DATETIME_DUMMY)
-                    org_csv_cols.append(DATETIME_DUMMY)
+                    # add file for add suffix same show latest record
+                    if proc_cfg.is_show_file_name:
+                        csv_cols.append(FILE_NAME)
+                        org_csv_cols.append(FILE_NAME)
+                    if use_dummy_datetime:
+                        csv_cols.insert(0, DATETIME_DUMMY)
+                        org_csv_cols.insert(0, DATETIME_DUMMY)
 
-                csv_cols, with_dupl_cols, _is_gen_col = add_suffix_if_duplicated(csv_cols)
-                if not partial_dummy_header:
-                    partial_dummy_header = _is_gen_col
-                dic_csv_cols = dict(zip(csv_cols, with_dupl_cols, strict=False))
-                # add suffix to origin csv cols
-                org_csv_cols, *_ = add_suffix_if_duplicated(org_csv_cols)
-                dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols, strict=False))
+                    csv_cols, with_dupl_cols, _is_gen_col = add_suffix_if_duplicated(csv_cols)
+                    if not partial_dummy_header:
+                        partial_dummy_header = _is_gen_col
+                    dic_csv_cols = dict(zip(csv_cols, with_dupl_cols, strict=False))
+                    # add suffix to origin csv cols
+                    org_csv_cols, *_ = add_suffix_if_duplicated(org_csv_cols)
+                    dic_org_csv_cols = dict(zip(csv_cols, org_csv_cols, strict=False))
 
-            # missing_cols = set(dic_use_cols).difference(csv_cols)
-            # find same columns between csv file and db
-            valid_columns = list(set(dic_use_cols).intersection(csv_cols))
-            # re-arrange cols
-            valid_columns = [col for col in csv_cols if col in valid_columns]
-            dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns), strict=False))
-            missing_cols = [] if valid_columns else list(dic_use_cols.keys())
+                # missing_cols = set(dic_use_cols).difference(csv_cols)
+                # find same columns between csv file and db
+                valid_columns = list(set(dic_use_cols).intersection(csv_cols))
+                # re-arrange cols
+                valid_columns = [col for col in csv_cols if col in valid_columns]
+                dic_valid_csv_cols = dict(zip(valid_columns, [False] * len(valid_columns), strict=False))
+                missing_cols = [] if (valid_columns or is_abnormal) else list(dic_use_cols.keys())
 
-            if not is_v2_datasource:
-                valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
-                dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols, strict=False))
+                if not is_v2_datasource and not is_abnormal:
+                    valid_with_dupl_cols = [dic_csv_cols[col] for col in valid_columns]
+                    dic_valid_csv_cols = dict(zip(valid_columns, valid_with_dupl_cols, strict=False))
 
-            if dummy_datetime_col in missing_cols:
-                # remove dummy col before check
-                missing_cols.remove(dummy_datetime_col)
+                if dummy_datetime_col in missing_cols:
+                    # remove dummy col before check
+                    missing_cols.remove(dummy_datetime_col)
 
-            if missing_cols and not is_v2_datasource:
-                err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
+                if missing_cols and not is_v2_datasource:
+                    err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
 
-                import_target_info.error = err_msg
+                    import_target_info.error = err_msg
 
-                df_one_file = csv_to_df(
-                    transformed_file,
-                    data_src,
-                    head_skips,
-                    data_first_row,
-                    0,
-                    transformed_file_delimiter,
-                    dic_use_cols=dic_use_cols,
-                    encoding=encoding,
+                    df_one_file = csv_to_df(
+                        transformed_file,
+                        data_src,
+                        head_skips,
+                        data_first_row,
+                        0,
+                        transformed_file_delimiter,
+                        dic_use_cols=dic_use_cols,
+                        encoding=encoding,
+                    )
+
+                    if df_db_latest_records is None:
+                        df_db_latest_records = get_latest_records(proc_cfg)
+                    df_error_trace = gen_error_output_df(
+                        csv_file_name,
+                        dic_use_cols,
+                        get_df_first_n_last(df_one_file),
+                        df_db_latest_records,
+                        err_msg,
+                    )
+
+                    write_error_trace(df_error_trace, proc_cfg.name, csv_file_name)
+                    write_error_import(
+                        df_one_file,
+                        proc_cfg.name,
+                        csv_file_name,
+                        transformed_file_delimiter,
+                        data_src.directory,
+                    )
+
+                    archive_context_manager.mark_failed(idx, err_msg)
+                    yield from yield_job_info(job_info, csv_file_name, err_msgs=err_msg)
+                    error_type = DATA_TYPE_ERROR_MSG
+                    continue
+
+                # default_csv_param['usecols'] = [i for i, col in enumerate(valid_columns) if col]
+                if not data_src.dummy_header and not partial_dummy_header and not is_abnormal:
+                    default_csv_param['usecols'] = transform_duplicated_col_suffix_to_pandas_col(
+                        dic_valid_csv_cols,
+                        dic_org_csv_cols,
+                    )
+                    use_col_names = [col for col in valid_columns if col]
+                    # remove file name in usecols after add suffix
+                    if use_dummy_datetime:
+                        default_csv_param['usecols'] = default_csv_param['usecols'][1:]
+                        if dummy_datetime_col in use_col_names:
+                            use_col_names.remove(dummy_datetime_col)
+
+                    if proc_cfg.is_show_file_name:
+                        default_csv_param['usecols'] = default_csv_param.get('usecols')[:-1]
+                        use_col_names = use_col_names[:-1]
+                else:
+                    # dummy header
+                    default_csv_param['names'] = csv_cols
+                    if use_dummy_datetime:
+                        default_csv_param['names'] = default_csv_param['names'][1:]
+                    if proc_cfg.is_show_file_name:
+                        default_csv_param['names'] = default_csv_param.get('names')[:-1]
+
+                # read csv file
+                default_csv_param['dtype'] = {
+                    col: 'string'
+                    for col, col_cfg in dic_use_cols.items()
+                    if col in use_col_names
+                    and col_cfg.data_type
+                    in [
+                        DataType.TEXT.name,
+                        DataType.DATETIME.name,
+                        DataType.DATE.name,
+                        DataType.TIME.name,
+                    ]
+                }
+
+                # add more dtype columns in usecols
+                if 'usecols' in default_csv_param:
+                    for col_name in default_csv_param['usecols']:
+                        if col_name not in default_csv_param['dtype']:
+                            default_csv_param['dtype'][col_name] = 'string'
+
+                # add more dtype columns in names
+                if 'names' in default_csv_param:
+                    for col_name in default_csv_param['names']:
+                        if col_name not in default_csv_param['dtype']:
+                            default_csv_param['dtype'][col_name] = 'string'
+
+                if is_v2_datasource:
+                    datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(transformed_file)
+                    if datasource_type == DBType.V2_HISTORY:
+                        df_one_file = get_df_v2_process_single_file(
+                            transformed_file,
+                            process_name=data_src.process_name,
+                            datasource_type=datasource_type,
+                            is_abnormal_v2=is_abnormal_v2,
+                        )
+                    elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
+                        df_one_file = get_vertical_df_v2_process_single_file(
+                            transformed_file,
+                            process_name=data_src.process_name,
+                            datasource_type=datasource_type,
+                            is_abnormal_v2=is_abnormal_v2,
+                            is_en_cols=is_en_cols,
+                        )
+                    else:
+                        archive_context_manager.mark_success(idx)
+                        continue
+                        # raise NotImplementedError
+
+                    if df_one_file.empty:
+                        archive_context_manager.mark_success(idx)
+                        continue
+
+                    df_one_file, has_remaining_cols = prepare_to_import_v2_df(df_one_file, proc_cfg, datasource_type)
+
+                    if has_remaining_cols:
+                        dic_use_cols = get_config_sensor(proc_cfg)
+
+                elif not is_file_checker:
+                    # skip_rows = 0 if (is_abnormal or len(head_skips)) else data_src.skip_head
+                    df_one_file = csv_to_df(
+                        transformed_file,
+                        data_src,
+                        head_skips,
+                        data_first_row,
+                        0,
+                        transformed_file_delimiter,
+                        default_csv_param=default_csv_param,
+                        dic_use_cols=dic_use_cols,
+                        col_names=use_col_names,
+                        encoding=encoding,
+                        is_partial_dummy_header=partial_dummy_header,
+                    )
+                    # validate column name
+                    validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
+                elif is_file_checker:
+                    # update setting to get all records from file
+                    file_reader.update(
+                        filenames=[transformed_file],
+                        max_results=None,
+                        limit=None,
+                        headers=[],
+                        preview=False,
+                    )
+                    # extract data for EFA by file_checker
+                    file_header, file_data = file_reader.read_data_with_file_checker()
+                    if file_reader.is_valid:
+                        df_one_file = pd.DataFrame(file_data, columns=file_header)
+                        dic_use_cols_for_abnormal = dic_use_cols.copy()
+                        if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
+                            dic_use_cols_for_abnormal.pop(dummy_datetime_col)
+                        # remove unused columns
+                        df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
+
+                file_record_count = len(df_one_file)
+                import_target_info.file_record_count = file_record_count
+
+                if proc_cfg.is_import_file_name:
+                    df_one_file = add_column_file_name(df_one_file, csv_file_name, file_name_col=file_name_col)
+
+                # Save history even if the file is empty
+                dic_imported_row[idx] = (csv_file_name, file_record_count)
+
+                # no records
+                if not file_record_count:
+                    # Proceed to read the next file without showing a toast message.
+                    if csv_file_name in toast_skip:
+                        archive_context_manager.mark_success(idx)
+                        continue
+
+                    job_info.status = JobStatus.DONE
+                    job_info.empty_files = [csv_file_name]
+                    job_management.info.empty_files.append(csv_file_name)
+                    yield from yield_job_info(job_info, csv_file_name)
+                    job_info.empty_files = []
+                    archive_context_manager.mark_success(idx)
+                    continue
+
+                # add 3 columns machine, line, process for efa 1,2,4
+                if is_abnormal and not is_v2_datasource:
+                    header_source_file = transformed_file if is_temp_target else csv_file_name
+                    cols, vals = csv_data_with_headers(header_source_file, data_src)
+                    df_one_file[cols] = vals
+                    dic_use_cols_for_abnormal = dic_use_cols.copy()
+                    if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
+                        dic_use_cols_for_abnormal.pop(dummy_datetime_col)
+                    # remove unused columns
+                    df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
+
+                if use_dummy_datetime and dummy_datetime_col not in df_one_file.columns:
+                    df_one_file = gen_dummy_datetime(
+                        df_one_file,
+                        dummy_datetime_from,
+                        dummy_datetime_col=dummy_datetime_col,
+                    )
+                    dummy_datetime_from = get_next_datetime_value(df_one_file.shape[0], dummy_datetime_from)
+
+                # mark file
+                df_one_file[FILE_IDX_COL] = idx
+
+                # merge df
+                df = pd.concat([df, df_one_file], ignore_index=True)
+
+                # Flush only when chunk threshold is reached.
+                should_import_now = _should_import_now(
+                    df_size=df.size,
+                    chunk_size=chunk_size,
+                    _is_temp_target=is_temp_target,
                 )
+                if not should_import_now:
+                    continue
 
-                if df_db_latest_records is None:
-                    df_db_latest_records = get_latest_records(proc_cfg)
-                df_error_trace = gen_error_output_df(
-                    csv_file_name,
+                # calc percent
+                percent_per_commit = percent_per_file * len(dic_imported_row)
+
+                job_info.dic_imported_row = dic_imported_row
+                job_info.import_type = JobType.CSV_IMPORT.name
+                # do import
+                save_res, df_error, df_duplicate = import_df(
+                    proc_cfg,
+                    df,
                     dic_use_cols,
-                    get_df_first_n_last(df_one_file),
-                    df_db_latest_records,
-                    err_msg,
+                    get_date_col,
+                    job_info,
+                    trans_data,
+                    parent_cfg_process=cfg_parent_proc,
                 )
+                total_imported_row += save_res
+                if is_first_chunk:
+                    if register_by_file_request_id:
+                        data_register_data = {
+                            'RegisterByFileRequestID': register_by_file_request_id,
+                            'status': JobStatus.PROCESSING.name,
+                            'process_id': proc_id,
+                            'is_first_imported': True,
+                            'use_dummy_datetime': use_dummy_datetime,
+                        }
+                        EventQueue.put(
+                            EventBackgroundAnnounce(
+                                job_id=f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
+                                data=data_register_data,
+                                event=AnnounceEvent.DATA_REGISTER,
+                            ),
+                        )
+                    is_first_chunk = False
 
-                write_error_trace(df_error_trace, proc_cfg.name, csv_file_name)
-                write_error_import(
-                    df_one_file,
-                    proc_cfg.name,
-                    csv_file_name,
-                    transformed_file_delimiter,
-                    data_src.directory,
-                )
+                df_error_cnt = len(df_error)
 
-                yield from yield_job_info(job_info, csv_file_name, err_msgs=err_msg)
-                continue
+                if df_error_cnt:
+                    job_management.info.error(f'{df_error_cnt} error record count')
 
-            # default_csv_param['usecols'] = [i for i, col in enumerate(valid_columns) if col]
-            if not data_src.dummy_header and not partial_dummy_header:
-                default_csv_param['usecols'] = transform_duplicated_col_suffix_to_pandas_col(
-                    dic_valid_csv_cols,
-                    dic_org_csv_cols,
-                )
-                use_col_names = [col for col in valid_columns if col]
-                # remove file name in usecols after add suffix
-                if use_dummy_datetime:
-                    default_csv_param['usecols'] = default_csv_param['usecols'][:-1]
-                    if dummy_datetime_col in use_col_names:
-                        use_col_names.remove(dummy_datetime_col)
+                    if df_db_latest_records is None:
+                        df_db_latest_records = get_latest_records(proc_cfg)
+                    write_invalid_records_to_file(
+                        df_error,
+                        dic_imported_row,
+                        dic_use_cols,
+                        df_db_latest_records,
+                        proc_cfg,
+                        transformed_file_delimiter,
+                        data_src.directory,
+                    )
+                    error_type = DATA_TYPE_ERROR_MSG
 
-                if proc_cfg.is_show_file_name:
-                    default_csv_param['usecols'] = default_csv_param.get('usecols')[:-1]
-                    use_col_names = use_col_names[:-1]
-            else:
-                # dummy header
-                default_csv_param['names'] = csv_cols
-                if use_dummy_datetime:
-                    default_csv_param['names'] = default_csv_param['names'][:-1]
-                if proc_cfg.is_show_file_name:
-                    default_csv_param['names'] = default_csv_param.get('names')[:-1]
+                if df_duplicate is not None and len(df_duplicate):
+                    job_management.info.error(f'{len(df_duplicate)} duplicated record count')
 
-        # read csv file
-        default_csv_param['dtype'] = {
-            col: 'string'
-            for col, col_cfg in dic_use_cols.items()
-            if col in use_col_names
-            and col_cfg.data_type
-            in [
-                DataType.TEXT.name,
-                DataType.DATETIME.name,
-                DataType.DATE.name,
-                DataType.TIME.name,
-            ]
-        }
+                    error_type = DATA_TYPE_DUPLICATE_MSG
+                    write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
 
-        # add more dtype columns in usecols
-        if 'usecols' in default_csv_param:
-            for col_name in default_csv_param['usecols']:
-                if col_name not in default_csv_param['dtype']:
-                    default_csv_param['dtype'][col_name] = 'string'
+                total_percent = set_csv_import_percent(job_info, total_percent, percent_per_commit)
+                for _idx, (_csv_file_name, _imported_row) in dic_imported_row.items():
+                    # If this item corresponds to the current import_targets index,
+                    # it is safe to interrupt after yielding this update.
+                    is_safe_interrupt = _idx == idx
+                    yield from yield_job_info(
+                        job_info,
+                        _csv_file_name,
+                        _imported_row,
+                        save_res,
+                        df_error_cnt,
+                        is_safe_interrupt=is_safe_interrupt,
+                    )
+                    archive_context_manager.mark_success(_idx)
 
-        # add more dtype columns in names
-        if 'names' in default_csv_param:
-            for col_name in default_csv_param['names']:
-                if col_name not in default_csv_param['dtype']:
-                    default_csv_param['dtype'][col_name] = 'string'
-
-        df_one_file = pd.DataFrame()  # empty dataframe
-        if is_v2_datasource:
-            datasource_type, is_abnormal_v2, is_en_cols = get_v2_datasource_type_from_file(transformed_file)
-            if datasource_type == DBType.V2_HISTORY:
-                df_one_file = get_df_v2_process_single_file(
-                    transformed_file,
-                    process_name=data_src.process_name,
-                    datasource_type=datasource_type,
-                    is_abnormal_v2=is_abnormal_v2,
-                )
-            elif datasource_type in [DBType.V2, DBType.V2_MULTI]:
-                df_one_file = get_vertical_df_v2_process_single_file(
-                    transformed_file,
-                    process_name=data_src.process_name,
-                    datasource_type=datasource_type,
-                    is_abnormal_v2=is_abnormal_v2,
-                    is_en_cols=is_en_cols,
-                )
-            else:
-                continue
-                # raise NotImplementedError
-
-            if df_one_file.empty:
-                continue
-
-            df_one_file, has_remaining_cols = prepare_to_import_v2_df(df_one_file, proc_cfg, datasource_type)
-
-            if has_remaining_cols:
-                dic_use_cols = get_config_sensor(proc_cfg)
-
-        elif not is_file_checker:
-            # skip_rows = 0 if (is_abnormal or len(head_skips)) else data_src.skip_head
-            df_one_file = csv_to_df(
-                transformed_file,
-                data_src,
-                head_skips,
-                data_first_row,
-                0,
-                transformed_file_delimiter,
-                default_csv_param=default_csv_param,
-                dic_use_cols=dic_use_cols,
-                col_names=use_col_names,
-                encoding=encoding,
-                is_partial_dummy_header=partial_dummy_header,
-            )
-            # validate column name
-            validate_columns(dic_use_cols, df_one_file.columns, use_dummy_datetime, dummy_datetime_col)
-        elif is_file_checker:
-            # update setting to get all records from file
-            file_reader.update(
-                filenames=[transformed_file],
-                max_results=None,
-                limit=None,
-                headers=[],
-                preview=False,
-            )
-            # extract data for EFA by file_checker
-            file_header, file_data = file_reader.read_data_with_file_checker()
-            if file_reader.is_valid:
-                df_one_file = pd.DataFrame(file_data, columns=file_header)
-                dic_use_cols_for_abnormal = dic_use_cols.copy()
-                if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
-                    dic_use_cols_for_abnormal.pop(dummy_datetime_col)
-                # remove unused columns
-                df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
-
-        file_record_count = len(df_one_file)
-        import_target_info.file_record_count = file_record_count
-
-        if proc_cfg.is_import_file_name:
-            df_one_file = add_column_file_name(df_one_file, csv_file_name, file_name_col=file_name_col)
-
-        # Save history even if the file is empty
-        dic_imported_row[idx] = (csv_file_name, file_record_count)
-
-        # no records
-        if not file_record_count:
-            # Proceed to read the next file without showing a toast message.
-            if csv_file_name in toast_skip:
-                continue
-
-            job_info.status = JobStatus.DONE
-            job_info.empty_files = [csv_file_name]
-            job_management.info.empty_files.append(csv_file_name)
-            yield from yield_job_info(job_info, csv_file_name)
-            job_info.empty_files = []
+                # reset df (important!!!)
+                df = pd.DataFrame()
+                dic_imported_row = {}
+        except Exception as ex:
+            err_msg = str(ex)
+            import_target_info.error = err_msg
+            job_management.info.error(err_msg)
+            error_type = DATA_TYPE_ERROR_MSG
+            archive_context_manager.mark_all_failed(dic_imported_row.keys(), err_msg)
+            if idx not in dic_imported_row:
+                archive_context_manager.mark_failed(idx, err_msg)
+            yield from yield_job_info(job_info, csv_file_name, err_msgs=err_msg)
             continue
+        finally:
+            _cleanup_import_temp_file(transformed_file, is_temp_target)
 
-        # add 3 columns machine, line, process for efa 1,2,4
-        if is_abnormal and not is_v2_datasource:
-            cols, vals = csv_data_with_headers(csv_file_name, data_src)
-            df_one_file[cols] = vals
-            dic_use_cols_for_abnormal = dic_use_cols.copy()
-            if use_dummy_datetime and dummy_datetime_col in dic_use_cols_for_abnormal:
-                dic_use_cols_for_abnormal.pop(dummy_datetime_col)
-            # remove unused columns
-            df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
+    job_info.dic_imported_row = dic_imported_row
 
-        if use_dummy_datetime and dummy_datetime_col not in df_one_file.columns:
-            df_one_file = gen_dummy_datetime(df_one_file, dummy_datetime_from, dummy_datetime_col=dummy_datetime_col)
-            dummy_datetime_from = get_next_datetime_value(df_one_file.shape[0], dummy_datetime_from)
-
-        # mark file
-        df_one_file[FILE_IDX_COL] = idx
-
-        # merge df
-        df = pd.concat([df, df_one_file], ignore_index=True)
-
-        # 10K records
-        if df.size < chunk_size:
-            continue
-
-        # calc percent
-        percent_per_commit = percent_per_file * len(dic_imported_row)
-
-        job_info.dic_imported_row = dic_imported_row
-        job_info.import_type = JobType.CSV_IMPORT.name
-        # do import
-        save_res, df_error, df_duplicate = import_df(
-            proc_cfg,
-            df,
-            dic_use_cols,
-            get_date_col,
-            job_info,
-            trans_data,
-            parent_cfg_process=cfg_parent_proc,
-        )
-        total_imported_row += save_res
-        if is_first_chunk:
+    # do last import
+    if len(df):
+        try:
+            job_info.dic_imported_row = dic_imported_row
+            job_info.import_type = JobType.CSV_IMPORT.name
+            save_res, df_error, df_duplicate = import_df(
+                proc_cfg,
+                df,
+                dic_use_cols,
+                get_date_col,
+                job_info,
+                trans_data,
+                parent_cfg_process=cfg_parent_proc,
+            )
+            total_imported_row += save_res
             if register_by_file_request_id:
                 data_register_data = {
                     'RegisterByFileRequestID': register_by_file_request_id,
-                    'status': JobStatus.PROCESSING.name,
+                    'status': JobStatus.DONE.name,
                     'process_id': proc_id,
-                    'is_first_imported': True,
+                    'is_first_imported': is_first_chunk,
                     'use_dummy_datetime': use_dummy_datetime,
                 }
                 EventQueue.put(
@@ -630,113 +817,45 @@ def import_csv(
                         event=AnnounceEvent.DATA_REGISTER,
                     ),
                 )
-            is_first_chunk = False
 
-        df_error_cnt = len(df_error)
+            df_error_cnt = len(df_error)
+            if df_error_cnt:
+                job_management.info.error(f'{df_error_cnt} error record count found in last import')
+                error_type = DATA_TYPE_ERROR_MSG
+                if df_db_latest_records is None:
+                    df_db_latest_records = get_latest_records(proc_cfg)
+                write_invalid_records_to_file(
+                    df_error,
+                    dic_imported_row,
+                    dic_use_cols,
+                    df_db_latest_records,
+                    proc_cfg,
+                    transformed_file_delimiter,
+                    data_src.directory,
+                )
 
-        if df_error_cnt:
-            job_management.info.error(f'{df_error_cnt} error record count')
+            if df_duplicate is not None and len(df_duplicate):
+                error_type = DATA_TYPE_DUPLICATE_MSG
+                job_management.info.error(f'{len(df_duplicate)} duplicated record count found in last import')
+                write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
 
-            if df_db_latest_records is None:
-                df_db_latest_records = get_latest_records(proc_cfg)
-            write_invalid_records_to_file(
-                df_error,
-                dic_imported_row,
-                dic_use_cols,
-                df_db_latest_records,
-                proc_cfg,
-                transformed_file_delimiter,
-                data_src.directory,
-            )
-            error_type = DATA_TYPE_ERROR_MSG
+            for idx, (_csv_file_name, _imported_row) in enumerate(dic_imported_row.values()):
+                is_safe_interrupt = idx == len(dic_imported_row) - 1
+                yield from yield_job_info(
+                    job_info,
+                    _csv_file_name,
+                    _imported_row,
+                    save_res,
+                    df_error_cnt,
+                    is_safe_interrupt=is_safe_interrupt,
+                )
 
-        if df_duplicate is not None and len(df_duplicate):
-            job_management.info.error(f'{len(df_duplicate)} duplicated record count')
-
-            error_type = DATA_TYPE_DUPLICATE_MSG
-            write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
-
-        total_percent = set_csv_import_percent(job_info, total_percent, percent_per_commit)
-        for _idx, (_csv_file_name, _imported_row) in dic_imported_row.items():
-            # if _idx in `dic_imported_row` equal idx in `import_targets`, it means `_csv_file_name` item is the last
-            # item in `dic_imported_row` in last loop => ready to interrupt without remain item
-            is_safe_interrupt = _idx == idx
-            yield from yield_job_info(
-                job_info,
-                _csv_file_name,
-                _imported_row,
-                save_res,
-                df_error_cnt,
-                is_safe_interrupt=is_safe_interrupt,
-            )
-
-        # reset df (important!!!)
-        df = pd.DataFrame()
-        dic_imported_row = {}
-
-    job_info.dic_imported_row = dic_imported_row
-
-    # do last import
-    if len(df):
-        job_info.dic_imported_row = dic_imported_row
-        job_info.import_type = JobType.CSV_IMPORT.name
-        save_res, df_error, df_duplicate = import_df(
-            proc_cfg,
-            df,
-            dic_use_cols,
-            get_date_col,
-            job_info,
-            trans_data,
-            parent_cfg_process=cfg_parent_proc,
-        )
-        total_imported_row += save_res
-        if register_by_file_request_id:
-            data_register_data = {
-                'RegisterByFileRequestID': register_by_file_request_id,
-                'status': JobStatus.DONE.name,
-                'process_id': proc_id,
-                'is_first_imported': is_first_chunk,
-                'use_dummy_datetime': use_dummy_datetime,
-            }
-            EventQueue.put(
-                EventBackgroundAnnounce(
-                    job_id=f'{AnnounceEvent.DATA_REGISTER.name}_{proc_id}',
-                    data=data_register_data,
-                    event=AnnounceEvent.DATA_REGISTER,
-                ),
-            )
-
-        df_error_cnt = len(df_error)
-        if df_error_cnt:
-            job_management.info.error(f'{df_error_cnt} error record count found in last import')
-            error_type = DATA_TYPE_ERROR_MSG
-            if df_db_latest_records is None:
-                df_db_latest_records = get_latest_records(proc_cfg)
-            write_invalid_records_to_file(
-                df_error,
-                dic_imported_row,
-                dic_use_cols,
-                df_db_latest_records,
-                proc_cfg,
-                transformed_file_delimiter,
-                data_src.directory,
-            )
-
-        if df_duplicate is not None and len(df_duplicate):
-            error_type = DATA_TYPE_DUPLICATE_MSG
-            job_management.info.error(f'{len(df_duplicate)} duplicated record count found in last import')
-            write_duplicate_records_to_file(df_duplicate, dic_imported_row, dic_use_cols, proc_cfg.name, job_id)
-
-        for idx, (_csv_file_name, _imported_row) in enumerate(dic_imported_row.values()):
-            is_safe_interrupt = idx == len(dic_imported_row) - 1
-            yield from yield_job_info(
-                job_info,
-                _csv_file_name,
-                _imported_row,
-                save_res,
-                df_error_cnt,
-                is_safe_interrupt=is_safe_interrupt,
-            )
+            for context_idx in list(dic_imported_row):
+                archive_context_manager.mark_success(context_idx)
+        except Exception as ex:
+            err_msg = str(ex)
+            archive_context_manager.mark_all_failed(dic_imported_row.keys(), err_msg)
+            raise
 
     job_management.info.imported_row = total_imported_row
     if total_imported_row == 0:
@@ -757,6 +876,119 @@ def set_csv_import_percent(job_info, total_percent, percent_per_chunk):
         job_info.percent = ALMOST_COMPLETE_PERCENT
 
     return total_percent
+
+
+def _is_archive_file_path(file_path: str | Exception) -> bool:
+    return isinstance(file_path, str) and archive_handler.is_supported_archive_path(file_path)
+
+
+type StreamedImportFileResult = tuple[
+    str,
+    str | Exception,
+    bool,
+    RecursiveArchiveProcessor | None,
+    FileEntry | None,
+]  # (virtual_path, file_path or error, is_temp_file, processor, entry)
+
+
+def _cleanup_import_temp_file(file_path: str | Exception, is_temp_file: bool) -> None:
+    if not is_temp_file or not isinstance(file_path, str):
+        return
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+
+def _resolve_check_structure_target(
+    import_targets: list[tuple[str, str | Exception]],
+    import_target_iter: Iterator[StreamedImportFileResult],
+) -> tuple[Iterator[StreamedImportFileResult], str | None]:
+    """Resolve file path used for structure check without losing iterator items.
+
+    Prefer transformed non-archive paths from original targets.
+    If all original targets are archives, fallback to the first streamed item
+    (typically an extracted member path) and put it back to the iterator.
+    """
+    check_structure_target = next(
+        (
+            transformed_file
+            for _, transformed_file in reversed(import_targets)
+            if isinstance(transformed_file, str) and not _is_archive_file_path(transformed_file)
+        ),
+        None,
+    )
+    if check_structure_target is not None:
+        return import_target_iter, check_structure_target
+
+    first_item = next(import_target_iter, None)
+    if first_item is None:
+        return import_target_iter, None
+
+    _, transformed_file, *_ = first_item
+    if isinstance(transformed_file, str) and not _is_archive_file_path(transformed_file):
+        check_structure_target = transformed_file
+
+    return chain([first_item], import_target_iter), check_structure_target
+
+
+def _should_import_now(df_size: int, chunk_size: int, _is_temp_target: bool) -> bool:
+    """Decide whether buffered rows should be imported now."""
+    return df_size >= chunk_size
+
+
+def _is_root_archive_signature_success(process_id: int, archive_path: str) -> bool:
+    """Return True when root archive signature was already marked success."""
+    signature = archive_handler.build_archive_root_signature(archive_path)
+    if signature is None:
+        return False
+
+    return ImportProcessedSignatureTable.exists_success(
+        process_id=process_id,
+        virtual_path=signature.virtual_path,
+        file_modified_time=signature.file_modified_time,
+    )
+
+
+def _iter_import_targets_for_processing(
+    proc_id: int,
+    job_id: int | None,
+    import_targets: list[tuple[str, str | Exception]],
+) -> Generator[StreamedImportFileResult, None, None]:
+    """Yield import targets lazily.
+
+    Non-archive files are yielded directly.
+    Archive files are expanded per archive and yielded as extracted temp files.
+    """
+    # Archive dedup queries (`exists_success`) rely on this table.
+    # Ensure schema exists before any archive signature checks.
+    init_processed_signature_table(proc_id)
+
+    target_extensions = {CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value}
+    for csv_file_name, transformed_file in import_targets:
+        if not _is_archive_file_path(transformed_file):
+            yield csv_file_name, transformed_file, False, None, None
+            continue
+
+        if _is_root_archive_signature_success(proc_id, transformed_file):
+            continue
+
+        processor = RecursiveArchiveProcessor(
+            process_id=proc_id,
+            job_id=job_id,
+            archive_path=transformed_file,
+            target_extensions=target_extensions,
+            max_files=ARCHIVE_MAX_FILES_DEFAULT,
+        )
+        matched_files = 0
+        try:
+            for entry in processor.iter_streaming_entries():
+                matched_files += 1
+                yield entry.virtual_path, entry.temp_path, True, processor, entry
+        except Exception as ex:
+            yield csv_file_name, ex, False, None, None
+            continue
+
+        if matched_files == 0 and not processor.temp_files:
+            yield csv_file_name, Exception(EMPTY_ARCHIVE_ERROR_MSG), False, None, None
 
 
 @log_execution_time()
@@ -796,7 +1028,9 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
     toast_skip = []
     for file_name in all_files:
         if file_name in dic_error_file:
-            pass
+            modified_date, error_datetime = get_file_metadata(file_name, dic_error_file)
+            if modified_date <= error_datetime:
+                continue
 
         if file_name in dic_success_file:
             modified_date, imported_datetime = get_file_metadata(file_name, dic_success_file)
@@ -938,7 +1172,13 @@ def csv_to_df(
 @log_execution_time()
 def get_import_target_files(proc_id: int, data_src: CfgDataSourceCSV, trans_data: TransactionData, meta_con: SQLite3):
     dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, meta_con)
-    valid_extensions = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
+    valid_extensions = [
+        CSVExtTypes.CSV.value,
+        CSVExtTypes.TSV.value,
+        CSVExtTypes.SSV.value,
+        CSVExtTypes.ZIP.value,
+        CSVExtTypes.SEVEN_Z.value,
+    ]
     csv_files = []
     if data_src.is_file_path:
         if any(data_src.directory.lower().endswith(ext) for ext in valid_extensions):
@@ -1124,9 +1364,9 @@ def import_df(
     df = df.convert_dtypes()
 
     # Handle calculate data for main::Datetime, main::Serial function column
-    from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+    from ap.api.setting_module.services.import_function_column import handle_txn_function_columns
 
-    df = handle_main_function_columns(cfg_process, df)
+    df = handle_txn_function_columns(cfg_process, df)
 
     dic_date_time_data_type = {}
     for col, cfg_col in dic_use_cols.items():

@@ -9,6 +9,7 @@ from loguru import logger
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_serializer
 
 from ap import db
+from ap.api.setting_module.services.export_config import retry_export_job
 from ap.common.common_utils import (
     convert_time,
     generate_job_id,
@@ -78,7 +79,16 @@ class JobSerializedOutput(BaseModel):
     @property
     def job_name(self) -> str:
         # get job information and send to UI
-        return generate_job_id(JobType[self.job_type], process_id=self.process_id, data_source_id=self.db_code)
+        retry_count = getattr(self.info, 'retry_count', None) if hasattr(self, 'info') else None
+        export_id = getattr(self.info, 'export_id', None) if hasattr(self, 'info') else None
+
+        job_id = generate_job_id(
+            JobType[self.job_type], process_id=self.process_id, export_id=export_id, data_source_id=self.db_code
+        )
+        if retry_count:
+            job_id = f'{job_id}_RETRY{retry_count}'
+
+        return job_id
 
     @computed_field
     @property
@@ -190,6 +200,7 @@ def send_processing_info(
     is_check_disk=True,
     retry_if_fail: bool = False,
     retry_function_job=None,
+    export_id=None,
 ):
     """Send percent, status to client
 
@@ -208,8 +219,16 @@ def send_processing_info(
     # processing info
     dic_res: dict[int, JobSerializedOutput] = {job_management.id: job_output}
     real_job_id = generate_job_id(
-        job_type=job_type, process_id=job_management.process_id, data_source_id=job_management.db_code
+        job_type=job_type,
+        process_id=job_management.process_id,
+        data_source_id=job_management.db_code,
+        export_id=export_id,
     )
+
+    # Add retry suffix if this is a retry job
+    retry_count = getattr(job_management.info, 'retry_count', None) if job_management.info else None
+    if retry_count:
+        real_job_id = f'{real_job_id}_RETRY{retry_count}'
 
     prev_job_info = None
     notify_data_type_error_flg = True
@@ -277,6 +296,14 @@ def send_processing_info(
                 _, dic_cycle_ids, dic_edge_cnt = job_info
                 save_proc_link_count(job_management.id, dic_cycle_ids, dic_edge_cnt)
 
+            if job_type is JobType.DATA_EXPORT:
+                # update data export job status
+                if job_management.info.status:
+                    job_management.status = job_management.info.status
+
+                if job_management.status == JobStatus.FAILED.name:
+                    break
+
         except StopIteration:
             job_management = update_job_management(job_management)
 
@@ -294,6 +321,11 @@ def send_processing_info(
             logger.exception(e)
             if retry_if_fail:
                 add_retry_job(retry_function_job, job_type)
+
+            # Retry DATA_EXPORT job on failure
+            if job_type is JobType.DATA_EXPORT:
+                logger.info(f'{real_job_id}: DATA_EXPORT job failed, triggering retry logic')
+                retry_export_job(real_job_id)
             break
         finally:
             # notify if data type error greater than 100

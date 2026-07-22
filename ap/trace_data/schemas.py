@@ -380,6 +380,7 @@ class CommonParam:
         cate_col_ids=[],
         traincond_procs=None,
         is_order_by_time=True,
+        available_colors_id=[],
     ) -> None:
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
@@ -464,6 +465,7 @@ class CommonParam:
 
         # pca multiple filter condition
         self.traincond_procs = traincond_procs
+        self.available_colors_id = available_colors_id
 
 
 class DicParam:

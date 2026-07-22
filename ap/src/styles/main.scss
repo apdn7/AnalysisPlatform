@@ -1,0 +1,59 @@
+.filename-builder {
+    width: 100%;
+    .dropzone {
+        min-height: 35px;
+        border: 1px dashed #888;
+        padding: 4px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex: 1;
+        width: 100%;
+        background-color: #303030;
+
+        &.is-invalid {
+            border: 1px solid red;
+        }
+    }
+
+    .chip {
+        display: flex;
+        align-items: center;
+        gap: 0px;
+        background: #444;
+        padding: 0px 4px;
+        border-radius: 6px;
+        cursor: grab;
+        font-size: 13px;
+    }
+
+    .handle {
+        cursor: grab;
+    }
+
+    .remove-btn {
+        background: transparent;
+        border: none;
+        color: grey;
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+    .source-list {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .source-chip {
+        background: #666;
+        padding: 0px 4px;
+        border-radius: 6px;
+        cursor: grab;
+        font-size: 13px;
+    }
+}
+
+.flex-1 {
+    flex: 1;
+}

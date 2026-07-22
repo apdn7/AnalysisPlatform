@@ -33,6 +33,7 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
     const isCatLimited = setParam('isCatLimited', false);
     // y Log-scale
     const isLogScale = setParam('is_log_scale', false);
+    const isCategory = setParam('is_category', false);
 
     // ヒストグラムとY軸の範囲を合わせる
     let minY = setParam('minY', null);
@@ -378,6 +379,23 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
                 thresholdTr += genTRItems(i18n.maxVal, maxVal);
                 thresholdTr += genTRItems(i18n.minVal, minVal);
 
+                // show from, to N of slot
+                if (slotFrom && slotFrom[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('From', formatDateTime(slotFrom[dataPoint.dataIndex]));
+                }
+                if (slotTo && slotTo[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('To', formatDateTime(slotTo[dataPoint.dataIndex]));
+                }
+                if (slotCount && slotCount[dataPoint.dataIndex]) {
+                    thresholdTr += genTRItems('N', applySignificantDigit(slotCount[dataPoint.dataIndex]));
+                }
+            } else if (isThinData && isCategory) {
+                const yVal = getDatYVal(dataPoint, beforeRankValues, outlierDict);
+                if (isOutlierValue(dataPoint.dataIndex, outlierDict)) {
+                    thresholdTr += genTRItems(i18n.outlierVal, yVal);
+                } else {
+                    thresholdTr += genTRItems(i18n.value, yVal);
+                }
                 // show from, to N of slot
                 if (slotFrom && slotFrom[dataPoint.dataIndex]) {
                     thresholdTr += genTRItems('From', formatDateTime(slotFrom[dataPoint.dataIndex]));

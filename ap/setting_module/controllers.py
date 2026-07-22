@@ -1,4 +1,3 @@
-import json
 import os
 from json import dumps, loads
 
@@ -27,6 +26,7 @@ from ap.common.path_utils import (
     get_user_scripts_path,
     get_wrapr_path,
 )
+from ap.common.services.form_env import get_common_config_data
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.setting_module.models import CfgConstant, CfgDataSource
 from ap.setting_module.schemas import DataSourcePublicSchema
@@ -36,7 +36,6 @@ from ap.setting_module.services.process_config import (
     get_all_functions,
     get_all_process,
     get_all_process_no_nested,
-    get_process_columns,
 )
 
 # socketio = web_socketio[SOCKETIO]
@@ -185,15 +184,5 @@ def register_by_file_page():
 
 @setting_module_blueprint.route('/config/export_config')
 def export_config():
-    processes = get_all_process_no_nested(with_parent=False)
-    # generate english name for process
-    for proc_data in processes:
-        if not proc_data['name_en']:
-            proc_data['name_en'] = to_romaji(proc_data['name'])
-        column = get_process_columns(proc_data['id'], show_graph=False)
-        proc_data['columns'] = column
-    output_dict = {
-        'processes': processes,
-        'processesJs': json.dumps(processes),
-    }
+    output_dict = get_common_config_data()
     return render_template('export_config.html', **output_dict)

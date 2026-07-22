@@ -135,6 +135,10 @@ msgstr "選択"
 msgid "Do you want to delete this record?"
 msgstr "このレコードを削除しますか？"
 
+#: ap/templates/i18n.html
+msgid "this record"
+msgstr "このレコード"
+
 #: ap/templates/setting_module/db_config.html:152
 #: ap/templates/setting_module/trace_config.html:72
 #: ap/templates/setting_module/trace_config.html:88
@@ -639,6 +643,26 @@ msgstr "接続"
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per hour"
 msgstr "1時間に1回"
+
+#: ap/templates/i18n.html
+msgid "Once per 2 hours"
+msgstr "2時間に1回"
+
+#: ap/templates/i18n.html
+msgid "Once per 3 hours"
+msgstr "3時間に1回"
+
+#: ap/templates/i18n.html
+msgid "Once per 4 hours"
+msgstr "4時間に1回"
+
+#: ap/templates/i18n.html
+msgid "Once per 6 hours"
+msgstr "6時間に1回"
+
+#: ap/templates/i18n.html
+msgid "Once per 12 hours"
+msgstr "12時間に1回"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per day"
@@ -2172,11 +2196,11 @@ msgid "Aggregated by"
 msgstr "集計単位"
 
 # co-occurrence
-msgid "Hour"
+msgid "aggregateByHour"
 msgstr "1時間"
 
 # co-occurrence
-msgid "Day"
+msgid "aggregateByDay"
 msgstr "1日"
 
 #: ap/templates/templates/i18n.html
@@ -4203,6 +4227,10 @@ msgstr "ハイライトされたデータの最新20件の詳細が、グラフ�
 msgid "LinkConfigurationNotExist"
 msgstr "紐付け設定がされていないため、グラフが表示されません。"
 
+#: ap/templates/i18n.html
+msgid "ExportFileNotExportedNoLinkConfig"
+msgstr "紐付け設定がされていないため、ファイルエクスポートは実行できません。"
+
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "Japanese name is duplicated"
 msgstr "日本語名上で使用される変数名が重複しています。日本語名項目で重複がないように変更してください。"
@@ -4943,12 +4971,18 @@ msgstr ""
 "(“^”は次の文字が先頭であること、”$”は最後に付けてひとつ前の文字が末尾であること、”|”はORであることを意味します。\n"
 "※”は入力時は不要です)"
 
-#: ap/templates/i18n.html
+# : ap/templates/i18n.html
 msgid "HoverConversationFormulaMsg"
 msgstr ""
-"交換式を入力します。プロットエリアなどに表示されます。\n"
-"DataTypeが判定の場合は、変換式Pos~p0|Neg=p1|n1が表示されます。\n"
-"p0は正例の判定値の元データの値、p1は正例の表示値(製品の場合OK)、n1は負例の表示値(製品の場合NG)になります。"
+"判定結果の表記を定義する変換ルールです。グラフなどで使用されます。\n"
+"データ型が「判定」の場合、変換式（例：Pos=p0|p1、Neg=n1）が表示されます。\n"
+"\n"
+" - p0：正例の判定値 (例：良品）\n"
+" - p1：正例の表記値（例：OK）\n"
+" - n1：負例の表記値（例：NG）\n"
+"\n"
+"p0に一致するデータはp1に、一致しないデータはn1に変換されて表示されます。\n"
+"不良/クレーム履歴のように正例が存在しない場合は、p0をNullに設定してください。"
 
 #: ap/templates/i18n.html
 msgid "SelectJudgeDatatypeModalMsg"
@@ -5126,7 +5160,7 @@ msgstr "読込済のデータ行数が新しい上限を超える場合、時刻
 
 #: ap/templates/setting_module/export_config.html
 msgid "TitleDataExport"
-msgstr "データのエクスポート"
+msgstr "データ出力"
 
 #: ap/templates/sidebar.html
 msgid "SidebarTitleDataExport"
@@ -5304,4 +5338,170 @@ msgid "DataTypeEventsHint"
 msgstr ""
 "1回クリック：ドロップダウン表示\n"
 "2回クリック：セル選択"
+
+msgid "Export config saved successfully"
+msgstr "出力設定を保存しました。"
+
+#: ap/config/export_config
+msgid "Export Schedule"
+msgstr "出力スケジュール"
+
+msgid "Schedule Preview"
+msgstr "スケジュールプレビュー"
+
+msgid "Export Settings"
+msgstr "出力設定"
+
+msgid "Filename identifier"
+msgstr "ファイル名ラベル"
+
+msgid "Filename format"
+msgstr "ファイル名の構成"
+
+msgid "Column Name Type"
+msgstr "列名タイプ"
+
+msgid "Split file by"
+msgstr "ファイル分割単位"
+
+msgid "Sub-folder"
+msgstr "サブフォルダ"
+
+msgid "File format"
+msgstr "ファイル形式"
+
+msgid "ExportFileNameDragdropItemLabel"
+msgstr "ラベル"
+
+msgid "Filename Preview"
+msgstr "プレビュー"
+
+msgid "Failed to save export configuration"
+msgstr "出力設定の保存に失敗しました。"
+
+msgid "Period from"
+msgstr "期間から"
+
+msgid "Period to"
+msgstr "期間まで"
+
+msgid "Export past data since"
+msgstr "過去データの出力開始日時"
+
+msgid "Next 3 runs"
+msgstr "次回3回の実行予定"
+
+msgid "Run now"
+msgstr "今すぐ実行"
+
+msgid "Periodic"
+msgstr "定期実行"
+
+msgid "Timing"
+msgstr "タイミング"
+
+msgid "Main Process"
+msgstr "メインプロセス"
+
+msgid "Parameters"
+msgstr "パラメータ"
+
+msgid "Last run"
+msgstr "最終実行"
+
+msgid "Latest export data"
+msgstr "最新出力データ"
+
+msgid "Next run"
+msgstr "次回実行"
+
+msgid "Creator"
+msgstr "作成者"
+
+msgid "Update"
+msgstr "更新日時"
+
+msgid "PeriodicDay"
+msgstr "日"
+
+msgid "PeriodicHour"
+msgstr "時"
+
+msgid "Export Variables"
+msgstr "出力する変数"
+
+msgid "An unknown error occurred while validating the folder path."
+msgstr "フォルダパスの検証中に不明なエラーが発生しました。"
+
+msgid "Network error occurred. Please check your connection."
+msgstr "ネットワークエラーが発生しました。接続状況を確認してください。"
+
+msgid "The provided folder path is invalid."
+msgstr "指定されたフォルダパスは無効です。"
+
+msgid "The field must not be empty."
+msgstr "この項目は必須です。"
+
+msgid "Filename preview is empty."
+msgstr "ファイル名プレビューが空になっています。"
+
+msgid "Single"
+msgstr "1回実行"
+
+msgid "PeriodicMin"
+msgstr "分"
+
+msgid "Once every"
+msgstr "繰り返し"
+
+msgid "Begin at"
+msgstr "開始時"
+
+msgid "Begin From"
+msgstr "開始時"
+
+msgid "Daily"
+msgstr "日刊"
+
+msgid "Weekly"
+msgstr "週刊"
+
+msgid "Monthly"
+msgstr "月刊"
+
+msgid "Confirm export registration"
+msgstr "データ書出登録確認"
+
+msgid "Note: Corresponding processes will also be deleted:"
+msgstr "注：関連するプロセスも削除されます。"
+
+msgid "ExportSettingTitle"
+msgstr "設定タイトル"
+
+msgid "ExportFileNameIdentifierTooltipText"
+msgstr ""
+"ファイル名に付ける任意の文字列です。\n"
+"（構成で配置を指定できます）"
+
+msgid "ExportFileNameStructureTooltipText"
+msgstr "ファイル名の作り方を指定します（例：ラベル＋日付＋プロセス名）"
+
+msgid "ExportSubfolderTooltipText"
+msgstr ""
+"自動的にサブフォルダを作成し、ファイルを出力します。\n"
+"\n"
+"（例）\n"
+"日ごと：20260101\n"
+"週ごと：2026-W01（ISO週番号）\n"
+"月ごと：2026-01"
+
+msgid "ExportFileSplitTooltipText"
+msgstr ""
+"巨大なファイルの生成を避けるための機能です。\n"
+"指定した行数を越えた場合、\n"
+"またはファイルが100MBを超える可能性がある場合、\n"
+"データを複数のファイルに分割して出力します。\n"
+"\n"
+"分割した場合、ファイル名の末尾に通し番号が追加されます。\n"
+"(列: dat_1.csv, dat_2.csv)"
 

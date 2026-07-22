@@ -22,6 +22,8 @@ const colorScaleName = {
     JET_ABS_REV: 'JET_ABS_REV',
 };
 
+const CATEGORY_FUNCTION_ALLOWED_METHODS = ['ratio', 'count'];
+
 const formElements = {
     formID: '#traceDataForm',
     scatterBtn: '#scatter-btn',
@@ -35,7 +37,7 @@ const formElements = {
     condProcSelectedItem: '#cond-proc-row select',
     condProcReg: /cond_proc/g,
     NO_FILTER: 'NO_FILTER',
-    functionCate: '#function_cate',
+    functionCate: $('#function_cate'),
 };
 
 const scpChartType = {
@@ -277,6 +279,7 @@ $(() => {
         showCatExp: true,
         isRequired: true,
         showColor: true,
+        colorAsCheckbox: true,
         hasDiv: true,
         hideRealVariable: true,
         showFilter: true,
@@ -366,10 +369,9 @@ const validateDTypesForHMp = () => {
 
 const checkWrongColorType = () => {
     // Allow show HMP Heat Map graph with color map (z-axis) is [Ratio(%)] and [Count] when not select color variable
-    const includeOtherColor = ['ratio', 'count'];
-    const colorVarId = $('[name=colorVar]:checked').val();
-    const functionCate = $('#function_cate').val();
-    return !colorVarId && !includeOtherColor.includes(functionCate);
+    const colorVars = $('input[name^=colorVar]:checked').length;
+    const functionCate = formElements.functionCate.val();
+    return !colorVars && !CATEGORY_FUNCTION_ALLOWED_METHODS.includes(functionCate);
 };
 
 const hmpTracing = () => {
@@ -1214,6 +1216,16 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
         if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata[0].array_y)) {
             showToastrAnomalGraph();
         }
+
+        const isIncludeNoColorOption = CATEGORY_FUNCTION_ALLOWED_METHODS.includes(formElements.functionCate.val());
+        initAvailableColorVars(
+            res.available_colors,
+            () => {
+                const setting = getCurrentSettings();
+                scatterTraceData(false, setting);
+            },
+            isIncludeNoColorOption,
+        );
 
         setting = setInitScaleForJudge({ res, setting });
         await showSCP(res, setting, clearOnFlyFilter);

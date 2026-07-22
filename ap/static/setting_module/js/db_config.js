@@ -1497,9 +1497,46 @@ const addDBConfigRow = () => {
     // updateTableRowNumber(dbElements.tblDbConfig);
 };
 
+const dbConfigI18n = {
+    confirmDeleteRecord: $('#i18nConfirmDeleteThisRecord').text(),
+    thisRecord: $('#i18nThisRecord').text(),
+};
+
 const deleteRow = (self) => {
-    $('#deleteDSModal').modal('show');
     currentDSTR = $(self).closest('tr');
+    const dsName = currentDSTR.find('input[name="name"]').val() || currentDSTR.find('td:nth-child(2)').text().trim();
+    const dsNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${dsName} </span>`;
+
+    const messageDeleteDS = dsName
+        ? dbConfigI18n.confirmDeleteRecord.replace(dbConfigI18n.thisRecord, dsNameHtml)
+        : dbConfigI18n.confirmDeleteRecord;
+    $('#deleteDSModal .modal-inform').html(messageDeleteDS);
+    const dsId = currentDSTR.attr(csvResourceElements.dataSrcId);
+
+    // Show corresponding processes
+    showListProcessOfDS(dsId);
+    $('#deleteDSModal').modal('show');
+};
+
+const showListProcessOfDS = (dsId) => {
+    const processList = [];
+    $(`#tblProcConfig tr[data-ds-id=${dsId}]`).each(function () {
+        const procName =
+            $(this).find('input[name="processName"]').val() || $(this).find('td:nth-child(2)').text().trim();
+        if (procName) {
+            processList.push(procName);
+        }
+    });
+
+    if (processList.length > 0) {
+        $('#deleteDSProcessUl').empty();
+        processList.forEach((proc) => {
+            $('#deleteDSProcessUl').append(`<li style="border-bottom: 1px solid #444444; padding: 8px;">${proc}</li>`);
+        });
+        $('#deleteDSProcessList').show();
+    } else {
+        $('#deleteDSProcessList').hide();
+    }
 };
 
 const confirmDeleteDS = async () => {

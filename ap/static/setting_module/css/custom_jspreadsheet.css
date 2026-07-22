@@ -303,3 +303,65 @@
     background-image: none !important;
     text-decoration: none !important;
 }
+
+.jexcel tbody tr:hover td,
+.jexcel tbody tr:hover td.readonly,
+.jexcel tbody tr:hover td.disabled {
+    box-shadow:
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+}
+
+.jexcel tbody tr:hover td:first-child,
+.jexcel tbody tr:hover td.readonly:first-child,
+.jexcel tbody tr:hover td.disabled:first-child {
+    box-shadow:
+        inset 1px 0 0 white,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+}
+
+.jexcel tbody tr:hover td:last-child,
+.jexcel tbody tr:hover td.readonly:last-child,
+.jexcel tbody tr:hover td.column-delete-button.jexcel_row,
+.jexcel tbody tr:hover td.disabled:last-child {
+    box-shadow:
+        inset -1px 0 0 white,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+}
+
+.jexcel > tbody tr:hover td.jexcel_freezed:not(.disabled) {
+    background-color: #303030;
+    box-shadow:
+        2px 0 0 0 #ccc,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+    -webkit-box-shadow:
+        2px 0 0 0 #ccc,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+    -moz-box-shadow:
+        2px 0 0 0 #ccc,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+}
+
+.jexcel > tbody tr:hover td.jexcel_freezed:first-child:not(.disabled) {
+    background-color: #303030;
+    box-shadow:
+        2px 0 0 0 #ccc,
+        inset 1px 0 0 white,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+    -webkit-box-shadow:
+        2px 0 0 0 #ccc,
+        inset 1px 0 0 white,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+    -moz-box-shadow:
+        2px 0 0 0 #ccc,
+        inset 1px 0 0 white,
+        inset 0 1px 0 white,
+        inset 0 -1px 0 white !important;
+}

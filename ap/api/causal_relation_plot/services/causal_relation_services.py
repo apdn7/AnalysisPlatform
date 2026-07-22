@@ -1,6 +1,8 @@
 import collections
 from typing import Any, Union
 
+import pandas as pd
+
 from ap.api.causal_relation_plot.services.causal_discovery import CRPBarDict, CRPNetDict, preprocess_crppage
 from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
@@ -10,15 +12,23 @@ from ap.api.common.services.show_graph_services import (
     get_filter_on_demand_data,
     main_check_filter_detail_match_graph_data,
 )
+from ap.api.sankey_plot.sankey_glasso.sankey_services import clean_input_data, get_sensors_objective_explanation
 from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     DATA_SIZE,
+    DIC_BAR_KEY,
+    DIC_NET_KEY,
+    ERROR_COLS_KEY,
+    ERRORS_KEY,
     MATCHED_FILTER_IDS,
     NOT_EXACT_MATCH_FILTER_IDS,
+    NULL_PERCENT,
     REMOVED_OUTLIERS,
+    SELECTED_VARS,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
+    ZERO_VARIANCE,
     CacheType,
 )
 from ap.common.log import log_execution_time
@@ -106,12 +116,24 @@ def gen_graph_causal_relation(graph_param, dic_param, df=None):
     all_processes_ids_by_topo_order = graph_param.trace_graph.get_topological_order()
     order_index = {id_: i for i, id_ in enumerate(all_processes_ids_by_topo_order)}
     # Sort processes by topological order before processing
-    orig_graph_param.array_formval.sort(key=lambda x: order_index[x.proc_id])
+    orig_graph_param.array_formval.sort(key=lambda x: order_index.get(x.proc_id, x))
 
-    dic_param['dic_bar'] = {}
-    dic_param['dic_net'] = {}
+    dic_param[DIC_BAR_KEY] = {}
+    dic_param[DIC_NET_KEY] = {}
 
     if not df.empty:
+        dic_label_id, dic_id_name, _ = get_sensors_objective_explanation(orig_graph_param)
+        df_sensors: pd.DataFrame = df[dic_label_id.keys()]
+        df_sensors = df_sensors.rename(columns=dic_label_id)
+        df_sensors, data_clean, errors, err_cols, dic_null_percent = clean_input_data(df_sensors)
+        if not data_clean or errors:
+            dic_param[ERRORS_KEY] = errors
+            dic_param[ERROR_COLS_KEY] = err_cols
+            dic_param[NULL_PERCENT] = dic_null_percent
+            dic_param[ZERO_VARIANCE] = err_cols
+            dic_param[SELECTED_VARS] = dic_id_name
+
+            return dic_param
         df = df.dropna(how='any').reset_index(drop=True)
         objective_var = None
         explanation_vars = []

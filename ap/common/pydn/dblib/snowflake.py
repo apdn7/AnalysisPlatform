@@ -193,13 +193,17 @@ self.is_connected: {self.is_connected}
         if not self._check_connection():
             return False
         # Only list tables of default schema (default schema name can be got by "SCHEMA_NAME()")
-        sql = f'SHOW TABLES IN SCHEMA {self.dbname}.{self.schema};'
+        sql = (
+            f'SELECT table_catalog AS database_name, table_schema, table_name as name, table_type '
+            f'FROM {self.dbname}.information_schema.tables '
+            f"WHERE table_schema = '{self.schema.upper()}' AND table_type in ('BASE TABLE', 'VIEW');"
+        )
         cur = self.connection.cursor()
         cur.execute(sql)
         results = []
         rows = cur.fetchall()
         for row in rows:
-            results.append(row[1])
+            results.append(row[2])
         cur.close()
         return results
 

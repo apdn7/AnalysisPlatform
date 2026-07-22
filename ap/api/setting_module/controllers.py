@@ -17,12 +17,14 @@ from apscheduler.triggers.date import DateTrigger
 from flask import Blueprint, Response, jsonify, request
 from flask_babel import gettext as _
 from loguru import logger
+from pydantic import ValidationError
 from pytz import utc
 
 from ap import background_jobs, close_sessions, dic_config, max_graph_config, scheduler
 from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
 from ap.api.common.services.web_apis import APIConnection, check_web_con
 from ap.api.efa.services.etl import ETLException
+from ap.api.setting_module.schemas.export_config import ExportConfigSave
 from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
@@ -41,6 +43,7 @@ from ap.api.setting_module.services.equations import (
     EquationSampleData,
     validate_functions,
 )
+from ap.api.setting_module.services.export_config import ExportConfigService, calculate_next_run_time_for_preview
 from ap.api.setting_module.services.filter_settings import (
     delete_cfg_filter_by_ids,
     delete_cfg_filter_from_db,
@@ -50,7 +53,7 @@ from ap.api.setting_module.services.import_function_column import (
     MainSerialFunctionColumnHandler,
     add_new_columns_to_transaction_table,
     add_required_jobs_after_update_transaction_table,
-    get_main_function_column_handlers,
+    get_txn_function_column_handlers,
     update_transaction_table,
     update_transaction_table_job,
 )
@@ -99,7 +102,6 @@ from ap.common.clean_expired_request import add_job_delete_expired_request
 from ap.common.common_utils import (
     SQLiteFormatStrings,
     WebAuthenticationType,
-    get_current_timestamp,
     get_hostname,
     is_ja_locale,
     is_none_or_empty,
@@ -108,6 +110,7 @@ from ap.common.common_utils import (
 from ap.common.constants import (
     ANALYSIS_INTERFACE_ENV,
     DATA_CACHE_FOLDER,
+    DATE_FORMAT_SIMPLE,
     DEFAULT_IMPORT_LIMIT,
     EMPTY_STRING,
     FILE_NAME,
@@ -128,6 +131,7 @@ from ap.common.constants import (
     DBType,
     DefinedLabel,
     Encoding,
+    ExportCfgEnum,
     FormulaType,
     JobStatus,
     JobType,
@@ -169,7 +173,7 @@ from ap.common.services.normalization import remove_non_ascii_chars
 from ap.common.services.sse import MessageAnnouncer
 from ap.conversion_formula import JudgeFormula, conversion_formula, gen_formula_type
 from ap.import_filter.utils import get_import_filters_from_process
-from ap.setting_module.dtos import SearchParamsDTO
+from ap.setting_module.dtos import ExportConfigPeriodicDTO, SearchParamsDTO
 from ap.setting_module.models import (
     AppLog,
     CfgConstant,
@@ -188,7 +192,6 @@ from ap.setting_module.schemas import (
     CfgUserSettingSchema,
     DataSourcePublicSchema,
     DataSourceSchema,
-    ExportConfigSchema,
     LabelSchema,
     ProcessSchema,
     ProcessVisualizationSchema,
@@ -537,7 +540,8 @@ def show_latest_records():
             column_changed_message = None
             if old_cols_from_file is not None:
                 new_cols = [col['column_name'] for col in cols_with_types]
-                if set(old_cols_from_file) != set(new_cols) or old_cols_from_file != new_cols:
+                # set comparison for elements
+                if set(old_cols_from_file) != set(new_cols):
                     column_changed_message = _(
                         'The data source columns have changed. The imported data may no longer be accurate.'
                         ' Please reinitialize the process and re-register.'
@@ -659,7 +663,13 @@ def check_folder():
         data = request.json.get('url')
         is_file = request.json.get('isFile') or False
         is_existing = os.path.isfile(data) if is_file else (os.path.isdir(data) and os.path.exists(data))
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value, CSVExtTypes.ZIP.value]
+        extension = [
+            CSVExtTypes.CSV.value,
+            CSVExtTypes.TSV.value,
+            CSVExtTypes.SSV.value,
+            CSVExtTypes.ZIP.value,
+            CSVExtTypes.SEVEN_Z.value,
+        ]
         is_valid_file = True
         if not is_file:
             os.listdir(data)
@@ -1028,7 +1038,7 @@ def post_proc_config():
                 # feature work normally
                 add_new_columns_to_transaction_table(process, meta_session=session)
 
-                main_function_column_handlers = get_main_function_column_handlers(process=process)
+                main_function_column_handlers = get_txn_function_column_handlers(process=process)
                 is_show_warning_message = False
                 for handler in main_function_column_handlers:
                     if isinstance(handler, MainSerialFunctionColumnHandler):
@@ -1767,6 +1777,7 @@ def get_function_infos():
             'output': function_detail.return_type,
             'isMainSerialNo': False if m_function.is_me_function else process_col.is_serial_no,
             'isMainDatetime': False if m_function.is_me_function else process_col.is_get_date,
+            'isPhysicalFuncCol': False if m_function.is_me_function else process_col.is_physical_func_col,
             'systemName': process_col.name_en,
             'japaneseName': process_col.name_jp,
             'localName': process_col.name_local,
@@ -2127,27 +2138,97 @@ def update_import_limit():
 
 @api_setting_module_blueprint.route('/export_config', methods=['POST'])
 def post_export_config():
-    try:
-        export_config: CfgExport = ExportConfigSchema().loads(request.data)
-        export_config.updated_at = get_current_timestamp()
-        with make_session() as session:
-            export_config = session.merge(export_config)
-        add_export_job(export_config)
-    except Exception as e:
-        logger.exception(e)
-        message = {'message': f'Export setting failed to save. Reason: {e}', 'is_error': True}
-        return jsonify(flask_message=message), 500
+    """API Endpoint: Save export configuration (create or update).
 
-    message = {'message': _('Export setting saved.'), 'is_error': False}
-    config_data = ExportConfigSchema().dumps(export_config)
-    return jsonify(export_config=config_data, flask_message=message), 200
+    Request Body:
+        {
+            "config": {
+                "id": int | null,
+                "type": "ONCE" | "PERIODIC",
+                "title": str,
+                ...
+            },
+            "periodic": {
+                "interval_type": "DAY" | "HOUR",
+                "interval_value": int,
+                ...
+            } (optional, required if type is PERIODIC)
+        }
+
+    Returns:
+        200: Export config saved successfully
+        400: Invalid request data
+        404: Export config not found (for updates)
+        500: Server error
+    """
+    try:
+        # Parse and validate request data
+        data = request.get_json()
+        if not data:
+            return jsonify(flask_message={'message': 'No data provided', 'is_error': True}), 400
+
+        # Validate export config data
+        try:
+            export_config = ExportConfigSave(**data.get(ExportCfgEnum.CONFIG, {}))
+        except Exception as e:
+            logger.error(f'Invalid export config data: {e}')
+            return jsonify(flask_message={'message': f'Invalid config data: {e}', 'is_error': True}), 400
+
+        # Determine if this is create or update
+        is_update = export_config.id is not None
+
+        # For updates, verify record exists
+        if is_update:
+            existing_config = CfgExport.get_by_id(export_config.id)
+            if not existing_config:
+                return jsonify(
+                    flask_message={'message': f'Export config not found with ID: {export_config.id}', 'is_error': True}
+                ), 404
+
+        # Save export config with periodic cycle in single transaction
+        with make_session() as session:
+            try:
+                # Handle periodic cycle if needed
+                periodic_id = ExportConfigService.handle_periodic_cycle(session, export_config, data)
+
+                # Save or update export config
+                cfg_export = ExportConfigService.save_export_config(session, export_config, periodic_id, is_update)
+
+                # Commit transaction
+                session.commit()
+                session.refresh(cfg_export)
+
+                # Format for response
+                export_config_data = ExportConfigService.format_export_config(cfg_export)
+
+            except Exception:
+                session.rollback()
+                raise
+
+        # Schedule export job if needed
+        try:
+            add_export_job(cfg_export, export_config.run_now)
+        except Exception as e:
+            logger.warning(f'Failed to schedule export job: {e}')
+            # Don't fail the request if job scheduling fails
+
+        message = {'message': _('Export setting saved successfully.'), 'is_error': False}
+        return jsonify(export_config=export_config_data, flask_message=message), 200
+
+    except ValueError as e:
+        logger.error(f'Validation error: {e}')
+        return jsonify(flask_message={'message': str(e), 'is_error': True}), 400
+
+    except Exception as e:
+        logger.exception(f'Failed to save export config: {e}')
+        return jsonify(flask_message={'message': f'Failed to save export setting: {e!s}', 'is_error': True}), 500
 
 
 @api_setting_module_blueprint.route('/export_config', methods=['GET'])
 def get_export_config():
     try:
         export_configs: list[CfgExport] = CfgExport.get_all()
-        config_data = [ExportConfigSchema().dumps(export_config) for export_config in export_configs]
+        config_data = [ExportConfigService.format_export_config(export_config) for export_config in export_configs]
     except Exception as e:
         logger.exception(e)
         message = {'message': f'Export setting failed to save. Reason: {e}', 'is_error': True}
@@ -2157,13 +2238,21 @@ def get_export_config():
     return jsonify(export_configs=config_data, flask_message=message), 200
 
 
+@api_setting_module_blueprint.route('/get_export_config_detail/<export_config_id>', methods=['GET'])
+def get_export_config_detail(export_config_id):
+    config_id = int(export_config_id) or None
+    cfg_export = CfgExport.get_by_id(config_id=config_id)
+    export_config = ExportConfigService.get_export_setting(cfg_export) if cfg_export else None
+    return jsonify(export_config), 200
+
+
 @api_setting_module_blueprint.route('/export_config/<export_config_id>', methods=['DELETE'])
 def delete_export_config(export_config_id):
     config_id = int(export_config_id) or None
     cfg_export: CfgExport = CfgExport.get_by_id(config_id)
     EventQueue.put(
         EventRemoveJobs(
-            job_types=JobType.jobs_include_export_id(), process_id=cfg_export.process_id, export_id=cfg_export.id
+            job_types=JobType.jobs_include_export_id(), process_id=cfg_export.process.id, export_id=config_id
         )
     )
     try:
@@ -2173,6 +2262,25 @@ def delete_export_config(export_config_id):
         logger.exception(e)
         return jsonify({}), 500
     return jsonify({}), 200
+
+
+@api_setting_module_blueprint.route('/export_config_preview', methods=['POST'])
+def export_config_schedule_preview():
+    try:
+        payload = ExportConfigPeriodicDTO(**request.json)
+        first, second, third = calculate_next_run_time_for_preview(payload, client_timezone=payload.client_timezone)
+        data = [
+            first.strftime(DATE_FORMAT_SIMPLE),
+            second.strftime(DATE_FORMAT_SIMPLE),
+            third.strftime(DATE_FORMAT_SIMPLE),
+        ]
+        return jsonify(data=data), 200
+    except ValidationError as exc:
+        logger.exception(exc)
+        error_fields = []
+        for err in exc.errors():
+            error_fields.append(err['loc'][0])
+        return jsonify(errors=error_fields), 400
 
 
 @api_setting_module_blueprint.route('/check_folder_path', methods=['POST'])
@@ -2185,7 +2293,7 @@ def check_export_folder_path():
             message = _('Folder path is required.')
         elif not os.path.exists(folder_path):
             is_valid = False
-            message = _('Folder path does not exist.')
+            message = _('Folder does not exist')
         else:
             # Create a temporary file in the given folder
             with tempfile.TemporaryFile(dir=folder_path):

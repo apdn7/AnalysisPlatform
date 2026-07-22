@@ -18,19 +18,30 @@
 {% endblock %}
 
 {% block midbody %}
-    <div class="export-list-content mt-2" id="export-list-content">
-        <div class="add-export-btn-wrap export-content">
-            <button id="btnAddExportContent" name="btnAddExportContent" onclick="" type="button" class="btn simple-btn">
-                <i class="fas fa-plus-circle"></i>
-            </button>
-        </div>
+    <div class="card monitor-icons">
+        <form class="GUIForm" id="exportDataForm" onSubmit="return false;">
+            {{ macros.end_proc(procs,'', showStartProc=true, label_i18n_key=_('Export Variables'), showPaste=false) }}
+            {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true, showPaste=false) }}
+            {{ macros.data_finder_card() }}
+            <div class="react-root" data-component="ExportConfig"></div>
+            <br class="graph-navi graph-navi-top-down" />
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                {{ macros.order_btn() }}
+                {{ macros.preprocess_options(exception=False, outlier=False, pulsed=False, dup=True) }}
+                <div id="register-button-portal"></div>
+            </div>
+            <br class="graph-navi graph-navi-top-down" />
+            {{ macros.end_col_order_modal() }}
+        </form>
+        <div class="react-root" data-component="ExportSettingTableComponent"></div>
     </div>
 {% endblock %}
 
 {% block js %}
     <!-- prettier-ignore-start -->
     <script>
-        const procJsons = {{ processesJs | safe }};
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
         const procConfigs = {};
         for (let procJson of procJsons) {
             const cfgProcess = new CfgProcess(procJson);

@@ -29,13 +29,14 @@ from ap.api.common.services.show_graph_services import (
     is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import gen_sql_label, get_x_y_info
+from ap.common.common_utils import gen_sql_label, get_x_y_info, select_between_color_and_temp_color
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
     ARRAY_X,
     ARRAY_Y,
     ARRAY_Z,
+    AVAILABLE_COLORS,
     CHART_INFOS,
     CHART_TYPE,
     COLOR_BAR_TTTLE,
@@ -152,6 +153,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         temp_serial_column,
         temp_serial_order,
         *_,
+        temp_color_var,
         matrix_col,
         color_order,
     ) = customize_dic_param_for_reuse_cache(dic_param)
@@ -172,7 +174,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     )
 
     # get xy info
-    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(orig_graph_param.array_formval, dic_param[COMMON])
+    scatter_xy_ids, scatter_xy_names, scatter_proc_ids = get_x_y_info(orig_graph_param, dic_param[COMMON])
 
     x_proc_id = scatter_proc_ids[0]
     y_proc_id = scatter_proc_ids[-1]
@@ -183,7 +185,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     x_label = gen_sql_label(x_id, x_name)
     y_label = gen_sql_label(y_id, y_name)
 
-    color_id = orig_graph_param.common.color_var
+    color_id = select_between_color_and_temp_color(temp_color_var, orig_graph_param)
     cat_div_id = orig_graph_param.common.div_by_cat
     level_ids = cat_exp if cat_exp else orig_graph_param.common.cat_exp
     col_ids = [col for col in list({x_id, y_id, color_id, cat_div_id, *level_ids}) if col]
@@ -544,6 +546,10 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     dic_param[SERIALS] = serial_data
     dic_param[DATETIME] = datetime_data
     dic_param[START_PROC] = start_proc_name
+    dic_param[AVAILABLE_COLORS] = [
+        {'id': col_id, 'column_name': graph_param.get_col_cfg(col_id).shown_name}
+        for col_id in graph_param.common.available_colors_id
+    ]
 
     dic_param = get_filter_on_demand_data(dic_param)
 

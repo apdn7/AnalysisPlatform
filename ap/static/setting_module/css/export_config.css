@@ -146,3 +146,58 @@ input[name^='data-finder-input'] {
     padding-right: 0 !important;
     padding-left: 0 !important;
 }
+
+.export-settings .form-group {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+}
+
+.export-settings label {
+    width: fit-content;
+    white-space: pre;
+    margin-right: 10px;
+    margin-bottom: 0;
+}
+
+.export-settings label h5 {
+    margin-bottom: 0;
+}
+
+.export-data-from .datetimepicker {
+    width: 215px;
+}
+
+.drag-item {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #888;
+    border-radius: 5px;
+    cursor: grab;
+    user-select: none;
+    transition: 0.2s all;
+    white-space: nowrap;
+}
+
+.drag-item:hover {
+    background-color: #555;
+    border-color: #aaa;
+}
+
+.drag-item.dragging {
+    opacity: 0.4;
+}
+
+.drop-zone {
+    min-width: 500px;
+    min-height: 50px;
+    border: 2px dashed #666;
+    border-radius: 5px;
+    padding: 6px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    align-items: center;
+}

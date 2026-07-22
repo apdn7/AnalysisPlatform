@@ -549,6 +549,22 @@
                                                 {{ _("main::Serial") }}
                                             </label>
                                         </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                class="custom-control-input"
+                                                name="isPhysicalFuncColumn"
+                                                id="is_physical_func_column"
+                                                onclick="handlerClickIsPhysicalFuncColumn(this)"
+                                            />
+                                            <label
+                                                class="custom-control-label hint-text"
+                                                for="is_physical_func_column"
+                                                title="{{ _('mainSerialCheckboxHover') }}"
+                                            >
+                                                {{ _("Serial") }}
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">

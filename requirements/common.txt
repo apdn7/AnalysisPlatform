@@ -31,6 +31,7 @@ oracledb==3.2.0
 orjson==3.10.10
 pandas[performance]==2.2.3
 psycopg2==2.9.10
+py7zr==1.1.0
 pyarrow==23.0.0
 pydantic==2.9.2
 pymssql==2.3.11

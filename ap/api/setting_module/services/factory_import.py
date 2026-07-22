@@ -345,9 +345,9 @@ def factory_import(proc_id, job_management: JobManagement):
                 target_get_date_col = parent_cfg_proc.get_date_col()
 
             # Handle calculate data for main::Serial function column
-            from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+            from ap.api.setting_module.services.import_function_column import handle_txn_function_columns
 
-            df = handle_main_function_columns(target_cfg_process, df)
+            df = handle_txn_function_columns(target_cfg_process, df)
 
             # remove duplicate records which exists DB
             df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
@@ -900,9 +900,9 @@ def factory_past_import(proc_id: int, job_management: JobManagement):
             target_get_date_col = parent_cfg_proc.get_date_col()
 
         # Handle calculate data for main::Serial function column
-        from ap.api.setting_module.services.import_function_column import handle_main_function_columns
+        from ap.api.setting_module.services.import_function_column import handle_txn_function_columns
 
-        df = handle_main_function_columns(target_cfg_process, df)
+        df = handle_txn_function_columns(target_cfg_process, df)
 
         # remove duplicate records which exists DB
         df, df_duplicate = remove_duplicates(df, orig_df, df_error, target_cfg_process, target_get_date_col)
