@@ -5,7 +5,7 @@
 # Analysis Platform
 
 ```
-2026-7-20: version 4.9.4
+2026-9-29: version 4.9.5
 ```
 
 Analysis Platform is an open source web application to import, connect and visualize factory IoT data. It helps to collect, link and integrate data from multiple data sources.
