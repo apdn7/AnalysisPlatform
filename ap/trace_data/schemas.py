@@ -5,7 +5,6 @@ from typing import Optional
 
 from ap.api.common.services.utils import get_col_cfg
 from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     COL_DATA_TYPE,
     DATA_GROUP_TYPE,
@@ -323,6 +322,7 @@ class CommonParam:
     outliers = None
 
     is_order_by_time: bool
+    category_aggregated: str
 
     def __init__(
         self,
@@ -350,6 +350,8 @@ class CommonParam:
         color_var=None,
         div_by_data_number=None,
         div_by_cat=None,
+        div_size=None,
+        div_orientation=None,
         cyclic_div_num=None,
         cyclic_window_len=None,
         cyclic_interval=None,
@@ -381,6 +383,8 @@ class CommonParam:
         traincond_procs=None,
         is_order_by_time=True,
         available_colors_id=[],
+        layout=None,
+        category_aggregated=None,
     ) -> None:
         self.start_proc = int(start_proc) if str(start_proc).isnumeric() else None
         self.start_date = start_date
@@ -404,6 +408,7 @@ class CommonParam:
         self.cate_procs = cate_procs
         self.threshold_boxes = [int(filter_detail_id) for filter_detail_id in threshold_boxes if filter_detail_id]
         self.is_order_by_time = is_order_by_time
+        self.category_aggregated = category_aggregated
 
         if not cat_exp:
             self.cat_exp = []
@@ -417,6 +422,10 @@ class CommonParam:
         self.color_var = int(color_var) if color_var else None
         self.div_by_data_number = int(div_by_data_number) if div_by_data_number else None
         self.div_by_cat = int(div_by_cat) if div_by_cat else None
+        # MAP-only: number of sub-panels per Div group (2, 3, or 6). None on every other page.
+        self.div_size = int(div_size) if div_size else None
+        # MAP-only: 0 (default) = vertical, 1 = horizontal. Independent of the legacy Transpose toggle.
+        self.div_orientation = int(div_orientation) if div_orientation else 0
 
         self.cyclic_div_num = int(cyclic_div_num) if cyclic_div_num else None
         self.cyclic_window_len = float(cyclic_window_len) if cyclic_window_len else None
@@ -466,6 +475,7 @@ class CommonParam:
         # pca multiple filter condition
         self.traincond_procs = traincond_procs
         self.available_colors_id = available_colors_id
+        self.layout = layout
 
 
 class DicParam:
@@ -637,9 +647,11 @@ class DicParam:
         return []
 
     def get_div_cols_label(self):
+        """Return the stable DataFrame key for the configured division column."""
         if self.common.div_by_cat:
             div_col = self.get_col_cfg(self.common.div_by_cat)
-            return gen_sql_label(div_col.id, div_col.column_name)
+            # Division data is a normal SQL result, not a derived category label.
+            return div_col.bridge_column_name
         return None
 
     def add_datetime_col_to_start_proc(self):
@@ -701,12 +713,14 @@ class DicParam:
         return int(color_id)
 
     def get_color_info(self, target_var, shown_name=False):
+        """Return color metadata and the stable normal-result key for a target variable."""
         color_id = self.get_color_id(target_var)
         if not color_id:
             return None, None, None
 
         color_col = self.get_col_info_by_id(color_id)
-        color_label = gen_sql_label(color_id, color_col[END_COL_NAME])
+        # Resolve through column metadata so display-name changes do not alter DataFrame lookup.
+        color_label = self.gen_label_from_col_id(color_id)
 
         if not shown_name:
             return color_col[END_COL_NAME] or None, color_col[DATA_GROUP_TYPE], color_label
@@ -722,10 +736,11 @@ class DicParam:
         return self.dic_col_cfgs.get(int(col_id))
 
     def gen_label_from_col_id(self, col_id: int) -> str | None:
+        """Return the effective physical or virtual result key for a configured column ID."""
         col = self.get_col_cfg(col_id)
         if not col:
             return None
-        return col.gen_sql_label()
+        return col.runtime_column_name
 
     def add_ng_condition_to_array_formval(self, as_target_sensor=False):
         if self.common.judge_var:

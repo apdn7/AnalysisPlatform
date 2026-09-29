@@ -15,6 +15,61 @@ const orderingEls = {
     endColOrderModalCancelBtn: '.btnEndColOrderModalCancel',
 };
 
+let sortOrderRenderToken = 0;
+const SORT_ORDER_RENDER_BATCH_SIZE = 100;
+
+const initSortOrderTable = (tableId) => {
+    const tableBody = $(`${tableId} tbody`);
+    if (tableBody.hasClass('ui-sortable')) {
+        tableBody.sortable('destroy');
+    }
+    tableBody.sortable({
+        helper: dragDropRowInTable.fixHelper,
+        update: () => {
+            updatePriority(tableId);
+        },
+    });
+};
+
+const resetSortOrderTable = (tableId) => {
+    const tableBody = $(`${tableId} tbody`);
+    if (tableBody.hasClass('ui-sortable')) {
+        tableBody.sortable('destroy');
+    }
+    tableBody.empty();
+};
+
+const finalizeSortOrderTable = (tableId) => {
+    $(`${tableId} thead .filter-row`).remove();
+    sortableTable(tableId.replace('#', ''), [0, 1, 2, 3, 4, 5]);
+};
+
+const setSortOrderLoadingState = (graphArea = '', isLoading = false, allowSubmit = true) => {
+    const okBtnSelector = orderingEls.endColOrderModalOkBtn + graphArea;
+    if (isLoading) {
+        $(okBtnSelector).prop('disabled', true);
+        $(okBtnSelector).removeClass('btn-primary');
+        $(okBtnSelector).addClass('btn-secondary');
+        return;
+    }
+
+    $(okBtnSelector).prop('disabled', !allowSubmit);
+    $(okBtnSelector).toggleClass('btn-primary', allowSubmit);
+    $(okBtnSelector).toggleClass('btn-secondary', !allowSubmit);
+};
+
+const showSortOrderLoadingRow = (tableId, graphArea = '') => {
+    const colSpan = graphArea ? 6 : 7;
+    const loadingText = (window.i18nCommon && window.i18nCommon.loading) || 'Loading...';
+    const loadingRowHtml = `<tr class="sort-order-loading-row">
+        <td colspan="${colSpan}" class="text-center py-4">
+            <span class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+            <span>${loadingText}</span>
+        </td>
+    </tr>`;
+    $(`${tableId} tbody`).html(loadingRowHtml);
+};
+
 const sortListByKey = (array, key) => {
     return [...array].sort((a, b) => {
         const valueA = a[key];
@@ -94,13 +149,21 @@ const getSelectedEndProcIds = () => {
     return procIds;
 };
 
-const generateSortOrderColumn = (sortList, graphArea, tableID = orderingEls.endColOrderTable) => {
+const generateSortOrderColumn = (sortList, graphArea, tableID = orderingEls.endColOrderTable, renderToken = 0) => {
     if (graphArea) {
         sortList = [...latestSortColIds];
     }
-    let isReset = true;
-    if (!sortList.length) {
-        $(`${tableID + graphArea} tbody`).empty();
+    const tableId = tableID + graphArea;
+
+    const safeToken = renderToken || ++sortOrderRenderToken;
+    const tableBody = $(`${tableId} tbody`);
+    resetSortOrderTable(tableId);
+
+    if (!sortList.length || !tableBody.length) {
+        $(`${tableId} tbody`).empty();
+        finalizeSortOrderTable(tableId);
+        setSortOrderLoadingState(graphArea, false, !isXYAxisPage);
+        return;
     }
 
     // for scp or heatmap => get 2 last item in sortList
@@ -117,29 +180,70 @@ const generateSortOrderColumn = (sortList, graphArea, tableID = orderingEls.endC
         $okBtnInChart.removeClass('btn-secondary');
     }
 
+    const rows = [];
     for (const col of sortList) {
         const [procId, colId] = col.split('-');
         const cfgProc = procConfigs[procId];
+        if (!cfgProc) continue;
         const dicCols = cfgProc.dicColumns;
         if (!dicCols || (dicCols && !dicCols[colId])) continue;
-        const colShowName = dicCols[colId].shown_name;
-        const columnName = dicCols[colId].name_en;
-        const dataType = dataTypeShort(dicCols[colId]);
-        const procEnName = cfgProc.name_en;
-        showColOrderingSetting(
-            tableID + graphArea,
+        rows.push({
             colId,
-            cfgProc.id,
-            cfgProc.shown_name,
-            procEnName,
-            colShowName,
-            columnName,
-            dataType,
-            isReset,
-            graphArea,
-        );
-        isReset = false;
+            procId: cfgProc.id,
+            processName: cfgProc.shown_name,
+            procEnName: cfgProc.name_en,
+            colShowName: dicCols[colId].shown_name,
+            columnName: dicCols[colId].name_en,
+            dataType: dataTypeShort(dicCols[colId]),
+        });
     }
+
+    if (!rows.length) {
+        finalizeSortOrderTable(tableId);
+        setSortOrderLoadingState(graphArea, false, !isXYAxisPage);
+        return;
+    }
+
+    let cursor = 0;
+    const renderBatch = () => {
+        if (safeToken !== sortOrderRenderToken) {
+            return;
+        }
+
+        const end = Math.min(cursor + SORT_ORDER_RENDER_BATCH_SIZE, rows.length);
+        const htmlRows = [];
+        for (let idx = cursor; idx < end; idx++) {
+            const row = rows[idx];
+            const priority = isXYAxisPage ? (idx === 0 ? 'X' : 'Y') : idx + 1;
+            htmlRows.push(
+                htmlEndColOrderRowTemplate(
+                    priority,
+                    row.colId,
+                    row.procId,
+                    row.processName,
+                    row.procEnName,
+                    row.colShowName,
+                    row.columnName,
+                    row.dataType,
+                    graphArea,
+                ),
+            );
+        }
+
+        tableBody.append(htmlRows.join(''));
+        cursor = end;
+
+        if (cursor < rows.length) {
+            setTimeout(renderBatch, 0);
+            return;
+        }
+
+        initSortOrderTable(tableId);
+        finalizeSortOrderTable(tableId);
+        setSortOrderLoadingState(graphArea, false, !isXYAxisPage || rows.length === 2);
+    };
+
+    renderBatch();
 };
 
 const isDropDownChanged = () => {
@@ -167,7 +271,13 @@ const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callbac
             localStorage.removeItem(sortedColumnsKey);
         }
     }
-    generateSortOrderColumn(sortedColIds, graphAreaSuffix);
+    const tableId = orderingEls.endColOrderTable + graphAreaSuffix;
+    const currentRenderToken = ++sortOrderRenderToken;
+    setSortOrderLoadingState(graphAreaSuffix, true);
+    showSortOrderLoadingRow(tableId, graphAreaSuffix);
+    setTimeout(() => {
+        generateSortOrderColumn(sortedColIds, graphAreaSuffix, orderingEls.endColOrderTable, currentRenderToken);
+    }, 0);
     if (!showOrderModalClick) {
         $(orderingEls.endColOrderModalOkBtn).on('click', (e) => {
             // remove checked cols
@@ -191,6 +301,9 @@ const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callbac
                     $(`#xy-axis-${id}`).text(XYAxis[index]);
                 }
             });
+
+            // Keep the latest source in sync so reopening modal preserves the ordered state.
+            latestSortColIds = [...sortedColIds];
         });
 
         $(orderingEls.endColOrderModalCancelBtn).on('click', (e) => {
@@ -290,53 +403,6 @@ const handleDeleteColumn = (e) => {
     // uncheck selected columns
     const id = $(e).parent().parent().attr('data-colId');
     removeColIds.push(id);
-};
-
-const showColOrderingSetting = (
-    tableId,
-    colId,
-    procId,
-    processName,
-    procEnName,
-    colShowName,
-    colName,
-    dataType,
-    isReset = false,
-    graphArea,
-) => {
-    const calcPriority = () => {
-        if (isXYAxisPage) {
-            return $(`${tableId} tbody tr`).length === 0 ? 'X' : 'Y';
-        } else {
-            return $(`${tableId} tbody tr`).length + 1;
-        }
-    };
-    // add to modal
-    const tableBody = $(`${tableId} tbody`);
-    if (isReset) {
-        tableBody.empty();
-        tableBody.sortable({
-            helper: dragDropRowInTable.fixHelper,
-            update: () => {
-                updatePriority(tableId);
-            },
-        });
-    }
-    const rowHtml = htmlEndColOrderRowTemplate(
-        calcPriority(),
-        colId,
-        procId,
-        processName,
-        procEnName,
-        colShowName,
-        colName,
-        dataType,
-        graphArea,
-    );
-
-    tableBody.append(rowHtml);
-    $(`${tableId} thead .filter-row`).remove();
-    sortableTable(tableId.replace('#', ''), [0, 1, 2, 3, 4, 5]);
 };
 
 const handleGoToTopRow = (e, type = 'top') => {

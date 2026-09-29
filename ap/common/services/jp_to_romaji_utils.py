@@ -11,7 +11,11 @@ conv = cutlet.Cutlet()
 # remove space and other elements after converting to romaji
 # cutlet puts space before and after a 'word', so this must be done one more time after romaji conversion
 # some words might return ?? due to cutlet's inability to convert some kanjis
-WHITESPACE_AND_SYMBOLS_RE = re.compile(r'[\s\t\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~\|]')
+SYMBOLS_RE = re.compile(r'[\+\*…・:;!\?\$\&\"\'\`\=\@\#\\\/。、\.,~]')
+
+VERTICAL_BAR_RE = re.compile(r'[\|]')
+
+WHITESPACE_RE = re.compile(r'[\s\t]')
 
 # `[\(\)\[\]<>\{\}【】]` in string in `English Name` should be replaced into `_`.
 BRACKETS_RE = re.compile(r'[\(\)\[\]<>\{\}【】]')
@@ -44,7 +48,7 @@ UU_RE = re.compile(r'Uu|uu')
 MM_RE = re.compile(r'Mm')
 
 
-def to_romaji(input_str, convert_irregular_chars=True):
+def normalized_column_name(input_str, convert_irregular_chars=True):
     normalized_input = input_str
 
     normalized_input = normalize_preprocessing(normalized_input)
@@ -57,12 +61,22 @@ def to_romaji(input_str, convert_irregular_chars=True):
     # convert to romaji
     # normalized_input = p.do(normalized_input)
     normalized_input = conv.romaji(normalized_input, title=False) if conv else normalized_input
-
-    normalized_input = WHITESPACE_AND_SYMBOLS_RE.sub(EMPTY_STRING, normalized_input)
-
-    # snake to camel
-    # normalized_input = string.capwords(normalized_input)
+    normalized_input = WHITESPACE_RE.sub(EMPTY_STRING, normalized_input)
+    normalized_input = SYMBOLS_RE.sub(EMPTY_STRING, normalized_input)
     return normalized_input
+
+
+def to_romaji(input_str, convert_irregular_chars=True):
+    normalized_input = input_str
+
+    normalized_input = normalized_column_name(normalized_input, convert_irregular_chars)
+    normalized_input = VERTICAL_BAR_RE.sub(EMPTY_STRING, normalized_input)
+
+    return normalized_input
+
+
+def to_romaji_en(input_str) -> str:
+    return normalized_column_name(input_str, True)
 
 
 def replace_special_symbols(input_str):

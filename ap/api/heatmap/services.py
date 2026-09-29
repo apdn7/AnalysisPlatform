@@ -23,13 +23,14 @@ from ap.api.common.services.show_graph_services import (
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     gen_group_filter_list,
+    get_axis_title_with_unit,
     get_data_from_db,
     get_filter_on_demand_data,
     get_serial_and_datetime_data,
     is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import gen_sql_label, get_x_y_info, select_between_color_and_temp_color
+from ap.common.common_utils import get_x_y_info, select_between_color_and_temp_color
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
@@ -46,6 +47,7 @@ from ap.common.constants import (
     CYCLE_IDS,
     CYCLIC_DIV_NUM,
     DATETIME,
+    DIV_BY_CAT,
     ELAPSED_TIME,
     END_COL_ID,
     END_DATE,
@@ -115,10 +117,9 @@ from ap.trace_data.schemas import DicParam
 
 DATA_COUNT_COL = '__data_count_col__'
 MATRIX = 7
-SCATTER_PLOT_TOTAL_POINT = 50_000
-SCATTER_PLOT_MAX_POINT = 10_000
-HEATMAP_COL_ROW = 100
+HEATMAP_COL_ROW = 300
 TOTAL_VIOLIN_PLOT = 200
+RATIO_AGG_FUNCTIONS = [HMFunction.ok_most_ratio.name, HMFunction.ng_fewest_ratio.name, HMFunction.ratio.name]
 
 
 @log_execution_time('[SCATTER PLOT]')
@@ -182,8 +183,6 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     y_id = scatter_xy_ids[-1]
     x_name = scatter_xy_names[0]
     y_name = scatter_xy_names[-1]
-    x_label = gen_sql_label(x_id, x_name)
-    y_label = gen_sql_label(y_id, y_name)
 
     color_id = select_between_color_and_temp_color(temp_color_var, orig_graph_param)
     cat_div_id = orig_graph_param.common.div_by_cat
@@ -191,9 +190,13 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     col_ids = [col for col in list({x_id, y_id, color_id, cat_div_id, *level_ids}) if col]
     dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
 
-    color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
-    level_labels = [gen_sql_label(id, dic_cols[id].column_name) for id in level_ids]
-    cat_div_label = gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
+    # Resolve normal XY keys only after collecting the requested graph columns.
+    x_label = dic_cols[x_id].bridge_column_name
+    y_label = dic_cols[y_id].bridge_column_name
+
+    color_label = dic_cols[color_id].bridge_column_name if color_id else None
+    level_labels = [dic_cols[id].bridge_column_name for id in level_ids]
+    cat_div_label = dic_cols[cat_div_id].bridge_column_name if cat_div_id else None
 
     chart_type = None
     x_category = False
@@ -280,6 +283,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             color_label,
             level_labels,
             chart_type,
+            div_col=cat_div_label,
         )
     else:
         # query data and gen df
@@ -325,6 +329,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 level_labels,
                 recent_flg,
                 chart_type,
+                div_col=cat_div_label,
             )
         elif orig_graph_param.common.cyclic_div_num:
             output_graphs, output_times = gen_scatter_by_cyclic(
@@ -339,6 +344,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
                 color_label,
                 level_labels,
                 chart_type,
+                div_col=cat_div_label,
             )
         else:
             cat_div_type = dic_cols[cat_div_id].data_type if cat_div_id else None
@@ -369,7 +375,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
     dic_param[CHART_TYPE] = chart_type
 
     # get agg function from GUI
-    agg_func, color_bar_title, is_cat_color = get_color_agg_func(graph_param, color_id)
+    agg_func, color_bar_title, is_cat_color, is_judge_color = get_color_agg_func(graph_param, color_id)
     # set title for heatmap color bar
     dic_param[COMMON][HM_AGG_COLOR_FUNCTION] = agg_func
     dic_param[COLOR_BAR_TTTLE] = color_bar_title
@@ -404,6 +410,7 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
         array_y = graph[ARRAY_Y]
         unique_x = set(array_x)
         unique_y = set(array_y)
+        div = graph.get(DIV_BY_CAT, [])
 
         missing_x = all_x - unique_x
         missing_y = all_y - unique_y
@@ -413,7 +420,9 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             # encode origin colors
             graph[COLORS] = [inv_encode[_color_val] for _color_val in graph[COLORS]]
 
-        array_z = gen_color_by_agg_func(array_y, array_x, graph[COLORS], aggfunc=agg_func)
+        array_z = gen_color_by_agg_func(
+            array_y, array_x, graph[COLORS], div, aggfunc=agg_func, is_judge_color=is_judge_color
+        )
         for key in missing_x:
             array_z[key] = None
             # map_xy_array_z[key] = None
@@ -445,8 +454,8 @@ def gen_heatmap_data(root_graph_param: DicParam, dic_param, df=None):
             graph[Y_NAME] = y_name
             graph[HEATMAP_MATRIX] = {
                 'z': matrix(array_z).tolist(),
-                'x': all_x,
-                'y': all_y,
+                'x': array_z.columns.tolist(),
+                'y': array_z.index.tolist(),
             }
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
@@ -778,6 +787,7 @@ def gen_scatter_data_count(
     levels=None,
     recent_flg=None,
     chart_type=None,
+    div_col=None,
 ):
     """
     Spit by data count
@@ -853,7 +863,9 @@ def gen_scatter_data_count(
             # elapsed_times = calc_elapsed_times(df_data, time_col)
 
             # v_label : name ( not id )
-            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=h_key)
+            dic_data = gen_dic_graphs(
+                df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=h_key, div_col=div_col
+            )
 
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
@@ -893,6 +905,7 @@ def gen_scatter_by_cyclic(
     color=None,
     levels=None,
     chart_type=None,
+    div_col=None,
 ):
     """
     Split by terms
@@ -961,7 +974,7 @@ def gen_scatter_by_cyclic(
             # elapsed_times = calc_elapsed_times(df_data, time_col)
 
             # v_label : name ( not id )
-            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, div_col=div_col)
 
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
@@ -1073,7 +1086,7 @@ def gen_scatter_cat_div(
                 continue
 
             # v_label : name ( not id )
-            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, div_col=cat_div)
 
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
@@ -1102,6 +1115,7 @@ def gen_scatter_by_direct_term(
     color=None,
     levels=None,
     chart_type=None,
+    div_col=None,
 ):
     """
     Split by terms
@@ -1161,7 +1175,7 @@ def gen_scatter_by_direct_term(
             # elapsed_times = calc_elapsed_times(df_data, time_col)
 
             # v_label : name ( not id )
-            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col)
+            dic_data = gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, div_col=div_col)
 
             # serial
             dic_data[X_SERIAL] = get_proc_serials(df_data, x_serial_cols)
@@ -1179,11 +1193,16 @@ def gen_scatter_by_direct_term(
 
 @log_execution_time()
 @abort_process_handler()
-def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=None):
+def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_key=None, div_col=None):
     times = df_data[time_col]
     n = times.dropna().size
     time_min = np.nanmin(times) if n else None
     time_max = np.nanmax(times) if n else None
+    div = (
+        df_data[div_col].reset_index(drop=True)
+        if div_col and div_col in df_data.columns
+        else pd.Series(np.ones(len(df_data), dtype=int))
+    )
 
     dic_data = {
         H_LABEL: h_keys_str,
@@ -1191,6 +1210,7 @@ def gen_dic_graphs(df_data, x, y, h_keys_str, v_keys_str, color, time_col, sort_
         ARRAY_X: df_data[x].reset_index(drop=True),
         ARRAY_Y: df_data[y].reset_index(drop=True),
         COLORS: df_data[color] if color else pd.Series(),
+        DIV_BY_CAT: div,
         TIMES: times,
         TIME_MIN: time_min,
         TIME_MAX: time_max,
@@ -1268,7 +1288,7 @@ def get_proc_serials(df: DataFrame, serial_cols: list[CfgProcessColumn]) -> list
     # serials
     serials = []
     for col in serial_cols:
-        sql_label = gen_sql_label(col.id, col.column_name)
+        sql_label = col.bridge_column_name
         if sql_label in df.columns:
             dic_serial = {'col_name': col.shown_name, 'data': df[sql_label]}
             serials.append(dic_serial)
@@ -1294,9 +1314,80 @@ def reduce_data_by_number(df, max_graph, recent_flg=None):
     return df
 
 
+def calculate_ratio_for_cells(df: DataFrame, aggfunc, is_judge_color: bool = False) -> DataFrame:
+    """Calculate a percentage for every heatmap cell.
+
+    ``max_div`` is the largest record count among all cells in the current
+    graph. The numerator depends on the selected aggregation:
+
+    - ratio: all records in the cell
+    - OK/Most: OK records for judge colors, otherwise the most frequent color
+    - NG/Fewest: NG records for judge colors, otherwise the least frequent color
+    """
+    if aggfunc not in RATIO_AGG_FUNCTIONS:
+        raise ValueError(f'Unsupported ratio aggregation: {aggfunc}')
+
+    if df.empty:
+        return pd.DataFrame()
+
+    required_cols = {'x', 'y'}
+    missing_cols = required_cols - set(df.columns)
+    if missing_cols:
+        raise ValueError(f'Missing required columns: {sorted(missing_cols)}')
+
+    work_df = df.copy()
+    if 'color' not in work_df:
+        work_df['color'] = pd.NA
+    if 'div' not in work_df:
+        work_df['div'] = 1
+
+    # Records without either coordinate cannot belong to a heatmap cell.
+    work_df = work_df.dropna(subset=['x', 'y'])
+    if work_df.empty:
+        return pd.DataFrame()
+
+    cell_keys = ['x', 'y']
+    counted_df = work_df[work_df['div'].notna()]
+    if counted_df.empty:
+        # No division variable is selected. Each row still represents one
+        # record and must contribute to the cell population.
+        counted_df = work_df
+    div_counts = counted_df.groupby(cell_keys, dropna=False).size()
+
+    max_div = div_counts.max()
+    if not max_div or pd.isna(max_div):
+        return pd.DataFrame()
+
+    if aggfunc == HMFunction.ratio.name:
+        numerator = div_counts
+    elif is_judge_color:
+        normalized_color = counted_df['color'].astype(pd.StringDtype()).str.strip().str.upper()
+        normalized_color = normalized_color.replace({'1.0': '1', '0.0': '0'})
+        target_values = {'OK', '1'} if aggfunc == HMFunction.ok_most_ratio.name else {'NG', '0'}
+        target_df = counted_df[normalized_color.isin(target_values)]
+        numerator = target_df.groupby(cell_keys, dropna=False).size()
+        numerator = numerator.reindex(div_counts.index, fill_value=0)
+    else:
+        color_counts = counted_df.dropna(subset=['color']).groupby([*cell_keys, 'color'], dropna=False).size()
+        if color_counts.empty:
+            numerator = pd.Series(0, index=div_counts.index, dtype='int64')
+        elif aggfunc == HMFunction.ok_most_ratio.name:
+            numerator = color_counts.groupby(level=cell_keys).max()
+        else:
+            numerator = color_counts.groupby(level=cell_keys).min()
+        numerator = numerator.reindex(div_counts.index, fill_value=0)
+
+    ratios = numerator.astype(float).mul(100).div(float(max_div))
+    return ratios.rename('z').reset_index().pivot(index='x', columns='y', values='z')
+
+
 @log_execution_time()
-def gen_color_by_agg_func(x, y, color, aggfunc):
+def gen_color_by_agg_func(x, y, color, div, aggfunc, is_judge_color=False):
     """HMp agg function support"""
+    # color series should be reset the index before pass to df
+    if isinstance(color, pd.Series):
+        color = color.reset_index(drop=True)
+
     agg_lambda_types = [HMFunction.std.name, HMFunction.range.name, HMFunction.iqr.name]
     if aggfunc in agg_lambda_types:
         _df = pd.DataFrame(
@@ -1315,9 +1406,22 @@ def gen_color_by_agg_func(x, y, color, aggfunc):
         color_matr = pd.crosstab(color_matr.x, color_matr.y, values=color_matr.color, aggfunc='sum')
         return color_matr
 
-    use_ratio = aggfunc == HMFunction.ratio.name
-    if use_ratio:
-        aggfunc = HMFunction.count.name
+    if aggfunc in RATIO_AGG_FUNCTIONS:
+        data_size = len(x)
+        color_values = list(color) if len(color) else [None] * data_size
+        div_values = list(div) if len(div) else [1] * data_size
+        return calculate_ratio_for_cells(
+            pd.DataFrame(
+                {
+                    'x': list(x),
+                    'y': list(y),
+                    'color': color_values,
+                    'div': div_values,
+                },
+            ),
+            aggfunc=aggfunc,
+            is_judge_color=is_judge_color,
+        )
 
     agg_args = {}
     if len(color):
@@ -1326,28 +1430,32 @@ def gen_color_by_agg_func(x, y, color, aggfunc):
             'values': color,
         }
     color_data = pd.crosstab(x, y, **agg_args)
-
-    # ratio of color in total records
-    if use_ratio:
-        color_data = color_data * 100 / len(x)
     return color_data
 
 
 def get_color_agg_func(graph_param, color_id):
+    """Return heatmap color aggregation metadata for the selected color column.
+
+    Uses the categorical aggregation when no color column is selected or when
+    the selected column is categorical. First and last aggregations use the
+    column display name as their color-bar title.
+    """
     is_cat_color = True
-    color_agg_func = graph_param.common.hm_function_cate
-    color_bar_title = HMFunction[color_agg_func].value
+    is_judge_color = False
+    color_col = None
 
     if color_id:
         [color_col] = graph_param.get_col_cfgs([color_id])
         is_cat_color = color_col.is_category
-        if not color_col.is_category:
-            # re-assign the agg function if color is a categorical variable
-            color_agg_func = graph_param.common.hm_function_real
-            color_bar_title = HMFunction[color_agg_func].value
+        is_judge_color = color_col.is_judge
 
-        # If agg func is last/first, shw variable name of color
-        if color_agg_func in [HMFunction.first.name, HMFunction.last.name]:
-            color_bar_title = color_col.shown_name or color_col.column_name
+    # Resolve the aggregation after inspecting the selected column to avoid
+    # computing the categorical title before replacing it for numeric colors.
+    color_agg_func = graph_param.common.hm_function_cate if is_cat_color else graph_param.common.hm_function_real
+    color_bar_title = HMFunction[color_agg_func].value
 
-    return color_agg_func, color_bar_title, is_cat_color
+    # First and last identify a measurement, so display its name and unit.
+    if color_col is not None and color_agg_func in [HMFunction.first.name, HMFunction.last.name]:
+        color_bar_title = get_axis_title_with_unit(color_col, add_br=True) or color_col.column_name
+
+    return color_agg_func, color_bar_title, is_cat_color, is_judge_color

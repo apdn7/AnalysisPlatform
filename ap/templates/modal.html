@@ -200,9 +200,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform" id="saveSettingConfirmContent" style="white-space: pre-wrap">
-                    {{ _("Confirm to save your setting.") }}
-                </p>
+                <p class="modal-inform" id="saveSettingConfirmContent">{{ _("Confirm to save your setting.") }}</p>
             </div>
             <div class="modal-footer">
                 <button id="saveSettingConfirmed" class="btn btn-primary" data-item-id="" data-dismiss="modal">
@@ -323,6 +321,30 @@
         </div>
     </div>
 </div>
+<div id="deleteBulkSettingConfirmModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Confirmation") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-inform">{{ _("Do you want to delete selected records?") }}</p>
+            </div>
+            <div class="modal-footer">
+                <button
+                    id="delBulkSettingConfirmed"
+                    class="btn btn-primary"
+                    data-dismiss="modal"
+                    onclick="deleteBulkUserSetting(this);"
+                >
+                    {{ _('OK') }}
+                </button>
+                <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- load saved information -->
 <div
     class="modal fade db-modal monitor-icons"
@@ -350,9 +372,38 @@
                 </div>
             </div>
             <div class="modal-body">
+                <div id="delete-selected-count" style="margin-bottom: 10px">
+                    <button
+                        id="btn-delete-selected-user-setting"
+                        onclick="bindDeleteBulkUserSetting()"
+                        type="button"
+                        class="btn btn-danger"
+                        disabled
+                    >
+                        {{ _("Delete Selected") }}
+                    </button>
+                    <span id="count">0</span> {{ _('selected') }}
+                </div>
                 <table class="table table-bordered table-fixed table-hover-light" id="tblUserSetting">
                     <thead>
                         <tr>
+                            <th scope="col">
+                                <div class="custom-control custom-checkbox checkbox-control">
+                                    <input
+                                        type="checkbox"
+                                        class="already-convert-hankaku custom-control-input"
+                                        id="selected-all-user-setting"
+                                        data-observer
+                                        style="margin-left: 2px"
+                                        onchange="handleSelectAllShowUserSetting(this)"
+                                        onmousedown="handleIndeterminateState(this)"
+                                    />
+                                    <label
+                                        class="custom-control-label checkbox-label"
+                                        for="selected-all-user-setting"
+                                    ></label>
+                                </div>
+                            </th>
                             <th scope="col">No.</th>
                             <th scope="col" style="font-size: 12px;">
                                 <i class="fas fa-globe-americas"></i> /

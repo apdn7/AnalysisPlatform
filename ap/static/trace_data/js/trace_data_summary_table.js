@@ -80,64 +80,66 @@ const removeClass = (element) => {
 };
 
 const onChangeSummaryEventHandler = (showScatterPlot) => {
-    $('input[name=summaryOption]').on('change', function f() {
-        const summaryClass = $(this).val();
+    $('input[name=summaryOption]')
+        .off('change')
+        .on('change', function f() {
+            const summaryClass = $(this).val();
 
-        if (summaryClass === 'none') {
-            $('.time-series').each(function changeColWidth() {
-                removeClass($(this));
-                if (!showScatterPlot) {
-                    $(this).addClass('col-sm-9');
-                } else {
-                    $(this).addClass('col-sm-8');
-                }
-            });
+            if (summaryClass === 'none') {
+                $('.time-series').each(function changeColWidth() {
+                    removeClass($(this));
+                    if (!showScatterPlot) {
+                        $(this).addClass('col-sm-9');
+                    } else {
+                        $(this).addClass('col-sm-8');
+                    }
+                });
 
-            $('.summary-col').each(function showHideSummary() {
-                $(this).removeClass('col-sm-2');
-                $(this).css('display', 'none');
-            });
-            $('.ts-col').each(function changeTSChartWidth() {
-                $(this).removeClass('col-sm-10');
-                $(this).addClass('col-sm-12');
-            });
+                $('.summary-col').each(function showHideSummary() {
+                    $(this).removeClass('col-sm-2');
+                    $(this).css('display', 'none');
+                });
+                $('.ts-col').each(function changeTSChartWidth() {
+                    $(this).removeClass('col-sm-10');
+                    $(this).addClass('col-sm-12');
+                });
 
-            $('.tschart-title-parent').show();
-        } else {
-            $('.time-series').each(function changeColWidth() {
-                removeClass($(this));
-                if (!showScatterPlot) {
-                    $(this).addClass('col-sm-9');
-                } else {
-                    $(this).addClass('col-sm-8');
-                }
-            });
-            $('.ts-col').each(function changeTSChartWidth() {
-                $(this).removeClass('col-sm-12');
-                $(this).addClass('time-series-col');
-            });
-            $('.summary-col').each(function showHideSummary() {
-                $(this).css('display', 'block');
-            });
-            $('.result').each(function showUponOption() {
-                $(this).css('display', 'none');
-                if ($(this).hasClass(summaryClass)) {
+                $('.tschart-title-parent').show();
+            } else {
+                $('.time-series').each(function changeColWidth() {
+                    removeClass($(this));
+                    if (!showScatterPlot) {
+                        $(this).addClass('col-sm-9');
+                    } else {
+                        $(this).addClass('col-sm-8');
+                    }
+                });
+                $('.ts-col').each(function changeTSChartWidth() {
+                    $(this).removeClass('col-sm-12');
+                    $(this).addClass('time-series-col');
+                });
+                $('.summary-col').each(function showHideSummary() {
                     $(this).css('display', 'block');
-                }
-            });
-            $('.tschart-title-parent').hide();
-        }
-        // adjust cate-table length
-        // get width of current Time Series chart
-        setTimeout(() => {
-            adjustCatetoryTableLength();
-            // Reposition cross line of label plot
-            resetPositionOfCrossLine();
-        }, 500);
+                });
+                $('.result').each(function showUponOption() {
+                    $(this).css('display', 'none');
+                    if ($(this).hasClass(summaryClass)) {
+                        $(this).css('display', 'block');
+                    }
+                });
+                $('.tschart-title-parent').hide();
+            }
+            // adjust cate-table length
+            // get width of current Time Series chart
+            setTimeout(() => {
+                adjustCatetoryTableLength();
+                // Reposition cross line of label plot
+                resetPositionOfCrossLine();
+            }, 500);
 
-        // histogram tab, summary select menu
-        onChangeHistSummaryEventHandler(this);
-    });
+            // histogram tab, summary select menu
+            onChangeHistSummaryEventHandler(this);
+        });
 };
 
 const onChangeHistSummaryEventHandler = (e) => {

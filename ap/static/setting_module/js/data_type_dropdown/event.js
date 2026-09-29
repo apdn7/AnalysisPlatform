@@ -17,8 +17,8 @@ class DataTypeDropdown_Event extends DataTypeDropdown_Helper {
         this.onClickEventShowSubMenu(dataTypeDropdownElement);
         this.onClickEventHandleSelectItem(dataTypeDropdownElement);
         this.onFocusEventHandleHoverItem(dataTypeDropdownElement);
-        // this.onClickEventHandleCopyToAllBelow(dataTypeDropdownElement);
-        // this.onClickEventHandleCopyToFilteredItem(dataTypeDropdownElement);
+        this.onClickEventHandleCopyToAllBelow(dataTypeDropdownElement);
+        this.onClickEventHandleCopyToFilteredItem(dataTypeDropdownElement);
     }
 
     /**

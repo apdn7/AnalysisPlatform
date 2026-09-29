@@ -57,3 +57,220 @@
 .flex-1 {
     flex: 1;
 }
+
+.data-table-pagination {
+    float: right;
+    display: inline-flex;
+    align-items: center;
+
+    .pagination__button {
+        width: 30px;
+        height: 30px;
+        margin-left: -1px;
+        padding: 0;
+
+        border: 1px solid #666666;
+        border-radius: 0;
+
+        background-color: #292929;
+        color: #dddddd;
+
+        font-family: Arial, sans-serif;
+        font-size: 9px;
+        font-weight: 400;
+        line-height: 24px;
+        text-align: center;
+
+        cursor: pointer;
+        outline: none;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .pagination__button:first-child {
+        margin-left: 0;
+    }
+
+    .pagination__button:hover:not(.pagination__button--active) {
+        position: relative;
+        z-index: 1;
+        background-color: #3a3a3a;
+        border-color: #999999;
+        color: #ffffff;
+    }
+
+    .pagination__button--active {
+        position: relative;
+        z-index: 2;
+
+        background-color: #ffffff;
+        border-color: #cccccc;
+        color: #333333;
+    }
+
+    .pagination__button:focus-visible {
+        position: relative;
+        z-index: 3;
+        outline: 1px solid #ffffff;
+        outline-offset: -3px;
+    }
+
+    .pagination__arrow {
+        font-size: 10px;
+    }
+
+    .pagination__ellipsis {
+        width: 30px;
+        height: 30px;
+        margin-left: -1px;
+
+        border: 1px solid #666666;
+        background-color: #292929;
+        color: #dddddd;
+
+        font-size: 9px;
+        line-height: 24px;
+        text-align: center;
+    }
+}
+
+.layout-dropdown-trigger,
+.layout-dropdown-content {
+    color: #ffffff;
+    background-color: #222222;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.layout-dropdown-trigger {
+    display: inline-block;
+    width: 50px;
+    min-width: 0px;
+    max-width: 50px;
+    height: auto;
+    border: 0;
+    padding: 1px 16px 1px 3px;
+    text-align: left;
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 10L12 17L15 10Z" fill="%23ffffff"/></svg>');
+    background-position: right 2px center;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    box-shadow: none;
+}
+
+.layout-dropdown-trigger:hover,
+.layout-dropdown-trigger:focus,
+.layout-dropdown-trigger:active,
+.layout-dropdown-trigger[data-state='open'],
+.layout-dropdown-trigger[data-state='closed'] {
+    width: 50px;
+    min-width: 0px;
+    max-width: 50px;
+    border: 0;
+    box-shadow: none;
+}
+
+.layout-dropdown-trigger:focus-visible,
+.layout-dropdown-content:focus-visible,
+.layout-dropdown-item:focus-visible {
+    outline: none;
+}
+
+.layout-dropdown-content {
+    min-width: var(--radix-dropdown-menu-trigger-width);
+    padding: 1px 3px;
+    border: 1px solid #ced4da;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    user-select: none;
+    z-index: 1000;
+}
+
+.layout-dropdown-sub-content {
+    min-width: 75px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+.layout-dropdown-item,
+.layout-dropdown-separator {
+    min-height: 22px;
+    padding: 1px 19px 1px 3px;
+    color: inherit;
+    line-height: inherit;
+}
+
+.layout-dropdown-trigger {
+    border-radius: 0.1rem;
+}
+
+.layout-dropdown-separator::before {
+    content: '---';
+}
+
+.layout-dropdown-item {
+    cursor: pointer;
+}
+
+.layout-dropdown-item[data-highlighted],
+.layout-dropdown-sub-trigger[data-state='open'],
+.layout-dropdown-trigger:hover {
+    background-color: #444444;
+}
+
+.section-title {
+    width: fit-content;
+    margin-right: 10px;
+    margin-bottom: 0;
+}
+
+.switch-button {
+    display: flex;
+    height: 29px;
+    align-items: center;
+    gap: 0.5rem;
+
+    label {
+        margin-bottom: 0;
+        white-space: nowrap;
+    }
+}
+
+.switch-button-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 9999px;
+    background-color: #777;
+    transition: background-color 0.15s ease;
+
+    &[data-state='checked'] {
+        background-color: #375a7f;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+    }
+}
+
+.switch-button-thumb {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #fff;
+    transform: translateX(2px);
+    transition: transform 0.15s ease;
+    will-change: transform;
+
+    &[data-state='checked'] {
+        transform: translateX(18px);
+    }
+}

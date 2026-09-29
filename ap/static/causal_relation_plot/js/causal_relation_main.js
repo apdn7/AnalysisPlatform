@@ -95,7 +95,7 @@ const collectFormDataCrP = (clearOnFlyFilter = false, autoUpdate = false) => {
 const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUpdate = false) => {
     const formData = collectFormDataCrP(clearOnFlyFilter, autoUpdate);
 
-    showGraphCallApi('/ap/api/analyze/crp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/analyze/crp/index', formData, REQUEST_TIMEOUT, async (res) => {
         if (!res.actual_record_number) {
             showToastrAnomalGraph();
             return;
@@ -133,11 +133,13 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
         graphStore.setTraceData(_.cloneDeep(res));
 
         // auto update
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
 
         // show info table
         showInfoTable(res);
     });
+
+    return requestPromise;
 };
 
 const showCausalRelationChart = (res) => {
@@ -155,7 +157,7 @@ const showCausalRelationChart = (res) => {
 
 const handleSetPollingData = () => {
     const settings = collectFormDataCrP(false);
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const handleResetVisNetwork = () => {

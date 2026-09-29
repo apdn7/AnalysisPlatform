@@ -176,6 +176,7 @@ const updateI18nCommon = async () => {
         copyClipboardFailed: $('#i18nCopyClipboardFailed').text(),
         pasteFromClipboardSuccessful: $('#i18nPasteFromClipboardSuccessful').text(),
         pasteFromClipboardFailed: $('#i18nPasteFromClipboardFailed').text(),
+        popupBlockerWarning: $('#i18nPopupBlockerWarning').text(),
         saveUserSettingConfirm: $('#i18nSaveUserSettingConfirm').text(),
         editUserSettingConfirm: $('#i18nEditUserSettingConfirm').text(),
         changeDivConfirmText: $('#i18nChangeDivConfirmText').text(),
@@ -224,7 +225,11 @@ const endProcSortable = () => {
  */
 const inputCheckInlineEvents = (parentId) => {
     $(`#${parentId} li.list-group-item`).on('click', function (e) {
-        if ($(e.target).is('input') || ($(e.target).is('label') && $(e.target).attr('for'))) {
+        if (
+            $(e.target).is('input') ||
+            ($(e.target).is('label') && $(e.target).attr('for')) ||
+            $(e.target).is('.layout-variable-cell__trigger, .display-layout-value')
+        ) {
             return;
         }
         // prevent event click on border of li_tag START
@@ -260,6 +265,7 @@ const inputCheckInlineEvents = (parentId) => {
         // check if this input is CL
         const isSecondaryCheckbox =
             ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(childInput?.name) ||
+            childInput?.name?.startsWith('layoutVariable') ||
             (childInput && childInput?.name?.includes('GET02_CATE_SELECT'));
 
         if (isSecondaryCheckbox) {
@@ -353,6 +359,18 @@ const genColDOM = ({
 
 let limitedCheckedList = [];
 
+const dispatchLayoutCheckChange = ({ checkedItemId, checkedGroupId, isChecked }) => {
+    document.dispatchEvent(
+        new CustomEvent('layoutCheckChange', {
+            detail: {
+                checkedItemId,
+                checkedGroupId,
+                isChecked,
+            },
+        }),
+    );
+};
+
 /**
  * Add group list checkbox with search functionality
  * @param {string} parentId
@@ -367,12 +385,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     const requiredInputClass = 'required-input';
     const indexDic = {
         dataType: 2,
-        label: 3,
-        color: 4,
-        catExp: 5,
-        objective: 6,
-        judge: 7,
-        filter: 8,
+        layout: 3,
+        label: 4,
+        color: 5,
+        catExp: 6,
+        objective: 7,
+        judge: 8,
+        filter: 9,
     };
     let divSelected = false;
     const genDetailItem = (
@@ -386,6 +405,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         isGetDate = false,
         objectiveSelectionDOM = null,
         categoryLabelDOM = null,
+        layoutDOM = null,
         categoryFilterDOM = null,
         colorDOM = null,
         judgeDOM = null,
@@ -419,6 +439,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 chkBox,
                 shownName,
                 props.itemDataTypes,
+                props.showLayout,
                 props.showLabel,
                 props.showColor,
                 props.showCatExp,
@@ -450,6 +471,11 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                         const hiddenDataTypeInput = `<input id="dataType-${$(chkBox).val()}" value="${hiddenValue}" hidden disabled>`;
                         html += `<div class="col data-type fit-item type-item px-1 search-col" title="${title}">
                                       ${colDataTypeShowName}${hiddenDataTypeInput}
+                                 </div>`;
+                    }
+                    if (i === indexDic.layout) {
+                        html += `<div class="col fit-item text-center px-1 flex-row-center small-col layout-col" title="Layout">
+                                    ${layoutDOM || ''}
                                  </div>`;
                     }
                     if (i === indexDic.label) {
@@ -535,6 +561,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         judgeHoverMsg: $('#i18nJudgeHoverMsg').text(),
         judgeLabel: $('#i18nJudgeLabel').text() || 'Judge',
         extendSysName: $('#i18nExtentSysNameLonger').text(),
+        layoutHoverMsg: $('#i18nLayoutHoverMsg').text(),
     };
 
     // items
@@ -590,16 +617,24 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     <option value="">---</option>
                     <option value="1">Lv1</option>
                     <option value="2">Lv2</option>
-                    ${props.hasDiv ? `<option value="3" ${autoSelectDiv}>Div</option>` : ''}
+                    ${
+                        props.hasDiv
+                            ? props.divSizeOptions
+                                ? `<option value="3" data-div-size="2" data-div-orientation="0" ${autoSelectDiv}>Div2↕</option>
+                                   <option value="3" data-div-size="2" data-div-orientation="1">Div2↔</option>
+                                   <option value="3" data-div-size="3" data-div-orientation="0">Div3↕</option>
+                                   <option value="3" data-div-size="3" data-div-orientation="1">Div3↔</option>
+                                   <option value="3" data-div-size="6">Div6</option>`
+                                : `<option value="3" ${autoSelectDiv}>Div</option>`
+                            : ''
+                    }
                 </select>`;
             }
         }
 
         const isRequiredInput = props.isRequired ? requiredInputClass : '';
         let objectiveSelectionDOM = '';
-        const isCategoryVar =
-            [DataTypes.STRING.name, DataTypes.TEXT.name].includes(colDataType) ||
-            [DataTypes.CATEGORY.short, DataTypes.SERIAL.short].includes(colDataTypeShowName);
+        const isCategoryVar = props.itemIsCategories?.[i] ?? isCategory(colDataType, props.columnInfo?.[i]?.columnType);
         const showObjInput = !props.allowObjectiveForRealOnly || !isCategoryVar;
         if (props.showObjectiveInput && showObjInput) {
             const objectiveChkBoxId = `objectiveVar-${itemId}`;
@@ -631,6 +666,23 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             }
         };
 
+        let layoutDOM = null;
+        if (props.showLayout) {
+            const categoryGroupId = props.groupIDx || 1;
+            // const isSelected = $(`#${chkBoxId}`).is(':checked');
+            const dropdownProps = {
+                itemId,
+                groupId: categoryGroupId,
+                isSelected: isChecked,
+                datatype: colDataType,
+                isCategory: isCategoryVar,
+                isDummyDatetime: !!props.itemDummyDatetimes?.[i],
+                layoutOrder: i,
+            };
+
+            layoutDOM = `<div class="react-root" data-component="LayoutDropDown"
+                data-props='${JSON.stringify(dropdownProps)}'></div>`;
+        }
         let categoryLabelDOM = null;
         if (props.showLabel) {
             const clChkBoxId = `categoryLabel-${itemId}`;
@@ -728,6 +780,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 isGetDate,
                 objectiveSelectionDOM,
                 categoryLabelDOM,
+                layoutDOM,
                 categoryFilterDOM,
                 colorDOM,
                 judgeDOM,
@@ -766,6 +819,13 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     });
     // change Title on On-demand filter
     $('#categoriesBoxTitle').text(props.showLabel ? 'Label' : 'Filter');
+    const layoutColDOM = genColDOM({
+        isShow: props.showLayout,
+        label: 'Layout',
+        description: i18nHoverText.layoutHoverMsg,
+        textCenter: true,
+        className: 'small-col layout-col',
+    });
     const categoryLabelColDOM = genColDOM({
         isShow: props.showLabel,
         label: 'Label',
@@ -775,7 +835,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     });
     const filterColDOM = genColDOM({
         isShow: props.showFilter,
-        label: 'Filter',
+        label: props.showLayout ? 'Select' : 'Filter', // showLayout is MAP page
         description: i18nHoverText.filterLabelExplain,
         textCenter: true,
         className: 'small-col',
@@ -856,6 +916,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             ${xyAxisDOM}
             ${typeColDOM}
             ${thresholdBoxDOM}
+            ${layoutColDOM}
             ${categoryLabelColDOM}
             ${colorTile}
             ${catExpDOM}
@@ -894,8 +955,31 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     // ADD EVENTS
     // check all event
     $(`#checkbox-all-${id + parentId}`).change(function f(e) {
+        const isChecked = $(this).prop('checked');
+
+        const mainCheckBoxs =
+            getCurrentPage() === 'map'
+                ? $(`#${this.closest('.list-group').id} .${mainChkBoxClass}:not([data-is_get_date=true])`)
+                : $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`);
+
+        if (getCurrentPage() === 'map') {
+            window.__layoutBulkOperation = true;
+            if (isChecked) {
+                mainCheckBoxs.prop('checked', false).trigger('change');
+                // check first MAX_NUMBER_OF_SENSOR checkbox
+                const mainCheckboxWithoutCT = mainCheckBoxs.filter(':not([data-type-shown-name=CT])');
+
+                mainCheckboxWithoutCT.slice(0, MAX_NUMBER_OF_SENSOR).prop('checked', true).trigger('change');
+                $(this).prop('checked', true);
+            } else {
+                mainCheckBoxs.prop('checked', false).trigger('change');
+            }
+            window.__layoutBulkOperation = false;
+        } else {
+            mainCheckBoxs.prop('checked', isChecked);
+        }
+
         $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
-        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', $(this).prop('checked'));
         if ($(this).is(':checked') === false) {
             // reset objective
             const objectiveEle = $(this.closest('ul.list-group')).find('input[name=objectiveVar]:checked');
@@ -909,7 +993,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             .parents()
             .find('input[name^=GET02_VALS_SELECT]:checked')
             .not('.checkbox-all')
-            .each((_, item) => limitedCheckedList.push(item));
+            .each((_, item) => limitedCheckedList.push($(item)));
         countVariables(parentId, props.groupIDx);
         compareSettingChange();
         createOrUpdateSensorOrdering(e, true);
@@ -938,7 +1022,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
 
-        if ($(this).is(':checked') === false) {
+        const isChecked = $(this).is(':checked');
+        if (!isChecked) {
             $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', $(this).prop('checked'));
             const parentRow = $(this.closest('li.list-group-item.form-check'));
             parentRow.find('[name=objectiveVar]').prop('checked', false).trigger('change');
@@ -996,6 +1081,16 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             let removedItemParentId = limitedCheckedList[0].closest(`div[id^=${idStart}`).attr('id');
             let removedItemGroupIdx = removedItemParentId.replace(idStart, '');
             $(limitedCheckedList[0]).prop('checked', false);
+
+            const removedListGroupId = limitedCheckedList[0].closest('.list-group').attr('id');
+            $(`#${removedListGroupId} .checkbox-all`).prop('checked', false);
+
+            // Notify layout to reset column removed due to MAX limit
+            dispatchLayoutCheckChange({
+                checkedItemId: limitedCheckedList[0].val(),
+                checkedGroupId: removedItemGroupIdx,
+                isChecked: false,
+            });
             countVariables(removedItemParentId, removedItemGroupIdx);
 
             if (isXYAxisPage) {
@@ -1041,8 +1136,32 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             compareSettingChange();
         }
 
+        // Notify LayoutDropdown components to update their items when a variable is checked/unchecked
+        if (/VALS_SELECT/.test($(this).attr('name'))) {
+            dispatchLayoutCheckChange({
+                checkedItemId: $(this).val(),
+                checkedGroupId: props.groupIDx,
+                isChecked: $(this).is(':checked'),
+            });
+        }
+
         countVariables(parentId, props.groupIDx);
         createOrUpdateSensorOrdering(e);
+
+        // MAP logic
+        if (props.showLayout) {
+            // Div2/Div3/Div6 availability depends on how many primary subplots the layout draws,
+            // not on how many variables are checked (X axis / Lab / Color are checked columns too).
+            // The MAP page owns that rule; defer so React has applied this check to the layout state.
+            setTimeout(() => window.updateMapDivSizeOptions?.(), 0);
+
+            // if check -> check select (filter) else unchecked filter
+            const colId = $(this).val();
+            const hasFacetSelected = $(`#catExpItem-${colId}`).val() !== '';
+            if (!hasFacetSelected) {
+                $(`#categoryFilter-${colId}`).prop('checked', isChecked);
+            }
+        }
     });
 
     // remove check color radio button when click selected again
@@ -1533,7 +1652,10 @@ const showSensorAsFloatingList = (sensorListId) => {
      */
     const checkAndCollapseFloatingList = (e) => {
         const clickedInList = $(e.target).closest('.floating-dropdown-parent').length;
-        if (!clickedInList) {
+        // for MaP page
+        const clickedInLayoutUI = $(e.target).closest('[data-layout-ui]').length;
+
+        if (!clickedInList && !clickedInLayoutUI) {
             collapseFloatingLists();
             clearTimeout(timerOpen);
         }
@@ -1593,8 +1715,12 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                 if (card && card.parent().parent().find('.card').length > 1) {
                     card.fadeOut();
                     setTimeout(() => {
+                        const groupId = card.find('select[name^=end_proc]').attr('data-id');
                         const variableSelected = getEndProcVariableSelected(card);
                         removeLimitedCheckedList(variableSelected);
+                        if (groupId !== undefined) {
+                            document.dispatchEvent(new CustomEvent('processChanged', { detail: { groupId } }));
+                        }
                         card.find('*').off().empty();
                         card.parent().remove();
                         countTotalVariables();

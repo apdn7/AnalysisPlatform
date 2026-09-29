@@ -8,7 +8,6 @@ const csvResourceElements = {
     folderUrlInput: 'input[name="folderUrl"]',
     isFilePathHidden: '#isFilePath',
     fileName: '#fileName',
-    connectResourceBtn: '#connectResourceBtn',
     i18nDirExist: 'i18nFileExist',
     i18nDirNotExist: 'i18nDirNotExist',
     okBtn: '#okBtn',
@@ -56,6 +55,11 @@ const csvResourceElements = {
     dsEncodingSelect: '#dsEncodingSelect',
     guessEncoding: '#guessEncoding',
     encodingOption: '#dsEncoding',
+    fileNameInclude: '#fileNameInclude',
+    fileNameExclude: '#fileNameExclude',
+    subfolderInclude: '#subfolderInclude',
+    subfolderExclude: '#subfolderExclude',
+    fileSelectConditionInputs: '.file-select-condition-input',
 };
 
 const eles = {

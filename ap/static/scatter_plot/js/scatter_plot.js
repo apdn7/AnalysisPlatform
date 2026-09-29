@@ -367,7 +367,14 @@ const scpTracing = () => {
 };
 
 const showErrorMsgHeatMapChart = () => {
-    const categoryTypes = [DataTypes.SERIAL.short, DataTypes.INTEGER_CAT.short, DataTypes.TEXT.short];
+    const categoryTypes = [
+        DataTypes.SERIAL.short,
+        DataTypes.INTEGER_CAT.short,
+        DataTypes.TEXT.short,
+        DataTypes.CATEGORY.short,
+        DataTypes.BOOLEAN.short,
+        DataTypes.JUDGE.short,
+    ];
     const checkedVariablesType = [...$('input[name^=GET02_VALS_SELECT]:checked')].map((el) =>
         categoryTypes.includes($(el).attr('data-type-shown-name')),
     );
@@ -539,7 +546,7 @@ const genTicksColor = (ticksList) => {
     return ticks;
 };
 
-const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDat, divType, numRows) => {
+const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDat, divType, numRows, divName = '') => {
     if (!colDat && !isFirstRow && numRows > 1) {
         return '';
     }
@@ -559,7 +566,12 @@ const getHtitle = (showVTitle, showHTitle, isFirstCol, isFirstRow, hTitle, colDa
 
     if (checkTrue(hLabel) && divType && divType === DataTypes.INTEGER.name) {
         // for number division
-        hLabel = `Cat${hTitle}`;
+        hLabel = `${hTitle}`;
+    }
+
+    if (divName) {
+        // build title for div plot
+        hLabel = `${divName}:${hLabel}`;
     }
 
     return hLabel;
@@ -578,10 +590,11 @@ const genScatterPlots = (
 ) => {
     let scatterDat = [];
     const unique_color = res.filter_on_demand.color;
+    const judgeFormula = res?.is_judge_color ? res?.judge_formula : null;
+    const judgeColorValueMap = genJudgeColorValueMap(judgeFormula);
     const isTimeNumberOrder = colorOrdering === colorOrders[2];
     const isUseColorVar = !otherColors.includes(colorOrdering);
     const colorOrderVar = (colorOrdering === colorOrders[1] ? colorOrders[0] : colorOrdering) || colorOrders[0];
-    // console.log(allColorValSets);
     let allColorValSets = [];
     if (!res.is_filtered && [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type)) {
         allColorValSets =
@@ -590,21 +603,27 @@ const genScatterPlots = (
                 : [];
     }
     if (!allColorValSets.length || colorOrderVar !== colorOrders[0]) {
+        const accum = [];
         res.array_plotdata.forEach((item) => {
             if (item[colorOrderVar] && item[colorOrderVar].length) {
-                allColorValSets = [...allColorValSets, ...item[colorOrderVar]];
+                for (const v of item[colorOrderVar]) {
+                    accum.push(v);
+                }
             }
         });
+        allColorValSets = accum;
     }
     if (unique_color.length && colorOrderVar === colorOrders[0]) {
         const allSetValue = new Set(allColorValSets);
-        allColorValSets = unique_color[0].unique_categories.filter((color) => Array.from(allSetValue).includes(color));
+        allColorValSets = unique_color[0].unique_categories.filter((color) => allSetValue.has(color));
     }
     let [minColorVal, maxColorVal] = findMinMax(allColorValSets);
     // category color, reassign by key instead of value
     // ['pass', 'fail'] -> [0, 1]
     if (isUseColorVar && !res.scale_color) {
-        const encodingCategoryColor = allColorValSets.map((v, k) => k);
+        const encodingCategoryColor = allColorValSets.map((value, index) =>
+            judgeColorValueMap?.has(value) ? judgeColorValueMap.get(value) : index,
+        );
         [minColorVal, maxColorVal] = findMinMax(encodingCategoryColor);
     }
     if (isTimeNumberOrder) {
@@ -635,10 +654,12 @@ const genScatterPlots = (
     let colorScaleSets = defaultScaleSets;
     // set color scale for Judge
     // -------------------------
+    // Only a presence check is needed here; avoid the O(n²) indexOf-dedup just to test length.
+    // NaN values are excluded (v === v is false for NaN), matching the old onlyUniqueFilter semantics.
     const isApplyJudgeColorScale =
         getCurrentSettings().colorOrderVal === colorOrderValue.settingColors &&
         res?.is_judge_color &&
-        unique_color.length;
+        allColorValSets.some((v) => v === v);
     if (isApplyJudgeColorScale) {
         const colorVals = unique_color[0].unique_categories;
         colorScaleSets = genColorScaleForJudge(colorVals);
@@ -651,6 +672,7 @@ const genScatterPlots = (
         colorScaleSets: colorScaleSets,
         colorVarName: res.color_name,
         colorsValSets: allColorValSets,
+        categoryColorValueMap: judgeColorValueMap,
         colorOrderVar,
         xFmt: res.x_fmt || '',
         yFmt: res.y_fmt || '',
@@ -691,6 +713,9 @@ const genScatterPlots = (
     reversedMatrix.forEach((row, r) => {
         row.forEach((col, c) => {
             // todo remove from loop
+            const columnMetadata = col
+                ? { time_min: col.time_min, time_max: col.time_max, n_total: col.n_total }
+                : null;
             let hTitle = col ? col.h_label : '';
             let vTitle = '';
             if (isShowRow) {
@@ -710,6 +735,7 @@ const genScatterPlots = (
                 col,
                 res.div_data_type,
                 reversedMatrix.length,
+                res?.div_name,
             );
             layoutAttributes.rowIdx = r;
             layoutAttributes.colIdx = c;
@@ -728,6 +754,7 @@ const genScatterPlots = (
                 array_y: col ? col.array_y : [],
                 elapsed_time: col ? col.elapsed_time : [],
                 times: col ? col.times : [],
+                cycle_ids: col ? col.cycle_ids : [],
                 x_serial: col ? col.x_serial : [],
                 y_serial: col ? col.x_serial : [],
                 color_val: col ? col[colorOrderVar] : [],
@@ -739,6 +766,7 @@ const genScatterPlots = (
                 array_y: [],
                 elapsed_time: [],
                 times: [],
+                cycle_ids: [],
                 x_serial: [],
                 y_serial: [],
                 color_val: [],
@@ -748,8 +776,6 @@ const genScatterPlots = (
             if (col) {
                 if (minColorRange !== minColorVal || maxColorRange !== maxColorVal) {
                     // get keys of color in range
-                    const colorKeysInsideOfRange = [];
-                    const colorKeysOutsideOfRange = [];
                     const insideArrayX = [];
                     const insideArrayY = [];
                     const insideColorVal = [];
@@ -761,13 +787,13 @@ const genScatterPlots = (
                     const insideTimeSort = [];
                     col[colorOrderVar].forEach((v, k) => {
                         if (v >= minColorRange && v <= maxColorRange) {
-                            colorKeysInsideOfRange.push(k);
                             insideColorVal.push(v);
                             insideOrgColor.push(col.colors[k]);
                             insideArrayX.push(col.array_x[k]);
                             insideArrayY.push(col.array_y[k]);
                             insideElapsedTime.push(col.elapsed_time[k]);
                             insideTimes.push(col.times[k]);
+
                             if (col.x_serial && col.x_serial[k]) {
                                 insideXSerial.push(col.x_serial[k]);
                             }
@@ -778,13 +804,15 @@ const genScatterPlots = (
                                 insideTimeSort.push(col.time_numberings[k]);
                             }
                         } else {
-                            colorKeysOutsideOfRange.push(k);
                             traceDataOutsideColorRange.color_val.push(v);
                             traceDataOutsideColorRange.org_color_val.push(col.colors[k]);
                             traceDataOutsideColorRange.array_x.push(col.array_x[k]);
                             traceDataOutsideColorRange.array_y.push(col.array_y[k]);
                             traceDataOutsideColorRange.elapsed_time.push(col.elapsed_time[k]);
                             traceDataOutsideColorRange.times.push(col.times[k]);
+                            if (col.cycle_ids && col.cycle_ids[k] !== undefined) {
+                                traceDataOutsideColorRange.cycle_ids.push(col.cycle_ids[k]);
+                            }
                             if (col.x_serial && col.x_serial[k]) {
                                 traceDataOutsideColorRange.x_serial.push(col.x_serial[k]);
                             }
@@ -832,7 +860,7 @@ const genScatterPlots = (
                     yaxis: axisItem.yaxis,
                     hoverinfo: 'none',
                     customdata: {
-                        columndata: col,
+                        columndata: columnMetadata,
                         array_x: traceDataOutsideColorRange.array_x,
                         array_y: traceDataOutsideColorRange.array_y,
                         elapsed_time: traceDataOutsideColorRange.elapsed_time,
@@ -846,7 +874,7 @@ const genScatterPlots = (
                         vtitle: vTitle,
                         proc_id_x: col && col.end_proc_id,
                         sensor_id_x: col && col.end_col_id,
-                        cycle_ids: col && col.cycle_ids,
+                        cycle_ids: traceDataOutsideColorRange.cycle_ids,
                         x_threshold: col.x_threshold,
                         y_threshold: col.y_threshold,
                     },
@@ -872,7 +900,7 @@ const genScatterPlots = (
                 yaxis: axisItem.yaxis,
                 hoverinfo: 'none', // to use custom hover
                 customdata: {
-                    columndata: col,
+                    columndata: columnMetadata,
                     array_x: traceDataInsideColorRange.array_x,
                     array_y: traceDataInsideColorRange.array_y,
                     elapsed_time: traceDataInsideColorRange.elapsed_time,
@@ -886,7 +914,7 @@ const genScatterPlots = (
                     vtitle: vTitle,
                     proc_id_x: col && col.end_proc_id,
                     sensor_id_x: col && col.end_col_id,
-                    cycle_ids: col && col.cycle_ids,
+                    cycle_ids: traceDataInsideColorRange.cycle_ids,
                     x_threshold: col && col.x_threshold,
                     y_threshold: col && col.y_threshold,
                 },
@@ -906,7 +934,7 @@ const genScatterPlots = (
     layout.coloraxis.cmin = minColorRange;
     layout.coloraxis.cmax = maxColorRange;
     if (
-        [DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type) &&
+        ([DataTypes.STRING.name, DataTypes.INTEGER.name].includes(res.color_type) || isApplyJudgeColorScale) &&
         layout.coloraxis.colorbar.tickvals
     ) {
         let tickVals = layout.coloraxis.colorbar.tickvals;
@@ -943,7 +971,7 @@ const genScatterPlots = (
             plotType,
             [layout.coloraxis.cmin, layout.coloraxis.cmax],
             layout,
-            isApplyJudgeColorScale ? genColorScaleForJudge(unique_color[0].unique_categories) : null,
+            isApplyJudgeColorScale ? colorScaleSets : null,
         );
     }
 
@@ -991,9 +1019,7 @@ const genScatterPlots = (
             start_proc: res.start_proc,
         };
         const key = dataScp.data.customdata.first_point_idx || dataScp.pointIndex;
-        setTimeout(() => {
-            makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
-        }, 100);
+        makeScatterHoverInfoBox(dataScp, option, key, pageX, pageY);
     });
 
     unHoverHandler(graphDiv);
@@ -1350,43 +1376,12 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     clearTimeout(timerVar);
                     timerVar = setTimeout(() => {
                         [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
-                        genScatterPlots(
-                            scpMatrix,
-                            vLabels,
-                            hLabels,
-                            res,
-                            settings.colorScale,
-                            settings.colorOrdering,
-                            settings.chartScale,
-                            settings.plotType,
-                            actualHeight,
-                        );
+                        Plotly.Plots.resize(document.getElementById('sctr-card'));
                         genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
-                        initFilterModal(res, false);
                     }, 500);
                 });
             }
             const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
-            if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
-                genHTMLContentMatrix(scpMatrix, 'sctr-card', xName, yName, isShowFirstLabelH, isShowDate, divNumber);
-                const option = {
-                    isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
-                    isShowFacet: res.is_show_v_label,
-                    isShowDiv: res.div_name !== null,
-                    hasLv2: res.level_names && res.level_names.length >= 2,
-                    xDataType: res.x_data_type,
-                    yDataType: res.y_data_type,
-                    chartType,
-                    colorName: res.color_name,
-                    use_map_xy: false,
-                };
-                heatmapData = { scpMatrix, option, zoomRange };
-                genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
-                    zoomRange = event;
-                    const sets = getCurrentSettings();
-                    showGraph(sets);
-                });
-            }
 
             if (chartType === scpChartType.VIOLIN) {
                 const stringCol = res.string_axis || null;
@@ -1399,6 +1394,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     isShowDate,
                     divNumber,
                     stringCol,
+                    res?.div_name,
                 );
                 const option = {
                     isShowNumberOfData: res.COMMON.compareType === els.dataNumberTerm,
@@ -1579,6 +1575,7 @@ const genHTMLContentMatrix = (
     isShowDate,
     isDivNumber,
     stringCol = null,
+    divName = '',
 ) => {
     let contentDOM = '';
     const totalRow = scpMatrix.length;
@@ -1633,7 +1630,11 @@ const genHTMLContentMatrix = (
                         )
                         .join(` ${COMMON_CONSTANT.EN_DASH} `);
             } else if (labelH && isDivNumber) {
-                labelH = `Cat${labelH}`;
+                labelH = `${labelH}`;
+            }
+
+            if (divName) {
+                labelH = `${divName}:${labelH}`;
             }
 
             const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
@@ -1689,96 +1690,6 @@ const genHTMLContentMatrix = (
         </div>
         `;
     $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
-};
-
-const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
-    let allColorValSets = [];
-    const allYValues = [];
-    const allXValues = [];
-    // get common Y of each row
-    scpData.forEach((row, i) => {
-        let allYValue = [];
-        row.forEach((item) => {
-            if (item) {
-                item.array_y = item.array_y.map((val) => val.toString());
-                allYValue = [...allYValue, ...item.array_y];
-                if (item.array_z) {
-                    item.array_z.forEach((z) => {
-                        allColorValSets = [...allColorValSets, ...z.map((y) => y)];
-                    });
-                } else {
-                    allColorValSets = item.colors;
-                }
-            }
-        });
-        allYValues.push(allYValue.filter(onlyUniqueFilter));
-    });
-
-    const [zmin, zmax] = findMinMax(allColorValSets);
-    // get common X of each column
-    const totalRow = scpData.length;
-    for (let i = 0; i < scpData[0].length; i++) {
-        let allXValue = [];
-        for (let j = 0; j < totalRow; j++) {
-            const item = scpData[j][i];
-            if (item) {
-                item.array_x = item.array_x.map((val) => val.toString());
-                allXValue = [...allXValue, ...item.array_x];
-            }
-        }
-        allXValues.push(allXValue.filter(onlyUniqueFilter));
-    }
-
-    scpData.forEach((row, i) => {
-        row.forEach((item, j) => {
-            const canvasID = `scp-${i}-${j}`;
-            const graphDiv = document.getElementById(canvasID);
-            if (item) {
-                item.array_y = item.array_y.map((val) => val.toString());
-                item.array_x = item.array_x.map((val) => val.toString());
-                item.zmax = zmax;
-                item.zmin = zmin;
-                item.isShowY = j === 0;
-                item.isShowX = i === scpData.length - 1;
-                item.canvasId = canvasID;
-                generateHeatmapPlot(item, option, zoomRange);
-            } else if (!item) {
-                const fakeItem = {};
-                fakeItem.zmax = zmax;
-                fakeItem.zmin = zmin;
-                fakeItem.canvasId = canvasID;
-                fakeItem.isShowY = j === 0;
-                fakeItem.isShowX = i === scpData.length - 1;
-                fakeItem.array_x = allXValues[j];
-                fakeItem.array_y = allYValues[i];
-                fakeItem.array_z = Array(allYValues[i].length).fill(Array(allXValues[j].length).fill(-1));
-                generateHeatmapPlot(fakeItem, option, zoomRange);
-            }
-            graphDiv.on('plotly_relayout', (eventdata) => {
-                callback(eventdata);
-            });
-            option.canvas_id = canvasID;
-            graphDiv.on('plotly_hover', (data) => {
-                setTimeout(() => {
-                    $('.scp-hover-info').remove();
-                    const dataScp = scpData[i][j];
-                    if (!dataScp) return;
-                    const { x, y } = data.points[0];
-                    const { pageX, pageY } = data.event;
-                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY);
-                }, 200);
-            });
-
-            unHoverHandler(graphDiv);
-
-            graphDiv.addEventListener('mouseleave', () => {
-                $('.scp-hover-info').remove();
-            });
-        });
-    });
-
-    const colorBarTitle = option.use_map_xy ? option.colorName : 'Ratio[%]';
-    genColorScaleBar(allColorValSets, colorBarTitle, colorPalettes);
 };
 
 const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScales[1], zoomRange = null, callback) => {
@@ -1876,14 +1787,14 @@ const genViolinPlots = (scpData, option, scaleX, scaleY, scaleOption = chartScal
             });
             option.canvas_id = canvasID;
             graphDiv.on('plotly_hover', (data) => {
-                setTimeout(() => {
-                    $('.scp-hover-info').remove();
-                    const dataScp = scpData[i][j];
-                    if (!dataScp) return;
-                    const { pageX, pageY } = data.event;
-                    const key = dataScp.isHorizontal ? data.points[0].y : data.points[0].x;
-                    makeHoverInfoBox(dataScp, key, option, pageX, pageY);
-                }, 10);
+                $('.scp-hover-info').remove();
+                const point = data.points?.[0];
+                if (!point || !data.event) return;
+                const dataScp = scpData[i][j];
+                if (!dataScp) return;
+                const { pageX, pageY } = data.event;
+                const key = dataScp.isHorizontal ? data.points[0].y : data.points[0].x;
+                makeHoverInfoBox(dataScp, key, option, pageX, pageY);
             });
 
             unHoverHandler(graphDiv);
@@ -1977,20 +1888,22 @@ const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUp
     // clear old html elements
     $('.scp-hover-info').remove();
 
-    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.is_send_ga_off) {
             showGAToastr(true);
         }
 
         await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
     });
+
+    return requestPromise;
 };
 
 const handleSetPollingData = () => {
     const settings = getCurrentSettings();
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const validateXYColorType = (formData) => {
@@ -2034,7 +1947,7 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     loadingShow();
     const startTime = runTime();
 
-    scatterTraceData(clearOnFlyFilter, setting);
+    const requestPromise = scatterTraceData(clearOnFlyFilter, setting);
 
     // send GA events
     const endTime = runTime();
@@ -2044,6 +1957,8 @@ const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
         event_label: 'Trace Data',
         value: traceTime,
     });
+
+    return requestPromise;
 };
 
 const transformXY = (formData) => {
@@ -2090,17 +2005,21 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
         formData = lastUsedFormData;
         // transform cat label filter
         formData = transformCatFilterParams(formData);
-
-        // transfer for switch XY
-        formData = transformXY(formData);
     }
+
+    // transfer for switch XY
+    formData = transformXY(formData);
 
     return formData;
 };
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
+    if (!requestStartedAt) {
+        requestStartedAt = performance.now();
+    }
+
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/scp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.is_send_ga_off) {
             showGAToastr(true);
         }
@@ -2118,9 +2037,7 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
             const setting = getCurrentSettings();
             handleSubmit(false, setting);
         });
-
         await showSCP(res, setting, clearOnFlyFilter);
-
         // show toastr to inform result was truncated upto 5000
         if (res.is_res_limited) {
             showToastrMsg(i18n.traceResulLimited.split('BREAK_LINE').join('<br>'));
@@ -2145,10 +2062,12 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
         // show info table
         showInfoTable(res);
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
     });
 
     $('#plot-cards').empty();
+
+    return requestPromise;
 };
 
 const initFilterModal = (res) => {
@@ -2353,7 +2272,6 @@ const genLineColor = (color, cmin, cmax) => {
 };
 
 const genLineColorForJudge = (scaleColor, colorVal) => {
-    // get color of last item in scaleColor (value = 1 => OK)
-    // get color of first item in scaleColor (value = 0 => NG)
+    // The encoded judge value determines which endpoint of the active judge scale is used.
     return colorVal > 0 ? scaleColor[scaleColor.length - 1][1] : scaleColor[0][1];
 };

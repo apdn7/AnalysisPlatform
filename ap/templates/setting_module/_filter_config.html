@@ -19,6 +19,9 @@
                     {% endfor %}
                 </select>
             </div>
+            <button class="btn btn-secondary icon-btn" style="margin-left: 10px; display: none" id="btnRefresh">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -28,7 +31,6 @@
     {% include '_filter_machine.html' %}
     {% include '_filter_partno.html' %}
     {% include '_filter_others.html' %}
-    {% include 'filter_config_modals.html' %}
 </div>
 {# --------- Content ---------- #}
 

@@ -88,7 +88,11 @@ echo.
 echo Create Shortcut
 : make shortcut on DeskTop
 set "shortcut_icon=ap\static\common\icons\AP+DN7.ico"
-if not exist %shortcut_icon% set "shortcut_icon=ap\static\common\icons\AP+DN7.ico"
+if exist "%shortcut_icon%" (
+  set "shortcut_icon=%~dp0%shortcut_icon%"
+) else (
+  set "shortcut_icon=C:\Windows\System32\imageres.dll,144"
+)
 rem echo %shortcut_icon%
 : get desktop path in case of OneDrive
 for /f "delims=" %%i in ('%pshell% -Command "[Environment]::GetFolderPath('Desktop')"') do set "desktopPath=%%i"
@@ -100,39 +104,43 @@ if "%subt%"=="null" (
 
 :: for web
 set "fpath=skip"
-if not %shortcut_web% equ 0 set "fpath=%fname:|=%"
-if %shortcut_web% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
-if not "%fpath%"=="skip" if not exist %fpath% (
-  echo [InternetShortcut]>%fpath%
-  echo URL=http://localhost:%port%/>> %fpath%
+if not "%shortcut_web%"=="0" set "fpath=%fname:|=%"
+if "%shortcut_web%"=="1" if "%status%"=="%status_run_app%" if "%only_install%"=="0" set "fpath=skip"
+if not "%fpath%"=="skip" if not exist "%fpath%" (
+  > "%fpath%" echo [InternetShortcut]
+  >>"%fpath%" echo URL=http://localhost:%port%/
 )
 
 :: for app
 set "fpath=skip"
-if not %shortcut_app% equ 0 set "fpath=%fname:|=%"
-if %shortcut_app% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%shortcut_app%"=="0" set "fpath=%fname:|=%"
+if "%shortcut_app%"=="1" if "%status%"=="%status_run_app%" if "%only_install%"=="0" set "fpath=skip"
 set "fpath=%fpath:.url=.lnk%"
 if not "%fpath%"=="skip" if not exist "%fpath%" (
-  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='%~f0';$s.WorkingDirectory='%~dp0';$s.IconLocation='%~dp0%shortcut_icon:"=%';$s.Save()"
+  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='%~f0';$s.WorkingDirectory='%~dp0';$s.IconLocation='%shortcut_icon%';$s.Save()"
 )
 
 ::: for web by ip addr
-for /f "tokens=4 delims= " %%i in ('route print ^| find " 0.0.0.0"') do set ip=%%i
+set "ip="
+for /f "tokens=4 delims= " %%i in ('route print ^| find " 0.0.0.0"') do (if not defined ip set "ip=%%i")
 echo   ip: %ip%
 set "fpath=skip"
-if not %shortcut_web_ip% equ 0 set "fpath=%fname:|=ip%"
-if %shortcut_web_ip% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%shortcut_web_ip%"=="0" set "fpath=%fname:|=ip%"
+if "%shortcut_web_ip%"=="1" if "%status%"=="%status_run_app%" if "%only_install%"=="0" set "fpath=skip"
 if not "%fpath%"=="skip" if not exist "%fpath%" (
-  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='http://%ip%:%port%/';$s.Save()"
+  > "%fpath%" echo [InternetShortcut]
+  >>"%fpath%" echo URL=http://%ip%:%port%/
 )
 ::: for web by pc name
+set "pc="
 for /f %%i in ('hostname') do set pc=%%i
 echo   pc: %pc%
 set "fpath=skip"
-if not %shortcut_web_pc% equ 0 set "fpath=%fname:|=pc%"
-if %shortcut_web_pc% equ 1 if %status% equ %status_run_app% if %only_install% equ 0 set "fpath=skip"
+if not "%shortcut_web_pc%"=="0" set "fpath=%fname:|=pc%"
+if "%shortcut_web_pc%"=="1" if "%status%"=="%status_run_app%" if "%only_install%"=="0" set "fpath=skip"
 if not "%fpath%"=="skip" if not exist "%fpath%" (
-  %pshell% -Command "$p=$env:fpath;$s=(New-Object -COM WScript.Shell).CreateShortcut($p);$s.TargetPath='http://%pc%:%port%/';$s.Save()"
+  >"%fpath%" echo [InternetShortcut]
+  >>"%fpath%" echo URL=http://%pc%:%port%/
 )
 echo.
 

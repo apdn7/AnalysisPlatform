@@ -252,14 +252,14 @@
 {% endmacro %}
 
 <!-- end proc -->
-{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false, nominalScale=False, showPaste=true) %}
+{% macro end_proc(procs, selected, label_i18n_key='Show value', title='', width=2, multiple_proc=true, traceData=false, dom_prefix='', showStartProc=false, nominalScale=False, showPaste=true, with_count=True) %}
     <div class="card-body table-bordered graph-navi" id="endPrc">
         <div class="row">
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
                 <div class="d-flex justify-content-between">
                     {{ label(_(label_i18n_key), title=title) }}
                     {% if showPaste %}
-                        {{ paste_btn(with_count=True) }}
+                        {{ paste_btn(with_count=with_count) }}
                     {% endif %}
                 </div>
                 {% if nominalScale %}
@@ -565,7 +565,7 @@
 {% endmacro %}
 
 <!-- Heatmap End Proc -->
-{% macro heatmap_end_proc(procs, title='', width=2) %}
+{% macro heatmap_end_proc(procs, title='', width=2, is_hmp=False) %}
     <div class="card-body table-bordered graph-navi">
         <div class="row">
             <div class="col-xl-{{ width }} col-3 d-flex flex-column">
@@ -596,7 +596,12 @@
                         <div class="d-flex align-items-center mt-1">
                             {{ sub_label(_('nonNumericLabel'), title=_('nonNumericHoverMsg'), hl=' mr-3') }}
                             <select id="function_cate" class="form-control" style="width: 120px" name="function_cate">
-                                <option value="ratio">Ratio[%]</option>
+                                {% if is_hmp %}
+                                    <option value="ok_most_ratio">OK(Most)[%]</option>
+                                    <option value="ng_fewest_ratio">NG(Fewest)[%]</option>
+                                {% else %}
+                                    <option value="ratio">Ratio[%]</option>
+                                {% endif %}
                                 <option value="count">{{ _('CHMCount') }}</option>
                                 <option value="last">Last</option>
                                 <option value="first">First</option>
@@ -929,7 +934,7 @@
     </div>
 {% endmacro %}
 
-{% macro index_order_modal(modalId='xAxisModal', tableId='serialTable', addBtnId='btnAddSerial', okBtnId='btnXAxisModalOK', cancelBtnId='btnXAxisModalCancel') %}
+{% macro index_order_modal(modalId='xAxisModal', tableId='serialTable', addBtnId='btnAddSerial', okBtnId='btnXAxisModalOK', cancelBtnId='btnXAxisModalCancel', showNumerics = False, showCategoryAggregate = False, prefix = '') %}
     <div id="{{ modalId }}" class="modal in" data-backdrop="static">
         <div class="modal-dialog modal-confirm modal-xl">
             <div class="modal-content">
@@ -940,8 +945,12 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    {% if showCategoryAggregate %}
+                        <div id="{{ prefix }}categoryAggregateArea"></div>
+                    {% endif %}
                     <table
                         id="{{ tableId }}"
+                        data-show-numerics="{{ showNumerics }}"
                         class="table table-bordered table-main table-bordered table-dark table-striped table-hover table-hover-light"
                     >
                         <thead>
@@ -1124,6 +1133,47 @@
 {% endmacro %}
 
 <!-- X index -->
+{% macro x_index_info() %}
+    <div class="index-inform-modal" style="width: 35px">
+        <div class="index-inform btn-primary">
+            <span><i class="fas fa-info-circle"></i></span>
+        </div>
+        <div id="indexHoverContent" class="index-inform-content">
+            <span class="sub-label">{{ _('Index Ordering Setting') }}</span>
+            <button class="btn clipboard" style="float:right;" data-clipboard-target="#index-infor-table" title="">
+                <i class="fa fa-copy" aria-hidden="true"></i>
+            </button>
+            <div class="index-content">
+                <table class="table table-borderless" id="index-infor-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">{{ _("Priority") }}</th>
+                            <th class="text-center">{{ _("Process") }}</th>
+                            <th class="text-center">{{ _("Column") }}</th>
+                            <th class="text-center">{{ _("Order") }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Process 1</td>
+                            <td>Index Key</td>
+                            <td>昇順</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>Process 1</td>
+                            <td>Index Key</td>
+                            <td>昇順</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+<!-- X index -->
 {% macro x_index() %}
     <div class="d-flex align-items-center mr-3">
         <div class="dn-custom-select">
@@ -1132,43 +1182,7 @@
                 <option value="INDEX">{{ _('Serial series') }}</option>
             </select>
         </div>
-        <div class="index-inform-modal" style="width: 35px">
-            <div class="index-inform btn-primary">
-                <span><i class="fas fa-info-circle"></i></span>
-            </div>
-            <div id="indexHoverContent" class="index-inform-content">
-                <span class="sub-label">{{ _('Index Ordering Setting') }}</span>
-                <button class="btn clipboard" style="float:right;" data-clipboard-target="#index-infor-table" title="">
-                    <i class="fa fa-copy" aria-hidden="true"></i>
-                </button>
-                <div class="index-content">
-                    <table class="table table-borderless" id="index-infor-table">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ _("Priority") }}</th>
-                                <th class="text-center">{{ _("Process") }}</th>
-                                <th class="text-center">{{ _("Column") }}</th>
-                                <th class="text-center">{{ _("Order") }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Process 1</td>
-                                <td>Index Key</td>
-                                <td>昇順</td>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>Process 1</td>
-                                <td>Index Key</td>
-                                <td>昇順</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        {{ x_index_info() }}
     </div>
 {% endmacro %}
 

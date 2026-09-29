@@ -53,6 +53,8 @@ const masterDataGroup = {
     MAIN_DATE: 7,
     MAIN_TIME: 8,
     INT_CATE: 10,
+    PROC_NO: 18,
+    PROC_NAME: 19,
     LINE_NAME: 20,
     LINE_NO: 21,
     EQ_NAME: 22,
@@ -79,6 +81,8 @@ const isMasterDataColumn = (columnType) => {
         masterDataGroup.EQ_NO,
         masterDataGroup.ST_NO,
         masterDataGroup.JUDGE,
+        masterDataGroup.PROC_NO,
+        masterDataGroup.PROC_NAME,
     ].includes(columnType);
 };
 
@@ -230,11 +234,28 @@ const JudgeColorPallets = {
     ],
     OK_NG: colorPallets.JET_REV.scale,
 };
+const JUDGE_COLOR_CONFIG = Object.freeze({
+    positive: {
+        value: 1,
+    },
+    negative: {
+        value: 0,
+    },
+});
 
 const JUDGE_COLOR_DEFAULT = {
     POSITIVE: '#1f77b4',
     NEGATIVE: '#d62728',
 };
+
+function genJudgeColorValueMap(judgeFormula) {
+    if (!judgeFormula) return null;
+
+    return new Map([
+        [judgeFormula.positive, JUDGE_COLOR_CONFIG.positive.value],
+        [judgeFormula.negative, JUDGE_COLOR_CONFIG.negative.value],
+    ]);
+}
 
 const isDebugMode = localStorage.getItem('DEBUG')
     ? localStorage.getItem('DEBUG').trim().toLowerCase() === 'true'
@@ -489,6 +510,8 @@ const showHideShutDownButton = () => {
     // if (!['localhost', '127.0.0.1'].includes(hostName)) {
     //     $(baseEles.shutdownApp).css('display', 'none');
     // }
+    setUserRule();
+
     if (!isAdmin) {
         $(baseEles.shutdownApp).css('display', 'none');
     }
@@ -653,15 +676,31 @@ const useTileInterface = (storageKey = 'isLoadingFromTitleInterface') => {
  *
  * @param {string} url - The URL to be opened in the new tab or window.
  * @param {string?} [target='_blank'] - Specifies where to open the new URL {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open#target}. Typically, '_blank' for a new tab.
- * @param {string?} [windowFeatures='noreferrer'] - A comma-separated list of window features {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open#windowfeatures}. By default, includes 'noreferrer' for security.
+ * @param {string?} [windowFeatures='noreferrer'] - A comma-separated list of window features {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open#windowfeatures}.
  * @return {Window | null} - A reference to the newly created window, or null if the operation fails.
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/open}
  */
 function openNewTab(url, target = '_blank', windowFeatures = 'noreferrer') {
-    if (!windowFeatures.includes('noreferrer')) {
-        windowFeatures = `${windowFeatures},noreferrer`;
+    // Do not pass noreferrer/noopener to window.open here. Some browsers return null
+    // for those features even when the tab opens, which makes popup-block detection unreliable.
+    const detectableWindowFeatures = windowFeatures
+        .split(',')
+        .map((feature) => feature.trim())
+        .filter((feature) => feature && !['noreferrer', 'noopener'].includes(feature.toLowerCase()))
+        .join(',');
+
+    const openedWindow = window.open(url, target, detectableWindowFeatures);
+    if (!openedWindow && typeof showToastrMsg === 'function') {
+        const message =
+            (typeof i18nCommon !== 'undefined' && i18nCommon.popupBlockerWarning) ||
+            "Please disable your browser's pop-up blocker.";
+        showToastrMsg(message, MESSAGE_LEVEL.WARN);
     }
-    return window.open(url, target, windowFeatures);
+    if (openedWindow) {
+        // Keep the opened page from accessing this window.
+        openedWindow.opener = null;
+    }
+    return openedWindow;
 }
 
 const openNewPage = () => {
@@ -704,8 +743,6 @@ $(async () => {
     overrideUiSortable();
 
     updateI18nCommon();
-
-    checkDiskCapacity();
 
     SetAppEnv();
     getFiscalYearStartMonth();
@@ -1652,7 +1689,7 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
         });
     }
 
-    $.ajax({
+    return $.ajax({
         ...option,
         beforeSend: (jqXHR) => {
             formData = handleBeforeSendRequestToShowGraph(jqXHR, formData);

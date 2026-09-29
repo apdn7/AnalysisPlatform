@@ -1,6 +1,6 @@
 const JUMP_API = '/ap/api/common/jump_cfg';
 
-const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp', 'wfp', 'crp'];
+const PAGES = ['fpp', 'stp', 'rlp', 'msp', 'chm', 'scp', 'agp', 'skd', 'pcp', 'gl', 'pca', 'hmp', 'wfp', 'crp', 'map'];
 
 const PAGE_NAME = {
     fpp: 'fpp',
@@ -17,6 +17,7 @@ const PAGE_NAME = {
     hmp: 'hmp',
     wfp: 'wfp',
     crp: 'crp',
+    map: 'map',
 };
 
 const MAX_JUMP_SENSOR_NUMBER = 20;
@@ -68,6 +69,7 @@ const MAX_SENSOR_NUMBER = {
     msp: 64,
     pcp: 60,
     scp: 2,
+    hmp: 2,
 };
 
 const HAS_OBJECTIVE_PAGE = ['skd', 'pcp', 'gl', 'crp'];
@@ -586,6 +588,8 @@ const handleClickOKJumpButton = (e) => {
         jumpKeyParams += `&excluded_columns=${excludeSensors.join(',')}`;
     }
 
+    jumpFromHMPToOtherPages(page, targetPage);
+
     // IGNORE CHECK ALL
     excludeSensors.push('All');
 
@@ -686,12 +690,50 @@ const handleClickOKJumpButton = (e) => {
         ngRateCols = ngRateCols.filter((col) => !sortedColumnIds.includes(col));
         sortedColumnIds = [...sortedColumnIds, ...ngRateCols];
     }
-    localStorage.setItem(sortedColumnsKey, JSON.stringify(sortedColumnIds));
 
+    handleJumpToOtherPage(targetUrl, jumpKeyParams, sortedColumnIds);
+};
+
+const handleJumpToOtherPage = (targetUrl, jumpKeyParams = '', sortedColumnIds = []) => {
+    localStorage.setItem(sortedColumnsKey, JSON.stringify(sortedColumnIds));
     isCopyFromJumpModel = true;
     $('button[name="copyPage"]').trigger('click');
     goToOtherPage(`${targetUrl}?from_jump_func=1${jumpKeyParams}`, false, true);
     $(jumpEls.jumpModal).modal('hide');
+};
+
+const jumpFromHMPToOtherPages = (currentPage, targetPage) => {
+    // | HMP -> AgP | x -> x (div)    |
+    // |            | y -> y          |
+    // |            | color -> y      |
+    // |------------|-----------------|
+    // | HMP -> MAP | x -> x (x-axis) |
+    // |            | y -> y          |
+    // |            | color -> y      |
+    if (currentPage !== PAGE_NAME.hmp) return;
+    // from HMP to AgP
+    // get x, y, color
+    const xColId = latestSortColIds[0]?.split('-')[1];
+    const colorColId = $('input[name^=colorVar]:checked').val();
+
+    if (colorColId) {
+        addVariableToSettings(colorColId);
+    }
+
+    if (targetPage === PAGE_NAME.agp) {
+        //check if div is not selected
+        let isDivSelected = $('select[name=catExpBox] option:selected').text().includes('Div');
+        if (!isDivSelected) {
+            dumpedUserSetting.push({
+                id: `catExpItem-${xColId}`,
+                level: 1,
+                name: 'catExpBox',
+                type: 'select-one',
+                value: '3',
+            });
+        }
+    }
+    //todo from HMP to MAP
 };
 
 const resetCommonJumpObj = () => {
@@ -961,4 +1003,40 @@ const sortVarOrdering = (varOrder) => {
 
         return (aIndex === -1 ? Infinity : aIndex) - (bIndex === -1 ? Infinity : bIndex);
     });
+};
+
+const addVariableToSettings = (colId) => {
+    const checkbox = $(`input[name^="GET02_VALS_SELECT"][value="${colId}"]`).first();
+
+    const group = checkbox
+        .closest('[id^="list-end-proc-val-"]')
+        .attr('id')
+        ?.match(/^list-end-proc-val-(\d+)$/)?.[1];
+
+    if (!group) {
+        return;
+    }
+
+    const setting = {
+        id: `checkbox-${colId}end-proc-val-div-${group}`,
+        name: `GET02_VALS_SELECT${group}`,
+        checked: true,
+        type: 'checkbox',
+        value: String(colId),
+    };
+    dumpedUserSetting.push(setting);
+};
+
+const jumpFromMAPToFPP = (layout) => {
+    const subplots = layout.sub_plots;
+    subplots.forEach((subplot) => {
+        // add = [], main = [], sub = [], primary
+        const add = subplot.add || [];
+        const main = subplot.main || [];
+        const sub = subplot['sub'] || [];
+        const primary = subplot.primary;
+        [...add, ...main, ...sub, primary].forEach((colId) => addVariableToSettings(colId));
+    });
+
+    handleJumpToOtherPage('/ap/fpp');
 };

@@ -90,17 +90,42 @@
                         aria-labelledby="headingPC"
                     >
                         {{ macros.alert_message("alert-msg-db") }}
+                        <div class="proc-bulk-action d-flex align-items-center">
+                            <button id="btn-delete-selected-procs" type="button" class="btn btn-danger" disabled>
+                                {{ _("Delete Selected") }}
+                            </button>
+                            <span id="selected-proc-count">0</span>
+                            <span>{{ _("selected") }}</span>
+                        </div>
                         <div class="table-responsive">
                             <table id="tblProcConfig" class="table table-bordered table-main table-hover-light">
                                 <thead>
                                     <tr>
+                                        <th class="text-center proc-select-column">
+                                            <div class="custom-control custom-checkbox proc-checkbox-control">
+                                                <input
+                                                    id="select-all-processes"
+                                                    type="checkbox"
+                                                    class="proc-checkbox-input custom-control-input"
+                                                    value=""
+                                                    aria-label="{{ _('Select All') }}"
+                                                    {% if not is_authorized %}
+                                                        disabled
+                                                    {% endif %}
+                                                />
+                                                <label
+                                                    class="proc-checkbox-label custom-control-label"
+                                                    for="select-all-processes"
+                                                ></label>
+                                            </div>
+                                        </th>
                                         <th class="col-number">{{ _("No.") }}</th>
                                         <th scope="col" class="text-center th-md">{{ _("Process Name") }}</th>
                                         <th scope="col" class="text-center th-md">{{ _("Data Source Name") }}</th>
                                         <th class="text-center th-sm" scope="col">{{ _("Table Name") }}</th>
                                         <th class="text-center button-column" scope="col"></th>
                                         <th class="text-center" scope="col">{{ _("Comment") }}</th>
-                                        <th class="text-center th-md" scope="col">{{ _("Label") }}</th>
+                                        <th class="text-center th-md col-label" scope="col">{{ _("Label") }}</th>
                                         <th class="text-center w-auto" scope="col">{{ _("Status") }}</th>
                                         <th class="text-center col-btn button-column" scope="col">
                                             <!-- <i class="fas fa-filter icon-secondary"
@@ -116,9 +141,28 @@
                                             id="proc_{{ proc_info.id }}"
                                             data-ds-id="{{ proc_info.data_source.id }}"
                                             data-proc-id="{{ proc_info.id }}"
-                                            data-proc-parent-id="{{ proc_info.parent_id or "" }}"
+                                            data-proc-parent-id="{{ proc_info.parent_id or '' }}"
                                             data-test-id="{{ proc_info.shown_name }}"
                                         >
+                                            <td class="text-center proc-select-column">
+                                                <div class="custom-control custom-checkbox proc-checkbox-control">
+                                                    <input
+                                                        id="select-process-{{ proc_info.id }}"
+                                                        type="checkbox"
+                                                        class="proc-select-checkbox proc-checkbox-input custom-control-input"
+                                                        value=""
+                                                        data-proc-id="{{ proc_info.id }}"
+                                                        aria-label="{{ _('Select') }}"
+                                                        {% if not is_authorized or proc_info.status== 2 %}
+                                                            disabled
+                                                        {% endif %}
+                                                    />
+                                                    <label
+                                                        class="proc-checkbox-label custom-control-label"
+                                                        for="select-process-{{ proc_info.id }}"
+                                                    ></label>
+                                                </div>
+                                            </td>
                                             <td class="col-number">{{ loop.index }}</td>
                                             <td>
                                                 <input

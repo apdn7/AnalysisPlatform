@@ -299,6 +299,10 @@ const HistogramWithDensityCurve = ($, paramObj) => {
     }
 
     const hdPlot = document.getElementById(canvasId);
+    if (hdPlot.removeAllListeners) {
+        hdPlot.removeAllListeners('plotly_hover');
+        hdPlot.removeAllListeners('plotly_unhover');
+    }
     hdPlot
         .on('plotly_hover', (data) => {
             if (data.points) {

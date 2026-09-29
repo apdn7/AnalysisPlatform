@@ -309,7 +309,7 @@ const collectFormDataPCP = (clearOnFlyFilter, autoUpdate = false) => {
 const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump = false) => {
     const formData = collectFormDataPCP(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.is_send_ga_off) {
             showGAToastr(true);
         }
@@ -324,6 +324,11 @@ const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump = false)
         // reset setting variables
         if (clearOnFlyFilter) {
             resetSetting(isRedirectFromJump);
+        }
+
+        // check result and show toastr msg
+        if (isEmpty(res.array_plotdata) || !res.actual_record_number) {
+            showToastrAnomalGraph();
         }
 
         const sensorTypes = getSensorTypes(res.array_plotdata);
@@ -348,11 +353,13 @@ const showParallelGraph = (clearOnFlyFilter = false, isRedirectFromJump = false)
             true,
         );
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
 
         // show info table
         showInfoTable(res);
     });
+
+    return requestPromise;
 };
 
 const hideMenu = () => {
@@ -477,9 +484,7 @@ const onChangeYScale = (selection) => {
 };
 
 const onChangeFineSelect = () => {
-    const settings = getSettingOptions();
     showParacordWithSettings(true);
-    showParacords(paracordTraces, settings, false, false, paracordTraces.options);
 };
 
 const onChangeDataView = (e) => {
@@ -494,8 +499,12 @@ const onChangeDataView = (e) => {
 const callToBackEndAPI = async (filter, clearOnFlyFilter = false, autoUpdate = false) => {
     loadingShow();
     const formData = collectFormDataPCP(clearOnFlyFilter, autoUpdate);
-    showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/pcp/index', formData, REQUEST_TIMEOUT, async (res) => {
         paracordTraces = res;
+
+        if (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata.find((d) => !d.is_empty_graph).array_y)) {
+            showToastrAnomalGraph();
+        }
         const settings = getSettingOptions();
         needUpdateDimColor = true;
         graphStore.setTraceData(_.cloneDeep(res));
@@ -516,16 +525,18 @@ const callToBackEndAPI = async (filter, clearOnFlyFilter = false, autoUpdate = f
             $('#updateParacords').addClass('hide');
         }
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
 
         removeOutlierOptionChanged = false;
         removeOutliers = 0;
     });
+
+    return requestPromise;
 };
 
 const handleSetPollingData = () => {
     const settings = collectFormDataPCP(false);
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const showParacordWithSettings = async (filter = false) => {
@@ -575,17 +586,18 @@ const getEndCatDimFromChart = () => {
     return null;
 };
 
-const changeDimColor = (objective, isParacat = false) => {
+const changeDimColor = (objective, isParacat = false, isDark = true) => {
     const allDim = $('#paracord-plot g.y-axis');
     const lastDim = $(`#paracord-plot g.y-axis:eq(${allDim.length - 1})`);
     if (objective.name) {
         const sameProcDim = $('#paracord-plot g.y-axis').find(`.axis-title[data-dpv^=${objective.procId}]`);
         const tspanLabel = '.axis-title tspan.line>tspan';
         // reset all dim color
-        allDim.find(tspanLabel).css('fill', CONST.WHITE);
+        allDim.find(tspanLabel).css('fill', isDark ? CONST.WHITE : CONST.DARK_GRAY);
+
         sameProcDim.find('tspan.line>tspan').css('fill', CONST.LIGHT_BLUE);
         // set target dim color
-        lastDim.find(tspanLabel).css('fill', CONST.YELLOW);
+        lastDim.find(tspanLabel).css('fill', isDark ? CONST.YELLOW : CONST.DARK_YELLOW);
         updateTargetDim(objective.name);
     }
 
@@ -593,12 +605,14 @@ const changeDimColor = (objective, isParacat = false) => {
     if (isParacat) {
         const allCatDim = $('g.dimension').find('.dimlabel:eq(0)');
         // reset color of all dimension
-        allCatDim.css('fill', CONST.WHITE);
+        allCatDim.css('fill', isDark ? CONST.WHITE : CONST.DARK_GRAY);
 
         const endDim = getEndCatDimFromChart();
         // assign blue for same process columns
         if (objective.name) {
-            allCatDim.filter((i, v) => $(v).data('dpv') === objective.name).css('fill', CONST.YELLOW);
+            allCatDim
+                .filter((i, v) => $(v).data('dpv') === objective.name)
+                .css('fill', isDark ? CONST.YELLOW : CONST.DARK_YELLOW);
             allCatDim
                 .filter(
                     (i, v) =>
@@ -608,9 +622,9 @@ const changeDimColor = (objective, isParacat = false) => {
                 .css('fill', CONST.LIGHT_BLUE);
             if (needUpdateDimColor) {
                 if (endDim && endDim.length) {
-                    endDim.css('fill', CONST.YELLOW);
+                    endDim.css('fill', isDark ? CONST.YELLOW : CONST.DARK_YELLOW);
                 } else {
-                    allCatDim.last().css('fill', CONST.YELLOW);
+                    allCatDim.last().css('fill', isDark ? CONST.YELLOW : CONST.DARK_YELLOW);
                 }
                 updateTargetDim(objective.name);
             }
@@ -934,7 +948,12 @@ const getObjectiveDim = (asArray = false) => {
 
 const bindChangeDimColor = (objective, isParacat = false) => {
     // update color of dimension
-    changeDimColor(objective, isParacat);
+    const theme =
+        document
+            .getElementById('plot-style-setting')
+            ?.querySelector('.ml-3 [data-active="true"]')
+            ?.textContent?.trim() ?? '';
+    changeDimColor(objective, isParacat, theme === 'dark');
 
     // bind drag-drpo dimension events
     $('g.y-axis .axis-title, g.dimension text.dimlabel')

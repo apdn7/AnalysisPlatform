@@ -130,6 +130,10 @@
                     title: 'WfP',
                     icon: 'favicon.ico',
                 },
+                '/ap/map': {
+                    title: 'MAP',
+                    icon: 'favicon.ico',
+                },
                 '/ap/analyze/structure_learning/crp': {
                     title: 'CrP',
                     icon: 'favicon.ico',
@@ -142,7 +146,8 @@
             //現在UrlとDictionaryを比較して、一致すれば、Dictionaryの設定データを取得する。
             const getSetting = objTitle[currentUrl];
             if (getSetting) {
-                $('title').html(getSetting.title);
+                const title = getSetting.title === 'MAP' ? 'MAP Multi-axis Plot' : getSetting.title;
+                $('title').html(title);
                 $("link[rel*='icon']").prop('href', '/static/common/icons/' + getSetting.icon + '');
             }
         </script>

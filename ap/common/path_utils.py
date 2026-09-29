@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import os
+import re
 import shutil
 import sys
 import zipfile
@@ -413,6 +414,88 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
                     output_files.append(os.path.join(root, file))
 
     return output_files
+
+
+def _matches_include_exclude(value: str, include_pattern: str | None, exclude_pattern: str | None) -> bool:
+    """Check a string against an optional include and an optional exclude regex.
+
+    - If include_pattern is set, value must match it (re.search) to pass.
+    - If exclude_pattern is set, value must NOT match it to pass.
+    - An invalid regex is treated as "no match" for include (fails everything) and
+      "no match" for exclude (excludes nothing), so a typo never silently hides files
+      it shouldn't nor imports files it shouldn't have.
+
+    :param value: the string to test (a file name or a subfolder name).
+    :param include_pattern: regex; only values matching this are accepted.
+    :param exclude_pattern: regex; values matching this are rejected.
+    :return: True if value passes both conditions.
+    """
+    if include_pattern:
+        try:
+            if not re.search(include_pattern, value):
+                return False
+        except re.error:
+            return False
+
+    if exclude_pattern:
+        try:
+            if re.search(exclude_pattern, value):
+                return False
+        except re.error:
+            pass
+
+    return True
+
+
+def filter_files_by_select_condition(
+    files: list[str],
+    directory: str,
+    file_name_include: str | None = None,
+    file_name_exclude: str | None = None,
+    subfolder_include: str | None = None,
+    subfolder_exclude: str | None = None,
+) -> list[str]:
+    """Filter a list of file paths by file-name and subfolder include/exclude regex.
+
+    This is the "File Select Condition" filter shown on the Data Source (CSV/TSV) config
+    screen: it narrows down which files under `directory` are treated as import targets,
+    on top of the extension filter already applied by `get_files`.
+
+    The subfolder condition is matched against the full relative subfolder path (all
+    levels), with `/` as separator regardless of OS (e.g. for `<directory>/2026/01/x.csv`
+    the subfolder value tested is `2026/01`). Since matching uses `re.search` (not
+    anchored) by default, a pattern like `01` matches any level of the path unless the
+    user anchors it themselves (e.g. `^bak` only matches a subfolder path that *starts*
+    with `bak`, so it also covers deeper nested folders under it like `bak/2024`).
+    Files directly inside `directory` (no subfolder) have an empty subfolder value, so a
+    subfolder include condition will exclude them, and a subfolder exclude condition will
+    never exclude them.
+
+    :param files: list of absolute file paths, as returned by `get_files`.
+    :param directory: the data source's root directory (used to compute the subfolder).
+    :param file_name_include: regex; only file names matching this are kept.
+    :param file_name_exclude: regex; file names matching this are dropped.
+    :param subfolder_include: regex; only files whose subfolder path matches this are kept.
+    :param subfolder_exclude: regex; files whose subfolder path matches this are dropped.
+    :return: the filtered list of file paths, preserving original order.
+    """
+    if not any([file_name_include, file_name_exclude, subfolder_include, subfolder_exclude]):
+        return files
+
+    filtered_files = []
+    for file_path in files:
+        file_name = os.path.basename(file_path)
+        if not _matches_include_exclude(file_name, file_name_include, file_name_exclude):
+            continue
+
+        rel_dir = os.path.relpath(os.path.dirname(file_path), directory)
+        subfolder = '' if rel_dir in ('.', '') else rel_dir.replace(os.sep, '/')
+        if not _matches_include_exclude(subfolder, subfolder_include, subfolder_exclude):
+            continue
+
+        filtered_files.append(file_path)
+
+    return filtered_files
 
 
 def rename_file(src, des):

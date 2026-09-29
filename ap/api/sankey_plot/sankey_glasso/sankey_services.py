@@ -12,13 +12,14 @@ from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    get_axis_title_with_unit,
     get_data_from_db,
     get_filter_on_demand_data,
     is_nominal_check,
     main_check_filter_detail_match_graph_data,
 )
 from ap.api.sankey_plot.sankey_glasso.grplasso import preprocess_skdpage
-from ap.common.common_utils import gen_sql_label, zero_variance
+from ap.common.common_utils import zero_variance
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     BAR_COLORS,
@@ -177,6 +178,13 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
     dic_param['importance_columns_ids'] = None
     if not df.empty:
         dic_label_id, dic_id_name, dic_col_proc_id = get_sensors_objective_explanation(orig_graph_param)
+        dic_name_axis_name = {}
+        for col_id, col_name in dic_id_name.items():
+            proc_id = dic_col_proc_id.get(col_id)
+            proc_cfg = graph_param.dic_proc_cfgs.get(proc_id)
+            col_cfg = proc_cfg.get_col(col_id) if proc_cfg else None
+            dic_name_axis_name[col_name] = get_axis_title_with_unit(col_cfg) or col_name
+
         df_sensors: pd.DataFrame = df[dic_label_id.keys()]
         df_sensors = df_sensors.rename(columns=dic_label_id)
         df_sensors, data_clean, errors, err_cols, dic_null_percent = clean_input_data(df_sensors)
@@ -234,6 +242,9 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
                 strengthen_selection=strengthen_selection,
             )
 
+            # Apply unit-aware formatting only to Sankey node labels.
+            dic_skd['node_labels'] = [dic_name_axis_name.get(label, label) for label in dic_skd['node_labels']]
+
             # get dic_scp
             dic_scp = dict(**dic_scp, **dic_tbl)
             obj_var_id = graph_param.common.objective_var
@@ -271,7 +282,7 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
 
             dic_serials = {}
             for proc_name, serial_id, serial_name in serials:
-                serial_label = gen_sql_label(serial_id, serial_name)
+                serial_label = graph_param.gen_label_from_col_id(serial_id)
                 # dic_serials[f'{proc_name} {serial_name}'] = df[serial_label][idx]
                 if serial_label in df:
                     dic_serials[serial_name] = df[serial_label][idx]
@@ -284,13 +295,18 @@ def gen_graph_sankey_group_lasso(graph_param, dic_param, df=None):
             dic_param['importance_columns_ids'] = []
             dic_param[SUMMARY_MESSAGE] = msg
 
-            if not is_multi_class:
-                # sort by abs of coef from barplot
-                dic_bar_df = pd.DataFrame({'coef': dic_bar['coef'], 'sensor_ids': dic_bar['sensor_ids']})
-                dic_bar_df = dic_bar_df.reindex(dic_bar_df['coef'].abs().sort_values(ascending=False).index)
+            # aggregate coef for important feature ordering
+            coef_agg = dic_bar['coef']
+            if is_multi_class:
+                coef_agg = [sum(abs(coef) for coef in group) for group in zip(*coef_agg, strict=False)]
 
-                for col_id in dic_bar_df['sensor_ids'].tolist():
-                    dic_param['importance_columns_ids'].append(col_id)
+            # apply show/check top(20) variables by coef (agg) even if target var is Cat or numeric
+            # sort by abs of coef from barplot
+            dic_bar_df = pd.DataFrame({'coef': coef_agg, 'sensor_ids': dic_bar['sensor_ids']})
+            dic_bar_df = dic_bar_df.reindex(dic_bar_df['coef'].abs().sort_values(ascending=False).index)
+
+            for col_id in dic_bar_df['sensor_ids'].tolist():
+                dic_param['importance_columns_ids'].append(col_id)
 
         if errors:
             dic_param[ERRORS_KEY] = errors
@@ -313,7 +329,7 @@ def get_end_proc_cols(df, orig_graph_param):
     dic_cols = {}
     for end_proc in orig_graph_param.array_formval:
         for col_id, col_name in zip(end_proc.col_ids, end_proc.col_names, strict=False):
-            df_col = gen_sql_label(col_id, col_name)
+            df_col = orig_graph_param.gen_label_from_col_id(col_id)
             if df_col in df.columns:
                 dic_cols[df_col] = col_id
     return dic_cols
@@ -491,7 +507,7 @@ def get_sensors_objective_explanation(orig_graph_param):
     dic_col_proc_id = {}
     for proc in orig_graph_param.array_formval:
         for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
-            label = gen_sql_label(col_id, col_name)
+            label = orig_graph_param.gen_label_from_col_id(col_id)
             dic_label_id[label] = col_id
             dic_id_name[col_id] = col_show_name
             dic_col_proc_id[col_id] = proc.proc_id

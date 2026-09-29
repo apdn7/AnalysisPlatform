@@ -8,14 +8,47 @@ const colorPalettes = [
     ['1', '#6dc3fd'],
 ];
 
+const MAX_HMP_TICKS = 8;
+
+/**
+ * Calculate the color range without expanding large datasets into function arguments.
+ * @param {Array<unknown>} data - Color values whose null entries are ignored.
+ * @returns {{minVal: number, maxVal: number, maxAbsVal: number}} Numeric bounds for the color scale.
+ */
+const findHeatmapColorRange = (data) => {
+    let minVal = Infinity;
+    let maxVal = -Infinity;
+    let maxAbsVal = -Infinity;
+
+    // Process values in one pass to avoid argument limits and temporary arrays for large heatmaps.
+    for (const value of data) {
+        if (value === null) {
+            continue;
+        }
+        minVal = Math.min(minVal, value);
+        maxVal = Math.max(maxVal, value);
+        maxAbsVal = Math.max(maxAbsVal, Math.abs(value));
+    }
+
+    return { minVal, maxVal, maxAbsVal };
+};
+
+/**
+ * Build the Plotly color scale and numeric bounds for heatmap color values.
+ * @param {Array<number>} data - Flattened heatmap color values.
+ * @param {string} colorOption - Selected color palette key.
+ * @param {boolean} isDiscreteColor - Whether colors represent discrete values.
+ * @param {Array<number>} hmpData - Heatmap plots used to collect discrete colors.
+ * @param {{zmin: number, zmax: number}|null} commonRange - Optional shared range.
+ * @param {Array<unknown>|null} judgeColorScale - Optional judge-specific scale.
+ * @returns {{scale: Array<unknown>, zmin: number|null, zmax: number|null}} Plotly color scale settings.
+ */
 const genColorScale = (data, colorOption, isDiscreteColor, hmpData, commonRange = null, judgeColorScale = null) => {
     if (commonRange) {
         data = [commonRange.zmin, commonRange.zmax];
     }
 
-    const minVal = Math.min(...data.filter((i) => i !== null));
-    const maxVal = Math.max(...data.filter((i) => i !== null));
-    const maxAbsVal = Math.max(...data.filter((i) => i !== null).map((i) => Math.abs(i)));
+    const { minVal, maxVal, maxAbsVal } = findHeatmapColorRange(data);
     let zmin = -maxAbsVal;
     let zmax = maxAbsVal;
 
@@ -105,6 +138,22 @@ const getHalfOfScale = (colorScale, firstHalf = false) => {
     return colorScale.map((color, idx) => [String(idx / (colorScale.length - 1)), color[1]]);
 };
 
+const filterEvenly = (list, t) => {
+    if (t <= 0) return [];
+    if (list.length <= t) return [...list];
+
+    // Calculate step size using ceiling division
+    const step = Math.ceil(list.length / t);
+    const result = [];
+
+    // Jump directly by step size to keep time complexity at O(k)
+    for (let i = 0; i < list.length; i += step) {
+        result.push(list[i]);
+    }
+
+    return result;
+};
+
 const generateHeatmapPlot = (prop, option, zoomRange) => {
     prop.org_array_x = [...prop.array_x];
     prop.org_array_y = [...prop.array_y];
@@ -180,8 +229,8 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
             zeroline: false,
             showgrid: false,
             tickmode: 'array',
-            ticktext: prop.org_array_y,
-            tickvals: prop.array_y,
+            ticktext: filterEvenly(prop.org_array_y, MAX_HMP_TICKS),
+            tickvals: filterEvenly(prop.array_y, MAX_HMP_TICKS),
             tickfont: {
                 size: 8,
                 color: 'white',
@@ -194,8 +243,8 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
             zeroline: false,
             tickangle: 0,
             tickmode: 'array',
-            ticktext: prop.org_array_x,
-            tickvals: prop.array_x,
+            ticktext: filterEvenly(prop.org_array_x, MAX_HMP_TICKS),
+            tickvals: filterEvenly(prop.array_x, MAX_HMP_TICKS),
             ticklen: 0,
             tickfont: {
                 size: 8,
@@ -221,10 +270,10 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
         data[0].z = prop.heatmap_matrix.z;
         // data[0].xgap = 3;
         // data[0].ygap = 3;
-        layout.xaxis.ticktext = prop.heatmap_matrix.x;
-        layout.xaxis.tickvals = prop.heatmap_matrix.x;
-        layout.yaxis.ticktext = prop.heatmap_matrix.y;
-        layout.yaxis.tickvals = prop.heatmap_matrix.y;
+        layout.xaxis.ticktext = filterEvenly(prop.heatmap_matrix.x, MAX_HMP_TICKS);
+        layout.xaxis.tickvals = filterEvenly(prop.heatmap_matrix.x, MAX_HMP_TICKS);
+        layout.yaxis.ticktext = filterEvenly(prop.heatmap_matrix.y, MAX_HMP_TICKS);
+        layout.yaxis.tickvals = filterEvenly(prop.heatmap_matrix.y, MAX_HMP_TICKS);
     }
     data[0].xgap = 3;
     data[0].ygap = 3;
@@ -239,7 +288,7 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
     Plotly.react(prop.canvasId, data, layout, config);
 };
 
-const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y, pointIndex) => {
+const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y, pointIndex, isUseOriginalColorValue = false) => {
     if (!prop) return;
     const [i, j] = pointIndex;
     const numberOfData = option.isShowNumberOfData ? prop.h_label : null;
@@ -273,7 +322,8 @@ const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y, pointIndex) => 
     hoverData.yName = option.y_name || '';
     hoverData.yVal = prop.array_y[i];
     hoverData.agg_value = !isEmpty(prop.array_z[i][j]) ? prop.array_z[i][j] : COMMON_CONSTANT.NA;
-    if (prop.colors_encode) {
+    if (prop.colors_encode && isUseOriginalColorValue) {
+        // isUseOriginalColorValue: the color is selected with last/first
         hoverData.agg_value = prop.colors_encode[prop.array_z[i][j]] || hoverData.agg_value;
     }
     hoverData.agg_func = option.color_bar_title || option.colorName;

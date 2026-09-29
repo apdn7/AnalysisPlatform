@@ -642,31 +642,31 @@ msgstr "接続"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per hour"
-msgstr "1時間に1回"
+msgstr "1時間"
 
 #: ap/templates/i18n.html
 msgid "Once per 2 hours"
-msgstr "2時間に1回"
+msgstr "2時間"
 
 #: ap/templates/i18n.html
 msgid "Once per 3 hours"
-msgstr "3時間に1回"
+msgstr "3時間"
 
 #: ap/templates/i18n.html
 msgid "Once per 4 hours"
-msgstr "4時間に1回"
+msgstr "4時間"
 
 #: ap/templates/i18n.html
 msgid "Once per 6 hours"
-msgstr "6時間に1回"
+msgstr "6時間"
 
 #: ap/templates/i18n.html
 msgid "Once per 12 hours"
-msgstr "12時間に1回"
+msgstr "12時間"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per day"
-msgstr "1日に1回"
+msgstr "1日"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Specify datatype of columns"
@@ -1384,15 +1384,15 @@ msgstr "エラーの発生状況はジョブ一覧ページを参照してくだ
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per 3 minutes"
-msgstr "3分間に1回"
+msgstr "3分"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per 5 minutes"
-msgstr "5分間に1回"
+msgstr "5分"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Once per 10 minutes"
-msgstr "10分間に1回"
+msgstr "10分"
 
 #: ap/templates/setting_module/db_config_modals.html
 msgid "Optional function"
@@ -1503,6 +1503,38 @@ msgstr "データソース名"
 # ap/template/setting_module/db_config_modals.html
 msgid "Data Source Type"
 msgstr "データソース種別"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Select Files"
+msgstr "ファイル選択"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Include"
+msgstr "含める"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Exclude"
+msgstr "除外する"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "File Name"
+msgstr "ファイル名"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Subfolder"
+msgstr "サブフォルダ"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Load Settings"
+msgstr "読込設定"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Preview"
+msgstr "データプレビュー"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Ready to load data."
+msgstr "データを読み込み可能です。"
 
 #: ap/templates/setting_module/config.html:43
 msgid "Do you want to save changes?"
@@ -2054,7 +2086,7 @@ msgstr "可視化する変数(カテゴリ)"
 
 #: ap/templates/templates/i18n.html
 msgid "Index ordering"
-msgstr "横軸の順序設定"
+msgstr "X軸の並べ替え"
 
 #: ap/templates/templates/i18n.html
 msgid "Column"
@@ -2601,7 +2633,7 @@ msgstr "フルレンジ"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Index Ordering Setting"
-msgstr "横軸の順序設定"
+msgstr "X軸の並べ替え"
 
 #: ap/templates/i18n.html
 msgid "Open"
@@ -2624,18 +2656,20 @@ msgid "Facet"
 msgstr "Facet"
 
 #: component.js
-msgid ""
-"Category expansion is performed to divide the graph using the data of the"
-" selected item."
+msgid "Facet Hover msg"
 msgstr ""
-"選択した変数の中身の種類ごとにグラフを分割します。データ型(Type)がカテゴリ(Cat)と文字列(Str)の項目を選択できます。\n"
-"Lv1あるいはLv2だけ選択すると、選択された変数の種類ごとにグラフが分割されます。\n"
-"Lv1,Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでグラフが分割されます。\n"
+"選択した変数の中身の種類ごとにプロット分割します。データ型(Type)がカテゴリ(Cat)と文字列(Str)の項目を選択できます。\n"
+"Lv1あるいはLv2だけ選択すると、選択された変数の種類ごとにプロットが分割されます。\n"
+"Lv1,Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでプロットが分割されます。\n"
+"(Lv1がn個、Lv2がm個ある場合、組み合わせでnxmのプロットが生成されます。\n"
+" プロットが多くなりがちなのであまりレベルが多い変数を選択しないか、フィルタを活用して数を減らしてください)\n"
 "\n"
-"*RLP,AgP,ScP,WfPページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです\n"
-"・RLP,AgP:選択した変数が横軸に使用され、変数の中身の種類ごとに集約もしくは集計されます\n"
-"・ScP:Lv1,Lv2と同様にグラフが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたグラフが並びます。\n"
-"・WfP:選択した変数の値ごとの波形が描画されます。"
+"Divオプション：以下のページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです。\n"
+"・RLP,AgP: 選択した変数が情報に使用され、変数の中身の種類ごとに集約もしくは集計されます。\n"
+"・ScP: Lv1,Lv2と同様にプロットが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたプロットが並びます。\n"
+"・WfP: 選択した変数の値ごとの波形が描画されます。\n"
+"・MAP: 選択した変数毎にプロットが並びます(最大6面なので必要に応じて適宜フィルタで絞ってください)。\n"
+"          ☑が一つ([1]のみある状態)の時した選択できません。\n"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -4488,7 +4522,9 @@ msgstr "HMpでは、選択する変数は両方ともカテゴリ(Cat, Str)、�
 
 #: ap/templates/heatmap/heatmap.html
 msgid "Selected Color Agg Function incorrect"
-msgstr "Colorの変数を選択しない場合は\"Color\" -> \"その他\" の \"Ratio[%%]\"か\"Count\"を選択してください"
+msgstr ""
+"Colorの変数を選択しない場合は\"Color\" -> \"その他\" の "
+"\"OK(Most)[%%]\"か\"NG(Fewest)[%%]\"か\"Count\"を選択してください"
 
 #: ap/templates/i18n.html
 msgid "If both x and y data types are categorical, please draw with HMP."
@@ -4574,6 +4610,38 @@ msgstr ""
 "Cast error: There are some columns that cannot be cast to another data "
 "type. Please check the real data of the columns listed below: You can "
 "also see the data that will be exported and stored in file path {0}"
+
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedParentProc"
+msgstr "このプロセスには他のプロセスがマージされています。削除すると関連するプロセスも削除されます。"
+
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedChildProc"
+msgstr "このプロセスは、他のプロセスにマージされています。読み込み済みデータに変更を反映するには、関連するプロセスのデータを再読み込みする必要があります。"
+
+#: ap/templates/i18n.html
+msgid "confirmContinue"
+msgstr "削除してよろしいですか？"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "reloadRelatedProcessData"
+msgstr "関連するプロセスのデータを再読み込みする"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "reloadRelatedProcessDataNote"
+msgstr "※チェックしない場合でも、後からマージ先プロセスの設定画面でいつでも初期化・再読み込みできます。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warningLabel"
+msgstr "注意："
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warnDeleteSelectedParentProcs"
+msgstr "以下のプロセス関連するプロセスも削除されます。"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warnReloadSelectedChildProcs"
+msgstr "以下のプロセスの読み込み済みデータに削除内容を反映するには再読み込みが必要です。"
 
 msgid "LinkWithTime"
 msgstr "時間紐付: 時間差 [min]"
@@ -5461,22 +5529,48 @@ msgid "Begin From"
 msgstr "開始時"
 
 msgid "Daily"
-msgstr "日刊"
+msgstr "日ごと"
 
 msgid "Weekly"
-msgstr "週刊"
+msgstr "週ごと"
 
 msgid "Monthly"
-msgstr "月刊"
+msgstr "月ごと"
 
 msgid "Confirm export registration"
-msgstr "データ書出登録確認"
+msgstr "データ出力登録確認"
+
+msgid "Cat Value"
+msgstr "カテゴリ値"
+
+msgid "Input Order"
+msgstr "入力順"
 
 msgid "Note: Corresponding processes will also be deleted:"
 msgstr "注：関連するプロセスも削除されます。"
 
 msgid "ExportSettingTitle"
 msgstr "設定タイトル"
+
+msgid "Process:Str"
+msgstr "プロセス:Str"
+
+#: ap/templates/i18n.html
+msgid "DataTypeProcNameStrHint"
+msgstr "プロセスの名前が保存された列に選択すると、設定なしで全数プロットのラベルプロット描画やフィルタの利用ができます。"
+
+msgid "Data export confirm msg with periodic"
+msgstr ""
+"以下のスケジュールに従ってデータが出力されます。\n"
+"\n"
+"直近3回分\n"
+"\n"
+
+msgid "Data export confirm msg with once"
+msgstr "EXPORT_FROM から EXPORT_TO までのデータを出力します。"
+
+msgid "Data export run now"
+msgstr "EXPORT_FROM から現在までのデータを今すぐ出力"
 
 msgid "ExportFileNameIdentifierTooltipText"
 msgstr ""
@@ -5504,4 +5598,281 @@ msgstr ""
 "\n"
 "分割した場合、ファイル名の末尾に通し番号が追加されます。\n"
 "(列: dat_1.csv, dat_2.csv)"
+
+msgid "masterTypeSuffixMeasurement"
+msgstr "測定"
+
+msgid "masterTypeSuffixHistory"
+msgstr "履歴"
+
+msgid "Multi-axis Plot"
+msgstr "多軸プロット"
+
+msgid "Multi-axis Plot Hint"
+msgstr ""
+"複数の変数またはカテゴリの値ごとに、グラフを分割表示します。\n"
+"少数から中規模のデータの可視化に適していて、カテゴリ別の比較や、複数変数の挙動を同時に把握する用途に利用できます。\n"
+
+msgid "Layout hover messenger"
+msgstr ""
+"主変数をチェックした後に、追加するデータを指定します。\n"
+"共通設定（すべての主変数に共通）:\n"
+"X-axis：X軸として使用する変数を指定（ない場合データ順）\n"
+"Lab：プロット内に表示するラベルを指定\n"
+"LabX：X軸から値をラベル表示\n"
+"Color：変数に含まれるカテゴリ値で色分け\n"
+"ColorX：X軸カテゴリ値で色分け\n"
+"ColImb：極端に小さい値のカテゴリを副軸に分けて表示\n"
+"ColImbX：副軸に分けたカテゴリ値で色分け\n"
+"※カテゴリに含まれるデータ数Top16のみ表示（同数は日時順）\n"
+"※Color(Imb)を選択した場合、主変数毎の設定はできません\n"
+"\n"
+"主変数ごとに追加・分割するデータ:\n"
+"（先頭の番号は主変数にチェックを付けた順番です）\n"
+"1-Lab：この主変数に表示するラベルを指定\n"
+"1-Step：ステップ表示する変数（閾値や制御値表示用）\n"
+"\n"
+"[変数を重ね書きする場合]\n"
+"1-Main：主軸（左軸）に追加する変数\n"
+"1-2nd：副軸（右軸）に追加する変数（最大3変数）\n"
+"1-Auto：軸無しで重ねて表示する変数\n"
+"※主変数あたり最大8変数まで（1-Main+1-2nd+1-Auto+1-Step）\n"
+"\n"
+"[カテゴリ値で分割表示する場合]\n"
+"1Color：変数に含まれるカテゴリ値で色分け\n"
+"1ColImb：極端に小さい値のカテゴリを副軸に分けて表示\n"
+"※最大8値まで（カテゴリに含まれるデータ数Top8のみ表示）\n"
+
+msgid "MAP plot style hover msg"
+msgstr ""
+"データ描画方法を指定します\n"
+"— Auto：線プロット+主変数のみマーカ付き（データ数が少ない時のデフォルト）\n"
+"— Line：線プロット\n"
+"-- Line+Marker：マーカ付きの線プロット\n"
+"・Marker：マーカのみの点プロット（多点時のデフォルト）\n"
+
+msgid "MAP y-axis hover msg"
+msgstr ""
+"Colorもしくは主軸のみのプロットにおける表示方法を切り替えます。\n"
+"Normal：通常の折れ線（生値） 自動ログ表示\n"
+"Stack：積み上げ折れ線（生値）\n"
+"％：百分率折れ線\n"
+"%Stack：構成比折れ線\n"
+"Log Off：ログスケールなしで表示（全てリニアスケール表示）\n"
+"Log On：ログスケールで表示（桁表示）\n"
+
+msgid "MAP transpose hover ms"
+msgstr ""
+"プロットの配列を転置します（縦と横の配置を入れ替えます）。\n"
+"転置しない配列は、横長になり、波形の比較に向きます。\n"
+"転置した配列は、正方形に近くなり、散布図的なプロットに向きます。\n"
+
+msgid "MAP save all hover msg"
+msgstr ""
+"現在表示されている全てのプロットを、Panel毎にPNG形式でまとめて保存します。\n"
+"\n"
+"個別のプロット/パネルを保存したい場合は、該当するプロット上で[右クリック]→[Save to PNG]、\n"
+"クリップボードにコピーしたい場合は、[右クリック]→[Copy to Clipboard]を選択してください。\n"
+"リモートで使用する際はクリップボードは使用できません。PNG保存をお使いください。\n"
+
+msgid "Process names are appended."
+msgstr "軸タイトルにプロセスを表示します。"
+
+msgid "X-axis settings"
+msgstr "X軸設定"
+
+msgid "Shared settings"
+msgstr "プロット共通の設定"
+
+msgid "Per-plot settings"
+msgstr "プロット毎の設定"
+
+msgid "Overlay on Main/Secondary/Auto-scaled Axis"
+msgstr "重ね合わせ対主軸Main/副軸2nd/自動スケール"
+
+msgid "Color by category"
+msgstr "カテゴリ値で色分け"
+
+msgid "layout.error.alreadyUsed"
+msgstr "「{{value}}」は既に他の項目で使用されています。"
+
+msgid "layout.error.cannotUseWith"
+msgstr "「{{value}}」は「{{conflicts}}」と同時に設定できません。"
+
+msgid "layout.error.onlyOnePerSubplot"
+msgstr "サブプロット{{order}}には{{label}}を1つだけ設定できます。上書きすると現在の設定が置き換えられます。"
+
+msgid "layout.error.overlayColorExclusive"
+msgstr "サブプロット{{order}}では重ね合わせとカテゴリ色分けを同時に設定できません。"
+
+msgid "layout.error.maxSub"
+msgstr "サブプロット{{order}}には最大{{max}}個までのSub変数を設定できます。上書きすると最も古いSubが置き換えられます。"
+
+msgid "layout.error.maxOverlay"
+msgstr ""
+"サブプロット{{order}}には最大{{max}}変数（Main + Sub + Add + "
+"Step）まで設定できます。上書きすると最も古い変数が置き換えられます。"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "Delete Selected"
+msgstr "削除"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "selected"
+msgstr "件選択中"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm delete this record?"
+msgstr "このレコードを削除しますか？"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm delete selected processes?"
+msgstr "選択したプロセスを削除しますか？"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Do you want to delete the selected records?"
+msgstr "選択したレコードを削除しますか？"
+
+msgid "RelationshipTypeLabel"
+msgstr "対応関係"
+
+msgid "RelationshipTypeTooltip"
+msgstr ""
+"2つのデータをどのように対応付けるかを選択します。\n"
+"データ間でデータの行数が1対1または1対多か、多対1かによって使し分けてください。"
+
+msgid "RelationshipTypeOneToNLabel"
+msgstr "通常(1:1 / 1:N)"
+
+msgid "RelationshipTypeNToOneLabel"
+msgstr "N:1"
+
+msgid "RelationshipTypeOneToNTooltip"
+msgstr ""
+"前工程の1件に対して後工程が1件以上紐付く場合に使用します。\n"
+"例:組付工程 -> 検査工程\n"
+"例:ロット毎データ -> ワーク毎データ"
+
+msgid "RelationshipTypeNToOneTooltip"
+msgstr ""
+"前工程の複数行が、後工程の1行に紐付く場合に使用します。\n"
+"例:素子データ -> 基板データ\n"
+"例:基板データ -> モジュ ー ルデータ\n"
+"この対応関係を使用して両工程を同時に可視化する場合、\n"
+"グラフは前工程側 (N側)の行数で描画されます。"
+
+#: ap/templates/i18n.html
+msgid "Scanning"
+msgstr "データスキャン中"
+
+#: ap/templates/i18n.html
+msgid "Loading"
+msgstr "ロード中"
+
+msgid "Equal Width Bin"
+msgstr "Bin分割(均等幅)"
+
+msgid "Equal Freq Bin"
+msgstr "Bin分割(等配分)"
+
+msgid "Numeric Value"
+msgstr "数値"
+
+msgid "MAP select variables hover msg"
+msgstr "グラフにプロットするデータ(量的変数：測定値など)を指定します。グラフにプロットする対象プロセスと対象項目を選択します。"
+
+msgid "Please disable your browser's pop-up blocker."
+msgstr "ブラウザのポップアップブロックを解除してください"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:148
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:243
+msgid "Data count exceeds {{limit}}."
+msgstr "データ数が{{limit}}を越えています。"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:156
+msgid "Jump to FPP"
+msgstr "Jump to FPP"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:158
+msgid "Display in FPP high-speed mode (opens in a new page)"
+msgstr "FPPハイスピードモードで表示(別ページで開く)"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:173
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:268
+msgid "Nth"
+msgstr "nプロック"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:178
+msgid "Show only the first n-th {{limit}} data points (no labels)"
+msgstr "先頭からnプロックの{{limit}}データのみ表示(ラベル無し)"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:188
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:275
+msgid ""
+"Show only the first n-th {{limit}} data points (with labels) *Negative "
+"values count from the end"
+msgstr "先頭からnプロックの{{limit}}データのみ表示(ラベルあり) ※負値は後ろから"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:251
+msgid "Continue"
+msgstr "Continue"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:253
+msgid "Show data as index only, without labels"
+msgstr "ラベル無しでデータのみindex表示"
+
+#: ap/templates/macros.html
+msgid "Category Aggregation"
+msgstr "Category Aggregation"
+
+#: ap/templates/macros.html
+msgid "Aggregated"
+msgstr "Aggregated"
+
+#: ap/templates/macros.html
+msgid "Keep Duplicates"
+msgstr "Keep Duplicates"
+
+#: ap/templates/i18n.html
+msgid "Original order"
+msgstr "オリジナル順"
+
+#: ap/templates/i18n.html
+msgid "Name A -> Z"
+msgstr "名前 昇順 A -> Z"
+
+#: ap/templates/i18n.html
+msgid "Name Z -> A"
+msgstr "名前 降順 Z -> A"
+
+#: ap/templates/i18n.html
+msgid "Count Low -> High"
+msgstr "件数 昇順 Low -> High"
+
+#: ap/templates/i18n.html
+msgid "Count High -> Low"
+msgstr "件数 降順 High -> Low"
+
+#: ap/templates/i18n.html
+msgid "Metric Low -> High"
+msgstr "数値 昇順 Low -> High"
+
+#: ap/templates/i18n.html
+msgid "Metric High -> Low"
+msgstr "数値 降順 High -> Low"
+
+#: ap/templates/i18n.html
+msgid "Serial Ascending"
+msgstr "昇順 小 -> 大"
+
+#: ap/templates/i18n.html
+msgid "Serial Descending"
+msgstr "降順 大 -> 小"
+
+#: ap/templates/multi_axis_plot/multi_axis_plot.html:36
+msgid "MAP div size hover msg"
+msgstr ""
+"Choose how many sub-panels each Div group shows (2, 3, or 6). More "
+"primaries can be selected when a smaller size is used, as long as (size x"
+" number of primaries) stays within 6."
 

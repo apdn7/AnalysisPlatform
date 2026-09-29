@@ -11,12 +11,14 @@ from ap.api.common.services.show_graph_services import (
     customize_dic_param_for_reuse_cache,
     extend_min_max,
     filter_cat_dict_common,
+    get_axis_title_with_unit,
+    get_chart_infos,
     get_data_from_db,
     get_filter_on_demand_data,
     get_serial_and_datetime_data,
 )
 from ap.api.scatter_plot.services import get_v_keys_str
-from ap.common.common_utils import gen_sql_label, get_x_y_info, select_between_color_and_temp_color
+from ap.common.common_utils import get_x_y_info, select_between_color_and_temp_color
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
@@ -87,19 +89,11 @@ def gen_graph_for_waveform_plot(
 
     x_id = xy_ids[0]
     y_id = xy_ids[-1]
-    x_name = xy_names[0]
-    y_name = xy_names[-1]
 
     for target_var in graph_param.common.sensor_cols:
         col_info = graph_param.get_col_info_by_id(target_var)
         if col_info[COL_DATA_TYPE] == DataType.DATETIME.name and col_info[END_COL_ID] != x_id:
             x_id, y_id = y_id, x_id
-            x_name, y_name = y_name, x_name
-
-    x_label = gen_sql_label(x_id, x_name)
-    y_label = gen_sql_label(y_id, y_name)
-    if len(xy_ids) == 1:
-        x_label = TIME_COL
 
     color_id = select_between_color_and_temp_color(temp_color_var, graph_param)
     cat_div_id = graph_param.common.div_by_cat
@@ -108,9 +102,15 @@ def gen_graph_for_waveform_plot(
     col_ids = [col for col in list({x_id, y_id, color_id, cat_div_id, *level_ids}) if col]
     dic_cols = {cfg_col.id: cfg_col for cfg_col in graph_param.get_col_cfgs(col_ids)}
 
-    color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
-    level_labels = [gen_sql_label(id, dic_cols[id].column_name) for id in level_ids]
-    cat_div_label = gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
+    # Resolve normal XY keys only after collecting all required column metadata.
+    x_label = dic_cols[x_id].bridge_column_name
+    y_label = dic_cols[y_id].bridge_column_name
+    if len(xy_ids) == 1:
+        x_label = TIME_COL
+
+    color_label = dic_cols[color_id].bridge_column_name if color_id else None
+    level_labels = [dic_cols[id].bridge_column_name for id in level_ids]
+    cat_div_label = dic_cols[cat_div_id].bridge_column_name if cat_div_id else None
 
     graph_param.add_column_to_array_formval([graph_param.common.color_var, graph_param.common.div_by_cat])
 
@@ -125,11 +125,22 @@ def gen_graph_for_waveform_plot(
     #     matrix_col, df, x_label, y_label, cat_div_label, color_label, level_labels
     # )
 
+    chart_infos, original_graph_configs = get_chart_infos(graph_param)
+
     dic_data = gen_waveform_plot_plotdata(matrix_col, df, x_label, y_label, cat_div_label, color_label, level_labels)
+
+    y_chart_infos, _ = get_chart_infos_to_plotdata(y_id, chart_infos, original_graph_configs)
+    x_chart_infos, _ = get_chart_infos_to_plotdata(x_id, chart_infos, original_graph_configs)
+
+    for plot in dic_data:
+        # apply threshold for x,y
+        plot.y_thresholds = y_chart_infos if y_chart_infos else None
+        plot.x_thresholds = x_chart_infos if x_chart_infos else None
+
     dic_param[ARRAY_PLOTDATA] = dic_data
     dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
-    dic_param[X_NAME] = dic_cols[x_id].shown_name if x_id else None
-    dic_param[Y_NAME] = dic_cols[y_id].shown_name if y_id else None
+    dic_param[X_NAME] = get_axis_title_with_unit(dic_cols.get(x_id)) if x_id else None
+    dic_param[Y_NAME] = get_axis_title_with_unit(dic_cols.get(y_id)) if y_id else None
     dic_param['x_fmt'] = get_fmt_from_array(df[x_label].tolist())
     dic_param['y_fmt'] = get_fmt_from_array(df[y_label].tolist())
     # dic_param[IS_THIN_DATA] = is_thin_data
@@ -191,6 +202,30 @@ class WaveformArrayPlotData:
     scale_setting: dict
     scale_threshold: dict
     v_label: str
+    x_thresholds: list
+    y_thresholds: list
+
+
+def get_chart_infos_to_plotdata(
+    col_id,
+    chart_infos,
+    original_graph_configs,
+):
+    if chart_infos is None:
+        chart_infos = {}
+
+    if original_graph_configs is None:
+        original_graph_configs = {}
+
+    chart_info = []
+    original_graph_config = []
+    for proc_id, dic_col in chart_infos.items():
+        if col_id in dic_col:
+            chart_info = dic_col[col_id]
+            original_graph_config = original_graph_configs[proc_id][col_id]
+            break
+
+    return chart_info, original_graph_config
 
 
 @log_execution_time()
@@ -233,6 +268,8 @@ def gen_waveform_plot_plotdata(
             scale_setting={},
             scale_threshold={},
             v_label='',
+            x_thresholds=[],
+            y_thresholds=[],
         )
         f_keys_str = get_v_keys_str(f_keys)
         y_min = _df_data[y_label].min()

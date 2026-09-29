@@ -47,6 +47,13 @@
                         aria-labelledby="headingDS"
                     >
                         {{ macros.alert_message("alert-msg-db") }}
+                        <div class="ds-bulk-action d-flex align-items-center">
+                            <button id="btn-delete-selected-ds" type="button" class="btn btn-danger" disabled>
+                                {{ _("Delete Selected") }}
+                            </button>
+                            <span id="selected-ds-count">0</span>
+                            <span>{{ _("selected") }}</span>
+                        </div>
                         <div class="table-responsive panel-body">
                             <table
                                 id="tblDbConfig"
@@ -54,6 +61,24 @@
                             >
                                 <thead>
                                     <tr>
+                                        <th class="text-center ds-select-column">
+                                            <div class="custom-control custom-checkbox ds-checkbox-control">
+                                                <input
+                                                    id="select-all-data-sources"
+                                                    type="checkbox"
+                                                    class="ds-checkbox-input custom-control-input"
+                                                    value=""
+                                                    aria-label="{{ _('Select All') }}"
+                                                    {% if not is_authorized %}
+                                                        disabled
+                                                    {% endif %}
+                                                />
+                                                <label
+                                                    class="ds-checkbox-label custom-control-label"
+                                                    for="select-all-data-sources"
+                                                ></label>
+                                            </div>
+                                        </th>
                                         <th class="col-number">{{ _("No.") }}</th>
                                         <th scope="col" class="text-center th-lg">{{ _("Data Source Name") }}</th>
                                         <th scope="col" class="text-center">{{ _("Data Source Type") }}</th>
@@ -68,6 +93,25 @@
                                 <tbody>
                                     {% for db_info in data_sources %}
                                         <tr name="db-info" id="ds_{{ db_info.id }}" data-ds-id="{{ db_info.id }}">
+                                            <td class="text-center ds-select-column">
+                                                <div class="custom-control custom-checkbox ds-checkbox-control">
+                                                    <input
+                                                        id="select-data-source-{{ db_info.id }}"
+                                                        type="checkbox"
+                                                        class="ds-select-checkbox ds-checkbox-input custom-control-input"
+                                                        value=""
+                                                        data-ds-id="{{ db_info.id }}"
+                                                        aria-label="{{ _('Select') }}"
+                                                        {% if not is_authorized %}
+                                                            disabled
+                                                        {% endif %}
+                                                    />
+                                                    <label
+                                                        class="ds-checkbox-label custom-control-label"
+                                                        for="select-data-source-{{ db_info.id }}"
+                                                    ></label>
+                                                </div>
+                                            </td>
                                             <td class="col-number">{{ loop.index }}</td>
                                             <td>
                                                 <input

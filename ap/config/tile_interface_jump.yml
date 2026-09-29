@@ -12,6 +12,7 @@
   - pca
   - gl
   - wfp
+  - hmp
 - tiles:
     fpp:
       recommends:
@@ -106,5 +107,13 @@
         - rlp
         - fpp
         - skd
+      unavailable:
+        - pca
+    hmp:
+      recommends:
+        - fpp
+        - msp
+        - agp
+#        - map add after map is launched
       unavailable:
         - pca

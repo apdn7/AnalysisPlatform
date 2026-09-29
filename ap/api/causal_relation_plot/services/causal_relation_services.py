@@ -13,7 +13,6 @@ from ap.api.common.services.show_graph_services import (
     main_check_filter_detail_match_graph_data,
 )
 from ap.api.sankey_plot.sankey_glasso.sankey_services import clean_input_data, get_sensors_objective_explanation
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     DATA_SIZE,
@@ -146,7 +145,7 @@ def gen_graph_causal_relation(graph_param, dic_param, df=None):
             proc_cfg = graph_param.dic_proc_cfgs[proc.proc_id]
             for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
                 col_cfg = proc_cfg.get_col(col_id)
-                label = gen_sql_label(col_id, col_name)
+                label = col_cfg.bridge_column_name
                 dic_cols[label] = (col_cfg.shown_name, proc_cfg.shown_name)
                 if col_id == graph_param.common.objective_var:
                     objective_var = label

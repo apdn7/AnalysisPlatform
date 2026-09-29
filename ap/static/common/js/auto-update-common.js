@@ -6,6 +6,30 @@ let longPollingData = {
     callbackParams: [], // []
 };
 
+let activePollingRequestPromise = null;
+let hasQueuedPollingRequest = false;
+
+const isPromiseLike = (value) => value && typeof value.then === 'function';
+
+const runQueuedPollingRequest = () => {
+    if (!hasQueuedPollingRequest) {
+        return;
+    }
+    hasQueuedPollingRequest = false;
+    handleSourceListener();
+};
+
+const registerActivePollingRequest = (requestPromise) => {
+    if (!isPromiseLike(requestPromise)) {
+        return;
+    }
+
+    activePollingRequestPromise = Promise.resolve(requestPromise).finally(() => {
+        activePollingRequestPromise = null;
+        runQueuedPollingRequest();
+    });
+};
+
 const getTraceTime = (formData) => {
     for (const item of formData.entries()) {
         const key = item[0];
@@ -37,15 +61,24 @@ const handleSourceListener = () => {
     }
 
     if (isAutoUpdate && longPollingData.callbackFuncName) {
+        if (activePollingRequestPromise) {
+            hasQueuedPollingRequest = true;
+            return;
+        }
+
         isSSEListening = true;
-        longPollingData.callbackFuncName(...longPollingData.callbackParams);
+        const callbackResult = longPollingData.callbackFuncName(...longPollingData.callbackParams);
+        registerActivePollingRequest(callbackResult);
     }
 };
 
-const setPollingData = (formData, callbackFunc, params) => {
+const setPollingData = (formData, callbackFunc, params, requestPromise = null) => {
     longPollingData = {
         formData,
         callbackFuncName: callbackFunc,
         callbackParams: params,
     };
+
+    // Optional hook: caller can pass the in-flight request promise explicitly.
+    registerActivePollingRequest(requestPromise);
 };

@@ -1,5 +1,6 @@
 // state
 let currentDSTR;
+let pendingDeleteDSRows = $();
 let latestRecords;
 let useDummyDatetime;
 let v2DataSources = null;
@@ -236,39 +237,23 @@ const triggerEvents = {
 
 let line_grp_infos = [];
 
-const checkFolderResources = async (folderUrl, originFolderUrl) => {
-    const isFile = await checkIsFilePath(folderUrl, originFolderUrl);
-    $.ajax({
-        url: csvResourceElements.apiCheckFolderUrl,
-        method: 'POST',
-        data: JSON.stringify({
-            url: folderUrl,
-            isFile: isFile,
-        }),
-        contentType: 'application/json',
-        success: (res) => {
-            if (res.is_valid) {
-                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                    message: i18nDBCfg.dirExist,
-                    is_error: false,
-                });
-                $(csvResourceElements.showResourcesBtnId).data('is_file', isFile);
-                $(csvResourceElements.showResourcesBtnId).data('is_valid_folder', true);
-                $(csvResourceElements.showResourcesBtnId).trigger('click');
-            } else {
-                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                    message: res.err_msg,
-                    is_error: true,
-                });
-                // hide loading
-                $('#resourceLoading').hide();
-                // hide preview table
-                $(csvResourceElements.dataTbl).hide();
-                disabledSaveDBBtn();
-                return;
-            }
-        },
-    });
+const setFileSelectConditionHoverText = () => {
+    const hoverEl = document.getElementById('i18nProcessConfigFilterHover');
+    if (!hoverEl) return;
+    const hoverMsg = hoverEl.textContent;
+    const el = document.getElementById('selectFilesLabel');
+    if (el) el.setAttribute('title', hoverMsg);
+};
+
+// Enable/disable the File Select Condition inputs (file name / subfolder include-exclude).
+// Per spec, these must be disabled when the data source points directly at a single file
+// (isFilePath = true) rather than a directory, since there's nothing to filter in that case.
+const toggleFileSelectConditionInputs = (isFilePath) => {
+    const $inputs = $(csvResourceElements.fileSelectConditionInputs);
+    $inputs.prop('disabled', !!isFilePath);
+    if (isFilePath) {
+        $inputs.val('');
+    }
 };
 
 const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true) => {
@@ -417,6 +402,12 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
     if (isFilePath == undefined) {
         isFilePath = await checkIsFilePath(folderUrl, originFolderUrl);
     }
+    // Enable/disable the File Select Condition inputs based on the (possibly just
+    // re-detected) isFilePath. This used to only happen inside checkFolderResources(),
+    // which was called by the old "Connect" button; after that button was removed and
+    // showResources() became the single entry point, this call was missing, so the
+    // filter inputs stayed enabled even when the source pointed directly at a file.
+    toggleFileSelectConditionInputs(isFilePath);
     const dbCode = $(csvResourceElements.showResourcesBtnId).data('data-ds-id');
     const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
     if (isValidFolder == undefined) {
@@ -452,6 +443,12 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
     const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
     const isFileChecked = $(csvResourceElements.isFileChecker).val() == 'true';
     const encoding = $(csvResourceElements.dsEncodingSelect).val();
+    // File Select Condition: not sent (backend treats missing as "no filter") when the
+    // source is a direct file path, matching the disabled state of these inputs in that mode.
+    const fileNameInclude = isFilePath ? null : $(csvResourceElements.fileNameInclude).val() || null;
+    const fileNameExclude = isFilePath ? null : $(csvResourceElements.fileNameExclude).val() || null;
+    const subfolderInclude = isFilePath ? null : $(csvResourceElements.subfolderInclude).val() || null;
+    const subfolderExclude = isFilePath ? null : $(csvResourceElements.subfolderExclude).val() || null;
     $.ajax({
         url: csvResourceElements.apiUrl,
         method: 'POST',
@@ -467,6 +464,10 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
             is_file: isFilePath,
             is_file_checker: isFileChecked,
             encoding: encoding,
+            file_name_include: fileNameInclude,
+            file_name_exclude: fileNameExclude,
+            subfolder_include: subfolderInclude,
+            subfolder_exclude: subfolderExclude,
         }),
         contentType: 'application/json',
         success: (res) => {
@@ -476,6 +477,22 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
             // save dummy header flag
             if (Object.keys(res).includes('is_dummy_header')) {
                 $(csvResourceElements.isDummyHeader).val(res.is_dummy_header);
+            }
+
+            // No file matched the directory/extension or File Select Condition: show a
+            // clear error instead of falling through to the dummy-datetime confirmation
+            // flow (which was wrongly triggered before, since an empty result has no
+            // datetime column to report on either way).
+            if (!res.previewed_files || res.previewed_files.length === 0) {
+                $('#resourceLoading').hide();
+                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
+                    message: i18nDBCfg.fileNotFound.text(),
+                    is_error: true,
+                });
+                $(csvResourceElements.dataTbl).hide();
+                $(csvResourceElements.fileName).hide();
+                disabledSaveDBBtn();
+                return;
             }
 
             if (!res.has_ct_col) {
@@ -1032,6 +1049,12 @@ const genCsvInfo = async () => {
     const isDummyHeader = $(csvResourceElements.isDummyHeader).val();
     const isFilePath = $(csvResourceElements.isFilePathHidden).val().toLowerCase() === 'true';
     const { isAutoEncoding, encoding } = getEncoding();
+    // File Select Condition (file name / subfolder include-exclude). Disabled (and thus
+    // cleared) when the data source points directly at a single file (isFilePath).
+    const fileNameInclude = isFilePath ? null : $(csvResourceElements.fileNameInclude).val() || null;
+    const fileNameExclude = isFilePath ? null : $(csvResourceElements.fileNameExclude).val() || null;
+    const subfolderInclude = isFilePath ? null : $(csvResourceElements.subfolderInclude).val() || null;
+    const subfolderExclude = isFilePath ? null : $(csvResourceElements.subfolderExclude).val() || null;
 
     // Get csv Information
     const csvColumns = [];
@@ -1051,6 +1074,10 @@ const genCsvInfo = async () => {
         is_file_checker: isFileChecker,
         encoding,
         auto_encoding: isAutoEncoding,
+        file_name_include: fileNameInclude,
+        file_name_exclude: fileNameExclude,
+        subfolder_include: subfolderInclude,
+        subfolder_exclude: subfolderExclude,
     };
 
     const dictDataSrc = {
@@ -1442,9 +1469,23 @@ const addDBConfigRow = () => {
     };
 
     const rowNumber = $(`${dbElements.tblDbConfigID} tbody tr`).length;
+    const checkboxId = `select-data-source-${generateDbID()}`;
 
     // const trID = generateDbID();
     const row = `<tr name="db-info">
+        <td class="text-center ds-select-column">
+            <div class="custom-control custom-checkbox ds-checkbox-control">
+                <input
+                    id="${checkboxId}"
+                    type="checkbox"
+                    class="ds-select-checkbox ds-checkbox-input custom-control-input"
+                    value=""
+                    aria-label="Select"
+                    ${is_authorized ? '' : 'disabled'}
+                >
+                <label class="ds-checkbox-label custom-control-label" for="${checkboxId}"></label>
+            </div>
+        </td>
         <td class="col-number">${rowNumber + 1}</td>
         <td>
             <input name="name" class="form-control"
@@ -1491,6 +1532,7 @@ const addDBConfigRow = () => {
         scrollToBottom(`${dbElements.tblDbConfig}_wrap`);
     }, 200);
     PollingFrequencyOption.handleOnChangeMainPollingFrequency();
+    updateDataSourceSelectionState();
     return $(`#${dbElements.tblDbConfig} > tbody tr:last-child`);
     // filter code
     // resetDataTable(dbElements.tblDbConfigID, {}, [0, 1, 3], row);
@@ -1500,36 +1542,114 @@ const addDBConfigRow = () => {
 const dbConfigI18n = {
     confirmDeleteRecord: $('#i18nConfirmDeleteThisRecord').text(),
     thisRecord: $('#i18nThisRecord').text(),
+    failedToDeleteSelectedDataSources: $('#i18nFailedToDeleteSelectedDataSources').text(),
+};
+
+const getSelectedDataSourceRows = () =>
+    $('#tblDbConfig tbody .ds-select-checkbox:checked').closest('tr[name="db-info"]');
+
+const getVisibleDataSourceCheckboxes = () =>
+    $('#tblDbConfig tbody tr[name="db-info"]:visible').find('.ds-select-checkbox:not(:disabled)');
+
+const getAllDataSourceCheckboxes = () =>
+    $('#tblDbConfig tbody tr[name="db-info"]').find('.ds-select-checkbox:not(:disabled)');
+
+const updateDataSourceSelectionState = () => {
+    const selectedRows = getSelectedDataSourceRows();
+    const selectedCount = selectedRows.length;
+    const allCheckboxes = getAllDataSourceCheckboxes();
+
+    $('#selected-ds-count').text(selectedCount);
+    $('#btn-delete-selected-ds').prop('disabled', !is_authorized || selectedCount === 0);
+    $('#select-all-data-sources')
+        .prop('checked', allCheckboxes.length > 0 && selectedCount === allCheckboxes.length)
+        .prop('indeterminate', selectedCount > 0 && selectedCount < allCheckboxes.length);
+};
+
+const deleteDataSources = (dataSourceIds) =>
+    $.ajax({
+        url: 'api/setting/delete_datasource_cfg',
+        type: 'POST',
+        data: JSON.stringify({
+            db_codes: dataSourceIds,
+        }),
+        dataType: 'json',
+        contentType: 'application/json',
+        processData: false,
+    });
+
+const applyDeletedDataSources = (result = {}) => {
+    const deletedDataSourceIds = result.deleted_data_source_ids || [];
+    const deletedProcessIds = result.deleted_process_ids || [];
+
+    deletedDataSourceIds.forEach((dataSourceId) => {
+        $(`#tblDbConfig tr[data-ds-id="${dataSourceId}"]`).remove();
+        $(`#tblProcConfig tr[data-ds-id="${dataSourceId}"]`).remove();
+        $(`select[name="databaseName"] option[value="${dataSourceId}"]`).remove();
+
+        DB.delete(dataSourceId);
+        cfgDS = $.grep(cfgDS, (item) => String(item.id) !== String(dataSourceId));
+    });
+
+    deletedProcessIds.forEach((processId) => {
+        $(`#tblProcConfig tr[data-proc-id="${processId}"]`).remove();
+    });
+
+    if (deletedDataSourceIds.length) {
+        reloadTraceConfigFromDB(true);
+    }
+
+    updateTableRowNumber('tblDbConfig');
+    updateTableRowNumber('tblProcConfig');
+};
+
+const openDeleteDataSourceModal = (rows) => {
+    pendingDeleteDSRows = rows;
+
+    const messageElement = $('#delete-ds-confirm-message');
+    if (rows.length > 1) {
+        messageElement.text(messageElement.data('multiple-message'));
+    } else {
+        const dsName = rows.find('input[name="name"]').val() || rows.find('td:nth-child(3)').text().trim();
+        const dsNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${dsName} </span>`;
+        const singleMessage = dbConfigI18n.confirmDeleteRecord || messageElement.data('single-message');
+        const messageDeleteDS =
+            dsName && dbConfigI18n.thisRecord && singleMessage.includes(dbConfigI18n.thisRecord)
+                ? singleMessage.replace(dbConfigI18n.thisRecord, dsNameHtml)
+                : singleMessage;
+        messageElement.html(messageDeleteDS);
+    }
+
+    showListProcessOfDS(
+        rows
+            .map((_index, row) => $(row).attr(csvResourceElements.dataSrcId))
+            .get()
+            .filter(Boolean),
+    );
+    $('#deleteDSModal').modal('show');
 };
 
 const deleteRow = (self) => {
     currentDSTR = $(self).closest('tr');
-    const dsName = currentDSTR.find('input[name="name"]').val() || currentDSTR.find('td:nth-child(2)').text().trim();
-    const dsNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${dsName} </span>`;
-
-    const messageDeleteDS = dsName
-        ? dbConfigI18n.confirmDeleteRecord.replace(dbConfigI18n.thisRecord, dsNameHtml)
-        : dbConfigI18n.confirmDeleteRecord;
-    $('#deleteDSModal .modal-inform').html(messageDeleteDS);
-    const dsId = currentDSTR.attr(csvResourceElements.dataSrcId);
-
-    // Show corresponding processes
-    showListProcessOfDS(dsId);
-    $('#deleteDSModal').modal('show');
+    openDeleteDataSourceModal(currentDSTR);
 };
 
-const showListProcessOfDS = (dsId) => {
+const showListProcessOfDS = (dsIds) => {
     const processList = [];
-    $(`#tblProcConfig tr[data-ds-id=${dsId}]`).each(function () {
-        const procName =
-            $(this).find('input[name="processName"]').val() || $(this).find('td:nth-child(2)').text().trim();
-        if (procName) {
-            processList.push(procName);
-        }
+    const dataSourceIds = Array.isArray(dsIds) ? dsIds : [dsIds];
+
+    dataSourceIds.filter(Boolean).forEach((dsId) => {
+        $(`#tblProcConfig tr[data-ds-id="${dsId}"]`).each(function () {
+            const procName =
+                $(this).find('input[name="processName"]').val() || $(this).find('td:nth-child(2)').text().trim();
+            if (procName) {
+                processList.push(procName);
+            }
+        });
     });
 
+    $('#deleteDSProcessUl').empty();
     if (processList.length > 0) {
-        $('#deleteDSProcessUl').empty();
         processList.forEach((proc) => {
             $('#deleteDSProcessUl').append(`<li style="border-bottom: 1px solid #444444; padding: 8px;">${proc}</li>`);
         });
@@ -1540,71 +1660,45 @@ const showListProcessOfDS = (dsId) => {
 };
 
 const confirmDeleteDS = async () => {
-    // save current data source tr element
-    const dsCode = currentDSTR.attr(csvResourceElements.dataSrcId);
-    $(currentDSTR).remove();
+    const rows = pendingDeleteDSRows;
 
-    // update row number
-    // updateTableRowNumber(dbElements.tblDbConfig);
-
-    if (!dsCode) {
+    if (!rows.length) {
         return;
     }
 
-    // call backend API to delete
-    const deleteDataSource = async (dsCode) => {
-        try {
-            let result;
-            await $.ajax({
-                url: 'api/setting/delete_datasource_cfg',
-                data: JSON.stringify({ db_code: dsCode }),
-                dataType: 'json',
-                type: 'POST',
-                contentType: false,
-                processData: false,
-                success: (res) => {
-                    result = getNode(res, ['result', 'deleted_procs']);
+    const savedDataSourceIds = [];
+    const unsavedRows = [];
 
-                    // Delete record from DataSource
-                    $(`#tblDbConfig tr[data-ds-id=${dsCode}]`).remove();
+    rows.each((_index, row) => {
+        const dataSourceId = $(row).attr(csvResourceElements.dataSrcId);
 
-                    // Delete all Process in DataSource parent
-                    $(`#tblProcConfig tr[data-ds-id=${dsCode}]`).remove();
-
-                    // Delete datasource option in select tag
-                    $(`select[name="databaseName"] option[value="${dsCode}"]`).remove();
-
-                    // refresh Vis network
-                    reloadTraceConfigFromDB(true);
-
-                    // update datasource
-                    cfgDS = $.grep(cfgDS, (e) => String(e.id) !== String(dsCode));
-                },
-                error: () => {
-                    result = null;
-                    // disabled OK Button
-                    disabledSaveDBBtn();
-                },
-            });
-            return result;
-        } catch (error) {
-            return null;
+        if (dataSourceId) {
+            savedDataSourceIds.push(Number(dataSourceId));
+        } else {
+            unsavedRows.push(row);
         }
-    };
+    });
 
-    const deletedProcs = await deleteDataSource(dsCode);
+    $('#btnDeleteDS').prop('disabled', true);
 
-    // delete from UI on success
-    if (deletedProcs) {
-        $(`#${dsCode}`).remove();
+    try {
+        $(unsavedRows).remove();
 
-        // remove the deleted DS config in global variable
-        DB.delete(dsCode);
+        if (savedDataSourceIds.length) {
+            const response = await deleteDataSources(savedDataSourceIds);
+            applyDeletedDataSources(response.result || {});
+        }
 
-        // remove relevant processes in UI
-        deletedProcs.forEach((procCode) => {
-            $(`#tblProcConfig tr[id=${procCode}]`).remove();
-        });
+        $('#deleteDSModal').modal('hide');
+    } catch (error) {
+        showToastrMsg(dbConfigI18n.failedToDeleteSelectedDataSources, MESSAGE_LEVEL.ERROR);
+    } finally {
+        $('#btnDeleteDS').prop('disabled', false);
+        pendingDeleteDSRows = $();
+
+        updateTableRowNumber(dbElements.tblDbConfig);
+        updateTableRowNumber('tblProcConfig');
+        updateDataSourceSelectionState();
     }
 };
 
@@ -1746,17 +1840,26 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             $(csvResourceElements.folderUrlInput).val('');
             $(csvResourceElements.folderUrlInput).data('originValue', '');
             $(csvResourceElements.fileName).text('');
+            $(csvResourceElements.fileNameInclude).val('');
+            $(csvResourceElements.fileNameExclude).val('');
+            $(csvResourceElements.subfolderInclude).val('');
+            $(csvResourceElements.subfolderExclude).val('');
 
             // clear observer of old input:
             $(csvResourceElements.isFilePathHidden).attr('data-observer', '');
             $(csvResourceElements.folderUrlInput).attr('data-observer', '');
             $(csvResourceElements.folderUrlInput).attr('data-observer', '');
             $(csvResourceElements.fileName).attr('data-observer', '');
+            $(csvResourceElements.fileNameInclude).attr('data-observer', '');
+            $(csvResourceElements.fileNameExclude).attr('data-observer', '');
+            $(csvResourceElements.subfolderInclude).attr('data-observer', '');
+            $(csvResourceElements.subfolderExclude).attr('data-observer', '');
 
             if (dictDataSrc.csv_detail) {
                 if (dictDataSrc.csv_detail.directory) {
                     $(csvResourceElements.folderUrlInput).val(dictDataSrc.csv_detail.directory);
                     $(csvResourceElements.folderUrlInput).data('originValue', dictDataSrc.csv_detail.directory);
+                    $(csvResourceElements.folderUrlInput).attr('title', dictDataSrc.csv_detail.directory);
 
                     // update observer
                     $(csvResourceElements.folderUrlInput).attr('data-observer', dictDataSrc.csv_detail.directory);
@@ -1764,6 +1867,30 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
                 $(csvResourceElements.isFilePathHidden).val(dictDataSrc.csv_detail.is_file_path);
                 // update observer
                 $(csvResourceElements.isFilePathHidden).attr('data-observer', dictDataSrc.csv_detail.is_file_path);
+
+                // File Select Condition: load saved values and disable if the source is a
+                // direct file path (per spec: disabled when a specific file, not a folder, is set)
+                $(csvResourceElements.fileNameInclude).val(dictDataSrc.csv_detail.file_name_include || '');
+                $(csvResourceElements.fileNameExclude).val(dictDataSrc.csv_detail.file_name_exclude || '');
+                $(csvResourceElements.subfolderInclude).val(dictDataSrc.csv_detail.subfolder_include || '');
+                $(csvResourceElements.subfolderExclude).val(dictDataSrc.csv_detail.subfolder_exclude || '');
+                $(csvResourceElements.fileNameInclude).attr(
+                    'data-observer',
+                    dictDataSrc.csv_detail.file_name_include || '',
+                );
+                $(csvResourceElements.fileNameExclude).attr(
+                    'data-observer',
+                    dictDataSrc.csv_detail.file_name_exclude || '',
+                );
+                $(csvResourceElements.subfolderInclude).attr(
+                    'data-observer',
+                    dictDataSrc.csv_detail.subfolder_include || '',
+                );
+                $(csvResourceElements.subfolderExclude).attr(
+                    'data-observer',
+                    dictDataSrc.csv_detail.subfolder_exclude || '',
+                );
+                toggleFileSelectConditionInputs(!!dictDataSrc.csv_detail.is_file_path);
 
                 // clear dictDataSrc.csv_detail.delimiter
                 $(csvResourceElements.csv).attr('data-observer', '');
@@ -1952,7 +2079,6 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
     // $(`#modal-db-${domModalPrefix} select`).data('itemId', dictDataSrc.id);
     // $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data('itemId', dictDataSrc.id);
     $(`#modal-db-${domModalPrefix} .saveDBInfoBtn`).data('dbType', dictDataSrc.type);
-    $(`#modal-db-${domModalPrefix}`).modal('show');
     addAttributeToElement();
 
     // add observer for ds modal
@@ -2035,6 +2161,7 @@ const loadDetail = (self) => {
     currentDSTR = $(self).closest('tr');
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
     const dsType = getDbType(dataSrcId);
+    const domModalPrefix = dsType && dsType === DB_CONFIGS.V2.configs.type ? 'csv' : dsType?.toLowerCase();
     dbElements.lineGroupContainer.css('display', 'none');
     dbElements.sfLineGroupContainer.css('display', 'none');
     // When click (+) to create blank item
@@ -2133,6 +2260,7 @@ const loadDetail = (self) => {
             }
         }
         bindDBItemToModal(dsType, jsonDictDataSrc);
+        $(`#modal-db-${domModalPrefix}`).modal('show');
     } else {
         const url = new URL(`${csvResourceElements.apiLoadDetail}/${dataSrcId}`, window.location.href).href;
         fetch(url, {
@@ -2146,7 +2274,12 @@ const loadDetail = (self) => {
             .then((json) => {
                 if (json) {
                     bindDBItemToModal(dsType, json);
-                    showResources(undefined, undefined, dataSrcId);
+                    $(`#modal-db-${domModalPrefix}`).modal('show');
+                    $(`#modal-db-${domModalPrefix}`)
+                        .off('shown.bs.modal')
+                        .on('shown.bs.modal', () => {
+                            showResources(undefined, undefined, dataSrcId);
+                        });
                 }
             });
     }
@@ -2212,11 +2345,9 @@ $(() => {
     // resort table
     dragDropRowInTable.sortRowInTable(dbElements.tblDbConfig);
 
-    $(csvResourceElements.connectResourceBtn).on('click', () => {
-        $(csvResourceElements.alertInternalError).hide();
-        // Same logic as clicking the "Show Preview" button.
-        showResources();
-    });
+    // File Select Condition hover tooltip (Select Files title + 4 inputs)
+    setFileSelectConditionHoverText();
+
     $(csvResourceElements.showResourcesBtnId).on('click', () => {
         $('#resourceLoading').show();
         const isFile = $(csvResourceElements.showResourcesBtnId).data('is_file');
@@ -2252,6 +2383,9 @@ $(() => {
 
     let debounceTimer;
     $(csvResourceElements.folderUrlId).on('input', (e) => {
+        // Show the full path as a tooltip on hover, since the input is narrower now
+        // (2-column layout) and can visually truncate long directory paths.
+        e.target.title = e.target.value;
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             // hide elert message, preview table and ds name when the input is empty
@@ -2275,6 +2409,22 @@ $(() => {
             // handle show data when enter a path to the input in Data Source Config
             $(csvResourceElements.showResourcesBtnId).trigger('click');
         }, 300); // delay input 300ms
+    });
+
+    // Auto-refresh the Data Preview whenever a File Select Condition input changes
+    // (File Name / Subfolder Include-Exclude), so the preview always reflects the
+    // currently entered filter without needing to press "Show" again.
+    let fileSelectConditionDebounceTimer;
+    $(csvResourceElements.fileSelectConditionInputs).on('input', () => {
+        clearTimeout(fileSelectConditionDebounceTimer);
+        fileSelectConditionDebounceTimer = setTimeout(() => {
+            // only refresh if a folder has already been connected (preview area is visible);
+            // otherwise there's nothing to preview yet.
+            if ($(csvResourceElements.folderUrlInput).val().length === 0) {
+                return;
+            }
+            $(csvResourceElements.showResourcesBtnId).trigger('click');
+        }, 500); // delay input 500ms, a bit longer since regex is often typed char-by-char
     });
 
     // add event to dbElements.txbSearchDataSourceName
@@ -2312,8 +2462,27 @@ $(() => {
     // searchDataSource
     onSearchTableContent('searchDataSource', 'tblDbConfig');
     onSearchTableContent('searchProcConfig', 'tblProcConfig');
-    sortableTable('tblDbConfig', [0, 1, 2, 4, 5], 510, true);
-    sortableTable('tblProcConfig', [0, 1, 2, 3, 5, 6], 510, true);
+    $(document).on('change', '#tblDbConfig .ds-select-checkbox', updateDataSourceSelectionState);
+    $('#select-all-data-sources').on('change', function () {
+        getVisibleDataSourceCheckboxes().prop('checked', this.checked);
+        updateDataSourceSelectionState();
+    });
+    $('#btn-delete-selected-ds').on('click', () => {
+        const selectedRows = getSelectedDataSourceRows();
+
+        if (!selectedRows.length) {
+            return;
+        }
+
+        openDeleteDataSourceModal(selectedRows);
+    });
+    $('#searchDataSource').on('input change keyup', () => {
+        setTimeout(updateDataSourceSelectionState, 0);
+    });
+    sortableTable('tblDbConfig', [1, 2, 3, 5, 6], 510, true, true, [1, 2, 3, 5, 6]);
+    $('#tblDbConfig thead th.ds-select-column .sortCol').remove();
+    sortableTable('tblProcConfig', [1, 2, 3, 4, 6, 7], 510, true, true, [1, 2, 3, 4, 6, 7]);
+    updateDataSourceSelectionState();
 });
 
 const getDbType = (dbItemId) => {

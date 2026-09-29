@@ -117,7 +117,11 @@ def query_data(db_instance, table_name, sort_column, sort_order, limit):
         sort_statement = f'order by "{sort_column}" {sort_order} '
 
     if isinstance(db_instance, mssqlserver.MSSQLServer):
-        sql = f'select TOP {limit}  * from "{table_name}" {sort_statement} '
+        # Cast non-Unicode char/varchar/text columns to NVARCHAR so the client
+        # returns Unicode instead of code-page bytes (mojibake for non-ASCII,
+        # e.g. CP932, data).
+        select_columns = db_instance.gen_preview_select_columns(table_name)
+        sql = f'select TOP {limit} {select_columns} from "{table_name}" {sort_statement} '
     elif isinstance(db_instance, oracle.Oracle):
         sql = f'select * from "{table_name}" where rownum <= {limit} {sort_statement} '
     else:
@@ -183,18 +187,22 @@ def get_v2_data(csv_detail, sort_colum, sort_order, limit):
 
 @MessageAnnouncer.notify_progress(50)
 def get_csv_data(csv_detail, sort_colum, sort_order, limit):
+    """Load, normalize, sort, and limit records from the latest CSV file."""
+    # Preview the latest configured file so table viewer results follow the current data source.
     latest_file = [csv_detail.directory] if csv_detail.is_file_path else get_latest_files(csv_detail.directory)
     latest_file = latest_file[0:1][0]
     csv_delimiter = get_csv_delimiter(csv_detail.delimiter)
     skip_head = csv_detail.skip_head
-    # delimiter check
+
+    # Detect the file encoding before parsing the configured header and data rows.
     _, encoding = detect_file_path_delimiter(
         latest_file,
         csv_delimiter,
         with_encoding=True,
     )
+
     # TODO: Should we use preview_csv_data for this instead?
-    (org_header, header_names, _, _, data_details, _, encoding, skip_tail, *_) = get_csv_data_from_files(
+    (_, header_names, _, _, data_details, _, encoding, skip_tail, *_) = get_csv_data_from_files(
         [latest_file],
         skip_head=skip_head,
         n_rows=csv_detail.n_rows,
@@ -204,17 +212,16 @@ def get_csv_data(csv_detail, sort_colum, sort_order, limit):
         max_records=None,
     )
 
-    # display header names, add suffixes to duplicate header names (including dummy header case)
+    # Use unique display names so every duplicate CSV column remains independently addressable.
     header_names, *_ = add_suffix_if_duplicated(header_names)
     df_data = pd.DataFrame(columns=header_names, data=data_details)
 
+    # The table viewer sends the unique display name, which already matches the DataFrame column.
     if sort_colum:
-        dict_column_name = dict(zip(org_header, header_names, strict=False))
-        sort_column_raw_name = dict_column_name[sort_colum]
-        if sort_column_raw_name and sort_column_raw_name in df_data.columns:
-            asc = sort_order == 'ASC'
-            df_data = df_data.sort_values(by=[sort_column_raw_name], ascending=asc)
+        asc = sort_order == 'ASC'
+        df_data = df_data.sort_values(by=[sort_colum], ascending=asc)
 
+    # Apply the preview limit after sorting so the response contains the requested leading rows.
     df_data = df_data.head(limit)
     cols = df_data.columns
     rows = [dict(zip(cols, vals, strict=False)) for vals in df_data[0:limit][cols].to_records(index=False).tolist()]
@@ -232,6 +239,9 @@ def get_sw_data(data_source, table_name, sort_col, sort_order, limit, proc_id):
         process_factid=cfg_process.process_factid,
         master_type=MasterDBType[cfg_process.master_type] if cfg_process.master_type else None,
         sql_limit=limit,
+        # Sort at database level before applying LIMIT.
+        sort_column=sort_col,
+        sort_order=sort_order,
     )
     header_names, *_ = add_suffix_if_duplicated(df_cols)
 

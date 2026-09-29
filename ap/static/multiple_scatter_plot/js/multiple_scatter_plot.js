@@ -239,6 +239,15 @@ const truncateTextByWidth = (text, targetWidth, font) => {
     return truncatedText;
 };
 
+const buildMSPAxisLabel = (plotData) => {
+    if (!plotData) return '';
+
+    const columnName = plotData.end_col_show_name || '';
+    const unit = plotData.unit;
+    const unitLabel = unit && unit !== 'Null' ? ` [${unit}]` : '';
+    return `${columnName}${unitLabel}`;
+};
+
 const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
     // clear old chart title
     clearOldChartTitles();
@@ -273,8 +282,8 @@ const multipleScatterPlot = (data, clearOnFlyFilter = true) => {
             const kProcId = sensors[k].end_col_id;
             const iProcInfo = endProcName;
             const kProcInfo = sensors[k].end_proc_name;
-            const chartXLabel = `${iProcInfo}|${_pd.end_col_show_name}`;
-            const chartYLabel = `${kProcInfo}|${sensors[i].end_col_show_name}`;
+            const chartXLabel = `${iProcInfo}|${buildMSPAxisLabel(_pd)}`;
+            const chartYLabel = `${kProcInfo}|${buildMSPAxisLabel(sensors[i])}`;
             if (i === k) {
                 if (String(endProc) === String(startProc)) {
                     row += `<div class="hist-item chart-column-border graph-navi"
@@ -488,14 +497,14 @@ const resetGraphSetting = () => {
 const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false) => {
     if (!checkDisableScatterBtn()) {
         loadingHide();
-        return;
+        return null;
     }
 
     if (!formData) {
         formData = collectFormDataMSP(clearOnFlyFilter, autoUpdate);
     }
 
-    showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/msp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         resultData = res;
         // save global
         graphStore.setTraceData(_.cloneDeep(res));
@@ -553,7 +562,7 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
             scatterTraceData(null, false, false);
         });
 
-        setPollingData(formData, scatterTraceData, [formData, false, true]);
+        setPollingData(formData, scatterTraceData, [formData, false, true], requestPromise);
 
         if (res.is_show_contour_only) {
             showToastrMsg(i18n.hideContourMsg);
@@ -561,6 +570,8 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
     });
 
     $('#plot-cards').empty();
+
+    return requestPromise;
 };
 
 let timerVar;

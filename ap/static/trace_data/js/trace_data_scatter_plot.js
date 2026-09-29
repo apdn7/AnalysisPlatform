@@ -331,8 +331,8 @@ const scatterChart = (ctx, data, prop) => {
     const canvas = $(ctx).get(0);
     const menu = document.getElementById(contextMenu.scatter);
 
-    canvas.addEventListener('contextmenu', showContextMenu, false);
-    canvas.addEventListener('mousedown', handleMouseDown, false);
+    registerChartEventListener(canvas, 'contextmenu', showContextMenu);
+    registerChartEventListener(canvas, 'mousedown', handleMouseDown);
 
     function handleMouseDown(e) {
         // later, not just mouse down, + mouseout of menu
@@ -625,11 +625,6 @@ const redrawScatterAfterMoveCart = () => {
 };
 
 const addTimeSeriesCardSortableEventHandler = () => {
-    /*
-     * When user change order of timeseries card:
-     * + we store order/position of those column/sensor to db.
-     * + and re-draw scatter plots.
-     * */
     $('.ui-sortable').sortable({
         update(event, ui) {
             // redraw scatter plots

@@ -217,7 +217,7 @@ const showGraph = () => {
     formDat.append('layout', $(coOccElements.layout).val());
     formDat.append('file', fileUpload);
 
-    showGraphCallApi(
+    return showGraphCallApi(
         coOccElements.apiShowGraphUrl,
         formDat,
         REQUEST_TIMEOUT,

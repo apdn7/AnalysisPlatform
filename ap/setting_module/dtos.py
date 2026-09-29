@@ -153,3 +153,10 @@ class ExportConfigPeriodicDTO(BaseModel):
     interval_unit: str
     interval_value: int
     start_time: str
+
+
+class PaginationParamsDTO(BaseModel):
+    """Data Transfer Object for pagination parameters."""
+
+    page: int
+    limit: int

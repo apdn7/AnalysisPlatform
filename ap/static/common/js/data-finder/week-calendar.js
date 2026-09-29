@@ -132,6 +132,12 @@ class WeekCalender extends DataFinderBase {
             }
             this.generateWeekCalender(previousStartDate, isFrom);
             this.disableWeekArrowButton();
+            if (this.syncDataFinderInputRangeToCalendarTypes()) {
+                const [selectedFrom, selectedTo] = this.getFromToInputByType(calenderTypes.week);
+                this.syncSelectionToCalendar(selectedFrom, selectedTo, calenderTypes.week);
+            } else {
+                this.clearCalendarSelection();
+            }
             DataFinderService.addCacheFunctionForBackupRestoreModal(
                 () => this.generateWeekCalender(previousStartDate, isFrom),
                 isFrom,
@@ -149,6 +155,12 @@ class WeekCalender extends DataFinderBase {
             }
             this.generateWeekCalender(nextStartDate, isFrom);
             this.disableWeekArrowButton();
+            if (this.syncDataFinderInputRangeToCalendarTypes()) {
+                const [selectedFrom, selectedTo] = this.getFromToInputByType(calenderTypes.week);
+                this.syncSelectionToCalendar(selectedFrom, selectedTo, calenderTypes.week);
+            } else {
+                this.clearCalendarSelection();
+            }
             DataFinderService.addCacheFunctionForBackupRestoreModal(
                 () => this.generateWeekCalender(nextStartDate, isFrom),
                 isFrom,

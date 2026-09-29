@@ -28,6 +28,7 @@ from ap.api.setting_module.schemas.export_config import ExportConfigSave
 from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
+    delete_user_setting_by_ids,
     get_all_user_settings,
     get_page_top_setting,
     get_setting,
@@ -67,11 +68,14 @@ from ap.api.setting_module.services.polling_frequency import (
     has_important_changes,
 )
 from ap.api.setting_module.services.process_delete import (
-    del_data_source,
+    classify_processes_for_delete,
+    del_data_sources,
+    delete_child_process_and_relate_jobs,
     delete_proc_cfg_and_relate_jobs,
     delete_pulled_data_folders,
     delete_transaction_when_initial_process,
     initialize_proc_config,
+    reinitialize_and_reimport_merged_process,
 )
 from ap.api.setting_module.services.save_load_user_setting import map_form, transform_settings
 from ap.api.setting_module.services.show_latest_record import (
@@ -173,7 +177,7 @@ from ap.common.services.normalization import remove_non_ascii_chars
 from ap.common.services.sse import MessageAnnouncer
 from ap.conversion_formula import JudgeFormula, conversion_formula, gen_formula_type
 from ap.import_filter.utils import get_import_filters_from_process
-from ap.setting_module.dtos import ExportConfigPeriodicDTO, SearchParamsDTO
+from ap.setting_module.dtos import ExportConfigPeriodicDTO, PaginationParamsDTO, SearchParamsDTO
 from ap.setting_module.models import (
     AppLog,
     CfgConstant,
@@ -601,6 +605,10 @@ def get_csv_resources():
     is_file = request.json.get('is_file')
     is_file_checker = request.json.get('is_file_checker') or False
     datasource_id = request.json.get('db_code')
+    file_name_include = request.json.get('file_name_include')
+    file_name_exclude = request.json.get('file_name_exclude')
+    subfolder_include = request.json.get('subfolder_include')
+    subfolder_exclude = request.json.get('subfolder_exclude')
     is_file_checker = False
     if datasource_id:
         csv_resource = CfgDataSource.get_ds(datasource_id).csv_detail
@@ -633,6 +641,10 @@ def get_csv_resources():
             is_show_raw_data=False,
             is_file_checker=is_file_checker,
             encoding=request.json.get('encoding'),
+            file_name_include=file_name_include,
+            file_name_exclude=file_name_exclude,
+            subfolder_include=subfolder_include,
+            subfolder_exclude=subfolder_exclude,
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -733,11 +745,111 @@ def delete_proc_from_db():
     params = json.loads(request.data)
     proc_id = params.get('proc_id')
     proc_id = int(proc_id) or None
+    reload_related_process_data = bool(params.get('reload_related_process_data'))
 
     # delete config and add job to delete data
-    deleted_process_ids = delete_proc_cfg_and_relate_jobs(proc_id)
+    # A child process (has a parent) is deleted alone; parent/standalone deletes the whole group.
+    if proc_id is not None and CfgProcess.get_parent(proc_id) is not None:
+        deleted_process_ids = delete_child_process_and_relate_jobs(proc_id, reload_related_process_data)
+    else:
+        deleted_process_ids = delete_proc_cfg_and_relate_jobs(proc_id)
 
     return jsonify({'deleted_processes': deleted_process_ids}), 200
+
+
+@api_setting_module_blueprint.route('/delete_processes', methods=['POST'])
+@login_required
+def delete_processes_cfg():
+    params = request.get_json(silent=True) or {}
+
+    process_ids = params.get('proc_ids')
+    if process_ids is None:
+        process_id = params.get('proc_id')
+        process_ids = [process_id] if process_id else []
+
+    if not isinstance(process_ids, list):
+        return jsonify(message='proc_ids must be a list'), 400
+
+    try:
+        process_ids = list(dict.fromkeys(int(process_id) for process_id in process_ids))
+    except (TypeError, ValueError):
+        return jsonify(message='Invalid process ID'), 400
+
+    if not process_ids:
+        return jsonify(message='No process selected'), 400
+
+    reload_related_process_data = bool(params.get('reload_related_process_data'))
+
+    # Resolve the surviving merge destinations BEFORE anything is deleted. A parent that is
+    # itself part of this request must not be re-imported, and a parent shared by several
+    # selected children must be reloaded only once. Re-importing inside the delete loop would
+    # queue import jobs for a merge group that later iterations still delete, which keeps the
+    # group's data files open and can make the remaining deletions fail.
+    reload_parent_ids = []
+    if reload_related_process_data:
+        reload_parent_ids = [entry['id'] for entry in classify_processes_for_delete(process_ids)['reload_targets']]
+
+    deleted_process_ids = []
+    not_found_process_ids = []
+    failed_process_ids = []
+    failed_reload_process_ids = []
+
+    for proc_id in process_ids:
+        try:
+            # A child process (has a parent) is deleted alone; parent/standalone deletes the whole group.
+            if CfgProcess.get_parent(proc_id) is not None:
+                # Reload is deferred to the loop below so it runs once, after every deletion.
+                deleted_ids = delete_child_process_and_relate_jobs(proc_id, reload_related_process_data=False)
+            else:
+                deleted_ids = delete_proc_cfg_and_relate_jobs(proc_id)
+
+            if not deleted_ids:
+                not_found_process_ids.append(proc_id)
+                continue
+
+            deleted_process_ids.extend(deleted_ids)
+        except Exception:
+            logger.exception('Failed to delete process %s', proc_id)
+            failed_process_ids.append(proc_id)
+
+    # Every selected process is gone now, so the surviving parents can safely be rebuilt.
+    for parent_id in reload_parent_ids:
+        try:
+            reinitialize_and_reimport_merged_process(parent_id)
+        except Exception:
+            logger.exception('Failed to reload merged process %s', parent_id)
+            failed_reload_process_ids.append(parent_id)
+
+    result = {
+        'deleted_process_ids': list(dict.fromkeys(deleted_process_ids)),
+        'not_found_process_ids': not_found_process_ids,
+        'failed_process_ids': failed_process_ids,
+        'failed_reload_process_ids': failed_reload_process_ids,
+    }
+
+    return jsonify(result=result), 200
+
+
+@api_setting_module_blueprint.route('/delete_processes/preview', methods=['POST'])
+@login_required
+def delete_processes_preview():
+    """Classify the selected processes so the bulk-delete modal can render its warnings.
+
+    Returns selected_parents / selected_children / reload_targets. Read-only: it never
+    deletes anything, it only inspects the merge relationships of the selected processes.
+    """
+    params = request.get_json(silent=True) or {}
+
+    process_ids = params.get('proc_ids')
+    if not isinstance(process_ids, list):
+        return jsonify(message='proc_ids must be a list'), 400
+
+    try:
+        process_ids = [int(process_id) for process_id in process_ids]
+    except (TypeError, ValueError):
+        return jsonify(message='Invalid process ID'), 400
+
+    return jsonify(classify_processes_for_delete(process_ids)), 200
 
 
 @api_setting_module_blueprint.route('/save_order/<order_name>', methods=['POST'])
@@ -766,12 +878,27 @@ def save_order(order_name):
 @api_setting_module_blueprint.route('/delete_datasource_cfg', methods=['POST'])
 @login_required
 def delete_datasource_cfg():
-    params = json.loads(request.data)
-    data_source_id = params.get('db_code')
-    if data_source_id:
-        del_data_source(data_source_id)
+    params = request.get_json(silent=True) or {}
 
-    return jsonify(id=data_source_id), 200
+    data_source_ids = params.get('db_codes')
+    if data_source_ids is None:
+        data_source_id = params.get('db_code')
+        data_source_ids = [data_source_id] if data_source_id else []
+
+    if not isinstance(data_source_ids, list):
+        return jsonify(message='db_codes must be a list'), 400
+
+    try:
+        data_source_ids = list(dict.fromkeys(int(data_source_id) for data_source_id in data_source_ids))
+    except (TypeError, ValueError):
+        return jsonify(message='Invalid data source ID'), 400
+
+    if not data_source_ids:
+        return jsonify(message='No data source selected'), 400
+
+    result = del_data_sources(data_source_ids)
+
+    return jsonify(result=result), 200
 
 
 @api_setting_module_blueprint.route('/stop_job', methods=['POST'])
@@ -859,11 +986,16 @@ def post_sw_register():
                 master_type = str(item.get(ProcessCfgConst.MASTER_TYPE.value))
                 master_type = MasterDBType[master_type] if MasterDBType.has_key(master_type) else None
                 master_type_suffix = master_type.get_data_type()
+                master_type_suffix_localized = MasterDBType.master_type_suffix(master_type.name)
 
                 # same method of generating table_name as get_list_process_software_workshop
-                table_name = f'{item.get(ProcessCfgConst.TABLE_NAME.value, "")}{UNDER_SCORE}{master_type_suffix}'
-                proc_name = f'{data_src.name}{UNDER_SCORE}{table_name}'
-                proc_name_en = to_romaji(proc_name)
+                table_name = (
+                    f'{item.get(ProcessCfgConst.TABLE_NAME.value, "")}{UNDER_SCORE}{master_type_suffix_localized}'
+                )
+                proc_name_jp = f'{table_name}'
+                proc_name_en = to_romaji(
+                    f'{item.get(ProcessCfgConst.TABLE_NAME.value, "")}{UNDER_SCORE}{master_type_suffix}'
+                )
                 process_factid = str(item.get(ProcessCfgConst.CHILD_EQUIP_ID.value))
 
                 # save processes then update it later
@@ -874,7 +1006,7 @@ def post_sw_register():
                     ProcessCfgConst.TABLE_NAME.value: table_name,
                     ProcessCfgConst.FACT_ID.value: process_factid,
                     ProcessCfgConst.MASTER_TYPE.value: master_type.name,
-                    ProcessCfgConst.NAME_JP.value: proc_name if ja_locale else None,
+                    ProcessCfgConst.NAME_JP.value: proc_name_jp if ja_locale else None,
                     ProcessCfgConst.PROC_NAME_EN.value: proc_name_en,
                     ProcessCfgConst.NAME_LOCAL.value: proc_name_en if not ja_locale else None,
                     ProcessCfgConst.STATUS.value: ProcessStatus.INITIALIZING.value,
@@ -1162,6 +1294,8 @@ def get_proc_config(proc_id):
                     'tables': tables,
                     'col_id_in_funcs': col_id_in_funcs,
                     'has_parent_or_children': len(parent_and_child_processes) > 1,
+                    'is_child_process': CfgProcess.get_parent(proc_id) is not None,
+                    'related_process_names': [p.shown_name for p in parent_and_child_processes if p.id != int(proc_id)],
                     'is_imported': int(process.get('status') or 0) == ProcessStatus.REGISTERED.value,
                 },
             ),
@@ -1527,6 +1661,22 @@ def delete_user_setting(setting_id):
 
     except Exception as ex:
         logger.exception(ex)
+        return jsonify({}), 500
+
+    return jsonify({}), 200
+
+
+@api_setting_module_blueprint.route('/user_setting/delete', methods=['POST'])
+@login_required
+def bulk_delete_user_setting():
+    try:
+        data = json.loads(request.data)
+        ids = data.get('user_setting_ids')
+
+        delete_user_setting_by_ids(ids)
+
+    except Exception as e:
+        logger.exception(e)
         return jsonify({}), 500
 
     return jsonify({}), 200
@@ -2227,15 +2377,16 @@ def post_export_config():
 @api_setting_module_blueprint.route('/export_config', methods=['GET'])
 def get_export_config():
     try:
-        export_configs: list[CfgExport] = CfgExport.get_all()
-        config_data = [ExportConfigService.format_export_config(export_config) for export_config in export_configs]
+        # get export config by pagination
+        params = PaginationParamsDTO(**request.args)
+        exports, total = ExportConfigService.get_export_configs(params)
     except Exception as e:
         logger.exception(e)
         message = {'message': f'Export setting failed to save. Reason: {e}', 'is_error': True}
         return jsonify(flask_message=message), 500
 
     message = {'message': _('Get setting successfully.'), 'is_error': False}
-    return jsonify(export_configs=config_data, flask_message=message), 200
+    return jsonify(export_configs=exports, total=total, flask_message=message), 200
 
 
 @api_setting_module_blueprint.route('/get_export_config_detail/<export_config_id>', methods=['GET'])

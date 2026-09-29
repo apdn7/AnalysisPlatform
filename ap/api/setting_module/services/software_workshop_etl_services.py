@@ -309,8 +309,6 @@ class SoftwareWorkshopDef:
         return (
             sa.select(
                 sa.func.concat(
-                    cte.c[self.factory_name],
-                    UNDER_SCORE,
                     cte.c[self.line_name],
                     UNDER_SCORE,
                     cte.c[self.child_equip_name],
@@ -333,8 +331,6 @@ class SoftwareWorkshopDef:
                 sa.func.concat(cte.c[self.line_name], '(', cte.c[self.line_id], ')').label('LINE'),
                 sa.func.concat(cte.c[self.child_equip_name], '(', cte.c[self.child_equip_id], ')').label('CHILD_EQUIP'),
                 sa.func.concat(
-                    cte.c[self.factory_name],
-                    UNDER_SCORE,
                     cte.c[self.line_name],
                     UNDER_SCORE,
                     cte.c[self.child_equip_name],
@@ -415,6 +411,8 @@ class SoftwareWorkshopDef:
         datetime_key: str | None = None,
         time_range: TimeRange | None = None,
         limit: int | None = None,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ) -> sa.Select:
         columns = [
             self.quality_measurements_table.c[self.child_equip_id],
@@ -446,7 +444,15 @@ class SoftwareWorkshopDef:
 
         query = query.where(*conditions)
 
-        if limit:
+        # ORDER BY must be applied before LIMIT so DESC + 100 returns
+        # the newest 100 records from the complete result set.
+        if sort_column:
+            sort_expression = self.quality_measurements_table.c.get(sort_column)
+            if sort_expression is not None:
+                sort_expression = sort_expression.desc() if sort_order == 'DESC' else sort_expression.asc()
+                query = query.order_by(sort_expression)
+
+        if limit is not None:
             query = query.limit(limit)
 
         return query
@@ -457,6 +463,8 @@ class SoftwareWorkshopDef:
         datetime_key: str | None = None,
         time_range: TimeRange | None = None,
         limit: int | None = None,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ) -> sa.Select:
         columns = [
             self.quality_traceabilities_table.c[self.child_equip_id],
@@ -487,7 +495,14 @@ class SoftwareWorkshopDef:
 
         query = query.where(*conditions)
 
-        if limit:
+        # Apply sorting before limiting the history records.
+        if sort_column:
+            sort_expression = self.quality_traceabilities_table.c.get(sort_column)
+            if sort_expression is not None:
+                sort_expression = sort_expression.desc() if sort_order == 'DESC' else sort_expression.asc()
+                query = query.order_by(sort_expression)
+
+        if limit is not None:
             query = query.limit(limit)
 
         return query
@@ -510,6 +525,8 @@ class SoftwareWorkshopDef:
         time_range: TimeRange | None = None,
         limit: int | None = 2000,
         is_measurement: bool = True,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ):
         target_table = self.quality_measurements_table if is_measurement else self.quality_traceabilities_table
         join_master = (
@@ -570,6 +587,15 @@ class SoftwareWorkshopDef:
         if conditions:
             query = query.where(*conditions)
 
+        # Sort the complete Software Workshop result before LIMIT.
+        # ColumnCollection.get() also prevents an arbitrary SQL expression
+        # from being inserted into ORDER BY.
+        if sort_column:
+            sort_expression = target_table.c.get(sort_column)
+            if sort_expression is not None:
+                sort_expression = sort_expression.desc() if sort_order == 'DESC' else sort_expression.asc()
+                query = query.order_by(sort_expression)
+
         if limit is not None:
             query = query.limit(limit)
 
@@ -582,6 +608,8 @@ class SoftwareWorkshopDef:
         time_range: TimeRange | None = None,
         limit: int | None = None,
         master_type: MasterDBType = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ):
         """
         - Normal software workshop: get joined master data and transaction data
@@ -596,6 +624,8 @@ class SoftwareWorkshopDef:
                     datetime_key=datetime_key,
                     time_range=time_range,
                     limit=limit,
+                    sort_column=sort_column,
+                    sort_order=sort_order,
                 )
             elif master_type == MasterDBType.SOFTWARE_WORKSHOP_HISTORY:
                 return self.get_history_data_query(
@@ -603,6 +633,8 @@ class SoftwareWorkshopDef:
                     datetime_key=datetime_key,
                     time_range=time_range,
                     limit=limit,
+                    sort_column=sort_column,
+                    sort_order=sort_order,
                 )
             else:
                 raise NotImplementedError(f'Cannot handle master type {master_type} for snowflake data source')
@@ -613,6 +645,8 @@ class SoftwareWorkshopDef:
                 datetime_key=datetime_key,
                 time_range=time_range,
                 limit=limit,
+                sort_column=sort_column,
+                sort_order=sort_order,
             )
         # history
         return self.get_history_data_with_master_query(
@@ -620,6 +654,8 @@ class SoftwareWorkshopDef:
             datetime_key=datetime_key,
             time_range=time_range,
             limit=limit,
+            sort_column=sort_column,
+            sort_order=sort_order,
         )
 
     def get_measurement_data_with_master_query(
@@ -628,6 +664,8 @@ class SoftwareWorkshopDef:
         datetime_key: str | None = None,
         time_range: TimeRange | None = None,
         limit: int | None = None,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ):
         if self.measurements_and_components_columns_on_quality_tables:
             raise ValueError(
@@ -635,10 +673,13 @@ class SoftwareWorkshopDef:
             )
 
         cte = self.get_quality_and_master_data_query(
-            process_factid,
-            datetime_key,
-            time_range,
-            limit,
+            process_factid=process_factid,
+            datetime_key=datetime_key,
+            time_range=time_range,
+            limit=limit,
+            is_measurement=True,
+            sort_column=sort_column,
+            sort_order=sort_order,
         ).cte('master_data')
 
         measurements_query = sa.select(
@@ -683,6 +724,8 @@ class SoftwareWorkshopDef:
         datetime_key: str | None = None,
         time_range: TimeRange | None = None,
         limit: int | None = None,
+        sort_column: str | None = None,
+        sort_order: str = 'ASC',
     ):
         if self.measurements_and_components_columns_on_quality_tables:
             raise ValueError(
@@ -690,11 +733,13 @@ class SoftwareWorkshopDef:
             )
 
         cte = self.get_quality_and_master_data_query(
-            process_factid,
-            datetime_key,
+            process_factid=process_factid,
+            datetime_key=datetime_key,
             time_range=time_range,
             limit=limit,
             is_measurement=False,
+            sort_column=sort_column,
+            sort_order=sort_order,
         ).cte('master_data')
 
         query = sa.select(

@@ -379,3 +379,11 @@ table {
     color: yellow;
     padding-left: 0.2rem;
 }
+
+.checkbox-wrapper {
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    padding-right: 6px !important;
+    padding-left: 6px !important;
+}

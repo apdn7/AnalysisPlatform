@@ -108,13 +108,13 @@ const collectFromDataGL = (clearOnFlyFilter, autoUpdate = false) => {
 
 const handleSetPollingData = () => {
     const settings = collectFromDataGL(false);
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const callToBackEndAPI = (clearOnFlyFilter = true, autoUpdate = false) => {
     const formData = collectFromDataGL(clearOnFlyFilter, autoUpdate);
 
-    showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/gl/plot', formData, REQUEST_TIMEOUT, async (res) => {
         resData = res;
         graphStore.setTraceData(res);
         showGraphicalLasso(res);
@@ -125,7 +125,7 @@ const callToBackEndAPI = (clearOnFlyFilter = true, autoUpdate = false) => {
             },
             500,
         );
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
         // show info table
         showInfoTable(res);
 
@@ -133,6 +133,8 @@ const callToBackEndAPI = (clearOnFlyFilter = true, autoUpdate = false) => {
             callToBackEndAPI(false);
         });
     });
+
+    return requestPromise;
 };
 
 const setSparsityValue = (alphas, bestAlphas = 0, threshold) => {

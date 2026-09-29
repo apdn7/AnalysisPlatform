@@ -25,13 +25,14 @@ from ap.api.common.services.show_graph_services import (
     gen_cat_label_unique,
     gen_dic_data_from_df,
     gen_graph,
+    get_axis_title_with_unit,
     get_cfg_proc_col_info,
     get_chart_infos,
     get_data_from_db,
     get_min_max_of_all_chart_infos,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import end_of_minute, gen_sql_label, start_of_minute
+from ap.common.common_utils import end_of_minute, start_of_minute
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_FORMVAL,
@@ -78,6 +79,7 @@ from ap.common.constants import (
     RL_DEN_VAL,
     RL_EMD,
     RL_GROUPS,
+    RL_HIST_COUNTS,
     RL_HIST_LABELS,
     RL_KDE,
     RL_ORG_DEN,
@@ -117,7 +119,7 @@ from ap.common.constants import (
 from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.pandas_helper import append_series
-from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_bound, get_grid_points
+from ap.common.services.ana_inf_data import calculate_kde_for_ridgeline, get_grid_points
 from ap.common.services.form_env import bind_dic_param_to_class
 from ap.common.services.request_time_out_handler import (
     abort_process_handler,
@@ -350,7 +352,7 @@ def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
         export_dfs.append(export_df)
 
     # rpl_array_data
-    dic_rlp, is_graph_limited = transform_data_to_rlp(term_results, max_graph, terms)
+    dic_rlp, is_graph_limited = transform_data_to_rlp(term_results, graph_param.dic_proc_cfgs, max_graph, terms)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
     dic_param[ARRAY_PLOTDATA] = [plotdata for dic_cat_exp in dic_rlp.values() for plotdata in dic_cat_exp.values()]
     # get list cat_exp_box
@@ -384,7 +386,10 @@ def gen_rlp_data_by_term(graph_param, dic_param, max_graph=None):
 
 @log_execution_time()
 @abort_process_handler()
-def transform_data_to_rlp(term_results, max_graph=None, terms=[]):
+def transform_data_to_rlp(term_results, dic_proc_cfgs, max_graph=None, terms=None):
+    if terms is None:
+        terms = []
+
     is_graph_limited = False
     dic_plots = defaultdict(dict)
     count = 0
@@ -393,9 +398,11 @@ def transform_data_to_rlp(term_results, max_graph=None, terms=[]):
         for dic_plot in term_result[ARRAY_PLOTDATA]:
             selected_sensor = int(dic_plot[END_COL_ID])
             array_y = dic_plot[ARRAY_Y]
-            sensor_name = dic_plot[END_COL_NAME]
-            proc_name = dic_plot[END_PROC_NAME]
             proc_id = dic_plot[END_PROC_ID]
+            proc_cfg = dic_proc_cfgs.get(proc_id)
+            col_cfg = proc_cfg.get_col(selected_sensor) if proc_cfg else None
+            sensor_name = get_axis_title_with_unit(col_cfg) or dic_plot[END_COL_NAME]
+            proc_name = dic_plot[END_PROC_NAME]
             group_name = dic_plot.get(CAT_EXP_BOX) or ''
 
             if selected_sensor in dic_plots:
@@ -733,7 +740,7 @@ def gen_custom_plotdata(dic_proc_cfgs, dic_data, sensors, cat_div_id, max_graph)
             proc_name=cfg_proc.shown_name,
             proc_id=cfg_proc.id,
             sensor_id=sensor_id,
-            sensor_name=cfg_col.shown_name,
+            sensor_name=get_axis_title_with_unit(cfg_col) or cfg_col.shown_name,
         )
 
         if not cat_div_id:
@@ -753,7 +760,7 @@ def gen_custom_plotdata(dic_proc_cfgs, dic_data, sensors, cat_div_id, max_graph)
                     proc_name=cfg_proc.shown_name,
                     proc_id=cfg_proc.id,
                     sensor_id=sensor_id,
-                    sensor_name=cfg_col.shown_name,
+                    sensor_name=get_axis_title_with_unit(cfg_col) or cfg_col.shown_name,
                     group_name=cate_name,
                 )
                 plotdata['facet_groups'] = cate_name
@@ -790,9 +797,78 @@ def get_checked_cols(trace, dic_param):
         return dic_header
 
 
+def get_rlp_kde_bounds(plotdata, scale_names=None):
+    """Return finite KDE bounds from the requested scales and the plot's data."""
+    bound_values = []
+    # Preserve the original all-scale behavior for callers that need the complete display range.
+    if scale_names is None:
+        scale_names = (SCALE_SETTING, SCALE_COMMON, SCALE_THRESHOLD, SCALE_AUTO, SCALE_FULL)
+
+    # Include configured scale limits so the resulting trace can cover the requested display modes.
+    for scale_name in scale_names:
+        scale = plotdata.get(scale_name) or {}
+        for bound in (scale.get(Y_MIN), scale.get(Y_MAX)):
+            if bound is not None and np.isfinite(bound):
+                bound_values.append(float(bound))
+
+    # Include actual values so invalid or incomplete scale settings cannot clip the KDE data.
+    for ridgeline in plotdata.get(RL_RIDGELINES) or []:
+        values = pd.to_numeric(ridgeline.get(ARRAY_X, pd.Series()), errors='coerce')
+        values = values[np.isfinite(values)]
+        if len(values):
+            bound_values.extend([float(values.min()), float(values.max())])
+
+    # Keep downstream grid generation valid when no finite value is available.
+    if not bound_values:
+        return [0, 1]
+
+    lower_bound = min(bound_values)
+    upper_bound = max(bound_values)
+    # Expand a constant-value range so a single-point group still has a visible KDE window.
+    if lower_bound == upper_bound:
+        margin = abs(lower_bound) * 0.2 or 1
+        lower_bound -= margin
+        upper_bound += margin
+
+    return [lower_bound, upper_bound]
+
+
+def extend_rlp_kde_to_display_bounds(kde_data, core_bounds, display_bounds):
+    """Add zero-density endpoints outside the KDE core while preserving its local resolution."""
+    density = np.asarray(kde_data[RL_DEN_VAL])
+    labels = np.asarray(kde_data[RL_HIST_LABELS])
+    hist_counts = np.asarray(kde_data[RL_HIST_COUNTS])
+
+    # Preserve empty ridgelines so the frontend continues to omit groups without usable data.
+    if not labels.size:
+        return kde_data
+
+    # A constant-value histogram has one fewer density value than grid labels; close it at zero.
+    if density.size < labels.size:
+        density = np.pad(density, (0, labels.size - density.size))
+
+    # Add only bounds outside the sampled core so the final trace covers every frontend scale.
+    if display_bounds[0] < core_bounds[0]:
+        density = np.insert(density, 0, 0)
+        labels = np.insert(labels, 0, display_bounds[0])
+        hist_counts = np.insert(hist_counts, 0, 0)
+    if display_bounds[1] > core_bounds[1]:
+        density = np.append(density, 0)
+        labels = np.append(labels, display_bounds[1])
+        hist_counts = np.append(hist_counts, 0)
+
+    # Keep the existing KDE response contract after extending both tails.
+    kde_data[RL_DEN_VAL] = density
+    kde_data[RL_HIST_LABELS] = labels
+    kde_data[RL_HIST_COUNTS] = hist_counts
+    return kde_data
+
+
 @log_execution_time()
 @abort_process_handler()
 def gen_rlp_kde(dic_param):
+    """Generate fixed-size RLP KDE traces that cover every selectable Y-axis scale."""
+    kde_point_count = 128
     # retrieve the ridge-lines from array_plotdata
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)
     fmt = {}
@@ -803,21 +879,17 @@ def gen_rlp_kde(dic_param):
         if sensor_id not in fmt:
             fmt[sensor_id] = pd.Series()
 
-        # default_scale_ymin, default_scale_ymax = plotdata[SCALE_SETTING]['y-min'], plotdata[SCALE_SETTING]['y-max']
-        default_scale_ymin = plotdata[SCALE_SETTING]['y-min']
-        default_scale_ymax = plotdata[SCALE_SETTING]['y-max']
-        if default_scale_ymin is not None and default_scale_ymax is not None:
-            # tailed = (default_scale_ymax - default_scale_ymin) * 0.25
-            # use tail range for ridgeline to show smoothly RLP line
-            tailed = 0
-            bounds = [default_scale_ymin - tailed, default_scale_ymax + tailed]
-        else:
-            bounds = get_bound(plotdata_rlp)
-        grid_points = get_grid_points(plotdata_rlp, bounds=bounds)
+        # Sample densely within the variable's setting/data range to retain the KDE shape.
+        core_bounds = get_rlp_kde_bounds(plotdata, scale_names=(SCALE_SETTING,))
+        display_bounds = get_rlp_kde_bounds(plotdata)
+        tail_count = int(display_bounds[0] < core_bounds[0]) + int(display_bounds[1] > core_bounds[1])
+        grid_points = get_grid_points(plotdata_rlp, bounds=core_bounds, bins=kde_point_count - tail_count)
         for ridgeline in plotdata_rlp:
             array_x = ridgeline.get(ARRAY_X, pd.Series())
             fmt[sensor_id] = append_series(fmt[sensor_id], array_x.reset_index(drop=True))
-            ridgeline[RL_KDE] = calculate_kde_for_ridgeline(array_x, grid_points, height=3, use_hist_counts=True)
+            # Zero-density endpoints provide long tails without spending uniform bins on empty global space.
+            kde_data = calculate_kde_for_ridgeline(array_x, grid_points, height=3, use_hist_counts=True)
+            ridgeline[RL_KDE] = extend_rlp_kde_to_display_bounds(kde_data, core_bounds, display_bounds)
 
     for idx, value in fmt.items():
         fmt[idx] = get_fmt_from_array(value)
@@ -1055,7 +1127,7 @@ def gen_emd_df(
             file_name = f'{rlp[PROC_NAME]}_{rlp[RL_SENSOR_NAME]}_{rlp[CAT_EXP_BOX]}.{file_extension}'
             csv_name.append(file_name)
 
-    limit = 8
+    # limit = 8
     emd_index = 0
     step = 2 if emd_type == EMDType.both.name else 1
     for i, rlp in enumerate(rlp_data[ARRAY_PLOTDATA]):
@@ -1068,7 +1140,7 @@ def gen_emd_df(
             repaired_emd[emd_value] = []
 
             for rl in rlp[RL_RIDGELINES]:
-                if rl[RL_DATA_COUNTS] < limit or len(rl[RL_KDE][RL_HIST_LABELS]) == 0:
+                if len(rl[RL_KDE][RL_HIST_LABELS]) == 0:
                     repaired_emd[emd_value].append(None)
                 else:
                     repaired_emd[emd_value].append(rlp_data[RL_EMD][emd_idx][index])
@@ -1179,7 +1251,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
         return
 
     judge_col_name = graph_param.gen_label_from_col_id(judge_var)
-    facets_label = [gen_sql_label(col.id, col.column_name) for col in graph_param.get_facet_var_cols_name()]
+    facets_label = [col.bridge_column_name for col in graph_param.get_facet_var_cols_name()]
 
     columns = [TIME_COL, *facets_label, judge_col_name]
     if div_label:
@@ -1214,7 +1286,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
             # ng data info
             ng_info = {
                 JUDGE_LABEL: judge_col_name,
-                RL_SENSOR_NAME: judge_col_data.shown_name,
+                RL_SENSOR_NAME: get_axis_title_with_unit(judge_col_data) or judge_col_data.shown_name,
                 END_COL_ID: judge_col_data.id,
                 CAT_EXP_BOX: name,
                 END_PROC_ID: judge_col_data.process_id,
@@ -1241,7 +1313,7 @@ def compute_ng_rate(df, dic_param, graph_param, groups=None):
             # ng data info
             ng_info = {
                 JUDGE_LABEL: judge_col_name,
-                RL_SENSOR_NAME: judge_col_data.shown_name,
+                RL_SENSOR_NAME: get_axis_title_with_unit(judge_col_data) or judge_col_data.shown_name,
                 END_COL_ID: judge_col_data.id,
                 CAT_EXP_BOX: name,
                 END_PROC_ID: judge_col_data.process_id,

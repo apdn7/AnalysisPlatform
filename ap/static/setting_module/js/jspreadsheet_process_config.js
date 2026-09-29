@@ -932,6 +932,7 @@ class SpreadSheetProcessConfig {
                     is_part_no: rowData.column_type === masterDataGroup.PART_NO,
                     is_st_no: rowData.column_type === masterDataGroup.ST_NO,
                     is_judge: rowData.column_type === masterDataGroup.JUDGE,
+                    is_proc_name: rowData.column_type === masterDataGroup.PROC_NAME,
                 };
                 let getKey = null;
                 Object.entries(defaultValue).forEach((item) => {
@@ -1022,7 +1023,7 @@ class SpreadSheetProcessConfig {
                 type: 'text',
                 width: '150',
                 name: PROCESS_COLUMNS.name_en,
-                title: 'System',
+                title: $(procModali18n.i18nEnglishName).text(),
             },
             {
                 type: 'text',

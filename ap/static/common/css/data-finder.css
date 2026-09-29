@@ -16,7 +16,7 @@
 .data-finder-action {
     /*width: 360px;*/
     flex: 1;
-    padding: 8px;
+    padding: 8px 16px 8px 8px;
     display: flex;
     flex-direction: column;
     margin-top: 80px;
@@ -36,33 +36,147 @@
 .data-finder-action .form-group {
     display: flex;
     align-items: center;
+    margin-bottom: 0;
 }
 
 .data-finder-action .form-group input {
     background-color: white;
     color: #222222;
+    height: 34px;
+    font-size: 16px;
+    border-radius: 4px;
 }
-.data-finder-action .action .action-offset {
-    margin-bottom: 0px;
-    width: 60px;
-    min-width: 60px;
-}
-
 .data-finder-action .action {
     display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
-.data-finder-action .action .action-button {
+.data-finder-mode-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.data-finder-range-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.data-finder-input-wrap {
+    margin-bottom: 12px;
+}
+
+.data-finder-input-wrap label {
+    color: #ffffff;
+    display: block;
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.data-finder-submit-actions {
     display: flex;
-    margin-left: 1px;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
-.data-finder-action .action .action-button .action-button-group {
-    width: 55px;
+.data-finder-action .btn {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    box-shadow: none;
+    display: inline-flex;
+    font-size: 14px;
+    font-weight: 600;
+    height: 32px;
+    justify-content: center;
+    line-height: 1;
+    min-width: 60px;
+    padding: 0 14px;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+    white-space: nowrap;
 }
 
-.data-finder-action .action .action-button .action-button-group:not(:last-child) {
-    margin-right: 8px;
+.data-finder-action .btn-secondary {
+    background-color: #3f5f8c !important;
+    border-color: #3f5f8c !important;
+    color: #ffffff !important;
+}
+
+.data-finder-action .btn-secondary:hover,
+.data-finder-action .btn-secondary:focus {
+    background-color: #4d719f !important;
+    border-color: #4d719f !important;
+    color: #ffffff !important;
+    outline: none;
+}
+
+.data-finder-action .data-finder-cancel-btn,
+.data-finder-action .data-finder-cancel-btn:hover,
+.data-finder-action .data-finder-cancel-btn:focus {
+    color: #000000 !important;
+    background-color: #ced4da !important;
+    border-color: #ced4da !important;
+}
+
+.data-finder-action .data-finder-view-btn.active {
+    background-color: #222222 !important;
+    border: 1px solid #3f5f8c !important;
+    color: #3f5f8c !important;
+}
+
+.data-finder-action .data-finder-view-btn:not(.active) {
+    background-color: #3f5f8c !important;
+    border-color: #3f5f8c !important;
+    color: #ffffff !important;
+}
+
+.data-finder-action .data-finder-view-btn:not(.active):hover,
+.data-finder-action .data-finder-view-btn:not(.active):focus {
+    background-color: #4d719f !important;
+    border-color: #4d719f !important;
+    color: #ffffff !important;
+}
+
+.data-finder-action .data-finder-view-btn.active:hover,
+.data-finder-action .data-finder-view-btn.active:focus {
+    background-color: #222222 !important;
+    border-color: #3f5f8c !important;
+    color: #3f5f8c !important;
+    outline: none;
+}
+
+.data-finder-action .btn-primary {
+    background-color: #2f8f55 !important;
+    border-color: #2f8f55 !important;
+    color: #ffffff !important;
+}
+
+.data-finder-action .btn-primary:hover,
+.data-finder-action .btn-primary:focus {
+    background-color: #39a463 !important;
+    border-color: #39a463 !important;
+    color: #ffffff !important;
+    outline: none;
+}
+
+.data-finder-action .btn:focus-visible {
+    box-shadow: 0 0 0 2px rgba(109, 195, 253, 0.35);
+}
+
+.data-finder-action .data-finder-range-actions .btn {
+    min-width: 0;
+}
+
+.data-finder-action .data-finder-submit-actions .btn {
+    min-width: 92px;
 }
 
 .month-calendar,
@@ -470,14 +584,6 @@ button.for-data-finder {
     grid-template-columns: repeat(7, 1fr);
     grid-template-rows: repeat(7, 1fr);
     padding: 0 5px;
-}
-
-.all-button-wrap {
-    margin-top: 8px;
-}
-
-.all-button-wrap button {
-    width: 55px;
 }
 
 .data-finder-warning-msg {

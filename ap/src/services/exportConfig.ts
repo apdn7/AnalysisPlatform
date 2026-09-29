@@ -11,8 +11,8 @@ import type {
 import { apiClient } from '@/shared/api/apiClient.ts';
 
 export const exportConfigService = {
-    getConfigs: async (): Promise<ExportAPIFetchResponse<ExportConfigRecords>> =>
-        apiClient.get('/setting/export_config'),
+    getConfigs: async (page: number, limit: number): Promise<ExportAPIFetchResponse<ExportConfigRecords>> =>
+        apiClient.get(`/setting/export_config?page=${page}&limit=${limit}`),
     deleteConfig: async (id) => apiClient.delete(`/setting/export_config/${id}`),
     previewScheduler: async (data: ExportPeriodic): Promise<AxiosResponse<string[]>> =>
         apiClient.post('/setting/export_config_preview', data),

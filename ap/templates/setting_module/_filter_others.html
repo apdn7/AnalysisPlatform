@@ -68,6 +68,18 @@
                                     <i class="fas fa-trash-alt icon-secondary"></i>
                                 </button>
                                 <button
+                                    name="bulkDeleteConfig"
+                                    type="button"
+                                    class="btn btn-danger icon-btn mr-1"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="{{ _('Delete Selected') }}"
+                                    aria-label="{{ _('Delete Selected') }}"
+                                    disabled
+                                >
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button
                                     name="configRegister"
                                     class="btn btn-primary {% if not is_authorized %}disabled{% endif %}"
                                     type="button"
@@ -103,6 +115,21 @@
                         <table id="tblConfigfilter-other01" class="table table-bordered table-main table-hover-light">
                             <thead>
                                 <tr>
+                                    <th class="text-center col-select checkbox-wrapper">
+                                        <div class="custom-control custom-checkbox checkbox-control">
+                                            <input
+                                                type="checkbox"
+                                                class="custom-control-input"
+                                                name="selectAllFilterDetail"
+                                                aria-label="{{ _('Select All') }}"
+                                                id="selectAllFilterDetailfilter-other01"
+                                            />
+                                            <label
+                                                class="custom-control-label checkbox-label"
+                                                for="selectAllFilterDetailfilter-other01"
+                                            ></label>
+                                        </div>
+                                    </th>
                                     <th class="col-number">{{ _("No.") }}</th>
                                     <th class="filter-name text-center">{{ _("Filter Name") }}</th>
                                     <th

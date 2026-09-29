@@ -218,6 +218,8 @@ const CONST = {
     YELLOW: 'yellow',
     BGR_COLOR: '#222222',
     JUDGE_DENSITY: 'green',
+    DARK_GRAY: '#050505',
+    DARK_YELLOW: '#8a6d00',
 
     COLORBAR: {
         fontsize: 13,
@@ -260,6 +262,8 @@ const CONST = {
     NO_FILTER: 'NO_FILTER',
     XOPT_TIME: 'TIME',
     XOPT_INDEX: 'INDEX',
+    XOPT_CAT_VALUE: 'CAT_VALUE',
+    XOPT_DATA_VALUE: 'DATA_VALUE',
     ARRAY_FORMVAL: 'ARRAY_FORMVAL',
     CATEGORY: 'category',
     CORR: 'correlation',
@@ -927,6 +931,7 @@ const sidebarCollapse = () => {
         }
     });
     $(sidebarEles.ulList).removeClass('show');
+    initCommonSearchInput($(sidebarEles.searchBox));
 
     // handle event for searchBox | start
     if (isSidebarOpen()) {
@@ -2393,6 +2398,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     // remove old elements
     $(`#end-proc-val-div-${count}`).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
+    document.dispatchEvent(new CustomEvent('processChanged', { detail: { groupId: count } }));
     if (procInfo == null) {
         await checkIfProcessesAreLinked();
         updateSelectedItems();
@@ -2408,6 +2414,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const checkedIds = [];
     const dataTypes = [];
     const dataTypeShownName = [];
+    const dummyDatetimes = [];
+    const isCategories = [];
     const columnInfo = [];
     await procInfo.updateColumns();
     const procColumns = procInfo.getColumns();
@@ -2424,6 +2432,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
             names.push(ctCol.shown_name);
             dataTypes.push(ctCol.data_type);
             dataTypeShownName.push(dataTypeShort(ctCol));
+            dummyDatetimes.push(!!ctCol.is_dummy_datetime);
+            isCategories.push(!!ctCol.is_category);
             columnInfo.push({ id: ctCol.id, columnType: ctCol.column_type });
         }
         if (datetimeCols) {
@@ -2433,6 +2443,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
                 names.push(dtCol.shown_name);
                 dataTypes.push(dtCol.data_type);
                 dataTypeShownName.push(dataTypeShort(dtCol));
+                dummyDatetimes.push(!!dtCol.is_dummy_datetime);
+                isCategories.push(!!dtCol.is_category);
                 columnInfo.push({
                     id: dtCol.id,
                     columnType: dtCol.column_type,
@@ -2453,6 +2465,8 @@ const endProcMultiSelectOnChange = async (count, props) => {
             // checkedIds.push(col.id);
             dataTypes.push(col.data_type);
             dataTypeShownName.push(dataTypeShort(col));
+            dummyDatetimes.push(!!col.is_dummy_datetime);
+            isCategories.push(!!col.is_category);
             columnInfo.push({ id: col.id, columnType: col.column_type });
         }
     }
@@ -2480,16 +2494,20 @@ const endProcMultiSelectOnChange = async (count, props) => {
             itemNames: names,
             itemDataTypes: props.showDataType ? dataTypes : null,
             itemDataTypeShownNames: props.showDataType ? dataTypeShownName : null,
+            itemDummyDatetimes: props.showDataType ? dummyDatetimes : null,
+            itemIsCategories: props.showDataType ? isCategories : null,
             isRadio: !!props.radio,
             showCatExp: props.showCatExp,
             isRequired: props.isRequired,
             getDateColID,
             showObjectiveInput: props.showObjective,
+            showLayout: props.showLayout,
             showLabel: props.showLabel,
             groupIDx: count,
             showColor: props.showColor,
             colorAsCheckbox: props.colorAsCheckbox,
             hasDiv: props.hasDiv,
+            divSizeOptions: props.divSizeOptions,
             hideStrVariable: props.hideStrVariable,
             hideRealVariable: props.hideRealVariable,
             colorAsDropdown: props.colorAsDropdown,
@@ -2537,6 +2555,7 @@ const endProcessProps = {
     showColor: false,
     colorAsCheckbox: false,
     hasDiv: false,
+    divSizeOptions: false,
     showFilter: false,
     hideStrVariable: false,
     disableSerialAsObjective: false,
@@ -2550,6 +2569,7 @@ const endProcessProps = {
     hideRealVariable: false,
     hideCTCol: false,
     judge: false,
+    showLayout: false,
     showLabel: false,
     colorTypes: [],
     isDivRequired: false,
@@ -2998,6 +3018,28 @@ const setThreadIDtoXMLHttpRequest = (xhr) => {
     xmlHttpRequest.thread_id = threadID;
 };
 
+const chartEventHandlerKey = '__apChartEventHandlers';
+
+const registerChartEventListener = (canvas, eventName, handler) => {
+    if (!canvas || !eventName || !handler) return;
+
+    if (!canvas[chartEventHandlerKey]) {
+        canvas[chartEventHandlerKey] = [];
+    }
+
+    canvas.addEventListener(eventName, handler, false);
+    canvas[chartEventHandlerKey].push({ eventName, handler });
+};
+
+const removeRegisteredChartEventListeners = (canvas) => {
+    if (!canvas || !canvas[chartEventHandlerKey]) return;
+
+    canvas[chartEventHandlerKey].forEach(({ eventName, handler }) => {
+        canvas.removeEventListener(eventName, handler, false);
+    });
+    canvas[chartEventHandlerKey] = [];
+};
+
 class GraphStore {
     constructor() {
         this.dctCanvas2TimeSeries = {};
@@ -3123,7 +3165,9 @@ class GraphStore {
         // destroy all old chart instances before showing new graphs
         for (const graphIdx in Chart.instances) {
             try {
-                Chart.instances[graphIdx].destroy();
+                const graphInstance = Chart.instances[graphIdx];
+                removeRegisteredChartEventListeners(graphInstance.canvas);
+                graphInstance.destroy();
             } catch (error) {
                 console.log(error);
             }
@@ -3424,6 +3468,7 @@ const makeDictFrom2Arrays = (keys, vals) => {
 // draw processing time
 const drawProcessingTime = (t0, t1, backendTime, rowNumber, uniqueSerial = null) => {
     const frontendTime = (t1 - t0) / 1000;
+    console.log('requestStartedAt', requestStartedAt);
     const netTime = (t1 - (requestStartedAt || t0)) / 1000; // seconds
     const hasDuplicate = $('[name=duplicated_serial]').length > 0;
     const duplicate = hasDuplicate
@@ -3528,6 +3573,21 @@ const transformFacetParams = (formData, eleIdPrefix = '') => {
 
     if (allFacets.includes(facetLevels.DIV)) {
         getSetFacetValue(facetLevels.DIV, 'div', formData, eleIdPrefix);
+        // MAP-only: the chosen Div2/Div3/Div6 option carries its size in data-div-size.
+        // Other pages never render that attribute, so divSize stays undefined there.
+        const endProcDiv = eleIdPrefix ? `${eleIdPrefix}-end-proc-row` : 'end-proc-row';
+        const selectedDivOption = $(
+            `#${endProcDiv} select[name="catExpBox"] option:selected[value="${facetLevels.DIV}"]`,
+        ).filter((_, opt) => $(opt).attr('data-div-size'));
+        const divSize = selectedDivOption.first().attr('data-div-size');
+        if (divSize) {
+            formData.set('div_size', divSize);
+        }
+        // 0 = vertical (Div2↕/Div3↕), 1 = horizontal (Div2↔/Div3↔). Absent for Div6 -> defaults to 0.
+        const divOrientation = selectedDivOption.first().attr('data-div-orientation');
+        if (divOrientation !== undefined) {
+            formData.set('div_orientation', divOrientation);
+        }
     }
     formData.delete('catExpBox');
     return formData;
@@ -3607,6 +3667,8 @@ const collectFormData = (formID) => {
             formData.delete(key);
         }
     }
+
+    formData.delete('layoutInput');
 
     return formData;
 };
@@ -4480,29 +4542,62 @@ const afterReceiveResponseCommon = (res) => {
  * // Add only filtering without sort icons
  * sortableTable('filterTable', [0, 1, 2], null, false, false);
  */
-const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBottom = false, iconSort = true) => {
+const sortableTable = (
+    tableID,
+    filterCols = [],
+    maxheight = null,
+    scrollToBottom = false,
+    iconSort = true,
+    sortCols = null,
+) => {
     const tableIDEl = `#${tableID}`;
     const table = $(tableIDEl);
 
     if (table.length <= 0) return;
 
-    // ad sort icon in header
-    const heades = $(table.find('thead tr')[0]).find('th');
+    const headers = $(table.find('thead tr')[0]).find('th');
     const hasFilterRow = table.find('thead .filter-row').length > 0;
-
     const ths = [];
-    heades.each((i, th) => {
+
+    headers.each((i, th) => {
         const thEl = $(th);
         const thClass = thEl.attr('class') || '';
-        if (iconSort) {
+
+        const canSort = iconSort && (sortCols === null || sortCols.includes(i));
+
+        // Avoid accumulating duplicate sort icons when table setup runs multiple times.
+        thEl.find('.sortCol').remove();
+
+        if (canSort) {
             thEl.addClass('position-relative');
-            const iconHtml = `<span id="sortCol-${i}" idx="${i}" class="mr-1 sortCol" title="Sort"><i id="asc-${i}" class="fa fa-sm fa-play asc"></i><i id="desc-${i}" class="fa fa-sm fa-play desc"></i></span>`;
+
+            const iconHtml = `
+                <span id="sortCol-${i}"
+                      idx="${i}"
+                      class="mr-1 sortCol"
+                      title="Sort">
+                    <i id="asc-${i}" class="fa fa-sm fa-play asc"></i>
+                    <i id="desc-${i}" class="fa fa-sm fa-play desc"></i>
+                </span>
+            `;
+
             thEl.append(iconHtml);
         }
 
-        if (filterCols && filterCols.length > 0 && !hasFilterRow) {
-            const hasFilter = filterCols.indexOf(i) !== -1;
-            const filterTh = `<th scope="col" class="search-box ${thClass}">${hasFilter ? `<input class="form-control filterCol" data-col-idx="${i}" placeholder="${i18nCommon.search}...">` : ''}</th>`;
+        if (filterCols?.length > 0 && !hasFilterRow) {
+            const hasFilter = filterCols.includes(i);
+            const filterTh = `
+                <th scope="col" class="search-box ${thClass}">
+                    ${
+                        hasFilter
+                            ? `<input class="form-control filterCol"
+                                      data-col-idx="${i}"
+                                      placeholder="${i18nCommon.search}...">`
+                            : ''
+                    }
+                </th>
+            `;
+
             ths.push(filterTh);
         }
     });
@@ -4513,12 +4608,14 @@ const sortableTable = (tableID, filterCols = [], maxheight = null, scrollToBotto
 
     // add filter
     if (filterCols) {
-        const trFilter = `<tr id="filters" class="filter-row">
-                                ${ths.join('')}
-                           </tr>`;
-        $(table.find('thead')).append(trFilter);
-        $(table.find('thead .filter-row:not(:first)')).remove();
+        const trFilter = `
+            <tr id="filters" class="filter-row">
+                ${ths.join('')}
+            </tr>
+        `;
 
+        table.find('thead').append(trFilter);
+        table.find('thead .filter-row:not(:first)').remove();
         handleSearchFilterInTable(tableID);
     }
 
@@ -4658,7 +4755,9 @@ const tableScroll = (tblID, maxHeight, toBottom = false) => {
     const h = maxHeight && maxHeight.toString().includes('%') ? maxHeight : `${maxHeight}px`;
 
     table.addClass('table-fixed');
-    table.wrap(`<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`);
+    if (!document.getElementById(`${tblID}_wrap`)) {
+        table.wrap(`<div id="${tblID}_wrap" class="table-responsive" style="max-height: ${h}"></div>`);
+    }
 
     if (toBottom) {
         scrollToBottom(`${tblID}_wrap`);
@@ -5716,6 +5815,17 @@ const getOffsetTopDisplayGraph = (elem) => {
     return $(elem).offset().top + OFFSET_SCROLL;
 };
 
+const autoScrollToChart = (milisec = 100, tabs = formElements.traceDataTabs) => {
+    // Move screen to graph after pushing グラフ表示 button
+    loadingHide();
+    $('html, body').animate(
+        {
+            scrollTop: getOffsetTopDisplayGraph(tabs),
+        },
+        milisec,
+    );
+};
+
 /**
  * Change Background Color
  * @param {HTMLElement} ele
@@ -5959,7 +6069,19 @@ async function checkShowingWarningMessageForUpdatingMainSerialInShowGraph(proces
     return false;
 }
 
-function genColorScaleForJudge(uniqueColor) {
+function genColorScaleForJudge(uniqueColor, judgeFormula = null) {
+    if (judgeFormula?.positive !== undefined && judgeFormula?.negative !== undefined) {
+        const hasPositive = uniqueColor.includes(judgeFormula.positive);
+        const hasNegative = uniqueColor.includes(judgeFormula.negative);
+        if (hasPositive && !hasNegative) {
+            return JudgeColorPallets.OK;
+        }
+        if (hasNegative && !hasPositive) {
+            return JudgeColorPallets.NG;
+        }
+        return JudgeColorPallets.OK_NG;
+    }
+
     let NGOKScaleSets = JudgeColorPallets.OK_NG;
     if (uniqueColor.length === 1 && uniqueColor.indexOf('OK') > -1) {
         NGOKScaleSets = JudgeColorPallets.OK;

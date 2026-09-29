@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import { useTranslation } from 'react-i18next';
 
+import Pagination from '@/shared/components/ui/Pagination.tsx';
+
 export interface Column<T> {
     key: keyof T;
     label: string;
@@ -34,6 +36,11 @@ interface DataTableProps<T> {
     datas: T[];
     onRowClick?: (row: T, index: number) => void;
     selectedRowIndex?: number | null;
+    total?: number;
+    limit?: number;
+    currentPage?: number;
+    onPageChange?: (page: number) => void;
+    onLimitChange?: (page: number) => void;
 }
 
 const PlayIcon = ({ className }) => (
@@ -48,9 +55,15 @@ export default function DataTable<T extends Record<string, any>>({
     datas,
     onRowClick,
     selectedRowIndex,
+    total,
+    limit,
+    currentPage,
+    onPageChange,
+    onLimitChange,
 }: DataTableProps<T>) {
     const { t } = useTranslation();
     const [selectedRow, setSelectedRow] = useState<number | null>(null);
+    let startItem = total === 0 ? 0 : (currentPage - 1) * limit + 1;
 
     useEffect(() => {
         if (selectedRowIndex !== undefined) {
@@ -180,7 +193,7 @@ export default function DataTable<T extends Record<string, any>>({
                         >
                             {columns.map((col, colIndex) => {
                                 // for No. column, just show index
-                                const value = col.key === 'no' ? index + 1 : row[col.key];
+                                const value = col.key === 'no' ? startItem++ : row[col.key];
                                 return (
                                     <td
                                         className={`export-col export-col-${String(col.key)}`}
@@ -196,6 +209,17 @@ export default function DataTable<T extends Record<string, any>>({
                     ))}
                 </tbody>
             </Table>
+            <Pagination
+                total={total}
+                limit={limit}
+                currentPage={currentPage}
+                onLimitChange={(limit) => {
+                    onLimitChange?.(limit);
+                }}
+                onPageChange={(page: number) => {
+                    onPageChange?.(page);
+                }}
+            />
         </div>
     );
 }

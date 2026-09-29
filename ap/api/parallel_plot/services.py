@@ -22,7 +22,6 @@ from ap.api.common.services.show_graph_services import (
     main_check_filter_detail_match_graph_data,
     set_chart_infos_to_plotdata,
 )
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_FORMVAL,
@@ -122,11 +121,11 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
     objective_var = graph_param.common.objective_var
     end_cols = graph_param.get_col_cfgs(graph_param.common.sensor_cols)
     if graph_param.common.remove_outlier_objective_var:
-        objective_col = [gen_sql_label(col.id, col.column_name) for col in end_cols if col.id == objective_var]
+        objective_col = [col.bridge_column_name for col in end_cols if col.id == objective_var]
         df = df.dropna(subset=objective_col)
 
     if graph_param.common.remove_outlier_explanatory_var:
-        explanatory_cols = [gen_sql_label(col.id, col.column_name) for col in end_cols if col.id != objective_var]
+        explanatory_cols = [col.bridge_column_name for col in end_cols if col.id != objective_var]
         df = df.dropna(subset=explanatory_cols)
 
     # flag to show that trace result was limited
@@ -206,7 +205,7 @@ def gen_dic_data_from_df(df: DataFrame, graph_param: DicParam):
     dic_data = defaultdict(dict)
     for proc in graph_param.array_formval:
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            sql_label = gen_sql_label(col_id, col_name)
+            sql_label = graph_param.gen_label_from_col_id(col_id)
             if sql_label in df.columns:
                 dic_data[proc.proc_id][col_id] = df[sql_label]
             else:
@@ -226,7 +225,7 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
     dic_param[SERIAL_DATA] = {}
     for proc_id, proc_cfg in dic_proc_cfgs.items():
         serial_cols = proc_cfg.get_serials(column_name_only=False)
-        sql_labels = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
+        sql_labels = [serial_col.bridge_column_name for serial_col in serial_cols]
         if sql_labels and all(item in df.columns for item in sql_labels):
             dic_param[SERIAL_DATA][proc_id] = df[sql_labels].replace({np.nan: None})
         else:
@@ -323,7 +322,7 @@ def gen_plotdata(
             if is_categorical_sensor:
                 category_cols_details.append(col_detail)
 
-            col_name_label = gen_sql_label(col_id, col_cfg.column_name) + CATEGORIZED_SUFFIX
+            col_name_label = col_cfg.bridge_column_name + CATEGORIZED_SUFFIX
             if not is_categorical_sensor and df is not None and col_name_label in df.columns:
                 categorized_data = df[col_name_label].tolist()
 
@@ -367,7 +366,7 @@ def generate_mask_from_constraint(
     for col_id, column_constraint_ranges in constraint_ranges.items():
         # each column has a list of constraint ranges
         col_cfg = graph_param.get_col_cfg(int(col_id))
-        sql_label = gen_sql_label(col_cfg.id, col_cfg.column_name)
+        sql_label = col_cfg.bridge_column_name
         sql_labels.append(sql_label)
         for constraint_range in column_constraint_ranges:
             if sql_label not in df_condition:

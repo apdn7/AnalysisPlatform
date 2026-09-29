@@ -68,6 +68,8 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
                 yFmt: res.y_fmt,
                 xFmt: res.x_fmt,
                 judgeColor: res.judge_color,
+                xThresholds: plotData.x_thresholds,
+                yThresholds: plotData.y_thresholds,
             });
             // waveform_plot draw chart
             waveform.draw();
@@ -109,7 +111,7 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
 const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi(
+    const requestPromise = showGraphCallApi(
         '/ap/api/wfp/plot',
         formData,
         REQUEST_TIMEOUT,
@@ -141,7 +143,7 @@ const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
             // show info table
             showInfoTable(res);
 
-            setPollingData(formData, handleSetPollingData, []);
+            setPollingData(formData, handleSetPollingData, [], requestPromise);
             fillDataToFilterModal(res.filter_on_demand, () => {
                 waveformTraceData(false);
             });
@@ -150,10 +152,12 @@ const waveformTraceData = (clearOnFlyFilter, setting = {}) => {
             'Accept-Encoding': 'gzip',
         },
     );
+
+    return requestPromise;
 };
 
 const handleSetPollingData = () => {
-    waveformTraceData(false, {});
+    return waveformTraceData(false, {});
 };
 
 const tvTracing = () => {
@@ -196,7 +200,7 @@ const setGraphSetting = (e) => {
 const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
     loadingShow();
 
-    waveformTraceData(clearOnFlyFilter, setting);
+    return waveformTraceData(clearOnFlyFilter, setting);
 };
 
 const transformXY = (formData) => {
@@ -237,10 +241,11 @@ const getwaveformFormData = (formEleID, clearOnFlyFilter = null) => {
         formData = lastUsedFormData;
         // transform cat label filter
         formData = transformCatFilterParams(formData);
-
-        // transfer for switch XY
-        formData = transformXY(formData);
     }
+
+    // transfer for switch XY
+    formData = transformXY(formData);
+
     return formData;
 };
 

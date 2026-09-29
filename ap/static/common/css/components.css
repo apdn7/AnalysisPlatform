@@ -262,6 +262,11 @@ h6 {
     width: 48px;
     max-width: 48px;
 }
+.layout-col {
+    width: 54px;
+    max-width: 54px;
+    white-space: nowrap;
+}
 .large-col {
     max-width: 120px;
 }

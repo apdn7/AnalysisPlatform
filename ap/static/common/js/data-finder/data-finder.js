@@ -39,6 +39,8 @@ const WEEKS = 6;
 const DAYS = 7;
 const HOURS = 24;
 const YEARS = 6;
+const DATA_FINDER_DEFAULT_START_TIME = '07:00';
+const DATA_FINDER_DEFAULT_END_TIME = '19:00';
 
 let isCyclicTermTab = false;
 let processId = null;
@@ -60,6 +62,7 @@ class DataFinder extends DataFinderBase {
         this.yearCalendar = new YearCalendar(suffix, parentDiv, fromMainShowGraphPage, showFromOnly);
         this.parentDiv.html(this.dataFinderElement());
         this.isShowLargeDataCountWaringMsg = false;
+        this.defaultDataFinderInputRange = '';
 
         this.initEventClickButton();
         this.setProcessID();
@@ -99,29 +102,32 @@ class DataFinder extends DataFinderBase {
     onClickDataFinderButton() {
         this.dataFinderEls.dataFinderBtn = `button[name=dataFinderBtn${this.suffix}]`;
         $(this.dataFinderEls.dataFinderBtn).off('click');
-        $(this.dataFinderEls.dataFinderBtn).on('click', (e) => {
+        $(this.dataFinderEls.dataFinderBtn).on('click', async (e) => {
             this.setProcessID();
             const dataFromOnly = $(e.currentTarget).attr('data-from-only') === 'true' || isCyclicTermTab;
             this.setCalendarShowFromOnly(dataFromOnly);
             this.reloadDataFinder();
-            this.showDataFinderModal(e.currentTarget);
+            await this.showDataFinderModal(e.currentTarget);
         });
     }
 
     initEventClickButton() {
-        $(this.dataFinderEls.yearBtn).on('click', () => {
-            this.handleGoToCalender(calenderTypes.year);
+        $(this.dataFinderEls.yearBtn).on('click', async () => {
+            await this.prepareDefaultDataFinderInputRange();
+            this.handleGoToCalender(calenderTypes.year, null, null, false);
         });
-        $(this.dataFinderEls.monthBtn).on('click', () => {
-            this.handleGoToCalender(calenderTypes.month);
+        $(this.dataFinderEls.monthBtn).on('click', async () => {
+            await this.prepareDefaultDataFinderInputRange();
+            this.handleGoToCalender(calenderTypes.month, null, null, false);
         });
-        $(this.dataFinderEls.weekBtn).on('click', () => {
-            this.handleGoToCalender(calenderTypes.week);
+        $(this.dataFinderEls.weekBtn).on('click', async () => {
+            await this.prepareDefaultDataFinderInputRange();
+            this.handleGoToCalender(calenderTypes.week, null, null, false);
         });
 
-        $(this.dataFinderEls.backBtn).on('click', () => {
-            this.handleBackToCalender(calenderTypes.month);
-        });
+        // $(this.dataFinderEls.backBtn).on('click', () => {
+        //     this.handleBackToCalender(calenderTypes.month);
+        // });
         $(this.dataFinderEls.setValueBtn).on('click', () => {
             this.handleSetValueToDateRangePicker();
         });
@@ -155,24 +161,99 @@ class DataFinder extends DataFinderBase {
             this.handleGoToCalender(this.currentCalendarType, from, to);
         });
 
-        $(this.dataFinderEls.inputFromTo).on('change', (e) => {
-            const fromToValue = e.currentTarget.value;
-
-            const [from, to] = this.validateRangeOfDatetime(fromToValue);
-
-            if ((!from && !to) || (this.showFromOnly && !from)) {
-                const oldValue = e.currentTarget.getAttribute('old-value');
-                e.currentTarget.value = oldValue;
+        $(this.dataFinderEls.last24hBtn).on('click', async () => {
+            const last24hRange = await this.getLast24hDataFinderRange();
+            if (!last24hRange) {
                 return;
             }
 
-            if (this.showFromOnly) {
-                this.handleGoToCalender(this.currentCalendarType, from, from);
-            } else {
-                this.handleGoToCalender(this.currentCalendarType, from, to);
-            }
+            const [startDateTime, endDateTime] = last24hRange.split(DATETIME_PICKER_SEPARATOR).map((val) => val.trim());
+            this.currentCalendarType = calenderTypes.week;
+            Object.values(calenderTypes).forEach((type) => {
+                const fmt = this.getFormatDateTimeByCalendarType(type);
+                const from = moment(startDateTime).format(fmt);
+                const to = moment(endDateTime).format(fmt);
+                this.setValueFromToInput(from, to, type, type == this.currentCalendarType);
+            });
+            this.handleGoToCalender(this.currentCalendarType, startDateTime, endDateTime);
+        });
+
+        $(this.dataFinderEls.inputFromTo).off('input change');
+        $(this.dataFinderEls.inputFromTo).on('input', (e) => {
+            clearTimeout(this.dataFinderInputTimer);
+            this.dataFinderInputTimer = setTimeout(() => {
+                this.handleDataFinderInputChange(e, false);
+            }, 200);
+        });
+        $(this.dataFinderEls.inputFromTo).on('change', (e) => {
+            clearTimeout(this.dataFinderInputTimer);
+            this.handleDataFinderInputChange(e, true);
         });
     }
+
+    handleDataFinderInputChange = (e, rollbackInvalid = true) => {
+        const inputEl = e.currentTarget;
+        const fromToValue = inputEl.value;
+        const shouldPreserveCaret = !rollbackInvalid;
+        const selectionStart = shouldPreserveCaret ? inputEl.selectionStart : null;
+        const selectionEnd = shouldPreserveCaret ? inputEl.selectionEnd : null;
+        const selectionDirection = shouldPreserveCaret ? inputEl.selectionDirection : null;
+
+        let [from, to] = this.validateRangeOfDatetime(fromToValue);
+
+        if ((!from && !to) || (this.showFromOnly && !from)) {
+            if (rollbackInvalid) {
+                const oldValue = inputEl.getAttribute('old-value');
+                inputEl.value = oldValue;
+                this.handleDataFinderInputChange(e, false);
+            } else {
+                this.clearCalendarSelection();
+            }
+            return;
+        }
+
+        let calendarFrom = from;
+        let calendarTo = this.showFromOnly ? from : to;
+        if (this.currentCalendarType === calenderTypes.week) {
+            if (this.showFromOnly) {
+                calendarFrom = this.roundHour(from, 'down');
+                calendarTo = calendarFrom;
+            } else {
+                const roundedRange = this.roundSelectedValue(
+                    `${from} ${DATETIME_PICKER_SEPARATOR} ${to}`,
+                    this.currentCalendarType,
+                    true,
+                );
+                [calendarFrom, calendarTo] = roundedRange.split(DATETIME_PICKER_SEPARATOR).map((val) => val.trim());
+            }
+        }
+
+        this.isHandlingDataFinderInputChange = shouldPreserveCaret;
+        try {
+            this.syncDataFinderInputRangeToCalendarTypes(fromToValue);
+
+            if (this.showFromOnly) {
+                this.handleGoToCalender(this.currentCalendarType, calendarFrom, calendarTo);
+            } else {
+                this.handleGoToCalender(this.currentCalendarType, calendarFrom, calendarTo);
+            }
+        } finally {
+            this.isHandlingDataFinderInputChange = false;
+        }
+
+        if (rollbackInvalid) {
+            inputEl.value = fromToValue;
+            inputEl.setAttribute('old-value', fromToValue);
+        } else if (document.activeElement === inputEl && selectionStart !== null && selectionEnd !== null) {
+            const nextLength = inputEl.value.length;
+            const nextStart = Math.min(selectionStart, nextLength);
+            const nextEnd = Math.min(selectionEnd, nextLength);
+            inputEl.setSelectionRange(nextStart, nextEnd, selectionDirection || 'none');
+        }
+        setTimeout(() => {
+            this.syncSelectionToCalendar(calendarFrom, calendarTo, this.currentCalendarType);
+        }, 0);
+    };
 
     getFormatDateTimeByCalendarType = (type) => {
         let fmt = DATE_FMT;
@@ -197,27 +278,34 @@ class DataFinder extends DataFinderBase {
         if (!rangeValue) return [null, null];
         let [from, to] = rangeValue.split(DATETIME_PICKER_SEPARATOR);
         if (!from && !to) return [null, null];
+        from = from ? from.trim() : from;
+        to = to ? to.trim() : to;
         const fmt = this.getFormatDateTimeByCalendarType(this.currentCalendarType);
+        const parseDateTime = (value) => {
+            const parsed = moment(value, [DATE_TIME_FMT, DATE_FMT, YEAR_MONTH_FMT], true);
+            return parsed.isValid() ? parsed : moment(value, fmt);
+        };
 
         if (this.showFromOnly) {
-            const isValid = moment(from, fmt).isValid();
-            return isValid ? [from, null] : [null, null];
+            const fromMoment = parseDateTime(from);
+            return fromMoment.isValid() ? [fromMoment.format(fmt), null] : [null, null];
         }
 
-        const isValid =
-            moment(from, fmt).isValid() && moment(from, fmt).isValid() && this.isValidFromToInput(from, to, fmt);
+        const fromMoment = parseDateTime(from);
+        const toMoment = parseDateTime(to);
+        const isValid = fromMoment.isValid() && toMoment.isValid() && fromMoment.isBefore(toMoment);
 
-        return isValid ? [from.trim(), to.trim()] : [null, null];
+        return isValid ? [fromMoment.format(fmt), toMoment.format(fmt)] : [null, null];
     };
 
     isValidFromToInput = (from, to, fmt) => {
         return moment(from, fmt).isBefore(moment(to, fmt));
     };
 
-    handleGoToCalender = (type, from, to) => {
+    handleGoToCalender = (type, from, to, syncSelection = true) => {
         DataFinderService.addCacheFunctionForBackupRestoreModal(() => this.handleGoToCalender(type));
         this.switchCalender(type);
-        this.setDefaultValueOfCalender(type, from, to);
+        this.setDefaultValueOfCalender(type, from, to, syncSelection);
     };
 
     switchCalender = (type) => {
@@ -231,13 +319,110 @@ class DataFinder extends DataFinderBase {
 
         $(`.for-data-finder${this.suffix}`).hide();
         $(`.for-data-finder-${type}${this.suffix}`).show();
+        $(`.data-finder-view-btn${this.suffix}`).removeClass('active');
+        $(`.data-finder-view-${type}${this.suffix}`).addClass('active');
         this.currentCalendarType = type;
     };
 
-    setDefaultValueOfCalender = (type, from, to) => {
-        this.defaultDateTime = DataFinderService.getDefaultDateTime();
+    getDefaultDataFinderInputRange = async (processId = this.processId) => {
+        let max_date_time = null;
+        try {
+            ({ max_date_time } = await DataFinderService.getMinMaxRangeOfData(processId));
+        } catch (e) {
+            return '';
+        }
+        if (!max_date_time) {
+            return '';
+        }
+
+        const lastDataDate = formatDateTime(max_date_time, DATE_FMT);
+        return `${lastDataDate} ${DATA_FINDER_DEFAULT_START_TIME}${DATETIME_PICKER_SEPARATOR}${lastDataDate} ${DATA_FINDER_DEFAULT_END_TIME}`;
+    };
+
+    getLast24hDataFinderRange = async () => {
+        let max_date_time = null;
+        try {
+            ({ max_date_time } = await DataFinderService.getMinMaxRangeOfData(this.processId));
+        } catch (e) {
+            return '';
+        }
+        if (!max_date_time) {
+            return '';
+        }
+
+        // Last 24h is anchored to the latest available data, not the current time.
+        const endDateTime = moment(formatDateTime(max_date_time, DATE_TIME_FMT));
+        const startDateTime = endDateTime.clone().subtract(24, 'hours');
+        return `${startDateTime.format(DATE_TIME_FMT)}${DATETIME_PICKER_SEPARATOR}${endDateTime.format(DATE_TIME_FMT)}`;
+    };
+
+    // Only replace the initial picker default. Keep any range the user already chose.
+    isInitialDefaultDateTimeRange = (dateTimeRange) => {
+        if (!dateTimeRange) {
+            return true;
+        }
+
+        const { startDate, startTime, endDate, endTime } = splitDateTimeRange(dateTimeRange);
+        const today = moment().format(DATE_FMT);
+        return (
+            moment(startDate).format(DATE_FMT) === today &&
+            moment(endDate).format(DATE_FMT) === today &&
+            startTime === DATA_FINDER_DEFAULT_START_TIME &&
+            endTime === DATA_FINDER_DEFAULT_END_TIME
+        );
+    };
+
+    prepareDefaultDataFinderInputRange = async () => {
         const currentDatetimeRangeVal =
             typeof this.currentDateRangeEl == 'object' ? this.currentDateRangeEl.val() : this.currentDateRangeEl;
+        this.defaultDataFinderInputRange = this.isInitialDefaultDateTimeRange(currentDatetimeRangeVal)
+            ? await this.getDefaultDataFinderInputRange()
+            : '';
+    };
+
+    // Update only the visible Data Finder input; the external picker is updated after Set.
+    setDataFinderInputValue = (rangeValue) => {
+        if (!rangeValue) {
+            return;
+        }
+
+        const { startDate, startTime, endDate, endTime } = splitDateTimeRange(rangeValue);
+        const inputValue = this.showFromOnly
+            ? `${moment(startDate).format(DATE_FMT)} ${startTime}`
+            : `${moment(startDate).format(DATE_FMT)} ${startTime}${DATETIME_PICKER_SEPARATOR}${moment(endDate).format(
+                  DATE_FMT,
+              )} ${endTime}`;
+
+        $(this.dataFinderEls.inputFromTo).val(inputValue);
+        $(this.dataFinderEls.inputFromTo).attr('old-value', inputValue);
+        $(this.dataFinderEls.inputFromTo).attr('data-finder-default-input', inputValue);
+    };
+
+    hasFullDateTimeRange = (rangeValue) => {
+        const { startDate, startTime, endDate, endTime } = splitDateTimeRange(rangeValue);
+        if (this.showFromOnly) {
+            return Boolean(startDate && startTime);
+        }
+        return Boolean(startDate && startTime && endDate && endTime);
+    };
+
+    shouldKeepDataFinderInputTime = (inputVal) => {
+        if (!inputVal || inputVal !== $(this.dataFinderEls.inputFromTo).val()) {
+            return false;
+        }
+
+        const autoDefault = $(this.dataFinderEls.inputFromTo).attr('data-finder-default-input');
+        return inputVal === autoDefault && this.hasFullDateTimeRange(inputVal);
+    };
+
+    setDefaultValueOfCalender = (type, from, to, syncSelection = true) => {
+        this.defaultDateTime = DataFinderService.getDefaultDateTime();
+        let currentDatetimeRangeVal =
+            typeof this.currentDateRangeEl == 'object' ? this.currentDateRangeEl.val() : this.currentDateRangeEl;
+        const defaultDataFinderInputRange = !from && !to ? this.defaultDataFinderInputRange : '';
+        if (defaultDataFinderInputRange) {
+            currentDatetimeRangeVal = defaultDataFinderInputRange || currentDatetimeRangeVal;
+        }
         if (type === calenderTypes.month) {
             const currentSetDateRange = currentDatetimeRangeVal;
             let { startDate, endDate } = splitDateTimeRange(currentSetDateRange);
@@ -281,7 +466,7 @@ class DataFinder extends DataFinderBase {
                     toInput = `${toInput}-01`;
                 }
                 const selectedTo = moment(toInput).endOf('month').format(DATE_FMT);
-                toInput = moment().isBefore(selectedTo) ? moment().format(DATE_FMT) : selectedTo;
+                toInput = moment(toInput).isBefore(selectedTo) ? moment(toInput).format(DATE_FMT) : selectedTo;
                 let fromObj = DataFinderService.getDateObject(fromInput);
                 let toObj = DataFinderService.getDateObject(toInput);
                 // monthFrom = monthFrom === monthTo ? monthFrom - 1 : monthFrom;
@@ -372,6 +557,17 @@ class DataFinder extends DataFinderBase {
                 );
             }
         }
+
+        if (syncSelection) {
+            const [selectedFrom, selectedTo] = this.getFromToInputByType(type);
+            this.syncSelectionToCalendar(selectedFrom, selectedTo, type);
+        }
+
+        // The month calendar needs date-only values, so restore the intended 07:00-19:00 text afterward.
+        if (defaultDataFinderInputRange) {
+            this.setDataFinderInputValue(defaultDataFinderInputRange);
+            this.defaultDataFinderInputRange = '';
+        }
     };
 
     handleSetValueToDateRangePicker = (inputVal = null, closeModal = true) => {
@@ -380,7 +576,10 @@ class DataFinder extends DataFinderBase {
             inputVal = $(this.dataFinderEls.inputFromTo).val();
         }
 
-        inputVal = this.roundSelectedValue(inputVal, this.currentCalendarType, true);
+        // Preserve the auto default 07:00-19:00; date-only calendar selections still use normal rounding.
+        if (!this.shouldKeepDataFinderInputTime(inputVal)) {
+            inputVal = this.roundSelectedValue(inputVal, this.currentCalendarType, true);
+        }
 
         if (!(typeof this.currentDateRangeEl == 'object')) {
             $('input[name=DATETIME_PICKER]')
@@ -417,45 +616,45 @@ class DataFinder extends DataFinderBase {
         }
     };
 
-    handleBackToCalender = (type) => {
-        // get old value and fill input
-        this.switchCalender(type);
+    // handleBackToCalender = (type) => {
+    //     // get old value and fill input
+    //     this.switchCalender(type);
+    //
+    //     const [fromInput, toInput] = this.getFromToInputByType(type);
+    //     this.setValueFromToInput(fromInput, toInput, type);
+    //     if (type === calenderTypes.month) {
+    //         let monthFrom = moment(fromInput).month() + 1;
+    //         const monthTo = moment(toInput).month() + 1;
+    //         // monthFrom = monthTo === monthFrom ? monthFrom - 1 : monthFrom;
+    //         const prevMonth = this.getPrevMonthFromCalendar(moment(fromInput).year(), monthFrom);
+    //         this.monthCalendar.generateMonthCalender(prevMonth.year, prevMonth.month, true, true);
+    //         this.monthCalendar.generateMonthCalender(moment(toInput).year(), monthTo, false, true);
+    //         DataFinderService.addCacheFunctionForBackupRestoreModal(
+    //             () => this.monthCalendar.generateMonthCalender(prevMonth.year, prevMonth.month, true, true),
+    //             true,
+    //         );
+    //         DataFinderService.addCacheFunctionForBackupRestoreModal(
+    //             () => this.monthCalendar.generateMonthCalender(moment(toInput).year(), monthTo, false, true),
+    //             false,
+    //         );
+    //     }
+    //
+    //     if (type === calenderTypes.week) {
+    //         const startOfLastWeek = moment(toInput).subtract(6, 'days').format(DATE_FMT);
+    //         this.weekCalendar.generateWeekCalender(fromInput);
+    //         this.weekCalendar.generateWeekCalender(startOfLastWeek, false);
+    //         DataFinderService.addCacheFunctionForBackupRestoreModal(
+    //             () => this.weekCalendar.generateWeekCalender(fromInput),
+    //             true,
+    //         );
+    //         DataFinderService.addCacheFunctionForBackupRestoreModal(
+    //             () => this.weekCalendar.generateWeekCalender(startOfLastWeek, false),
+    //             false,
+    //         );
+    //     }
+    // };
 
-        const [fromInput, toInput] = this.getFromToInputByType(type);
-        this.setValueFromToInput(fromInput, toInput, type);
-        if (type === calenderTypes.month) {
-            let monthFrom = moment(fromInput).month() + 1;
-            const monthTo = moment(toInput).month() + 1;
-            // monthFrom = monthTo === monthFrom ? monthFrom - 1 : monthFrom;
-            const prevMonth = this.getPrevMonthFromCalendar(moment(fromInput).year(), monthFrom);
-            this.monthCalendar.generateMonthCalender(prevMonth.year, prevMonth.month, true, true);
-            this.monthCalendar.generateMonthCalender(moment(toInput).year(), monthTo, false, true);
-            DataFinderService.addCacheFunctionForBackupRestoreModal(
-                () => this.monthCalendar.generateMonthCalender(prevMonth.year, prevMonth.month, true, true),
-                true,
-            );
-            DataFinderService.addCacheFunctionForBackupRestoreModal(
-                () => this.monthCalendar.generateMonthCalender(moment(toInput).year(), monthTo, false, true),
-                false,
-            );
-        }
-
-        if (type === calenderTypes.week) {
-            const startOfLastWeek = moment(toInput).subtract(6, 'days').format(DATE_FMT);
-            this.weekCalendar.generateWeekCalender(fromInput);
-            this.weekCalendar.generateWeekCalender(startOfLastWeek, false);
-            DataFinderService.addCacheFunctionForBackupRestoreModal(
-                () => this.weekCalendar.generateWeekCalender(fromInput),
-                true,
-            );
-            DataFinderService.addCacheFunctionForBackupRestoreModal(
-                () => this.weekCalendar.generateWeekCalender(startOfLastWeek, false),
-                false,
-            );
-        }
-    };
-
-    showDataFinderModal = (e) => {
+    showDataFinderModal = async (e) => {
         DataFinderService.addCacheFunctionForBackupRestoreModal(() => this.showDataFinderModal(e));
         this.isDataFinderShowing = true;
         this.currentDateRangeEl = $(e).parent().find('[name^=DATETIME]');
@@ -468,6 +667,7 @@ class DataFinder extends DataFinderBase {
             this.currentDateRangeEl = $('#datetimeRangeShowValue').text();
         }
         this.defaultDateTime = DataFinderService.getDefaultDateTime();
+        await this.prepareDefaultDataFinderInputRange();
         this.switchCalender(calenderTypes.month);
         this.setDefaultValueOfCalender(calenderTypes.month);
         // hide button all in case of select from only
@@ -489,10 +689,39 @@ class DataFinder extends DataFinderBase {
             <input name="data-finder-from" id="data-finder-from${this.suffix}" class="form-control" type="text" hidden />
             <input name="data-finder-from" id="data-finder-to${this.suffix}" class="form-control" type="text" hidden />
             <div class="action">
-                <div class="action-offset">
-                    <label id="dataFinderInputLabel${this.suffix}" for="data-finder-input${this.suffix}">From To</label>
+                <div class="data-finder-mode-actions">
+                    <button
+                        type="button"
+                        id="dataFinderYearBtn${this.suffix}"
+                        class="btn btn-sm btn-secondary data-finder-view-btn data-finder-view-btn${this.suffix} data-finder-view-year${this.suffix}"
+                    >
+                        Year
+                    </button>
+                    <button
+                        type="button"
+                        id="dataFinderMonthBtn${this.suffix}"
+                        class="btn btn-sm btn-secondary data-finder-view-btn data-finder-view-btn${this.suffix} data-finder-view-month${this.suffix}"
+                    >
+                        Month
+                    </button>
+                    <button
+                        type="button"
+                        id="dataFinderWeekBtn${this.suffix}"
+                        class="btn btn-sm btn-secondary data-finder-view-btn data-finder-view-btn${this.suffix} data-finder-view-week${this.suffix}"
+                    >
+                        Week
+                    </button>
                 </div>
-                <div class="flex-grow-1">
+                <div class="data-finder-range-actions">
+                    <button type="button" id="dataFinderSetAll${this.suffix}" class="btn btn-sm btn-secondary data-finder-all-btn${this.suffix}">
+                        Full Data Range
+                    </button>
+                    <button type="button" id="dataFinderLast24h${this.suffix}" class="btn btn-sm btn-secondary">
+                        Last 24h
+                    </button>
+                </div>
+                <div class="data-finder-input-wrap">
+                    <label id="dataFinderInputLabel${this.suffix}" for="data-finder-input${this.suffix}">From To</label>
                     <div class="form-group">
                         <input
                             name="data-finder-input"
@@ -502,63 +731,21 @@ class DataFinder extends DataFinderBase {
                             type="text"
                         />
                     </div>
-
-                    <div class="action-button">
-                        <div class="action-button-group">
-                            <button
-                                type="button"
-                                id="dataFinderBackBtn${this.suffix}"
-                                class="btn btn-sm btn-secondary for-data-finder for-data-finder${this.suffix} for-data-finder-week${this.suffix}"
-                            >
-                                Month
-                            </button>
-                            <button
-                                type="button"
-                                id="dataFinderYearBtn${this.suffix}"
-                                class="btn btn-sm btn-secondary for-data-finder for-data-finder${this.suffix} for-data-finder-month${this.suffix}"
-                            >
-                                Year
-                            </button>
-                        </div>
-                        <div class="action-button-group">
-                            <button type="button" id="dataFinderCloseModalBtn${this.suffix}" class="btn btn-sm btn-secondary data-finder-close-btn${this.suffix}">
-                                Cancel
-                            </button>
-                        </div>
-                        <div class="action-button-group d-flex">
-                            <button
-                                type="button"
-                                id="dataFinderMonthBtn${this.suffix}"
-                                style="margin-right: 8px"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder${this.suffix} for-data-finder-year${this.suffix}"
-                            >
-                                Month
-                            </button>
-                            <button
-                                type="button"
-                                id="dataFinderWeekBtn${this.suffix}"
-                                style="margin-right: 8px"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder${this.suffix} for-data-finder-month${this.suffix}"
-                            >
-                                Week
-                            </button>
-                            <button
-                                type="button"
-                                id="dataFinderSetValueBtn${this.suffix}"
-                                class="btn btn-sm btn-primary for-data-finder for-data-finder${this.suffix} for-data-finder-week${this.suffix} for-data-finder-month${this.suffix} for-data-finder-year${this.suffix}"
-                            >
-                                Set
-                            </button>
-                        </div>
-                    </div>
-                    <div class="all-button-wrap">
-                        <button type="button" id="dataFinderSetAll${this.suffix}" class="btn btn-sm btn-secondary data-finder-all-btn${this.suffix}">
-                         All
-                        </button>
-                    </div>
-                    <div class="data-finder-warning-msg hide" id="dataFinderWarningMsg${this.suffix}">
-                        <p>${this.i18nMsg.i18nLargeDataCountWarningMsg}</p>
-                    </div>
+                </div>
+                <div class="data-finder-submit-actions">
+                    <button type="button" id="dataFinderCloseModalBtn${this.suffix}" class="btn btn-sm btn-secondary data-finder-cancel-btn data-finder-close-btn${this.suffix}">
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="dataFinderSetValueBtn${this.suffix}"
+                        class="btn btn-sm btn-primary for-data-finder for-data-finder${this.suffix} for-data-finder-week${this.suffix} for-data-finder-month${this.suffix} for-data-finder-year${this.suffix}"
+                    >
+                        Set
+                    </button>
+                </div>
+                <div class="data-finder-warning-msg hide" id="dataFinderWarningMsg${this.suffix}">
+                    <p>${this.i18nMsg.i18nLargeDataCountWarningMsg}</p>
                 </div>
             </div>
         </div>

@@ -9,7 +9,13 @@ from typing import Any, Self, Union
 import sqlalchemy as sa
 
 from ap.api.common.services.utils import gen_proc_time_label
-from ap.common.common_utils import BoundType, TimeRange, TimeRangeStr, gen_sql_label, gen_sql_like_value
+from ap.common.common_utils import (
+    BoundType,
+    TimeRange,
+    TimeRangeStr,
+    gen_derived_column_name,
+    gen_sql_like_value,
+)
 from ap.common.constants import (
     DATE_FORMAT_STR_SQLITE,
     EPOCH,
@@ -54,12 +60,13 @@ CTE_TRACING_MIN_TIMEDIFF = 'cte_tracing_min_timediff'
 
 
 def gen_alias_col_name(trans_data: TransactionData, column_name: str) -> str | None:
+    """Return the stable result key for a transaction column selected into a CTE."""
+    # Resolve the metadata column first so renaming its source name cannot change the CTE lookup key.
     cfg_column = trans_data.get_cfg_column_by_name(column_name)
     if cfg_column is None:
         return None
 
-    alias_name = gen_sql_label(cfg_column.id, cfg_column.column_name)
-    return alias_name
+    return cfg_column.bridge_column_name
 
 
 def gen_row_number_col_name(proc_id: int) -> str:
@@ -126,11 +133,13 @@ class SqlProcLinkKey:
 
     @property
     def sql_label(self) -> str:
-        return self.cfg_col.gen_sql_label()
+        """Return the persisted CTE key for this process-link column."""
+        return self.cfg_col.bridge_column_name
 
     @property
     def epoch_sql_label(self) -> str:
-        return f'{self.sql_label}_{EPOCH}'
+        """Return a namespaced virtual key for the cached epoch expression."""
+        return gen_derived_column_name(EPOCH, self.sql_label)
 
 
 class SqlProcLink:
@@ -194,6 +203,7 @@ class SqlProcLink:
     # used for data export only
     # can replace start_tm and end_tm if we switch to between_bound instead of between
     time_range: TimeRange
+    is_n_side_proc: bool = False
 
     @property
     def has_link_keys(self) -> bool:
@@ -201,7 +211,7 @@ class SqlProcLink:
         return bool(self.link_keys or self.next_link_keys)
 
     @property
-    def link_cfg_columns(self) -> list[CfgProcessColumn]:
+    def all_link_cfg_columns(self) -> list[CfgProcessColumn]:
         return CfgProcessColumn.get_by_ids(self.all_link_key_ids)
 
     @cached_property
@@ -223,7 +233,32 @@ class SqlProcLink:
     @cached_property
     def all_link_keys_labels(self) -> set[str]:
         """Get all link keys sql label"""
-        return {cfg_col.gen_sql_label() for cfg_col in self.link_cfg_columns}
+        return {cfg_col.bridge_column_name for cfg_col in self.all_link_cfg_columns}
+
+    @property
+    def link_cfg_columns(self) -> list[CfgProcessColumn]:
+        return CfgProcessColumn.get_by_ids(self.link_key_ids)
+
+    @cached_property
+    def link_key_ids(self) -> set[int]:
+        """Get link keys with with previous process for dropping duplicates
+        - multiple processes: get link keys as is
+        - one process: get serial columns as link keys
+        """
+        if not self.has_link_keys and not self.trans_data.serial_columns:
+            return set()
+
+        # multiple processes
+        if self.has_link_keys:
+            return {link.id for link in self.link_keys}
+
+        # one process
+        return {col.id for col in self.trans_data.serial_columns}
+
+    @cached_property
+    def link_keys_labels(self) -> set[str]:
+        """Get sql labels for link keys with previous process"""
+        return {cfg_col.bridge_column_name for cfg_col in self.link_cfg_columns}
 
     @property
     def condition_procs_column_id(self) -> set[int]:
@@ -291,20 +326,37 @@ class SqlProcLink:
 
         for cfg_col in self.all_cfg_columns:
             if cfg_col.existed_in_transaction_table():
-                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
+                # A normal selected column uses its persisted bridge name as the only result alias.
+                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.bridge_column_name)
 
-        link_cols = []
+        all_link_cols = []
         for col_label in self.all_link_keys_labels:
-            link_cols.append(query_builder.column(col_label))
+            all_link_cols.append(query_builder.column(col_label))
 
         if not for_count and duplicated_serial_show != DuplicateSerialShow.SHOW_BOTH:
-            distinct_cols = [col for col in link_cols if col.name != self.time_col]
+            distinct_cols = [col for col in all_link_cols if col.name != self.time_col]
             if distinct_cols:
                 # sqlalchemy 2.1 support qualify, we can use them later
                 # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/132
                 query_builder.qualify(
                     column=query_builder_time_col,
                     group_bys=distinct_cols,
+                    func=sa.func.min if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST else sa.func.max,
+                )
+        # this works the same as dropping duplicates in the dataframe after query
+        # which is done regardless of the value of duplicate_serial_show and for_count
+        # we need to get the last value among the duplicates based on the link keys with the previous process
+
+        # duplicates are also not dropped for processes considered N-side
+        # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/1355
+        is_drop_duplicate = not is_start_proc and not self.is_n_side_proc
+        if is_drop_duplicate:
+            link_cols_with_previous_proc = [query_builder.column(col_label) for col_label in self.link_keys_labels]
+            link_cols = [col for col in link_cols_with_previous_proc if col.name != self.time_col]
+            if link_cols:
+                query_builder.qualify(
+                    column=query_builder_time_col,
+                    group_bys=link_cols,
                     func=sa.func.min if duplicated_serial_show == DuplicateSerialShow.SHOW_FIRST else sa.func.max,
                 )
 
@@ -333,7 +385,8 @@ class SqlProcLink:
 
         for cfg_col in self.all_cfg_columns:
             if cfg_col.existed_in_transaction_table():
-                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.gen_sql_label())
+                # Export CTEs share the same stable result-key contract as graph queries.
+                query_builder.add_column(column=cfg_col.bridge_column_name, label=cfg_col.bridge_column_name)
 
         link_cols = []
         for col_label in self.all_link_keys_labels:
@@ -669,7 +722,8 @@ def gen_show_stmt(
     shown_cols.extend(time_cols)
     for sql_obj in sql_objs:
         for cfg_col in sql_obj.all_cfg_columns:
-            col = cte_tracing.c.get(cfg_col.gen_sql_label())
+            # Project the exact normal key produced by each process CTE without adding a second alias.
+            col = cte_tracing.c.get(cfg_col.bridge_column_name)
 
             shown_cols.append(col)
 

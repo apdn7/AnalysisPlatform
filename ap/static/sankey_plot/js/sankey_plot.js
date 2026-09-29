@@ -785,7 +785,7 @@ const checkNumberOfSelectedSensor = (fromData) => {
 
 const handleSetPollingData = () => {
     const settings = collectFormDataSkD(false);
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUpdate = false) => {
@@ -793,7 +793,7 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
 
     checkNumberOfSelectedSensor(formData);
 
-    showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/skd/index', formData, REQUEST_TIMEOUT, async (res) => {
         if (!res.actual_record_number) {
             showToastrAnomalGraph();
             return;
@@ -829,7 +829,7 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
         graphStore.setTraceData(_.cloneDeep(res));
 
         // auto update
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
 
         showSankeyPlot(res.plotly_data);
         showScatterPlot(res.dic_scp, {});
@@ -840,6 +840,8 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
         // show info table
         showInfoTable(res);
     });
+
+    return requestPromise;
 };
 
 const dumpData = (type) => {

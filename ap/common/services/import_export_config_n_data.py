@@ -43,6 +43,7 @@ from ap.setting_module.models import (
     CfgVisualization,
     DataTraceLog,
     make_session,
+    populate_missing_bridge_column_names,
 )
 from ap.setting_module.schemas import CfgUserSettingSchema, ProcessFullSchema
 
@@ -269,8 +270,8 @@ def import_config_db(zip_file):
         cfg_traces = cfg_process[CfgProcess.traces.key]
         cfg_visuals = cfg_process[CfgProcess.visualizations.key]
 
-        # columns
-        insert_data_to_table(CfgProcessColumn, cfg_columns)
+        # Restore process columns through the ORM so old backups receive persisted bridge names before commit.
+        insert_process_columns(cfg_columns)
 
         # filter & detail
         insert_data_to_table(CfgFilter, cfg_filters)
@@ -295,12 +296,55 @@ def clear_config_db(models):
 
 
 def insert_data_to_table(model, records):
+    """Insert generic configuration records with a Core statement.
+
+    Args:
+        model: SQLAlchemy model owning the destination table.
+        records: Serialized table records to insert.
+
+    Returns:
+        True when records were inserted; otherwise False.
+    """
     if not records:
         return False
 
     # insert data
     with make_session() as meta_session:
         meta_session.execute(model.__table__.insert(), records)
+
+    return True
+
+
+def insert_process_columns(records: list[dict]) -> bool:
+    """Restore process columns and complete missing ID-based bridge names before commit.
+
+    Args:
+        records: Serialized process-column rows from a debug configuration backup.
+
+    Returns:
+        True when records were inserted; otherwise False.
+
+    Raises:
+        ValueError: If a process column cannot receive a bridge name after the initial flush.
+    """
+    if not records:
+        return False
+
+    # Restrict imported values to physical table columns so nested or legacy schema fields cannot reach constructors.
+    physical_column_names = {column.name for column in CfgProcessColumn.__table__.columns}
+    process_columns = [
+        CfgProcessColumn(**{key: value for key, value in record.items() if key in physical_column_names})
+        for record in records
+    ]
+
+    with make_session() as meta_session:
+        # Preserve explicit IDs from existing backups while allowing SQLite to allocate IDs when they are absent.
+        meta_session.add_all(process_columns)
+        meta_session.flush()
+
+        # Initialize old backups that predate the physical field and persist all generated names in one follow-up flush.
+        if populate_missing_bridge_column_names(process_columns):
+            meta_session.flush()
 
     return True
 

@@ -997,7 +997,7 @@ class SpreadSheetFunctionConfig {
                 type: 'text',
                 width: '150',
                 name: this.ColumnNames.SystemName,
-                title: 'System',
+                title: $(procModali18n.i18nEnglishName).text(),
             },
             {
                 type: 'text',

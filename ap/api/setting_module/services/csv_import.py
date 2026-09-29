@@ -92,7 +92,7 @@ from ap.common.disk_usage import get_ip_address
 from ap.common.jobs.job_info_schema import CsvImportJobInfo
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
-from ap.common.path_utils import get_basename, get_files
+from ap.common.path_utils import filter_files_by_select_condition, get_basename, get_files
 from ap.common.pydn.dblib.sqlite import SQLite3
 from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
@@ -603,7 +603,6 @@ def import_csv(
                         dic_use_cols = get_config_sensor(proc_cfg)
 
                 elif not is_file_checker:
-                    # skip_rows = 0 if (is_abnormal or len(head_skips)) else data_src.skip_head
                     df_one_file = csv_to_df(
                         transformed_file,
                         data_src,
@@ -1111,7 +1110,7 @@ def csv_to_df(
         # to avoid issue of header be duplicated at first row
         read_csv_param.update(
             {
-                'header': 0,
+                'header': None,
             },
         )
     # assign n_rows with is_transpose
@@ -1190,6 +1189,15 @@ def get_import_target_files(proc_id: int, data_src: CfgDataSourceCSV, trans_data
             depth_to=100,
             extension=valid_extensions,
         )
+        # apply File Select Condition (file name / subfolder include-exclude)
+        csv_files = filter_files_by_select_condition(
+            csv_files,
+            data_src.directory,
+            file_name_include=data_src.file_name_include,
+            file_name_exclude=data_src.file_name_exclude,
+            subfolder_include=data_src.subfolder_include,
+            subfolder_exclude=data_src.subfolder_exclude,
+        )
 
     # filter target files
     has_trans_targets, no_trans_targets, toast_skip = filter_import_target_file(
@@ -1249,7 +1257,7 @@ def remove_duplicates(
     ignored_dup_check_columns = [c.column_name for c in cfg_process.get_cols_ignored_by_duplicated_check()]
 
     # find columns that in both `df` and `dic_cols`, but not on `ignored_columns`
-    df_import_subset_columns_dup_check = (
+    df_import_subset_columns_dup_check = list(
         set(df_import.columns.tolist()).intersection(dic_cols.values()).difference(ignored_dup_check_columns)
     )
     # remove duplicated on importing columns

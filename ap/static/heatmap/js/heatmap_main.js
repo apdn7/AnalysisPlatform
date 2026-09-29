@@ -12,6 +12,7 @@ const MAX_MATRIX = 7;
 let currentMatrix = MAX_MATRIX;
 const STR_PREFIX = '*_/&＠*_$%#';
 const JUDGE_COLOR_SCALE = 'JUDGE_COLOR_SCALE';
+const MAX_DROPDOWN_HEIGHT = 100;
 
 const colorScaleName = {
     BLUE: 'BLUE',
@@ -22,7 +23,8 @@ const colorScaleName = {
     JET_ABS_REV: 'JET_ABS_REV',
 };
 
-const CATEGORY_FUNCTION_ALLOWED_METHODS = ['ratio', 'count'];
+const CATEGORY_FUNCTION_ALLOWED_METHODS = ['ratio', 'count', 'ok_most_ratio', 'ng_fewest_ratio'];
+const FUNCTIONS_SHOULD_SHOW_ORIGINAL_COLOR_VALUE = ['last', 'first'];
 
 const formElements = {
     formID: '#traceDataForm',
@@ -644,6 +646,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
             $('#navigation-bar').removeAttr('style');
             $(window).off('resize');
             const divNumber = res.div_name && res.div_data_type === DataTypes.INTEGER.name;
+            const divName = res.div_name || '';
             if ([scpChartType.HEATMAP, scpChartType.HEATMAP_BY_INT].includes(chartType)) {
                 const contentDomHeight = genHTMLContentMatrix(
                     scpMatrix,
@@ -653,6 +656,8 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     isShowFirstLabelH,
                     isShowDate,
                     divNumber,
+                    null,
+                    divName,
                 );
                 // get color agg function
                 const aggColorFunc = res.COMMON.agg_color_function;
@@ -673,6 +678,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     y_name: yName,
                     colorBarHeight: contentDomHeight,
                     judgeColorScale: settings[JUDGE_COLOR_SCALE] || null,
+                    aggColorFunc: aggColorFunc,
                 };
                 heatmapData = { scpMatrix, option, zoomRange };
                 genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
@@ -841,6 +847,16 @@ const resetGraphSetting = () => {
     $(`input#${els.hmpArrangeDiv}`).prop('checked', false);
 };
 
+const calculateChartHeight = (scpMatrix) => {
+    let chartHeight = window.innerHeight;
+    const oneRowH = chartHeight / MAX_MATRIX;
+    if (scpMatrix && scpMatrix.length > MAX_MATRIX) {
+        chartHeight = scpMatrix.length * oneRowH;
+    }
+    chartHeight -= MAX_DROPDOWN_HEIGHT;
+    return chartHeight;
+};
+
 const genHTMLContentMatrix = (
     scpMatrix,
     cardID,
@@ -850,6 +866,7 @@ const genHTMLContentMatrix = (
     isShowDate,
     isDivNumber,
     stringCol = null,
+    divName = '',
 ) => {
     const totalRow = scpMatrix.length;
     const totalCol = scpMatrix[0].length;
@@ -874,7 +891,7 @@ const genHTMLContentMatrix = (
         return '';
     };
 
-    const genContentDOM = (contentWidth) => {
+    const genContentDOM = (contentWidth, divName = '') => {
         let contentDOM = '';
         oneRowHeight =
             totalCol > 1
@@ -910,7 +927,7 @@ const genHTMLContentMatrix = (
                             ? `${contentWidth / totalCol + 24}px`
                             : `${contentWidth / totalCol - 6 - 30 / (totalCol - 1)}px`;
                 } else {
-                    width = '100%';
+                    width = `${height}`;
                 }
 
                 if (isShowFirstLabelH) {
@@ -931,7 +948,11 @@ const genHTMLContentMatrix = (
                             )
                             .join(` ${COMMON_CONSTANT.EN_DASH} `);
                 } else if (labelH && isDivNumber) {
-                    labelH = `Cat${labelH}`;
+                    if (divName) {
+                        labelH = `${divName}:${labelH}`;
+                    } else {
+                        labelH = `Cat${labelH}`;
+                    }
                 }
 
                 const h = `<span class="title label-h" style="height: 18px">${labelH}</span>`;
@@ -945,7 +966,7 @@ const genHTMLContentMatrix = (
             }
 
             contentDOM += `
-            <div style="width: 100%; height: ${height}; margin: 3px 0;" class="position-relative">
+            <div style="width: ${contentWidth}px; height: ${height}; margin: 3px 0;" class="position-relative">
                 <div class="matrix-level cat-exp-box" style="left: calc(${(oneRowHeight / 2) * -1 - 20}px); top: calc(100% / 2 - 2px); height: fit-content; width: ${oneRowHeight}px;">
                     <span class="show-detail">${vLabel}</span>
                 </div>
@@ -981,8 +1002,10 @@ const genHTMLContentMatrix = (
     $(`#${cardID}`).html(chartDom).css({ height: 'auto' });
     const chartContentSelector = $(`#scpchart-content`);
     const contentWidth = $(chartContentSelector).width();
+
+    const standardWidth = totalCol <= 1 ? Math.min(contentWidth, calculateChartHeight(scpMatrix)) : contentWidth;
     // taking into account the width of the scrollbar
-    const contentDOM = genContentDOM(contentWidth - 18);
+    const contentDOM = genContentDOM(standardWidth - 18, divName);
     // make space for x label
     const contentDomHeight = oneRowHeight * totalRow + 80;
     $(chartContentSelector).html(contentDOM).css({ height: contentDomHeight });
@@ -1064,21 +1087,25 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             });
             option.canvas_id = canvasID;
             graphDiv.on('plotly_hover', (data) => {
-                setTimeout(() => {
-                    $('.scp-hover-info').remove();
-                    const dataScp = scpData[i][j];
-                    if (!dataScp) return;
+                $('.scp-hover-info').remove();
+                const point = data.points?.[0];
+                if (!point || !data.event) return;
 
-                    // for heatmap with color
-                    if (dataScp.heatmap_matrix) {
-                        dataScp.array_x = dataScp.heatmap_matrix.x;
-                        dataScp.array_y = dataScp.heatmap_matrix.y;
-                        dataScp.array_z = dataScp.heatmap_matrix.z;
-                    }
-                    const { x, y, pointIndex } = data.points[0];
-                    const { pageX, pageY } = data.event;
-                    makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY, pointIndex);
-                }, 200);
+                const dataScp = scpData[i][j];
+                if (!dataScp) return;
+
+                // for heatmap with color
+                if (dataScp.heatmap_matrix) {
+                    dataScp.array_x = dataScp.heatmap_matrix.x;
+                    dataScp.array_y = dataScp.heatmap_matrix.y;
+                    dataScp.array_z = dataScp.heatmap_matrix.z;
+                }
+                const { x, y, pointIndex } = data.points[0];
+                const { pageX, pageY } = data.event;
+                const isUseOriginalColorValue = FUNCTIONS_SHOULD_SHOW_ORIGINAL_COLOR_VALUE.includes(
+                    option?.aggColorFunc,
+                );
+                makeHeatmapHoverInfoBox(dataScp, x, y, option, pageX, pageY, pointIndex, isUseOriginalColorValue);
             });
 
             unHoverHandler(graphDiv);
@@ -1135,20 +1162,22 @@ const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUp
     // clear old html elements
     $('.scp-hover-info').remove();
 
-    showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.is_send_ga_off) {
             showGAToastr(true);
         }
 
         await showSCP(res, settings, clearOnFlyFilter, autoUpdate);
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
     });
+
+    return requestPromise;
 };
 
 const handleSetPollingData = () => {
     const settings = getCurrentSettings();
-    callToBackEndAPI(settings, false, true);
+    return callToBackEndAPI(settings, false, true);
 };
 
 const handleSubmit = (clearOnFlyFilter = false, setting = {}) => {
@@ -1195,17 +1224,15 @@ const transformFormdata = (clearOnFlyFilter = null, autoUpdate = false) => {
     }
     let formData = getFormData(formElements.formID, clearOnFlyFilter);
 
-    if (!clearOnFlyFilter) {
-        // transfer for switch XY
-        formData = transformXY(formData);
-    }
+    // transfer for switch XY
+    formData = transformXY(formData);
     return formData;
 };
 
 const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
     const formData = transformFormdata(clearOnFlyFilter);
 
-    showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/hmp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         if (res.is_send_ga_off) {
             showGAToastr(true);
         }
@@ -1254,10 +1281,12 @@ const scatterTraceData = (clearOnFlyFilter, setting = {}) => {
         // show info table
         showInfoTable(res);
 
-        setPollingData(formData, handleSetPollingData, []);
+        setPollingData(formData, handleSetPollingData, [], requestPromise);
     });
 
     $('#plot-cards').empty();
+
+    return requestPromise;
 };
 
 const initFilterModal = (res) => {

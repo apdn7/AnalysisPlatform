@@ -6,7 +6,7 @@ import pandas as pd
 
 from ap.api.categorical_plot.services import customize_dict_param
 from ap.api.common.services.show_graph_database import get_config_data
-from ap.common.common_utils import gen_sql_label
+from ap.common.common_utils import gen_derived_column_name
 from ap.common.constants import (
     ARRAY_FORMVAL,
     ARRAY_PLOTDATA,
@@ -85,33 +85,39 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
     for i, rlp in enumerate(dic_param[ARRAY_PLOTDATA]):
         proc_id = rlp[END_PROC_ID]
         proc_cfg = dic_proc_cfgs[proc_id]
-        col = proc_cfg.get_col(rlp[SENSOR_ID])
-        origin_name = col.shown_name
+        source_col = proc_cfg.get_col(rlp[SENSOR_ID])
+        origin_name = source_col.shown_name
         emd_idx = emd_index
         for emd_value in emd_values:
             index = 0
             col_name = f'{origin_name}|{emd_value}'
+
+            # Diff and drift are separate synthetic results and therefore need independent column metadata.
+            col = source_col
             if dic_param[EMD_TYPE] == EMDType.both.name and 'Diff' in emd_value:
-                col = proc_cfg.shallow_copy_and_add_new_col(col.id)
+                col = proc_cfg.shallow_copy_and_add_new_col(source_col.id)
             proc_cfg.modify_col_name(col.id, col_name)
 
             all_col_ids.append(col.id)
             all_proc_ids.append(proc_id)
 
-            sql_label = gen_sql_label(col.id, col.shown_name)
-            rlp_emd[sql_label] = []
+            # Synthetic EMD values use an explicit virtual key instead of reconstructing a normal SQL alias.
+            result_key = gen_derived_column_name('EMD', col.id, emd_value)
+            col.set_virtual_column_name(result_key)
+            rlp_emd[result_key] = []
             for rl in rlp[RL_RIDGELINES]:
                 if rl[RL_DATA_COUNTS] < RL_MIN_DATA_COUNT or not len(rl[RL_KDE][RL_HIST_LABELS]):
-                    rlp_emd[sql_label].append(None)
+                    rlp_emd[result_key].append(None)
                 else:
-                    rlp_emd[sql_label].append(dic_param[RL_EMD][emd_idx][index])
+                    rlp_emd[result_key].append(dic_param[RL_EMD][emd_idx][index])
                     index += 1
             emd_idx += 1
 
         emd_index += step
 
         if dic_param[COMMON][COMPARE_TYPE] == RL_CATEGORY:
-            div_name = gen_sql_label(div, div_col.shown_name)
+            # Division values represent a real configured column and therefore retain its physical key.
+            div_name = div_col.bridge_column_name
             rlp_emd[div_name] = [ridge[RL_CATE_NAME] for ridge in rlp[RL_RIDGELINES]]  # TODO div_name maybe __1__name__
             dic_param[COMMON][X_OPTION] = 'INDEX'
             dic_param[COMMON][SERIAL_COLUMN] = [1]  # TODO : serial
@@ -134,7 +140,8 @@ def gen_emd_df(dic_param, graph_param, with_judge=True):
             # reassign id of judge in ng_rates
             judge[END_COL_ID] = judge_col.id
             proc_cfg.modify_col_name(judge_col.id, judge_col_name)
-            judge_label = gen_sql_label(judge_col.id, judge_col.shown_name)
+            judge_label = gen_derived_column_name('NG_RATE', judge_col.id)
+            judge_col.set_virtual_column_name(judge_label)
 
             rlp_emd[judge_label] = judge[Y]
             # update judge col id in graph_params
@@ -221,6 +228,7 @@ def get_graph_context_param(dic_form, page: EventType) -> GraphContext:
         dic_card_orders = graph_param.dic_card_orders
     if page in [EventType.RLP, EventType.AGP, EventType.STP, EventType.SKD]:
         customize_dict_param(dic_param)
+
     return GraphContext(dic_form, dic_param, graph_param, dic_proc_cfgs, trace_graph, dic_card_orders, df)
 
 

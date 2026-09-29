@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ExportConfigRecords } from '@/pages/export-config/components/ExportConfig.tsx';
 import { exportConfigService } from '@/services/exportConfig.ts';
 import ConfirmModal from '@/shared/components/ui/ConfirmModal.tsx';
 import DataTable, { type Column, defineColumn } from '@/shared/components/ui/Table.tsx';
@@ -9,6 +8,7 @@ import { useToast } from '@/shared/hooks/useToast';
 import { eventBus } from '@/shared/utils/eventBus';
 import { convertUtcToLocal } from '@/shared/utils/helpers.ts';
 
+const EXPORT_CONFIG_DEFAULT_LIMIT = 10;
 export default function ExportSettingTable() {
     const { t } = useTranslation();
     const columns: Column<Record<string, any>>[] = [
@@ -84,55 +84,55 @@ export default function ExportSettingTable() {
     const [isDeleteModelOpen, setIsDeleteModalOpen] = useState(false);
     const [configIdToDelete, setConfigIdToDelete] = useState<number | null>(null);
     const [exportData, setExportData] = useState([]);
+    const [total, setTotal] = useState(0);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(EXPORT_CONFIG_DEFAULT_LIMIT);
+    const [currentPage, setCurrentPage] = useState(1);
     const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null);
     const [scrollToId, setScrollToId] = useState<string | null>(null);
     const { error, success, closeAllToast } = useToast();
+    const totalRef = useRef(0);
+    const limitRef = useRef(limit);
+    const exportDataRef = useRef([]);
 
+    const fetchInitialData = async (nextPage: number, limitChange: number) => {
+        try {
+            const response = await exportConfigService.getConfigs(nextPage, limitChange);
+            const data = response?.export_configs;
+            const convertedData = data.map((export_config) => ({
+                ...export_config,
+                updated_at: convertUtcToLocal(export_config.updated_at),
+                next_run: convertUtcToLocal(export_config.next_run),
+                last_run: convertUtcToLocal(export_config.last_run),
+                last_export_data: convertUtcToLocal(export_config.last_export_data),
+            }));
+            setExportData(convertedData);
+            setTotal(response.total);
+            setCurrentPage(nextPage);
+            totalRef.current = response.total;
+            limitRef.current = limitChange;
+            exportDataRef.current = convertedData;
+        } catch (err) {
+            error(t('Error when trying to fetch export config records: '));
+            closeAllToast();
+        } finally {
+        }
+    };
+
+    const reloadTableAfterAddNewRow = async () => {
+        const currentLimit = limitRef.current;
+        const expectedTotal = totalRef.current + 1;
+        const lastPage = Math.ceil(expectedTotal / currentLimit);
+        setPage(lastPage);
+        setCurrentPage(lastPage);
+        await fetchInitialData(lastPage, limit);
+        setSelectedRowIndex(exportDataRef.current.length - 1);
+    };
     useEffect(() => {
-        const fetchInitialData = async () => {
-            try {
-                const response = await exportConfigService.getConfigs();
-                const data = response?.export_configs;
-                const convertedData = data.map((export_config) => ({
-                    ...export_config,
-                    updated_at: convertUtcToLocal(export_config.updated_at),
-                    next_run: convertUtcToLocal(export_config.next_run),
-                    last_run: convertUtcToLocal(export_config.last_run),
-                    last_export_data: convertUtcToLocal(export_config.last_export_data),
-                }));
-                setExportData(convertedData);
-            } catch (err) {
-                error(t('Error when trying to fetch export config records: '));
-                closeAllToast();
-            } finally {
-            }
-        };
-
-        void fetchInitialData();
+        void fetchInitialData(page, limit);
 
         const unsubscribe = eventBus.on('EXPORT_CONFIG_UPDATING', (newRecord) => {
-            setExportData((prevRecords: ExportConfigRecords) => {
-                const isExistIndex = prevRecords.findIndex((record) => record.id === newRecord.id);
-                newRecord = {
-                    ...newRecord,
-                    ...{
-                        updated_at: convertUtcToLocal(newRecord.updated_at),
-                        next_run: convertUtcToLocal(newRecord.next_run),
-                        last_run: convertUtcToLocal(newRecord.last_run),
-                    },
-                };
-                // update
-                if (isExistIndex !== -1) {
-                    setSelectedRowIndex(isExistIndex);
-                    return prevRecords.map((record) =>
-                        record.id === newRecord.id ? { ...record, ...newRecord } : record,
-                    );
-                }
-                // new config
-                setSelectedRowIndex(prevRecords.length);
-                return [...prevRecords, newRecord];
-            });
-            setScrollToId(newRecord.id);
+            void reloadTableAfterAddNewRow();
         });
 
         const unsubscribeReset = eventBus.on('EXPORT_CONFIG_RESETTING', () => {
@@ -160,12 +160,22 @@ export default function ExportSettingTable() {
         setScrollToId(null);
     }, [exportData, scrollToId]);
 
+    useEffect(() => {
+        totalRef.current = total;
+    }, [total]);
+
+    useEffect(() => {
+        limitRef.current = limit;
+    }, [limit]);
+
     const deleteExportConfig = async () => {
         if (configIdToDelete === null) return;
         try {
             await exportConfigService.deleteConfig(configIdToDelete);
             setExportData((prevRecords) => prevRecords.filter((record: any) => record.id !== configIdToDelete));
             success(t('Delete export config successfully.'));
+
+            totalRef.current = totalRef.current - 1;
             eventBus.emit('DELETE_EXPORT_CONFIG');
         } catch (err) {
             error(t('Error when trying to delete export config: '));
@@ -211,6 +221,13 @@ export default function ExportSettingTable() {
 
         eventBus.emit('EXPORT_CONFIG_ROW_CLICKED', export_config);
     };
+
+    const handleOnChangePage = (changePage: number, changeLimit: number) => {
+        setPage(changePage);
+        setSelectedRowIndex(null);
+        eventBus.emit('EXPORT_CONFIG_ROW_UNSELECTED');
+        void fetchInitialData(changePage, changeLimit);
+    };
     return (
         <div>
             <DataTable
@@ -221,11 +238,22 @@ export default function ExportSettingTable() {
                     void handleRowClick(data, index);
                 }}
                 selectedRowIndex={selectedRowIndex}
+                total={total}
+                limit={limit}
+                currentPage={currentPage}
+                onLimitChange={(limitChange) => {
+                    limitRef.current = limitChange;
+                    setLimit(limitChange);
+                    handleOnChangePage(1, limitChange);
+                }}
+                onPageChange={(page) => {
+                    handleOnChangePage(page, limit);
+                }}
             ></DataTable>
             <ConfirmModal
                 isOpen={isDeleteModelOpen}
                 title="Delete Export Config"
-                body="Delete this export config ?"
+                children="Delete this export config ?"
                 onClose={closeDeleteModal}
                 onConfirm={deleteExportConfig}
             />

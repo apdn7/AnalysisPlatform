@@ -9,6 +9,57 @@
     data-backdrop="static"
     data-keyboard="false"
 >
+    <style>
+        /* Unifies "left" fields (Data Source Name, Comment, Source, ...) and "right"
+           fields (Select Files, File Name, Subfolder, ...) into ONE 5-column
+           grid: [left-label][left-input][right-label][right-col1][right-col2].
+           Because every row is a real CSS Grid row shared by both sides, they are
+           always naturally the same height and stay aligned - no min-height guessing
+           needed, unlike two independently-stacked columns. */
+        #modal-db-csv .csv-two-col-grid {
+            display: grid;
+            grid-template-columns: 148px minmax(0, 2fr) 28px 150px minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 20px;
+            row-gap: 14px;
+            align-items: center;
+        }
+        #modal-db-csv .csv-two-col-grid > * {
+            min-width: 0;
+        }
+        #modal-db-csv .csv-grid-label {
+            margin-bottom: 0;
+        }
+        #modal-db-csv .csv-grid-sub-label {
+            padding-left: 2.25rem;
+        }
+        #modal-db-csv .csv-grid-full-row {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        #modal-db-csv .csv-grid-full-row .csv-grid-label {
+            flex: 0 0 148px;
+        }
+        #modal-db-csv .csv-grid-full-row .csv-grid-input {
+            flex: 1 1 auto;
+        }
+
+        #modal-db-csv #v2ProcessDiv .csv-grid-input {
+            flex: 0 0 calc((100% - 426px) / 2);
+            max-width: calc((100% - 426px) / 2);
+            min-width: 0;
+        }
+        #modal-db-csv .csv-grid-span-2 {
+            grid-column: span 2;
+        }
+        /* Slightly compact rows in CSV preview table. */
+        #modal-db-csv #csvDataTable .table th,
+        #modal-db-csv #csvDataTable .table td {
+            padding: 0.55rem 0.65rem;
+            line-height: 1.15;
+        }
+    </style>
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -28,11 +79,9 @@
                         {{ macros.alert_message("alert-msg-csvDbname", on_top=True) }}
                     </div>
                 </div>
-                <div class="form-group row">
-                    <label for="csvDBSourceName" class="col-sm-3 col-form-label"
-                        ><h5>{{ _("Data Source Name") }}</h5>
-                    </label>
-                    <div class="col-sm-6">
+                <div class="csv-two-col-grid">
+                    <label for="csvDBSourceName" class="csv-grid-label"><h5>{{ _("Data Source Name") }}</h5></label>
+                    <div class="csv-grid-input">
                         <input
                             type="text"
                             name="csvDBSourceName"
@@ -41,16 +90,42 @@
                             data-observer
                         />
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label for="csvComment" class="col-sm-3 col-form-label"><h5>{{ _("Comment") }}</h5></label>
-                    <div class="col-sm-6">
+                    <div></div>
+                    <label class="csv-grid-label"
+                        ><h5 id="selectFilesLabel"><u>{{ _("Select Files") }}</u></h5></label
+                    >
+                    <div><small class="text-muted">{{ _("Include") }}</small></div>
+                    <div><small class="text-muted">{{ _("Exclude") }}</small></div>
+
+                    <label for="csvComment" class="csv-grid-label"><h5>{{ _("Comment") }}</h5></label>
+                    <div class="csv-grid-input">
                         <input type="text" name="csvComment" class="form-control" id="csvComment" data-observer />
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label for="folderUrl" class="col-sm-3 col-form-label"><h5>{{ _("Source") }}</h5></label>
-                    <div class="col-sm-6">
+                    <div></div>
+                    <label class="csv-grid-label csv-grid-sub-label" for="fileNameInclude"
+                        ><h5>{{ _("File Name") }}</h5></label
+                    >
+                    <div>
+                        <input
+                            type="text"
+                            class="form-control file-select-condition-input"
+                            id="fileNameInclude"
+                            name="fileNameInclude"
+                            data-observer
+                        />
+                    </div>
+                    <div>
+                        <input
+                            type="text"
+                            class="form-control file-select-condition-input"
+                            id="fileNameExclude"
+                            name="fileNameExclude"
+                            data-observer
+                        />
+                    </div>
+
+                    <label for="folderUrl" class="csv-grid-label"><h5>{{ _("Source") }}</h5></label>
+                    <div class="csv-grid-input">
                         <input
                             type="text"
                             name="folderUrl"
@@ -61,25 +136,44 @@
                         />
                         <input type="hidden" id="isFilePath" data-observer />
                     </div>
-                    <div class="col-sm-3 text-left">
-                        <button class="btn btn-primary" id="connectResourceBtn">{{ _("Connect") }}</button>
+                    <div></div>
+                    <label class="csv-grid-label csv-grid-sub-label" for="subfolderInclude"
+                        ><h5>{{ _("Subfolder") }}</h5></label
+                    >
+                    <div>
+                        <input
+                            type="text"
+                            class="form-control file-select-condition-input"
+                            id="subfolderInclude"
+                            name="subfolderInclude"
+                            data-observer
+                        />
                     </div>
-                </div>
-                <div class="form-group row" id="v2ProcessDiv" style="display: none;">
-                    <label for="v2ProcessSelection" class="col-sm-3 col-form-label">
-                        <h5 title="{{ _('Select V2 Process') }}">
-                            <span class="hint-text">{{ _("V2 Process") }}</span>
-                        </h5>
-                    </label>
-                    <div class="col-sm-6" id="v2ProcessSelection"></div>
-                </div>
-                <div class="form-group row">
-                    <label for="optionalFunction" class="col-sm-3 col-form-label">
+                    <div>
+                        <input
+                            type="text"
+                            class="form-control file-select-condition-input"
+                            id="subfolderExclude"
+                            name="subfolderExclude"
+                            data-observer
+                        />
+                    </div>
+
+                    <div class="csv-grid-full-row" id="v2ProcessDiv" style="display: none;">
+                        <div class="csv-grid-label">
+                            <h5 title="{{ _('Select V2 Process') }}">
+                                <span class="hint-text">{{ _("V2 Process") }}</span>
+                            </h5>
+                        </div>
+                        <div class="csv-grid-input" id="v2ProcessSelection"></div>
+                    </div>
+
+                    <label for="optionalFunction" class="csv-grid-label">
                         <h5 title="{{ _('Optional function Hover') }}">
                             <span class="hint-text">{{ _("Optional function") }}</span>
                         </h5>
                     </label>
-                    <div class="col-sm-6">
+                    <div class="csv-grid-input">
                         <select
                             type="select"
                             name="optionalFunction"
@@ -93,119 +187,113 @@
                             {% endfor %}
                         </select>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label for="" class="col-sm-3 col-form-label"><h5>{{ _("File type") }}</h5></label>
-                    <div class="col-sm-6 file-type-area">
-                        <div class="row" style="padding: 0 15px">
-                            <div class="mb-2">
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input
-                                        type="radio"
-                                        class="custom-control-input"
-                                        id="fileTypeAuto"
-                                        name="fileType"
-                                        value="Auto"
-                                        data-observer
-                                    />
-                                    <label class="custom-control-label" for="fileTypeAuto">Auto</label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input
-                                        type="radio"
-                                        class="custom-control-input"
-                                        id="fileTypeCSV"
-                                        name="fileType"
-                                        value="CSV"
-                                        data-observer
-                                    />
-                                    <label class="custom-control-label" for="fileTypeCSV">CSV</label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input
-                                        type="radio"
-                                        class="custom-control-input"
-                                        id="fileTypeTSV"
-                                        name="fileType"
-                                        value="TSV"
-                                        data-observer
-                                    />
-                                    <label class="custom-control-label" for="fileTypeTSV">TSV</label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input
-                                        type="radio"
-                                        class="custom-control-input"
-                                        id="fileTypeSMC"
-                                        name="fileType"
-                                        value="SMC"
-                                        data-observer
-                                    />
-                                    <label class="custom-control-label" for="fileTypeSMC">Semicolon(;)SV</label>
-                                </div>
+                    <div></div>
+                    <label class="csv-grid-label"><h5>{{ _("File type") }}</h5></label>
+                    <div class="csv-grid-span-2 file-type-area">
+                        <div class="mb-2">
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="fileTypeAuto"
+                                    name="fileType"
+                                    value="Auto"
+                                    data-observer
+                                />
+                                <label class="custom-control-label" for="fileTypeAuto">Auto</label>
                             </div>
-                            <div class="flex-grow-1 import-config-file-row">
-                                <div
-                                    class="custom-control custom-checkbox custom-control-inline float-right transpose-div"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        class="custom-control-input already-convert-hankaku"
-                                        id="csvIsTranspose"
-                                        name="csvIsTranspose"
-                                        data-observer
-                                    />
-                                    <label
-                                        class="custom-control-label"
-                                        for="csvIsTranspose"
-                                        title="{{ _('Transpose hover msg') }}"
-                                        >{{ _('Transpose') }}</label
-                                    >
-                                </div>
-                                <div class="custom-control custom-control-inline float-right line-skip-group nrows-div">
-                                    <label
-                                        class="line-skip mr-2 mb-0"
-                                        title="{{ _('Num rows hover msg') }}"
-                                        for="csvNRows"
-                                    >
-                                        <span class="hint-text">nRows</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="csvNRows"
-                                        name="csvNRows"
-                                        class="form-control csvNRows"
-                                        min="0"
-                                        data-observer=""
-                                    />
-                                </div>
-                                <div class="custom-control custom-control-inline float-right line-skip-group skip-div">
-                                    <label
-                                        class="line-skip mr-2 mb-0"
-                                        title="{{ _('Skip line hover msg') }}"
-                                        for="skipHead"
-                                    >
-                                        <span class="hint-text">Skip</span>
-                                    </label>
-                                    <input
-                                        type="number"
-                                        id="skipHead"
-                                        name="skip_head"
-                                        class="form-control"
-                                        min="0"
-                                        max="99"
-                                        data-observer=""
-                                    />
-                                    <input type="hidden" name="isDummyHeader" value="" />
-                                    <input type="hidden" name="isFileChecker" value="" />
-                                </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="fileTypeCSV"
+                                    name="fileType"
+                                    value="CSV"
+                                    data-observer
+                                />
+                                <label class="custom-control-label" for="fileTypeCSV">CSV (,)</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="fileTypeTSV"
+                                    name="fileType"
+                                    value="TSV"
+                                    data-observer
+                                />
+                                <label class="custom-control-label" for="fileTypeTSV">TSV (Tab)</label>
+                            </div>
+                            <div class="custom-control custom-radio custom-control-inline">
+                                <input
+                                    type="radio"
+                                    class="custom-control-input"
+                                    id="fileTypeSMC"
+                                    name="fileType"
+                                    value="SMC"
+                                    data-observer
+                                />
+                                <label class="custom-control-label" for="fileTypeSMC">SSV (;)</label>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group row">
-                    <label for="" class="col-sm-3 col-form-label"><h5>{{ _("EncodingLabel") }}</h5></label>
-                    <div class="col-sm-2" id="dsEncoding">
+
+                    <label for="" class="csv-grid-label"><h5>{{ _("Load Settings") }}</h5></label>
+                    <div class="csv-grid-input load-settings-area">
+                        <div class="d-flex flex-wrap" style="gap: 0.75rem">
+                            <div class="custom-control custom-control-inline line-skip-group skip-div">
+                                <label
+                                    class="line-skip mr-2 mb-0"
+                                    title="{{ _('Skip line hover msg') }}"
+                                    for="skipHead"
+                                >
+                                    <span class="hint-text">Skip</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="skipHead"
+                                    name="skip_head"
+                                    class="form-control"
+                                    min="0"
+                                    max="99"
+                                    data-observer=""
+                                />
+                                <input type="hidden" name="isDummyHeader" value="" />
+                                <input type="hidden" name="isFileChecker" value="" />
+                            </div>
+                            <div class="custom-control custom-control-inline line-skip-group nrows-div">
+                                <label class="line-skip mr-2 mb-0" title="{{ _('Num rows hover msg') }}" for="csvNRows">
+                                    <span class="hint-text">nRows</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    id="csvNRows"
+                                    name="csvNRows"
+                                    class="form-control csvNRows"
+                                    min="0"
+                                    data-observer=""
+                                />
+                            </div>
+                            <div class="custom-control custom-checkbox custom-control-inline transpose-div">
+                                <input
+                                    type="checkbox"
+                                    class="custom-control-input already-convert-hankaku"
+                                    id="csvIsTranspose"
+                                    name="csvIsTranspose"
+                                    data-observer
+                                />
+                                <label
+                                    class="custom-control-label"
+                                    for="csvIsTranspose"
+                                    title="{{ _('Transpose hover msg') }}"
+                                    >{{ _('Transpose') }}</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div></div>
+                    <label class="csv-grid-label"><h5>{{ _("EncodingLabel") }}</h5></label>
+                    <div id="dsEncoding">
                         <select
                             type="select"
                             name="encodingSelect"
@@ -220,26 +308,39 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-sm-4">
-                        <div class="file-encoding" id="guessEncoding"></div>
+                    <label id="guessEncoding" class="csv-grid-label"> </label>
+                </div>
+                <div class="form-group row align-items-center mt-3">
+                    <div class="col-sm-3 d-flex align-items-center">
+                        <h5 class="mb-0">{{ _("Data Preview") }}</h5>
                     </div>
-                </div>
-                <div class="form-group row mg-minus-1">
-                    <label class="col-sm-3 col-form-label"
-                        ><h5 title="{{ _('Specify datatype of columns Hover') }}">
-                            <span class="hint-text">{{ _("Specify datatype of columns") }}</span>
-                        </h5></label
-                    >
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-6 text-center">
                         <button class="btn btn-primary" id="showResources">{{ _("Show") }}</button>
-                    </div>
-                    <div class="col-sm-6 text-wrap">
-                        <div id="resourceLoading" class="spinner-border text-primary hide" role="status">
+                        <div
+                            id="resourceLoading"
+                            class="spinner-border spinner-border-sm text-primary hide align-middle ml-2"
+                            role="status"
+                        >
                             <span class="sr-only">Loading...</span>
                         </div>
                         <span id="fileName" style="word-break: break-all; display: none;"></span>
+                    </div>
+                    <div class="col-sm-3 text-right">
+                        <button
+                            type="button"
+                            onclick="saveCSVInfo();"
+                            class="btn btn-secondary saveDBInfoBtn"
+                            data-csv="1"
+                            data-item-id=""
+                            {% if not is_authorized %}
+                                disabled
+                            {% endif %}
+                        >
+                            {{ _("OK") }}
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
+                            {{ _("Cancel") }}
+                        </button>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -255,23 +356,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    onclick="saveCSVInfo();"
-                    class="btn btn-secondary saveDBInfoBtn"
-                    data-csv="1"
-                    data-item-id=""
-                    {% if not is_authorized %}
-                        disabled
-                    {% endif %}
-                >
-                    {{ _("OK") }}
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
-                    {{ _("Cancel") }}
-                </button>
             </div>
         </div>
     </div>
@@ -1125,7 +1209,14 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform">{{ _('Do you want to delete this record?') }}</p>
+                <p
+                    id="delete-ds-confirm-message"
+                    class="modal-inform"
+                    data-single-message="{{ _('Do you want to delete this record?') }}"
+                    data-multiple-message="{{ _('Do you want to delete the selected records?') }}"
+                >
+                    {{ _('Do you want to delete this record?') }}
+                </p>
                 <div id="deleteDSProcessList" style="display: none">
                     <p style="margin-bottom: 5px;">{{ _('Note: Corresponding processes will also be deleted:') }}</p>
                     <div style="max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #444;">
@@ -1140,10 +1231,10 @@
             <div class="modal-footer">
                 <button
                     id="btnDeleteDS"
+                    type="button"
                     onclick="confirmDeleteDS();"
                     class="btn btn-danger"
                     data-item-id=""
-                    data-dismiss="modal"
                 >
                     {{ _('Delete') }}
                 </button>

@@ -3,9 +3,9 @@
     {{ macros.page_title(key='HMp', title=_('Heatmap Plot Page Title'), hint=_('Heatmap Page title description'), hasAction=true) }}
 {% endblock %}
 {% block midbody %}
-    <div class="card monitor-icons">
+    <div class="card monitor-icons" id="hmpSettingCard">
         <form id="traceDataForm" class="GUIForm">
-            {{ macros.heatmap_end_proc(procs, title=_('HMp show value description')) }}
+            {{ macros.heatmap_end_proc(procs, title=_('HMp show value description'), is_hmp=True) }}
             {{ macros.data_finder_card() }}
             <!-- Date range -->
             <div class="card-body table-bordered graph-navi">

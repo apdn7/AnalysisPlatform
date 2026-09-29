@@ -3,7 +3,7 @@
     {{ macros.page_title(key='ScP', title=_('Scatter Plot'), hint=_('SCP Page title description'), hasAction=true) }}
 {% endblock %}
 {% block midbody %}
-    <div class="card monitor-icons">
+    <div class="card monitor-icons" id="scpSettingCard">
         <form id="traceDataForm" class="GUIForm">
             {{ macros.scatter_end_proc(procs,'', title=_('SCP show value description'), isShowMinMax=false) }}
             {{ macros.data_finder_card() }}

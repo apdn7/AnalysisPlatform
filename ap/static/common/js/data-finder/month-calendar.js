@@ -101,6 +101,12 @@ class MonthCalender extends DataFinderBase {
             this.generateMonthCalender(preMonth.year(), preMonth.month() + 1, isFrom);
 
             this.disableMonthArrowButton();
+            if (this.syncDataFinderInputRangeToCalendarTypes()) {
+                const [selectedFrom, selectedTo] = this.getFromToInputByType(calenderTypes.month);
+                this.syncSelectionToCalendar(selectedFrom, selectedTo, calenderTypes.month);
+            } else {
+                this.clearCalendarSelection();
+            }
             DataFinderService.addCacheFunctionForBackupRestoreModal(
                 () => this.generateMonthCalender(preMonth.year(), preMonth.month() + 1, isFrom),
                 isFrom,
@@ -112,6 +118,12 @@ class MonthCalender extends DataFinderBase {
             this.generateMonthCalender(nextMonth.year(), nextMonth.month() + 1, isFrom);
 
             this.disableMonthArrowButton();
+            if (this.syncDataFinderInputRangeToCalendarTypes()) {
+                const [selectedFrom, selectedTo] = this.getFromToInputByType(calenderTypes.month);
+                this.syncSelectionToCalendar(selectedFrom, selectedTo, calenderTypes.month);
+            } else {
+                this.clearCalendarSelection();
+            }
             DataFinderService.addCacheFunctionForBackupRestoreModal(
                 () => this.generateMonthCalender(nextMonth.year(), nextMonth.month() + 1, isFrom),
                 isFrom,

@@ -3,7 +3,7 @@ const THIN_DATA_COUNT = 4000;
 // limit category label to show as substring
 // and three dots ('JP0123...')
 const CAT_LABEL_LIMIT = 12;
-
+let availableOrderingSettings = {};
 function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIME') {
     const canvasId = setParam('canvasId', 'chart01');
     const procId = setParam('procId', null);
@@ -928,8 +928,8 @@ function YasuTsChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIM
 
     const canvas = $(`#${canvasId}`).get(0);
     const chart = new Chart(ctx, config);
-    canvas.addEventListener('contextmenu', rightClickHandler, false);
-    canvas.addEventListener('mousedown', handleMouseDown, false);
+    registerChartEventListener(canvas, 'contextmenu', rightClickHandler);
+    registerChartEventListener(canvas, 'mousedown', handleMouseDown);
 
     function handleMouseDown() {
         // later, not just mouse down, + mouseout of menu
@@ -1396,29 +1396,29 @@ const hideFPPContextMenu = () => {
 const deleteThisRow = (self, isGraphArea) => {
     const tableId = isGraphArea ? formElements.serialTable2 : formElements.serialTable;
     $(self).closest('tr').remove();
-    updateCurrentSelectedProcessSerial(name.serial);
+    updateCurrentSelectedProcessSerial(tempName.serial);
 
     if (isGraphArea) {
         initSelect();
-        disableUnselectedOption(selectedSerials, name.serial);
-        disableUnselectedOption(selectedProcess, name.process);
+        disableUnselectedOption(selectedSerials, tempName.serial);
+        disableUnselectedOption(selectedProcess, tempName.process);
     } else {
         updatePriorityAndDisableSelected(tableId);
     }
 };
 
 const htmlOrderColRowTemplate = (priority, processSelectHTML, serialSelectHTML, orderSelectHTML, isGraphArea) => `<tr>
-        <td ${dragDropRowInTable.DATA_ORDER_ATTR}>${priority}</td>
-        <td>
+        <td class="text-center p-0" ${dragDropRowInTable.DATA_ORDER_ATTR}>${priority}</td>
+        <td class="p-0">
             ${processSelectHTML}
         </td>
-        <td>
+        <td class="p-0">
             ${serialSelectHTML}
-        </td>
-        <td>
+        </td >
+        <td class="p-0">
             ${orderSelectHTML}
         </td>
-        <td>
+        <td class="p-0 text-center">
             <button onclick="deleteThisRow(this, ${isGraphArea})" type="button" class="btn btn-secondary icon-btn btn-right">
                 <i class="fas fa-trash-alt icon-secondary"></i>
             </button>
@@ -1452,14 +1452,14 @@ const buildColumnHTML = (
     let alreadySet = false;
     for (const idx in serialCols) {
         const col = serialCols[idx];
-        let optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-selected-proc-id="${selectedProcId}">${col.shown_name}</option>`; // TODO no need, order alphabet
+        let optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-data-type="${col.data_type}" data-selected-proc-id="${selectedProcId}">${col.shown_name}</option>`; // TODO no need, order alphabet
         if (selectedCol) {
             if (col.id === selectedCol) {
-                optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-selected-proc-id="${selectedProcId}" selected>${col.shown_name}</option>`;
+                optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-data-type="${col.data_type}" data-selected-proc-id="${selectedProcId}" selected>${col.shown_name}</option>`;
                 alreadySet = true;
             }
         } else if (!alreadySet && !selectedOrderCols.has(`${col.id}`)) {
-            optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-selected-proc-id="${selectedProcId}">${col.shown_name}</option>`;
+            optionHTML = `<option value="${col.id}" title="${col.name_en}" data-is-get-date="${col.is_get_date}" data-is-serial-no="${col.is_serial_no}" data-data-type="${col.data_type}" data-selected-proc-id="${selectedProcId}">${col.shown_name}</option>`;
             alreadySet = true;
         }
         optionHTMLs.push(optionHTML);
@@ -1467,19 +1467,76 @@ const buildColumnHTML = (
     return `<select data-load-level="2" class="form-control select2-selection--single select-n-columns" name="${name}">${optionHTMLs.join('')}</select>`;
 };
 
-const buildOrderHTML = (orderName, selectedOrder = null) => {
-    let ascChecked = '';
-    let descChecked = '';
-    if (selectedOrder === 0) {
-        descChecked = 'selected';
-    } else {
-        ascChecked = 'selected';
+// Keep the legacy values 1 (ascending) and 0 (descending) unchanged so that
+// previously saved user settings remain compatible. New order modes use 2-8.
+const SERIAL_ORDER_TYPE = Object.freeze({
+    DESCENDING: 0,
+    ASCENDING: 1,
+    ORIGINAL: 2,
+    NAME_ASCENDING: 3,
+    NAME_DESCENDING: 4,
+    COUNT_ASCENDING: 5,
+    COUNT_DESCENDING: 6,
+    VALUE_ASCENDING: 7,
+    VALUE_DESCENDING: 8,
+});
+
+/**
+ * get layout object of MAP page
+ * @return {{}|Partial<LayoutData>|*}
+ */
+const collectLayout = () => {
+    if (window.collectLayoutData) {
+        return window.collectLayoutData();
     }
 
-    return `<select class="form-control" name="${orderName}">
-            <option value="1" ${ascChecked}>${i18n.ascending}</option>
-            <option value="0" ${descChecked}>${i18n.descending}</option>
-            </select>`;
+    return {};
+};
+
+const buildOrderHTML = (orderName, selectedOrder = null, isCatColumn = false, categoryAggregateMode = null) => {
+    const isMAPPage = getCurrentPage() === PAGE_NAME.map;
+    const normalizedSelectedOrder =
+        selectedOrder === null || selectedOrder === undefined
+            ? isCatColumn
+                ? SERIAL_ORDER_TYPE.ORIGINAL
+                : SERIAL_ORDER_TYPE.ASCENDING
+            : Number(selectedOrder);
+
+    const catOrderOptions = [
+        [SERIAL_ORDER_TYPE.ORIGINAL, i18n.originalOrder],
+        [SERIAL_ORDER_TYPE.NAME_ASCENDING, i18n.nameAscending],
+        [SERIAL_ORDER_TYPE.NAME_DESCENDING, i18n.nameDescending],
+        [SERIAL_ORDER_TYPE.COUNT_ASCENDING, i18n.countAscending],
+        [SERIAL_ORDER_TYPE.COUNT_DESCENDING, i18n.countDescending],
+        [SERIAL_ORDER_TYPE.VALUE_ASCENDING, i18n.valueAscending],
+        [SERIAL_ORDER_TYPE.VALUE_DESCENDING, i18n.valueDescending],
+    ];
+
+    const otherOrderOptions = [
+        [SERIAL_ORDER_TYPE.ASCENDING, i18n.serialAscending],
+        [SERIAL_ORDER_TYPE.DESCENDING, i18n.serialDescending],
+    ];
+
+    let orderOptions = [];
+
+    if (isCatColumn && isMAPPage) {
+        orderOptions = [...catOrderOptions];
+    } else {
+        orderOptions = [...otherOrderOptions];
+    }
+
+    const selectedOrderValue = orderOptions.some(([value]) => value === normalizedSelectedOrder)
+        ? normalizedSelectedOrder
+        : orderOptions[0][0];
+
+    const optionHTML = orderOptions
+        .map(([value, label]) => {
+            const selected = value === selectedOrderValue ? 'selected' : '';
+            return `<option value="${value}" ${selected}>${label}</option>`;
+        })
+        .join('');
+
+    return `<select class="form-control" name="${orderName}">${optionHTML}</select>`;
 };
 
 const createOrderColRowHTML = async (
@@ -1492,24 +1549,24 @@ const createOrderColRowHTML = async (
     selectedOrder = null,
     priority = null,
     isGraphArea = false,
+    firstColumId = null,
+    showNumeric = false,
 ) => {
     const calcPriority = () => $(`${tableId} tbody tr`).length + 1;
 
     // get serial
     const procInfo = procConfigs[selectedProcId];
+    if (!procInfo) return;
     await procInfo.updateColumns();
     const columns = procInfo.getColumns();
-    const orderCols = [];
     // sort serial & datetime to show first
-    const newSortedCols = orderSeriesCols(columns);
-    for (const col of newSortedCols) {
-        if (col.is_serial_no || col.is_get_date || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)) {
-            orderCols.push(col);
-        }
-    }
+    const orderCols = orderSeriesCols(columns, firstColumId, showNumeric);
+    const isCatColumn =
+        columns.filter((col) => col.is_category || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)).length > 0;
+
     const processSelectHTML = buildProcessColumnHTML(selectedProcId, processName);
     const columnSelectHTML = buildColumnHTML(orderCols, tableId, serialName, selectedCol, selectedProcId);
-    const orderSelectHTML = buildOrderHTML(orderName, selectedOrder);
+    const orderSelectHTML = buildOrderHTML(orderName, selectedOrder, isCatColumn);
     return htmlOrderColRowTemplate(
         priority || calcPriority(),
         processSelectHTML,
@@ -1559,6 +1616,95 @@ const updatePriorityAndDisableSelected = (tableId = formElements.serialTable, se
     updatePriority(tableId);
     disableSelectedOption(tableId, serialName);
 };
+
+const isCategorySerialColumn = (serialSelectElement) => {
+    const selectedOption = serialSelectElement.find('option:selected');
+    const dataType = selectedOption.attr('data-data-type');
+    return CfgProcess_CONST.CATEGORY_TYPES.includes(dataType);
+};
+
+const CATEGORY_AGGREGATE_MODE = Object.freeze({
+    AGGREGATED: 'aggregated',
+    KEEP_DUPLICATES: 'keepDuplicates',
+});
+
+const getCategoryAggregateModeByOrderElement = (orderSelectElement) => {
+    const orderName = orderSelectElement.attr('name');
+    const currentModal = orderSelectElement.closest('.modal');
+
+    const radioNameCandidates =
+        orderName === 'TermSerialOrder'
+            ? ['termCategoryAggregated', 'TermCategoryAggregated', 'categoryAggregated']
+            : ['categoryAggregated'];
+
+    for (const radioName of radioNameCandidates) {
+        if (currentModal.length) {
+            const scopedChecked = currentModal.find(`input[name="${radioName}"]:checked`);
+            if (scopedChecked.length) {
+                return scopedChecked.val() === CATEGORY_AGGREGATE_MODE.KEEP_DUPLICATES
+                    ? CATEGORY_AGGREGATE_MODE.KEEP_DUPLICATES
+                    : CATEGORY_AGGREGATE_MODE.AGGREGATED;
+            }
+        }
+
+        const globalChecked = $(`input[name="${radioName}"]:checked`);
+        if (globalChecked.length) {
+            return globalChecked.val() === CATEGORY_AGGREGATE_MODE.KEEP_DUPLICATES
+                ? CATEGORY_AGGREGATE_MODE.KEEP_DUPLICATES
+                : CATEGORY_AGGREGATE_MODE.AGGREGATED;
+        }
+    }
+
+    return CATEGORY_AGGREGATE_MODE.AGGREGATED;
+};
+
+const updateSerialOrderOptions = (serialSelectElement, orderName = null) => {
+    const currentRow = serialSelectElement.closest('tr');
+    const orderSelectElement = orderName
+        ? currentRow.find(`select[name=${orderName}]`)
+        : currentRow.find('select[name=serialOrder], select[name=TermSerialOrder]').first();
+    if (!orderSelectElement.length) return;
+
+    const selectedOrder = orderSelectElement.val();
+    const isCatColumn = isCategorySerialColumn(serialSelectElement);
+    const targetOrderName = orderSelectElement.attr('name');
+    const categoryAggregateMode = getCategoryAggregateModeByOrderElement(orderSelectElement);
+
+    orderSelectElement.replaceWith(buildOrderHTML(targetOrderName, selectedOrder, isCatColumn, categoryAggregateMode));
+};
+
+const refreshCategoryAggregateOrderOptions = () => {
+    $('select[name=serialOrder], select[name=TermSerialOrder]').each(function refreshOrderSelect() {
+        const orderSelectElement = $(this);
+        const orderName = orderSelectElement.attr('name');
+
+        const serialSelector =
+            orderName === 'TermSerialOrder' ? 'select[name=TermSerialColumn]' : 'select[name=serialColumn]';
+
+        const currentRow = orderSelectElement.closest('tr');
+        const serialSelectElement = currentRow.find(serialSelector).first();
+
+        if (!serialSelectElement.length || !isCategorySerialColumn(serialSelectElement)) {
+            return;
+        }
+
+        const selectedOrder = orderSelectElement.val();
+        const categoryAggregateMode = getCategoryAggregateModeByOrderElement(orderSelectElement);
+
+        orderSelectElement.replaceWith(buildOrderHTML(orderName, selectedOrder, true, categoryAggregateMode));
+    });
+};
+
+// Re-bind: nghe cả radio của main và term
+$(document)
+    .off('change.categoryAggregateOrder')
+    .on(
+        'change.categoryAggregateOrder',
+        'input[name="categoryAggregated"], input[name="termCategoryAggregated"], input[name="TermCategoryAggregated"]',
+        function onCategoryAggregateChanged() {
+            refreshCategoryAggregateOrderOptions();
+        },
+    );
 
 const bindChangeProcessEvent = (
     tableId = formElements.serialTable,
@@ -1613,6 +1759,7 @@ const bindChangeProcessEvent = (
                             'title': col.name_en,
                             'data-is-get-date': col.is_get_date,
                             'data-is-serial-no': col.is_serial_no,
+                            'data-data-type': col.data_type,
                             'data-selected-proc-id': selectedProcId,
                         };
                         const procData = getProcessColSelected();
@@ -1622,7 +1769,7 @@ const bindChangeProcessEvent = (
 
                         if (!isColSelectedOnSameElement && isColSelected) {
                             orderObject.disabled = true;
-                        } else if (!alreadyPickedOrderCol && !selectedSerials.has(col.id)) {
+                        } else if (!alreadyPickedOrderCol && !selectedSerials?.has(col.id)) {
                             if ((col.is_get_date || col.is_serial_no) && procData.includes(selectedProcId)) {
                                 if (!selectedProcessSerial && !selectedProcessSerial.has(currentOption)) {
                                     defaultOrderCol = col.id;
@@ -1656,6 +1803,7 @@ const bindChangeProcessEvent = (
                         selectElement
                             .attr('data-is-get-date', orderCol['data-is-get-date'])
                             .attr('data-is-serial-no', orderCol['data-is-serial-no'])
+                            .attr('data-data-type', orderCol['data-data-type'])
                             .attr('data-selected-proc-id', orderCol['data-selected-proc-id']);
                     });
 
@@ -1664,16 +1812,29 @@ const bindChangeProcessEvent = (
                 if (defaultOrderCol) {
                     orderColElement.val(defaultOrderCol).trigger('change');
                 }
+                updateSerialOrderOptions(orderColElement);
                 if (callback) callback();
             });
         }
     });
 };
 
-const bindChangeOrderColEvent = (tableId = formElements.serialTable, name = 'serialColumn', callback = null) => {
+const bindChangeOrderColEvent = (
+    tableId = formElements.serialTable,
+    name = 'serialColumn',
+    callback = null,
+    orderName = 'serialOrder',
+) => {
     const serialSelectEl = $(`select[name=${name}]`);
+    serialSelectEl.off('change.serialOrderOptions');
+    serialSelectEl.on('change.serialOrderOptions', function onSerialColumnChanged() {
+        updateSerialOrderOptions($(this), orderName);
+    });
+
+    serialSelectEl.off('select2:change');
     serialSelectEl.on('select2:change', (e) => {
         // catch event select option with select2
+        updateSerialOrderOptions($(e.currentTarget), orderName);
         updateCurrentSelectedProcessSerial('TermSerialColumn');
         updateSelectedProcessSerial(true, e);
         disableUnselectedOption(selectedSerials, 'TermSerialColumn');
@@ -1698,6 +1859,10 @@ const bindChangeOrderColEvent = (tableId = formElements.serialTable, name = 'ser
         updateCurrentSelectedProcessSerial('TermSerialColumn');
         disableUnselectedOption(selectedSerials, 'TermSerialColumn');
         enableOptionSelectedValue(e);
+    });
+
+    serialSelectEl.each(function syncOrderOption() {
+        updateSerialOrderOptions($(this), orderName);
     });
     const updateSelectedProcessSerial = (isSelect, e) => {
         let serialColDataId;
@@ -1733,6 +1898,7 @@ const updateCurrentSelectedProcessSerial = (serialName) => {
 };
 
 const showIndexOrderingSetting = async (
+    firstColId = null,
     tableId = formElements.serialTable,
     processName = 'serialProcess',
     serialName = 'serialColumn',
@@ -1740,10 +1906,23 @@ const showIndexOrderingSetting = async (
 ) => {
     // get serial for start proc
     const startProc = getFirstSelectedProc();
+    const showNumeric = $(tableId).attr('data-show-numerics') === 'True';
     // add to modal
     const serialTableBody = $(`${tableId} tbody`);
     serialTableBody.empty();
-    const serialOrderRowHTML = await createOrderColRowHTML(startProc, tableId, processName, serialName, orderName);
+    const serialOrderRowHTML = await createOrderColRowHTML(
+        startProc,
+        tableId,
+        processName,
+        serialName,
+        orderName,
+        null,
+        null,
+        null,
+        false,
+        firstColId,
+        showNumeric,
+    );
     serialTableBody.html(serialOrderRowHTML);
 
     // set value of serialColumn is first value
@@ -1799,26 +1978,31 @@ const addSerialOrderRow = async (
     bindDragNDrop(serialTableBody, tableId, serialName);
 };
 
-const showSerialModal = (tableId = formElements.serialTableModal) => {
-    $(tableId).modal('show');
+const showSerialModal = (modalId = formElements.serialTableModal, css = null) => {
+    $(modalId).find('.modal-dialog').removeAttr('style');
+    if (css) {
+        $(modalId).find('.modal-dialog').css(css);
+    }
+    $(modalId).modal('show');
 };
 
-const checkAndShowModal = (tableId = formElements.serialTable) => {
+const checkAndShowModal = (tableId = formElements.serialTable, firstCol = null, css = null) => {
     const serialTableBody = $(`${tableId} tbody`);
     const numRows = serialTableBody.find('tr').length;
 
     if (!numRows) {
-        showIndexOrderingSetting().then(() => {
-            showSerialModal();
+        showIndexOrderingSetting(firstCol).then(() => {
+            showSerialModal(formElements.serialTableModal, css);
         });
     } else {
         bindDragNDrop(serialTableBody, tableId);
-        showSerialModal();
+        showSerialModal(formElements.serialTableModal, css);
     }
 };
 
 const bindXAxisEvents = () => {
     // change x-axis for timeseries chart
+    $(formElements.xOption).off('change');
     $(formElements.xOption).on('change', function f() {
         const changeValOnly = $(this).data('change-val-only') || false;
         if (!changeValOnly) {
@@ -1887,13 +2071,28 @@ const genStepLineAnnotation = (plotData, xLabels, pointColor) => {
     return annotations;
 };
 
-const orderSeriesCols = (columns) => {
+const orderSeriesCols = (columns, firstColumId = null, showNumeric = false) => {
     // sort serial & datetime to show first
+    const firstCol = firstColumId ? columns.filter((col) => col.id === firstColumId) : [];
     const serialCols = columns.filter((col) => col.is_serial_no);
     const datetimeCols = columns.filter((col) => col.is_get_date);
-    const normalCols = columns.filter((col) => !col.is_serial_no && !col.is_get_date);
+    const catCols = columns.filter(
+        (col) =>
+            !col.is_serial_no &&
+            !col.is_get_date &&
+            (col.is_category || CfgProcess_CONST.CATEGORY_TYPES.includes(col.data_type)),
+    );
+    const numericCols = showNumeric
+        ? columns.filter(
+              (col) =>
+                  !col.is_serial_no &&
+                  !col.is_get_date &&
+                  !col.is_category &&
+                  CfgProcess_CONST.REAL_TYPES.includes(col.data_type),
+          )
+        : [];
 
-    return [...serialCols, ...datetimeCols, ...normalCols];
+    return [...firstCol, ...serialCols, ...datetimeCols, ...catCols, ...numericCols];
 };
 
 const getProcessColSelected = () => {
@@ -1910,4 +2109,33 @@ const getProcessColSelected = () => {
     }
 
     return procData;
+};
+
+const updateIndexInforTable = () => {
+    const serialTable = $('#serialTable tbody');
+    $('#index-infor-table tbody').empty();
+    let indexTbodyDOM = '';
+    serialTable.find('tr').each((key, tr) => {
+        indexTbodyDOM += '<tr>';
+        const tdDOM = $(tr).find('td');
+        indexTbodyDOM += `<td>${$(tdDOM[0]).text()}</td>`;
+        indexTbodyDOM += `<td>${$(tdDOM[1]).find('select[name="serialProcess"] option:selected').text()}</td>`;
+        indexTbodyDOM += `<td>${$(tdDOM[2]).find('select[name="serialColumn"] option:selected').text()}</td>`;
+        indexTbodyDOM += `<td>${$(tdDOM[3]).find('select[name="serialOrder"] option:selected').text()}</td>`;
+        indexTbodyDOM += '</tr>';
+    });
+    $('#index-infor-table tbody').append(indexTbodyDOM);
+};
+
+const triggerSerialTableEvents = () => {
+    $('.index-inform')
+        .unbind('mouseenter')
+        .on('mouseenter', () => {
+            $('.index-inform-content').show();
+            updateIndexInforTable();
+        });
+
+    $('.index-inform-content').on('mouseleave', () => {
+        $('.index-inform-content').hide();
+    });
 };

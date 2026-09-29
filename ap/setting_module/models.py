@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import unicodedata
-from collections.abc import Generator, Mapping
+from collections.abc import Generator, Iterable, Mapping
 from contextlib import contextmanager
 from copy import copy
 from datetime import datetime, tzinfo
@@ -51,7 +51,6 @@ from ap.common.common_utils import (
     gen_data_count_table_name,
     gen_export_history_table_name,
     gen_import_history_table_name,
-    gen_sql_label,
     gen_transaction_table_name,
     get_current_timestamp,
 )
@@ -69,6 +68,7 @@ from ap.common.constants import (
     CsvDelimiter,
     CSVExtTypes,
     DataColumnType,
+    DataLinkRelationshipType,
     DataType,
     DBType,
     DiskUsageStatus,
@@ -93,6 +93,29 @@ from ap.common.trace_data_log import Location, LogLevel, ReturnCode
 from ap.conversion_formula import JudgeFormula, conversion_formula
 
 db_timestamp = db.TIMESTAMP
+
+
+def require_bridge_column_name(col: CfgProcessColumn) -> str:
+    """Return the persisted bridge column name, raising if the lifecycle has not completed.
+
+    This is the validation boundary for consumers that require a guaranteed non-None physical key,
+    such as
+    runtime_column_name fallback, gen_label_from_col_id, and similar lifecycle-boundary access
+    points.
+
+    Args:
+        col: Process column whose bridge name is required.
+
+    Returns:
+        The persisted bridge_column_name string.
+
+    Raises:
+        ValueError: If bridge-name initialization has not completed for this process column.
+    """
+    # Fail at the naming boundary instead of allowing a nullable metadata value to become a DataFrame key.
+    if col.bridge_column_name is None:
+        raise ValueError(f'Process column {col.id} does not have a bridge column name')
+    return col.bridge_column_name
 
 
 @contextmanager
@@ -995,6 +1018,7 @@ class CfgProcessColumn(db.Model):
         id: Primary key for the process column.
         process_id: Foreign key to cfg_process.
         column_name: System name of the column.
+        bridge_column_name: Stable physical name used in transaction tables (optional until insert completes).
         column_raw_name: Original column name from CSV file or database table (optional).
         name_en: English display name (optional).
         name_jp: Japanese display name (optional).
@@ -1030,7 +1054,7 @@ class CfgProcessColumn(db.Model):
         is_transaction_column: True if column exists in transaction table.
         shown_name: Localized display name based on current locale.
         is_linking_column: True if column can be used for process linking.
-        bridge_column_name: Generated bridge column name for linking.
+        runtime_column_name: Physical key for normal columns or an explicit transient key for virtual columns.
         is_category: True if column is categorical (text or integer category).
         is_int_category: True if column is integer category type.
         is_judge: True if column is a judge type column.
@@ -1048,7 +1072,6 @@ class CfgProcessColumn(db.Model):
         get_import_filter_by_process_id: Gets import filters for a process.
         get_by_id: Retrieves column by ID.
         gen_label_from_col_id: Generates SQL label from column ID.
-        gen_sql_label: Generates SQL label for the column.
         existed_in_transaction_table: Checks if column exists in transaction table.
         get_col_main_datetime: Gets main datetime column for a process.
         get_col_main_date: Gets main date column for a process.
@@ -1074,6 +1097,7 @@ class CfgProcessColumn(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
     column_name: Mapped[str]
+    bridge_column_name: Mapped[Optional[str]] = mapped_column(sa.String(50), nullable=True)
     # raw name of column, from CSV file or DB table
     column_raw_name: Mapped[Optional[str]]
     name_en: Mapped[Optional[str]]
@@ -1181,8 +1205,13 @@ class CfgProcessColumn(db.Model):
     @hybrid_property
     def is_linking_column(self):
         """Checking if a column is linkable"""
-        # Function column is not linkable (except main serial function column)
-        is_linkable_column = self.is_main_serial_function_column or (not self.is_function_column)
+        # Function column is not linkable, except:
+        # - main serial function column (is_serial_no + function column)
+        # - physical serial function column (is_physical_func_col, shown as "Serial:Int/Str")
+        # Both are transaction serial columns and must be selectable as linking keys.
+        is_linkable_column = (
+            self.is_main_serial_function_column or self.is_physical_func_col or (not self.is_function_column)
+        )
 
         # Float column is not linkable
         is_linkable_data_type = self.data_type not in [
@@ -1214,10 +1243,6 @@ class CfgProcessColumn(db.Model):
     # @classmethod
     # def get_by_data_type(cls, proc_id, data_type: DataType):
     #     return cls.query.filter(cls.process_id == proc_id, cls.data_type == data_type.name).all()
-
-    @hybrid_property
-    def bridge_column_name(self):
-        return gen_bridge_column_name(self.id, self.column_name)
 
     @hybrid_property
     def is_category(self):
@@ -1294,16 +1319,48 @@ class CfgProcessColumn(db.Model):
 
     @classmethod
     def gen_label_from_col_id(cls, col_id: int):
+        """Return the validated persisted bridge_column_name for a process column ID.
+
+        Args:
+            col_id: Primary key of the CfgProcessColumn to look up.
+
+        Returns:
+            The stable normal-result key (bridge_column_name), or None if the column does not exist.
+
+        Raises:
+            ValueError: If the column exists but bridge-name initialization has not completed.
+        """
         col = cls.get_by_id(col_id)
         if not col:
             return None
-        col_label = gen_sql_label(col.id, col.column_name)
-        return col_label
+        # Validate at this lifecycle boundary so None never reaches SQL or Pandas consumers.
+        return require_bridge_column_name(col)
 
-    def gen_sql_label(self, is_bridge: bool = False) -> str:
-        col_name = self.bridge_column_name if is_bridge else self.column_name
-        col_label = gen_sql_label(self.id, col_name)
-        return col_label
+    @property
+    def runtime_column_name(self) -> str:
+        """Return the effective result key for normal or transient virtual column metadata.
+
+        Returns:
+            Explicit virtual key when assigned; otherwise the validated persisted bridge name.
+
+        Raises:
+            ValueError: If bridge-name initialization has not completed and no virtual key is set.
+        """
+        # Synthetic graph columns exist only in memory and carry an explicit virtual key.
+        virtual_result_key = self.__dict__.get('_virtual_column_name')
+        return virtual_result_key if virtual_result_key is not None else require_bridge_column_name(self)
+
+    def set_virtual_column_name(self, virtual_result_key: str) -> None:
+        """Assign an in-memory result key to synthetic column metadata.
+
+        Args:
+            virtual_result_key: Namespaced key generated for a derived DataFrame column.
+
+        Side Effects:
+            Stores a transient key that is never persisted to ``cfg_process_column``.
+        """
+        # Keep virtual identity separate from the persisted physical bridge name.
+        self.__dict__['_virtual_column_name'] = virtual_result_key
 
     @hybrid_property
     def is_me_function_column(self):
@@ -1413,7 +1470,8 @@ class CfgProcessColumn(db.Model):
 
     @hybrid_property
     def label(self):
-        return self.gen_sql_label()
+        """Return the stable key used for normal SQL results and DataFrame columns."""
+        return self.bridge_column_name
 
     @classmethod
     def validate_registered_formula(cls, new_formula: JudgeFormula, column_id: int) -> bool:
@@ -1435,6 +1493,39 @@ class CfgProcessColumn(db.Model):
             isinstance(column_conversion_formula, JudgeFormula)
             and new_formula.positive == column_conversion_formula.positive
         )
+
+
+def populate_missing_bridge_column_names(columns: Iterable[CfgProcessColumn]) -> int:
+    """Generate bridge names for flushed process columns that do not have a persisted value.
+
+    Args:
+        columns: Process columns whose auto-incremented IDs have already been assigned by a flush.
+
+    Returns:
+        Number of process columns initialized by this call.
+
+    Raises:
+        ValueError: If a missing bridge name is encountered before its database ID is assigned.
+
+    Side Effects:
+        Assigns bridge names to ORM objects; the owning service must flush again to persist them.
+    """
+    initialized_count = 0
+
+    # Preserve identifiers imported from existing metadata and identifiers initialized by an earlier call.
+    for column in columns:
+        if column.bridge_column_name is not None:
+            continue
+
+        # Generation before flush would reproduce the old invalid `_None_...` identifier behavior.
+        if column.id is None:
+            raise ValueError('Process columns must be flushed before bridge names are generated')
+
+        # Use the single naming contract shared with migration backfill and physical transaction columns.
+        column.bridge_column_name = gen_bridge_column_name(column.id, column.column_name)
+        initialized_count += 1
+
+    return initialized_count
 
 
 cfg_process_label = Table(
@@ -1906,13 +1997,12 @@ class CfgProcess(db.Model):
     def get_all_ids(
         cls, status: Optional[ProcessStatus] = None, with_parent=False, session: scoped_session = None
     ) -> list[int]:
-        session = session if session is not None else db.session
-        query = session.query(cls.id)
+        query = session.query(cls.id) if session else cls.query.with_entities(cls.id)
         if not with_parent:
             query = query.filter(cls.parent_id == null())
         if status is not None:
             query = query.filter(cls.status == status.value)
-        return session.execute(query).scalars().all()
+        return [row.id for row in query.all()]
 
     @classmethod
     def get_all_order_by_id(cls):
@@ -2456,6 +2546,7 @@ class CfgTrace(db.Model):
     self_process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
     target_process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
     is_trace_backward: Mapped[bool] = mapped_column(default=False)
+    relationship_type: Mapped[str] = mapped_column(default=DataLinkRelationshipType.ONE_TO_N.value)
 
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
@@ -2544,6 +2635,16 @@ class CfgTrace(db.Model):
         self_trace_key_df = pd.DataFrame(keys, columns=cols)
         other_trace_key_df = pd.DataFrame(other_keys, columns=cols)
         return self_trace_key_df.equals(other_trace_key_df)
+
+    @classmethod
+    def get_by_from_to_proc(cls, from_proc, to_proc):
+        trace = cls.query.filter(
+            or_(
+                and_(cls.self_process_id == from_proc, cls.target_process_id == to_proc),
+                (and_(cls.self_process_id == to_proc, cls.target_process_id == from_proc)),
+            )
+        ).first()
+        return trace
 
 
 class CfgFilterDetail(db.Model):
@@ -3024,6 +3125,10 @@ class CfgDataSourceCSV(db.Model):
         dummy_header: Flag indicating dummy header usage.
         is_file_checker: Flag for file validation.
         is_file_path: Flag indicating file path usage.
+        file_name_include: Regex pattern; only file names matching this are imported (optional).
+        file_name_exclude: Regex pattern; file names matching this are skipped (optional).
+        subfolder_include: Regex pattern;only files under a first-level subfolder matching this are imported(optional).
+        subfolder_exclude: Regex pattern; files under a first-level subfolder matching this are skipped (optional).
         created_at: Record creation timestamp.
         updated_at: Record last update timestamp.
         csv_columns: List of CfgCsvColumn defining column metadata.
@@ -3054,6 +3159,10 @@ class CfgDataSourceCSV(db.Model):
     dummy_header: Mapped[bool] = mapped_column(default=False)
     is_file_checker: Mapped[bool] = mapped_column(default=False)
     is_file_path: Mapped[bool] = mapped_column(default=False)
+    file_name_include: Mapped[Optional[str]]
+    file_name_exclude: Mapped[Optional[str]]
+    subfolder_include: Mapped[Optional[str]]
+    subfolder_exclude: Mapped[Optional[str]]
     created_at: Mapped[str] = mapped_column(default=get_current_timestamp)
     updated_at: Mapped[str] = mapped_column(default=get_current_timestamp, onupdate=get_current_timestamp)
     csv_columns: Mapped[list[CfgCsvColumn]] = relationship(
@@ -3176,6 +3285,12 @@ class CfgUserSetting(db.Model):
         user_setting = meta_session.query(cls).get(setting_id)
         if user_setting:
             meta_session.delete(user_setting)
+
+    @classmethod
+    def delete_by_ids(cls, session, ids):
+        user_settings = session.query(cls).filter(cls.id.in_(ids)).all()
+        for setting in user_settings:
+            session.delete(setting)
 
     @classmethod
     def get_by_id(cls, setting_id):

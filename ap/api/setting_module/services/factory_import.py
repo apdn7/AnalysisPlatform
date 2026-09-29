@@ -522,9 +522,16 @@ def get_data_by_range_time_sql(
         sel_cols = ','.join(column_names)
     else:
         if isinstance(db_instance, mssqlserver.MSSQLServer):
+            # Cast non-Unicode char/varchar/text columns to NVARCHAR so imported
+            # data is decoded as Unicode instead of raw code-page bytes (which
+            # otherwise arrive as mojibake for non-ASCII e.g. CP932 data),
+            # matching the preview. The datetime column keeps its convert(...120).
+            col_meta_by_name = {col['name']: col for col in db_instance.list_table_columns(table_name)}
             sel_cols = ','.join(
                 [
-                    add_double_quotes(col) if col != get_date_col else f'convert(varchar(30), "{col}", 120) "{col}"'
+                    db_instance.gen_column_select_expr(col_meta_by_name.get(col), col)
+                    if col != get_date_col
+                    else f'convert(varchar(30), "{col}", 120) "{col}"'
                     for col in column_names
                 ],
             )

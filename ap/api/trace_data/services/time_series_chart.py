@@ -32,7 +32,8 @@ from ap.api.common.services.show_graph_services import (
 )
 from ap.common.common_utils import (
     end_of_minute,
-    gen_sql_label,
+    gen_derived_column_name,
+    is_physical_or_virtual_column_name,
     start_of_minute,
 )
 from ap.common.constants import (
@@ -85,6 +86,7 @@ from ap.common.constants import (
     CacheType,
     DataColumnType,
     NegRatio,
+    XAxisOption,
 )
 from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
@@ -225,7 +227,7 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     # get min max order columns
     output_orders = []
     x_option = graph_param.common.x_option
-    if x_option == 'INDEX' and graph_param.common.serial_columns:
+    if x_option == XAxisOption.INDEX.value and graph_param.common.serial_columns:
         group_col = '__group_col__'
         dic_cfg_cols = {cfg_col.id: cfg_col for cfg_col in graph_param.get_col_cfgs(graph_param.common.serial_columns)}
         dic_order_cols = {}
@@ -234,9 +236,9 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
             if not cfg_col:
                 continue
 
-            sql_label = gen_sql_label(RANK_COL, cfg_col.id, cfg_col.column_name)
+            sql_label = gen_derived_column_name(RANK_COL, cfg_col.bridge_column_name)
             if sql_label not in df.columns:
-                sql_label = gen_sql_label(cfg_col.id, cfg_col.column_name)
+                sql_label = cfg_col.bridge_column_name
                 if sql_label not in df.columns:
                     continue
 
@@ -376,14 +378,18 @@ def gen_thin_dic_param(graph_param, df, dic_param, dic_cat_exp_labels=None, dic_
 
     # gen min max for thin data
     for plot in dic_param[ARRAY_PLOTDATA]:
-        sql_label = gen_sql_label(plot[END_COL_ID], plot[END_COL_NAME], plot.get(CAT_EXP_BOX))
-        time_label = gen_sql_label(TIMES, sql_label)
-        min_label = gen_sql_label(ARRAY_Y_MIN, sql_label)
-        max_label = gen_sql_label(ARRAY_Y_MAX, sql_label)
-        cycle_label = gen_sql_label(CYCLE_IDS, sql_label)
-        sql_label_from = gen_sql_label(SLOT_FROM, sql_label)
-        sql_label_to = gen_sql_label(SLOT_TO, sql_label)
-        sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
+        # Thin-data columns stay virtual but derive from the stable normal-result key.
+        sql_label = gen_derived_column_name(
+            graph_param.gen_label_from_col_id(plot[END_COL_ID]),
+            plot.get(CAT_EXP_BOX),
+        )
+        time_label = gen_derived_column_name(TIMES, sql_label)
+        min_label = gen_derived_column_name(ARRAY_Y_MIN, sql_label)
+        max_label = gen_derived_column_name(ARRAY_Y_MAX, sql_label)
+        cycle_label = gen_derived_column_name(CYCLE_IDS, sql_label)
+        sql_label_from = gen_derived_column_name(SLOT_FROM, sql_label)
+        sql_label_to = gen_derived_column_name(SLOT_TO, sql_label)
+        sql_label_count = gen_derived_column_name(SLOT_COUNT, sql_label)
 
         if time_label in df_cat_exp.columns:
             plot[ARRAY_X] = df_cat_exp[time_label]
@@ -474,22 +480,23 @@ def gen_df_thin_values(
         df_cat_exp[CAT_EXP_BOX] = df_thin[CAT_EXP_BOX]
 
     for proc in graph_param.array_formval:
-        orig_sql_label_serial = gen_sql_label(SERIAL_DATA, proc.proc_id)
+        orig_sql_label_serial = gen_derived_column_name(SERIAL_DATA, proc.proc_id)
         time_col_alias = f'{TIME_COL}_{proc.proc_id}'
 
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            col_id_name = gen_sql_label(col_id, col_name)
-            cols_in_df = [col for col in df_thin.columns if col.startswith(col_id_name)]
+            col_id_name = graph_param.gen_label_from_col_id(col_id)
+            # Restore values for both physical and category-specific virtual columns from the reduced frame.
+            cols_in_df = [col for col in df_thin.columns if is_physical_or_virtual_column_name(col, col_id_name)]
             target_col_info = dic_str_cols.get(col_id_name)
             for sql_label in cols_in_df:
-                sql_label_min = gen_sql_label(ARRAY_Y_MIN, sql_label)
-                sql_label_max = gen_sql_label(ARRAY_Y_MAX, sql_label)
-                sql_label_cycle = gen_sql_label(CYCLE_IDS, sql_label)
-                sql_label_serial = gen_sql_label(SERIAL_DATA, sql_label)
-                sql_label_time = gen_sql_label(TIMES, sql_label)
-                sql_label_from = gen_sql_label(SLOT_FROM, sql_label)
-                sql_label_to = gen_sql_label(SLOT_TO, sql_label)
-                sql_label_count = gen_sql_label(SLOT_COUNT, sql_label)
+                sql_label_min = gen_derived_column_name(ARRAY_Y_MIN, sql_label)
+                sql_label_max = gen_derived_column_name(ARRAY_Y_MAX, sql_label)
+                sql_label_cycle = gen_derived_column_name(CYCLE_IDS, sql_label)
+                sql_label_serial = gen_derived_column_name(SERIAL_DATA, sql_label)
+                sql_label_time = gen_derived_column_name(TIMES, sql_label)
+                sql_label_from = gen_derived_column_name(SLOT_FROM, sql_label)
+                sql_label_to = gen_derived_column_name(SLOT_TO, sql_label)
+                sql_label_count = gen_derived_column_name(SLOT_COUNT, sql_label)
 
                 # Get the index in `df_thin` that we want to replace value into,
                 # we ignore the na values (though there is no NA value because `df_thin` contains index, no?).
@@ -565,8 +572,8 @@ def gen_dic_serial_data_from_df(df: DataFrame, dic_proc_cfgs, dic_param):
         datetime_col = proc_cfg.get_date_col(column_name_only=False)
         if datetime_col:
             datetime_col = datetime_col.shown_name
-        sql_labels = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
-        before_rank_sql_labels = [gen_sql_label(RANK_COL, sql_label) for sql_label in sql_labels]
+        sql_labels = [serial_col.bridge_column_name for serial_col in serial_cols]
+        before_rank_sql_labels = [gen_derived_column_name(RANK_COL, sql_label) for sql_label in sql_labels]
         serial_cols = [serial_col.shown_name for serial_col in serial_cols]
         dic_param[COMMON_INFO][proc_id] = {
             DATETIME_COL: datetime_col or '',

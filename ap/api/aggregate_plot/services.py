@@ -1,5 +1,6 @@
 import copy
 import uuid
+from enum import Enum
 from typing import Any, Union
 
 import numpy as np
@@ -96,6 +97,13 @@ OTHER_COL = 'summarized_other_col'
 MAX_ALLOW_GROUPS = 9
 
 
+class AGPXOption(Enum):
+    """Keys for X-axis Options"""
+
+    DIV_ORDER = '1'
+    Y_VALUE_ORDER = '2'
+
+
 @log_execution_time()
 @request_timeout_handling()
 @abort_process_handler()
@@ -113,6 +121,10 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
         cat_procs,
         dic_cat_filters,
         use_expired_cache,
+        temp_serial_column,
+        temp_serial_order,
+        temp_serial_process,
+        temp_x_option,
         *_,
     ) = customize_dic_param_for_reuse_cache(dic_param)
 
@@ -142,6 +154,7 @@ def gen_agp_data(root_graph_param: DicParam, dic_param, df=None, max_graph=None)
 
     dic_param = filter_cat_dict_common(df, dic_param, cat_exp, cat_procs, graph_param)
     export_data = df.copy()
+    graph_param.common.x_option = temp_x_option
 
     # calculate cycle_time and replace target column
     df = convert_datetime_to_ct(df, graph_param)
@@ -318,6 +331,54 @@ def df_processing_with_div_limit(
     return df[df[div_col_name].isin(div_uniques)].copy()
 
 
+def get_unique_div_with_sorted_div(df: pd.DataFrame, graph_param: DicParam, div_col_name: str):
+    """Get unique division values following the current Div order."""
+    unique_div_vars = pd.Series(df[div_col_name].dropna().unique())
+    is_safety_div_unique = True
+    if graph_param.common.compare_type == RL_CATEGORY and graph_param.common.x_option != AGPXOption.Y_VALUE_ORDER.value:
+        # unique_div_vars = unique_div_vars.sort_values() # default
+        unique_div_vars = category_sort(unique_div_vars)
+
+        # if divs is equal 129, show warning
+        is_safety_div_unique = len(list(unique_div_vars)) < SAFETY_DIV_UNIQUE_THRESHOLD
+        # cut df by first 129 div
+        if not is_safety_div_unique:
+            # get first 129 div
+            unique_div_vars = unique_div_vars[:SAFETY_DIV_UNIQUE_THRESHOLD]
+            df = df_processing_with_div_limit(df, div_col_name, unique_div_vars)
+
+    unique_div_vars = unique_div_vars.astype(pd.StringDtype())
+
+    return df, unique_div_vars, is_safety_div_unique
+
+
+def get_unique_div_value_with_sorted_y(
+    agg_df: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.Series, bool]:
+    """
+    Get unique division values following the current Y-sorted order.
+
+    Division is always the last level of the aggregated DataFrame index.
+    """
+    div_values = agg_df.index.get_level_values(-1) if isinstance(agg_df.index, pd.MultiIndex) else agg_df.index
+
+    # Preserve order of first appearance after sorting by Y
+    div_values_series = pd.Series(div_values, dtype=pd.StringDtype())
+
+    unique_div_vars = div_values_series.dropna().drop_duplicates().reset_index(drop=True)
+
+    is_safety_div_unique = len(unique_div_vars) < SAFETY_DIV_UNIQUE_THRESHOLD
+
+    if not is_safety_div_unique:
+        unique_div_vars = unique_div_vars.iloc[:SAFETY_DIV_UNIQUE_THRESHOLD].reset_index(drop=True)
+
+        # Remove divisions outside the limit from agg_df
+        allowed_mask = div_values_series.isin(unique_div_vars).to_numpy()
+        agg_df = agg_df.loc[allowed_mask]
+
+    return agg_df, unique_div_vars, is_safety_div_unique
+
+
 @log_execution_time()
 def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int | None = None) -> list[dict[Any, Any]]:
     plot_data = []
@@ -333,7 +394,6 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
     # handle color display for judge formula
     formula = next((JudgeFormula.from_formula(col.formula) for col in cols if col.is_judge), None)
 
-    is_safety_div_unique = True
     # same_color_dfs = {}
     # each target var be shown on one chart (barchart or line chart)
     for target_var in target_vars:
@@ -356,6 +416,9 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             str_cols.append(target_var)
         agg_func = graph_param.common.hm_function_real if is_numeric else HMFunction.count.name
         agg_func_show = get_function_i18n(agg_func)
+        div_col_name = get_div_col_name(graph_param)
+
+        df, unique_div_vars, is_safety_div_unique = get_unique_div_with_sorted_div(df, graph_param, div_col_name)
 
         summarized_df, sorted_colors = summarize_redundant_groups_into_others(
             df,
@@ -369,23 +432,6 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
         df_groupby, dict_agg_cols = gen_groupby_from_target_var(summarized_df, graph_param, target_var, is_numeric)
         # get summarized_other_col key, to remove them from agg_df
         other_group = next((key for key, val in dict_agg_cols.items() if val == OTHER_COL), None)
-
-        # get unique sorted div
-        div_col_name = get_div_col_name(graph_param)
-        unique_div_vars = pd.Series(df[div_col_name].dropna().unique())
-        if graph_param.common.compare_type == RL_CATEGORY:
-            # unique_div_vars = unique_div_vars.sort_values() # default
-            unique_div_vars = category_sort(unique_div_vars)
-
-            # if divs is equal 129, show warning
-            is_safety_div_unique = len(list(unique_div_vars)) < SAFETY_DIV_UNIQUE_THRESHOLD
-            # cut df by first 129 div
-            if not is_safety_div_unique:
-                # get first 129 div
-                unique_div_vars = unique_div_vars[:SAFETY_DIV_UNIQUE_THRESHOLD]
-                df = df_processing_with_div_limit(df, div_col_name, unique_div_vars)
-
-        unique_div_vars = unique_div_vars.astype(pd.StringDtype())
 
         if general_col_info is None:
             continue
@@ -402,12 +448,23 @@ def gen_agp_data_from_df(df: pd.DataFrame, graph_param: DicParam, max_graph: int
             FMT: None,
         }
         general_col_info.update(agp_obj)
+        target_var_label = graph_param.gen_label_from_col_id(target_var)
+        agg_df = get_agg_lamda_func(df_groupby, target_var_label, agg_func) if is_numeric else df_groupby.count()
 
-        if is_numeric:
-            target_var_label = graph_param.gen_label_from_col_id(target_var)
-            agg_df = get_agg_lamda_func(df_groupby, target_var_label, agg_func)
-        else:
-            agg_df = df_groupby.count()
+        # Sort divisions by aggregated Y value
+        if graph_param.common.x_option == AGPXOption.Y_VALUE_ORDER.value:
+            agg_df = agg_df.sort_values(
+                by=target_var_label,
+                ascending=False,
+            )
+
+            (
+                agg_df,
+                unique_div_vars,
+                is_safety_div_unique,
+            ) = get_unique_div_value_with_sorted_y(agg_df)
+
+            general_col_info[UNIQUE_DIV] = unique_div_vars.tolist()
 
         num_facets = len(graph_param.common.cat_exp)
 

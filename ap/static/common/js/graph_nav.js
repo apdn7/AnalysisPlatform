@@ -153,6 +153,10 @@ const graphNavUtil = (() => {
     };
 
     const getNearbyItem = (eles, step) => {
+        if (!eles.length) {
+            return false;
+        }
+
         const topPosition = $(window).scrollTop();
         if (!step) {
             // check page has no graph
@@ -160,7 +164,9 @@ const graphNavUtil = (() => {
             const showGraphIdx = eles.map((ele) => $(ele).attr('class').includes(TARGET_TOP_DOWN)).indexOf(true, 2);
             const firstGraphIdx = showGraphIdx + 1;
             if (
+                !beforeFooterItem ||
                 $(beforeFooterItem).attr('class').includes(TARGET_TOP_DOWN) ||
+                !eles[firstGraphIdx] ||
                 $(eles[firstGraphIdx]).offset().top >= topPosition
             ) {
                 // has no graph -> scroll to top of screen
@@ -169,22 +175,60 @@ const graphNavUtil = (() => {
             // scroll to first of graph
             return eles[firstGraphIdx];
         }
+
         if (step > eles.length) {
             return eles[eles.length - 1];
         }
+
+        if (step < -eles.length) {
+            return eles[0];
+        }
+
+        if (step < 0) {
+            let currentItemIdx = -1;
+            eles.forEach((ele, idx) => {
+                if ($(ele).offset().top <= topPosition + 1) {
+                    currentItemIdx = idx;
+                }
+            });
+            if (currentItemIdx === -1) {
+                currentItemIdx = 0;
+            }
+
+            const nextIDx = Math.max(0, Math.min(currentItemIdx + step, eles.length - 1));
+            const nextItem = eles[nextIDx];
+            if (nextItem && !$(nextItem).is(':visible')) {
+                // in case of DOM is hidden, return next DOM
+                return getNearbyItem(
+                    eles.filter((ele) => $(ele).is(':visible')),
+                    step,
+                );
+            }
+            return nextItem;
+        }
+
         // get first item which over offset from screen
-        const currentItemIdx = eles.map((ele) => $(ele).offset().top >= topPosition).indexOf(true);
+        let currentItemIdx = eles.map((ele) => $(ele).offset().top >= topPosition).indexOf(true);
+        if (currentItemIdx === -1) {
+            currentItemIdx = eles.length - 1;
+        }
+
         const isDownOneStep = step === 1;
         const topPositionGraphNavi = $(eles[currentItemIdx]).offset().top;
         const marginTopCurrentElem = parseInt($(eles[currentItemIdx]).css('margin-top').slice(0, -2)) + 1;
-        const nextIDx =
+        let nextIDx =
             topPositionGraphNavi > topPosition + marginTopCurrentElem && isDownOneStep
                 ? currentItemIdx
                 : currentItemIdx + step;
+        nextIDx = Math.max(0, Math.min(nextIDx, eles.length - 1));
+
         const nextItem = eles[nextIDx];
-        if (!$(nextItem).is(':visible')) {
+        if (nextItem && !$(nextItem).is(':visible')) {
             // in case of DOM is hidden, return next DOM
-            return getNearbyItem(eles, nextIDx);
+            return getNearbyItem(
+                eles.filter((ele) => $(ele).is(':visible')),
+                step,
+            );
         }
         return nextItem;
     };

@@ -15,13 +15,13 @@ from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    get_axis_title_with_unit,
     get_data_from_db,
     get_filter_on_demand_data,
     main_check_filter_detail_match_graph_data,
 )
 from ap.common.common_utils import (
     end_of_minute,
-    gen_sql_label,
     start_of_minute,
 )
 from ap.common.constants import (
@@ -33,6 +33,7 @@ from ap.common.constants import (
     CATE_VAL,
     CELL_SUFFIX,
     COL_DATA_TYPE,
+    COLUMN_TYPE,
     DATA_SIZE,
     DATE_FORMAT_QUERY,
     DATE_FORMAT_STR,
@@ -76,7 +77,7 @@ from ap.common.services.request_time_out_handler import (
 from ap.common.services.sse import MessageAnnouncer
 from ap.common.sigificant_digit import get_fmt_from_array, signify_digit
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
-from ap.setting_module.models import CfgProcess
+from ap.setting_module.models import CfgProcess, CfgProcessColumn
 from ap.trace_data.schemas import DicParam
 
 CHM_AGG_FUNC = [HMFunction.median.name, HMFunction.mean.name, HMFunction.std.name]
@@ -381,10 +382,11 @@ def gen_plotly_data(graph_param, dic_param, dic_df_proc, hm_mode, hm_step, dic_c
                                 AGG_FUNC: hm_function,
                                 CATE_VAL: cate_value,
                                 END_COL: end_col,
-                                END_COL_SHOW_NAME: col_cfg.shown_name,
+                                END_COL_SHOW_NAME: get_axis_title_with_unit(col_cfg),
                                 END_PROC_ID: proc_id,
                                 END_PROC_NAME: dic_proc_cfgs[proc_id].shown_name,
                                 COL_DATA_TYPE: col_cfg.data_type if col_cfg else None,
+                                COLUMN_TYPE: col_cfg.column_type if col_cfg else None,
                                 X_TICKTEXT: x_ticktext,
                                 X_TICKVAL: x_tickvals,
                                 Y_TICKTEXT: y_ticktext,
@@ -401,7 +403,8 @@ def gen_plotly_data(graph_param, dic_param, dic_df_proc, hm_mode, hm_step, dic_c
                             AGG_FUNC: hm_function,
                             END_COL: end_col,
                             COL_DATA_TYPE: col_cfg.data_type if col_cfg else None,
-                            END_COL_SHOW_NAME: col_cfg.shown_name,
+                            COLUMN_TYPE: col_cfg.column_type if col_cfg else None,
+                            END_COL_SHOW_NAME: get_axis_title_with_unit(col_cfg),
                             END_PROC_ID: proc_id,
                             END_PROC_NAME: dic_proc_cfgs[proc_id].shown_name,
                             X_TICKTEXT: x_ticktext,
@@ -645,7 +648,7 @@ def gen_empty_df(
 @abort_process_handler()
 def gen_df_end_col(df_batch, end_col, var_agg_cols):
     """Use separate data frame for each column"""
-    end_col_label = gen_sql_label(end_col.id, end_col.column_name)
+    end_col_label = end_col.bridge_column_name
     if var_agg_cols:
         if end_col_label in var_agg_cols:
             df_end_col = df_batch[[TIME_COL, AGG_COL, *var_agg_cols]]
@@ -853,7 +856,7 @@ def gen_heatmap_data_as_dict(
     cfg_facet_cols = graph_param.get_facet_var_cols_name()
     var_agg_cols = None
     if cfg_facet_cols:
-        var_agg_cols = [gen_sql_label(cfg_col.id, cfg_col.column_name) for cfg_col in cfg_facet_cols]
+        var_agg_cols = [cfg_col.bridge_column_name for cfg_col in cfg_facet_cols]
 
     if df is None:
         # get sensor data from db
@@ -927,7 +930,7 @@ def gen_heatmap_data_as_dict(
 def get_target_variable_data_from_df(df, dic_proc_cfgs, graph_param, cat_only=True):
     target_data = []
     target_vars = graph_param.get_all_target_cols()
-    col_labels = [gen_sql_label(col['end_col_id'], col['end_col_name']) for col in target_vars]
+    col_labels = [graph_param.gen_label_from_col_id(col['end_col_id']) for col in target_vars]
     # return df[col_labels]
 
     for i, variable in enumerate(target_vars):
@@ -969,7 +972,7 @@ def gen_sub_df_from_heatmap(heatmap_data, dic_params, dic_proc_cfgs, dic_col_fun
     transform_facets_name = {}
     facet_ids = []
     for facet in dic_params['catExpBox']:
-        facet_label = gen_sql_label(facet['column_id'], facet['column_name'])
+        facet_label = CfgProcessColumn.gen_label_from_col_id(facet['column_id'])
         export_facet_name = '{}|{}'.format(facet['proc_master_name'], facet['column_name'])
         transform_facets_name[facet_label] = export_facet_name
         facet_ids.append(facet['column_id'])
