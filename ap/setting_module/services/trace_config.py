@@ -1,3 +1,4 @@
+from ap.common.constants import DataLinkRelationshipType
 from ap.common.log import log_execution_time
 from ap.setting_module.models import CfgProcess, CfgTrace, CfgTraceKey, make_session
 from ap.setting_module.schemas import VisProcessTraceOutSchema
@@ -29,6 +30,8 @@ def gen_cfg_trace(trace):
     target_sub_strs = trace.get('target_substr')
     delta_times = trace.get('delta_time')
     cut_offs = trace.get('cut_off')
+    # simulate_proc_link does not pass in relationship type, default to ONE_TO_N
+    relationship_type = DataLinkRelationshipType(trace.get('relationship_type', DataLinkRelationshipType.ONE_TO_N))
     trace_keys = []
     for idx, self_col_id in enumerate(self_col_ids):
         target_col_id = target_col_ids[idx]
@@ -53,7 +56,12 @@ def gen_cfg_trace(trace):
         trace_keys.append(trace_key)
     self_process_id = trace.get('from')
     target_process_id = trace.get('to')
-    cfg_trace = CfgTrace(self_process_id=self_process_id, target_process_id=target_process_id, trace_keys=trace_keys)
+    cfg_trace = CfgTrace(
+        self_process_id=self_process_id,
+        target_process_id=target_process_id,
+        trace_keys=trace_keys,
+        relationship_type=relationship_type,
+    )
 
     return cfg_trace
 

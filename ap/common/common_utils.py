@@ -541,7 +541,10 @@ def handle_read_only(check_sql_statement: bool = True):
             pattern = re.compile(rf'(\s|\b)({"|".join(changes_keywords)})\s', re.IGNORECASE)
             arg_sql = args[0] if 'sql' not in kwargs else kwargs.get('sql')
             matched = re.match(pattern, arg_sql)
-            if matched:  # in case sql statement contains changes data keywords.
+            # Allow SET LOCAL (read-only session parameter setting) on read-only connections
+            # SET LOCAL does not modify data, only affects the current transaction
+            is_set_local = matched and re.match(r'SET\s+LOCAL\s', arg_sql, re.IGNORECASE)
+            if matched and not is_set_local:  # in case sql statement contains changes data keywords.
                 raise Exception(msg)
 
             result = fn(self, *args, **kwargs)
@@ -620,8 +623,54 @@ def get_x_y_info(graph_param, dic_param_common):
     return scatter_xy_ids, scatter_xy_names, scatter_proc_ids
 
 
-def gen_sql_label(*args: Union[str, int]):
-    return SQL_COL_PREFIX + SQL_COL_PREFIX.join([str(name).strip(SQL_COL_PREFIX) for name in args if name is not None])
+def gen_derived_column_name(
+    namespace: Union[str, int],
+    *parts: Union[str, int, tuple[Union[str, int], ...]],
+) -> str:
+    """Generate a namespaced result key for a derived column.
+
+    This covers rank, category, min, max, time, cycle, serial, slot, and epoch outputs.
+
+    Normal physical columns use their persisted bridge_column_name directly. Only derived/virtual
+    columns built from a role namespace (e.g., RANK_COL, TIMES, CATEGORY_DATA, SERIAL_DATA, epoch,
+    EMD, NG_RATE) should use this function. The output is byte-for-byte identical to the historical
+    derived-column key format, preserving existing DataFrame consumers.
+
+    Args:
+        namespace: Semantic role of the derived column, such as rank, category, minimum, or epoch.
+        *parts: Stable identifiers or tuple-based category values needed to distinguish the derived result.
+            Tuples are flattened so NumPy scalar category values produce clean labels.
+
+    Returns:
+        A namespaced derived-column key using the double-underscore separator format.
+        Example: gen_derived_column_name('RANK', '_7_temperature') -> '__RANK__7_temperature'
+    """
+    # Expand grouped category values so NumPy scalars use their string value instead of the tuple representation.
+    names = [namespace]
+    for part in parts:
+        names.extend(part if isinstance(part, tuple) else (part,))
+
+    # Strip surrounding separators so callers can safely pass existing constants and bridge keys.
+    return SQL_COL_PREFIX + SQL_COL_PREFIX.join([str(name).strip(SQL_COL_PREFIX) for name in names if name is not None])
+
+
+def is_physical_or_virtual_column_name(column_name: str, physical_column_name: str) -> bool:
+    """Return whether a result column is a physical column or its namespaced virtual derivative.
+
+    Args:
+        column_name: DataFrame result-column name to classify.
+        physical_column_name: Persisted bridge-column name that owns the result.
+
+    Returns:
+        True when the candidate uses the physical prefix or the corresponding virtual prefix.
+    """
+    # Preserve legacy matching for physical and physical-prefixed result columns.
+    if column_name.startswith(physical_column_name):
+        return True
+
+    # Require the virtual separator boundary so similarly prefixed physical columns cannot collide.
+    virtual_prefix = f'{gen_derived_column_name(physical_column_name)}{SQL_COL_PREFIX}'
+    return column_name.startswith(virtual_prefix)
 
 
 def gen_sql_like_value(val, func: FilterFunc, position=None):
@@ -1786,7 +1835,7 @@ def function_to_generator(function, *args: Any, **kwargs: Mapping[str, Any]):
 
 
 def select_between_color_and_temp_color(temp_color_var, graph_param):
-    if temp_color_var is None:
+    if not temp_color_var:
         color_id = graph_param.common.color_var
     elif temp_color_var == COLOR_UNSELECTED:
         color_id = None

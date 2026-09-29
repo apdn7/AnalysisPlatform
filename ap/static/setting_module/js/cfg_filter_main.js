@@ -29,6 +29,7 @@ const filterElements = {
     confirmButton: '#confirmRegister',
     confirmDeleteFilterBtn: '#delete-cfg-btn',
     deleteModal: '#deleteFilterConfigModal',
+    refreshBtnId: '#btnRefresh',
 };
 
 class FilterStore {
@@ -181,11 +182,28 @@ $(() => {
             await showProcessSettings(currentProcessId);
             loadingObj.hide();
             filterElements.detailCards.css('display', 'unset');
+            $(filterElements.refreshBtnId).css('display', 'block');
         } else {
+            $(filterElements.refreshBtnId).css('display', 'none');
             loadingObj.hide();
         }
 
         // drag & drop for tables
+        $('table[id]>tbody').sortable({
+            helper: dragDropRowInTable.fixHelper,
+            update: updateOrder,
+        });
+    });
+
+    $(filterElements.refreshBtnId).on('click', async () => {
+        const currentProcessId = filterStore.getSelectedProcessId();
+        hideAlertMessages();
+        const loadingObj = loadingHandler();
+        loadingObj.show();
+        await showProcessSettings(currentProcessId);
+        filterElements.detailCards.css('display', 'unset');
+        loadingObj.hide();
+
         $('table[id]>tbody').sortable({
             helper: dragDropRowInTable.fixHelper,
             update: updateOrder,

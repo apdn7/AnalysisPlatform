@@ -47,6 +47,7 @@ from ap.setting_module.models import (
     CfgProcessColumn,
     CfgProcessUnusedColumn,
     make_session,
+    populate_missing_bridge_column_names,
     use_meta_session,
 )
 from ap.setting_module.schemas import ProcessColumnSchema
@@ -61,18 +62,27 @@ def predict_v2_data_type(columns, df):
 
 @log_execution_time()
 def add_process_columns(cfg_proc: CfgProcess, column_data: list):
+    """Add detected V2 columns and initialize their stable physical names in bounded flushes."""
     process_id = cfg_proc.id
     proc_column_schemas = ProcessColumnSchema()
     with make_session() as meta_session:
         current_columns = CfgProcessColumn.get_all_columns(process_id)
+
+        # Stage all new columns so the database can allocate their IDs in one flush.
+        new_columns = []
         for column in column_data:
             proc_column = proc_column_schemas.load(column)
             # proc_column.english_name = to_romaji(proc_column.column_name)
             proc_column.name_en = to_romaji(proc_column.column_name)
             proc_column.process_id = process_id
             meta_session.add(proc_column)
+            new_columns.append(proc_column)
+
+        # Complete ID-dependent names after insertion and persist the batch before committing the session.
+        meta_session.flush()
+        if populate_missing_bridge_column_names(new_columns):
             meta_session.flush()
-            current_columns.append(proc_column)
+        current_columns.extend(new_columns)
 
     # update columns in static cfg_proc
     cfg_proc.columns = [col.clone() for col in current_columns]

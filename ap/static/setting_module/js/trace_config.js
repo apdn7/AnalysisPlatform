@@ -107,6 +107,7 @@ const tracingElements = {
     inputDeltaDatetime: '.deltaDatetime',
     inputCutOff: '.cutOff',
     datetimeReprClassName: 'datetimeRepr',
+    relationshipTypeOption: 'relationship-type-option',
 };
 
 const destroy = () => {
@@ -430,6 +431,11 @@ const handleEditEdge = async (edgeData, callback) => {
         edgeData.target_proc = '';
     }
 
+    $(`input[name="${tracingElements.relationshipTypeOption}"][value="${edgeData.relationship_type}"]`).prop(
+        'checked',
+        true,
+    );
+
     await getInforToGenerateColumns(selfProc, targetProc, edgeData);
     addTraceKey();
 
@@ -656,6 +662,7 @@ const initVisData = (processesArray) => {
             },
             self_proc: trace.self_process_id,
             target_proc: trace.target_process_id,
+            relationship_type: trace.relationship_type,
             // TODO(lazyload)
             self_col: trace.trace_keys.map((key) => key.self_column_id),
             target_col: trace.trace_keys.map((key) => key.target_column_id),
@@ -1258,6 +1265,15 @@ $(() => {
         updateSelectedColumns();
         addAttributeToElement();
     });
+
+    $('#modal-edge-popup')
+        .off('hidden.bs.modal.cancelEditEdge')
+        .on('hidden.bs.modal.cancelEditEdge', () => {
+            // This also handles closing the modal with the × button.
+            // After a successful save, currentEditEdge has already
+            // been cleared, so this operation is harmless.
+            cancelEditEdge();
+        });
 });
 
 const updatePredictionNetwork = (networkContent, predictive, isUpdatePosition) => {
@@ -1479,7 +1495,6 @@ const editSelectedEdge = async (e) => {
     const edgeId = $('#contextMenuTraceCfg li').attr('data-edge-id');
     const edgeData = edges.get(edgeId);
     currentEditEdge = { ...edgeData };
-    delete mapIdFromIdTo2Edge[`${edgeData.from}-${edgeData.to}`];
     await handleEditEdge(edgeData, () => {});
 };
 
@@ -1498,6 +1513,7 @@ const getEdgeFromUI = () => {
     edgeData.from = parseInt(startProc);
     edgeData.to = parseInt(endProc);
     edgeData.arrows = 'to';
+    edgeData.relationship_type = $(`input[name="${tracingElements.relationshipTypeOption}"]:checked`).val();
 
     // get Trace Target Data from modal
     const targetProcId = $('select[name="edgeForwardProc"]').val();
@@ -1633,7 +1649,12 @@ const drawEdgeToGUI = (edgeData) => {
     currentEditEdge = {};
 };
 
-const cancelEditEdge = () => false;
+const cancelEditEdge = () => {
+    // Discard the temporary edit state.
+    // The original edge remains unchanged in both the Vis.js
+    // dataset and mapIdFromIdTo2Edge.
+    currentEditEdge = {};
+};
 
 const handleSwitchTraceConfig = async (e) => {
     const edgeData = getEdgeFromUI();

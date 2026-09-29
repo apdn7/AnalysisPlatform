@@ -206,6 +206,8 @@ class ImportBase(ABC):
         from ap.api.setting_module.services.factory_import import FETCH_MANY_SIZE, SQL_FACTORY_LIMIT
 
         sql, params = self.build_query(db_instance, time_range, SQL_FACTORY_LIMIT)
+        if self.process.data_source.type == DBType.POSTGRES_SOFTWARE_WORKSHOP.name:
+            db_instance.execute_sql_no_commit('SET LOCAL enable_seqscan = off;')
         data = db_instance.fetch_many(sql, FETCH_MANY_SIZE, params=params)
         if not data:
             return None

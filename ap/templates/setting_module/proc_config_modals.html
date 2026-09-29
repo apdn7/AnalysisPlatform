@@ -1,4 +1,4 @@
-<div id="deleteProcModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
+<div id="deleteProcessesModal" class="modal fade in" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
             <div class="modal-header">
@@ -6,23 +6,75 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
-                <p class="modal-inform"></p>
+                <p
+                    id="delete-proc-confirm-message"
+                    class="modal-inform"
+                    data-single-message="{{ _('Confirm delete this record?') }}"
+                    data-multiple-message="{{ _('Confirm delete selected processes?') }}"
+                ></p>
+                <div
+                    id="delete-proc-confirm-list-wrapper"
+                    style="display: none; max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #444;"
+                >
+                    <ul
+                        id="delete-proc-confirm-list"
+                        class="mb-0"
+                        style="padding-left: 0 !important; color: #f8fbfd; list-style: none;"
+                    ></ul>
+                </div>
+                <!-- Block #1: selected merge destinations; deleting them also deletes the processes merged into them -->
+                <div id="delete-proc-parents-block" style="display: none; margin-top: 10px;">
+                    <p class="modal-inform mb-1">
+                        {{ _('warningLabel') }}<br />
+                        {{ _('warnDeleteSelectedParentProcs') }}
+                    </p>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #444;">
+                        <ul
+                            id="delete-proc-parents-list"
+                            class="mb-0"
+                            style="padding-left: 0 !important; color: #f8fbfd; list-style: none;"
+                        ></ul>
+                    </div>
+                </div>
+                <!-- Block #2: parent processes that survive the deletion but need a data reload because a merged child is removed -->
+                <div id="delete-proc-children-block" style="display: none; margin-top: 10px;">
+                    <p class="modal-inform mb-1">
+                        {{ _('warningLabel') }}<br />
+                        {{ _('warnReloadSelectedChildProcs') }}
+                    </p>
+                    <div style="max-height: 200px; overflow-y: auto; border: 1px solid #444;">
+                        <ul
+                            id="delete-proc-reload-list"
+                            class="mb-0"
+                            style="padding-left: 0 !important; color: #f8fbfd; list-style: none;"
+                        ></ul>
+                    </div>
+                </div>
+                <p id="delete-proc-confirm-trailing" class="modal-inform mt-2 mb-0" style="display: none;"></p>
+                <div id="delete-proc-reload-wrapper" style="display: none; margin-top: 10px;">
+                    <div class="custom-control custom-checkbox">
+                        <input
+                            type="checkbox"
+                            class="custom-control-input"
+                            id="delete-proc-reload-checkbox"
+                            name="reload_related_process_data"
+                            checked
+                        />
+                        <label class="custom-control-label modal-inform" for="delete-proc-reload-checkbox"
+                            >{{ _('reloadRelatedProcessData') }}</label
+                        >
+                    </div>
+                    <p class="mt-2 mb-0">{{ _('reloadRelatedProcessDataNote') }}</p>
+                </div>
             </div>
             <div class="modal-footer">
-                <button
-                    id="btnDeleteProc"
-                    onclick="confirmDelProc();"
-                    class="btn btn-danger"
-                    data-item-id=""
-                    data-dismiss="modal"
-                >
-                    {{ _('Delete') }}
-                </button>
+                <button id="btn-confirm-delete-procs" class="btn btn-danger">{{ _('Delete') }}</button>
                 <button class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
             </div>
         </div>
     </div>
 </div>
+
 <div
     class="modal fade"
     id="procSettingModal"
@@ -64,7 +116,7 @@
                                                     class="mr-2 mb-0"
                                                     for="processName"
                                                     title="{{ _('SystemNameHoverMsg') }}"
-                                                    ><span class="hint-text">System</span
+                                                    ><span class="hint-text">{{ _("English Name") }}</span
                                                     ><span style="color: yellow;">*</span></label
                                                 >
                                                 <input
@@ -78,10 +130,7 @@
                                             </div>
                                             <div class="form-group d-flex align-items-center">
                                                 <label class="mr-2 mb-0" for="processJapaneseName"
-                                                    >{{
-                                                        _('Japanese
-                                                        Name')
-                                                    }}</label
+                                                    >{{ _('Japanese Name') }}</label
                                                 >
                                                 <input
                                                     type="text"
@@ -568,7 +617,9 @@
                                     </div>
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">
-                                    <label for="functionColumnSystemName" class="function-config-label"> System </label>
+                                    <label for="functionColumnSystemName" class="function-config-label">
+                                        {{ _("English Name") }}
+                                    </label>
                                     <div class="function-config-value">
                                         <input type="text" name="functionColumnSystemName" class="form-control" />
                                     </div>
@@ -1159,7 +1210,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">*</th>
-                                <th scope="col">System Name</th>
+                                <th scope="col">{{ _("English Name") }}</th>
                                 <th scope="col">{{ _("Japanese Name") }}</th>
                                 <th scope="col">{{ _("Local Name") }}</th>
                                 <th scope="col">{{ _("X/me") }}</th>
@@ -1217,7 +1268,7 @@
                                                 class="mr-2 mb-0"
                                                 for="mergeProcName"
                                                 title="{{ _('SystemNameHoverMsg') }}"
-                                                ><span class="hint-text">System</span
+                                                ><span class="hint-text">{{ _("English Name") }}</span
                                                 ><span style="color: yellow;">*</span></label
                                             >
                                             <input
@@ -1370,7 +1421,7 @@
                                     <tr>
                                         <th class="column-order">*</th>
                                         <th class="system" title="{{ _('SystemNameHoverMsg') }}">
-                                            <span class="hint-text">System</span>
+                                            <span class="hint-text">{{ _("English Name") }}</span>
                                             <span style="color: yellow;">*</span>
                                         </th>
                                         <th class="japanese-name">{{ _('Japanese Name') }}</th>

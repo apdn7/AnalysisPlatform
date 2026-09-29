@@ -261,7 +261,7 @@ def should_use_log_scale(data: pd.Series) -> bool:
         return False
 
     # if data is datetime return False
-    if pd.api.types.is_datetime64_any_dtype(series):
+    if pd.api.types.is_datetime64_any_dtype(series) or pd.api.types.is_object_dtype(series):
         return False
 
     # if not (all data is > 0) return False

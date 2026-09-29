@@ -14,9 +14,13 @@ const parseIntData = (v) => {
     if (isEmpty(val)) {
         val = '';
     } else {
-        val = parseInt(Number(val));
-        if (isNaN(val)) {
+        const numVal = Number(val);
+        // Reject non-whole numbers (e.g. 1.2, 1.3) instead of truncating them to an integer —
+        // only values that are already whole numbers (e.g. 1, 2, 1.0, 2.0) should convert.
+        if (isNaN(numVal) || !Number.isInteger(numVal)) {
             val = '';
+        } else {
+            val = numVal;
         }
     }
     return val;

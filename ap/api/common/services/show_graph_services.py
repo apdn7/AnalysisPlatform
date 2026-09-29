@@ -2,6 +2,7 @@ import contextlib
 import itertools
 import json
 from collections import defaultdict
+from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
@@ -39,10 +40,10 @@ from ap.common.common_utils import (
     convert_time,
     end_of_minute,
     gen_abbr_name,
-    gen_bridge_column_name,
+    gen_derived_column_name,
     gen_end_proc_start_end_time,
-    gen_sql_label,
     get_debug_data,
+    is_physical_or_virtual_column_name,
     start_of_minute,
 )
 from ap.common.constants import (
@@ -150,6 +151,7 @@ from ap.common.constants import (
     SUMMARIES,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_CATEGORY_AGGREGATED,
     TEMP_COLOR_VAR,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
@@ -177,13 +179,16 @@ from ap.common.constants import (
     CacheType,
     ColorOrder,
     DataColumnType,
+    DataLinkRelationshipType,
     DataType,
     DebugKey,
     DuplicateSerialCount,
     DuplicateSerialShow,
     FilterFunc,
     N,
+    OrderOptionType,
     RemoveOutlierType,
+    XAxisOption,
     YScaleModes,
     YType,
 )
@@ -248,7 +253,7 @@ def gen_dic_data(
         dic_cates = defaultdict(dict)
         for proc in orig_graph_param.common.cate_procs:
             for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-                sql_label = gen_sql_label(col_id, col_name)
+                sql_label = orig_graph_param.gen_label_from_col_id(col_id)
                 dic_cates[proc.proc_id][col_id] = df[sql_label].tolist() if sql_label in df.columns else []
 
         dic_data[CATEGORY_DATA] = dic_cates
@@ -279,8 +284,9 @@ def gen_dic_data_from_df(
         dic_data_cat_exp = defaultdict(list)
         dic_data_none_idxs = defaultdict(list)
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            col_id_name = gen_sql_label(col_id, col_name)
-            sql_labels = [col for col in df.columns if col.startswith(col_id_name)]
+            col_id_name = graph_param.gen_label_from_col_id(col_id)
+            # Collect the physical result and category-specific virtual results owned by this source column.
+            sql_labels = [col for col in df.columns if is_physical_or_virtual_column_name(col, col_id_name)]
             series_lst = []
             for sql_label in sql_labels:
                 series = df[sql_label] if sql_label in df.columns else blank_vals
@@ -329,7 +335,7 @@ def gen_dic_data_cat_exp_from_df(
     for cat_exp_col, cat_exp_label in zip(graph_param.common.cat_exp, cat_exp_cols, strict=False):
         if cat_exp_label not in df.columns:
             cfg_cat_exp = dic_cfg_cat_exps[cat_exp_col]
-            sql_label = gen_sql_label(cfg_cat_exp.id, cfg_cat_exp.column_name)
+            sql_label = cfg_cat_exp.bridge_column_name
             df[cat_exp_label] = df[sql_label]
 
     df_group = df.groupby(cat_exp_cols, dropna=False)
@@ -360,7 +366,7 @@ def gen_dic_data_cat_exp_from_df(
                 is_graph_limited = True
                 break
 
-            sql_label = gen_sql_label(col_id, col_name)
+            sql_label = graph_param.gen_label_from_col_id(col_id)
             if sql_label not in df.columns:
                 dic_data[proc.proc_id][col_id] = blank_vals
                 dic_none_idxs[col_id].append(list(range(len(df))))
@@ -409,7 +415,7 @@ def gen_dic_data_cat_exp_from_df(
 @log_execution_time()
 def gen_cat_exp_names(cat_exps):
     if cat_exps:
-        return [gen_sql_label(CAT_EXP_BOX, level) for level, _ in enumerate(cat_exps, 1)]
+        return [gen_derived_column_name(CAT_EXP_BOX, level) for level, _ in enumerate(cat_exps, 1)]
 
     return None
 
@@ -428,9 +434,10 @@ def gen_group_filter_list(df, graph_param, dic_param, others=[]):
     filter_labels = []
     sorted_filter_cols = []
     for col in filter_sensors:
-        sql_label = gen_sql_label(RANK_COL, col.id, col.column_name)
+        # Rank columns stay virtual but are namespaced from the stable normal-result key.
+        sql_label = gen_derived_column_name(RANK_COL, col.bridge_column_name)
         if sql_label not in df.columns:
-            sql_label = gen_sql_label(col.id, col.column_name)
+            sql_label = col.bridge_column_name
         if sql_label in df.columns and df[sql_label].value_counts().size <= limit:
             filter_labels.append(sql_label)
             sorted_filter_cols.append(col.id)
@@ -488,6 +495,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         MATRIX_COL,
         COLOR_ORDER,
         TEMP_COLOR_VAR,
+        TEMP_CATEGORY_AGGREGATED,
     )
     for name in expired_cache_params:
         if name in dic_param[COMMON]:
@@ -502,8 +510,8 @@ def customize_dic_param_for_reuse_cache(dic_param):
     cat_procs = dic_param[COMMON].get(TEMP_CAT_PROCS, [])
     y_scale_mode = dic_param[COMMON].get(TEMP_Y_SCALE_MODE, YScaleModes.AUTO.name)
     y_scale_mode = YScaleModes[y_scale_mode] if y_scale_mode in YScaleModes.__members__ else YScaleModes.AUTO
-    temp_color_var = dic_param[COMMON].get(TEMP_COLOR_VAR, None)
-    if temp_color_var is not None:
+    temp_color_var = dic_param[COMMON].get(TEMP_COLOR_VAR, [])
+    if temp_color_var:
         temp_color_var = temp_color_var if temp_color_var == COLOR_UNSELECTED else int(temp_color_var)
 
     for name in CACHED_PARAMS:
@@ -516,6 +524,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         temp_serial_process,
         temp_serial_column,
         temp_serial_order,
+        temp_category_aggregated,
     ) = prepare_temp_x_option(dic_param)
 
     matrix_col = dic_param[COMMON].get(MATRIX_COL)
@@ -538,6 +547,7 @@ def customize_dic_param_for_reuse_cache(dic_param):
         temp_serial_order,
         temp_serial_process,
         temp_x_option,
+        temp_category_aggregated,
         y_scale_mode,
         temp_color_var,
         matrix_col,
@@ -628,17 +638,25 @@ def gen_cat_label_unique(
 
 
 def prepare_temp_x_option(dic_param):
-    params = [TEMP_X_OPTION, TEMP_SERIAL_PROCESS, TEMP_SERIAL_COLUMN, TEMP_SERIAL_ORDER]
+    params = [TEMP_X_OPTION, TEMP_SERIAL_PROCESS, TEMP_SERIAL_COLUMN, TEMP_SERIAL_ORDER, TEMP_CATEGORY_AGGREGATED]
     temp_x_option = dic_param[COMMON].get(TEMP_X_OPTION, '')
     temp_serial_process = as_list(dic_param[COMMON].get(TEMP_SERIAL_PROCESS))
     temp_serial_column = as_list(dic_param[COMMON].get(TEMP_SERIAL_COLUMN))
     temp_serial_order = as_list(dic_param[COMMON].get(TEMP_SERIAL_ORDER))
+    temp_category_aggregated = dic_param[COMMON].get(TEMP_CATEGORY_AGGREGATED)
 
     for param in params:
         if param in dic_param[COMMON]:
             dic_param[COMMON].pop(param)
 
-    return dic_param, temp_x_option, temp_serial_process, temp_serial_column, temp_serial_order
+    return (
+        dic_param,
+        temp_x_option,
+        temp_serial_process,
+        temp_serial_column,
+        temp_serial_order,
+        temp_category_aggregated,
+    )
 
 
 @log_execution_time()
@@ -678,7 +696,7 @@ def gen_df(
             proc.add_cols(get_date, append_first=True)
 
     # get order columns
-    if graph_param.common.x_option == 'INDEX':
+    if graph_param.common.x_option == XAxisOption.INDEX.value:
         for _proc_id, _col_id in zip(
             graph_param.common.serial_processes, graph_param.common.serial_columns, strict=False
         ):
@@ -864,8 +882,8 @@ def get_str_cols_in_end_procs(graph_param: DicParam, df=None) -> dict[str, Strin
             if not is_categorical_col(cfg_col):
                 continue
 
-            rank_col_name = gen_sql_label(col_id, col_name)
-            before_rank_col_name = gen_sql_label(RANK_COL, rank_col_name)
+            rank_col_name = cfg_col.bridge_column_name
+            before_rank_col_name = gen_derived_column_name(RANK_COL, rank_col_name)
             dic_output[rank_col_name] = StringCol(
                 before_rank_col_name=before_rank_col_name,
                 proc_id=proc.proc_id,
@@ -1036,24 +1054,79 @@ def gen_ranking_to_dic_param(sensor_dat, dic_full_array_y, dic_ranks, org_ranks,
         plot[IS_CATEGORY] = True
 
 
+def add_count_by_column(
+    df: pd.DataFrame,
+    column: str,
+) -> (pd.DataFrame, str):
+    """Add count of target order column"""
+    if column not in df.columns:
+        raise KeyError(f"Column '{column}' is not in DataFrame")
+
+    result = df.copy()
+    count_column = f'{column}_value_count'
+
+    result[count_column] = result.groupby(
+        column,
+        dropna=False,
+    )[column].transform('size')
+
+    return result, count_column
+
+
+def add_metric_sort_by_primary_col(df: DataFrame, primary_col: str, metric_col: str) -> (pd.DataFrame, str):
+    """Add metric sort by primary column"""
+    avg = df.groupby(metric_col)[primary_col].transform('mean')
+
+    sort_col = f'{primary_col}_avg'
+    df = df.copy()
+    df[sort_col] = avg
+
+    return df, sort_col
+
+
 @log_execution_time()
 def check_and_order_data(
     df,
     dic_proc_cfgs: dict[int, CfgProcess],
-    x_option='TIME',
+    x_option=XAxisOption.TIME.value,
     serial_processes=[],
     serial_cols=[],
     serial_orders=[],
+    x_axis=None,
+    first_primary_column=None,
 ):
     if df is None or not len(df):
         return df
-
-    if x_option.upper() == 'TIME':
+    if not x_option or x_option.upper() == XAxisOption.DATA_VALUE.value:
+        return df
+    if x_option.upper() == XAxisOption.TIME.value:
         df = df.sort_values(TIME_COL, ascending=True)
         return df
 
+    if x_option.upper() == XAxisOption.CAT_VALUE.value and x_axis:
+        # sort df by x-axis in MAP page
+        df = df.sort_values(x_axis, ascending=True)
+        return df
+
+    if x_option.upper() == XAxisOption.DATA_VALUE.value and x_axis:
+        return df
+
+    def transform_order(order_val: int) -> int:
+        if order_val in [OrderOptionType.NAME_ASCENDING.value]:
+            return OrderOptionType.ASCENDING.value
+        if order_val in [OrderOptionType.NAME_DESCENDING.value]:
+            return OrderOptionType.DESCENDING.value
+
+        return order_val
+
     cols = []
     orders = []
+    # Keep the process/column/order arrays aligned when the index-order modal sends several
+    # columns from one process as serial_processes=[1], serial_cols=[10, 11, 12].
+    # Without expansion, zip() would sort by only the first column and ignore the rest.
+    if len(serial_processes) == 1 and len(serial_cols) > 1:
+        serial_processes = [serial_processes[0]] * len(serial_cols)
+
     for proc_id, col_id, order in zip(serial_processes, serial_cols, serial_orders, strict=False):
         if not proc_id or not col_id:
             continue
@@ -1066,24 +1139,49 @@ def check_and_order_data(
         if not order_cols:
             continue
 
-        dic_order_cols = {col.id: gen_sql_label(col.id, col.column_name) for col in order_cols}
+        # 2 is order by data order then we do need order this column
+        transform_order_value = transform_order(int(order))
+        if transform_order_value == OrderOptionType.ORIGINAL_ORDER.value:
+            continue
+
+        dic_order_cols = {col.id: col.bridge_column_name for col in order_cols}
 
         col_label = dic_order_cols.get(int(col_id))
+
+        if transform_order_value in [OrderOptionType.COUNT_LOW_HIGH.value, OrderOptionType.COUNT_HIGH_LOW.value]:
+            df, col_label = add_count_by_column(df, col_label)
+            if transform_order_value == OrderOptionType.COUNT_LOW_HIGH.value:
+                transform_order_value = OrderOptionType.ASCENDING.value
+            if transform_order_value == OrderOptionType.COUNT_HIGH_LOW.value:
+                transform_order_value = OrderOptionType.DESCENDING.value
+
+        if first_primary_column and transform_order_value in [
+            OrderOptionType.METRIC_HIGH_LOW.value,
+            OrderOptionType.METRIC_LOW_HIGH.value,
+        ]:
+            df, col_label = add_metric_sort_by_primary_col(df, first_primary_column, col_label)
+            if transform_order_value == OrderOptionType.METRIC_LOW_HIGH.value:
+                transform_order_value = OrderOptionType.ASCENDING.value
+            if transform_order_value == OrderOptionType.METRIC_HIGH_LOW.value:
+                transform_order_value = OrderOptionType.DESCENDING.value
+
         if col_label and col_label in df.columns and col_label not in cols:
-            cols.append(dic_order_cols.get(int(col_id)))
-            orders.append(bool(int(order)))
+            cols.append(col_label)
+            orders.append(bool(transform_order_value))
 
     if cols:
-        # append rowid and and ascending order to sort by rowid
+        # append rowid and ascending order to sort by rowid
         df = df.sort_values(cols, ascending=orders)
 
     return df
 
 
 def gen_blank_df_end_cols(procs: list[EndProc]):
+    """Create an empty graph frame with the stable keys expected from SQL results."""
     params = {}
     for proc in procs:
-        params.update({gen_sql_label(col_id, proc.col_names[idx]): [] for idx, col_id in enumerate(proc.col_ids)})
+        # EndProc retains its process metadata, so no database lookup is needed for each empty column.
+        params.update({proc.cfg_proc.get_col(col_id).bridge_column_name: [] for col_id in proc.col_ids})
         params.update({f'{TIME_COL}{create_rsuffix(proc.proc_id)}': []})
     params.update({ID: [], TIME_COL: []})
 
@@ -1184,7 +1282,7 @@ def gen_trace_procs_df(
     time_cols = set()
     for _path, is_trace_forward in common_paths:
         path = list(reversed(_path)) if not is_trace_forward else _path
-        sql_objs = gen_trace_procs_sqls(path, trace_graph, start_tm, end_tm, end_procs)
+        sql_objs = gen_trace_procs_sqls(path, trace_graph, start_tm, end_tm, end_procs, is_trace_forward)
         list_sql_objs.append(sql_objs)
         time_cols.update(sql_obj.gen_proc_time_label(is_start_proc=idx == 0) for idx, sql_obj in enumerate(sql_objs))
 
@@ -1275,20 +1373,68 @@ def gen_create_temp_table_sql():
     return sql
 
 
-def get_common_longest_paths(paths: list[tuple[list[int], bool]]) -> list[tuple[list[int], bool]]:
+def get_common_longest_paths(
+    paths: list[tuple[list[int], bool]],
+) -> list[tuple[list[int], bool]]:
+    """
+    Keep only the longest path for each graph branch.
+
+    Forward paths are already ordered from the selected start process:
+
+        start -> intermediate -> end
+
+    Backward paths are returned in the opposite order:
+
+        end -> intermediate -> start
+
+    Therefore, backward paths must be temporarily reversed before checking
+    whether a shorter path is already contained at the beginning of a longer
+    path.
+
+    The original path order is preserved in the returned result because
+    downstream code uses `is_trace_forward` to reverse backward paths when
+    generating SQL.
+    """
     if not paths:
         return []
 
-    sorted_paths = sorted(paths, key=lambda x: len(x[0]), reverse=True)
+    # Process longer paths first so that shorter paths can be checked against
+    # paths that have already been selected.
+    sorted_paths = sorted(paths, key=lambda path_obj: len(path_obj[0]), reverse=True)
+
     output_paths = [sorted_paths[0]]
+
     for path_obj in sorted_paths[1:]:
-        path, _ = path_obj
+        path, is_trace_forward = path_obj
+
+        # Normalize the path so every path is compared from the actual
+        # tracing start process.
+        #
+        # Forward:
+        #   [1, 2, 3]
+        #
+        # Backward as returned by get_all_paths():
+        #   [3, 2, 1]
+        #
+        # Normalized backward:
+        #   [1, 2, 3]
+        normalized_path = path if is_trace_forward else list(reversed(path))
+
         is_new_branch = True
-        for output_path, _ in output_paths:
-            if path == output_path[: len(path)]:
+
+        for output_path, output_is_trace_forward in output_paths:
+            normalized_output_path = output_path if output_is_trace_forward else list(reversed(output_path))
+
+            # Because paths are sorted by descending length, the existing
+            # output path is equal to or longer than the current path.
+            #
+            # If the current path matches the beginning of an existing path,
+            # it is already covered by that longer path.
+            if normalized_path == normalized_output_path[: len(normalized_path)]:
                 is_new_branch = False
                 break
 
+        # Single-node paths are removed
         if is_new_branch and len(path) > 1:
             output_paths.append(path_obj)
 
@@ -1301,7 +1447,7 @@ def cast_df_number(df: DataFrame, graph_param) -> DataFrame:
         for proc in graph_param.array_formval:
             cfg_proc = graph_param.dic_proc_cfgs[proc.proc_id]
             for col in cfg_proc.get_cols_by_data_type(data_type, column_name_only=False):
-                col_name = gen_sql_label(col.id, col.column_name)
+                col_name = col.bridge_column_name
                 if col_name in df.columns and type_str != df[col_name].dtype.name:
                     df[col_name] = df[col_name].astype(type_str, errors='ignore')
     return df
@@ -1309,8 +1455,9 @@ def cast_df_number(df: DataFrame, graph_param) -> DataFrame:
 
 @log_execution_time()
 def validate_abnormal_count(df, numeric_cols, sensor_labels):
+    """Replace abnormal numeric values using stable normal-result column keys."""
     for col in numeric_cols:
-        label = gen_sql_label(col.id, col.column_name)
+        label = col.bridge_column_name
         if label not in sensor_labels:
             continue
         abnormal_vals = detect_abnormal_count_values(df[label].dropna())
@@ -1360,6 +1507,25 @@ def get_fmt_str_from_dic_data(dic_data):
     return fmt
 
 
+def get_axis_title_with_unit(col_cfg: CfgProcessColumn | None, add_br: bool = False) -> str | None:
+    if col_cfg is None:
+        return None
+
+    shown_name = col_cfg.shown_name
+    if shown_name is None:
+        return None
+
+    br = ' '
+
+    if add_br:
+        br = '<br>'
+    if col_cfg.data_type == DataType.DATETIME.name:
+        return f'{shown_name}{br}(CT) [sec]'
+
+    unit = f'[{col_cfg.unit}]' if col_cfg.unit else ''
+    return f'{shown_name}{br}{unit}'.strip()
+
+
 @log_execution_time()
 def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_serial_cols, dic_ranks):
     dic_param[COMMON_INFO] = {}
@@ -1368,7 +1534,6 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
         col_id = plot[END_COL_ID]
 
         proc_id = plot[END_PROC_ID]
-        col_name = plot[END_COL_NAME]
         cat_exp = plot.get(CAT_EXP_BOX)
         datetime_col, serial_cols = dic_datetime_serial_cols.get(proc_id, (None, None))
         if datetime_col:
@@ -1380,8 +1545,9 @@ def gen_dic_serial_data_from_df_thin(df: DataFrame, dic_param, dic_datetime_seri
         if col_id in dic_ranks:
             continue
 
-        sql_label = gen_sql_label(col_id, col_name, cat_exp)
-        sql_label = gen_sql_label(SERIAL_DATA, sql_label)
+        # Serial data is virtual and remains namespaced from the stable source-column key.
+        sql_label = gen_derived_column_name(CfgProcessColumn.gen_label_from_col_id(col_id), cat_exp)
+        sql_label = gen_derived_column_name(SERIAL_DATA, sql_label)
         if sql_label in df.columns:
             plot[SERIAL_DATA] = df[sql_label]
         else:
@@ -1976,7 +2142,7 @@ def get_filter_detail_ids(
         cfg_filters += dic_proc_cfgs[proc_id].get_filter_cfg_by_col_ids(column_ids)
     for cfg_filter in cfg_filters:
         cfg_column = cfg_filter.column
-        df_col_name = gen_sql_label(cfg_column.id, cfg_column.column_name)
+        df_col_name = cfg_column.bridge_column_name
         for cfg_detail in cfg_filter.filter_details:
             if cfg_detail.filter_function == FilterFunc.MATCHES.name:
                 dic_col_filter_details[df_col_name].append((cfg_detail.id, cfg_detail.get_converted_filter_condition()))
@@ -1991,7 +2157,7 @@ def gen_dic_uniq_value_from_df(df: pd.DataFrame, col_names: list[str]) -> dict[s
     dic_col_values = {}
     for col_name in col_names:
         # Need to get data from `rank_col` if the real data is shifted to `rank_col`
-        rank_col = gen_sql_label(RANK_COL, col_name)
+        rank_col = gen_derived_column_name(RANK_COL, col_name)
         if rank_col in df.columns:
             col = rank_col
         elif col_name in df.columns:
@@ -2052,8 +2218,9 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     rank_cols = []
     for proc in graph_param.array_formval:
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            sql_label = gen_sql_label(col_id, col_name)
-            cols_in_df = [col for col in df_orig.columns if col.startswith(sql_label)]
+            sql_label = graph_param.gen_label_from_col_id(col_id)
+            # Preserve every physical or virtual target column before reducing the thin-data frame.
+            cols_in_df = [col for col in df_orig.columns if is_physical_or_virtual_column_name(col, sql_label)]
             target_col_info = dic_str_cols.get(sql_label)
             if target_col_info:
                 rank_cols += cols_in_df
@@ -2067,9 +2234,9 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     for proc in graph_param.common.cate_procs:
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
             if cat_exp_col:
-                sql_label = gen_sql_label(CATEGORY_DATA, col_id, col_name)
+                sql_label = gen_derived_column_name(CATEGORY_DATA, graph_param.gen_label_from_col_id(col_id))
             else:
-                sql_label = gen_sql_label(col_id, col_name)
+                sql_label = graph_param.gen_label_from_col_id(col_id)
 
             if sql_label in df_orig.columns:
                 dic_cate_names[sql_label] = (proc.proc_id, col_id, col_name)
@@ -2079,7 +2246,7 @@ def reduce_data(df_orig: DataFrame, graph_param, dic_str_cols):
     index_col = '__index_col__'
     all_cols = [col for col in all_cols if col in df_orig.columns]
     df = df_orig[all_cols]
-    x_option = graph_param.common.x_option or 'TIME'
+    x_option = graph_param.common.x_option or XAxisOption.TIME.value
     if x_option.upper() == 'TIME':
         # if we use the old methods with `astype`,
         # it will convert `NaT` into `-9223372036854775808`
@@ -2451,7 +2618,15 @@ def calc_scale_info(
     y_col=ARRAY_Y,
     force_outlier=False,
     max_common_y_scale_count=None,
+    auto_scale_calculator: Callable[[dict, Series, bool], dict] | None = None,
 ):
+    """Populate every scale mode for plots, optionally using a chart-specific Auto calculator.
+
+    Args:
+        auto_scale_calculator: Receives plot data, numeric Y values, and the
+            force-outlier flag. When omitted, all existing chart types retain
+            the shared Auto-scale calculation.
+    """
     dic_datetime_cols = {}
     for idx, plotdata in enumerate(array_plotdata):
         # datetime column
@@ -2527,11 +2702,16 @@ def calc_scale_info(
             LOWER_OUTLIER_IDXS: [],
             UPPER_OUTLIER_IDXS: [],
         }
-        plotdata[SCALE_AUTO] = calc_auto_scale_y(
-            plotdata,
-            series_y,
-            force_outlier=force_outlier,
-        )
+        # Scatter Plot can supply a uniform-aware Auto scale without changing
+        # the established Auto-scale behavior of every other chart type.
+        if auto_scale_calculator is None:
+            plotdata[SCALE_AUTO] = calc_auto_scale_y(
+                plotdata,
+                series_y,
+                force_outlier=force_outlier,
+            )
+        else:
+            plotdata[SCALE_AUTO] = auto_scale_calculator(plotdata, series_y, force_outlier)
 
         if is_datetime_col:
             plotdata[SCALE_AUTO][Y_MIN] = y_min
@@ -2627,7 +2807,11 @@ def gen_thin_df_cat_exp(dic_param):
         if time_sql_label not in df.columns:
             df[time_sql_label] = plot[ARRAY_X]
 
-        sql_label = gen_sql_label(plot[END_COL_ID], plot[END_COL_NAME], plot.get(CAT_EXP_BOX))
+        # Thin graph columns remain virtual but derive from the persisted normal-result key.
+        sql_label = gen_derived_column_name(
+            CfgProcessColumn.gen_label_from_col_id(plot[END_COL_ID]),
+            plot.get(CAT_EXP_BOX),
+        )
         dic_end_cols[sql_label] = (plot[END_COL_ID], plot[END_COL_NAME], plot.get(CAT_EXP_BOX), plot.get(NONE_IDXS))
         df[sql_label] = plot[ARRAY_Y]
 
@@ -2654,7 +2838,7 @@ def get_available_ratio(series: Series):
 def add_serials_to_thin_df(dic_param, df):
     for plot in dic_param[ARRAY_PLOTDATA] or []:
         proc_id = plot[END_PROC_ID]
-        sql_label = gen_sql_label(SERIAL_DATA, proc_id)
+        sql_label = gen_derived_column_name(SERIAL_DATA, proc_id)
         if sql_label in df.columns:
             continue
 
@@ -2667,9 +2851,8 @@ def add_serials_to_thin_df(dic_param, df):
 def add_categories_to_thin_df(dic_param, df):
     for dic_cate in dic_param.get(CATEGORY_DATA) or []:
         col_id = dic_cate.get('column_id')
-        col_name = dic_cate.get('column_name')
         data = dic_cate.get('data')
-        sql_label = gen_sql_label(CATEGORY_DATA, col_id, col_name)
+        sql_label = gen_derived_column_name(CATEGORY_DATA, CfgProcessColumn.gen_label_from_col_id(col_id))
         if sql_label in df.columns:
             continue
 
@@ -2706,9 +2889,9 @@ def gen_unique_data(df, dic_proc_cfgs: dict[int, CfgProcess], col_ids, has_na=Fa
         col_type = cfg_col.data_type
         if col_type not in [DataType.TEXT.name, DataType.INTEGER.name]:
             continue
-        sql_label = gen_sql_label(RANK_COL, col_id, col_name)
+        sql_label = gen_derived_column_name(RANK_COL, cfg_col.bridge_column_name)
         if sql_label not in df.columns:
-            sql_label = gen_sql_label(col_id, col_name)
+            sql_label = cfg_col.bridge_column_name
 
         unique_data = pd.Series()
         if sql_label in df.columns:
@@ -2758,9 +2941,9 @@ def filter_df(dic_proc_cfgs: dict[int, CfgProcess], df, dic_filter):
         if cfg_col is None:
             continue
 
-        sql_label = gen_sql_label(RANK_COL, col_id, cfg_col.column_name)
+        sql_label = gen_derived_column_name(RANK_COL, cfg_col.bridge_column_name)
         if sql_label not in df.columns:
-            sql_label = gen_sql_label(col_id, cfg_col.column_name)
+            sql_label = cfg_col.bridge_column_name
 
         is_filter_nan = False
         if None in vals:
@@ -2963,13 +3146,12 @@ def get_serial_and_datetime_data(df, graph_param, dic_proc_cfgs: dict[int, CfgPr
                 start_proc_name = start_proc.shown_name
                 serial_cols = start_proc.get_serials(column_name_only=False)
                 datetime_col = start_proc.get_date_col(column_name_only=False)
-                datetime_id = datetime_col.id
-                datetime_label = gen_sql_label(datetime_id, datetime_col.column_name)
+                datetime_label = datetime_col.bridge_column_name
                 if datetime_label not in df.columns:
                     datetime_label = f'time_{proc_id}'
                 date_times = df[datetime_label]
                 for serial_col in serial_cols:
-                    serial_label = gen_sql_label(serial_col.id, serial_col.column_name)
+                    serial_label = serial_col.bridge_column_name
                     if serial_label in df.columns:
                         serials.append(df[serial_label])
 
@@ -3078,6 +3260,8 @@ def sort_df_by_x_option(
     temp_serial_process,
     temp_serial_column,
     temp_serial_order,
+    x_axis=None,
+    first_primary_column=None,
 ):
     if temp_x_option:
         df = check_and_order_data(
@@ -3087,6 +3271,8 @@ def sort_df_by_x_option(
             temp_serial_process,
             temp_serial_column,
             temp_serial_order,
+            x_axis,
+            first_primary_column,
         )
         dic_param[COMMON][X_OPTION] = temp_x_option
         dic_param[COMMON][SERIAL_PROCESS] = temp_serial_process
@@ -3097,7 +3283,9 @@ def sort_df_by_x_option(
         serial_processes = graph_param.common.serial_processes or []
         serial_cols = graph_param.common.serial_columns or []
         serial_orders = graph_param.common.serial_orders or []
-        df = check_and_order_data(df, dic_proc_cfgs, x_option, serial_processes, serial_cols, serial_orders)
+        df = check_and_order_data(
+            df, dic_proc_cfgs, x_option, serial_processes, serial_cols, serial_orders, x_axis, first_primary_column
+        )
 
     return df, dic_param
 
@@ -3219,7 +3407,7 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
     for target_var in target_vars:
         general_col_info = graph_param.get_col_info_by_id(target_var)
         if general_col_info[COL_DATA_TYPE] == DataType.DATETIME.name:
-            dt_labels.add(gen_sql_label(target_var, general_col_info[END_COL_NAME]))
+            dt_labels.add(graph_param.gen_label_from_col_id(target_var))
 
     if not dt_labels:
         return df
@@ -3234,7 +3422,7 @@ def convert_datetime_to_ct(df: DataFrame, graph_param, target_vars=[]):
         facet_labels = []
         for facet in facet_cols:
             col_cfg = graph_param.get_col_cfg(facet)
-            facet_labels.append(gen_sql_label(facet, col_cfg.column_name))
+            facet_labels.append(col_cfg.bridge_column_name)
         df_group = df.groupby(facet_labels, dropna=False)
         for idx, (name, group) in enumerate(df_group, start=1):
             # if idx > MAX_GRAPH_COUNT:
@@ -3336,7 +3524,7 @@ def get_data_from_db(
 
     cfg_cols = graph_param.get_col_cfgs(graph_param.common.sensor_cols)
 
-    sensor_labels = [gen_sql_label(col.id, col.column_name) for col in cfg_cols]
+    sensor_labels = [col.bridge_column_name for col in cfg_cols]
 
     if with_categorized_real:
         for i, col in enumerate(cfg_cols):
@@ -3371,13 +3559,11 @@ def get_data_from_db(
     if dic_filter:
         df = filter_df(graph_param.dic_proc_cfgs, df, dic_filter)
 
-    facet_labels = [
-        gen_sql_label(facet_col.id, facet_col.column_name)
-        for facet_col in graph_param.get_col_cfgs(graph_param.common.cat_exp)
-    ]
+    facet_labels = [facet_col.bridge_column_name for facet_col in graph_param.get_col_cfgs(graph_param.common.cat_exp)]
 
     def processing_df(group_df):
-        columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols]
+        """Apply validation and outlier handling to one facet using stable result keys."""
+        columns = [col.bridge_column_name for col in cfg_cols]
         if graph_param.common.abnormal_count:
             numeric_cols = [col for col in cfg_cols if not col.is_category]
             group_df = validate_abnormal_count(group_df, numeric_cols, columns)
@@ -3388,12 +3574,12 @@ def get_data_from_db(
         # outliers = None
         if graph_param.common.remove_outlier_objective_var:
             objective_id = graph_param.common.objective_var
-            columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id == objective_id]
+            columns = [col.bridge_column_name for col in cfg_cols if col.id == objective_id]
             group_df = remove_outlier(group_df, columns, graph_param)
 
         if graph_param.common.remove_outlier_explanatory_var:
             objective_id = graph_param.common.objective_var
-            columns = [gen_sql_label(col.id, col.column_name) for col in cfg_cols if col.id != objective_id]
+            columns = [col.bridge_column_name for col in cfg_cols if col.id != objective_id]
             group_df = remove_outlier(group_df, columns, graph_param)
 
         return group_df
@@ -3483,7 +3669,7 @@ def get_df_from_db(
     # fill missing columns
     for proc in graph_param.array_formval:
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            label = gen_sql_label(col_id, col_name)
+            label = graph_param.gen_label_from_col_id(col_id)
             if label not in df.columns:
                 df[label] = None
 
@@ -3536,6 +3722,7 @@ def gen_trace_procs_sqls(
     start_tm,
     end_tm,
     end_procs: list[EndProc],
+    is_trace_forward: bool,
 ):
     sql_objs: list[SqlProcLink] = []
     end_proc_start_tm, end_proc_end_tm = gen_end_proc_start_end_time(start_tm, end_tm)
@@ -3569,6 +3756,7 @@ def gen_trace_procs_sqls(
     for from_proc, to_proc in itertools.pairwise(path):
         edge_id = (from_proc, to_proc)
         connected_trace_keys = trace_graph.get_connected_trace_keys(from_proc, to_proc)
+        relationship = trace_graph.get_relationship_type(from_proc, to_proc)
         self_sensor_keys, target_sensor_keys = gen_sql_proc_link_key_from_trace_keys(connected_trace_keys)
         if connected_trace_keys.forward:
             edge_cols = (self_sensor_keys, target_sensor_keys)
@@ -3605,6 +3793,13 @@ def gen_trace_procs_sqls(
                 proc_link_sql.next_link_keys = []
                 proc_link_sql.start_tm = start_tm if proc_id == start_proc else end_proc_start_tm
                 proc_link_sql.end_tm = end_tm if proc_id == start_proc else end_proc_end_tm
+                # when the trace direction is not forward and the relationship type is N:1
+                # we consider this an N-side process
+                # this is to decide whether to drop duplicates by link key
+                # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/1355
+                proc_link_sql.is_n_side_proc = bool(
+                    not is_trace_forward and relationship == DataLinkRelationshipType.N_TO_ONE
+                )
                 sql_objs.append(proc_link_sql)
 
     return sql_objs
@@ -3662,9 +3857,6 @@ def gen_trace_procs_df_detail(
     for sql_objs in list_sql_objs:
         sql = gen_proc_link_from_sql(sql_objs, cond_procs, duplicate_serial_show, for_count=for_count)
         _df = data_con.fetch_df(sql)
-        keep = 'last'
-        if duplicate_serial_show is DuplicateSerialShow.SHOW_FIRST:
-            keep = 'first'
 
         if duplicate_serial_show is not DuplicateSerialShow.SHOW_BOTH and not for_count:
             # TODO: drop_duplicates_by_link_keys MUST delete per end proc
@@ -3674,12 +3866,6 @@ def gen_trace_procs_df_detail(
                 duplicate_serial_show,
             )
             _df = dropped_duplicates_df
-
-        # TODO: move this to sql!
-        # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/131
-        # We don't need marker_0
-        _filter_subset = [TransactionData.id_col_name] if TransactionData.id_col_name in _df.columns else ['marker_0']
-        _df = _df.drop_duplicates(subset=_filter_subset, keep=keep)
 
         if df is None:
             df = _df
@@ -3704,7 +3890,7 @@ def gen_sql_proc_link_key_from_trace_keys(
     for self_trace_key in connected_trace_keys.left:
         self_key = SqlProcLinkKey(
             id=self_trace_key.self_column.id,
-            name=gen_bridge_column_name(self_trace_key.self_column.id, self_trace_key.self_column.column_name),
+            name=self_trace_key.self_column.bridge_column_name,
             substr_from=self_trace_key.self_column_substr_from,
             substr_to=self_trace_key.self_column_substr_to,
             delta_time=self_trace_key.delta_time,
@@ -3716,7 +3902,7 @@ def gen_sql_proc_link_key_from_trace_keys(
     for target_trace_key in connected_trace_keys.right:
         target_key = SqlProcLinkKey(
             id=target_trace_key.target_column.id,
-            name=gen_bridge_column_name(target_trace_key.target_column.id, target_trace_key.target_column.column_name),
+            name=target_trace_key.target_column.bridge_column_name,
             substr_from=target_trace_key.target_column_substr_from,
             substr_to=target_trace_key.target_column_substr_to,
             # delta time and cut_off apply only self process link key, self_link_key + delta_time = target_link_key
@@ -3838,9 +4024,9 @@ def add_equation_column_to_df(df, function_detail, graph_config_data: CfgProcess
     cfg_col_x = graph_config_data.get_col(function_detail.var_x)
     cfg_col_y = graph_config_data.get_col(function_detail.var_y)
 
-    column_out = gen_sql_label(cfg_col.id, cfg_col.column_name)
-    column_x = gen_sql_label(cfg_col_x.id, cfg_col_x.column_name) if cfg_col_x else None
-    column_y = gen_sql_label(cfg_col_y.id, cfg_col_y.column_name) if cfg_col_y else None
+    column_out = cfg_col.bridge_column_name
+    column_x = cfg_col_x.bridge_column_name if cfg_col_x else None
+    column_y = cfg_col_y.bridge_column_name if cfg_col_y else None
 
     x_dtype = cfg_col_x.raw_data_type if cfg_col_x else None
     y_dtype = cfg_col_y.raw_data_type if cfg_col_y else None
@@ -3869,7 +4055,7 @@ def get_equation_data(df, cfg_proc: CfgProcess, col_ids: list[int]) -> pd.DataFr
     for cfg_func_col in sorted_cfg_function_cols:
         cfg_col = cfg_proc.get_col(cfg_func_col.process_column_id)
         if cfg_col.data_type == DataType.TEXT.value:
-            label = gen_sql_label(cfg_col.id, cfg_col.column_name)
+            label = cfg_col.bridge_column_name
 
             original_type = df[label].dtype
             df[label] = df[label].astype(pd.StringDtype())
@@ -3898,7 +4084,7 @@ def judge_data_conversion(df, judge_columns: list[CfgProcessColumn]) -> DataFram
     """
     if judge_columns:
         for col in judge_columns:
-            col_label = gen_sql_label(col.id, col.column_name)
+            col_label = col.bridge_column_name
             if col_label not in df:
                 continue
             formula = conversion_formula(data_type=col.data_type, col_type=col.column_type, formula=col.formula)
@@ -3910,7 +4096,7 @@ def judge_data_conversion(df, judge_columns: list[CfgProcessColumn]) -> DataFram
 def boolean_data_conversion(df, boolean_columns: list[CfgProcessColumn]) -> DataFrame:
     """We can always sure that df[boolean_columns] only contains `boolean` (TuanNH: confirmed)"""
     for col in boolean_columns:
-        col_label = gen_sql_label(col.id, col.column_name)
+        col_label = col.bridge_column_name
         if col_label not in df:
             continue
         df[col_label] = df[col_label].astype(pd.BooleanDtype()).astype(pd.StringDtype()).str.lower()

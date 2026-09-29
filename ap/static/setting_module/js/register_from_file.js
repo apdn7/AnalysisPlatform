@@ -88,8 +88,8 @@ const registerI18n = {
     i18nProgressScanDataType: 'Scan Data Type',
     i18nProgressPullData: 'Pull CSV Data',
     i18nErrorNoGetdate: $('#i18nErrorNoGetdate').text(),
-    i18nScanning: 'Scanning',
-    i18nLoadingData: 'Loading',
+    i18nScanning: $('#i18nScanning').text(),
+    i18nLoadingData: $('#i18nLoading').text(),
 };
 
 const registerSteps = {

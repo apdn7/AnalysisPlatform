@@ -1,0 +1,3 @@
+#traceDataForm select[name='catExpBox']:has(option:checked:not([value=''])) {
+    background-image: none;
+}

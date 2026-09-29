@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 // add border for boxes on hover
 const showBorderWhenHoverCateBox = () => {
     $('.box-has-data').hover(
@@ -735,11 +733,12 @@ const produceCategoricalTable = (traceData, options = {}) => {
     initDuplicatedSerial();
 };
 
-const name = {
+const tempName = {
     process: 'TermSerialProcess',
     serial: 'TermSerialColumn',
     order: 'TermSerialOrder',
     xOption: 'TermXOption',
+    categoryAggregated: 'TermCategoryAggregated',
 };
 let xOption = '';
 let selectedSerials = null;
@@ -749,13 +748,59 @@ let currentTable = null;
 let currentXOption = '';
 let lastSelectedOrder = [];
 let oldXOption = '';
+
+const syncTermCategoryAggregatedDefault = () => {
+    if (!clearOnFlyFilter) return;
+    const selectedCategoryAggregated = $('input[name="categoryAggregated"]:checked').first();
+    if (!selectedCategoryAggregated.length) return;
+
+    const selectedValue = selectedCategoryAggregated.val();
+    window.dispatchEvent(
+        new CustomEvent('map-sync-term-category-aggregated', {
+            detail: {
+                value: selectedValue,
+            },
+        }),
+    );
+};
+
+const syncTermSerialOrderDefault = () => {
+    if (!clearOnFlyFilter) return;
+    const serialOrderValues = $('select[name="serialOrder"]')
+        .map(function getOrderValue() {
+            return $(this).val();
+        })
+        .get();
+
+    if (!serialOrderValues.length) return;
+
+    $('select[name="TermSerialOrder"]').each(function syncOrderValue(index) {
+        const nextOrderValue = serialOrderValues[index];
+        if (typeof nextOrderValue === 'undefined') {
+            return;
+        }
+
+        const termOrderSelect = $(this);
+        const hasMatchingOption = termOrderSelect.find(`option[value="${nextOrderValue}"]`).length > 0;
+        if (!hasMatchingOption || `${termOrderSelect.val()}` === `${nextOrderValue}`) {
+            return;
+        }
+
+        termOrderSelect.val(nextOrderValue).trigger('change');
+    });
+};
+
 const initIndexModal = () => {
     const xOptionSwitch = $(formElements.tsXScale);
+
+    currentXOption = currentXOption || $(formElements.xOption).val();
 
     const setDefault = () => {
         xOptionSwitch.val(currentXOption);
         oldXOption = currentXOption;
         xOptionSwitch.attr(CONST.DEFAULT_VALUE, currentXOption);
+        syncTermCategoryAggregatedDefault();
+        syncTermSerialOrderDefault();
         resetCustomSelect(xOptionSwitch);
     };
 
@@ -764,15 +809,20 @@ const initIndexModal = () => {
     $(formElements.tsXScale).off('change');
     $(formElements.tsXScale).on('change', function () {
         const option = $(this).val();
+        const isChangeValueOnly = $(this).data('change-val-only');
+        if (isChangeValueOnly) {
+            $(this).data('change-val-only', false);
+            return;
+        }
         if (option === CONST.XOPT_TIME && oldXOption === CONST.XOPT_TIME) {
             return;
         }
         if (option === CONST.XOPT_INDEX) {
             showSerialModal(formElements.serialTableModal2);
             setSelect2Selection(formElements.serialTable2);
-            bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, name.serial);
-            disableUnselectedOption(selectedSerials, name.serial);
-            disableUnselectedOption(selectedProcess, name.process);
+            bindDragNDrop($(`${formElements.serialTable2} tbody`), formElements.serialTable2, tempName.serial);
+            disableUnselectedOption(selectedSerials, tempName.serial);
+            disableUnselectedOption(selectedProcess, tempName.process);
             // click ok in case of load first time of user setting
             if (clearOnFlyFilter) $(formElements.okOrderIndexModal).trigger('click');
 
@@ -780,9 +830,9 @@ const initIndexModal = () => {
             $(formElements.btnAddSerial2).on('click', () => {
                 addSerialOrderRow(
                     formElements.serialTable2,
-                    name.process,
-                    name.serial,
-                    name.order,
+                    tempName.process,
+                    tempName.serial,
+                    tempName.order,
                     null,
                     null,
                     null,
@@ -790,15 +840,13 @@ const initIndexModal = () => {
                     true,
                 ).then(() => {
                     initSelect();
-                    updateCurrentSelectedProcessSerial(name.serial);
-                    disableUnselectedOption(selectedSerials, name.serial);
-                    disableUnselectedOption(selectedProcess, name.process);
+                    updateCurrentSelectedProcessSerial(tempName.serial);
+                    disableUnselectedOption(selectedSerials, tempName.serial);
+                    disableUnselectedOption(selectedProcess, tempName.process);
                 });
             });
-        }
-
-        if (option === CONST.XOPT_TIME) {
-            xOption = CONST.XOPT_TIME;
+        } else {
+            xOption = option;
             currentXOption = xOption;
             oldXOption = xOption;
             handleSubmit(false);
@@ -817,7 +865,7 @@ const initIndexModal = () => {
 
     $(formElements.okOrderIndexModal).unbind('click');
     $(formElements.okOrderIndexModal).on('click', () => {
-        getLastedSelectedValue(formElements.serialTable2, name.process, name.serial, name.order);
+        getLastedSelectedValue(formElements.serialTable2, tempName.process, tempName.serial, tempName.order);
         xOption = CONST.XOPT_INDEX;
         currentXOption = xOption;
         // reset xAxisShowSettings
@@ -863,15 +911,15 @@ function disableUnselectedOption(selectedSerials, serialName) {
 }
 
 function initSelect() {
-    bindChangeProcessEvent(formElements.serialTable2, name.process, name.serial, () => {
-        disableUnselectedOption(selectedSerials, name.serial);
-        disableUnselectedOption(selectedProcess, name.process);
+    bindChangeProcessEvent(formElements.serialTable2, tempName.process, tempName.serial, () => {
+        disableUnselectedOption(selectedSerials, tempName.serial);
+        disableUnselectedOption(selectedProcess, tempName.process);
     });
-    updatePriorityAndDisableSelected(formElements.serialTable2, name.serial);
+    updatePriorityAndDisableSelected(formElements.serialTable2, tempName.serial);
 
     setTimeout(() => {
         // wait select2 to be shown
-        bindChangeOrderColEvent(formElements.serialTable2, name.serial, () => {});
+        bindChangeOrderColEvent(formElements.serialTable2, tempName.serial, () => {}, tempName.order);
     }, 200);
 }
 
@@ -908,9 +956,9 @@ function renderTableContent() {
     if (isShowDefaultRow) {
         addSerialOrderRow(
             formElements.serialTable2,
-            name.process,
-            name.serial,
-            name.order,
+            tempName.process,
+            tempName.serial,
+            tempName.order,
             startProc,
             // sort availableOrderingSettings from min to max
             availableOrderingSettings[startProc][0],
@@ -922,9 +970,9 @@ function renderTableContent() {
         lastSelectedOrder.forEach((row, i) => {
             addSerialOrderRow(
                 formElements.serialTable2,
-                name.process,
-                name.serial,
-                name.order,
+                tempName.process,
+                tempName.serial,
+                tempName.order,
                 row.serialProcess,
                 row.serialColumn,
                 row.serialOrder,
@@ -971,14 +1019,14 @@ function transformIndexOrderParams(formData) {
         for (const item of latestFormData.entries()) {
             const key = item[0];
             const value = item[1];
-            if (key === name.process) {
-                formData.append(name.process, value);
+            if (key === tempName.process) {
+                formData.append(tempName.process, value);
             }
-            if (key === name.serial) {
-                formData.append(name.serial, value);
+            if (key === tempName.serial) {
+                formData.append(tempName.serial, value);
             }
-            if (key === name.order) {
-                formData.append(name.order, value);
+            if (key === tempName.order) {
+                formData.append(tempName.order, value);
             }
         }
     } else {
@@ -990,9 +1038,9 @@ function transformIndexOrderParams(formData) {
 }
 
 function removeUnusedFormParams(formData, clearOnFlyFilter = false) {
-    formData.delete(name.process);
-    formData.delete(name.serial);
-    formData.delete(name.order);
+    formData.delete(tempName.process);
+    formData.delete(tempName.serial);
+    formData.delete(tempName.order);
 
     if (clearOnFlyFilter) {
         if (formData.get('xOption') === CONST.XOPT_TIME) {
@@ -1023,4 +1071,24 @@ const initDuplicatedSerial = () => {
         lastUsedFormData.set(key, val);
         handleSubmit(false);
     });
+};
+
+let updateOrderCols = false;
+
+const updateCategoryOrder = (formData) => {
+    formData.set(tempName.categoryAggregated, $('input[name="termcategoryAggregated"]:checked').val());
+    if (updateOrderCols) {
+        const xOption = formData.get(tempName.xOption) || formData.get('xOption');
+        formData.delete(tempName.process);
+        formData.delete(tempName.serial);
+        formData.delete(tempName.order);
+
+        formData.set(tempName.xOption, xOption);
+        updateOrderCols.forEach((orderCol) => {
+            formData.append(tempName.process, orderCol.serialProcess);
+            formData.append(tempName.serial, orderCol.serialColumn);
+            formData.append(tempName.order, orderCol.serialOrder);
+        });
+    }
+    updateOrderCols = false;
 };

@@ -31,6 +31,7 @@ from ap.setting_module.models import (
     CfgProcessColumn,
     CfgVisualization,
     make_session,
+    populate_missing_bridge_column_names,
     use_meta_session,
 )
 from ap.setting_module.schemas import (
@@ -121,8 +122,12 @@ def create_or_update_process_cfg(
     # merge to get `process.id`
     process = meta_session.merge(process)
 
-    # need to flush if we create new process, to get `process.id`
+    # Flush the relationship graph first so every new process column has its database-generated ID.
     meta_session.flush()
+
+    # Persist stable physical identifiers in one follow-up flush instead of issuing one update per inserted column.
+    if populate_missing_bridge_column_names(process.columns):
+        meta_session.flush()
 
     children_processes = CfgProcess.get_children(process.id, session=meta_session)
     for child_process in children_processes:
@@ -266,7 +271,8 @@ def get_list_process_software_workshop(data_source: CfgDataSource, updated_at=No
 
     process_fact_ids = df[software_workshop_def.child_equip_id].to_list()
     master_types = df['master_type'].to_list()
-    table_names = (df[software_workshop_def.table_name] + UNDER_SCORE + df['data_type']).to_list()
+    master_type_suffixes = df['master_type'].apply(MasterDBType.master_type_suffix)
+    table_names = (df[software_workshop_def.table_name] + UNDER_SCORE + master_type_suffixes).to_list()
     table_names = normalize_list(table_names)
 
     return table_names, process_fact_ids, master_types

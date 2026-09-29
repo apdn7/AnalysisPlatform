@@ -3,7 +3,7 @@
     {{ macros.page_title(key='WfP', title=_('Waveform plot'), hint=_('Waveform Plot Description'), hasAction=true) }}
 {% endblock %}
 {% block midbody %}
-    <div class="card monitor-icons">
+    <div class="card monitor-icons" id="wfpSettingCard">
         <form id="traceDataForm" class="GUIForm">
             {{ macros.scatter_end_proc(procs,'', title=_('WfP Display variable hover'), isShowMinMax=false) }}
             {{ macros.data_finder_card() }}

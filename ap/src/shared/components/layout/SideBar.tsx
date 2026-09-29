@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import logo from '@/shared/assets/images/logo.png';
@@ -14,11 +14,22 @@ export default function Sidebar() {
         setUpEvents();
         sidebarCollapseHandle();
         showHideShutDownButton();
-        // collapse sidebar when loading page
-        sidebarCollapse();
+
+        checkDiskCapacity();
+        const sidebarElement = document.getElementById('sidebar');
+
+        if (sidebarElement) {
+            void FontAwesome.dom.i2svg({ node: sidebarElement });
+        }
         setVersion(appContext.app_version);
         setAppLocation(appContext.app_source);
     }, []);
+
+    useLayoutEffect(() => {
+        // collapse sidebar when loading
+        sidebarCollapse();
+    }, []);
+
     return (
         <nav id="sidebar">
             <div className="sidebar-header">
@@ -36,10 +47,7 @@ export default function Sidebar() {
             </div>
 
             <div className="sidebar-search">
-                <span className="deleteicon">
-                    <input id="sidebar-searchbox" className="form-control" placeholder={t('Search') + '...'} />
-                    <span className="remove-search">x</span>
-                </span>
+                <input id="sidebar-searchbox" className="form-control" placeholder={t('Search') + '...'} />
             </div>
 
             <ul id="sidebarBody" className="list-unstyled components sidebar-body">
@@ -153,6 +161,12 @@ export default function Sidebar() {
                             >
                                 <span className="page-character">COG</span>
                                 <span className="nav-text hint-text">{t('Co-occurrence Graph')}</span>
+                            </a>
+                        </li>
+                        <li data-search="MAP Multi-axis Plot 'Multi-axis Plot'">
+                            <a href="/ap/map" className="go-to-page" title={t('Multi-axis Plot Hint')}>
+                                <span className="page-character">MAP</span>
+                                <span className="nav-text hint-text">{t('Multi-axis Plot')}</span>
                             </a>
                         </li>
                     </ul>
@@ -273,7 +287,7 @@ export default function Sidebar() {
                     </a>
                 </li>
                 <li className="menu-group-item go-to-page" data-search="About">
-                    <a className="nav-link go-to-page" href="/ap/about">
+                    <a className="nav-link" href="/ap/about">
                         <i className="fas fa-info-circle"></i>
                         <span className="nav-text">About</span>
                     </a>

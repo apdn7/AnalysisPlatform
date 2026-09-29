@@ -509,6 +509,77 @@ input#skipHead.form-control {
     padding: 0.375rem;
 }
 
+.ds-bulk-action,
+.proc-bulk-action {
+    gap: 8px;
+    padding: 6px 2px;
+}
+
+#tblDbConfig .ds-select-column,
+#tblProcConfig .proc-select-column {
+    width: 36px;
+    min-width: 36px;
+    text-align: center;
+    vertical-align: middle !important;
+}
+
+#tblDbConfig .ds-checkbox-control,
+#tblProcConfig .proc-checkbox-control {
+    display: inline-block;
+    height: 16px;
+    line-height: 16px;
+    min-height: 16px;
+    padding-left: 16px;
+    vertical-align: middle;
+}
+
+#tblDbConfig .ds-checkbox-label,
+#tblProcConfig .proc-checkbox-label {
+    cursor: pointer;
+    height: 16px;
+    line-height: 16px;
+    margin: 0;
+}
+
+#tblDbConfig .ds-checkbox-label::before,
+#tblDbConfig .ds-checkbox-label::after,
+#tblProcConfig .proc-checkbox-label::before,
+#tblProcConfig .proc-checkbox-label::after {
+    height: 16px;
+    left: -16px;
+    top: 0;
+    width: 16px;
+}
+
+#tblDbConfig .ds-checkbox-label::before,
+#tblProcConfig .proc-checkbox-label::before {
+    background-color: #ffffff;
+}
+
+#tblDbConfig .custom-control-input:checked ~ .custom-control-label::before,
+#tblDbConfig .custom-control-input:indeterminate ~ .custom-control-label::before,
+#tblProcConfig .custom-control-input:checked ~ .custom-control-label::before,
+#tblProcConfig .custom-control-input:indeterminate ~ .custom-control-label::before {
+    background-color: #375a7f;
+    border-color: #375a7f;
+}
+
+#tblDbConfig .custom-control-input:indeterminate ~ .custom-control-label::after,
+#tblProcConfig .custom-control-input:indeterminate ~ .custom-control-label::after {
+    background-color: #ffffff;
+    background-image: none;
+    height: 2px;
+    left: -12px;
+    top: 7px;
+    width: 8px;
+}
+
+#tblDbConfig .custom-control-input:disabled ~ .custom-control-label,
+#tblProcConfig .custom-control-input:disabled ~ .custom-control-label {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
 .import-config-file-row .custom-control {
     padding-left: 1.1rem;
 }

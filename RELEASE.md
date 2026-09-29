@@ -1,5 +1,114 @@
 # Releases
 
+## 4.9.5
+
+New Features
+
+- (Common)
+  - Graph titles now display units when configured in the Process Config.
+    - Scatter Plot (ScP)
+    - Stratified plot (StP)
+    - Calendar Heatmap (CHM)
+    - Ridgeline Plot (RLP)
+    - Waterfall Plot (WfP)
+    - Multiple Scatter Plot (MSP)
+    - Aggregate Plot (AgP)
+    - Graphical Lasso (GrL)
+    - PCA (Principal Component Analysis)
+    - Histogram of FPP
+    - <img width="150" alt="image" src="https://github.com/user-attachments/assets/ff7de63b-96fb-4946-8259-a911601dea89" />
+
+- (PCP)
+  - Added Dark/Light mode and font size adjustment.
+  - This functionality will be rolled out to other pages in future updates.
+  - <img width="600" alt="image" src="https://github.com/user-attachments/assets/3594e188-ab57-4916-8b6b-de70a5569962" />
+- (ScP)
+  - Improved chart range calculation.
+- (HMp)
+  - Added OK (Most%) and NG (Least%) to the Color category options.
+  - For example, you can visualize the die-level NG ratio using wafer inspection data.
+  - <img width="500" alt="image" src="https://github.com/user-attachments/assets/edbdb51e-5b53-42cb-baf0-8949f0265f82" />
+- (Data Source Config)
+  - Added a Select Files field to the CSV/TSV Import Config.
+  - You can now specify file and folder name patterns to include or exclude.
+  - Supports regular expressions.
+  - <img width="600" alt="image" src="https://github.com/user-attachments/assets/4fa65880-9ad2-4dab-8cce-6a6266229c94" />
+- (Process Config)
+  -Added Copy to All Below and Copy to All Filtered options for data types.
+  - <img width="200" alt="image" src="https://github.com/user-attachments/assets/834b02c5-8ea8-4ba7-b6e9-2eb36ae69b3a" />
+- (Data Link Config)
+  - Added support for 1-to-1 / 1-to-N, and N-to-1 data links.
+  - Use N-to-1 when multiple records in the previous process link to a single record in the subsequent process.
+  - When visualizing both processes together, charts are plotted at the N-side record level.
+  - For example
+    - Element-wise data -> Circuit board-wise data
+    - Circuit board-wise data -> Module-wise data
+  - <img width="400" alt="image" src="https://github.com/user-attachments/assets/71ec8396-ad3b-491f-acb9-0e6a43964b12" />
+
+Improvements
+
+- (Common)
+  - Improved Data Finder.
+    - Improved date handling in data-finder to ensure inclusive end dates for month/year selections
+    - Enhanced input handling to preserve caret position and improve rollback behavior
+    - <img width="600" alt="image" src="https://github.com/user-attachments/assets/11fd556b-ef0a-487b-8771-f92c8b17d330" />
+  - Improved data-link processing performance when duplicate serial numbers are present.
+  - Improved loading speed of Variable Order modal.
+  - AP+DN7 now supports longer column names.
+
+- (HMp)
+  - Increased the maximum number of cells to 300x300.
+  - Added suggested pages for the Jump feature.
+- (ScP)
+  - Increased the maximum number of data points to 100,000.
+  - Improved frontend rendering speed
+- (RLP)
+  - Improved KDE (Kernel Density Estation) calculation for groups with fewer than 8 data points.
+- (SkD)
+  - The Jump feature can now be used with categorical objective variables.
+- (Wfp)
+  - Added support for threshold lines.
+- (Process Config)
+  - Deleting a child process of a merged process no longer deletes the parent process.
+  - Symbols are no longer removed from Local Names.
+  - Renamed "System Name" to "English Name".
+- (Data Export)
+  - Added pagination for easier navigation and improved usability.
+- (Misc)
+  - Software Workshop ETL now generates shorter process names by default.
+
+Bug Fixes
+
+- (ScP)
+  - Fixed an issue where the color scale for Judge was displayed incorrectly.
+  - Fixed an issue where Auto Range could result in an excessively small axis range.
+  - Fixed an issue where a warning message was not displayed when both Category Variables and Category Integer were selected.
+- (RLP)
+  - Fixed an issue where EMD points were not displayed.
+  - Fixed an issue where a green ridgeline was displayed even when a group contained fewer than 8 points.
+- (PCP)
+  - Fixed an issue where NA values in category columns could not be selected.
+- (HMp)
+  - Fixed an issue where the hover position was incorrect.
+  - Fixed an issue where selecting First or Last and applying Div caused excessive data filtering.
+- (CHM)
+  - Fixed an issue where some Category data types were treated as Numeric during validation.
+- (Data Finder)
+  - Fixed an issue where Data Finder displayed incorrect data for month-range selections.
+- (Data Source Config)
+  - Fixed an issue where dialogs overlapped when previewing a data source.
+  - Fixed an issue where more than five records were displayed when previewing a data source.
+  - Fixed an issue where skip_head for CSV/TSV import configuration did not work as intended.
+- (Process Config)
+  - Fixed an issue where Judge values were not registered correctly.
+  - Fixed the display of serial functions in Data Link Config.
+- (Data Export)
+  - Fixed an issue where Data Export used UTC instead of local time.
+- (Misc)
+  - Fixed an issue where the disk storage warning was not displayed in the sidebar.
+  - Fixed a memory leak that caused high memory usage after repeated Auto Update executions.
+  - Fixed an issue where the AP+DN7 shortcut was not created when initial activation
+
 ## 4.9.4
 
 Core changes

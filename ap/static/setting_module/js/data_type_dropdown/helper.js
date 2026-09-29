@@ -780,6 +780,93 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
     }
 
     /**
+     * Copy the selected shown data type to eligible target rows.
+     *
+     * The old implementation changed dropdown DOM nodes directly. Process
+     * Config now uses JSpreadsheet, so changes must go through
+     * setValueFromCoords() to keep validation, dependent cells, change marks,
+     * and undo history synchronized.
+     *
+     * @param {HTMLDivElement} dataTypeDropdownElement - source dropdown
+     * @param {HTMLTableRowElement[]} targetRows - rows that may receive the value
+     */
+    static copyShownDataTypeToRows(dataTypeDropdownElement, targetRows) {
+        const spreadsheet = spreadsheetProcConfig(dataTypeDropdownElement);
+        if (!spreadsheet.isValid()) return;
+
+        const table = spreadsheet.table;
+        const sourceRow = dataTypeDropdownElement.closest('tr');
+        const shownDataType = this.getShowValueElement(dataTypeDropdownElement).textContent.trim();
+        const [, sourceColumnType] = this.convertShownDataTypeToColumnTypeAndDataType(shownDataType);
+
+        // Keep the same protection as the disabled menu. This guard also
+        // prevents programmatic clicks from copying a unique master type.
+        if (this.AllowSelectOneAttrs.includes(sourceColumnType)) return;
+
+        const shownDataTypeColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+
+        targetRows.forEach((row) => {
+            if (row === sourceRow) return;
+
+            // JSpreadsheet stores the model row index on each cell, not
+            // necessarily on the <tr>, especially after sorting.
+            const indexedCell = row.querySelector('td[data-y]');
+            const rowIndex = Number(indexedCell?.dataset.y);
+            if (!Number.isInteger(rowIndex)) return;
+
+            const rowData = table.getRowDataByIndex(rowIndex);
+            const shownDataTypeCell = table.getCellFromCoords(shownDataTypeColumnIndex, rowIndex);
+            const isReadonly =
+                shownDataTypeCell.classList.contains(READONLY_CLASS) ||
+                shownDataTypeCell.classList.contains('disabled');
+
+            // Do not overwrite master-data rows or AP-generated special rows.
+            if (isMasterDataColumn(rowData.column_type) || checkSpecialRow(rowData) || isReadonly) return;
+
+            // Avoid reparsing sample data and creating history entries when the
+            // target already has the selected shown data type.
+            if (shownDataTypeCell.textContent.trim() === shownDataType) return;
+
+            table.setValueFromCoords(shownDataTypeColumnIndex, rowIndex, shownDataType);
+        });
+    }
+
+    /**
+     * Copy the selected data type to every eligible row below the source row.
+     * The current visual row order is used, matching the legacy behavior after
+     * a user sorts the Process Config table.
+     * @param {Event} event
+     */
+    static handleCopyToAllBelow(event) {
+        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
+            'div.config-data-type-dropdown',
+        );
+        const sourceRow = dataTypeDropdownElement.closest('tr');
+        const siblingRows = [...sourceRow.parentElement.children];
+        const rowsBelow = siblingRows.slice(siblingRows.indexOf(sourceRow) + 1);
+
+        this.copyShownDataTypeToRows(dataTypeDropdownElement, rowsBelow);
+    }
+
+    /**
+     * Copy the selected data type to every eligible row that remains visible
+     * after applying the Process Config search/filter.
+     * @param {Event} event
+     */
+    static handleCopyToFiltered(event) {
+        const currentTarget = /** @type HTMLLIElement */ event.currentTarget || event;
+        const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
+            'div.config-data-type-dropdown',
+        );
+        const filteredRows = [...dataTypeDropdownElement.closest('table').querySelectorAll('tbody tr')].filter(
+            (row) => !row.classList.contains('gray') && $(row).is(':visible'),
+        );
+
+        this.copyShownDataTypeToRows(dataTypeDropdownElement, filteredRows);
+    }
+
+    /**
      * onFocus DataType
      * @param {Event} e
      */
@@ -901,6 +988,8 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 col = $(procModali18n.i18nLineNameStr).text();
             } else if (columnType === masterDataGroup.EQ_NAME) {
                 col = $(procModali18n.i18nEqNameStr).text();
+            } else if (columnType === masterDataGroup.PROC_NAME) {
+                col = $(procModali18n.i18nProcNameStr).text();
             } else {
                 col = DataTypes.STRING.selectionBoxDisplay;
             }
@@ -976,6 +1065,8 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 return [DataTypes.TIME.name, masterDataGroup.MAIN_TIME];
             case $(procModali18n.i18nJudgeNo).text():
                 return [DataTypes.BOOLEAN.name, masterDataGroup.JUDGE];
+            case $(procModali18n.i18nProcNameStr).text():
+                return [DataTypes.STRING.name, masterDataGroup.PROC_NAME];
             // normal data type
             case DataTypes.DATETIME.selectionBoxDisplay:
                 return [DataTypes.DATETIME.name, masterDataGroup.GENERATED];

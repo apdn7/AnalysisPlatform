@@ -254,6 +254,7 @@ def create_app(object_name=None, is_main=False):
     from .co_occurrence import create_module as co_occurrence_create_module
     from .common.log import bind_user_info
     from .heatmap import create_module as heatmap_create_module
+    from .multi_axis_plot import create_module as map_create_module
     from .multiple_scatter_plot import create_module as multiple_scatter_create_module
     from .parallel_plot import create_module as parallel_create_module
     from .ridgeline_plot import create_module as ridgeline_create_module
@@ -337,6 +338,7 @@ def create_app(object_name=None, is_main=False):
     tile_interface_create_module(app)
     agp_create_module(app)
     waveform_plot_create_module(app)
+    map_create_module(app)
 
     app.add_url_rule('/', endpoint='tile_interface.tile_interface')
 

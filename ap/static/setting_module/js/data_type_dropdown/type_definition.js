@@ -44,6 +44,8 @@
  *    EQ_NAME: number,
  *    LINE_NAME: number,
  *    GENERATED: number,
+ *    PROC_NO: number,
+ *    PROC_NAME: number,
  * }} DataGroupType
  */
 
@@ -60,5 +62,6 @@
  *     is_st_no?: boolean,
  *     is_int_cat?: boolean,
  *     is_main_date?: boolean,
+ *     is_proc_name: boolean,
  * }} ColumnTypeInfo
  */

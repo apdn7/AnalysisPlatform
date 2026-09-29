@@ -12,6 +12,7 @@ const INVALID_FILTER_DETAIL_IDS = 'invalid_filter_detail_ids';
 const SHARED_USER_SETTING = 'shared_user_setting';
 const JUMP_SHARED_USER_SETTING = 'jump_shared_user_setting';
 const DEFAULT_DATETIME_RANGE = 'defaultRangeTime';
+const CURRENT_XY_SETTING = 'currentXY';
 let lastUsedFormData = null;
 let latestIndexOrder = [];
 let selectedHref = '';
@@ -240,10 +241,24 @@ const getSortKeys = (targetEle, isSimple = null) => {
     const val = checkboxs.length === 0 ? lastPosNumber : checkboxs[0].value;
     const sensorOrder = checkboxs.length > 0 ? Number($(checkboxs[0]).attr('data-order')) : null;
     const isChecked = !!(checkboxs.length > 0 && checkboxs[0].checked);
+
+    const isColorSelected =
+        $(targetEle).find('input[name^="colorVar"]:checked').length > 0 || colorVal !== lastPosNumber;
+
+    const isLabelOrFilterSelected = $(targetEle).find('input.as-label-input:checked').length > 0;
+
+    const isFacetSelected = facetLevel !== lastPosNumber;
+
+    const isSecondaryRoleSelected = isColorSelected || isLabelOrFilterSelected || isFacetSelected;
+
     const isColumnNameBlank = !!(columnName.length > 0 && columnName.text() === '');
     // order by sensor x, y
     const sensor = checkboxs.length > 0 ? $(checkboxs[0]).attr('data-sensor') : null;
     const order = checkboxs.length > 0 && isChecked ? $(checkboxs[0]).attr('order') : null;
+
+    // Order layout in MaP page
+    const layoutElm = $(targetEle).find('input[name=layoutInput]');
+    const priorityOrder = layoutElm && layoutElm.val() && layoutElm.attr('data-priority-order');
 
     if (val === 'NO_FILTER') {
         keys.push(0);
@@ -256,6 +271,10 @@ const getSortKeys = (targetEle, isSimple = null) => {
     if (isSimple) {
         keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
         return keys;
+    }
+
+    if (priorityOrder) {
+        keys.push(priorityOrder);
     }
 
     if (order) {
@@ -271,14 +290,41 @@ const getSortKeys = (targetEle, isSimple = null) => {
         }
     }
     keys.push(cycleTimeVal);
+
+    /**
+     * Calculate the current priority of X, Y, and the main checkbox.
+     */
+    let sensorPriority = 1;
+
     if (sensorOrder) {
-        if (sensor && sensor === 'x') {
-            keys.push(0);
-        } else if (sensor && sensor === 'y') {
-            keys.push(0.1);
+        if (sensor === 'x') {
+            sensorPriority = 0;
+        } else if (sensor === 'y') {
+            sensorPriority = 0.1;
         } else {
-            keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
+            sensorPriority = isChecked === null ? lastPosNumber : isChecked ? 0 : 1;
         }
+    }
+
+    /**
+     * Added a priority value for Color, Label/Filter, and Facet,
+     * but this applies only to screens with X/Y axes:
+     * HMP, ScP, and WFP.
+     *
+     * 0   : X or main column (selected)
+     * 0.1 : Y
+     * 0.2 : Color, Label/Filter, or Facet
+     * 1   : Unselected column
+     *
+     * For FPP and other screens, this key is always 1, so
+     * the existing sort order remains unchanged.
+     */
+    const secondaryRolePriority = sensorPriority === 1 && isSecondaryRoleSelected ? 0.2 : sensorPriority;
+
+    keys.push(isXYAxisPage ? secondaryRolePriority : 1);
+
+    if (sensorOrder) {
+        keys.push(sensorPriority);
         keys.push(colorVal, facetLevel);
     } else {
         keys.push(colorVal, facetLevel);
@@ -679,6 +725,24 @@ const saveLoadUserInput = (
             });
         }
 
+        if (isXYAxisPage && latestSortColIds.length > 1) {
+            if (currentXY && currentXY.length) {
+                serializeData.push({
+                    id: 'currentXY',
+                    name: 'currentXY',
+                    type: 'text',
+                    value: currentXY,
+                });
+            } else {
+                serializeData.push({
+                    id: 'currentXY',
+                    name: 'currentXY',
+                    type: 'text',
+                    value: latestSortColIds.slice(-2),
+                });
+            }
+        }
+
         if (dumpedUserSetting.length) {
             serializeData.push(...dumpedUserSetting);
         }
@@ -893,7 +957,7 @@ const saveLoadUserInput = (
     };
 
     // todo: check 09/16 endtime
-    const loadNonRadioCheckEle = (data, agpColorVars = []) => {
+    const loadNonRadioCheckEle = (data, agpColorVars = [], reactElement = false) => {
         const remainEles = [];
         const srcSetting = getLocalStorageSrcSetting();
         const desSetting = window.location.pathname;
@@ -967,6 +1031,33 @@ const saveLoadUserInput = (
                 if (!availableOptions.includes(v.value)) {
                     continue;
                 }
+            }
+
+            if (v.type === 'text' && v.id.includes('react') && reactElement) {
+                const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+
+                nativeSetter?.call(input, v.value);
+
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                continue;
+            }
+
+            if (v.type === 'radio' && ['radioKeepDuplicates', 'radioAggregated'].includes(v.id) && reactElement) {
+                const checkedSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'checked')?.set;
+
+                checkedSetter?.call(input, v.checked);
+
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                continue;
+            }
+
+            if (v.type === 'select-one' && ['xOption'].includes(v.id) && reactElement) {
+                const nativeSetter = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+
+                nativeSetter?.call(input, v.value);
+
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                continue;
             }
             input.value = v.value;
             const isEndProc = input.id?.startsWith('end-proc-process');
@@ -1060,17 +1151,23 @@ const saveLoadUserInput = (
         const endProcCheckBoxes = ['GET02_VALS_SELECT', 'GET02_CATE_SELECT'];
         const endProcRadios = ['objectiveVar', 'judgeVar', 'colorVar'];
         const endProcSelectBoxes = ['catExpBox', 'colorVar'];
+        const reactInputEls = ['xOption', 'categoryAggregated'];
+        const layoutBoxs = ['layoutInput'];
         const activeTabs = [];
         const radioChecks = [];
         const others1 = [];
         const others2 = [];
+        const layoutElements = [];
+        const reactElements = [];
         const indexVals = [];
         for (const v of data) {
             const isCheckboxOrRadioIgnore =
                 endProcCheckBoxes.some((prefix) => v.name?.startsWith(prefix)) ||
                 endProcRadios.some((prefix) => v.name?.startsWith(prefix));
             const isSelectBoxesIgnore = endProcSelectBoxes.some((name) => v.name === name);
-            if (v.type === 'radio' || v.type === 'checkbox') {
+            const isLayoutBoxIgnore = layoutBoxs.some((name) => v.name === name);
+            const isReactEls = reactInputEls.some((name) => v.name === name);
+            if ((v.type === 'radio' || v.type === 'checkbox') && !isReactEls) {
                 // change colorVar radio to checkbox #1128
                 if (v.type === 'radio' && v.name === 'colorVar' && v.checked) {
                     v.type = 'checkbox';
@@ -1084,6 +1181,11 @@ const saveLoadUserInput = (
             } else if (Number(v.level) === 2) {
                 if (isSelectBoxesIgnore && !v.value) continue;
                 others2.push(v);
+            } else if (isLayoutBoxIgnore && v.value) {
+                layoutElements.push(v);
+            } else if (isReactEls && getCurrentPage() === PAGE_NAME.map) {
+                // map page load xOption from react then we load it after
+                reactElements.push(v);
             } else {
                 others1.push(v);
             }
@@ -1092,7 +1194,7 @@ const saveLoadUserInput = (
             }
         }
 
-        return [activeTabs, radioChecks, others1, others2, indexVals];
+        return [activeTabs, radioChecks, others1, others2, layoutElements, reactElements, indexVals];
     };
 
     const loadIndex = (data) => {
@@ -1120,7 +1222,7 @@ const saveLoadUserInput = (
                 'serialOrder',
                 Number(proc.value),
                 Number(cols[i].value),
-                orders[i].value,
+                Number(orders[i].value),
             );
             bindChangeProcessEvent();
             updatePriorityAndDisableSelected();
@@ -1166,6 +1268,18 @@ const saveLoadUserInput = (
         return srcSetting;
     };
 
+    const loadXYAxis = (data) => {
+        const order = data.find((e) => e.name === CURRENT_XY_SETTING);
+        if (order) {
+            latestSortColIds = order.value;
+            order.value.forEach((id, index) => {
+                if (XYAxis[index]) {
+                    $(`#xy-axis-${id}`).text(XYAxis[index]);
+                }
+            });
+        }
+    };
+
     const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
         if (isLoad) {
             let data;
@@ -1188,7 +1302,8 @@ const saveLoadUserInput = (
             genDynamicEle(data);
             updateShareUserSetting(srcSetting?.pageName, getCurrentPage(), data);
 
-            const [activeTabs, radioChecks, others1, others2, indexVals] = divideElementGroup(data);
+            const [activeTabs, radioChecks, others1, others2, layoutElements, reactElements, indexVals] =
+                divideElementGroup(data);
             const colorVals = others2.filter((e) => e.name === 'colorVar');
 
             if (isSaveToLocalStorage) {
@@ -1209,15 +1324,19 @@ const saveLoadUserInput = (
 
                 setTimeout(() => {
                     const remainRadioChecks = loadRadioCheckboxEle(radioChecks);
+                    loadNonRadioCheckEle(layoutElements, [], true);
 
                     setTimeout(() => {
                         loadRadioCheckboxEle(remainRadioChecks);
+                        loadNonRadioCheckEle(reactElements, [], true);
+
                         // Set default datetime range for jump target page
                         if (isUseDefaultRangeTime) {
                             setDefaultCyclicTermConfig(jumpDefaultRangeTime.value, true);
                         }
                         // Handler set default division
                         handlerSettingDefaultDivide(data, srcSetting);
+                        loadXYAxis(data);
                     }, 200);
 
                     // load invalid
@@ -1363,6 +1482,21 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
 
     const backgroundColor = isCurrentSetting ? ' style=" background-color: steelblue;"' : '';
     const htmlRow = `<tr data-setting-id="${setting.id}" ${backgroundColor}>
+    
+            <td class="action">
+            <div class="custom-control custom-checkbox checkbox-control">
+            <input
+                                                        type="checkbox"
+                                                        class="already-convert-hankaku custom-control-input"
+                                                        id="selected-user-setting-${setting.id}"
+                                                        data-observer
+                                                        style="margin-left: 2px"
+                                                        data-setting-id="${setting.id}"
+                                                        onchange="handleSelectedUserSetting()"
+                                                    />
+                                                    <label class="custom-control-label checkbox-label" for="selected-user-setting-${setting.id}"></label>
+            </div>
+                                                </td>
         <td>${idx}</td>
         <td>${setting.share_info ? $(i18nEles.shared).text() : $(i18nEles.private).text()}</td>
         <td>
@@ -1412,7 +1546,7 @@ const createHTMLRow = (setting, idx, isCurrentSetting) => {
 const settingDataTableInit = () => {
     // Adjust filter column for external connection
     if (appContext.is_authorized === '1') {
-        sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 11], '100%');
+        sortableTable('tblUserSetting', [1, 2, 3, 4, 5, 6, 7, 12], '100%');
     } else {
         sortableTable('tblUserSetting', [0, 1, 2, 3, 4, 5, 6, 9], '100%');
     }
@@ -1473,6 +1607,8 @@ const showUserSettingsToModal = (userSettings) => {
     $(settingModals.menuImport).on('mouseleave', (e) => {
         $(settingModals.menuImport).hide();
     });
+
+    handleSelectedUserSetting();
 };
 
 const bindDeleteUserSetting = (e, userSettingId) => {
@@ -1501,6 +1637,43 @@ const deleteUserSetting = (e) => {
     if ($('#tblUserSetting>tbody').children().length === 0) {
         saveStateAndShowLabelSetting(null);
     }
+};
+
+const bindDeleteBulkUserSetting = () => {
+    $('#deleteBulkSettingConfirmModal').modal('show');
+};
+
+const deleteBulkUserSetting = () => {
+    const ids = [];
+    const selectedRows = document.querySelectorAll('#tblUserSetting>tbody input[id^="selected-user-setting"]:checked');
+    selectedRows.forEach((checkbox) => {
+        ids.push(checkbox.getAttribute('data-setting-id'));
+    });
+
+    fetch(`/ap/api/setting/user_setting/delete`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            user_setting_ids: ids,
+        }),
+    })
+        .then((response) => {})
+        .then(() => {})
+        .catch(() => {});
+
+    ids.forEach((id) => {
+        $('#tblUserSetting').find(`tr[data-setting-id=${id}]`).remove();
+    });
+
+    // reset state of bookmark
+    if ($('#tblUserSetting>tbody').children().length === 0) {
+        saveStateAndShowLabelSetting(null);
+    }
+
+    handleSelectedUserSetting();
 };
 
 const clearLoadingSetting = () => {
@@ -2294,6 +2467,36 @@ const handleUseUserSetting = (id) => {
     $(settingModals.loadSettingModal).modal('hide');
 };
 
+const handleSelectedUserSetting = () => {
+    const selectedRows = document.querySelectorAll('#tblUserSetting>tbody input[id^="selected-user-setting"]:checked');
+    const allRows = getAllUserSettingRows();
+    $('#count').text(selectedRows.length);
+    $('#btn-delete-selected-user-setting').prop('disabled', appContext.is_authorized !== '1' || !selectedRows.length);
+    $('#selected-all-user-setting')
+        .prop('checked', selectedRows.length === allRows.length)
+        .prop('indeterminate', selectedRows.length < allRows.length && selectedRows.length);
+};
+
+const getAllUserSettingRows = () => {
+    return $('#tblUserSetting>tbody input[id^="selected-user-setting"]');
+};
+
+const getAllShowUserSettings = () => {
+    return $('#tblUserSetting>tbody tr:visible input[id^="selected-user-setting"]');
+};
+
+const handleIndeterminateState = (e) => {
+    $(e).data('wasIndeterminate', e.indeterminate);
+};
+const handleSelectAllShowUserSetting = (e) => {
+    if ($(e).data('wasIndeterminate')) {
+        getAllShowUserSettings().prop('checked', false);
+    } else {
+        getAllShowUserSettings().prop('checked', e.checked);
+    }
+    handleSelectedUserSetting();
+};
+
 const isSaveGraphSetting = () => {
     return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
 };
@@ -2395,15 +2598,18 @@ const loadGraphSettings = (isFirstTime = false) => {
         } else if (setting.type === 'select') {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.val();
-            el.val(setting.value);
+            el?.val(setting.value);
         } else if (setting.type === 'checkbox') {
             el = graphArea.find(`${selectorStr}`);
-            defaultValue = el.is('checked');
-            el.prop('checked', setting.checked);
+            defaultValue = el.prop('checked');
+            if (defaultValue !== setting.checked) {
+                el[0]?.click();
+                continue;
+            }
         } else if (setting.type === 'text') {
             el = graphArea.find(`${selectorStr}`);
             defaultValue = el.val();
-            el.val(setting.value);
+            el?.val(setting.value);
         }
 
         let isTriggerChange = false;
@@ -2415,7 +2621,11 @@ const loadGraphSettings = (isFirstTime = false) => {
         }
 
         if (isTriggerChange) {
-            el.trigger('change');
+            if (el[0]) {
+                el[0].dispatchEvent(new Event('change', { bubbles: true }));
+            } else {
+                el?.trigger('change');
+            }
         }
     }
 };

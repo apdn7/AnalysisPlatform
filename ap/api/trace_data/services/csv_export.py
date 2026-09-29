@@ -17,7 +17,6 @@ from ap.api.categorical_plot.services import (
     produce_cyclic_terms,
 )
 from ap.api.common.services.show_graph_services import get_data_from_db
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     CLIENT_TIMEZONE,
     COLOR_NAME,
@@ -276,7 +275,8 @@ def export_preprocessing(
             continue
 
         for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
-            old_name = gen_sql_label(col_id, col_name)
+            # Rename stable internal keys to public CSV headers without exposing bridge names.
+            old_name = graph_param.gen_label_from_col_id(col_id)
             if old_name not in df.columns:
                 continue
 
@@ -415,7 +415,7 @@ def get_new_column_order(df, graph_param, options):
             continue
 
         for col_id, col_name, name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
-            old_name = gen_sql_label(col_id, col_name)
+            old_name = graph_param.gen_label_from_col_id(col_id)
 
             if old_name not in df.columns:
                 continue
@@ -462,9 +462,10 @@ def get_order_column(dic_rename, graph_param):
     id_div_by_cat = graph_param.common.div_by_cat
 
     if id_div_by_cat is not None:
-        key_prefix_div = f'__{id_div_by_cat}__'
-        matched_key_div = next((key for key in dic_rename if key.startswith(key_prefix_div)), None)
-        list_column_order.append(matched_key_div)
+        # Resolve the exact result key instead of depending on the removed legacy `__id__` prefix.
+        division_key = graph_param.gen_label_from_col_id(id_div_by_cat)
+        if division_key in dic_rename:
+            list_column_order.append(division_key)
 
     if len(graph_param.common.cat_exp) > 0:
         matching_columns = [col for col in dic_rename if get_column_number(col) in graph_param.common.cat_exp]

@@ -53,8 +53,9 @@ class DataFinderBase {
             weekBtn: `#dataFinderWeekBtn${this.suffix}`,
             setValueBtn: `#dataFinderSetValueBtn${this.suffix}`,
             closeModalBtn: `.data-finder-close-btn${this.suffix}`,
-            backBtn: `#dataFinderBackBtn${this.suffix}`,
+            // backBtn: `#dataFinderBackBtn${this.suffix}`,
             allBtn: `#dataFinderSetAll${this.suffix}`,
+            last24hBtn: `#dataFinderLast24h${this.suffix}`,
             largeDataWarningMsg: `#dataFinderWarningMsg${this.suffix}`,
         };
     }
@@ -105,8 +106,7 @@ class DataFinderBase {
         this.startDate = '';
         this.endDate = '';
         const thisCell = $(e.currentTarget);
-        thisCell.closest(parentClass).find('.cell').removeClass('in-range');
-        thisCell.closest(parentClass).find('.cell').removeClass('active');
+        thisCell.closest(parentClass).find('.cell').removeClass('active in-range');
     };
 
     /**
@@ -120,8 +120,7 @@ class DataFinderBase {
         const thisCell = $(e.currentTarget);
         if (this.showFromOnly) {
             // click only to choose date
-            thisCell.closest(parentClass).find('.cell').removeClass('in-range');
-            thisCell.closest(parentClass).find('.cell').removeClass('active');
+            thisCell.closest(parentClass).find('.cell').removeClass('active in-range');
             thisCell.addClass('in-range');
             thisCell.addClass('active');
             this.startDate = thisCell.attr('data');
@@ -158,8 +157,7 @@ class DataFinderBase {
         if (this.startDate && this.endDate) {
             this.startDate = '';
             this.endDate = '';
-            thisCell.closest(parentClass).find('.cell').removeClass('in-range');
-            thisCell.closest(parentClass).find('.cell').removeClass('active');
+            thisCell.closest(parentClass).find('.cell').removeClass('active in-range');
             thisCell.trigger('click');
         }
     };
@@ -313,11 +311,106 @@ class DataFinderBase {
         const date = from && to ? `${from} ${DATETIME_PICKER_SEPARATOR} ${to}` : '';
         const dateRange = this.showFromOnly ? from : date;
 
-        $(this.dataFinderEls.inputFromTo).val(dateRange);
-        $(this.dataFinderEls.inputFromTo).attr('old-value', dateRange);
+        if (!this.isHandlingDataFinderInputChange) {
+            $(this.dataFinderEls.inputFromTo).val(dateRange);
+            $(this.dataFinderEls.inputFromTo).attr('old-value', dateRange);
+        }
+        this.syncDataFinderInputRangeToCalendarTypes(dateRange);
         if (checkDataCount) {
             this.checkDataCountOfRange(from, to, type).then();
         }
+    };
+
+    clearCalendarSelection = () => {
+        Object.values(calenderTypes).forEach((type) => {
+            this.syncSelectionToCalendar('', '', type);
+            $(this.dataFinderEls.inputFromId).removeAttr(type);
+            $(this.dataFinderEls.inputToId).removeAttr(type);
+        });
+    };
+
+    syncSelectionToCalendar = (from, to, type) => {
+        const parentClass = `.${type}-calendar${this.suffix}`;
+        const cells = $(`${parentClass} .cell`);
+        cells.removeClass('active in-range');
+
+        if (!from) {
+            this.startDate = '';
+            this.endDate = '';
+            return;
+        }
+
+        // Programmatic sync should repaint the calendar, not seed the click state machine.
+        this.startDate = '';
+        this.endDate = '';
+
+        const normalizedTo = this.showFromOnly ? from : to;
+        if (type === calenderTypes.week) {
+            const inputValue = $(this.dataFinderEls.inputFromTo).val();
+            let inputFromMoment = null;
+            let inputToMoment = null;
+            if (inputValue) {
+                const [inputFrom, inputTo] = inputValue
+                    .split(DATETIME_PICKER_SEPARATOR)
+                    .map((val) => (val ? val.trim() : val));
+                inputFromMoment = inputFrom ? this.parseDataFinderInputDateTime(inputFrom) : null;
+                inputToMoment = this.showFromOnly
+                    ? inputFromMoment
+                    : inputTo
+                      ? this.parseDataFinderInputDateTime(inputTo)
+                      : null;
+            }
+
+            const fromMoment =
+                inputFromMoment && inputFromMoment.isValid()
+                    ? inputFromMoment.clone().startOf('hour')
+                    : moment(from, DATE_TIME_FMT).startOf('hour');
+            let toMoment =
+                inputToMoment && inputToMoment.isValid() ? inputToMoment.clone() : moment(normalizedTo, DATE_TIME_FMT);
+            toMoment = this.roundHour(toMoment.format(DATE_TIME_FMT), 'up');
+            toMoment = moment(toMoment, DATE_TIME_FMT);
+            if (!fromMoment.isValid() || !toMoment.isValid()) {
+                return;
+            }
+
+            if (!toMoment.isAfter(fromMoment)) {
+                toMoment = fromMoment.clone().add(1, 'hours');
+            }
+
+            const fromValue = fromMoment.format(DATE_TIME_FMT);
+            const toValue = toMoment.format(DATE_TIME_FMT);
+            const lastSelectedValue = toMoment.clone().subtract(1, 'hours').format(DATE_TIME_FMT);
+
+            // The calendar renders at most two weeks; iterate those cells instead of every hour in a potentially huge range.
+            cells.each((_, el) => {
+                const cellValue = el.getAttribute('data');
+                if (cellValue >= fromValue && cellValue < toValue) {
+                    el.classList.add('in-range');
+                }
+                if (cellValue === fromValue || cellValue === lastSelectedValue) {
+                    el.classList.add('active');
+                }
+            });
+            return;
+        }
+
+        const fmt = type === calenderTypes.year ? YEAR_MONTH_FMT : DATE_FMT;
+        const fromMoment = moment(from, fmt);
+        const toMoment = moment(normalizedTo, fmt);
+        if (!fromMoment.isValid() || !toMoment.isValid()) {
+            return;
+        }
+
+        cells.each((_, el) => {
+            const cell = $(el);
+            const cellDate = moment(cell.attr('data'), fmt);
+            if (cellDate.isBetween(fromMoment, toMoment, undefined, '[]')) {
+                cell.addClass('in-range');
+            }
+            if (cellDate.isSame(fromMoment) || cellDate.isSame(toMoment)) {
+                cell.addClass('active');
+            }
+        });
     };
 
     /**
@@ -331,6 +424,63 @@ class DataFinderBase {
         const toInput = $(this.dataFinderEls.inputToId).attr(type);
 
         return [fromInput, toInput];
+    };
+
+    setFromToInputAttrByType = (from, to, type) => {
+        $(this.dataFinderEls.inputFromId).attr(type, from);
+        $(this.dataFinderEls.inputToId).attr(type, to);
+    };
+
+    parseDataFinderInputDateTime = (value) => {
+        const parsed = moment(value, [DATE_TIME_FMT, DATE_FMT, YEAR_MONTH_FMT], true);
+        return parsed.isValid() ? parsed : moment(value);
+    };
+
+    getInclusiveToMomentForDateBasedCalendars = (rangeValue, toMoment) => {
+        const { endTime } = splitDateTimeRange(rangeValue);
+        const hasExplicitEndTime = Boolean(endTime);
+        const isStartOfDay = toMoment.clone().startOf('day').isSame(toMoment);
+
+        // Week selection keeps exclusive "to" (next day 00:00), while month/year need inclusive end date.
+        if (hasExplicitEndTime && isStartOfDay) {
+            return toMoment.clone().subtract(1, 'days');
+        }
+
+        return toMoment.clone();
+    };
+
+    syncDataFinderInputRangeToCalendarTypes = (rangeValue = $(this.dataFinderEls.inputFromTo).val()) => {
+        if (!rangeValue) {
+            return false;
+        }
+
+        let [from, to] = rangeValue.split(DATETIME_PICKER_SEPARATOR).map((val) => (val ? val.trim() : val));
+        if (!from || (!this.showFromOnly && !to)) {
+            return false;
+        }
+
+        const fromMoment = this.parseDataFinderInputDateTime(from);
+        const toMoment = this.showFromOnly ? fromMoment.clone() : this.parseDataFinderInputDateTime(to);
+        if (!fromMoment.isValid() || !toMoment.isValid() || (!this.showFromOnly && !fromMoment.isBefore(toMoment))) {
+            return false;
+        }
+
+        const weekFrom = this.roundHour(fromMoment.format(DATE_TIME_FMT), 'down');
+        const weekTo = this.roundHour(toMoment.format(DATE_TIME_FMT), 'up');
+        const monthYearToMoment = this.getInclusiveToMomentForDateBasedCalendars(rangeValue, toMoment);
+        this.setFromToInputAttrByType(weekFrom, weekTo, calenderTypes.week);
+        this.setFromToInputAttrByType(
+            fromMoment.format(DATE_FMT),
+            monthYearToMoment.format(DATE_FMT),
+            calenderTypes.month,
+        );
+        this.setFromToInputAttrByType(
+            fromMoment.format(YEAR_MONTH_FMT),
+            monthYearToMoment.format(YEAR_MONTH_FMT),
+            calenderTypes.year,
+        );
+
+        return true;
     };
 
     /**
@@ -348,6 +498,38 @@ class DataFinderBase {
         this.isDataFinderShowing = false;
     };
 
+    roundHour = (dateTime, option = 'down') => {
+        const rounded = moment(dateTime, DATE_TIME_FMT).startOf('hour');
+        if (option === 'up' && moment(dateTime, DATE_TIME_FMT).isAfter(rounded)) {
+            rounded.add(1, 'hours');
+        }
+        return rounded.format(DATE_TIME_FMT);
+    };
+
+    buildDateTimeMoment = (dateValue, timeValue = '00:00') => {
+        const dateMoment = moment(dateValue, DATE_FMT, true);
+        if (!dateMoment.isValid()) {
+            const dateTimeMoment = moment(dateValue, DATE_TIME_FMT, true);
+            return dateTimeMoment.isValid() ? dateTimeMoment : null;
+        }
+
+        const [hourRaw = '00', minuteRaw = '00'] = String(timeValue || '00:00').split(':');
+        const hour = Number(hourRaw);
+        const minute = Number(minuteRaw);
+        if (
+            !Number.isInteger(hour) ||
+            !Number.isInteger(minute) ||
+            hour < 0 ||
+            hour > 23 ||
+            minute < 0 ||
+            minute > 59
+        ) {
+            return dateMoment.clone().startOf('day');
+        }
+
+        return dateMoment.clone().set({ hour, minute, second: 0, millisecond: 0 });
+    };
+
     /**
      * Round selected time value based on calendar type and format.
      *
@@ -361,10 +543,24 @@ class DataFinderBase {
     roundSelectedValue = (inputVal, calendarType, isFullFormat = false) => {
         // If isFullFormat = true -> Always use a full format regard less calendarType
         const d = splitDateTimeRange(inputVal);
-        const startDate = isFullFormat ? moment(d.startDate).format(DATE_TIME_FMT) : d.startDate;
+        const startMoment = isFullFormat ? this.buildDateTimeMoment(d.startDate, d.startTime) : null;
+        let startDate = isFullFormat ? (startMoment ? startMoment.format(DATE_TIME_FMT) : d.startDate) : d.startDate;
+
+        if (calendarType === calenderTypes.week) {
+            startDate = this.roundHour(startDate, 'down');
+        }
 
         if (!d?.endDate) {
             return `${startDate}`;
+        }
+
+        if (calendarType === calenderTypes.week) {
+            const endMoment = this.buildDateTimeMoment(d.endDate, d.endTime);
+            const endDate = this.roundHour(
+                endMoment ? endMoment.format(DATE_TIME_FMT) : `${d.endDate} ${d.endTime || '00:00'}`,
+                'up',
+            );
+            return `${startDate} ${DATETIME_PICKER_SEPARATOR} ${endDate}`;
         }
 
         if (calendarType === calenderTypes.month) {

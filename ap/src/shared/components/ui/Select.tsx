@@ -1,8 +1,10 @@
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export interface SelectOption {
     value: string | number | null;
     text: string;
+    hoverMsg?: string;
 }
 
 interface SelectProps {
@@ -13,6 +15,7 @@ interface SelectProps {
     required?: boolean;
     disabled?: boolean;
     className?: string;
+    selectClassName?: string;
     style?: React.CSSProperties;
     onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
     options: SelectOption[];
@@ -27,12 +30,14 @@ export default function Select({
     required = false,
     disabled = false,
     className = '',
+    selectClassName = '',
     style = {},
     onChange,
     options,
     hoverText = '',
 }: SelectProps) {
     const { t } = useTranslation();
+
     return (
         <div className={className + ' form-group d-flex  align-items-center'}>
             {title && (
@@ -41,9 +46,8 @@ export default function Select({
                     {required && <span style={{ color: 'yellow' }}>*</span>}
                 </label>
             )}
-
             <select
-                className="form-control"
+                className={'form-control ' + selectClassName}
                 value={value}
                 name={name}
                 id={id}
@@ -52,7 +56,7 @@ export default function Select({
                 style={style}
             >
                 {options.map((option, index) => (
-                    <option value={option.value} key={index}>
+                    <option value={option.value} key={index} title={t(option.hoverMsg)}>
                         {t(option.text)}
                     </option>
                 ))}

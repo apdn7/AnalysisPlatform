@@ -245,7 +245,8 @@ const onChangeScaleOption = () => {
         const settings = getXYOptionSetting();
         yScaleOption = settings.yScale;
         xAxisOrder = settings.xAxisOrder;
-        drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
+        lastUsedFormData.set('TermXOption', xAxisOrder);
+        queryDataAndShowAGP(false);
     });
 };
 
@@ -356,7 +357,7 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         return;
     }
 
-    showGraphCallApi('/ap/api/agp/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/agp/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowAGP();
 
         // sort graphs
@@ -393,13 +394,15 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
             );
         }
 
-        setPollingData(formData, longPollingHandler, []);
+        setPollingData(formData, longPollingHandler, [], requestPromise);
     });
+
+    return requestPromise;
 };
 
 const longPollingHandler = () => {
     $(`input[name=${CYCLIC_TERM.DIV_CALENDER}]:checked`).trigger('change');
-    queryDataAndShowAGP(false, true);
+    return queryDataAndShowAGP(false, true);
 };
 
 const drawAGP = (orgData, xAxisOrder, yScaleOption, showPercent = yAxisDisplayMode, reCalculateYAxisSum = false) => {
@@ -526,17 +529,37 @@ const onChangeDivideFormat = (e) => {
     changeFormatAndExample(e);
 };
 
-const renderAgPChartLayout = (chartOption, chartHeight = '40vh', isCTCol = false) => {
-    const { processName, columnName, facetLevel1, facetLevel2, chartId } = chartOption;
+const buildAgPColumnTitle = (plotData) => {
+    const { end_proc_id, end_col_id, shown_name } = plotData;
+    const colInfo = procConfigs[end_proc_id]?.getColumnById(end_col_id) || {};
+
+    // Keep original title for Judge columns
+    if (colInfo.is_judge) {
+        return shown_name;
+    }
+
+    if (isCycleTimeCol(end_proc_id, end_col_id)) {
+        return `${shown_name} ${DataTypes.DATETIME.short} [sec]`;
+    }
+
+    const unit = colInfo.unit;
+    if (unit && unit !== '' && unit !== 'Null') {
+        return `${shown_name} [${unit}]`;
+    }
+
+    return shown_name;
+};
+
+const renderAgPChartLayout = (chartOption, chartHeight = '40vh') => {
+    const { processName, columnTitle, facetLevel1, facetLevel2, chartId } = chartOption;
     let facet = [facetLevel1, facetLevel2].filter((f) => checkTrue(f));
     const levelTitle = facet.map((el, i) => `${el}`).join(' | ');
-    const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
     const chartLayout = `
           <div class="card chart-row graph-navi" style="height: ${chartHeight};">
             <div class="tschart-title-parent">
                 <div class="tschart-title" style="width: ${chartHeight};">
                     <span title="${processName}">${processName}</span>
-                    <span title="${columnName}">${columnName}${CTLabel}</span>
+                    <span title="${columnTitle}">${columnTitle}</span>
                     <span class="show-detail cat-exp-box" title="${levelTitle}">${facet.join(' | ')}</span>
                  </div>
             </div>
@@ -591,7 +614,7 @@ const renderAgPAllChart = (
         const facetLevel2 = catExpBox.length > 1 ? catExpBox[1] : undefined;
         const chartOption = {
             processName: plotData.end_proc_name,
-            columnName: plotData.shown_name,
+            columnTitle: buildAgPColumnTitle(plotData),
             facetLevel1,
             facetLevel2,
             chartId: canvasId,
@@ -600,8 +623,7 @@ const renderAgPAllChart = (
                 ymin: plotData[Y_SCALE_METHODS.SCALE_NAME[yScaleOption]]['y-min'],
             },
         };
-        const isCTCol = isCycleTimeCol(end_proc_id, end_col_id);
-        const chartHtml = renderAgPChartLayout(chartOption, chartHeight, isCTCol);
+        const chartHtml = renderAgPChartLayout(chartOption, chartHeight);
         const facetKey = `${facetLevel1 || ''}${facetLevel2 || ''}`;
 
         $(formElements.agpCard).append(chartHtml);

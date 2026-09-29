@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block asset %}
+    <script>
+        gtag('config', appContext.ga_tracking_id, {
+            page_title: '{{ _("Full-points Plot") }}',
+        });
+
+        $(document).ready(function () {
+            $('#tabs a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block header %}
+    {{ macros.page_title(key='MAP', title=_('Multi-axis Plot'), hint=_('Multi-axis Plot Hint'), hasAction=true) }}
+{% endblock %}
+
+{% block midbody %}
+    <div class="card monitor-icons">
+        <form class="GUIForm" id="traceDataForm" onSubmit="return false;">
+            {{ macros.end_proc(procs,'', traceData=false, showStartProc=true, title=_('MAP select variables hover msg')) }}
+            {{ macros.data_finder_card() }}
+            {{ macros.start_proc(showAutoUpdate=false) }}
+            {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}
+            <br class="graph-navi graph-navi-top-down" />
+            <div class="d-flex align-items-center justify-content-center show-graph-div">
+                <div id="xAxisGuiArea" class="mr-2"></div>
+                <div class="mr-2">{{ macros.x_index_info() }}</div>
+
+                {{ macros.preprocess_options(outlier=False, dup=True) }}
+                <div id="DisplayGraphButtonComponent"></div>
+            </div>
+            <br />
+            {{ macros.index_order_modal(showNumerics=True, showCategoryAggregate=True) }}
+            {{ macros.index_order_modal(modalId='xAxisModal2', tableId='serialTable2', addBtnId='btnAddSerial2', okBtnId='btnXAxisModalOK2', cancelBtnId='btnXAxisModalCancel2',showNumerics=True, showCategoryAggregate=True, prefix='term') }}
+        </form>
+        {{ macros.cat_label_filter_modal() }}
+    </div>
+    <br />
+    <div id="plot-card-container" class="plot-content" style="display: none;">
+        <div class="mb-2 d-flex align-items-center" id="graph-settings-area">
+            {{ macros.info_i_mark() }}
+            {{ macros.on_demand_filter() }}
+            <div id="MaPGraphSettingReact" class="ml-2 w-100"></div>
+        </div>
+        <div class="card graph-navi" id="plot-cards">
+            <div class="react-root" data-component="MultiAxisPlot"></div>
+        </div>
+    </div>
+
+    <div class="loading"></div>
+    <div style="display: none;" id="msgErrorDBConnection">{{ _("Could not access") }}</div>
+    <a
+        style="display: none;"
+        id="msgErrorDBConnectionAction"
+        href="{{ url_for('setting_module.config_screen') }}"
+        target="_blank"
+        >{{ _("Click here to fix") }}</a
+    >
+
+    {{ macros.data_point_info() }}
+    {{ optdata }}
+{% endblock %}
+
+{% block js %}
+    <!-- prettier-ignore-start -->
+    <script>
+        const procJsons = {{ list_procs | safe }};
+        const hasGraphCfgsFilterDetails = {{ graph_filter_detail_ids | safe }};
+        const procConfigs = {};
+        for (let procJson of procJsons) {
+            const cfgProcess = new CfgProcess(procJson);
+            procConfigs[cfgProcess.id] = cfgProcess;
+        }
+    </script>
+    <!-- prettier-ignore-end -->
+    {% assets "js_map" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "css_map" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %}
+{% endblock %}

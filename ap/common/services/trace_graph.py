@@ -141,3 +141,9 @@ class TraceGraph:
         graph = self.directed_graph
         topo_order = list(nx.lexicographical_topological_sort(graph))
         return topo_order
+
+    def get_relationship_type(self, from_proc, to_proc):
+        cfg_trace_object = CfgTrace.get_by_from_to_proc(from_proc, to_proc)
+        if not cfg_trace_object:
+            raise RuntimeError(f'no relationship between {from_proc} and {to_proc}')
+        return cfg_trace_object.relationship_type

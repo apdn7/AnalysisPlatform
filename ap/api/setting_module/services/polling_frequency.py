@@ -44,8 +44,9 @@ from ap.common.jobs.job_info_schema import (
 )
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
+from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
-from ap.common.timezone_utils import get_datetime_utc_from_str_with_timezone
+from ap.common.timezone_utils import get_datetime_from_str
 from ap.etl.pull.pull_data import add_pull_transaction_data_job
 from ap.setting_module.models import (
     CfgDataSource,
@@ -53,9 +54,11 @@ from ap.setting_module.models import (
     CfgProcess,
     JobManagement,
     make_session,
+    populate_missing_bridge_column_names,
 )
 from ap.setting_module.schemas import ProcessColumnSchema, ProcessSchema
 from ap.setting_module.services.background_process import send_processing_info
+from ap.trace_data.transaction_model import TransactionData
 
 
 @log_execution_time()
@@ -303,7 +306,7 @@ def add_export_job(export_config: CfgExport, run_now=False):
 
 def trigger_scheduler(export_periodic, client_timezone=None):
     client_timezone = ZoneInfo(client_timezone) if client_timezone else tz.tzlocal()
-    start_date = get_datetime_utc_from_str_with_timezone(client_timezone, export_periodic.start_time)
+    start_date = get_datetime_from_str(export_periodic.start_time)
     match export_periodic.interval_unit:
         case CfgExportPeriodicUnit.DAY.value:
             return IntervalTrigger(days=export_periodic.interval_value, start_date=start_date), client_timezone
@@ -343,6 +346,8 @@ def update_process_info(process_id: int, status: ProcessStatus, ja_locale: bool)
     Update process info after run bulk register from SW datasource
         - columns
         - status
+
+    Persist bridge column names after the replacement relationship receives database-generated IDs.
     """
     with make_session() as meta_session:
         process = meta_session.query(CfgProcess).get(process_id)
@@ -383,6 +388,11 @@ def update_process_info(process_id: int, status: ProcessStatus, ja_locale: bool)
 
         process.columns = sw_columns
         process.status = status.value
+
+        # Flush replacement columns once for IDs, then persist their stable physical names before session commit.
+        meta_session.flush()
+        if populate_missing_bridge_column_names(sw_columns):
+            meta_session.flush()
     return process
 
 
@@ -405,6 +415,19 @@ def bulk_register_process(
         error_message = None
         try:
             process = update_process_info(pid, status=process_status, ja_locale=ja_locale)
+
+            # Initialize the transaction DB files (DuckDB + SQLite) with the correct schema
+            # immediately after registration. Without this step, the files are only created
+            # when actual data is imported. If the datasource has no records to import,
+            # downstream APIs (e.g. /full_data_range) that open the DB in read-only mode
+            # would raise a 500 error because the files do not yet exist.
+            with (
+                TxnMetaConnection(process_id=process.id) as meta_conn,
+                TxnDataConnection(process_id=process.id, readonly_transaction=False) as data_con,
+            ):
+                trans = TransactionData(process)
+                trans.create_table(data_con, meta_conn)
+
             bulk_process_register_job_info.registered_process_count += 1
             bulk_process_register_job_info.success_processes.append(
                 BulkProcessRegisterJobInfo.BulkProcessRegisterSuccessData(

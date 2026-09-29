@@ -18,6 +18,7 @@ from ap.api.common.services.show_graph_services import (
     filter_cat_dict_common,
     gen_before_rank_dict,
     gen_cat_label_unique,
+    get_axis_title_with_unit,
     get_cfg_proc_col_info,
     get_chart_infos,
     get_data_from_db,
@@ -36,7 +37,6 @@ from ap.common.common_utils import (
     convert_time,
     create_file_path,
     end_of_minute,
-    gen_sql_label,
     start_of_minute,
 )
 from ap.common.constants import (
@@ -699,7 +699,7 @@ def gen_plotdata_for_var(dic_proc_cfgs, dic_data, cat_exp_box_cols):
                 END_PROC_ID: cfg_col.process_id,
                 END_PROC_NAME: cfg_proc.shown_name,
                 END_COL: end_col,
-                END_COL_NAME: cfg_col.shown_name,
+                END_COL_NAME: get_axis_title_with_unit(cfg_col),
                 CAT_EXP_BOX: cat_exp_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
                 COL_DATA_TYPE: cfg_col.data_type,
@@ -709,7 +709,10 @@ def gen_plotdata_for_var(dic_proc_cfgs, dic_data, cat_exp_box_cols):
     return plotdatas
 
 
-def gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols=[]):
+def gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols=None):
+    if cat_exp_box_cols is None:
+        cat_exp_box_cols = []
+
     plotdatas = []
     cat_exp_box_proc_name = []
     col_ids = list(dic_data.keys()) + cat_exp_box_cols
@@ -728,7 +731,7 @@ def gen_plotdata_one_proc(dic_proc_cfgs, dic_data, cat_exp_box_cols=[]):
                 END_PROC_ID: cfg_col.process_id,
                 END_PROC_NAME: cfg_proc.shown_name,
                 END_COL: end_col,
-                END_COL_NAME: cfg_col.shown_name,
+                END_COL_NAME: get_axis_title_with_unit(cfg_col),
                 CAT_EXP_BOX: cat_value,
                 CAT_EXP_BOX_NAME: cat_exp_box_proc_name,
                 COL_DATA_TYPE: cfg_col.data_type,
@@ -744,7 +747,7 @@ def save_input_data_to_gen_images(df: DataFrame, graph_param):
     for proc in graph_param.array_formval:
         col_ids_names = sorted(zip(proc.col_ids, proc.col_names, strict=False))
         for col_id, col_name in col_ids_names:
-            sql_label = gen_sql_label(col_id, col_name)
+            sql_label = graph_param.gen_label_from_col_id(col_id)
             if sql_label in df.columns:
                 dic_rename_columns[sql_label] = col_name
 

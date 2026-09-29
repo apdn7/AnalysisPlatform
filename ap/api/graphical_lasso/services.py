@@ -10,13 +10,13 @@ from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    get_axis_title_with_unit,
     get_data_from_db,
     get_filter_on_demand_data,
     is_nominal_check,
     main_check_filter_detail_match_graph_data,
 )
 from ap.api.sankey_plot.sankey_glasso.grplasso import labelencode_by_stat
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
@@ -94,11 +94,12 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
     cat_col_details = []
     for i, col_id in enumerate(sensor_cols):
         general_col_info = graph_param.get_col_info_by_id(col_id)
-        label = gen_sql_label(col_id, general_col_info[END_COL_NAME])
+        label = graph_param.gen_label_from_col_id(col_id)
         if label not in df.columns:
             continue
 
         proc_cfg = graph_param.dic_proc_cfgs[general_col_info[END_PROC_ID]]
+        col_cfg = proc_cfg.get_col(col_id)
         is_string_col = general_col_info[IS_CATEGORY]
         if is_string_col:
             cat_sensors.append(label)
@@ -120,7 +121,7 @@ def gen_graphical_lasso(graph_param, dic_param, df=None):
             cat_ids[col_id] = label
         if label in df.columns:
             df_sensor[label] = df[label]
-            sensor_names.append(general_col_info[SHOWN_NAME])
+            sensor_names.append(get_axis_title_with_unit(col_cfg) or general_col_info[SHOWN_NAME])
             process_names.append(general_col_info[END_PROC_NAME])
             if df_sensor[label].dtypes == 'object' and not is_string_col:
                 df_sensor[label] = df_sensor[label].astype('Float64')

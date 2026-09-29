@@ -89,6 +89,10 @@ const bindCategorySort = () => {
 };
 
 const setMouseDown = () => {
+    if (dragDropInterval) {
+        clearInterval(dragDropInterval);
+        dragDropInterval = null;
+    }
     isDragDrop = false;
     dragDropTime = 0;
     dragDropInterval = setInterval(() => {
@@ -97,7 +101,10 @@ const setMouseDown = () => {
 };
 
 const setMouseUp = () => {
-    clearInterval(dragDropInterval);
+    if (dragDropInterval) {
+        clearInterval(dragDropInterval);
+        dragDropInterval = null;
+    }
     if (dragDropTime >= DELAY_MOUSE_TIME) {
         isDragDrop = true;
     } else {
@@ -260,7 +267,6 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
         modalEls.catExpBox.sortable({
             axis: 'x',
         });
-
         modalEls.categoriesBox.sortable({
             axis: 'x',
             change: function () {
@@ -341,12 +347,14 @@ const onDemandFilterInputCheck = () => {
         });
 };
 function moveCheckedLabelsToTop() {
-    $('.column-datas').mouseleave(function () {
-        const ischanged = sortHtmlElements($(this), true);
-        if (ischanged) {
-            $(this).scrollTop(0);
-        }
-    });
+    $('.column-datas')
+        .off('mouseleave.catFilter')
+        .on('mouseleave.catFilter', function () {
+            const ischanged = sortHtmlElements($(this), true);
+            if (ischanged) {
+                $(this).scrollTop(0);
+            }
+        });
 }
 
 function getSortedCatExpAndCategories() {

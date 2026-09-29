@@ -909,8 +909,8 @@ function judgeChart($, paramObj, chartLabels = null, tabID = null, xaxis = 'TIME
 
     const canvas = $(`#${canvasId}`).get(0);
     const chart = new Chart(ctx, config);
-    canvas.addEventListener('contextmenu', rightClickHandler, false);
-    canvas.addEventListener('mousedown', handleMouseDown, false);
+    registerChartEventListener(canvas, 'contextmenu', rightClickHandler);
+    registerChartEventListener(canvas, 'mousedown', handleMouseDown);
 
     function handleMouseDown() {
         // later, not just mouse down, + mouseout of menu

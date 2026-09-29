@@ -16,7 +16,6 @@ from ap.api.common.services.show_graph_services import (
     get_chart_infos,
     get_data_from_db,
 )
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import (
     ACT_FROM,
     ACT_TO,
@@ -177,8 +176,9 @@ def extract_serial(df: pd.DataFrame, serial_cols, serial_value):
 
 
 def get_serial_cols(cfg_proc):
+    """Return stable normal-result keys for a process's serial columns."""
     serial_cols = cfg_proc.get_serials(column_name_only=False)
-    serials = [gen_sql_label(serial_col.id, serial_col.column_name) for serial_col in serial_cols]
+    serials = [serial_col.bridge_column_name for serial_col in serial_cols]
     return serials
 
 
@@ -215,7 +215,7 @@ def gen_stats_table(
         serial_ids = []
         serial_vals = []
         for serial in serial_col_cfgs:
-            serial_label = gen_sql_label(serial.id, serial.column_name)
+            serial_label = serial.bridge_column_name
             if serial_label not in df.columns or df.empty:
                 continue
             serial_ids.append(serial.id)
@@ -266,7 +266,7 @@ def gen_stats_table(
             row.append(col_show_name)
 
             # Value
-            col_label = gen_sql_label(col_id, col_name)
+            col_label = proc_cfg.get_col(col_id).bridge_column_name
             col_val = parse_column_value(df, col_label)
             row.append(col_val)
 
@@ -435,7 +435,7 @@ def gen_list_table(graph_param, df, client_timezone):
         serial_vals = []
         proc_rows = []
         for serial in serial_col_cfgs:
-            serial_label = gen_sql_label(serial.id, serial.column_name)
+            serial_label = serial.bridge_column_name
             if serial_label not in df.columns or df.empty:
                 continue
             serial_ids.append(serial.id)
@@ -487,7 +487,7 @@ def gen_list_table(graph_param, df, client_timezone):
             row.append(cfg_col.shown_name)
 
             # Value
-            col_label = gen_sql_label(cfg_col.id, cfg_col.column_name)
+            col_label = cfg_col.bridge_column_name
             col_val = parse_column_value(df, col_label)
             if cfg_col.is_get_date and not pd.isna(time_val) and time_val:
                 time_val = convert_and_format(time_val, client_timezone, DATE_FORMAT_STR_CSV)

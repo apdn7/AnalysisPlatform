@@ -112,14 +112,20 @@ $table-filter-height: 40px;
                 &:nth-child(1) th {
                     height: $table-head-col-height !important;
                     top: 0;
-                    z-index: 102;
+
+                    // Keep the main sticky header above the filter row/body,
+                    // but below the desktop sidebar (z-index: 9999).
+                    z-index: 2;
+
                     padding: 4px 8px !important;
                 }
 
                 &:nth-child(2) th {
                     height: $table-filter-height !important;
                     top: $table-head-col-height;
-                    z-index: 101;
+
+                    // The filter row stays below the main header and must not overlap the expanded sidebar.
+                    z-index: 1;
                 }
             }
         }

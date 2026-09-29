@@ -91,28 +91,50 @@ def show_proc_link_info():
     """
     # count matched per edge
     dic_proc_cnt = {}
-    trans = [TransactionData(proc_id) for proc_id in CfgProcess.get_all_ids()]
+    current_proc_ids = CfgProcess.get_all_ids()
+    active_proc_id_set = {str(proc_id) for proc_id in current_proc_ids}
+    trans = [TransactionData(proc_id) for proc_id in current_proc_ids]
     for tran_data in trans:
-        with TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=True) as data_con:
+        data_count = 0
+        try:
+            with TxnDataConnection(process_id=tran_data.process_id, readonly_transaction=True) as data_con:
+                if tran_data.is_table_exist(data_con):
+                    data_count = tran_data.count_data(data_con)
+        except FileNotFoundError:
+            # Process transaction source may be deleted while counting.
             data_count = 0
-            if tran_data.is_table_exist(data_con):
-                data_count = tran_data.count_data(data_con)
-            dic_proc_cnt[str(tran_data.process_id)] = data_count
+        except _duckdb.IOException as e:
+            if _is_missing_transaction_source_error(e):
+                # Process transaction source may be deleted while counting.
+                data_count = 0
+            else:
+                raise
+        dic_proc_cnt[str(tran_data.process_id)] = data_count
 
     dic_edge_cnt = {}
     data = ProcLinkCount.calc_proc_link()
     for row in data:
         proc_id = str(row.process_id)
         target_proc_id = str(row.target_process_id)
+        if proc_id not in active_proc_id_set or target_proc_id not in active_proc_id_set:
+            continue
         cnt = row.matched_count
         dic_edge_cnt[f'{proc_id}-{target_proc_id}'] = cnt
-        if proc_id not in dic_proc_cnt:
-            dic_proc_cnt[proc_id] = cnt
-
-        if target_proc_id not in dic_proc_cnt:
-            dic_proc_cnt[target_proc_id] = cnt
 
     return dic_proc_cnt, dic_edge_cnt
+
+
+def _is_missing_transaction_source_error(error: _duckdb.IOException) -> bool:
+    message = str(error).lower()
+    return any(
+        missing_source_message in message
+        for missing_source_message in (
+            'no such file or directory',
+            'does not exist',
+            'not found',
+            'no files found that match',
+        )
+    )
 
 
 def count_proc_links():
@@ -223,7 +245,7 @@ def convert_datetime_to_integer(dt):
 
 def rename_df_column_for_dict(dict_rename_columns, dic_col_groups_equation):
     """
-    Rename from db name to "gen_sql_label" type.
+    Rename from the database column name to the namespaced derived-column key format.
     See: gen_column_info_dic_for_equation for tuple format
 
     :param dict_rename_columns:

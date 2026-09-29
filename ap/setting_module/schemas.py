@@ -801,6 +801,40 @@ class ProcessOnlySchema(BaseSchema):
     labels = fields.Nested('LabelSchema', many=True)
 
 
+class InternalProcessColumnSchema(ProcessColumnSchema):
+    """Deserialize persisted process-column identifiers during internal graph detachment."""
+
+    # Public schemas keep this field dump-only; this internal schema restores it after the dump/load round-trip.
+    bridge_column_name = fields.String(required=False, allow_none=True)
+    parent_column = fields.Nested('InternalProcessColumnSchema', allow_none=True)
+
+
+class InternalFilterSchema(FilterSchema):
+    """Deserialize filter column references with persisted internal identifiers."""
+
+    column = fields.Nested(InternalProcessColumnSchema, allow_none=True)
+
+
+class InternalVisualizationSchema(VisualizationSchema):
+    """Deserialize visualization column references with persisted internal identifiers."""
+
+    control_column = fields.Nested(InternalProcessColumnSchema)
+    filter_column = fields.Nested(InternalProcessColumnSchema, allow_none=True)
+
+
+class InternalTraceKeySchema(TraceKeySchema):
+    """Deserialize trace-key column references with persisted internal identifiers."""
+
+    self_column = fields.Nested(InternalProcessColumnSchema)
+    target_column = fields.Nested(InternalProcessColumnSchema)
+
+
+class InternalTraceSchema(TraceSchema):
+    """Deserialize trace relationships through the internal trace-key schema."""
+
+    trace_keys = fields.Nested(InternalTraceKeySchema, many=True)
+
+
 class CfgUserSettingSchema(BaseSchema):
     """Schema for user setting configuration.
 
@@ -844,10 +878,51 @@ class ShowGraphSchema(ProcessSchema):
         exclude = ('comment', 'order', *EXCLUDE_COLS)
 
     id = fields.Integer(required=False, allow_none=True)
-    columns = Nested(ProcessColumnSchema, many=True)
-    filters = Nested(FilterSchema, many=True)
+    columns = Nested(InternalProcessColumnSchema, many=True)
+    traces = Nested(InternalTraceSchema, many=True)
+    filters = Nested(InternalFilterSchema, many=True)
     data_source = Nested(DataSourceSchema)
-    visualizations = Nested(VisualizationSchema, many=True)
+    visualizations = Nested(InternalVisualizationSchema, many=True)
+
+    @post_load
+    def relink_column_references(self, process: CfgProcess, **_kwargs: Mapping[Any, Any]) -> CfgProcess:
+        """Relink internal nested references to canonical objects from ``process.columns``.
+
+        Args:
+            process: Detached process reconstructed from the internal graph schema.
+
+        Returns:
+            Process whose local filter, visualization, trace, and parent references share canonical column objects.
+        """
+        # Canonicalize only columns owned by this process; cross-process trace references keep their detached objects.
+        columns_by_id = {column.id: column for column in process.columns if column.id is not None}
+
+        # Parent relationships should share the same local metadata object when the parent belongs to this process.
+        for column in process.columns:
+            if column.parent_column is not None and column.parent_column.id in columns_by_id:
+                column.parent_column = columns_by_id[column.parent_column.id]
+
+        # Filter evaluation must read the same persisted bridge name exposed by the process column collection.
+        for cfg_filter in process.filters:
+            if cfg_filter.column is not None and cfg_filter.column.id in columns_by_id:
+                cfg_filter.column = columns_by_id[cfg_filter.column.id]
+
+        # Visualization controls and optional filter columns use canonical local metadata when available.
+        for visualization in process.visualizations:
+            if visualization.control_column is not None and visualization.control_column.id in columns_by_id:
+                visualization.control_column = columns_by_id[visualization.control_column.id]
+            if visualization.filter_column is not None and visualization.filter_column.id in columns_by_id:
+                visualization.filter_column = columns_by_id[visualization.filter_column.id]
+
+        # Trace keys may reference this process on either side; relink each side independently by column ID.
+        for trace in process.traces:
+            for trace_key in trace.trace_keys:
+                if trace_key.self_column is not None and trace_key.self_column.id in columns_by_id:
+                    trace_key.self_column = columns_by_id[trace_key.self_column.id]
+                if trace_key.target_column is not None and trace_key.target_column.id in columns_by_id:
+                    trace_key.target_column = columns_by_id[trace_key.target_column.id]
+
+        return process
 
 
 class CfgOptionSchema(BaseSchema):
@@ -963,6 +1038,7 @@ class VisTraceOutSchema(BasePydanticModel):
 
     self_process_id: int
     target_process_id: int
+    relationship_type: str
     trace_keys: list[VisTraceKeyOutSchema]
 
 

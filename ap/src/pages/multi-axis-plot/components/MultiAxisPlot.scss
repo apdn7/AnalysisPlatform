@@ -1,0 +1,614 @@
+#multi-axis-plot {
+    min-height: 100%;
+}
+
+#plot-card-container,
+#plot-cards,
+#plot-cards > .react-root,
+#multi-axis-plot {
+    width: 100%;
+}
+
+#plot-cards {
+    max-width: none;
+}
+
+.multi-axis-plot__charts {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.multi-axis-plot__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.multi-axis-plot__label {
+    font-weight: 600;
+}
+
+.multi-axis-plot__select {
+    min-width: 96px;
+    padding: 0.375rem 0.625rem;
+    border: 1px solid rgba(15, 23, 42, 0.2);
+    border-radius: 4px;
+    background: #fff;
+    color: #111827;
+}
+
+.multi-axis-plot__chart {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 6px;
+}
+
+.multi-axis-plot__title {
+    margin: 0 0 0.75rem;
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.multi-axis-plot__plot {
+    width: 100%;
+    height: 100%;
+}
+
+.multi-axis-plot__context-target {
+    width: 100%;
+    height: 100%;
+}
+
+.multi-axis-plot__context-menu {
+    position: fixed;
+    z-index: 2000;
+    display: flex;
+    min-width: 180px;
+    padding: 4px 0;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    button {
+        padding: 8px 14px;
+        border: 0;
+        background: transparent;
+        color: #222;
+        text-align: left;
+
+        &:hover:not(:disabled),
+        &:focus-visible {
+            background: #f0f0f0;
+            outline: none;
+        }
+
+        &:disabled {
+            color: #999;
+            cursor: wait;
+        }
+    }
+}
+
+.multi-axis-plot__context-menu-label {
+    padding: 6px 14px 4px;
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.multi-axis-plot__context-menu-separator {
+    height: 1px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.multi-axis-plot__plot .js-plotly-plot,
+.multi-axis-plot__plot .plot-container,
+.multi-axis-plot__plot .svg-container,
+.multi-axis-plot__plot .main-svg {
+    width: 100%;
+}
+
+.multi-axis-plot-limit-modal {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    z-index: 3000;
+    min-width: 590px;
+    padding: 6px 16px 8px;
+    transform: translateX(-50%);
+    background: #4a4a4a;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1.35;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.multi-axis-plot-limit-modal__title {
+    margin-bottom: 3px;
+    font-weight: 700;
+}
+
+.multi-axis-plot-limit-modal__row {
+    display: grid;
+    grid-template-columns: 108px 56px 1fr;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+
+    > span {
+        grid-column: 2 / -1;
+    }
+
+    .multi-axis-plot-limit-modal__nth + span {
+        grid-column: auto;
+    }
+}
+
+.multi-axis-plot-limit-modal__data-options {
+    display: grid;
+    grid-template-columns: 56px 46px 1fr;
+    grid-template-rows: repeat(2, 30px);
+    align-items: center;
+    gap: 0 6px;
+
+    .multi-axis-plot-limit-modal__button {
+        width: 56px;
+        padding: 0 2px;
+        font-size: 13px;
+    }
+
+    .multi-axis-plot-limit-modal__nth {
+        grid-column: 2;
+        grid-row: 1 / 3;
+        align-self: center;
+    }
+
+    &.multi-axis-plot-limit-modal__data-options--single-row {
+        grid-template-rows: 30px;
+
+        .multi-axis-plot-limit-modal__nth {
+            grid-row: 1;
+        }
+    }
+}
+
+.multi-axis-plot-limit-modal__button {
+    width: 108px;
+    height: 22px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 3px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 22px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.multi-axis-plot-limit-modal__button--jump {
+    background: #4b73a8;
+}
+
+.multi-axis-plot-limit-modal__button--primary {
+    background: #41bb8b;
+}
+
+.multi-axis-plot-limit-modal__button--cancel {
+    background: #d4d9df;
+    color: #111111;
+}
+
+.multi-axis-plot-limit-modal__nth {
+    display: flex;
+    width: 46px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+
+    input {
+        width: 46px;
+        height: 22px;
+        padding: 0 4px;
+        border: 0;
+        border-radius: 3px;
+        background: #303030;
+        color: #ffffff;
+        font-size: 14px;
+        line-height: 22px;
+        text-align: center;
+    }
+}
+
+.menu-item-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    #multi-axis-plot {
+        padding: 0.75rem;
+    }
+
+    .multi-axis-plot__chart {
+        padding: 8px;
+    }
+
+    .multi-axis-plot__charts {
+        gap: 0.75rem;
+    }
+
+    .multi-axis-plot__title {
+        font-size: 1.5rem;
+    }
+
+    .multi-axis-plot__plot {
+        min-height: 620px;
+    }
+
+    .multi-axis-plot-limit-modal {
+        left: 8px;
+        min-width: auto;
+        width: calc(100vw - 16px);
+        transform: none;
+        font-size: 14px;
+    }
+
+    .multi-axis-plot-limit-modal__row {
+        grid-template-columns: 82px 50px 1fr;
+    }
+
+    .multi-axis-plot-limit-modal__data-options {
+        grid-template-columns: 50px 26px 1fr;
+    }
+
+    .multi-axis-plot-limit-modal__data-options .multi-axis-plot-limit-modal__button {
+        width: 50px;
+        padding: 0 2px;
+        font-size: 12px;
+    }
+
+    .multi-axis-plot-limit-modal__button {
+        width: 82px;
+        font-size: 13px;
+    }
+
+    .multi-axis-plot-limit-modal__nth,
+    .multi-axis-plot-limit-modal__nth input {
+        width: 26px;
+    }
+
+    .multi-axis-plot-limit-modal__nth input {
+        padding: 0 2px;
+        font-size: 12px;
+    }
+}
+
+.radix-demo-trigger {
+    width: auto;
+    min-width: 140px;
+    border-color: #fff;
+}
+
+.radix-demo-content {
+    display: block;
+    min-width: 180px;
+    z-index: 1200;
+}
+
+.radix-demo-label {
+    cursor: default;
+}
+
+.radix-demo-item,
+.radix-demo-checkbox-item,
+.radix-demo-radio-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    padding-left: 28px;
+
+    &[data-highlighted] {
+        color: #262626;
+        text-decoration: none;
+        background-color: #f5f5f5;
+        outline: none;
+    }
+
+    &[data-disabled] {
+        color: #777;
+        pointer-events: none;
+        cursor: not-allowed;
+        background-color: transparent;
+    }
+}
+
+.radix-demo-shortcut {
+    margin-left: auto;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.radix-demo-separator {
+    margin: 9px 0;
+}
+
+.radix-demo-indicator {
+    position: absolute;
+    left: 8px;
+    font-size: 11px;
+}
+
+.radix-demo-arrow {
+    fill: #fff;
+}
+
+.x-axis-map {
+    min-width: fit-content !important;
+    width: fit-content !important;
+}
+
+.fit-content {
+    width: fit-content !important;
+    min-width: fit-content !important;
+}
+
+.group-btn-set {
+    background-color: #303030;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+.group-btn {
+    text-transform: capitalize;
+
+    &.active {
+        background-color: #ffffff;
+        color: #222222;
+    }
+}
+
+button.layout-variable-cell__trigger:after {
+    content: '▼';
+    color: #fff;
+    margin-right: 4px;
+    font-size: 6.5px;
+    margin-top: 4px;
+}
+
+.layout-variable-cell {
+    position: relative;
+
+    &__trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 3px;
+        height: 24px;
+        width: 100%;
+        padding: 0;
+        border: 1px solid #222222;
+        border-radius: 0.25rem;
+        color: #ffffff;
+        background-color: #222222;
+        cursor: pointer;
+        font-size: 13px;
+        overflow: hidden;
+        box-sizing: border-box;
+
+        .display-layout-value {
+            width: 100%;
+            text-align: center;
+        }
+
+        &:hover {
+            background-color: #353030;
+        }
+    }
+
+    &__panel-wrapper {
+        z-index: 1200;
+        width: 356px;
+        max-width: calc(100vw - 16px);
+        max-height: var(--radix-popover-content-available-height);
+        overflow-y: auto;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        background: #1e1e1e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        transform-origin: var(--radix-popover-content-transform-origin);
+
+        &--small {
+            width: 60px;
+        }
+    }
+}
+
+.layout-variable-panel {
+    --layout-column-width: 80px;
+    --layout-number-button-width: 38px;
+    --layout-button-gap: 4px;
+    --layout-button-height: 24px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    font-family: 'Calibri Light', serif;
+
+    &__section-title {
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: #ffffff;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    &__toggle-group {
+        display: grid;
+        grid-template-columns: repeat(4, var(--layout-column-width));
+        justify-content: start;
+        gap: var(--layout-button-gap);
+
+        .layout-toggle-btn {
+            width: var(--layout-column-width);
+        }
+    }
+
+    &__primary-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+
+        .layout-toggle-btn {
+            width: 100%;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            color: #ffffff;
+            font-size: 13px;
+            text-align: center;
+
+            &:hover {
+                background: #3a3a3a;
+            }
+
+            &--active {
+                background: #29f;
+                border-color: #29f;
+                color: #fff;
+                &:hover {
+                    background: #29f;
+                    border-color: #29f;
+                }
+            }
+        }
+    }
+
+    &--primary {
+        padding: 0 0;
+    }
+
+    &__divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-bottom: 12px;
+    }
+}
+
+.layout-toggle-btn {
+    padding: 2px 2px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    background: #2a2a2a;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 14px;
+    width: var(--layout-column-width);
+    height: 29px;
+    min-width: 0;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+        background: #3a3a3a;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &--active {
+        background: #29f;
+        border-color: #29f;
+        color: #fff;
+        &:hover {
+            background: #29f;
+            border-color: #29f;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+
+        &:hover {
+            background: 0 0;
+            border-color: #2a2a2a;
+        }
+    }
+}
+
+.layout-subplot-row {
+    display: grid;
+    grid-template-columns: repeat(4, var(--layout-column-width));
+    align-items: center;
+    column-gap: var(--layout-button-gap);
+    margin-bottom: 6px;
+
+    &__label {
+        width: var(--layout-column-width);
+        font-size: 14px;
+        color: #ffffff;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__buttons {
+        display: grid;
+        grid-column: 2 / -1;
+        grid-auto-flow: column;
+        grid-auto-columns: var(--layout-number-button-width);
+        justify-content: start;
+        gap: var(--layout-button-gap);
+    }
+
+    &__btn {
+        width: var(--layout-number-button-width);
+        height: var(--layout-button-height);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        background: #2a2a2a;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 0;
+
+        &:hover {
+            background: #3a3a3a;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        &--active {
+            background: #29f;
+            border-color: #29f;
+            color: #fff;
+        }
+
+        &:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            &:hover {
+                background: #2a2a2a;
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+        }
+    }
+
+    &--disabled {
+        opacity: 0.5;
+        .layout-subplot-row__label {
+            color: #999;
+        }
+    }
+}

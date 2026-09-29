@@ -8,13 +8,12 @@ let tabID = null;
 const graphStore = new GraphStore();
 let isValid = false;
 let xAxisShowSettings;
-let availableOrderingSettings = {};
 let isShowIndexInGraphArea = false;
-let updateOrderCols = false;
 let fppScaleOption = {
     xAxis: null,
     yAxis: null,
 };
+const isMultiAxisPlotPage = () => !!document.querySelector('[data-component="MultiAxisPlot"]');
 
 const formElements = {
     formID: '#traceDataForm',
@@ -89,6 +88,15 @@ const i18n = {
     priority: $('#i18nPriority').text() || '',
     ascending: $('#i18nAscending').text() || '',
     descending: $('#i18nDescending').text() || '',
+    originalOrder: $('#i18nOriginalOrder').text() || 'Original order',
+    nameAscending: $('#i18nNameAscending').text() || 'Name A -> Z',
+    nameDescending: $('#i18nNameDescending').text() || 'Name Z -> A',
+    countAscending: $('#i18nCountAscending').text() || 'Count Low -> High',
+    countDescending: $('#i18nCountDescending').text() || 'Count High -> Low',
+    valueAscending: $('#i18nValueAscending').text() || 'Metric Low -> High',
+    valueDescending: $('#i18nValueDescending').text() || 'Metric High -> Low',
+    serialAscending: $('#i18nSerialAscending').text() || 'Ascending',
+    serialDescending: $('#i18nSerialDescending').text() || 'Descending',
     nonNARatio: $('#i18nNonNARatio').text() || '',
     variable: $('#i18nVariable').text(),
     process: $('#i18nProcess').text(),
@@ -118,34 +126,6 @@ const i18n = {
     to: $('#i18nTo').text(),
 };
 
-const updateIndexInforTable = () => {
-    const serialTable = $('#serialTable tbody');
-    $('#index-infor-table tbody').empty();
-    let indexTbodyDOM = '';
-    serialTable.find('tr').each((key, tr) => {
-        indexTbodyDOM += '<tr>';
-        const tdDOM = $(tr).find('td');
-        indexTbodyDOM += `<td>${$(tdDOM[0]).text()}</td>`;
-        indexTbodyDOM += `<td>${$(tdDOM[1]).find('select[name="serialProcess"] option:selected').text()}</td>`;
-        indexTbodyDOM += `<td>${$(tdDOM[2]).find('select[name="serialColumn"] option:selected').text()}</td>`;
-        indexTbodyDOM += `<td>${$(tdDOM[3]).find('select[name="serialOrder"] option:selected').text()}</td>`;
-        indexTbodyDOM += '</tr>';
-    });
-    $('#index-infor-table tbody').append(indexTbodyDOM);
-};
-const triggerSerialTableEvents = () => {
-    $('.index-inform')
-        .unbind('mouseenter')
-        .on('mouseenter', () => {
-            $('.index-inform-content').show();
-            updateIndexInforTable();
-        });
-
-    $('.index-inform-content').on('mouseleave', () => {
-        $('.index-inform-content').hide();
-    });
-};
-
 $(() => {
     // generate tab ID
     while (tabID === null || sessionStorage.getItem(tabID)) {
@@ -167,7 +147,8 @@ $(() => {
         showStrColumn: true,
         showCatExp: true,
         isRequired: true,
-        showLabel: true,
+        showLayout: isMultiAxisPlotPage(),
+        showLabel: !isMultiAxisPlotPage(),
         showFilter: true,
     });
     endProcItem();
@@ -247,17 +228,6 @@ $(() => {
     bindScatterPlotEvents();
 });
 
-const autoScrollToChart = (milisec = 100) => {
-    // Move screen to graph after pushing グラフ表示 button
-    loadingHide();
-    $('html, body').animate(
-        {
-            scrollTop: getOffsetTopDisplayGraph(formElements.traceDataTabs),
-        },
-        milisec,
-    );
-};
-
 const buildTimeSeriesCardHTML = (chartOption, cssName) => {
     const { index } = chartOption;
     const { endProcName } = chartOption;
@@ -329,6 +299,17 @@ const buildTimeSeriesCardHTML = (chartOption, cssName) => {
 const cleanOldChartsAndResults = () => {
     graphStore.setClickedPointIndexes(new Set());
     graphStore.destroyAllGraphInstances();
+
+    // Release Plotly internals before removing histogram tab DOM.
+    document.querySelectorAll('.hd-plot').forEach((plotEl) => {
+        if (typeof Plotly !== 'undefined' && Plotly.purge) {
+            try {
+                Plotly.purge(plotEl);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    });
 
     // clean old htmls
     $(formElements.cateCard).empty();
@@ -1012,6 +993,17 @@ const drawHistogramsTab = (
     isReset = true,
     frequencyOption = fppScaleOption.xAxis,
 ) => {
+    // Purge old Plotly instances before replacing histogram tab nodes.
+    document.querySelectorAll('.hd-plot').forEach((plotEl) => {
+        if (typeof Plotly !== 'undefined' && Plotly.purge) {
+            try {
+                Plotly.purge(plotEl);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    });
+
     $(formElements.histogramTab).empty();
     $(formElements.histogramTab).css('display', 'block');
 
@@ -1113,7 +1105,14 @@ const drawHistogramsTab = (
 
             const procName = plotdata.end_proc_name;
             const canvasHeight = $(`#${canvasId}`).height();
-            let yTitle = `${historyColumnName} | ${procName}`;
+            const unitText = plotdata.unit && plotdata.unit !== 'Null' ? ` [${plotdata.unit}]` : '';
+            const isCTCol = isCycleTimeCol(endProcId, plotdata.end_col_id);
+            const histColumnTitle = isCTCol
+                ? `${historyColumnName} (${DataTypes.DATETIME.short}) [sec]`
+                : unitText
+                  ? `${historyColumnName}${unitText}`
+                  : historyColumnName;
+            let yTitle = `${histColumnTitle} | ${procName}`;
             yTitle = trimTextLengthByPixel(yTitle, canvasHeight - 100, 10);
 
             const histParam = {
@@ -1137,11 +1136,6 @@ const drawHistogramsTab = (
         }
     }
 
-    // Init filter modal
-    fillDataToFilterModal(data.filter_on_demand, () => {
-        bindCategorySort();
-        handleSubmit(false, false);
-    });
     checkSummaryOption(formElements.summaryOption);
 };
 
@@ -1192,7 +1186,7 @@ const clearTraceResultCards = () => {
 const handleSubmit = (clearOnFlyFilter = false, autoUpdate = false) => {
     const startTime = runTime();
 
-    traceData(clearOnFlyFilter, autoUpdate);
+    const requestPromise = traceData(clearOnFlyFilter, autoUpdate);
 
     // send GA events
     const endTime = runTime();
@@ -1202,23 +1196,8 @@ const handleSubmit = (clearOnFlyFilter = false, autoUpdate = false) => {
         event_label: 'Trace Data',
         value: traceTime,
     });
-};
 
-const updateCategoryOrder = (formData) => {
-    if (updateOrderCols) {
-        const xOption = formData.get(name.xOption) || formData.get('xOption');
-        formData.delete(name.process);
-        formData.delete(name.serial);
-        formData.delete(name.order);
-
-        formData.set(name.xOption, xOption);
-        updateOrderCols.forEach((orderCol) => {
-            formData.append(name.process, orderCol.serialProcess);
-            formData.append(name.serial, orderCol.serialColumn);
-            formData.append(name.order, orderCol.serialOrder);
-        });
-    }
-    updateOrderCols = false;
+    return requestPromise;
 };
 
 const collectFormDataTrace = (clearOnFlyFilter, autoUpdate = false) => {
@@ -1279,7 +1258,7 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
     let formData = collectFormDataTrace(clearOnFlyFilter, autoUpdate);
     formData = deleteFormDataKeysDuplicate(formData, 'GET02_CATE_SELECT');
     formData = handleXSettingOnGUI(formData);
-    showGraphCallApi('/ap/api/fpp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/fpp/index', formData, REQUEST_TIMEOUT, async (res) => {
         $(formElements.traceDataTabs).css('display', 'block');
 
         // sort graphs
@@ -1288,9 +1267,6 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
             res.array_plotdata = sortGraphs(res.array_plotdata, 'end_col_id', latestSortColIds);
         }
         convertChartInfoToIndex(res);
-
-        // store trace result
-        graphStore.setTraceData(_.cloneDeep(res));
 
         availableOrderingSettings = res.COMMON.available_ordering_columns;
         // add datetime and serial columnId to availableOrderingSettings
@@ -1323,16 +1299,18 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
         const { category } = res.filter_on_demand;
 
         setGraphSetting();
-        // draw + show data to graphs
+        graphStore.setTraceData(_.cloneDeep(res));
         traceDataChart(res, clearOnFlyFilter);
 
         showInfoTable(res);
 
-        // render cat, category label filer modal
-        fillDataToFilterModal(res.filter_on_demand, () => {
-            bindCategorySort();
-            handleSubmit(false, false);
-        });
+        // Rebuild filter modal only on non-auto-update flow to avoid repeated heavy rebinding.
+        if (!autoUpdate) {
+            fillDataToFilterModal(res.filter_on_demand, () => {
+                bindCategorySort();
+                handleSubmit(false, false);
+            });
+        }
 
         // Move screen to graph after pushing グラフ表示 button
         if (!autoUpdate) {
@@ -1354,8 +1332,6 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
             showToastrMsg(i18nCommon.limitDisplayedGraphs.replace('NUMBER', MAX_NUMBER_OF_GRAPH));
         }
 
-        setPollingData(formData, handleSubmit, [false, true]);
-
         if (
             (isEmpty(res.array_plotdata) || isEmpty(res.array_plotdata[0].array_y)) &&
             (isEmpty(category) || isEmpty(category[0]))
@@ -1364,6 +1340,10 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
         }
         isShowIndexInGraphArea = false;
     });
+
+    setPollingData(formData, handleSubmit, [false, true], requestPromise);
+
+    return requestPromise;
 };
 
 const setGraphSetting = () => {

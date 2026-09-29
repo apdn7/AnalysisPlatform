@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from dateutil import tz
+from flask_babel import gettext as _
 from loguru import logger
 from pandas.core.dtypes.dtypes import ExtensionDtype
 from pydantic import dataclasses
@@ -368,6 +369,7 @@ ARRAY_Y_TYPE = 'array_y_type'
 SLOT_FROM = 'slot_from'
 SLOT_TO = 'slot_to'
 SLOT_COUNT = 'slot_count'
+SHOW_PROCESS_NAME = 'show_process_name'
 # IQR = 'iqr'
 ARRAY_X = 'array_x'
 Y_MAX = 'y-max'
@@ -460,6 +462,7 @@ PROCS = 'procs'
 CLIENT_TIMEZONE = 'client_timezone'
 DATA_SIZE = 'data_size'
 X_OPTION = 'xOption'
+CATEGORY_AGGREGATED = 'categoryAggregated'
 SERIAL_PROCESS = 'serialProcess'
 SERIAL_COLUMN = 'serialColumn'
 SERIAL_ORDER = 'serialOrder'
@@ -467,6 +470,7 @@ TEMP_X_OPTION = 'TermXOption'
 TEMP_SERIAL_PROCESS = 'TermSerialProcess'
 TEMP_SERIAL_COLUMN = 'TermSerialColumn'
 TEMP_SERIAL_ORDER = 'TermSerialOrder'
+TEMP_CATEGORY_AGGREGATED = 'TermCategoryAggregated'
 THRESHOLD_BOX = 'thresholdBox'
 SCATTER_CONTOUR = 'scatter_contour'
 SHOW_ONLY_CONTOUR = 'is_show_contour_only'
@@ -536,6 +540,12 @@ TEMP_CAT_EXP = 'temp_cat_exp'
 TEMP_CAT_PROCS = 'temp_cat_procs'
 DIV_BY_DATA_NUM = 'dataNumber'
 DIV_BY_CAT = 'div'
+# MAP-only: how many sub-panels each Div group should render into (2, 3, or 6).
+# Other pages never send this, so it stays None there and their behavior is unchanged.
+DIV_SIZE = 'div_size'
+# MAP-only: 0 = vertical (default, div sub-panels stack per primary column), 1 = horizontal.
+# Independent of the existing/legacy Transpose toggle used elsewhere on MAP.
+DIV_ORIENTATION = 'div_orientation'
 COLOR_VAR = 'colorVar'
 IS_DATA_LIMITED = 'isDataLimited'
 COL_DETAIL = 'col_detail'
@@ -548,6 +558,7 @@ IS_LOG_SCALE_KEY = 'is_log_scale'
 TEMP_Y_SCALE_MODE = 'temp_y_scale_mode'
 AVAILABLE_COLORS_ID = 'available_colors_id'
 AVAILABLE_COLORS = 'available_colors'
+LAYOUT = 'layout'
 
 # Cat Expansion
 CAT_EXP_BOX = 'catExpBox'
@@ -598,6 +609,7 @@ COLOR_COLUMN_TYPE = 'color_column_type'
 DATA = 'data'
 SHOWN_NAME = 'shown_name'
 COL_DATA_TYPE = 'data_type'
+COLUMN_TYPE = 'column_type'
 DIVIDE_CALENDAR_DATES = 'divDates'
 DIVIDE_CALENDAR_LABELS = 'divFormats'
 IS_DIVIDE_BY_CATEGORY = 'is_divide_by_category'
@@ -672,6 +684,8 @@ class HMFunction(Enum):
     time_per_count = auto()
     iqr = 'IQR'
     ratio = 'Ratio[%]'
+    ok_most_ratio = 'OK/Most[%]'
+    ng_fewest_ratio = 'NG/Fewest[%]'
 
 
 class RelationShip(Enum):
@@ -920,6 +934,34 @@ class DataType(Enum):
             cls.INTEGER_SEP.name,
             cls.EU_INTEGER_SEP.name,
         ]
+
+    @classmethod
+    def categorical_dtypes(cls) -> list[str]:
+        """Get categorical dtypes"""
+        return [
+            cls.INTEGER.name,
+            cls.INTEGER_SEP.name,
+            cls.EU_INTEGER_SEP.name,
+            cls.CATEGORY.name,
+            cls.TEXT.name,
+        ]
+
+    @classmethod
+    def numeric_dtypes(cls) -> list[str]:
+        """Get numeric dtypes"""
+        # List of excluded item names
+        except_names = [
+            cls.CATEGORY.name,
+            cls.TEXT.name,
+            cls.NULL.name,
+            cls.DATETIME.name,
+            cls.DATE.name,
+            cls.TIME.name,
+            cls.BOOLEAN.name,
+        ]
+
+        # Filter members whose names are not in the excluded list
+        return [name for name in cls.__members__ if name not in except_names]
 
 
 class DataTypeEncode(Enum):
@@ -2491,6 +2533,14 @@ class MasterDBType(StrEnum):
     def has_key(cls, key_name):
         return key_name in cls.__members__
 
+    @classmethod
+    def master_type_suffix(cls, master_type: str) -> str:
+        if master_type is cls.SOFTWARE_WORKSHOP_MEASUREMENT.name:
+            return _('masterTypeSuffixMeasurement')
+        if master_type is cls.SOFTWARE_WORKSHOP_HISTORY.name:
+            return _('masterTypeSuffixHistory')
+        return EMPTY_STRING
+
 
 OSERR = {22: 'Access denied', 2: 'Folder not found', 20: 'Not a folder'}
 
@@ -3254,6 +3304,8 @@ class DataColumnType(BaseEnum):
 
     INT_CATE = 10
 
+    PROCESS_NO = 18
+    PROCESS_NAME = 19
     LINE_NAME = 20
     LINE_NO = 21
     EQ_NAME = 22
@@ -3440,19 +3492,6 @@ class PCAFilterCondition(BaseEnum):
     TRAIN_LINE_COND = 'trainfilter-line-machine-id'
 
 
-# to remove 計測値:|measurement. from column name
-MEASUREMENTS_DEFINED = [
-    '計測値:',
-    '加工値:',
-    '加工条件:',
-    '加工条件値:',
-    'その他:',
-    'measurement.',
-    '測定値:',
-    'OK/NG情報:',
-]
-
-
 class DataExportMode(BaseEnum):
     """Data export mode enumeration.
 
@@ -3540,6 +3579,22 @@ NO_CACHING_ENDPOINTS = [
     'setting_module.config_screen',
     'setting_module.filter_config',
     'setting_module.master',
+    'map.index',  # MAP
+    'trace_data.trace_data',  # FPP
+    'scatter_plot.index',  # ScP
+    'calendar_heatmap.index',  # CHM
+    'heatmap.index',  # HMP
+    'multiple_scatter_plot.index',  # MSP
+    'ridgeline_plot.ridgeline_plot',  # RLP
+    'co_occurrence.index',  # CoG
+    'agp.index',  # AgP
+    'analyze.pca',  # PCA
+    'analyze.gl',  # GL
+    'analyze.crp',  # CRP
+    'sankey_plot.index',  # Skd
+    'categorical_plot.categorical_plot',  # stp
+    'parallel_plot.index',  # PCP
+    'waveform_plot.index',  # WFP
 ]
 
 
@@ -3818,6 +3873,63 @@ class ExportSubFolderType(StrEnum):
         return str(self.value)
 
 
+class XAxisOption(StrEnum):
+    """Keys of X axis select options FPP and MAP"""
+
+    TIME = 'TIME'
+    INDEX = 'INDEX'
+    CAT_VALUE = 'CAT_VALUE'
+    DATA_VALUE = 'DATA_VALUE'
+
+    def __repr__(self) -> str:
+        """Get value directly"""
+        return str(self.value)
+
+
+# Multi-axis plot binning
+MAP_EQUAL_FREQ_BIN_OPTION = 'EQUAL_FREQ_BIN'
+MAP_EQUAL_WIDTH_BIN_OPTION = 'EQUAL_WIDTH_BIN'
+MAP_BIN_MODE_COUNT = 'count'
+MAP_BIN_MODE_WIDTH = 'width'
+MAP_BIN_MAX_BINS = 256
+MAP_BIN_BASE_CHUNK = 16
+MAP_Y_BIN_MAX_BINS = 8
+MAP_AGG_COUNT = 'count'
+MAP_AGG_SUM = 'sum'
+MAP_AGG_DURATION = 'duration'
+MAP_Y_AXIS_BIN_STACK = 'bin-stack'
+MAP_Y_AXIS_BIN_PERCENT = 'bin-percent'
+MAP_Y_AXIS_BIN_PERCENT_STACK = 'bin-percent-stack'
+MAP_Y_AXIS_BIN_MODES = {MAP_Y_AXIS_BIN_STACK, MAP_Y_AXIS_BIN_PERCENT, MAP_Y_AXIS_BIN_PERCENT_STACK}
+OTHERS_GROUP_NAME = 'Others'
+
+
 # export file split config
 SPLIT_SIZE_CHECK_ROWS = 10_000
 MAX_EXPORT_FILE_SIZE_MB = 100
+RATIO_COLUMN_NAME = '__RATIO__'
+
+
+class DataLinkRelationshipType(StrEnum):
+    """Enum for types of data link relationship types"""
+
+    ONE_TO_N = 'one_to_n'
+    N_TO_ONE = 'n_to_one'
+
+    def __repr__(self) -> str:
+        """Get value directly"""
+        return str(self.value)
+
+
+class OrderOptionType(Enum):
+    """FPP and MAP x-axis order options type"""
+
+    DESCENDING = 0
+    ASCENDING = 1
+    ORIGINAL_ORDER = 2
+    NAME_ASCENDING = 3
+    NAME_DESCENDING = 4
+    COUNT_LOW_HIGH = 5
+    COUNT_HIGH_LOW = 6
+    METRIC_LOW_HIGH = 7
+    METRIC_HIGH_LOW = 8

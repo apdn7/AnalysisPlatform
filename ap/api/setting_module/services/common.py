@@ -78,6 +78,11 @@ def delete_user_setting_by_id(setting_id):
         CfgUserSetting.delete_by_id(mss, setting_id)
 
 
+def delete_user_setting_by_ids(setting_ids):
+    with make_session() as session:
+        CfgUserSetting.delete_by_ids(session, setting_ids)
+
+
 def is_title_exist(title):
     user_settings = CfgUserSetting.get_by_title(title)
     return bool(user_settings)

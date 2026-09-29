@@ -2,10 +2,12 @@ import math
 import re
 from collections import Counter
 from copy import deepcopy
+from functools import partial
 from typing import Any
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from numpy import matrix
 from pandas import DataFrame, Index, RangeIndex
 
@@ -16,12 +18,14 @@ from ap.api.categorical_plot.services import (
     produce_cyclic_terms,
 )
 from ap.api.common.services.show_graph_services import (
+    calc_auto_scale_y,
     calc_raw_common_scale_y,
     calc_scale_info,
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
     gen_group_filter_list,
+    get_axis_title_with_unit,
     get_chart_info_detail,
     get_data_from_db,
     get_filter_on_demand_data,
@@ -29,7 +33,7 @@ from ap.api.common.services.show_graph_services import (
     is_categorical_col,
     main_check_filter_detail_match_graph_data,
 )
-from ap.common.common_utils import gen_sql_label, get_x_y_info, select_between_color_and_temp_color
+from ap.common.common_utils import get_x_y_info, select_between_color_and_temp_color
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ARRAY_PLOTDATA,
@@ -54,6 +58,7 @@ from ap.common.constants import (
     IS_DATA_LIMITED,
     IS_EMPTY_GRAPH,
     IS_RESAMPLING,
+    LOWER_OUTLIER_IDXS,
     MATCHED_FILTER_IDS,
     N_TOTAL,
     NOT_EXACT_MATCH_FILTER_IDS,
@@ -81,11 +86,14 @@ from ap.common.constants import (
     TIMES,
     UNIQUE_SERIAL,
     UNMATCHED_FILTER_IDS,
+    UPPER_OUTLIER_IDXS,
     V_LABEL,
     VAR_TRACE_TIME,
     X_NAME,
     X_SERIAL,
     X_THRESHOLD,
+    Y_MAX,
+    Y_MIN,
     Y_NAME,
     Y_SERIAL,
     Y_THRESHOLD,
@@ -107,14 +115,15 @@ from ap.common.services.sse import MessageAnnouncer
 from ap.common.services.statistics import calc_summary_elements
 from ap.common.sigificant_digit import get_fmt_from_array, get_fmt_from_color_setting
 from ap.common.trace_data_log import EventAction, EventType, Target, TraceErrKey, trace_log
+from ap.conversion_formula import JudgeFormula, conversion_formula
 from ap.setting_module.models import CfgProcessColumn
 from ap.trace_data.schemas import DicParam
 
 DATA_COUNT_COL = '__data_count_col__'
 MATRIX = 7
-SCATTER_PLOT_TOTAL_POINT = 50_000
-SCATTER_PLOT_MAX_POINT = 10_000
-HEATMAP_COL_ROW = 100
+SCATTER_PLOT_TOTAL_POINT = 500_000
+SCATTER_PLOT_MAX_POINT = 100_000
+HEATMAP_COL_ROW = 300
 TOTAL_VIOLIN_PLOT = 200
 
 
@@ -171,10 +180,6 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     y_proc_id = scatter_proc_ids[-1]
     x_id = scatter_xy_ids[0]
     y_id = scatter_xy_ids[-1]
-    x_name = scatter_xy_names[0]
-    y_name = scatter_xy_names[-1]
-    x_label = gen_sql_label(x_id, x_name)
-    y_label = gen_sql_label(y_id, y_name)
 
     color_id = select_between_color_and_temp_color(temp_color_var, root_graph_param)
     cat_div_id = root_graph_param.common.div_by_cat
@@ -182,9 +187,13 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     col_ids = [col for col in list({x_id, y_id, color_id, cat_div_id, *level_ids}) if col]
     dic_cols = {cfg_col.id: cfg_col for cfg_col in root_graph_param.get_col_cfgs(col_ids)}
 
-    color_label = gen_sql_label(color_id, dic_cols[color_id].column_name) if color_id else None
-    level_labels = [gen_sql_label(id, dic_cols[id].column_name) for id in level_ids]
-    cat_div_label = gen_sql_label(cat_div_id, dic_cols[cat_div_id].column_name) if cat_div_id else None
+    # Resolve normal XY keys from the same metadata set used for color and facet consumers.
+    x_label = dic_cols[x_id].bridge_column_name
+    y_label = dic_cols[y_id].bridge_column_name
+
+    color_label = dic_cols[color_id].bridge_column_name if color_id else None
+    level_labels = [dic_cols[id].bridge_column_name for id in level_ids]
+    cat_div_label = dic_cols[cat_div_id].bridge_column_name if cat_div_id else None
 
     chart_type = None
     x_category = False
@@ -350,7 +359,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
     color_scale = []
     # chart type
-    series_keys = [ARRAY_X, ARRAY_Y, COLORS, TIMES]
+    series_keys = [ARRAY_X, ARRAY_Y, COLORS, TIMES, CYCLE_IDS]
     dic_param[CHART_TYPE] = chart_type
 
     if chart_type == ChartType.SCATTER.value:
@@ -359,6 +368,9 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         dic_param = gen_group_filter_list(df, graph_param, dic_param, other_cols)
 
         # gen scatter matrix
+        limited_x_parts = []
+        limited_y_parts = []
+        limited_color_parts = []
         n_graph = len(output_graphs) or 1
         data_per_graph = math.floor(min(SCATTER_PLOT_TOTAL_POINT / n_graph, SCATTER_PLOT_MAX_POINT))
         for graph, (x_times, y_times) in zip(output_graphs, output_times, strict=False):
@@ -371,11 +383,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
             if len(graph[X_SERIAL]):
                 # serial_col = graph[X_SERIAL][0]['col_name']
-                df_graph['x_serial_dat'] = graph[X_SERIAL][0]['data'][:data_per_graph]
-
-            if len(graph[CYCLE_IDS]):
-                # to sort serial and cycle_ids before assign again
-                df_graph[CYCLE_IDS] = graph[CYCLE_IDS][:data_per_graph]
+                df_graph['x_serial_dat'] = slice_data_by_position(
+                    graph[X_SERIAL][0]['data'],
+                    data_per_graph,
+                )
 
             # sort by color (high frequency first)
             color_col = ELAPSED_TIME
@@ -393,6 +404,35 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             df_graph['__count__'] = df_graph.groupby(color_col)[color_col].transform('count')
             df_graph = df_graph.sort_values('__count__', ascending=False).drop('__count__', axis=1)
 
+            # Keep the exact data sent to the frontend as the source for scales and formats.
+            # Use arrays instead of pandas indexes because indexes may be duplicated or changed
+            # while generating direct-term and cyclic graphs.
+            limited_x_parts.append(
+                pd.DataFrame(
+                    {
+                        TIME_COL: df_graph[TIMES].to_numpy(),
+                        x_label: df_graph[ARRAY_X].to_numpy(),
+                    },
+                ),
+            )
+            limited_y_parts.append(
+                pd.DataFrame(
+                    {
+                        TIME_COL: df_graph[TIMES].to_numpy(),
+                        y_label: df_graph[ARRAY_Y].to_numpy(),
+                    },
+                ),
+            )
+            if color_label and COLORS in df_graph:
+                limited_color_parts.append(
+                    pd.DataFrame(
+                        {
+                            TIME_COL: df_graph[TIMES].to_numpy(),
+                            color_label: df_graph[COLORS].to_numpy(),
+                        },
+                    ),
+                )
+
             df_cols = (df_col for df_col in df_graph.columns if df_col != 'x_serial_dat')
             for key in df_cols:
                 graph[key] = df_graph[key]
@@ -402,7 +442,8 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 graph[X_SERIAL][0]['data'] = df_graph['x_serial_dat']
 
             # chart infos
-            x_end_proc_times = x_times if len(x_times) else graph[TIMES][:data_per_graph]
+            limited_count = len(df_graph)
+            x_end_proc_times = slice_data_by_position(x_times, limited_count) if len(x_times) else df_graph[TIMES]
             x_chart_infos, _ = get_chart_info_detail(
                 root_graph_param.dic_proc_cfgs,
                 x_end_proc_times,
@@ -410,7 +451,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 threshold_filter_detail_ids,
             )
             graph[X_THRESHOLD] = x_chart_infos[-1] if x_chart_infos else None
-            y_end_proc_times = y_times if len(y_times) else graph[TIMES][:data_per_graph]
+            y_end_proc_times = slice_data_by_position(y_times, limited_count) if len(y_times) else df_graph[TIMES]
             y_chart_infos, _ = get_chart_info_detail(
                 root_graph_param.dic_proc_cfgs,
                 y_end_proc_times,
@@ -423,10 +464,23 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             graph['end_col_id'] = x_id
             graph['end_proc_id'] = x_proc_id
 
-            if color_order is ColorOrder.TIME or color_order is ColorOrder.ELAPSED_TIME:
-                dic_param['color_fmt'] = get_fmt_from_color_setting(df_graph[color_col], color_order)
-            else:
-                dic_param['color_fmt'] = get_fmt_from_array(df[color_label]) if color_label else ''
+        df_scale_x = pd.concat(limited_x_parts, ignore_index=True) if limited_x_parts else pd.DataFrame()
+        df_scale_y = pd.concat(limited_y_parts, ignore_index=True) if limited_y_parts else pd.DataFrame()
+        df_scale_color = pd.concat(limited_color_parts, ignore_index=True) if limited_color_parts else pd.DataFrame()
+        scale_source_x = df_scale_x
+        scale_source_y = df_scale_y
+        scale_source_color = df_scale_color
+
+        limited_x = df_scale_x[x_label] if x_label in df_scale_x else pd.Series(dtype='object')
+        limited_y = df_scale_y[y_label] if y_label in df_scale_y else pd.Series(dtype='object')
+        limited_colors = (
+            df_scale_color[color_label] if color_label and color_label in df_scale_color else pd.Series(dtype='object')
+        )
+
+        if color_order is ColorOrder.TIME or color_order is ColorOrder.ELAPSED_TIME:
+            dic_param['color_fmt'] = get_fmt_from_color_setting(pd.Series(color_scale), color_order)
+        else:
+            dic_param['color_fmt'] = get_fmt_from_array(limited_colors) if color_label else ''
 
     else:
         group_by_cols = []
@@ -466,6 +520,11 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         dic_param = gen_group_filter_list(df, graph_param, dic_param, other_cols)
 
         dic_param[IS_RESAMPLING] = False
+        limited_violin_x_parts = []
+        limited_violin_y_parts = []
+        limited_violin_color_parts = []
+        x_end_proc_time_col = '__x_end_proc_time__'
+        y_end_proc_time_col = '__y_end_proc_time__'
         # gen violin data
         for graph, (x_times, y_times) in zip(output_graphs, output_times, strict=False):
             # limit and sort by color
@@ -475,13 +534,47 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             if _is_data_limited:
                 is_data_limited = True
 
+            if len(x_times):
+                df_graph[x_end_proc_time_col] = np.asarray(x_times)
+            if len(y_times):
+                df_graph[y_end_proc_time_col] = np.asarray(y_times)
+
             df_graph = filter_violin_df(df_graph, group_by_cols, most_vals)
             df_graph = sort_df(df_graph, group_by_cols)
+
+            # Calculate violin scales from all displayed violin groups before
+            # resampling. Resampling is only used to reduce the response payload.
+            limited_violin_x_parts.append(
+                pd.DataFrame(
+                    {
+                        TIME_COL: df_graph[TIMES].to_numpy(),
+                        x_label: df_graph[ARRAY_X].to_numpy(),
+                    },
+                ),
+            )
+            limited_violin_y_parts.append(
+                pd.DataFrame(
+                    {
+                        TIME_COL: df_graph[TIMES].to_numpy(),
+                        y_label: df_graph[ARRAY_Y].to_numpy(),
+                    },
+                ),
+            )
+            if color_label and COLORS in df_graph:
+                limited_violin_color_parts.append(
+                    pd.DataFrame(
+                        {
+                            TIME_COL: df_graph[TIMES].to_numpy(),
+                            color_label: df_graph[COLORS].to_numpy(),
+                        },
+                    ),
+                )
 
             # get hover information
             dic_summaries = {}
             str_col_vals = []
             num_col_vals = []
+            graph[IS_RESAMPLING] = False
             for _key, df_sub in df_graph.groupby(group_by_cols):
                 key = _key
                 if isinstance(key, (list, tuple)):
@@ -502,12 +595,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 #     q2_new_data = np.quantile(resample_data, [0.5])
                 #     q2_old_data = np.quantile(resample_data_old, [0.5])
 
-                if resample_data is not None:
+                is_resampled = df_sub[number_col].shape[0] > max_n_per_violin
+                if is_resampled:
                     vals = resample_data.tolist()
                     is_data_limited = True
-
-                graph[IS_RESAMPLING] = False
-                if df_sub[number_col].shape[0] > max_n_per_violin:
                     graph[IS_RESAMPLING] = True
                     dic_param[IS_RESAMPLING] = True
 
@@ -526,7 +617,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
             graph[ELAPSED_TIME] = pd.Series()
 
             if number_col == ARRAY_X:
-                end_proc_times = x_times if len(x_times) else graph[TIMES]
+                end_proc_times = df_graph[x_end_proc_time_col] if x_end_proc_time_col in df_graph else df_graph[TIMES]
                 x_chart_infos, _ = get_chart_info_detail(
                     root_graph_param.dic_proc_cfgs,
                     end_proc_times,
@@ -535,7 +626,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 )
                 graph[X_THRESHOLD] = x_chart_infos[-1] if x_chart_infos else None
             else:
-                end_proc_times = y_times if len(y_times) else graph[TIMES]
+                end_proc_times = df_graph[y_end_proc_time_col] if y_end_proc_time_col in df_graph else df_graph[TIMES]
                 y_chart_infos, _ = get_chart_info_detail(
                     root_graph_param.dic_proc_cfgs,
                     end_proc_times,
@@ -544,6 +635,26 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
                 )
                 graph[Y_THRESHOLD] = y_chart_infos[-1] if y_chart_infos else None
 
+        df_scale_violin_x = (
+            pd.concat(limited_violin_x_parts, ignore_index=True)
+            if limited_violin_x_parts
+            else pd.DataFrame(columns=[TIME_COL, x_label])
+        )
+        df_scale_violin_y = (
+            pd.concat(limited_violin_y_parts, ignore_index=True)
+            if limited_violin_y_parts
+            else pd.DataFrame(columns=[TIME_COL, y_label])
+        )
+        df_scale_violin_color = (
+            pd.concat(limited_violin_color_parts, ignore_index=True)
+            if limited_violin_color_parts
+            else pd.DataFrame(columns=[TIME_COL, color_label] if color_label else [TIME_COL])
+        )
+        scale_source_x = df_scale_violin_x
+        scale_source_y = df_scale_violin_y
+        scale_source_color = df_scale_violin_color
+        limited_x = df_scale_violin_x[x_label]
+        limited_y = df_scale_violin_y[y_label]
         # TODO : we should calc box plot and kde before send to front end to improve performance
 
     # matched_filter_ids, unmatched_filter_ids, not_exact_match_filter_ids
@@ -572,8 +683,8 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
         is_show_v_label = True
 
     # column names
-    dic_param['x_name'] = dic_cols[x_id].shown_name if x_id else None
-    dic_param['y_name'] = dic_cols[y_id].shown_name if y_id else None
+    dic_param['x_name'] = get_axis_title_with_unit(dic_cols.get(x_id)) if x_id else None
+    dic_param['y_name'] = get_axis_title_with_unit(dic_cols.get(y_id)) if y_id else None
     dic_param['color_name'] = dic_cols[color_id].shown_name if color_id else None
     dic_param['color_type'] = dic_cols[color_id].data_type if color_id else None
     dic_param['div_name'] = dic_cols[cat_div_id].shown_name if cat_div_id else None
@@ -583,9 +694,10 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     dic_param['is_show_h_label'] = is_show_h_label
     dic_param['is_show_first_h_label'] = is_show_first_h_label
     dic_param['is_filtered'] = bool(dic_cat_filters)
-    dic_param['x_fmt'] = get_fmt_from_array(df[x_label])
-    dic_param['y_fmt'] = get_fmt_from_array(df[y_label])
+    dic_param['x_fmt'] = get_fmt_from_array(limited_x)
+    dic_param['y_fmt'] = get_fmt_from_array(limited_y)
     dic_param['is_judge_color'] = dic_cols[color_id].is_judge if color_id else None
+    dic_param['judge_formula'] = get_judge_mapping(dic_cols[color_id]) if color_id else None
     # add proc name for x and y column
     dic_param['x_proc'] = dic_proc_cfgs[dic_cols[x_id].process_id].shown_name if x_id else None
     dic_param['y_proc'] = dic_proc_cfgs[dic_cols[y_id].process_id].shown_name if y_id else None
@@ -595,7 +707,7 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
     if color_order is ColorOrder.DATA:
         dic_scale_color = calc_scale(
             root_graph_param.dic_proc_cfgs,
-            df,
+            scale_source_color,
             color_id,
             color_label,
             dic_cols,
@@ -614,24 +726,45 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
     dic_param[SCALE_COLOR] = dic_scale_color
 
+    # The coordinate decision is shared by both numeric axes, matching the
+    # paired X/Y classification used by the exploratory get_lim algorithm.
+    is_uniform_coordinate_pair = not x_category and not y_category and is_coordinate(limited_x, limited_y)
+
     # y scale
     if not y_category:
         y_chart_configs = [graph[Y_THRESHOLD] for graph in output_graphs if graph.get(Y_THRESHOLD)]
-        dic_scale_y = calc_scale(root_graph_param.dic_proc_cfgs, df, y_id, y_label, dic_cols, y_chart_configs)
+        dic_scale_y = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            scale_source_y,
+            y_id,
+            y_label,
+            dic_cols,
+            y_chart_configs,
+            is_uniform_coordinate_pair=is_uniform_coordinate_pair,
+        )
         dic_param[SCALE_Y] = dic_scale_y
 
     # x scale
     if not x_category:
         x_chart_configs = [graph[X_THRESHOLD] for graph in output_graphs if graph.get(X_THRESHOLD)]
-        dic_scale_x = calc_scale(root_graph_param.dic_proc_cfgs, df, x_id, x_label, dic_cols, x_chart_configs)
+        dic_scale_x = calc_scale(
+            root_graph_param.dic_proc_cfgs,
+            scale_source_x,
+            x_id,
+            x_label,
+            dic_cols,
+            x_chart_configs,
+            is_uniform_coordinate_pair=is_uniform_coordinate_pair,
+        )
         dic_param[SCALE_X] = dic_scale_x
 
     # output graphs
     dic_param[ARRAY_PLOTDATA] = [convert_series_to_list(graph) for graph in output_graphs]
-    if chart_type != ChartType.SCATTER.value and ROWID in df.columns:
-        dic_param[CYCLE_IDS] = df.rowid
-    else:
-        dic_param[CYCLE_IDS] = pd.Series()
+    # Point-level cycle IDs are stored in each scatter graph and follow the same
+    # limit/sort pipeline as X/Y/time. A response-level series from the original
+    # dataframe cannot stay aligned with independently limited graphs or resampled
+    # violin data.
+    dic_param[CYCLE_IDS] = pd.Series(dtype='Int64')
 
     dic_param[IS_DATA_LIMITED] = is_data_limited
     dic_param['is_x_category'] = x_category
@@ -655,7 +788,22 @@ def gen_scatter_plot(root_graph_param: DicParam, dic_param, df=None):
 
 @log_execution_time()
 @abort_process_handler()
-def calc_scale(dic_proc_cfgs, df, col_id, col_label, dic_cols, chart_configs=None, force_outlier=False):
+def calc_scale(
+    dic_proc_cfgs,
+    df,
+    col_id,
+    col_label,
+    dic_cols,
+    chart_configs=None,
+    force_outlier=False,
+    is_uniform_coordinate_pair=False,
+):
+    """Calculate Scatter Plot scale variants for one numeric axis or color series.
+
+    Args:
+        is_uniform_coordinate_pair: Shared X/Y uniformity result. Only numeric
+            Scatter axes receive this flag; color uses its existing full range.
+    """
     if not col_id and not col_label:
         return None
 
@@ -683,13 +831,87 @@ def calc_scale(dic_proc_cfgs, df, col_id, col_label, dic_cols, chart_configs=Non
         plot[CHART_INFOS] = chart_configs
 
     min_max_list, all_min, all_max = calc_raw_common_scale_y([plot])
-    calc_scale_info(dic_proc_cfgs, [plot], min_max_list, all_min, all_max, force_outlier=force_outlier)
+    calc_scale_info(
+        dic_proc_cfgs,
+        [plot],
+        min_max_list,
+        all_min,
+        all_max,
+        force_outlier=force_outlier,
+        auto_scale_calculator=partial(
+            calc_scatter_auto_scale_y,
+            is_uniform_coordinate_pair=is_uniform_coordinate_pair,
+        ),
+    )
 
     dic_scale = {
         scale_name: plot.get(scale_name)
         for scale_name in (SCALE_SETTING, SCALE_COMMON, SCALE_THRESHOLD, SCALE_AUTO, SCALE_FULL)
     }
     return dic_scale
+
+
+def calc_scatter_auto_scale_y(plotdata, series_y, force_outlier=False, is_uniform_coordinate_pair=False):
+    """Calculate Auto bounds, preserving a uniform coordinate pair with a 10% margin.
+
+    Non-uniform coordinate pairs and color scales that must retain every value
+    use the established IQR-based Auto-scale calculator.
+    """
+    # Color scale must preserve its existing full-range behavior.
+    if force_outlier or not is_uniform_coordinate_pair:
+        return calc_auto_scale_y(plotdata, series_y, force_outlier=force_outlier)
+
+    # Finite values were classified as uniform, so retain their complete range
+    # and add the visual margin used by the exploratory get_lim algorithm.
+    numeric_values = pd.to_numeric(series_y, errors='coerce')
+    finite_values = numeric_values[np.isfinite(numeric_values)]
+    value_min = finite_values.min()
+    value_max = finite_values.max()
+    margin = (value_max - value_min) * 0.1
+    return {
+        Y_MIN: value_min - margin,
+        Y_MAX: value_max + margin,
+        LOWER_OUTLIER_IDXS: [],
+        UPPER_OUTLIER_IDXS: [],
+    }
+
+
+def is_coordinate(series_x, series_y, threshold=0.2, minimum_samples=200):
+    """Return whether both coordinate axes are near-uniform coordinate candidates.
+
+    This mirrors ``detect_uniform.ipynb`` by evaluating a score for each axis,
+    then requiring both scores to pass the coordinate threshold.
+    """
+    # Preserve the notebook's explicit X/Y score calculation and short-data rule.
+    score_x = uniform_score(series_x, minimum_samples)
+    score_y = uniform_score(series_y, minimum_samples)
+    if np.isnan(score_x) or np.isnan(score_y):
+        return False  # Not enough data to determine if it's a coordinate
+
+    # Both axes must qualify so one non-uniform dimension keeps IQR Auto scale.
+    return bool(score_x < threshold and score_y < threshold)
+
+
+def uniform_score(series, minimum_samples=200):
+    """Calculate the quantile-gap regularity score used for coordinate detection.
+
+    Returns ``NaN`` when fewer than 201 finite numeric values are available or
+    the values have no spread, matching the notebook's indeterminate result.
+    """
+    # Normalize first so invalid values cannot alter quantiles or scale bounds.
+    numeric_values = pd.to_numeric(series, errors='coerce')
+    finite_values = numeric_values[np.isfinite(numeric_values)]
+    if len(finite_values) <= minimum_samples:
+        return np.nan
+
+    # Equal quantile intervals indicate values spread uniformly across the range.
+    quantiles = np.quantile(finite_values, [0.01, 0.17, 0.33, 0.50, 0.66, 0.83, 0.99])
+    gaps = np.diff(quantiles)
+    mean_gap = gaps.mean()
+    if not np.isfinite(mean_gap) or mean_gap <= 0:
+        return np.nan
+
+    return gaps.std() / mean_gap
 
 
 @log_execution_time()
@@ -1329,6 +1551,19 @@ def gen_empty_dic_graphs(facet_keys, h_keys_str, v_keys_str, time_min, time_max,
 
 @log_execution_time()
 @abort_process_handler()
+def slice_data_by_position(data, limit):
+    """Slice data by position"""
+    if limit is None:
+        return data
+
+    if isinstance(data, pd.Series):
+        return data.iloc[:limit]
+
+    return data[:limit]
+
+
+@log_execution_time()
+@abort_process_handler()
 def gen_df_limit_data(graph, keys, limit=None):
     is_limit = False
     dic_data = {}
@@ -1341,7 +1576,7 @@ def gen_df_limit_data(graph, keys, limit=None):
             dic_data[key] = graph[key]
         else:
             is_limit = True
-            dic_data[key] = graph[key][:limit]
+            dic_data[key] = slice_data_by_position(graph[key], limit)
 
     return pd.DataFrame(dic_data), is_limit
 
@@ -1392,7 +1627,7 @@ def get_proc_serials(df: DataFrame, serial_cols: list[CfgProcessColumn]) -> list
     # serials
     serials = []
     for col in serial_cols:
-        sql_label = gen_sql_label(col.id, col.column_name)
+        sql_label = col.bridge_column_name
         if sql_label in df.columns:
             dic_serial = {'col_name': col.shown_name, 'data': df[sql_label]}
             serials.append(dic_serial)
@@ -1449,3 +1684,24 @@ def gen_map_xy_heatmap_matrix(x_name, y_name, all_x, all_y, graph):
         'x': all_x,
         'y': all_y,
     }
+
+
+def get_judge_mapping(cfg_col: CfgProcessColumn) -> dict[str, str] | None:
+    """Map Judge formula"""
+    try:
+        formula = conversion_formula(
+            formula=cfg_col.formula,
+            col_type=cfg_col.column_type,
+            data_type=cfg_col.data_type,
+        )
+
+        if not isinstance(formula, JudgeFormula):
+            return None
+
+        return {
+            'positive': formula.positive_display,
+            'negative': formula.negative_display,
+        }
+    except Exception as e:
+        logger.error(f'Could not parse formula for process column: {e}')
+        return None

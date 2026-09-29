@@ -151,6 +151,50 @@
                                     <i class="fa fa-sm fa-arrows-alt-h"></i>
                                 </button>
                             </div>
+                            <div class="d-flex flex-row" style="column-gap: 20px;">
+                                <span
+                                    style="margin-bottom: 0.5rem;"
+                                    class="hint-text"
+                                    title="{{ _('RelationshipTypeTooltip') }}"
+                                    >{{ _("RelationshipTypeLabel") }}</span
+                                >
+                                <div class="d-flex flex-row">
+                                    <div class="custom-control-inline custom-control custom-radio">
+                                        <input
+                                            type="radio"
+                                            id="option-one-to-n"
+                                            class="custom-control-input"
+                                            name="relationship-type-option"
+                                            value="one_to_n"
+                                            checked="checked"
+                                        />
+                                        <label
+                                            for="option-one-to-n"
+                                            style="margin-bottom: 0.5rem;"
+                                            title="{{ _('RelationshipTypeOneToNTooltip') }}"
+                                            class="hint-text custom-control-label"
+                                            >{{ _("RelationshipTypeOneToNLabel") }}</label
+                                        >
+                                    </div>
+
+                                    <div class="custom-control-inline custom-control custom-radio">
+                                        <input
+                                            type="radio"
+                                            id="option-n-to-one"
+                                            class="custom-control-input"
+                                            name="relationship-type-option"
+                                            value="n_to_one"
+                                        />
+                                        <label
+                                            for="option-n-to-one"
+                                            style="margin-bottom: 0.5rem;"
+                                            title="{{ _('RelationshipTypeNToOneTooltip') }}"
+                                            class="hint-text custom-control-label"
+                                            >{{ _("RelationshipTypeNToOneLabel") }}</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-row col-title">
                                 <div class="col-sm-6 pr-4">
                                     <label for="edgeBackCol" class="col-form-label">

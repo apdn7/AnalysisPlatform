@@ -22,6 +22,7 @@ from ap.common.constants import (
     CATE_PROCS,
     CATE_VALUE_MULTI,
     CATE_VARIABLE,
+    CATEGORY_AGGREGATED,
     CLIENT_TIMEZONE,
     COLOR_ORDER,
     COLOR_VAR,
@@ -43,6 +44,8 @@ from ap.common.constants import (
     DIV_BY_CAT,
     DIV_BY_DATA_NUM,
     DIV_FROM_TO,
+    DIV_ORIENTATION,
+    DIV_SIZE,
     DIVIDE_CALENDAR_DATES,
     DIVIDE_CALENDAR_LABELS,
     DIVIDE_FMT,
@@ -79,6 +82,7 @@ from ap.common.constants import (
     IS_USE_DUMMY_DATETIME,
     IS_VALIDATE_DATA,
     JUDGE_VAR,
+    LAYOUT,
     LIST_PROCS,
     MATCHED_FILTER_IDS,
     MATRIX_COL,
@@ -119,6 +123,7 @@ from ap.common.constants import (
     TBLS,
     TEMP_CAT_EXP,
     TEMP_CAT_PROCS,
+    TEMP_CATEGORY_AGGREGATED,
     TEMP_COLOR_VAR,
     TEMP_SERIAL_COLUMN,
     TEMP_SERIAL_ORDER,
@@ -147,6 +152,8 @@ from ap.common.pandas_helper import append_series
 from ap.common.services.http_content import json_dumps
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.common.services.trace_graph import TraceGraph
+from ap.multi_axis_plot.layout_index import build_map_layout_index
+from ap.multi_axis_plot.schemas import MAPLayoutRequest
 from ap.setting_module.models import CfgProcess, CfgProcessColumn
 from ap.setting_module.schemas import ProcessOnlySchema
 from ap.setting_module.services.process_config import (
@@ -239,6 +246,8 @@ common_startwith_keys = (
     TEMP_Y_SCALE_MODE,  # combine log-scale mode into dic_param
     TEMP_COLOR_VAR,
     AVAILABLE_COLORS_ID,
+    CATEGORY_AGGREGATED,
+    TEMP_CATEGORY_AGGREGATED,
 )
 
 
@@ -418,6 +427,9 @@ def parse_multi_filter_into_one(dic_form):
         list_of_end_procs = list(filter(lambda end_proc: end_proc, list_of_end_procs))
         dic_parsed[COMMON][START_PROC] = list_of_end_procs[0]
 
+    if dic_form.get(LAYOUT):
+        dic_parsed[COMMON][LAYOUT] = dic_form.get(LAYOUT)
+
     return dic_parsed
 
 
@@ -588,6 +600,8 @@ def bind_dic_param_to_class(
         color_var=dic_common.get(COLOR_VAR),
         div_by_data_number=dic_common.get(DIV_BY_DATA_NUM),
         div_by_cat=dic_common.get(DIV_BY_CAT),
+        div_size=dic_common.get(DIV_SIZE),
+        div_orientation=dic_common.get(DIV_ORIENTATION),
         cyclic_div_num=dic_common.get(CYCLIC_DIV_NUM),
         cyclic_window_len=dic_common.get(CYCLIC_WINDOW_LEN),
         cyclic_interval=dic_common.get(CYCLIC_INTERVAL),
@@ -618,6 +632,8 @@ def bind_dic_param_to_class(
         traincond_procs=train_cond_procs,
         is_order_by_time=is_order_by_time,
         available_colors_id=dic_common.get(AVAILABLE_COLORS_ID, []),
+        layout=dic_common.get(LAYOUT, None),
+        category_aggregated=dic_common.get(CATEGORY_AGGREGATED, None),
     )
 
     # use the first end proc as start proc
@@ -654,6 +670,16 @@ def bind_dic_param_to_class(
     out_param.add_column_to_array_formval(
         [col for col in out_param.common.available_colors_id if col],
     )
+
+    if out_param.common.layout:
+        layout = MAPLayoutRequest.model_validate(out_param.common.layout)
+        target_cols = build_map_layout_index(layout).get_target_cols()
+        out_param.add_column_to_array_formval(target_cols)
+        # MAP Div splits every subplot by this column, so it has to be fetched even when the user
+        # did not check it as a variable. It is added after `sensor_cols` is built, so it stays out
+        # of the selected-variable list. Only MAP sends `layout`, so other pages are unaffected.
+        if out_param.common.div_by_cat:
+            out_param.add_column_to_array_formval([out_param.common.div_by_cat])
 
     return out_param
 

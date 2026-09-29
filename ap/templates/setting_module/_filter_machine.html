@@ -64,6 +64,18 @@
                                     <i class="fa fa-file-import"></i>
                                 </button>
                                 <button
+                                    name="bulkDeleteConfig"
+                                    type="button"
+                                    class="btn btn-danger icon-btn mr-1"
+                                    data-toggle="tooltip"
+                                    data-placement="top"
+                                    title="{{ _('Delete Selected') }}"
+                                    aria-label="{{ _('Delete Selected') }}"
+                                    disabled
+                                >
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button
                                     name="configRegister"
                                     class="btn btn-primary btn-right {% if not is_authorized %}disabled{% endif %}"
                                     type="button"
@@ -97,6 +109,21 @@
                         <table id="tblConfig_machine" class="table table-bordered table-main table-hover-light">
                             <thead>
                                 <tr>
+                                    <th class="text-center col-select checkbox-wrapper">
+                                        <div class="custom-control custom-checkbox checkbox-control">
+                                            <input
+                                                type="checkbox"
+                                                class="custom-control-input"
+                                                name="selectAllFilterDetail"
+                                                aria-label="{{ _('Select All') }}"
+                                                id="selectAllFilterDetail_machine"
+                                            />
+                                            <label
+                                                class="custom-control-label checkbox-label"
+                                                for="selectAllFilterDetail_machine"
+                                            ></label>
+                                        </div>
+                                    </th>
                                     <th class="col-number">{{ _("No.") }}</th>
                                     <th scope="col" class="machine-filter-name text-center">{{ _("Line") }}</th>
                                     <th class="machine-filter-name text-center">{{ _("Filter Name") }}</th>

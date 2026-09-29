@@ -514,7 +514,7 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
     beforeShowGraphCommon(clearOnFlyFilter);
 
     const formData = collectFormDataFromGUI(clearOnFlyFilter, autoUpdate);
-    showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/stp/index', formData, REQUEST_TIMEOUT, async (res) => {
         // set summary bar for prefix
         setNameWithPrefix(eleIdPrefix);
 
@@ -572,11 +572,13 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         if (imgFile) {
             showScatterPlotImage(imgFile);
         }
-        setPollingData(formData, showGraph, [false, true]);
+        setPollingData(formData, showGraph, [false, true], requestPromise);
 
         // drag & drop for tables
         $('.ui-sortable').sortable();
     });
+
+    return requestPromise;
 };
 
 const setScaleOption = (prefix) => {

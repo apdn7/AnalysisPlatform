@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -12,6 +13,7 @@ from ap.common.constants import (
 )
 from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
+from ap.common.path_utils import gen_duckdb_file_name
 from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.timezone_utils import from_utc_to_localtime
 from ap.trace_data.transaction_model import DataCountTable, TransactionData
@@ -79,12 +81,26 @@ def get_process_full_data_range(proc_id):
         proc_id: int, process id
 
     Returns:
-        from: datetime, to: datetime
+        from: datetime | None, to: datetime | None
+        Both values are None when the transaction database does not exist yet
+        (process registered but no data imported) or when the process table is empty.
 
     """
+    # Guard: the DuckDB file is only created when data has been imported.
+    # Opening it in read-only mode when it does not exist raises an exception,
+    # so we return None early to let callers treat the process as having no data yet.
+    if not os.path.exists(gen_duckdb_file_name(proc_id)):
+        return None, None
+
     with TxnDataConnection(process_id=proc_id, readonly_transaction=True) as data_con:
         trans_data = TransactionData(proc_id)
         min_time, max_time = trans_data.get_ct_range(data_con)
+
+        # Guard: MIN/MAX on an empty table returns (None, None).
+        # Return None for both bounds rather than crashing on strptime.
+        if min_time is None or max_time is None:
+            return None, None
+
         # add one minute for max_time to get full data when showing graph
         max_time = datetime.strptime(max_time, DATE_FORMAT_STR)
         max_time = max_time + timedelta(minutes=1)

@@ -83,6 +83,7 @@ export interface ExportAPIResponse<T> {
 
 export interface ExportAPIFetchResponse<T> {
     export_configs: T;
+    total: number;
     flask_message: string;
 }
 
@@ -112,7 +113,7 @@ const defaultFormValue: FormValue = {
         export_column_name_type: 0,
         export_details: [],
         filters: [],
-        run_now: false,
+        run_now: true,
     },
     export_periodic: {
         interval_unit: 'day',
@@ -173,6 +174,8 @@ export default function ExportConfig() {
             setErrors(defaultError);
             setFormValue(exportConfigData);
         });
+
+        eventBus.on('EXPORT_CONFIG_ROW_UNSELECTED', handleResetExportGUI);
     }, []);
 
     // Remove error warnings when the user makes changes.
@@ -194,7 +197,7 @@ export default function ExportConfig() {
             ...prev,
             export_config: {
                 ...prev.export_config,
-                run_now: false,
+                run_now: true,
             },
         }));
     }, [isModalOpen]);
@@ -335,16 +338,13 @@ export default function ExportConfig() {
         <div>
             {formValue.export_config.type === 'once' ? (
                 <p>
-                    {t('Export data')} from {formValue.export_config.export_from} to {formValue.export_config.export_to}
+                    {t('Data export confirm msg with once')
+                        .replace('EXPORT_FROM', formValue.export_config.export_from)
+                        .replace('EXPORT_TO', formValue.export_config.export_to)}
                 </p>
             ) : runTimeList.length > 0 ? (
                 <div>
-                    <p>
-                        The export settings will be registered. <br />
-                        Once registered, data will be exported according to the following schedule.
-                    </p>
-                    Export Schedule: <br />
-                    (After registration): Import past data since {formValue.export_config.export_from}
+                    <p style={{ whiteSpace: 'pre' }}>{t('Data export confirm msg with periodic')}</p>
                     <ol>
                         {runTimeList.map((item, index) => (
                             <li key={index}>{item}</li>
@@ -368,7 +368,7 @@ export default function ExportConfig() {
                             }}
                         />
                         <label className="custom-control-label text-nowrap" htmlFor="exportRunNow">
-                            {t('Run now')}
+                            {t('Data export run now').replace('EXPORT_FROM', formValue.export_config.export_from)}
                         </label>
                     </div>
                 </div>
@@ -419,7 +419,7 @@ export default function ExportConfig() {
             <ConfirmModal
                 isOpen={isModalOpen}
                 title={t('Confirm export registration')}
-                body={modalConfirmBody}
+                children={modalConfirmBody}
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmModal}
             />

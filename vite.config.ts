@@ -22,6 +22,18 @@ export default defineConfig({
                 entryFileNames: '[name].bundle.js',
                 chunkFileNames: '[name].js',
                 assetFileNames: '[name][extname]',
+                manualChunks(id) {
+                    if (
+                        id.includes('node_modules/plotly.js') ||
+                        id.includes('node_modules\\plotly.js') ||
+                        id.includes('node_modules/react-plotly.js') ||
+                        id.includes('node_modules\\react-plotly.js') ||
+                        id.includes('node_modules/@plotly') ||
+                        id.includes('node_modules\\@plotly')
+                    ) {
+                        return 'plotly';
+                    }
+                },
             },
         },
         cssCodeSplit: false,

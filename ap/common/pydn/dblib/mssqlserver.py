@@ -229,10 +229,15 @@ self.is_connected: {self.is_connected}
             return False
 
         schema = f"'{self._schema}'" if self._schema else 'SCHEMA_NAME()'
-        sql = f"""select o.name table_name,c.name column_name,type_name(c.user_type_id) column_type
+        # Order by column_id so the returned order matches the natural
+        # "SELECT *" column order, and expose max_length/collation so callers can size
+        # NVARCHAR casts (see gen_preview_select_columns).
+        sql = f"""select o.name table_name,c.name column_name,type_name(c.user_type_id) column_type,
+                 c.max_length,c.collation_name
                  from sys.columns c
                  inner join sys.objects o on c.object_id = o.object_id
-                 where SCHEMA_NAME(o.schema_id)={schema} and o.name=N'{tblname}'"""
+                 where SCHEMA_NAME(o.schema_id)={schema} and o.name=N'{tblname}'
+                 order by c.column_id"""
         logger.info(f'sql {sql}')
 
         cur = self.connection.cursor()
@@ -240,9 +245,85 @@ self.is_connected: {self.is_connected}
         rows = cur.fetchall()
         results = []
         for row in rows:
-            results.append({'name': row[1], 'type': row[2]})
+            results.append({'name': row[1], 'type': row[2], 'max_length': row[3], 'collation_name': row[4]})
         cur.close()
         return results
+
+    # Non-Unicode character types store bytes in the column's code page. The
+    # pymssql/FreeTDS client decodes them with the connection charset, so
+    # non-ASCII data (e.g. CP932/Shift-JIS Japanese) comes back as mojibake.
+    # Converting to NVARCHAR makes the server emit Unicode, which the client
+    # decodes correctly regardless of the column collation.
+    _NON_UNICODE_CHAR_TYPES = frozenset({'char', 'varchar', 'text'})
+
+    @staticmethod
+    def _nvarchar_cast_size(col_type, max_length):
+        """Pick an NVARCHAR length for casting a non-Unicode char column.
+
+        sys.columns.max_length is in bytes and is -1 for varchar(max). For the
+        legacy `text` type it is not the real content length, so widen to MAX.
+        A bounded NVARCHAR is capped at 4000; beyond that MAX is required.
+        """
+        if col_type == 'text' or max_length is None or max_length < 0 or max_length > 4000:
+            return 'MAX'
+        return str(max_length)
+
+    def _column_select_expr(self, col):
+        """Select expression for one column metadata dict.
+
+        Non-Unicode char/varchar/text columns are wrapped in
+        CAST(... AS NVARCHAR(n)) and aliased back to their original name so the
+        result-set column name is unchanged; other columns are returned quoted.
+        """
+        quoted = f'"{col["name"]}"'
+        col_type = (col.get('type') or '').lower()
+        if col_type in self._NON_UNICODE_CHAR_TYPES and col.get('collation_name'):
+            size = self._nvarchar_cast_size(col_type, col.get('max_length'))
+            return f'CAST({quoted} AS NVARCHAR({size})) AS {quoted}'
+        return quoted
+
+    def gen_column_select_expr(self, col_meta, col_name):
+        """Select expression for a single column, for callers building their own
+        SELECT list (e.g. the factory import query).
+
+        Casts a non-Unicode char column to NVARCHAR (preserving the column name
+        via alias) so non-ASCII data is not returned as mojibake. Falls back to a
+        plain quoted name when metadata for the column is unavailable.
+
+        :param col_meta: column metadata dict from list_table_columns, or None
+        :param col_name: column name to use when metadata is missing
+        """
+        if not col_meta:
+            return f'"{col_name}"'
+        return self._column_select_expr(col_meta)
+
+    def gen_preview_select_columns(self, tblname, column_names=None):
+        """Build a SELECT column list that casts non-Unicode text to NVARCHAR.
+
+        char/varchar/text columns are wrapped in CAST(... AS NVARCHAR(n)) so the
+        client receives Unicode instead of raw code-page bytes (which otherwise
+        decode to mojibake). Each projected column keeps its original name via an
+        alias so the result-set column names and order are unchanged.
+
+        :param tblname: table to preview
+        :param column_names: optional subset/ordering of columns to project;
+            when None, all columns are projected in table (column_id) order
+        :return: comma-separated select-list string, or '*' if metadata is
+            unavailable
+        """
+        columns = self.list_table_columns(tblname)
+        if not columns:
+            return '*'
+
+        if column_names is not None:
+            by_name = {col['name']: col for col in columns}
+            ordered = [by_name[name] for name in column_names if name in by_name]
+        else:
+            ordered = columns
+
+        select_parts = [self._column_select_expr(col) for col in ordered]
+
+        return ', '.join(select_parts) if select_parts else '*'
 
     def get_data_type_by_colname(self, tbl, col_name):
         col_name = strip_all_quote(col_name)

@@ -3,6 +3,7 @@ import shutil
 
 from loguru import logger
 
+from ap import db
 from ap.common.constants import AnnounceEvent, CacheType, CfgConstantType, JobType, ProcessStatus
 from ap.common.jobs.job_info_schema import (
     DelAllTransactionDataJobInfo,
@@ -21,9 +22,11 @@ from ap.trace_data.transaction_model import TransactionData
 
 @log_execution_time()
 def delete_proc_cfg_and_relate_jobs(proc_id):
-    with make_session() as meta_session:
+    with db.session.begin_nested() as transaction_session:
         # get all processes to be deleted
-        deleting_processes = CfgProcess.get_all_parents_and_children_processes(proc_id, session=meta_session)
+        deleting_processes = CfgProcess.get_all_parents_and_children_processes(
+            proc_id, session=transaction_session.session
+        )
         # get ids incase sqlalchemy session is dead
         deleting_process_ids = [proc.id for proc in deleting_processes]
 
@@ -34,7 +37,9 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
             remove_export_jobs_by_process_id(p)
 
         for cfg_process in deleting_processes:
-            meta_session.delete(cfg_process)
+            transaction_session.session.delete(cfg_process)
+
+        transaction_session.commit()
 
     delete_pulled_data_folders(deleting_process_ids)
 
@@ -42,6 +47,131 @@ def delete_proc_cfg_and_relate_jobs(proc_id):
         delete_transaction_db_file(p)
 
     return deleting_process_ids
+
+
+def _build_delete_modal_entry(proc: CfgProcess) -> dict:
+    """Describe a process for the delete confirmation modal.
+
+    A merged child always carries its parent's name (the names are kept in sync by
+    ``create_or_update_process_cfg``), so the name alone cannot tell the processes of one
+    merge group apart. The data source and table are returned as well, matching the columns
+    the user already sees in the process config table, so the modal can render a label that
+    identifies each process unambiguously.
+    """
+    data_source = proc.data_source
+    return {
+        'id': proc.id,
+        'name': proc.shown_name,
+        'data_source_name': data_source.name if data_source is not None else None,
+        'table_name': proc.table_name,
+    }
+
+
+@log_execution_time()
+def classify_processes_for_delete(process_ids):
+    """Classify selected processes for the bulk-delete confirmation modal.
+
+    From the list of selected process ids (the processes the user ticked to delete),
+    build:
+
+    - ``selected_parents``: selected processes that are a merge destination, i.e. that have
+      at least one child merged into them. Deleting one removes its whole merge group, so
+      the modal warns with them (warning #1).
+    - ``selected_children``: selected processes that are merged into a parent (their own
+      ``parent_id`` is set). These are deleted alone.
+    - ``reload_targets``: parent processes that are NOT part of the deletion but have at
+      least one selected child (warning #2). Their already-imported data must be reloaded to
+      reflect the child deletion. A parent whose whole group is being deleted (its id is also
+      selected) is skipped because there is nothing left to reload.
+
+    Every entry is built by ``_build_delete_modal_entry`` so the modal can distinguish
+    same-named processes of a merge group. Ordering follows the selection order and is
+    de-duplicated so the modal renders deterministically.
+    """
+    selected_ids = list(dict.fromkeys(process_ids))
+    selected_id_set = set(selected_ids)
+
+    selected_parents = []
+    selected_children = []
+    reload_targets = []
+    seen_reload_parent_ids = set()
+
+    for proc_id in selected_ids:
+        proc = CfgProcess.query.get(proc_id)
+        if proc is None:
+            continue
+
+        parent = CfgProcess.get_parent(proc_id)
+        if parent is not None:
+            selected_children.append(_build_delete_modal_entry(proc))
+            # Only reload a parent that survives the deletion (its group is not fully removed).
+            if parent.id not in selected_id_set and parent.id not in seen_reload_parent_ids:
+                seen_reload_parent_ids.add(parent.id)
+                reload_targets.append(_build_delete_modal_entry(parent))
+        elif CfgProcess.get_children(proc_id):
+            selected_parents.append(_build_delete_modal_entry(proc))
+
+    return {
+        'selected_parents': selected_parents,
+        'selected_children': selected_children,
+        'reload_targets': reload_targets,
+    }
+
+
+@log_execution_time()
+def delete_child_process_and_relate_jobs(proc_id, reload_related_process_data=False):
+    """Delete ONLY the selected child process of a merge group.
+
+    Unlike ``delete_proc_cfg_and_relate_jobs`` (which removes the whole merge group),
+    this removes just the selected child process config, its jobs, pulled data folder
+    and transaction db files. When ``reload_related_process_data`` is True, the parent
+    merged process is re-initialized and re-imported so the deleted child's data is
+    removed from the already-loaded data (mirrors the "Edit merged process" init_parent
+    flow in ``post_proc_config``).
+    """
+    # Resolve the parent (merged) process before deletion, because the relationship
+    # is lost once the child row is removed.
+    parent = CfgProcess.get_parent(proc_id)
+    parent_id = parent.id if parent else None
+
+    with db.session.begin_nested() as transaction_session:
+        cfg_process = transaction_session.session.query(CfgProcess).get(proc_id)
+        if cfg_process is None:
+            return []
+
+        # stop jobs of this child only before deleting
+        EventQueue.put(EventRemoveJobs(job_types=JobType.jobs_include_process_id(), process_id=proc_id))
+        remove_export_jobs_by_process_id(proc_id)
+
+        transaction_session.session.delete(cfg_process)
+        transaction_session.commit()
+
+    delete_pulled_data_folders([proc_id])
+    delete_transaction_db_file(proc_id)
+
+    if reload_related_process_data and parent_id is not None:
+        reinitialize_and_reimport_merged_process(parent_id)
+
+    return [proc_id]
+
+
+@log_execution_time()
+def reinitialize_and_reimport_merged_process(parent_id):
+    """Re-initialize and re-import a parent merged process and its remaining children.
+
+    Mirrors the "Edit merged process" re-import flow (``post_proc_config`` with
+    ``init_parent``): wipe the parent group's transaction data, recreate empty tables,
+    then re-queue import jobs so the loaded data reflects the current children.
+    """
+    # local import to avoid circular import between process_delete and import_function_column
+    from ap.api.setting_module.services.import_function_column import add_required_jobs_after_update_transaction_table
+
+    # wipe + recreate empty transaction tables for the parent group
+    delete_transaction_when_initial_process(parent_id)
+
+    # re-import parent and remaining children (deleted child already removed)
+    for process in CfgProcess.get_all_parents_and_children_processes(parent_id):
+        add_required_jobs_after_update_transaction_table(process)
 
 
 @log_execution_time()
@@ -182,15 +312,47 @@ def del_data_source(ds_id):
     :param ds_id:
     :return:
     """
+    deleted_process_ids = []
+
     with make_session() as meta_session:
         ds = meta_session.query(CfgDataSource).get(ds_id)
         if not ds:
-            return
+            return None
 
         # delete data
-        for proc in ds.processes or []:
-            delete_proc_cfg_and_relate_jobs(proc.id)
+        for proc in list(ds.processes or []):
+            deleted_process_ids.extend(delete_proc_cfg_and_relate_jobs(proc.id))
         meta_session.delete(ds)
+
+    return list(dict.fromkeys(deleted_process_ids))
+
+
+def del_data_sources(ds_ids):
+    deleted_data_source_ids = []
+    deleted_process_ids = []
+    not_found_data_source_ids = []
+    failed_data_source_ids = []
+
+    for ds_id in ds_ids:
+        try:
+            proc_ids = del_data_source(ds_id)
+
+            if proc_ids is None:
+                not_found_data_source_ids.append(ds_id)
+                continue
+
+            deleted_data_source_ids.append(ds_id)
+            deleted_process_ids.extend(proc_ids)
+        except Exception:
+            logger.exception('Failed to delete data source %s', ds_id)
+            failed_data_source_ids.append(ds_id)
+
+    return {
+        'deleted_data_source_ids': deleted_data_source_ids,
+        'deleted_process_ids': list(dict.fromkeys(deleted_process_ids)),
+        'not_found_data_source_ids': not_found_data_source_ids,
+        'failed_data_source_ids': failed_data_source_ids,
+    }
 
 
 def delete_transaction_db_file(proc_id: int):

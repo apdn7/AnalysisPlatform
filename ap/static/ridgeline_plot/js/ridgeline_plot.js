@@ -3,6 +3,12 @@ const MAX_NUMBER_OF_GRAPH = 20;
 const MAX_NUMBER_OF_SENSOR = 20;
 const MIN_NUMBER_OF_SENSOR = 0;
 const MIN_DATA_POINTS_ON_RIDGE = 8;
+// SMALL_SAMPLE_COLOR use the green color computed from hsv2rgb to ensure it is consistent with the other lines.
+const SMALL_SAMPLE_COLOR = hsv2rgb({
+    h: 120,
+    s: 1,
+    v: 1,
+});
 let valueInfo = null;
 const graphStore = new GraphStore();
 const dicTabs = {
@@ -237,27 +243,39 @@ const ngRateToColor = (ngRateArray, yScaleFixed = false) => {
     }
     return [];
 };
-const emdToColor = (emdArray) => {
-    if (emdArray) {
-        const maxValue = Math.max(...emdArray.map((i) => Math.abs(i)));
-        const minValue = Math.min(...emdArray);
-        return emdArray.map((emdValue) => {
-            let hValue;
-            // max = min -> default color in zero
-            if (maxValue === minValue) {
-                hValue = 120;
-            } else {
-                hValue = 120 * (1 - emdValue / maxValue);
-            }
-            const hsv = {
-                h: hValue,
+const emdToColor = (emdArray, dataCounts = []) => {
+    if (!emdArray?.length) {
+        return [];
+    }
+
+    const validEmdForColorScale = emdArray.filter(
+        (_, index) => !dataCounts.length || dataCounts[index] >= MIN_DATA_POINTS_ON_RIDGE,
+    );
+
+    // if all groups has small sample size: fallback to EMD
+    const scaleSource = validEmdForColorScale.length ? validEmdForColorScale : emdArray;
+
+    const maxValue = Math.max(...scaleSource.map((value) => Math.abs(value)));
+    const minValue = Math.min(...scaleSource);
+
+    return emdArray.map((emdValue, index) => {
+        // Support EMD for small sample size group, but forcing to show as green line
+        if (dataCounts.length && dataCounts[index] < MIN_DATA_POINTS_ON_RIDGE) {
+            return hsv2rgb({
+                h: 120,
                 s: 1,
                 v: 1,
-            };
-            return hsv2rgb(hsv);
+            });
+        }
+
+        const hValue = maxValue === minValue || maxValue === 0 ? 120 : 120 * (1 - emdValue / maxValue);
+
+        return hsv2rgb({
+            h: hValue,
+            s: 1,
+            v: 1,
         });
-    }
-    return [];
+    });
 };
 
 const createEMDTrace = (emdGroup, emdData, emdColors) => ({
@@ -388,7 +406,7 @@ const showRidgeLine = (res, eleIdPrefix = 'category', isFilterEmd = false) => {
 const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emdType, rlpItemHeight, showXAxis) => {
     const colId = judgeData.end_col_id;
     const ngCondition = `${judgeData.NGCondition} ${judgeData.NGConditionValue}`;
-    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
+    const [, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
         colId,
         startProcId,
         judgeData.end_proc_id,
@@ -397,7 +415,7 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
     );
     const cardId = `judgeChart${colId}-${idx}`;
     const cardGroupID = `judgeChartGroup${colId}-${idx}`;
-    const showName = `${judgeData.sensor_name}${CTTile} ${ngCondition}`;
+    const showName = `${judgeData.sensor_name} ${ngCondition}`;
     rlpCard.append(`
         <div class="ridgeLineItem judgeChart graph-navi${fromStartProcClass}" id="${cardGroupID}">
              <div class="tschart-title-parent" style="${titleStyle}">
@@ -550,10 +568,7 @@ const renderJudgeChart = (eleIdPrefix, rlpCard, idx, judgeData, startProcId, emd
 };
 
 const genCommonTitleChartInfo = (colId, startProcId, endProcId, catExpBox, emdType) => {
-    const cfgProcess = procConfigs[parseInt(endProcId)] || procConfigs[endProcId];
-    const column = cfgProcess.getColumnById(colId);
-    const isColCT = column.data_type === DataTypes.DATETIME.name;
-    const CTTile = isColCT ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
+    const CTTile = '';
 
     catExpBox = catExpBox && _.isArray(catExpBox) ? catExpBox.join(' | ') : catExpBox;
 
@@ -606,11 +621,15 @@ const renderRidgeLine = (
         }
         return transEMD;
     };
-    const emdColors = emdToColor(emdData);
+    const dataCounts = sensorData.ridgelines
+        .filter((ridge) => ridge.data_counts && ridge.trans_kde.length)
+        .map((ridge) => ridge.data_counts);
+
+    const emdColors = emdToColor(emdData, dataCounts);
     const rlpColors = [...emdColors];
     const transRLPColors = transEMDFromRidgeline(rlpColors, sensorData.ridgelines);
 
-    const [CTTile, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
+    const [, fromStartProcClass, facetDetailHTML, titleStyle] = genCommonTitleChartInfo(
         sensorData.sensor_id,
         startProc,
         end_proc_id,
@@ -622,7 +641,7 @@ const renderRidgeLine = (
              <div class="tschart-title-parent" style="${titleStyle}">
                 <div class="tschart-title" style="width: ${rlpItemHeight};">
                    <span title="${sensorData.proc_name}">${sensorData.proc_name}</span>
-                   <span title="${sensorData.sensor_name}">${sensorData.sensor_name}${CTTile}</span>
+                   <span title="${sensorData.sensor_name}">${sensorData.sensor_name}</span>
                    ${facetDetailHTML}
                    <span title="${emdType}">${emdType}</span>
                </div>
@@ -666,7 +685,7 @@ const renderRidgeLine = (
     const rlpData = sensorData.ridgelines.map((ridgeLine, k) => {
         const histLabels = ridgeLine.kde_data.hist_labels;
         const transKDE = ridgeLine.trans_kde;
-        const lineColor = ridgeLine.data_counts >= MIN_DATA_POINTS_ON_RIDGE ? transRLPColors[k] : '#808080';
+        const lineColor = ridgeLine.data_counts < MIN_DATA_POINTS_ON_RIDGE ? SMALL_SAMPLE_COLOR : transRLPColors[k];
         ridgeLine.groupLabels = datetimeCategory.length ? datetimeCategory[k] : categories[k];
         return rlpSingleLine(histLabels, transKDE, lineColor, ridgeLine.groupLabels, ridgeLine.data_counts);
     });
@@ -887,7 +906,7 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         resetGraphSetting();
     }
 
-    showGraphCallApi('/ap/api/rlp/index', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/rlp/index', formData, REQUEST_TIMEOUT, async (res) => {
         res = sortResponseData(res);
         resData = res;
         graphStore.setTraceData(_.cloneDeep(res));
@@ -930,8 +949,10 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
             showGraph(false);
         });
 
-        setPollingData(formData, showGraph, [false, true]);
+        setPollingData(formData, showGraph, [false, true], requestPromise);
     });
+
+    return requestPromise;
 };
 
 const sortResponseData = (res) => {
@@ -1219,15 +1240,13 @@ const genEMDFromOptions = (params) => {
             ridge.color = colors[i];
             return ridge;
         });
-    // get EMD from valid ridge-lines to show EMD chart
-    const validEMD = validRidges.filter((ridge, i) => ridge.data_counts >= MIN_DATA_POINTS_ON_RIDGE || !i);
 
     // return valid EMD
     return {
-        x: validEMD.map((ridge) => ridge.emdX),
-        y: validEMD.map((ridge) => ridge.emdY),
-        color: validEMD.map((ridge) => ridge.color),
-        nTotal: validEMD.map((ridge) => ridge.data_counts),
-        groupLabels: validEMD.map((ridge) => ridge.groupLabels),
+        x: validRidges.map((ridge) => ridge.emdX),
+        y: validRidges.map((ridge) => ridge.emdY),
+        color: validRidges.map((ridge) => ridge.color),
+        nTotal: validRidges.map((ridge) => ridge.data_counts),
+        groupLabels: validRidges.map((ridge) => ridge.groupLabels),
     };
 };

@@ -49,20 +49,20 @@
     border: 1.1px solid white !important;
 }
 
-#tblUserSetting th:nth-child(2) {
+#tblUserSetting th:nth-child(3) {
     min-width: 65px !important;
 }
-#tblUserSetting th:nth-child(3) {
+#tblUserSetting th:nth-child(4) {
     width: 100px !important;
 }
 
-#tblUserSetting th:nth-child(6),
 #tblUserSetting th:nth-child(7),
-#tblUserSetting th:nth-child(8) {
+#tblUserSetting th:nth-child(8),
+#tblUserSetting th:nth-child(9) {
     width: 70px !important;
 }
 
-#tblUserSetting td:nth-child(5) {
+#tblUserSetting td:nth-child(6) {
     /*width: 180px !important;*/
     font-size: 16px;
 }
@@ -87,8 +87,25 @@
     font-size: 16px;
 }
 
-#tblUserSetting td:nth-child(1),
 #tblUserSetting td:nth-child(2),
-#tblUserSetting td:nth-child(5) {
+#tblUserSetting td:nth-child(3),
+#tblUserSetting td:nth-child(6) {
     text-align: center;
+}
+
+.checkbox-control {
+    display: inline-block;
+    height: 16px;
+    line-height: 16px;
+    min-height: 16px;
+    padding-left: 16px;
+    vertical-align: middle;
+}
+
+.checkbox-label::before,
+.checkbox-label::after {
+    height: 16px;
+    left: -16px;
+    top: 0;
+    width: 16px;
 }

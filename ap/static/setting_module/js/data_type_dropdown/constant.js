@@ -38,6 +38,8 @@ class DataTypeDropdown_Constant {
         MAIN_DATE: 7,
         MAIN_TIME: 8,
         INT_CATE: 10,
+        PROC_NO: 18,
+        PROC_NAME: 19,
         LINE_NAME: 20,
         LINE_NO: 21,
         EQ_NAME: 22,
@@ -90,6 +92,7 @@ class DataTypeDropdown_Constant {
         masterDataGroup.PART_NO,
         masterDataGroup.ST_NO,
         masterDataGroup.JUDGE,
+        masterDataGroup.PROC_NAME,
     ]);
 
     /**
@@ -111,6 +114,7 @@ class DataTypeDropdown_Constant {
         'is_st_no',
         'is_judge',
         'is_int_cat',
+        'is_proc_name',
     ]);
 
     /**

@@ -399,7 +399,7 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
 const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) => {
     let formData = collectInputAsFormData(clearOnFlyFilter, autoUpdate);
 
-    showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
+    const requestPromise = showGraphCallApi('/ap/api/chm/plot', formData, REQUEST_TIMEOUT, async (res) => {
         afterShowCHM();
 
         res = sortArrayFormVal(res);
@@ -415,8 +415,10 @@ const queryDataAndShowHeatMap = (clearOnFlyFilter = true, autoUpdate = false) =>
 
         checkAndShowToastr(res, clearOnFlyFilter);
 
-        setPollingData(formData, queryDataAndShowHeatMap, [false, true]);
+        setPollingData(formData, queryDataAndShowHeatMap, [false, true], requestPromise);
     });
+
+    return requestPromise;
 };
 
 const sortArrayFormVal = (res) => {
@@ -493,9 +495,7 @@ const checkAndShowToastr = (data, clearOnFlyFilter) => {
 };
 
 const drawHeatMapFromPlotData = (canvasId, plotData) => {
-    const numericDataTypes = [DataTypes.REAL.name, DataTypes.INTEGER.name, DataTypes.DATETIME.name];
-    const colorSelectDOM =
-        !plotData.is_serial_no && numericDataTypes.includes(plotData.data_type) ? eles.colorReal : eles.colorCat;
+    const colorSelectDOM = isCategory(plotData.data_type, plotData.column_type) ? eles.colorCat : eles.colorReal;
     const colorOption = colorSelectDOM.val();
     const prop = {
         canvasId,
@@ -534,14 +534,13 @@ const createRowHTML = (rowIdx, length) => {
     return rowCardId;
 };
 
-const createCardHTML = (rowCardId, graphId, title, facet, isCTCol) => {
-    const CTLabel = isCTCol ? ` (${DataTypes.DATETIME.short}) [sec]` : '';
+const createCardHTML = (rowCardId, graphId, title, facet) => {
     $(`#${rowCardId}`).append(`
         <div class="col-xl-4 col-lg-6 col-sm-6 col-12" style="padding: 4px">
             <div class="chm-col d-flex dark-bg">
                 <div class="chm-card-title-parent">
                     <div class="chm-card-title">
-                        <span title="${title}">${title}${CTLabel}</span>
+                        <span title="${title}">${title}</span>
                         ${facet ? `<span class="show-detail cat-exp-box" title="${facet}">${facet}</span>` : ''}
                     </div>
                 </div>
@@ -612,7 +611,6 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     const buildGraphTitle = (plotData, procId) => {
         const { end_proc_name } = plotData;
         const sensorName = plotData.end_col_show_name;
-        const isCTCol = plotData.data_type === DataTypes.DATETIME.name;
 
         const cateValue = plotData.cate_value;
         let facetTitle = '';
@@ -624,7 +622,7 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
             }
             title = `${end_proc_name}-${sensorName}`;
         }
-        return [title, sensorName, cateValue, facetTitle, isCTCol];
+        return [title, sensorName, cateValue, facetTitle];
     };
 
     const [minZ, maxZ] = getCommonScale(data);
@@ -640,12 +638,12 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
                 continue;
             }
             const procId = plotData.proc_id;
-            const [title, sensorName, cardValue, facet, isCTCol] = buildGraphTitle(plotData, procId);
+            const [title, sensorName, cardValue, facet] = buildGraphTitle(plotData, procId);
             plotData.sensorName = sensorName;
             plotData.title = title;
             plotData.cardValue = cardValue;
 
-            createCardHTML(rowCardId, `${rowIdx}_${plotIdx}`, title, facet, isCTCol);
+            createCardHTML(rowCardId, `${rowIdx}_${plotIdx}`, title, facet);
 
             // draw heat map
             const plotContainerId = `chm_${rowIdx}_${plotIdx}`;

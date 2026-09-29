@@ -5,6 +5,7 @@ Flask-Migrate==4.0.7
 Flask-SQLAlchemy==3.1.1
 Flask==3.0.3
 PyMySQL==1.0.2
+SQLAlchemy==2.0.53
 arrow==1.4.0
 cachelib==0.13.0
 chardet==3.0.4

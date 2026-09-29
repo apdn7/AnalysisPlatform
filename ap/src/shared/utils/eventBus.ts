@@ -3,7 +3,8 @@ type EventName =
     | 'EXPORT_CONFIG_RELOADING'
     | 'EXPORT_CONFIG_ROW_CLICKED'
     | 'EXPORT_CONFIG_RESETTING'
-    | 'DELETE_EXPORT_CONFIG';
+    | 'DELETE_EXPORT_CONFIG'
+    | 'EXPORT_CONFIG_ROW_UNSELECTED';
 
 export const eventBus = {
     emit(event: EventName, data?: any) {

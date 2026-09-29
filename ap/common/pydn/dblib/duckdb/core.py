@@ -71,7 +71,8 @@ class DuckDB:
         Use `qmark` paramstyle because duckdb accepts `?` param
         """
         compiled_stmt = stmt.compile(
-            dialect=duckdb_engine.Dialect(paramstyle='qmark'), compile_kwargs={'render_postcompile': True}
+            dialect=duckdb_engine.Dialect(paramstyle='qmark', max_identifier_length=128),
+            compile_kwargs={'render_postcompile': True},
         )
         params = [compiled_stmt.params[pos] for pos in compiled_stmt.positiontup]  # sort params based position
         return compiled_stmt.string, params

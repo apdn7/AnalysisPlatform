@@ -1,3 +1,4 @@
+const JUDGE_POSITIVE_VALUE = ['1', 'true'];
 const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     const conditionFormula = {
         matches: 'MATCHES',
@@ -56,6 +57,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         copyFilterOthersAllBtn: `.card#${cardId} #copyFilterOthersAllBtn`,
         pasteFilterOthersAllBtn: `.card#${cardId} #pasteFilterOthersAllBtn`,
         downloadFilterOthersAllBtn: `.card#${cardId} #downloadFilterOthersAllBtn`,
+        bulkDeleteBtn: `.card#${cardId} [name=bulkDeleteConfig]`,
+        selectAllCheckbox: `.card#${cardId} input[name=selectAllFilterDetail]`,
     };
 
     const i18n = {
@@ -101,7 +104,9 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         for (const val of selectedValues) {
             if (!isEmpty(val)) {
                 if (judge.isJudge) {
-                    const displayVal = val.toString() === '1' ? judge.positiveDisplay : judge.negativeDisplay;
+                    const displayVal = JUDGE_POSITIVE_VALUE.includes(String(val))
+                        ? judge.positiveDisplay
+                        : judge.negativeDisplay;
                     selectedValueOptions.push(`<option value="${val}">${displayVal}</option>`);
                 } else {
                     selectedValueOptions.push(`<option value="${val}">${val}</option>`);
@@ -112,7 +117,9 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         for (const val of filterColumnData) {
             if (!selectedValues.includes(`${val}`)) {
                 if (judge.isJudge) {
-                    const displayVal = val ? judge.positiveDisplay : judge.negativeDisplay;
+                    const displayVal = JUDGE_POSITIVE_VALUE.includes(String(val))
+                        ? judge.positiveDisplay
+                        : judge.negativeDisplay;
                     filterValueOptions.push(`<option value="${val}">${displayVal}</option>`);
                 } else {
                     filterValueOptions.push(`<option value="${val}">${val}</option>`);
@@ -301,6 +308,16 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
         $(eles.tblConfigBody).append(`
         <tr name="info">
+            <td class="text-center col-select checkbox-wrapper">
+                <div class="custom-control custom-checkbox checkbox-control">
+                    <input type="checkbox"
+                           class="custom-control-input filter-detail-row-select"
+                           name="filterDetailBulkSelect"
+                           id="filterDetailSelect-${startFromSelectPrefix}" />
+                    <label class="custom-control-label checkbox-label"
+                           for="filterDetailSelect-${startFromSelectPrefix}"></label>
+                </div>
+            </td>
             <td class="col-number">${rowNumber + 1}</td>
             ${lineHTML}
             <td>
@@ -334,7 +351,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                 </div>
             </td>
             <td class="text-center">
-                <button onclick="delClosestEle(this, 'tr');" type="button" class="btn btn-secondary icon-btn">
+                <button onclick="deleteFilterDetailRow(this, '${cardId}');" type="button" class="btn btn-secondary icon-btn">
                     <i class="fas fa-trash-alt icon-secondary"></i>
                 </button>
             </td>
@@ -532,6 +549,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
     const clearConfigTable = () => {
         $(eles.tblConfigBody).empty();
+        $(eles.bulkDeleteBtn).prop('disabled', true);
+        $(eles.selectAllCheckbox).prop('checked', false).prop('indeterminate', false);
     };
 
     const clearCurrentCardSettings = () => {
@@ -1096,7 +1115,9 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     };
     const collectAllFilterConfigInfo = () => {
         const tableEle = $(`#${eles.tblConfigId}`);
-        let headerTexts = getHeadTextTable(tableEle);
+        const tableForClipboard = tableEle.clone();
+        tableForClipboard.find('.col-select').remove();
+        let headerTexts = getHeadTextTable(tableForClipboard);
         headerTexts = headerTexts.flat();
         const headerCount = tableEle.find('thead tr').length;
         const colHeaderLen = headerTexts.length / headerCount;
@@ -1110,7 +1131,7 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
     };
 
     const getTRFilterConfigDataValues = (tr) => {
-        const children = [...(tr?.querySelectorAll('td:not(.d-none)') ?? [])];
+        const children = [...(tr?.querySelectorAll('td:not(.d-none):not(.col-select)') ?? [])];
         return children.map((td) => {
             const dataOriginAttr = td.dataset.origin;
             if (dataOriginAttr != null) {
@@ -1135,10 +1156,11 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
         if (dataTable.length === 0) {
             return null;
         }
-        const tableEle = $(`#${eles.tblConfigId}`);
-        let headerTexts = getHeadTextTable(tableEle);
+        const tableForClipboard = $(`#${eles.tblConfigId}`).clone();
+        tableForClipboard.find('.col-select').remove();
+        let headerTexts = getHeadTextTable(tableForClipboard);
         headerTexts = headerTexts.flat();
-        const headerCount = tableEle.find('thead tr').length;
+        const headerCount = tableForClipboard.find('thead tr').length;
         const colHeaderLen = headerTexts.length / headerCount;
         const mainHeaderTexts = headerTexts.slice(0, colHeaderLen);
 
@@ -1318,7 +1340,8 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
                     }
                 });
             const spreadWidth = colWidths.reduce((a, b) => a + b);
-            const orgTableWidth = $(`#${cardId} form`).width();
+            const selectColumnWidth = $(`#tblConfig${cardId} thead th.col-select`).outerWidth() || 0;
+            const orgTableWidth = $(`#${cardId} form`).width() - selectColumnWidth;
             // increase end column
             colWidths[colWidths.length - 1] += orgTableWidth - spreadWidth - 50;
             return { headerLabels, colWidths };
@@ -1574,11 +1597,49 @@ const filterCfgGenerator = (cardId, filterType = filterTypes.OTHER) => {
 
         onSearchTableContent(null, `tblConfig${cardId}`, $(eles.searchInput));
 
-        if (cardId.includes('machine')) {
-            sortableTable(`tblConfig${cardId}`, [0, 1, 2, 3, 4, 5], 508);
-        } else {
-            sortableTable(`tblConfig${cardId}`, [0, 1, 2, 3, 4], 508);
-        }
+        const sortableColumns = cardId.includes('machine') ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5];
+        sortableTable(`tblConfig${cardId}`, sortableColumns, 508, false, true, sortableColumns);
+
+        $(eles.bulkDeleteBtn)
+            .off('click.filterBulkDelete')
+            .on('click.filterBulkDelete', function () {
+                if ($(this).prop('disabled')) return;
+                deleteBulkFilterDetail(cardId);
+            });
+
+        $(eles.selectAllCheckbox)
+            .off('.filterBulkDelete')
+            .on('mousedown.filterBulkDelete', function () {
+                $(this).data('wasIndeterminate', this.indeterminate);
+            })
+            .on('change.filterBulkDelete', function () {
+                handleSelectAllFilterDetails(this, cardId);
+            });
+
+        $(eles.thisCard)
+            .off('change.filterBulkDelete', 'input[name=filterDetailBulkSelect]')
+            .on('change.filterBulkDelete', 'input[name=filterDetailBulkSelect]', () => {
+                handleSelectedFilterDetails(cardId);
+            });
+
+        $(eles.searchInput)
+            .off('input.filterBulkDelete change.filterBulkDelete')
+            .on('input.filterBulkDelete change.filterBulkDelete', () => {
+                handleSelectedFilterDetails(cardId);
+            });
+
+        $(`#${eles.tblConfigId}`)
+            .off(
+                'keyup.filterBulkDelete change.filterBulkDelete clear.filterBulkDelete search.filterBulkDelete',
+                '.filterCol',
+            )
+            .on(
+                'keyup.filterBulkDelete change.filterBulkDelete clear.filterBulkDelete search.filterBulkDelete',
+                '.filterCol',
+                () => {
+                    handleSelectedFilterDetails(cardId);
+                },
+            );
     };
 
     return {
@@ -1643,6 +1704,9 @@ const genSmartHtmlOther = (procId, cardId = null) => {
     $(prevCard).find('#collapseOther01').attr('aria-labelledby', `headingOther${cardNo}`);
     $(prevCard).find('#collapseOther01').attr('id', `collapseOther${cardNo}`);
 
+    $(prevCard).find('input[name=selectAllFilterDetail]').attr('id', `selectAllFilterDetail${currId}`);
+    $(prevCard).find('label[for^="selectAllFilterDetail"]').attr('for', `selectAllFilterDetail${currId}`);
+
     $(`.card#${currId}`).append($(prevCard).children().clone());
     const otherColumnName = $(`.card#${currId} [name=columnName]`)[0];
     // otherColumnName.id = `otherColumnName${idNo}`;
@@ -1700,6 +1764,53 @@ const setShownName = (e) => {
     const shownName = $(e).find('option:selected').text();
     // fill selected variable's shown name automatically into input
     $(e).closest('form').find('input[name=filterTitle]').val(shownName);
+};
+
+const handleSelectedFilterDetails = (cardId) => {
+    const card = $(`.card#${cardId}`);
+    const visibleRows = card.find('tbody tr:visible');
+    const visibleSelected = visibleRows.find('input[name=filterDetailBulkSelect]:checked');
+    const all = card.find('tbody input[name=filterDetailBulkSelect]');
+    const selected = all.filter(':checked');
+    const bulkBtn = card.find('[name=bulkDeleteConfig]');
+    const selectAll = card.find('input[name=selectAllFilterDetail]');
+
+    bulkBtn.prop('disabled', appContext.is_authorized !== '1' || visibleSelected.length === 0);
+
+    const allLen = all.length;
+    const selLen = selected.length;
+    selectAll.prop('checked', selLen > 0 && selLen === allLen).prop('indeterminate', selLen > 0 && selLen < allLen);
+};
+
+const handleSelectAllFilterDetails = (e, cardId) => {
+    const card = $(`.card#${cardId}`);
+    const visibleCheckboxes = card.find('tbody tr').filter(':visible').find('input[name=filterDetailBulkSelect]');
+    if ($(e).data('wasIndeterminate')) {
+        visibleCheckboxes.prop('checked', false);
+    } else {
+        visibleCheckboxes.prop('checked', e.checked);
+    }
+    handleSelectedFilterDetails(cardId);
+};
+
+const removeFilterDetailRows = (rows, cardId) => {
+    rows.remove();
+    updateTableRowNumber(`tblConfig${cardId}`);
+    handleSelectedFilterDetails(cardId);
+};
+
+const deleteFilterDetailRow = (button, cardId) => {
+    delClosestEle(button, 'tr');
+    updateTableRowNumber(`tblConfig${cardId}`);
+    handleSelectedFilterDetails(cardId);
+};
+
+const deleteBulkFilterDetail = (cardId) => {
+    const card = $(`.card#${cardId}`);
+    const selectedRows = card.find('tbody tr').filter(':visible').find('input[name=filterDetailBulkSelect]:checked');
+    if (!selectedRows.length) return;
+
+    removeFilterDetailRows(selectedRows.closest('tr'), cardId);
 };
 
 $(() => {

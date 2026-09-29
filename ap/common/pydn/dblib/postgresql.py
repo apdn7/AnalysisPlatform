@@ -332,6 +332,20 @@ self.is_connected: {self.is_connected}
 
         return res
 
+    def execute_sql_no_commit(self, sql):
+        """For executing any query without commit action
+        :param sql: SQL to be executed
+        :return: Execution result
+        """
+        if not self._check_connection():
+            return False
+
+        cur = self.connection.cursor()
+        res = cur.execute(sql)
+        cur.close()
+
+        return res
+
     # 現時点ではSQLをそのまま実行するだけ
     def get_timezone(self):
         try:

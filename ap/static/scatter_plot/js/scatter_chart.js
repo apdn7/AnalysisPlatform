@@ -16,19 +16,31 @@ const SCATTER_MARGIN = {
 // unique filters
 const onlyUniqueFilter = (value, index, self) => self.indexOf(value) === index;
 
-const buildCategoryColors = (colorData) => {
-    const uniqueColorData = colorData.filter(onlyUniqueFilter);
-    const isString = _.isString(uniqueColorData[0]);
-
-    if (isString) {
-        // const tempVals = uniqueColorData.map((val, i) => i / uniqueColorData.length);
-        // const tickvals = getNValueInArray(tempVals, 5);
-        // const ticktext = getNValueInArray(uniqueColorData, 5);
-        const tickVals = uniqueColorData.map((val, i) => i);
-        const ticktext = uniqueColorData.map((val, i) => val);
-        return [tickVals, ticktext];
+const buildCategoryColors = (colorData, categoryColorValueMap = null) => {
+    // Skip expensive deduplication when the first non-NaN value is not a string;
+    // the original onlyUniqueFilter excluded NaN via indexOf (indexOf(NaN) === -1 always),
+    // so v === v here acts as the equivalent NaN guard.
+    const firstVal = colorData.find((v) => v === v);
+    if (!_.isString(firstVal)) {
+        return [null, null];
     }
-    return [null, null];
+    // O(n) dedup preserving first-occurrence order; NaN excluded by the v === v guard.
+    const seen = new Set();
+    const uniqueColorData = [];
+    for (const v of colorData) {
+        if (v === v && !seen.has(v)) {
+            seen.add(v);
+            uniqueColorData.push(v);
+        }
+    }
+    // const tempVals = uniqueColorData.map((val, i) => i / uniqueColorData.length);
+    // const tickvals = getNValueInArray(tempVals, 5);
+    // const ticktext = getNValueInArray(uniqueColorData, 5);
+    const tickVals = uniqueColorData.map((val, i) =>
+        categoryColorValueMap?.has(val) ? categoryColorValueMap.get(val) : i,
+    );
+    const ticktext = uniqueColorData.map((val, i) => val);
+    return [tickVals, ticktext];
 };
 
 const narrowText = (text = '', n = 17) => {
@@ -47,7 +59,7 @@ const genScatterLayout = (chartOptions) => {
         colorBarLength = colorBarHeight / chartOptions.totalHeight;
     }
 
-    const [tickVals, tickText] = buildCategoryColors(chartOptions.colorsValSets);
+    const [tickVals, tickText] = buildCategoryColors(chartOptions.colorsValSets, chartOptions.categoryColorValueMap);
     let colorbarTitle = narrowText(chartOptions.colorVarName);
     if (chartOptions.colorOrderVar !== 'colors') {
         colorbarTitle = $(i18nColorBar[chartOptions.colorOrderVar]).text();

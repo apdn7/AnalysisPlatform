@@ -81,6 +81,7 @@ from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache
 from ap.common.path_utils import (
     check_exist,
+    filter_files_by_select_condition,
     get_preview_data_file_folder,
     get_sorted_files,
     get_sorted_files_by_size,
@@ -98,8 +99,9 @@ from ap.common.services.csv_header_wrapr import (
 )
 from ap.common.services.data_type import gen_data_types
 from ap.common.services.http_content import orjson_dumps
-from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji
+from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji, to_romaji_en
 from ap.common.services.normalization import (
+    ColumnRenamer,
     normalize_big_rows,
     normalize_list,
     normalize_str,
@@ -156,6 +158,10 @@ def get_latest_records(
     file_name_col_idx = None
     is_file_checker = False
     data_source: CfgDataSource | None = None
+    file_name_include = None
+    file_name_exclude = None
+    subfolder_include = None
+    subfolder_exclude = None
 
     if ja_locale is None:
         ja_locale = is_ja_locale()
@@ -181,6 +187,14 @@ def get_latest_records(
             n_rows = csv_detail.n_rows
             is_transpose = csv_detail.is_transpose
             is_file_checker = csv_detail.is_file_checker
+            # File Select Condition (file name / subfolder include-exclude), same as the
+            # actual import job and the data-source preview. Without this, sample-data
+            # detection here (used e.g. for Process Config column/datetime detection)
+            # could pick a file that the configured filter was meant to exclude.
+            file_name_include = csv_detail.file_name_include
+            file_name_exclude = csv_detail.file_name_exclude
+            subfolder_include = csv_detail.subfolder_include
+            subfolder_exclude = csv_detail.subfolder_exclude
     else:
         is_csv_or_v2 = True
 
@@ -211,6 +225,10 @@ def get_latest_records(
                 current_process_id=current_process_id,
                 is_file_checker=is_file_checker,
                 encoding=(data_source.csv_detail.encoding if data_source else None),
+                file_name_include=file_name_include,
+                file_name_exclude=file_name_exclude,
+                subfolder_include=subfolder_include,
+                subfolder_exclude=subfolder_exclude,
             )
         column_raw_names = dic_preview.get('org_headers')
         headers = normalize_list(dic_preview.get('header'))
@@ -412,7 +430,16 @@ def get_latest_records(
 
         rows = transform_df_to_rows(col_names, df_rows, limit)
         if is_csv_or_v2 and directory and (file_name_col_idx is not None):
-            file_name_data = pd.Series([os.path.basename(path) for path in get_sorted_files(directory)])
+            file_name_candidates = get_sorted_files(directory)
+            file_name_candidates = filter_files_by_select_condition(
+                file_name_candidates,
+                directory,
+                file_name_include=file_name_include,
+                file_name_exclude=file_name_exclude,
+                subfolder_include=subfolder_include,
+                subfolder_exclude=subfolder_exclude,
+            )
+            file_name_data = pd.Series([os.path.basename(path) for path in file_name_candidates])
             file_name_col_name = col_names[file_name_col_idx]
             df_unique_as_category[file_name_col_name] = parse_unique_as_category(file_name_data)
             df_unique_as_real[file_name_col_name] = parse_unique_as_real(file_name_data)
@@ -519,13 +546,24 @@ def get_info_from_db(
     process_factid: str | None = None,
     sql_limit: int = 2000,
     master_type: MasterDBType = None,
+    sort_column: str | None = None,
+    sort_order: str = 'ASC',
 ) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
-    if data_source.type in [DBType.POSTGRES_SOFTWARE_WORKSHOP.name, DBType.SNOWFLAKE_SOFTWARE_WORKSHOP.name]:
+    if data_source.type in [
+        DBType.POSTGRES_SOFTWARE_WORKSHOP.name,
+        DBType.SNOWFLAKE_SOFTWARE_WORKSHOP.name,
+    ]:
         return get_info_from_db_software_workshop(
             data_source.id,
             process_factid,
+            # Previously sql_limit was not forwarded, so Software Workshop
+            # always used its default limit of 2000.
+            sql_limit=sql_limit,
             master_type=master_type,
+            sort_column=sort_column,
+            sort_order=sort_order,
         )
+
     return get_info_from_db_normal(data_source.id, table_name, sql_limit)
 
 
@@ -541,7 +579,14 @@ def get_info_from_db_normal(
             return [], pd.DataFrame(), {}
 
         if isinstance(db_instance, mssqlserver.MSSQLServer):
-            cols, rows = db_instance.run_sql(f'select TOP {sql_limit}  * from "{table_name}"', False)
+            # Cast non-Unicode char/varchar/text columns to NVARCHAR so the
+            # pymssql client returns Unicode instead of code-page bytes, which
+            # otherwise arrive as mojibake for non-ASCII (e.g. CP932) data.
+            mssql_select_columns = db_instance.gen_preview_select_columns(table_name)
+            cols, rows = db_instance.run_sql(
+                f'select TOP {sql_limit} {mssql_select_columns} from "{table_name}"',
+                False,
+            )
         elif isinstance(db_instance, oracle.Oracle):
             cols, rows = db_instance.run_sql(
                 f'select * from "{table_name}" where rownum <= {sql_limit}',
@@ -561,6 +606,8 @@ def get_info_from_db_software_workshop(
     child_equip_id: str,
     sql_limit: int = 2000,
     master_type: MasterDBType = MasterDBType.SOFTWARE_WORKSHOP_MEASUREMENT,
+    sort_column: str | None = None,
+    sort_order: str = 'ASC',
 ) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
     software_workshop_def = data_source.software_workshop_def()
@@ -572,7 +619,13 @@ def get_info_from_db_software_workshop(
             child_equip_id,
             limit=sql_limit,
             master_type=master_type,
+            # Push sorting down to the database so LIMIT is applied
+            # after ORDER BY, not before it.
+            sort_column=sort_column,
+            sort_order=sort_order,
         )
+        if data_source.type == DBType.POSTGRES_SOFTWARE_WORKSHOP.name:
+            db_instance.execute_sql_no_commit('SET LOCAL enable_seqscan = off;')
         cols, rows = db_instance.run_sql(sql, row_is_dict=False)
 
     df = pd.DataFrame(rows, columns=cols)
@@ -723,6 +776,10 @@ def preview_csv_data(
     is_file_checker=False,
     is_show_raw_data=False,
     encoding=None,
+    file_name_include=None,
+    file_name_exclude=None,
+    subfolder_include=None,
+    subfolder_exclude=None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
     temp_files: list[str] = []
@@ -730,6 +787,17 @@ def preview_csv_data(
     try:
         if not file_name:
             sorted_files = get_sorted_files(folder_url)
+            # apply File Select Condition (file name / subfolder include-exclude), same as
+            # the actual import job. Not applied when `file_name` is set (a specific file
+            # was chosen directly), matching the "disabled in that mode" behavior in the UI.
+            sorted_files = filter_files_by_select_condition(
+                sorted_files,
+                folder_url,
+                file_name_include=file_name_include,
+                file_name_exclude=file_name_exclude,
+                subfolder_include=subfolder_include,
+                subfolder_exclude=subfolder_exclude,
+            )
             sorted_files = sorted_files[0:5]
         else:
             sorted_files = [file_name]
@@ -763,6 +831,11 @@ def preview_csv_data(
                 'skip_tail': 0,
                 'previewed_files': previewed_files,
                 'same_values': same_values,
+                # explicit True so the caller doesn't mistake "no files matched" (this
+                # dict has no 'has_ct_col' key otherwise) for "no datetime column found,
+                # please confirm a dummy datetime" — the caller must check
+                # `previewed_files` emptiness first and show a "no files found" error.
+                'has_ct_col': True,
             }
 
         csv_file = sorted_files[0]
@@ -939,7 +1012,7 @@ def preview_csv_data(
             'directory': folder_url,
             'file_name': csv_file,
             'header': header_names,
-            'content': df_data_details,
+            'content': df_data_details[:max_records],
             'dataType': data_types,
             'skip_head': 0 if dummy_header and not skip_head_detected else skip_head_detected,
             'skip_tail': skip_tail,
@@ -1310,7 +1383,7 @@ def gen_cols_with_types(
     # extract units before adding suffix
     extracted_col_names, units = [], []
     for mapped_col_name in mapped_col_names:
-        column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
+        column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name, unit_remove=True)
         if unit:
             # if unit extracted by regex, verify unit by m_unit data again
             valid_unit = MUnit.get_by_unit(unit)
@@ -1319,13 +1392,14 @@ def gen_cols_with_types(
             if not valid_unit:
                 # set unit be empty
                 unit = ''
-                column_name_extracted = mapped_col_name
+                column_name_extracted, _ = ColumnRawNameRule.extract_data(mapped_col_name, unit_remove=False)
         extracted_col_names.append(column_name_extracted)
         units.append(unit)
 
     extracted_col_names_with_suffix, _ = gen_colsname_for_duplicated(extracted_col_names)
     potential_id_cols = []
     column_names_with_suffix, _ = gen_colsname_for_duplicated(cols)
+    filter_systems_map = {}
 
     is_software_workshop = master_type is not None and MasterDBType.is_software_workshop(master_type.name)
     for idx, (
@@ -1395,13 +1469,43 @@ def gen_cols_with_types(
             else:
                 name_jp = ''
                 name_en, is_wellknown_col = convert_wellknown_col_name(column_name_extracted)
+                name_local = to_romaji_en(name_en)
                 if not is_wellknown_col:
                     name_en = to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
-                name_local = name_en
 
+            # This is used for name_en on frontend for unregistered process. Therefore it should be name_en
             romaji = name_en
             col_unit = dict_column_name_and_unit.get(col_raw_name, unit)
             filter_expression = import_filter.get(col_raw_name) if import_filter is not None else None
+
+            # support to guest filter system in case of normal csv or not well_known columns
+            if not is_wellknown_col or not is_software_workshop:
+                guested_dtype = DataType(data_type) if data_type else None
+                # detect filter system column
+                filter_system_data = ColumnRenamer.get_filter_system_from_col(col_name, guested_dtype)
+                # check if data-type of guested filter system column is accepted
+                accepted_dtypes = (
+                    DataType(data_type) in filter_system_data.accept_dtypes if filter_system_data else False
+                )
+                # if already has filter system column, skip detect this column as filter_system again
+                # it mean keep first column as filter_system if there are so many columns same type
+                if filter_system_data and filter_system_data.column_type not in filter_systems_map and accepted_dtypes:
+                    filter_systems_map[filter_system_data.column_type] = col_name
+                    name_en = filter_system_data.name_en
+                    romaji = filter_system_data.name_en
+                    name_jp = filter_system_data.name_jp
+                    name_local = '' if ja_locale else filter_system_data.name_en
+                    extended_cfg[ProcessColumnConst.COLUMN_TYPE.value] = filter_system_data.column_type
+
+                guess_col = ColumnRenamer.get_guess_col(col_name, guested_dtype)
+
+                if guess_col:
+                    name_en = guess_col.name_en
+                    romaji = guess_col.name_en
+                    name_jp = guess_col.name_jp
+                    name_local = '' if ja_locale else guess_col.name_en
+                    extended_cfg[ProcessColumnConst.COLUMN_TYPE.value] = guess_col.column_type
+
             cols_with_types.append(
                 {
                     'column_name': col_name,

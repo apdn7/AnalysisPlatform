@@ -143,11 +143,19 @@
         transform 0.15s ease-in-out;
 }
 
-.graphNavActions a i {
+.graphNavButtons a i {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.graphNavButtons a i.graph-nav-icon-up {
+    transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+.graphNavButtons a i.graph-nav-icon-down {
+    transform: translate(-50%, -50%) rotate(90deg);
 }
 
 .graphNavToggle {
@@ -174,8 +182,4 @@
     opacity: 1;
     visibility: visible;
     display: block;
-}
-
-.graphNavToggle:checked ~ .graphNavButton i {
-    transform: rotate(-45deg);
 }

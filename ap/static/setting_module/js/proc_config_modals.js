@@ -249,6 +249,7 @@ const procModali18n = {
     i18nJudgeNo: '#i18nJudgeNo',
     i18nCopyToFiltered: '#i18nCopyToFiltered',
     i18nColumnRawName: '#i18nColumnRawName',
+    i18nEnglishName: '#i18nEnglishName',
     i18nJapaneseName: '#i18nJapaneseName',
     i18nLocalName: '#i18nLocalName',
     i18nUnit: '#i18nUnit',
@@ -290,6 +291,8 @@ const procModali18n = {
     i18nMsgErrorUncheckColumn: '#i18nErrorUncheckColumn',
     i18nloadTablesFailedMsg: $('#i18nloadTablesFailedMsg').text(),
     i18nDataTypeEventsHint: '#i18nDataTypeEventsHint',
+    i18nDataTypeProcNameStrHover: '#i18nDataTypeProcNameStrHover',
+    i18nProcNameStr: '#i18nProcNameStr',
 };
 
 const COLUMN_IS_CHECKED_NAME = 'is_checked';
@@ -362,6 +365,7 @@ const setProcessName = async (dataRowID = null) => {
         firstGenerated = true;
     }
 
+    const selectedDsType = dsSelection.attr('type') || null;
     // when user change ds or table, and empty process name
     // || !userEditedProcName
     // if (!procModalElements.proc.val()) {
@@ -376,7 +380,18 @@ const setProcessName = async (dataRowID = null) => {
         } else if (settingTableName) {
             firstTableName = $(settingTableName).val();
         }
-        let combineProcName = firstTableName ? `${dsNameSelection}_${firstTableName}` : dsNameSelection;
+        let combineProcName = '';
+        // software workshop does not put datasource name into process name when selecting table
+        if (
+            [
+                DB_CONFIGS.POSTGRES_SOFTWARE_WORKSHOP.configs.type,
+                DB_CONFIGS.SNOWFLAKE_SOFTWARE_WORKSHOP.configs.type,
+            ].includes(selectedDsType)
+        ) {
+            combineProcName = firstTableName ? `${firstTableName}` : dsNameSelection;
+        } else {
+            combineProcName = firstTableName ? `${dsNameSelection}_${firstTableName}` : dsNameSelection;
+        }
         currentProcessName = combineProcName;
         currentProcessNameLocal = 'en';
         // set default jp and local process name
@@ -395,7 +410,6 @@ const setProcessName = async (dataRowID = null) => {
         });
     }
 
-    const selectedDsType = dsSelection.attr('type') || null;
     const dsIsDB =
         selectedDsType &&
         ![DB_CONFIGS.CSV.configs.type, DB_CONFIGS.V2.configs.type, DB_CONFIGS.WEB.configs.type].includes(
@@ -773,8 +787,11 @@ const generateProcessList = async (
             } else if (col.is_judge) {
                 col.column_type = masterDataGroup.JUDGE;
             } else {
-                // currently it is safe to do this, as BOOLEAN still has GENERATED column_type
-                col.column_type = masterDataGroup.GENERATED;
+                if (!col.column_type || !isMasterDataColumn(col.column_type)) {
+                    // currently it is safe to do this, as BOOLEAN still has GENERATED column_type
+                    col.column_type = masterDataGroup.GENERATED;
+                }
+                // if it is master data column (filter system), do not change column type
             }
         }
         if (!col.raw_data_type) {
@@ -1632,6 +1649,8 @@ const mappingDataGroupType = {
     is_int_cat: 'INT_CATE',
     is_main_date: 'MAIN_DATE',
     is_main_time: 'MAIN_TIME',
+    is_proc_no: 'PROC_NO',
+    is_proc_name: 'PROC_NAME',
 };
 
 const procColumnsData = (tableId, getAll = false) => {
@@ -1832,6 +1851,7 @@ const updateProcessConfig = (res) => {
             const targetProcRow = $(`tr[name="procInfo"][data-proc-id=${res.data.id}]`);
             targetProcRow.find('button.proc-show-detail-btn').prop('disabled', false);
             targetProcRow.find('button.proc-delete-btn').prop('disabled', false);
+            targetProcRow.find('.proc-select-checkbox').prop('disabled', false);
 
             // In case register process failed, show triangle icon. Otherwise, remove icon
             const processStatusDiv = targetProcRow.find('.process-status');
@@ -1881,7 +1901,7 @@ const updateProcessConfig = (res) => {
             } else {
                 $(currentProcItem).find('select[name="tableName"]').remove();
                 // remove span of select2 in td > select[name="tableName"] if DS is CSV/TSV
-                $(currentProcItem).find('td').eq(3).empty();
+                $(currentProcItem).find('td').eq(4).empty();
             }
 
             $(currentProcItem).find('textarea[name="comment"]').val(res.data.comment).prop('disabled', true);
@@ -1897,6 +1917,7 @@ const updateProcessConfig = (res) => {
             $(currentProcItem).attr('data-ds-id', res.data.data_source_id);
             $(currentProcItem).attr('data-proc-parent-id', res.data.parent_id);
             $(currentProcItem).attr('data-test-id', res.data.shown_name);
+            $(currentProcItem).find('.proc-select-checkbox').prop('disabled', false).attr('data-proc-id', res.data.id);
 
             //show new labels
             const isShowAllLabel = isShowAllLabelsInUse();
@@ -2708,6 +2729,10 @@ const fixedName = {
         system: 'Time',
         japanese: '時刻',
     },
+    19: {
+        system: 'ProcName',
+        japanese: 'プロセス名',
+    },
     20: {
         system: 'LineName',
         japanese: 'ライン名',
@@ -2766,6 +2791,7 @@ const datatypeI18nText = {
     is_auto_increment: $(procModali18n.i18nDatetimeKey).text(),
     is_int_cat: $(`#${DataTypes.INTEGER_CAT.i18nLabelID}`).text(),
     is_judge: $(procModali18n.i18nJudgeNo).text(),
+    is_proc_name: $(procModali18n.i18nProcNameStr).text(),
 };
 const i18nDataTypeText = [
     $(procModali18n.i18nMainDatetime).text(),
@@ -2785,6 +2811,7 @@ const i18nDataTypeText = [
     $(procModali18n.i18nStNoInt).text(),
     $(procModali18n.i18nDatetimeKey).text(),
     $(procModali18n.i18nJudgeNo).text(),
+    $(procModali18n.i18nProcNameStr).text(),
     DataTypes.REAL.selectionBoxDisplay,
     DataTypes.INTEGER.selectionBoxDisplay,
     DataTypes.INTEGER_CAT.selectionBoxDisplay,
@@ -2829,6 +2856,7 @@ const fixedNameColumnTypes = [
     masterDataGroup.PART_NO,
     masterDataGroup.ST_NO,
     masterDataGroup.JUDGE,
+    masterDataGroup.PROC_NAME,
 ];
 /**
  *

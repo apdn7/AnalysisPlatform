@@ -30,14 +30,9 @@ def split_css_html(about_fpath):
         md = f.read()
 
     css = re.search(regex_css, md, re.DOTALL)
-    css = add_about_class(css[0]) if css else ''
+    css = css[0] if css else ''
 
     html = re.sub(r'(\<style[^>]*>)', '<!-- \\1', md)
     html = re.sub(r'(\<\/style[ ]*>)', '\\1 -->', html)
 
     return css, html
-
-
-def add_about_class(css):
-    output = re.sub(r'(.*{)', '.about \\1', css, flags=re.DOTALL)
-    return output

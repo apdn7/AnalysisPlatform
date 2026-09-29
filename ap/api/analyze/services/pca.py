@@ -7,11 +7,12 @@ from ap.api.common.services.show_graph_services import (
     convert_datetime_to_ct,
     customize_dic_param_for_reuse_cache,
     filter_cat_dict_common,
+    get_axis_title_with_unit,
     get_data_from_db,
     get_filter_on_demand_data,
 )
 from ap.api.sankey_plot.sankey_glasso.sankey_services import clean_input_data
-from ap.common.common_utils import gen_abbr_name, gen_sql_label
+from ap.common.common_utils import gen_abbr_name
 from ap.common.constants import (
     ACTUAL_RECORD_NUMBER,
     ACTUAL_RECORD_NUMBER_TEST,
@@ -57,6 +58,8 @@ from ap.common.trace_data_log import (
 
 # ------------------------------------START TRACING DATA TO SHOW ON GRAPH-----------------------------
 from ap.trace_data.schemas import DicParam
+
+SELECTED_VARS_CONTRIBUTION = 'selected_vars_contribution'
 
 
 @log_execution_time('[PCA]')
@@ -130,8 +133,15 @@ def gen_base_object(root_graph_param, dic_param):
         x_train = dict_train_data['df'][sensor_headers].rename(columns=dic_sensor_headers)
         x_test = dict_data['df'][sensor_headers].rename(columns=dic_sensor_headers)
         dic_selected_vars = dic_output[SELECTED_VARS]
+        dic_selected_vars_contribution = dic_output.get(SELECTED_VARS_CONTRIBUTION)
         var_names = x_train.columns.to_numpy()
-        dic_biplot, dic_t2q_lrn, dic_t2q_tst = run_pca_and_calc_t2q(x_train, x_test, var_names, dic_selected_vars)
+        dic_biplot, dic_t2q_lrn, dic_t2q_tst = run_pca_and_calc_t2q(
+            x_train,
+            x_test,
+            var_names,
+            dic_selected_vars,
+            dic_selected_vars_contribution,
+        )
 
     return dic_output, dic_biplot, dic_t2q_lrn, dic_t2q_tst, errors
 
@@ -176,6 +186,7 @@ def get_test_n_train_data(root_graph_param: DicParam, dic_param):
     # count removed outlier, nan
     dic_output = {
         SELECTED_VARS: dict_data[SELECTED_VARS],
+        SELECTED_VARS_CONTRIBUTION: dict_data[SELECTED_VARS_CONTRIBUTION],
         UNIQUE_SERIAL_TRAIN: dict_train_data.get(UNIQUE_SERIAL),
         UNIQUE_SERIAL_TEST: dict_data.get(UNIQUE_SERIAL),
         REMOVED_OUTLIER_NAN_TRAIN: int(dict_train_data[ACTUAL_RECORD_NUMBER]) - len(dict_train_data['df']),
@@ -225,18 +236,23 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     filter by condition points that between start point and end_point
     """
     # get sensor cols
-    dic_sensor_headers, short_names, ids = gen_sensor_headers(orig_graph_param)
+    dic_sensor_headers, dic_sensor_headers_contribution, short_names, ids = gen_sensor_headers(orig_graph_param)
 
     # get data from database
     df, actual_record_number, unique_serial = get_trace_data(graph_param, dic_cat_filters, use_expired_cache)
     df = convert_datetime_to_ct(df, graph_param)
 
     dic_var_name = {}
+    dic_var_name_contribution = {}
     for col_alias, id in ids.items():
         dic_var_name[id] = dic_sensor_headers[col_alias]
+        dic_var_name_contribution[id] = dic_sensor_headers_contribution[col_alias]
 
     if not actual_record_number:
-        return {'errors': {'error': True, SELECTED_VARS: dic_var_name, NULL_PERCENT: {}, ZERO_VARIANCE: []}}
+        return {
+            SELECTED_VARS_CONTRIBUTION: dic_var_name_contribution,
+            'errors': {'error': True, SELECTED_VARS: dic_var_name, NULL_PERCENT: {}, ZERO_VARIANCE: []},
+        }
     # sensor headers
     cols = list(dic_sensor_headers)
 
@@ -262,6 +278,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
     # if there is no data
     if not df.size:
         return {
+            SELECTED_VARS_CONTRIBUTION: dic_var_name_contribution,
             'errors': {
                 'error': True,
                 'errors': errors,
@@ -275,6 +292,7 @@ def gen_trace_data(graph_param, orig_graph_param, dic_cat_filters, use_expired_c
         'df': df,
         DIC_SENSOR_HEADER: dic_sensor_headers,
         SELECTED_VARS: dic_var_name,
+        SELECTED_VARS_CONTRIBUTION: dic_var_name_contribution,
         'errors': {
             'error': error,
             'errors': errors,
@@ -329,8 +347,7 @@ def get_data_point_info(sample_no, df: DataFrame, graph_param: DicParam, dic_pro
         proc_cnt += 1
         proc_cfg = dic_proc_cfgs[proc.proc_id]
         for col_id, _col_name, show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
-            col_name = _col_name
-            col_name = gen_sql_label(col_id, col_name)
+            col_name = graph_param.gen_label_from_col_id(col_id)
             if col_name not in df.columns:
                 continue
 
@@ -412,8 +429,8 @@ def pca_bind_dic_param_to_class(root_graph_param: DicParam, dic_param, is_train_
         proc.add_cols(get_date_id, append_first=True)
         proc.add_cols(serial_ids, append_first=True)
 
-        dic_serials.update({col.id: gen_sql_label(col.id, col.column_name) for col in serials})
-        dic_get_dates[get_date_id] = gen_sql_label(get_date.id, get_date.column_name)
+        dic_serials.update({col.id: col.bridge_column_name for col in serials})
+        dic_get_dates[get_date_id] = get_date.bridge_column_name
 
     time_idx = 0 if is_train_data else 1
 
@@ -427,13 +444,17 @@ def pca_bind_dic_param_to_class(root_graph_param: DicParam, dic_param, is_train_
 
 def gen_sensor_headers(orig_graph_param):
     dic_labels = {}
+    dic_labels_contribution = {}
     short_names = {}
     ids = {}
     used_names = set()
     for proc in orig_graph_param.array_formval:
+        proc_cfg = orig_graph_param.dic_proc_cfgs.get(proc.proc_id)
         for col_id, col_name, col_show_name in zip(proc.col_ids, proc.col_names, proc.col_show_names, strict=False):
-            name = gen_sql_label(col_id, col_name)
+            name = orig_graph_param.gen_label_from_col_id(col_id)
             dic_labels[name] = col_show_name
+            col_cfg = proc_cfg.get_col(col_id) if proc_cfg else None
+            dic_labels_contribution[name] = get_axis_title_with_unit(col_cfg, add_br=True) or col_show_name
 
             # gen short name
             new_name = gen_abbr_name(col_show_name)
@@ -445,7 +466,7 @@ def gen_sensor_headers(orig_graph_param):
             short_names[name] = new_name
             ids[name] = col_id
 
-    return dic_labels, short_names, ids
+    return dic_labels, dic_labels_contribution, short_names, ids
 
 
 # ------------------------------------------------------
@@ -465,7 +486,13 @@ def gen_sensor_headers(orig_graph_param):
 
 
 @log_execution_time()
-def run_pca_and_calc_t2q(X_train, X_test, varnames: list, dic_selected_vars: dict) -> dict:
+def run_pca_and_calc_t2q(
+    X_train,
+    X_test,
+    varnames: list,
+    dic_selected_vars: dict,
+    dic_selected_vars_contribution: dict | None = None,
+) -> dict:
     """Run PCA and Calculate T2/Q Statistics/Contributions
 
     X_train and X_test must have same number of columns.
@@ -500,6 +527,7 @@ def run_pca_and_calc_t2q(X_train, X_test, varnames: list, dic_selected_vars: dic
     pca.x = pca.transform(X_train)
     pca.newx = pca.transform(X_test)
     dic_biplot = _calc_biplot_data(pca, varnames=varnames, dic_selected_vars=dic_selected_vars)
+    dic_biplot['dic_selected_vars_contribution'] = dic_selected_vars_contribution or dic_selected_vars
 
     threshold = 80
     num_pc = np.where(pca.cum_explained >= threshold)[0][0] + 1
@@ -760,17 +788,18 @@ def _gen_jsons_for_plotly(dic_biplot: dict, dic_t2q_lrn: dict, dic_t2q_tst: dict
     t2_contr = _extract_clicked_sample(dic_t2q_lrn['contr_t2'], dic_t2q_tst['contr_t2'], sample_no)
     q_contr = _extract_clicked_sample(dic_t2q_lrn['contr_q'], dic_t2q_tst['contr_q'], sample_no)
 
+    dic_selected_vars_contribution = dic_biplot.get('dic_selected_vars_contribution', dic_biplot['dic_selected_vars'])
     df_t2_contr = pd.DataFrame(
         {
-            'id': dic_biplot['dic_selected_vars'].keys(),
-            'Var': dic_biplot['dic_selected_vars'].values(),
+            'id': dic_selected_vars_contribution.keys(),
+            'Var': dic_selected_vars_contribution.values(),
             'Ratio': t2_contr / np.sum(np.abs(t2_contr)),
         },
     )
     df_q_contr = pd.DataFrame(
         {
-            'id': dic_biplot['dic_selected_vars'].keys(),
-            'Var': dic_biplot['dic_selected_vars'].values(),
+            'id': dic_selected_vars_contribution.keys(),
+            'Var': dic_selected_vars_contribution.values(),
             'Ratio': q_contr / np.sum(np.abs(q_contr)),
         },
     )

@@ -12,6 +12,8 @@ class WaveformPlot extends APPlot {
             xFmt = '',
             yFmt = '',
             judgeColor = undefined,
+            xThresholds = undefined,
+            yThresholds = undefined,
         } = {},
     ) {
         super(plotDOM);
@@ -25,6 +27,8 @@ class WaveformPlot extends APPlot {
         this._xFmt = xFmt;
         this._yFmt = yFmt;
         this._judgeColor = judgeColor;
+        this._xThresholds = xThresholds;
+        this._yThresholds = yThresholds;
     }
     /**
      * get traces from a grouped color
@@ -138,6 +142,7 @@ class WaveformPlot extends APPlot {
                 },
                 bgcolor: 'transparent',
             },
+            shapes: this.genThreshold(),
         };
 
         if (this._yMax && this._yMin) {
@@ -145,6 +150,34 @@ class WaveformPlot extends APPlot {
             layout.yaxis.autorange = false;
         }
         return layout;
+    }
+
+    genThreshold() {
+        const xThresholds = this._xThresholds.flatMap((threshold) => {
+            return genThresholds(
+                threshold,
+                null,
+                {
+                    xaxis: 'x',
+                    yaxis: 'paper',
+                },
+                [0, 1],
+                [0, 1],
+            );
+        });
+        const yThresholds = this._yThresholds.flatMap((threshold) => {
+            return genThresholds(
+                null,
+                threshold,
+                {
+                    xaxis: 'paper',
+                    yaxis: 'y',
+                },
+                [0, 1],
+                [0, 1],
+            );
+        });
+        return [...xThresholds, ...yThresholds];
     }
 
     onHover() {

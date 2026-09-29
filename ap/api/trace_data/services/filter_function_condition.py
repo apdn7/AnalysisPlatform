@@ -1,13 +1,13 @@
 import pandas as pd
 from pandas import DataFrame, Series
 
-from ap.common.common_utils import gen_sql_label
 from ap.common.constants import DataType, FilterFunc
 from ap.setting_module.models import CfgFilterDetail
 from ap.trace_data.schemas import ConditionProc
 
 
 def filter_function_column(df: DataFrame, condition_proc: ConditionProc, end_proc):
+    """Filter function-column results using their stable physical DataFrame keys."""
     if df is None or not len(df):
         return df
 
@@ -20,8 +20,8 @@ def filter_function_column(df: DataFrame, condition_proc: ConditionProc, end_pro
         if not (filter_column and filter_column.function_details):
             continue
 
-        column_name = filter_details[0].column_name
-        df_column_name = gen_sql_label(column_id, column_name)
+        # Function columns are normal query results and therefore use the persisted bridge key.
+        df_column_name = filter_column.bridge_column_name
         if df_column_name not in df.columns:
             return df
 
@@ -176,7 +176,8 @@ def filter_by_condition(df: DataFrame, condition: CfgFilterDetail) -> pd.Series 
 
     filter_column = condition.cfg_filter.column
     data_type = filter_column.data_type
-    df_column_name = gen_sql_label(filter_column.id, filter_column.column_name)
+    # Filter conditions consume the same stable key emitted by the SQL producer.
+    df_column_name = filter_column.bridge_column_name
     if df_column_name not in df.columns:
         return None
 

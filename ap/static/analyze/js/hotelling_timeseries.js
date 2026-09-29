@@ -335,7 +335,7 @@ const drawTimeSeriesT2ChartFromObj = (
             zeroline: false,
             anchor: 'x',
             title: {
-                text: 'T2 Statics',
+                text: 'T2 Statistic',
                 font: {
                     color: 'rgba(255,255,255,1)',
                     family: '',
@@ -539,7 +539,7 @@ const drawTimeSeriesQChartFromObj = (
             zeroline: false,
             anchor: 'x',
             title: {
-                text: 'Q Statics',
+                text: 'Q Statistic',
                 font: {
                     color: 'rgba(255,255,255,1)',
                     family: '',

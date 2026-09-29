@@ -3,9 +3,11 @@ const initCustomSelect = () => {
     // dn-custom-select--select
     // dn-custom-select--select--list
     // select-hide
-    const customSelects = $('.dn-custom-select');
+    const customSelects = $('.dn-custom-select:not(.react)');
     customSelects.each((i, el) => {
         const customSelect = $(el);
+        customSelect.find('.dn-custom-select--select').remove();
+        customSelect.find('.dn-custom-select--select--list').remove();
         const select = customSelect.find('select');
         const selectClass = $(select[0]).attr('class');
         const selectOption = select.find('option');
@@ -57,7 +59,8 @@ const initCustomSelect = () => {
             if (!item) return;
             item = $(item);
             const value = item.attr('data-value');
-            select.val(value).trigger('change');
+            select.val(value);
+            select[0].dispatchEvent(new Event('change', { bubbles: true }));
             item.addClass('selected-item');
             customSelect.find('.dn-custom-select--select').text(item.text());
 
@@ -69,11 +72,13 @@ const initCustomSelect = () => {
         select.on('change', (e) => {
             resetCustomSelect($(e.currentTarget));
         });
+
+        customSelects.addClass('inited');
     });
 };
 
 const resetCustomSelect = (selectEL) => {
-    const customSelect = selectEL.parent();
+    const customSelect = selectEL.parent(':not(.react)');
     const value = selectEL.val();
     const selectedOption = selectEL.find('option:selected');
     customSelect.find('.dn-custom-select--select--list--item').removeClass('selected-item');

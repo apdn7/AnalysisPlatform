@@ -181,7 +181,7 @@ const getPCAPlotsFromBackend = (
 
     lastUsedFormData = formData;
 
-    showGraphCallApi(
+    const requestPromise = showGraphCallApi(
         '/ap/api/analyze/pca',
         formData,
         REQUEST_TIMEOUT,
@@ -265,15 +265,17 @@ const getPCAPlotsFromBackend = (
                 );
             }
 
-            setPollingData(formData, longPollingHandler, []);
+            setPollingData(formData, longPollingHandler, [], requestPromise);
         },
         { page: 'pca', clickOnChart, reselect },
     );
+
+    return requestPromise;
 };
 
 const longPollingHandler = () => {
     const newFormData = lastUsedFormData;
-    getPCAPlotsFromBackend(newFormData, false, null, true);
+    return getPCAPlotsFromBackend(newFormData, false, null, true);
 };
 
 const handleFilterOndemand = () => {

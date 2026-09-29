@@ -93,14 +93,6 @@ span.text-option {
     margin-left: 1rem;
 }
 
-.plot-container.plotly {
-    background-color: #222;
-}
-
-.main-svg {
-    background: unset !important;
-}
-
 #ordering-content {
     min-width: 220px;
     left: 0px;

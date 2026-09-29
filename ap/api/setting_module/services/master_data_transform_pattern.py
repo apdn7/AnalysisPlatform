@@ -5,9 +5,22 @@ from typing import Any, Final, Union
 import pandas as pd
 from pandas._libs.missing import NAType
 
-from ap.common.constants import EMPTY_STRING, HALF_WIDTH_SPACE, MEASUREMENTS_DEFINED
+from ap.common.constants import EMPTY_STRING, HALF_WIDTH_SPACE
 
 REMOVE_CHARACTERS_PATTERN = r'\\+[nrt]'
+COLUMN_NAME_PREFIXES: Final[tuple[str, ...]] = (
+    '計測値',
+    '加工値',
+    '加工条件',
+    '加工条件値',
+    'その他',
+    '測定値',
+    'OK/NG情報',
+)
+COLUMN_NAME_PREFIX_ALTERNATIVES = '|'.join(rf'{re.escape(prefix)}\s*[:|]\s*' for prefix in COLUMN_NAME_PREFIXES)
+COLUMN_NAME_PREFIX_PATTERN = re.compile(
+    rf'^(?:{COLUMN_NAME_PREFIX_ALTERNATIVES}|measurement\.\s*)+',
+)
 
 
 class RegexRule:
@@ -83,7 +96,8 @@ class ColumnRawNameRule(RegexRule):
     }
 
     @classmethod
-    def extract_data(cls, data: str):
+    def extract_data(cls, data: str, *, unit_remove: bool = True) -> tuple[str, str]:
+        """Extract column name with defined unit"""
         column_name = data
         unit = EMPTY_STRING
         suffix_data_name = EMPTY_STRING
@@ -109,7 +123,7 @@ class ColumnRawNameRule(RegexRule):
         if len(suffix_data_name) != 0:
             column_name += f'{HALF_WIDTH_SPACE}{suffix_data_name}'
 
-        if unit:
+        if unit and unit_remove:
             # 4. Replace any bracket.
             # 4-1. Replace "\s?[(\[]\s?" to "("
             column_name = re.sub(r'\s?[(\[【「『〖〚〘｟〔]\s?', '(', column_name)
@@ -127,7 +141,7 @@ class ColumnRawNameRule(RegexRule):
         column_name = column_name.replace('No.', 'No')
         column_name = column_name.replace(';', ':')  # Cover case 管理マスタ値1;指示値 & 管理マスタ値1:指示値
 
-        column_name = re.sub('|'.join(map(re.escape, MEASUREMENTS_DEFINED)), EMPTY_STRING, column_name)
+        column_name = COLUMN_NAME_PREFIX_PATTERN.sub(EMPTY_STRING, column_name)
 
         # 6. Strip
         column_name = column_name.strip()

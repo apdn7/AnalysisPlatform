@@ -1,0 +1,14 @@
+.group-btn-set {
+    background-color: #303030;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+.group-btn {
+    text-transform: capitalize;
+
+    &.active {
+        background-color: #ffffff;
+        color: #222222;
+    }
+}

@@ -354,13 +354,3 @@ def get_datetime_from_str(str_datetime):
         return dt_obj
     except Exception:
         return None
-
-
-def get_datetime_utc_from_str_with_timezone(time_zone, str_datetime):
-    try:
-        dt_obj = parser.parse(str_datetime)
-        dt_obj = dt_obj.replace(tzinfo=time_zone)
-        dt_obj = dt_obj.astimezone(tz.tzutc())
-        return dt_obj
-    except Exception:
-        return None

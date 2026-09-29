@@ -6,7 +6,7 @@ let labelState = {};
 const labelElements = {
     processLabelList: '.process-label-list',
     processLabel: '.process-label',
-    labelSearchInput: '#tblProcConfig th.search-box:eq(6) input',
+    labelSearchInput: '#tblProcConfig th.search-box.col-label input',
     clearLabelBtn: '.clear-label-btn',
 };
 const getLabelStateFromLocalStorage = () => {

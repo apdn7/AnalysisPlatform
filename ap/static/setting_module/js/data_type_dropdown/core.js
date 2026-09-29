@@ -112,6 +112,13 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
                 <ul>
                     <li 
                         class="dataTypeSelection" 
+                        is_proc_name
+                        value="${DataTypes.TEXT.name}" 
+                        data-type="${DataTypes.TEXT.name}"
+                        title="${$(procModali18n.i18nDataTypeProcNameStrHover).text()}"
+                    >${$(procModali18n.i18nProcNameStr).text()}</li>
+                    <li 
+                        class="dataTypeSelection" 
                         is_part_name 
                         value="${DataTypes.TEXT.name}" 
                         data-type="${DataTypes.TEXT.name}"
@@ -245,15 +252,13 @@ class DataTypeDropdown_Core extends DataTypeDropdown_Event {
                     >${procModali18n.i18nEuIntSep}</li>
                 </ul>
             </div>
-            <!--
-            <div class="data-type-selection-box">
+            <div  class="data-type-selection-box">
                 <span class="data-type-selection-title">${$(procModali18n.i18nMultiset).text()}</span>
                 <ul>
-                    <li class="copyToAllBelow copy-item">${$(procModali18n.copyToAllBelow).text()}</li>
-                    <li class="copyToFiltered copy-item">${$(procModali18n.i18nCopyToFiltered).text()}</li>
+                    <li class="copyToAllBelow copy-item" title="${$(procModali18n.copyToAllBelow).text()}">${$(procModali18n.copyToAllBelow).text()}</li>
+                    <li class="copyToFiltered copy-item" title="${$(procModali18n.i18nCopyToFiltered).text()}">${$(procModali18n.i18nCopyToFiltered).text()}</li>
                 </ul>
             </div>
-            -->
         </div>
     </div>
 </div>

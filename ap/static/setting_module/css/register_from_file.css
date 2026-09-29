@@ -14,7 +14,6 @@
 
 .data-source-config {
     flex: 1;
-    margin-right: 50px;
 }
 
 .file-folder-browser {
@@ -31,9 +30,7 @@
 .progress-display {
     height: fit-content;
     padding: 20px;
-    min-width: 180px;
     min-height: 105px;
-    max-width: 30%;
 }
 
 .folder-browser {

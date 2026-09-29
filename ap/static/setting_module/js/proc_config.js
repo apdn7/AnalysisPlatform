@@ -27,7 +27,6 @@ const procElements = {
     fileNameBtn: '#fileNameBtn',
     dbTableList: '#dbTableList',
     fileInputPreview: '#fileInputPreview',
-    deleteProcModal: '#deleteProcModal',
 };
 
 const i18n = {
@@ -41,6 +40,9 @@ const i18n = {
     noCTColProc: $('#i18nNoCTColPrc').text(),
     confirmDeleteProc: $('#i18nConfirmDeleteThisRecord').text(),
     warnDeleteMergedProc: $('#i18nWarDeleteMergedProc').text(),
+    warnDeleteMergedParentProc: $('#i18nWarDeleteMergedParentProc').text(),
+    warnDeleteMergedChildProc: $('#i18nWarDeleteMergedChildProc').text(),
+    confirmContinue: $('#i18nConfirmContinue').text(),
     confirmIncreaseLimitImport: $('#i18nConfirmIncreaseLimitImport').text(),
     confirmDecreaseLimitImport: $('#i18nConfirmDecreaseLimitImport').text(),
     thisRecord: $('#i18nThisRecord').text(),
@@ -117,62 +119,44 @@ const checkIfProcessIsMerged = async (procId) => {
     return data;
 };
 
-const deleteProcess = async (procItem) => {
-    currentProcItem = $(procItem).closest('tr');
-    const procId = currentProcItem.data('proc-id');
-    const procName =
-        currentProcItem.find('input[name="processName"]').val() ||
-        currentProcItem.find('td:nth-child(2)').text().trim();
-    const procNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${procName} </span>`;
+// Fetch merge-group info for a process to decide the delete-confirmation flow.
+// Returns { hasParentOrChildren, isChild }. The member processes themselves come from
+// the delete preview endpoint, which also reports what distinguishes same-named processes.
+const getProcessMergeInfo = async (procId) => {
+    let info = { hasParentOrChildren: false, isChild: false };
+    await $.ajax({
+        url: `api/setting/proc_config/${procId}`,
+        type: 'GET',
+        cache: false,
+        success: (json) => {
+            info = {
+                hasParentOrChildren: !!json.has_parent_or_children,
+                isChild: !!json.is_child_process,
+            };
+        },
+        error: (e) => {
+            console.log('error', e);
+        },
+    });
+    return info;
+};
 
-    if (procId) {
-        $('#btnDeleteProc').attr('data-item-id', procId);
-        const isMergedProc = await checkIfProcessIsMerged(procId);
-        if (isMergedProc) {
-            $(procElements.deleteProcModal).find('.modal-inform').html(i18n.warnDeleteMergedProc);
-        } else {
-            const message = i18n.confirmDeleteProc.replace(i18n.thisRecord, procNameHtml);
-            $(procElements.deleteProcModal).find('.modal-inform').html(message);
-        }
-        $(procElements.deleteProcModal).modal('show');
-    } else {
-        // remove empty row
-        $(currentProcItem).remove();
+const deleteProcess = (procItem) => {
+    const row = $(procItem).closest('tr');
+    const procId = row.data('proc-id');
+
+    if (!procId) {
+        row.remove();
         updateTableRowNumber(procElements.tblProcConfig);
+        updateProcessSelectionState();
+        return;
     }
+
+    openDeleteProcessesModal(row);
 };
 
 const removeProcessConfigRow = (procId) => {
     $(`#proc_${procId}`).remove();
-};
-
-const confirmDelProc = () => {
-    const procId = $('#btnDeleteProc').attr('data-item-id');
-    fetch('api/setting/delete_process', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ proc_id: procId }), // example: { proc_id: 3 }
-    })
-        .then((response) => response.clone().json())
-        .then((res) => {
-            // remove proc from HTML table
-            const deleted_processes = res.deleted_processes;
-            deleted_processes.forEach((proc_id) => {
-                removeProcessConfigRow(proc_id);
-            });
-
-            // update row number
-            // updateTableRowNumber(procElements.tblProcConfig);
-
-            // refresh Vis network
-            reloadTraceConfigFromDB(true);
-        })
-        .catch((e) => {
-            console.error(e);
-        });
 };
 
 const disableDatatime = (data_type, isAddNew) => {
@@ -333,12 +317,7 @@ const getProcInfo = async (procId) => {
             updateTableRowNumber(null, $('table[name=processColumnsTable]'));
 
             $('#procSettingModal').modal('show');
-            setTimeout(() => {
-                if (!currentProcColumns) {
-                    procModalElements.showRecordsBtn.click();
-                }
-            }, 300);
-            fetchFunctionsAfterColumnsAreLoaded(procId, res.col_id_in_funcs);
+
             currentProcDataCols = res.data.columns;
             currentProcess = res.data;
             currentProcessId = res.data.id;
@@ -360,14 +339,6 @@ const getProcInfo = async (procId) => {
         },
     });
 };
-
-function fetchFunctionsAfterColumnsAreLoaded(proc_id, cols) {
-    if (!currentProcColumns) {
-        setTimeout(() => fetchFunctionsAfterColumnsAreLoaded(proc_id, cols), 500);
-    } else {
-        FunctionInfo.getAllFunctionInfosApi(proc_id, cols).then(FunctionInfo.loadFunctionListTableAndInitDropDown);
-    }
-}
 
 const showHideReRegisterBtn = () => {
     procModalElements.reRegisterBtn.css('display', 'none');
@@ -409,6 +380,12 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     FunctionInfo.removeAllFunctionRows();
     clearWarning();
     cleanOldData();
+
+    // hide selection checkbox
+    $(procModalElements.autoSelectAllColumn).hide();
+
+    // reset select all checkbox to uncheck when showing modal
+    changeSelectionCheckbox((autoSelect = false), (selectAll = false));
     showHideReRegisterBtn();
     showHideInitialProcBtn();
     resetSampleDataDisplayModeRadio();
@@ -418,82 +395,92 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
     const procId = currentProcItem.data('proc-id');
     const loadingObj = loadingHandler();
     loadingObj.show();
-    handleEnglishNameChange(procModalElements.proc);
+    try {
+        handleEnglishNameChange(procModalElements.proc);
 
-    const parentDataRow = $(procItem).parent().parent();
-    const dataRowID = parentDataRow.data('rowid') ?? parentDataRow.attr('id');
-    const parentID = parentDataRow.attr('data-proc-parent-id');
-    const isHasParentID = !isEmpty(parentID);
-    const isMergeMode = isHasParentID || isMergeModeFromProcRow(dataRowID, procId);
+        const parentDataRow = $(procItem).parent().parent();
+        const dataRowID = parentDataRow.data('rowid') ?? parentDataRow.attr('id');
+        const parentID = parentDataRow.attr('data-proc-parent-id');
+        const isHasParentID = !isEmpty(parentID);
+        const isMergeMode = isHasParentID || isMergeModeFromProcRow(dataRowID, procId);
 
-    let modalName = '';
-    currentProcDataCols = [];
+        let modalName = '';
+        let procInfoResponse = null;
+        currentProcDataCols = [];
+        if (procId && !isMergeMode) {
+            procInfoResponse = await getProcInfo(procId);
+        } else {
+            resetDicOriginData();
+            procModalElements.dsID.val('');
 
-    if (procId && !isMergeMode) {
-        await getProcInfo(procId);
-    } else {
-        resetDicOriginData();
-        procModalElements.dsID.val('');
-
-        if (isMergeMode && !procId) {
-            procModalElements.procMergeModeModal.modal('show');
-        } else if (!isMergeMode) {
-            procModalElements.procModal.modal('show');
-            FunctionInfo.loadFunctionListTableAndInitDropDown([]);
-        }
-    }
-
-    if (isMergeMode) {
-        const processName = parentDataRow.find('input[name=processName]').val();
-        const processNameLocal = docCookies.getItem(keyPort('locale')) === 'ja' ? 'jp' : 'en';
-
-        let checkInterval = setInterval(() => {
-            // check processes is available after call trace_config api
-            if (!isEmpty(processes)) {
-                clearInterval(checkInterval);
-                // get base process id
-                let baseProc = getBaseProcessInfo(parentID, processName, processNameLocal);
-                // fill data for merge mode modal
-                mergeModeProcess(procId, dataRowID, baseProc, dbsId);
+            if (isMergeMode && !procId) {
+                procModalElements.procMergeModeModal.modal('show');
+            } else if (!isMergeMode) {
+                procModalElements.procModal.modal('show');
+                FunctionInfo.loadFunctionListTableAndInitDropDown([]);
             }
-        }, 300);
-        modalName = 'procSettingMergeModeModal';
-        procModalElements.procMergeModeModal.removeData(DATA_DISCARD_CHANGE);
-        if (procId) procModalElements.procMergeModeModal.data(DATA_DISCARD_CHANGE, true);
-    } else {
-        //set attribute for Ok btn
-        $(procModalElements.confirmImportDataBtn).attr('data-is-merge-mode', false);
-        await loadProcModal(procId, dataRowID, dbsId);
-        // not available from v4.7.10
-        // GenerateDefaultImportFilterTable(procId);
-        modalName = 'procSettingModal';
+        }
+
+        if (isMergeMode) {
+            const processName = parentDataRow.find('input[name=processName]').val();
+            const processNameLocal = docCookies.getItem(keyPort('locale')) === 'ja' ? 'jp' : 'en';
+
+            let checkInterval = setInterval(() => {
+                // check processes is available after call trace_config api
+                if (!isEmpty(processes)) {
+                    clearInterval(checkInterval);
+                    // get base process id
+                    let baseProc = getBaseProcessInfo(parentID, processName, processNameLocal);
+                    // fill data for merge mode modal
+                    mergeModeProcess(procId, dataRowID, baseProc, dbsId);
+                }
+            }, 300);
+            modalName = 'procSettingMergeModeModal';
+            procModalElements.procMergeModeModal.removeData(DATA_DISCARD_CHANGE);
+            if (procId) procModalElements.procMergeModeModal.data(DATA_DISCARD_CHANGE, true);
+        } else {
+            //set attribute for Ok btn
+            $(procModalElements.confirmImportDataBtn).attr('data-is-merge-mode', false);
+            await loadProcModal(procId, dataRowID, dbsId);
+            // not available from v4.7.10
+            // GenerateDefaultImportFilterTable(procId);
+            modalName = 'procSettingModal';
+
+            if (procId && !currentProcColumns) {
+                await showRecordsBtnFunc();
+            }
+            if (procInfoResponse && currentProcColumns) {
+                const functionInfos = await FunctionInfo.getAllFunctionInfosApi(
+                    procId,
+                    procInfoResponse.col_id_in_funcs,
+                );
+
+                FunctionInfo.loadFunctionListTableAndInitDropDown(functionInfos);
+            }
+        }
+
+        $('#processGeneralInfo select[name="tableName"]').select2(select2ConfigI18n);
+
+        // clear error message
+        $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
+
+        // disable original column name
+        $(procModalElements.columnNameInput).each(function f() {
+            $(this).attr('disabled', true);
+        });
+
+        // show setting mode when loading proc config
+        // showHideModes(false);
+
+        // clear attr on buttons
+        procModalElements.okBtn.removeAttr('data-has-ct');
+
+        // input change observer for process cfg modal and process cfg merge mode modal
+        inputMutationObserver = new InputChangeObserver(document.getElementById(modalName));
+        inputMutationObserver.startObserving();
+    } finally {
+        loadingObj.hide();
     }
-
-    $('#processGeneralInfo select[name="tableName"]').select2(select2ConfigI18n);
-
-    // clear error message
-    $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
-
-    // hide selection checkbox
-    $(procModalElements.autoSelectAllColumn).hide();
-
-    // reset select all checkbox to uncheck when showing modal
-    changeSelectionCheckbox((autoSelect = false), (selectAll = false));
-    // disable original column name
-    $(procModalElements.columnNameInput).each(function f() {
-        $(this).attr('disabled', true);
-    });
-
-    // show setting mode when loading proc config
-    // showHideModes(false);
-
-    // clear attr on buttons
-    procModalElements.okBtn.removeAttr('data-has-ct');
-
-    // input change observer for process cfg modal and process cfg merge mode modal
-    inputMutationObserver = new InputChangeObserver(document.getElementById(modalName));
-    inputMutationObserver.startObserving();
-    loadingObj.hide();
 };
 
 const resetDicOriginData = () => {
@@ -587,41 +574,58 @@ const generateProcessRow = (
     }
 
     const newRecord = `
-    <tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}" data-test-id="${procShownName || ''}">
-        <td class="col-number">${rowNumber + 1}</td>
-        <td>
-            <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"
-                placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}
-                onfocusout="hideDataSourceRegistered(this)"/>
-        </td>
-        <td>
-            ${dsSelector}
-        </td>
-        <td>
-            <select class="form-control" name="tableName" ${dbsId ? 'disabled' : ''}>
-                ${tableEles}
-            </select>
-        </td>
-        <td class="text-center">
-            <button type="button" class="btn btn-secondary icon-btn proc-show-detail-btn" ${disabled ? 'disabled' : ''}
-                onclick="showProcSettingModal(this)">
-                <i class="fas fa-edit icon-secondary"></i></button>
-        </td>
-        <td>
-            <textarea name="comment" class="form-control form-data"
-                rows="1" placeholder="${procConfigTextByLang.comment}" disabled></textarea>
-        </td>
-         <td>
-            <div class="process-labels">${labelEles}</div>
-        </td>
-        <td class="process-status" id=""></td>
-        <td class="text-center">
-            <button onclick="deleteProcess(this)" type="button" ${disabled ? 'disabled' : ''}
-                class="btn btn-secondary icon-btn proc-delete-btn">
-                <i class="fas fa-trash-alt icon-secondary"></i>
-            </button>
-        </td>
-    </tr>`;
+<tr name="procInfo" ${procId ? `data-proc-id=${procId} id=proc_${procId}` : ''} ${dbsId ? `data-ds-id=${dbsId}` : ''} data-rowid="${dummyRowID}" data-test-id="${procShownName || ''}">
+    <td class="text-center proc-select-column">
+        <div class="custom-control custom-checkbox proc-checkbox-control">
+            <input
+                    id="select-process-${procId || dummyRowID}"
+                    type="checkbox"
+                    class="proc-select-checkbox proc-checkbox-input custom-control-input"
+                    value=""
+                    data-proc-id="${procId || ''}"
+                    aria-label="Select"
+                    ${!procId || disabled ? 'disabled' : ''}
+            />
+            <label
+                    class="proc-checkbox-label custom-control-label"
+                    for="select-process-${procId || dummyRowID}"
+            ></label>
+        </div>
+    </td>
+    <td class="col-number">${rowNumber + 1}</td>
+    <td>
+        <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"
+            placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}
+            onfocusout="hideDataSourceRegistered(this)"/>
+    </td>
+    <td>
+        ${dsSelector}
+    </td>
+    <td>
+        <select class="form-control" name="tableName" ${dbsId ? 'disabled' : ''}>
+            ${tableEles}
+        </select>
+    </td>
+    <td class="text-center">
+        <button type="button" class="btn btn-secondary icon-btn proc-show-detail-btn" ${disabled ? 'disabled' : ''}
+            onclick="showProcSettingModal(this)">
+            <i class="fas fa-edit icon-secondary"></i></button>
+    </td>
+    <td>
+        <textarea name="comment" class="form-control form-data"
+            rows="1" placeholder="${procConfigTextByLang.comment}" disabled></textarea>
+    </td>
+     <td>
+        <div class="process-labels">${labelEles}</div>
+    </td>
+    <td class="process-status" id=""></td>
+    <td class="text-center">
+        <button onclick="deleteProcess(this)" type="button" ${disabled ? 'disabled' : ''}
+            class="btn btn-secondary icon-btn proc-delete-btn">
+            <i class="fas fa-trash-alt icon-secondary"></i>
+        </button>
+    </td>
+</tr>`;
 
     return newRecord;
 };
@@ -1011,3 +1015,314 @@ const changeImportLimit = (e) => {
     $messageEl.text(isIncrease ? i18n.confirmIncreaseLimitImport : i18n.confirmDecreaseLimitImport);
     $modal.modal('show');
 };
+
+// Multi-process deletion functions
+const getSelectedProcessRows = () =>
+    $('#tblProcConfig tbody .proc-select-checkbox:checked').closest('tr[name="procInfo"]');
+
+const getVisibleProcessCheckboxes = () =>
+    $('#tblProcConfig tbody tr[name="procInfo"]:visible').find('.proc-select-checkbox:not(:disabled)');
+
+const getAllProcessCheckboxes = () =>
+    $('#tblProcConfig tbody tr[name="procInfo"]').find('.proc-select-checkbox:not(:disabled)');
+
+const updateProcessSelectionState = () => {
+    const selectedRows = getSelectedProcessRows();
+    const selectedCount = selectedRows.length;
+    const allCheckboxes = getAllProcessCheckboxes();
+
+    $('#selected-proc-count').text(selectedCount);
+    $('#btn-delete-selected-procs').prop('disabled', !is_authorized || selectedCount === 0);
+    $('#select-all-processes')
+        .prop('checked', allCheckboxes.length > 0 && selectedCount === allCheckboxes.length)
+        .prop('indeterminate', selectedCount > 0 && selectedCount < allCheckboxes.length);
+};
+
+const deleteProcesses = (processIds, reloadRelatedProcessData = false) =>
+    $.ajax({
+        url: 'api/setting/delete_processes',
+        type: 'POST',
+        data: JSON.stringify({
+            proc_ids: processIds,
+            reload_related_process_data: reloadRelatedProcessData,
+        }),
+        dataType: 'json',
+        contentType: 'application/json',
+        processData: false,
+    });
+
+const applyDeletedProcesses = (result = {}) => {
+    const deletedProcessIds = result.deleted_process_ids || [];
+
+    deletedProcessIds.forEach((processId) => {
+        $(`#proc_${processId}`).remove();
+    });
+
+    if (deletedProcessIds.length) {
+        reloadTraceConfigFromDB(true);
+    }
+
+    updateTableRowNumber('tblProcConfig');
+
+    // A process that could not be deleted stays in the table; tell the user instead of
+    // letting the row silently reappear as if nothing happened.
+    const failedProcessIds = result.failed_process_ids || [];
+    if (failedProcessIds.length) {
+        console.error('Failed to delete processes:', failedProcessIds);
+        alert(`${i18n.deleteFailed || 'Failed to delete processes'}: ${failedProcessIds.length}`);
+    }
+};
+
+let pendingDeleteProcRows = $();
+
+// Classify selected processes (parents/children/reload targets) for the bulk-delete modal.
+// Returns a promise resolving to { selectedParents, selectedChildren, reloadTargets }.
+const getDeleteProcessesPreview = (processIds) =>
+    new Promise((resolve) => {
+        $.ajax({
+            url: 'api/setting/delete_processes/preview',
+            type: 'POST',
+            data: JSON.stringify({ proc_ids: processIds }),
+            dataType: 'json',
+            contentType: 'application/json',
+            processData: false,
+        })
+            .done((json) => {
+                resolve({
+                    selectedParents: json.selected_parents || [],
+                    selectedChildren: json.selected_children || [],
+                    reloadTargets: json.reload_targets || [],
+                });
+            })
+            .fail(() => {
+                resolve({ selectedParents: [], selectedChildren: [], reloadTargets: [] });
+            });
+    });
+
+// Render a list of names into a <ul>, keeping the styling used by the delete modal.
+const renderDeleteProcNames = ($listEl, names) => {
+    $listEl.empty();
+    (names || []).forEach((name) => {
+        $('<li></li>')
+            .css({
+                'border-bottom': '1px solid #444444',
+                'padding': '8px',
+            })
+            .text(name)
+            .appendTo($listEl);
+    });
+};
+
+// A merged child always has the same name as its parent, so the name alone cannot identify
+// a process of a merge group. Append the data source/table shown in the process config table.
+const formatDeleteProcLabel = (proc) => {
+    if (!proc) return '';
+    const details = [proc.data_source_name, proc.table_name].filter(Boolean).join(' / ');
+    return details ? `${proc.name} (${details})` : proc.name;
+};
+
+// Read the data source shown in a process config row (an input once the row is registered,
+// a select while it is still being configured).
+const getRowDataSourceName = ($row) => {
+    const $input = $row.find('input[name="databaseName"]');
+    if ($input.length) {
+        return ($input.val() || '').trim();
+    }
+    return $row.find('select[name="databaseName"] option:selected').text().trim();
+};
+
+// Qualify only the entries whose name is not unique in the list, so a merge group (whose
+// processes share one name) stays readable without adding noise to unrelated processes.
+const qualifyDuplicateProcLabels = (procs) => {
+    const nameCounts = {};
+    procs.forEach((proc) => {
+        nameCounts[proc.name] = (nameCounts[proc.name] || 0) + 1;
+    });
+    return procs.map((proc) => (nameCounts[proc.name] > 1 ? formatDeleteProcLabel(proc) : proc.name));
+};
+
+// Render the two conditional warning blocks of the delete modal from a classified selection.
+// Shared by the single- and multi-selection flows so both stay consistent with the spec.
+const renderDeleteWarningBlocks = (preview) => {
+    // Block #1: selected merge destinations; deleting one also deletes the processes merged into it.
+    if (preview.selectedParents.length) {
+        renderDeleteProcNames($('#delete-proc-parents-list'), preview.selectedParents.map(formatDeleteProcLabel));
+        $('#delete-proc-parents-block').show();
+    }
+
+    // Block #2: parents that survive the deletion but must reload their already-imported data.
+    // Empty when every affected parent is deleted too, so there is nothing left to reload.
+    if (preview.reloadTargets.length) {
+        renderDeleteProcNames($('#delete-proc-reload-list'), preview.reloadTargets.map(formatDeleteProcLabel));
+        $('#delete-proc-children-block').show();
+        // Reload checkbox (default checked) + note; the confirm handler reads its state.
+        $('#delete-proc-reload-wrapper').show();
+    }
+};
+
+const openDeleteProcessesModal = async (rows) => {
+    pendingDeleteProcRows = rows;
+
+    const messageElement = $('#delete-proc-confirm-message');
+    const listElement = $('#delete-proc-confirm-list');
+    const listWrapper = $('#delete-proc-confirm-list-wrapper');
+    const trailingElement = $('#delete-proc-confirm-trailing');
+    const reloadWrapper = $('#delete-proc-reload-wrapper');
+    const reloadCheckbox = $('#delete-proc-reload-checkbox');
+    const count = rows.length;
+
+    // Reset transient modal state on each open to avoid leaked state between opens.
+    listElement.empty();
+    listWrapper.hide();
+    trailingElement.hide().text('');
+    reloadWrapper.hide();
+    reloadCheckbox.prop('checked', true);
+    $('#delete-proc-parents-block').hide();
+    $('#delete-proc-parents-list').empty();
+    $('#delete-proc-children-block').hide();
+    $('#delete-proc-reload-list').empty();
+
+    const appendRelatedNames = (names) => {
+        listElement.empty();
+        (names || []).forEach((name) => {
+            $('<li></li>')
+                .css({
+                    'border-bottom': '1px solid #444444',
+                    'padding': '8px',
+                })
+                .text(name)
+                .appendTo(listElement);
+        });
+        if (names && names.length) {
+            listWrapper.show();
+        }
+    };
+
+    if (count > 1) {
+        messageElement.text(messageElement.data('multiple-message') || `Delete ${count} processes?`);
+
+        const procNames = rows
+            .map((_index, row) => {
+                const $row = $(row);
+                return {
+                    name: $row.find('input[name="processName"]').val() || $row.find('td:nth-child(3)').text().trim(),
+                    data_source_name: getRowDataSourceName($row),
+                };
+            })
+            .get()
+            .filter((proc) => proc.name);
+
+        appendRelatedNames(qualifyDuplicateProcLabels(procNames));
+
+        // Classify the selection on the backend to render the two conditional warning blocks.
+        const processIds = rows
+            .map((_index, row) => $(row).attr('data-proc-id'))
+            .get()
+            .filter(Boolean)
+            .map((id) => parseInt(id));
+
+        if (processIds.length) {
+            const preview = await getDeleteProcessesPreview(processIds);
+            renderDeleteWarningBlocks(preview);
+        }
+    } else {
+        const row = rows.first();
+        const procId = row.data('proc-id');
+        const procName = row.find('input[name="processName"]').val() || row.find('td:nth-child(3)').text().trim();
+        const procNameHtml = `<span style="color: #f8fbfd; font-weight: bold;">${procName} </span>`;
+        const singleMessage = i18n.confirmDeleteProc || messageElement.data('single-message');
+        const defaultMessage =
+            procName && i18n.thisRecord && singleMessage.includes(i18n.thisRecord)
+                ? singleMessage.replace(i18n.thisRecord, procNameHtml)
+                : singleMessage;
+
+        if (procId) {
+            const mergeInfo = await getProcessMergeInfo(procId);
+            if (!mergeInfo.hasParentOrChildren) {
+                // Not a merge process -> keep default confirmation message.
+                messageElement.html(defaultMessage);
+            } else {
+                // Merge process: the dedicated message explains the consequence, while the
+                // lists follow the same classification as the multi-selection flow so the
+                // process being deleted is always listed and the warnings stay consistent.
+                messageElement.text(
+                    mergeInfo.isChild ? i18n.warnDeleteMergedChildProc : i18n.warnDeleteMergedParentProc,
+                );
+                appendRelatedNames([procName].filter(Boolean));
+
+                renderDeleteWarningBlocks(await getDeleteProcessesPreview([parseInt(procId)]));
+
+                trailingElement.text(i18n.confirmContinue).show();
+            }
+        } else {
+            messageElement.html(defaultMessage);
+        }
+    }
+
+    $('#deleteProcessesModal').modal('show');
+};
+
+const confirmDelProcs = () => {
+    const rows = pendingDeleteProcRows;
+    const processIds = rows
+        .map((_index, row) => $(row).attr('data-proc-id'))
+        .get()
+        .filter(Boolean)
+        .map((id) => parseInt(id));
+
+    if (processIds.length === 0) {
+        $('#deleteProcessesModal').modal('hide');
+        return;
+    }
+
+    // Only relevant when the child-process reload option (Modal B) is visible.
+    const reloadRelatedProcessData =
+        $('#delete-proc-reload-wrapper').is(':visible') && $('#delete-proc-reload-checkbox').is(':checked');
+
+    deleteProcesses(processIds, reloadRelatedProcessData)
+        .done((response) => {
+            const result = response.result || response;
+            applyDeletedProcesses(result);
+            $('#deleteProcessesModal').modal('hide');
+            updateProcessSelectionState();
+        })
+        .fail((error) => {
+            console.error('Failed to delete processes:', error);
+            $('#deleteProcessesModal').modal('hide');
+            alert('Failed to delete processes');
+        })
+        .always(() => {
+            pendingDeleteProcRows = $();
+        });
+};
+
+// Initialize event listeners for multi-process deletion
+$(document).ready(() => {
+    // Select all checkbox
+    $('#select-all-processes').on('change', function () {
+        const isChecked = $(this).is(':checked');
+        getVisibleProcessCheckboxes().prop('checked', isChecked);
+        updateProcessSelectionState();
+    });
+
+    // Individual process checkboxes
+    $(document).on('change', '.proc-select-checkbox', function () {
+        updateProcessSelectionState();
+    });
+
+    // Delete selected button
+    $('#btn-delete-selected-procs').on('click', function () {
+        const selectedRows = getSelectedProcessRows();
+        if (selectedRows.length > 0) {
+            openDeleteProcessesModal(selectedRows);
+        }
+    });
+
+    // Confirm delete button in modal
+    $(document).on('click', '#btn-confirm-delete-procs', function () {
+        confirmDelProcs();
+    });
+
+    // Initialize state on page load
+    updateProcessSelectionState();
+});

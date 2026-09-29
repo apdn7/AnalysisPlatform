@@ -47,7 +47,7 @@ from ap.api.setting_module.services.equations import (
     get_all_normal_columns_for_functions,
 )
 from ap.api.trace_data.services.filter_function_condition import filter_function_column
-from ap.common.common_utils import Bound, BoundType, TimeRange, date_time_str_from_utc, gen_sql_label, to_pydatetime
+from ap.common.common_utils import Bound, BoundType, TimeRange, date_time_str_from_utc, to_pydatetime
 from ap.common.constants import (
     DATE_FORMAT_STR,
     DATE_FORMAT_STR_CSV,
@@ -87,6 +87,7 @@ from ap.common.pydn.dblib.transaction import TxnMultiDataConnection
 from ap.common.services.request_time_out_handler import abort_process_handler
 from ap.common.services.trace_graph import TraceGraph
 from ap.common.trace_data_log import EventAction, Target, TraceErrKey, trace_log
+from ap.setting_module.dtos import PaginationParamsDTO
 from ap.setting_module.models import (
     CfgConstant,
     CfgExport,
@@ -248,13 +249,14 @@ class DataExport:
         # since time, time_{id} columns and rowid are used in removing duplicate serials, etc
         # we cannot remove them from the sql query
         # therefore, we remove the unnecessary columns from the dataframe after query
-        df = df[[gen_sql_label(column.id, column.column_name) for column in self.export_columns()]]
+        # Keep internal SQL keys stable while public CSV headers are renamed later in save_data_to_file.
+        df = df[[column.bridge_column_name for column in self.export_columns()]]
         dfs_by_file = self.split_dataframe(df)
         return dfs_by_file
 
     def get_exported_timerange(self, df: pd.DataFrame) -> TimeRange:
         """Get exported time range, to record in export history and construct filename"""
-        datetime_column = self.config.process.get_date_col(column_name_only=False).gen_sql_label()
+        datetime_column = self.config.process.get_date_col(column_name_only=False).bridge_column_name
         datetime_series = pd.to_datetime(df[datetime_column])
         return TimeRange(
             min=Bound.included(datetime_series.min()),
@@ -313,7 +315,7 @@ class DataExport:
         local_timezone = tzlocal.get_localzone()
         for column in export_columns:
             if column.data_type == DataType.DATETIME.name:
-                column_name = column.gen_sql_label()
+                column_name = column.bridge_column_name
                 if len(df[column_name]):
                     df[column_name] = (
                         pd.to_datetime(df[column_name]).dt.tz_convert(local_timezone).dt.strftime(DATE_FORMAT_STR_CSV)
@@ -323,11 +325,11 @@ class DataExport:
         column_name_type = ColumnNameType(self.config.export_column_name_type)
         match column_name_type:
             case ColumnNameType.SYSTEM_NAME:
-                df = df.rename(columns={c.gen_sql_label(): c.name_en for c in export_columns})
+                df = df.rename(columns={c.bridge_column_name: c.name_en for c in export_columns})
             case ColumnNameType.JAPANESE_NAME:
-                df = df.rename(columns={c.gen_sql_label(): c.name_jp or c.name_en for c in export_columns})
+                df = df.rename(columns={c.bridge_column_name: c.name_jp or c.name_en for c in export_columns})
             case ColumnNameType.LOCAL_NAME:
-                df = df.rename(columns={c.gen_sql_label(): c.name_local or c.name_en for c in export_columns})
+                df = df.rename(columns={c.bridge_column_name: c.name_local or c.name_en for c in export_columns})
             case _:
                 raise NotImplementedError(column_name_type)
 
@@ -345,7 +347,7 @@ class DataExport:
     def save_header_only_file(self) -> Path:
         """Save a file with only headers when no data to export"""
         export_columns = self.export_columns()
-        df_empty = pd.DataFrame(columns=[col.gen_sql_label() for col in export_columns])
+        df_empty = pd.DataFrame(columns=[col.bridge_column_name for col in export_columns])
 
         # Use current time as placeholder — time elements are not in filename so it won't affect filename
         now = datetime.now(UTC)
@@ -995,6 +997,20 @@ class ExportConfigService:
 
         return sanitized_name
 
+    @staticmethod
+    def get_export_configs(params: PaginationParamsDTO) -> (list[CfgExport], int):
+        """
+        Get export config list by pagination params
+        Args:
+            params: PaginationParamsDTO
+
+        Returns: list of export configs, total
+
+        """
+        pagination = CfgExport.query.paginate(page=params.page, per_page=params.limit, error_out=False)
+        exports = [ExportConfigService.format_export_config(export_config) for export_config in pagination.items]
+        return exports, pagination.total
+
 
 @abort_process_handler()
 @log_execution_time()
@@ -1057,7 +1073,8 @@ def _get_df_from_db(
     # fill missing columns
     for proc in graph_param.array_formval:
         for col_id, col_name in zip(proc.col_ids, proc.col_names, strict=False):
-            label = gen_sql_label(col_id, col_name)
+            # Export consumes the same normal-result keys as the graph SQL pipeline.
+            label = graph_param.gen_label_from_col_id(col_id)
             if label not in df.columns:
                 df[label] = None
 

@@ -1,50 +1,51 @@
 <!--<link href=***.css rel=stylesheet></link>-->
 <style>
-    * {
+    .about,
+    .about * {
         font-size: small;
     }
 
-    h1 {
+    .about h1 {
         counter-reset: chapter;
         font-size: x-large;
         text-align: center;
-        /*text-decoration: none;*/
     }
-    h2 {
+
+    .about h2 {
         counter-reset: sub-chapter;
         font-size: large;
         text-align: center;
     }
 
-    table {
+    .about table {
         table-layout: fixed;
         width: 100%;
         border-collapse: collapse;
-        border-spacing: 0px;
+        border-spacing: 0;
         border-style: hidden;
-        border: 0px none;
+        border: 0 none;
     }
 
-    table th:nth-of-type(odd) {
+    .about table th:nth-of-type(odd) {
         width: 49%;
-        border: 0px none;
-    }
-    table th:nth-of-type(2) {
-        border: 0px none;
+        border: 0 none;
     }
 
-    table tr td:nth-of-type(odd) {
-        border: 0px none;
+    .about table th:nth-of-type(2),
+    .about table tr td:nth-of-type(odd),
+    .about table tr td:nth-of-type(2) {
+        border: 0 none;
+    }
+
+    .about table tr td:nth-of-type(odd) {
         vertical-align: baseline;
     }
-    table tr td:nth-of-type(2) {
-        border: 0px none;
+
+    .about a {
+        color: #87cafe;
     }
 
-    a {
-        color: #87cafe
-    }
-    a:hover {
+    .about a:hover {
         color: #e0ffff;
     }
 </style>

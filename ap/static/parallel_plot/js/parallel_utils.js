@@ -338,8 +338,9 @@ class ParallelPlot {
         const minfDumVal = minText - 2 * stepVals;
         let naVals = false;
         // check dim have na values
-        // for string columns, NA values in the ranking dictionary is -1, naDumVal should be kept as -1 in that case
-        const naDumVal = isCategory(dataType, columnType) ? minText : minText - naPosition * stepVals;
+        // for category columns, NA values in the ranking dictionary is -1, naDumVal should be kept as -1 in that case
+        // this is safe for now because category columns import -Inf and Inf as NA
+        const naDumVal = isCategory(dataType, columnType) ? -1 : minText - naPosition * stepVals;
         // if fine select on -> do not transform values
         const transDim = dimValues.map((v, i) => {
             if (CONST.NAV.includes(v) && !fineSelect) {
@@ -985,5 +986,15 @@ class ParallelPlot {
         Plotly.newPlot(this.plotDOMId, this.data, layout, iconSettings);
         $(`#${this.plotDOMId}`).show();
         this.bindEvents();
+        this.onApplyStyleSetting();
+    }
+
+    onApplyStyleSetting() {
+        const setting = window.getStyleLayout?.();
+
+        if (setting) {
+            window.handleOnchangeTheme?.(setting.theme);
+            window.handleOnchangeFontsize?.(setting.size);
+        }
     }
 }

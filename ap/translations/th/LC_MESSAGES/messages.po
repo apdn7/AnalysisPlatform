@@ -1542,6 +1542,38 @@ msgstr "ชื่อแหล่งข้อมูล"
 msgid "Data Source Type"
 msgstr "ประเภทแหล่งข้อมูล"
 
+# ap/template/setting_module/db_config_modals.html
+msgid "Select Files"
+msgstr "Select Files"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Include"
+msgstr "Include"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Exclude"
+msgstr "Exclude"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "File Name"
+msgstr "File Name"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Subfolder"
+msgstr "Subfolder"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Load Settings"
+msgstr "Load Settings"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Data Preview"
+msgstr "Data Preview"
+
+# ap/template/setting_module/db_config_modals.html
+msgid "Ready to load data."
+msgstr "Ready to load data."
+
 #: ap/templates/setting_module/config.html:43
 msgid "Do you want to save changes?"
 msgstr "คุณแน่ใจว่าจะบันทึกการเปลี่ยนแปลงหรือไม่?"
@@ -2799,10 +2831,34 @@ msgid "Facet"
 msgstr "ด้าน"
 
 #: component.js
-msgid ""
-"Category expansion is performed to divide the graph using the data of the"
-" selected item."
-msgstr "ดำเนินการหมวดหมู่หารด้วยรายการที่เลือก"
+msgid "Facet Hover msg"
+msgstr ""
+"Plots are split by the selected variable values. Only variables with a "
+"Category (Cat) or String (Str) data type can be selected.\n"
+"If only Lv1 or Lv2 is selected, plots are split by the distinct values of"
+" the selected variable.\n"
+"If both Lv1 and Lv2 are selected, plots are split by every combination of"
+" the two variables' values.\n"
+"(If Lv1 has n levels and Lv2 has m levels, n × m plots will be generated."
+"\n"
+" Since the number of plots can grow quickly, avoid selecting variables "
+"with too many levels,\n"
+" or use filters to reduce the number of plots displayed.)\n"
+"\n"
+"Div option:\n"
+"On the pages listed below, Div can be selected in addition to Lv1 and "
+"Lv2. Its role depends on the page:\n"
+"・ RLP, AgP: The selected variable is used for grouping, and data is "
+"aggregated or summarized for each variable value.\n"
+"・ ScP: Plots are split in the same way as Lv1 and Lv2. Lv1 and Lv2 create"
+" vertical sections, while Div creates horizontal sections.\n"
+"・ WfP: Waveforms are drawn separately for each value of the selected "
+"variable.\n"
+"・ MAP: Plots are displayed side by side for each selected variable value "
+"(up to 6 panels).\n"
+"        Use filters to narrow down the number of values if necessary.\n"
+"        This option is available when only one checkbox is selected "
+"(i.e., when only [1] is selected).\n"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -5019,6 +5075,48 @@ msgstr ""
 "type. Please check the real data of the columns listed below: You can "
 "also see the data that will be exported and stored in file path {0}"
 
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedParentProc"
+msgstr ""
+"Other processes have been merged into this process. Deleting this process"
+" will also delete the following related processes:"
+
+#: ap/templates/i18n.html
+msgid "warnDeleteMergedChildProc"
+msgstr ""
+"This process is merged to other process. To reflect this deletion in the "
+"loaded data, the related process data must be reloaded."
+
+#: ap/templates/i18n.html
+msgid "confirmContinue"
+msgstr "Are you sure you want to continue?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "reloadRelatedProcessData"
+msgstr "Reload related process data"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "reloadRelatedProcessDataNote"
+msgstr ""
+"Even if you do not select this option, you can reload the data later from"
+" the settings of the target merged process."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warningLabel"
+msgstr "Warning:"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warnDeleteSelectedParentProcs"
+msgstr ""
+"Deleting the following processes will also delete their associated merged"
+" processes."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "warnReloadSelectedChildProcs"
+msgstr ""
+"To reflect this deletion in the imported data, the following processes "
+"must be reloaded."
+
 msgid "LinkWithTime"
 msgstr "Link with time: diff [sec]"
 
@@ -6043,11 +6141,39 @@ msgstr "Monthly"
 msgid "Confirm export registration"
 msgstr "Confirm export registration"
 
+msgid "Cat Value"
+msgstr "Cat Value"
+
+msgid "Input Order"
+msgstr "Input Order"
+
 msgid "Note: Corresponding processes will also be deleted:"
 msgstr "Note: Corresponding processes will also be deleted:"
 
 msgid "ExportSettingTitle"
 msgstr "Title"
+
+msgid "Process:Str"
+msgstr "Process:Str"
+
+#: ap/templates/i18n.html
+msgid "DataTypeProcNameStrHint"
+msgstr ""
+"When selected for a column where the process name is saved, you can use "
+"label plot drawing and filters for all number plots without setting."
+
+msgid "Data export confirm msg with periodic"
+msgstr ""
+"Data will be exported according to the following schedule.\n"
+"\n"
+"Next 3 runs:\n"
+"\n"
+
+msgid "Data export confirm msg with once"
+msgstr "Export data from EXPORT_FROM to EXPORT_TO"
+
+msgid "Data export run now"
+msgstr "Export data from EXPORT_FROM now"
 
 msgid "ExportFileNameIdentifierTooltipText"
 msgstr ""
@@ -6075,19 +6201,320 @@ msgstr ""
 "\n"
 "Split files are numbered (e.g., dat_1.csv, dat_2.csv)."
 
-#~ msgid "HoverConversationFormulaMsg"
-#~ msgstr ""
-#~ "Enter the unit. It will be "
-#~ "displayed in the plot area, etc. "
-#~ "Only units defined in the system "
-#~ "can be registered.\n"
-#~ "If the DataType is a judgment, the"
-#~ " conversion formula Pos~p0|Neg=p1|n1 will "
-#~ "be displayed.\n"
-#~ "p0 is the original data value of"
-#~ " the positive example judge value, p1"
-#~ " and n1 are the display values "
-#~ "for the positive and negative examples,"
-#~ " respectively (e.g., OK and NG for"
-#~ " products)."
+msgid "masterTypeSuffixMeasurement"
+msgstr "measurement"
+
+msgid "masterTypeSuffixHistory"
+msgstr "history"
+
+msgid "Multi-axis Plot"
+msgstr "Multi-axis Plot"
+
+msgid "Multi-axis Plot Hint"
+msgstr ""
+"Splits graphs by variables or category values.\n"
+"It is suitable for visualizing small to medium-scale datasets and useful "
+"for comparing categories or tracking multiple variables at the same time."
+
+msgid "Layout hover messenger"
+msgstr ""
+"After selecting the primary variable(s), specify the additional data to "
+"display.\n"
+"\n"
+"Common settings (applied to all primary variables)\n"
+"   X-axis (optional): Select the variable to use for the X-axis. If "
+"omitted, data order is used.\n"
+"   Lab: Specify the label displayed in the plot.\n"
+"   LabX: Display labels using the X-axis values.\n"
+"   Color: Color-code data by the variable's category values.\n"
+"   ColorX: Color-code data by the X-axis category values.\n"
+"   ColImb: Display categories with extremely small values on a secondary "
+"axis.\n"
+"   ColImbX: Color-code the categories displayed on the secondary axis.\n"
+"       - Only the top 16 categories by data count are displayed. "
+"Categories with the same count are ordered by date/time.\n"
+"       - When Color (Imb) is selected, settings cannot be configured "
+"individually for each primary variable.\n"
+"\n"
+"Settings for each primary variable\n"
+" Specify the data to add or split for each primary variable.\n"
+"(The numeric prefix indicates the order in which the primary variables "
+"were selected.)\n"
+"   1-Lab: Specify the label to display for this primary variable.\n"
+"   1-Step: Specify a step variable (used to display thresholds or control"
+" values).\n"
+"\n"
+"Overlay multiple variables\n"
+"   1-Main: Add a variable to the primary (left) axis.\n"
+"   1-2nd: Add a variable to the secondary (right) axis (up to 3 "
+"variables).\n"
+"   1-Auto: Overlay a variable without assigning it to an axis.\n"
+"       - Up to 8 variables can be specified per primary variable (1-Main "
+"+ 1-2nd + 1-Auto + 1-Step).\n"
+"\n"
+"Split by category values\n"
+"   1Color: Color-code data by the variable's category values.\n"
+"   1ColImb: Display categories with extremely small values on a secondary"
+" axis.\n"
+"       - Up to 8 category values are displayed (only the top 8 categories"
+" by data count).\n"
+
+msgid "MAP plot style hover msg"
+msgstr ""
+"Select the data rendering method.\n"
+"— Auto: Line Plot + Markers for main variables only (default for a small "
+"number of data points)\n"
+"— Line: Line plot\n"
+"-•- Line+Marker: Line plot with markers\n"
+"• Marker: Marker-only scatter plot (default for a large number of data "
+"points)\n"
+
+msgid "MAP y-axis hover msg"
+msgstr ""
+"Switch the display mode for plots using Color or the primary axis only.\n"
+"Normal: Standard line chart (raw values). Auto Log Scale\n"
+"Stack: Stacked line chart (raw values).\n"
+"%: Percentage line chart.\n"
+"%Stack: Stacked percentage line chart (composition ratio).\n"
+"Log Off: Display using a linear scale only.\n"
+"Log On: Display using a logarithmic scale (orders of magnitude).\n"
+
+msgid "MAP transpose hover ms"
+msgstr ""
+"Transpose the plot layout (swap rows and columns).\n"
+"Non-transposed layouts are wide and suitable for data comparison.\n"
+"Transposed layouts are near-square and suitable for scatter plots.\n"
+
+msgid "MAP save all hover msg"
+msgstr ""
+"Save all visible panels as individual PNG files.\n"
+"\n"
+"Individual save or copy:\n"
+"(On the target plot) [Right-click]→[Save to PNG]\n"
+"Copy to clipboard:\n"
+"(On the target plot) [Right-click]→[Copy to Clipboard]\n"
+"The clipboard is not available when using remotely. Please use PNG "
+"export.\n"
+
+msgid "Process names are appended."
+msgstr "Process names are appended."
+
+msgid "X-axis settings"
+msgstr "X-axis settings"
+
+msgid "Shared settings"
+msgstr "Shared settings"
+
+msgid "Per-plot settings"
+msgstr "Per-plot settings"
+
+msgid "Overlay on Main/Secondary/Auto-scaled Axis"
+msgstr "Overlay on Main/Secondary/Auto-scaled Axis"
+
+msgid "Color by category"
+msgstr "Color by category"
+
+msgid "layout.error.alreadyUsed"
+msgstr "\"{{value}}\" is already used by another item."
+
+msgid "layout.error.cannotUseWith"
+msgstr "\"{{value}}\" cannot be used with \"{{conflicts}}\"."
+
+msgid "layout.error.onlyOnePerSubplot"
+msgstr ""
+"Subplot {{order}} allows only one {{label}}. Override replaces the "
+"current one."
+
+msgid "layout.error.overlayColorExclusive"
+msgstr "Overlay and color cannot be used together in subplot {{order}}."
+
+msgid "layout.error.maxSub"
+msgstr ""
+"Subplot {{order}} allows at most {{max}} Sub variables. Override replaces"
+" the oldest Sub."
+
+msgid "layout.error.maxOverlay"
+msgstr ""
+"Subplot {{order}} allows at most {{max}} variables (Main + Sub + Add + "
+"Step). Override replaces the oldest one."
+
+#: ap/templates/setting_module/proc_config.html
+msgid "Delete Selected"
+msgstr "Delete Selected"
+
+#: ap/templates/setting_module/proc_config.html
+msgid "selected"
+msgstr "selected"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm delete this record?"
+msgstr "Confirm delete this record?"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "Confirm delete selected processes?"
+msgstr "Confirm delete selected processes?"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Do you want to delete the selected records?"
+msgstr "Do you want to delete the selected records?"
+
+msgid "RelationshipTypeLabel"
+msgstr "Relationship"
+
+msgid "RelationshipTypeTooltip"
+msgstr ""
+"Select how two tables are linked together. \n"
+"Choose based on whether the number of records between tables is\n"
+"one-to-one (one-to-many) or many-to-one."
+
+msgid "RelationshipTypeOneToNLabel"
+msgstr "Normal (1:1 / 1:N)"
+
+msgid "RelationshipTypeNToOneLabel"
+msgstr "N:1"
+
+msgid "RelationshipTypeOneToNTooltip"
+msgstr ""
+"Use when\n"
+"one record in the Prev Process links to one or more records in the Post\n"
+"Example: Assembly process -> Inspection\n"
+"Example: Lot-wise data -> Workpiece-wise data"
+
+msgid "RelationshipTypeNToOneTooltip"
+msgstr ""
+"Use when multiple records in the Prev Process links to a single record in"
+" the Post Process.\n"
+"When visualizing both process together, charts are plotted at the N-side "
+"record level.\n"
+"Example: Element-wise data -> Circuit board-wise data\n"
+"Example: Circuit board-wise data -> Module-wise data"
+
+#: ap/templates/i18n.html
+msgid "Scanning"
+msgstr "Scanning"
+
+#: ap/templates/i18n.html
+msgid "Loading"
+msgstr "Loading"
+
+msgid "Equal Width Bin"
+msgstr "Equal Width Bin"
+
+msgid "Equal Freq Bin"
+msgstr "Equal Freq Bin"
+
+msgid "Numeric Value"
+msgstr "Value"
+
+msgid "MAP select variables hover msg"
+msgstr ""
+"Enter target item of data (quantitative variable like measurement value) "
+"to be plotted on the graph. Select the process and item you want to plot "
+"on the graph."
+
+msgid "Please disable your browser's pop-up blocker."
+msgstr "Please disable your browser's pop-up blocker."
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:148
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:243
+msgid "Data count exceeds {{limit}}."
+msgstr "Data count exceeds {{limit}}."
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:156
+msgid "Jump to FPP"
+msgstr "Jump to FPP"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:158
+msgid "Display in FPP high-speed mode (opens in a new page)"
+msgstr "Display in FPP high-speed mode (opens in a new page)"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:173
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:268
+msgid "Nth"
+msgstr "Nth"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:178
+msgid "Show only the first n-th {{limit}} data points (no labels)"
+msgstr "Show only the first n-th {{limit}} data points (no labels)"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:188
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:275
+msgid ""
+"Show only the first n-th {{limit}} data points (with labels) *Negative "
+"values count from the end"
+msgstr ""
+"Show only the first n-th {{limit}} data points (with labels) *Negative "
+"values count from the end"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:251
+msgid "Continue"
+msgstr "Continue"
+
+#: ap/src/pages/multi-axis-plot/components/MultiAxisPlot.tsx:253
+msgid "Show data as index only, without labels"
+msgstr "Show data as index only, without labels"
+
+#: ap/templates/macros.html
+msgid "Category Aggregation"
+msgstr "Category Aggregation"
+
+#: ap/templates/macros.html
+msgid "Aggregated"
+msgstr "Aggregated"
+
+#: ap/templates/macros.html
+msgid "Keep Duplicates"
+msgstr "Keep Duplicates"
+
+#: ap/templates/i18n.html
+msgid "Original order"
+msgstr "Original order"
+
+#: ap/templates/i18n.html
+msgid "Name A -> Z"
+msgstr "Name A -> Z"
+
+#: ap/templates/i18n.html
+msgid "Name Z -> A"
+msgstr "Name Z -> A"
+
+#: ap/templates/i18n.html
+msgid "Count Low -> High"
+msgstr "Count Low -> High"
+
+#: ap/templates/i18n.html
+msgid "Count High -> Low"
+msgstr "Count High -> Low"
+
+#: ap/templates/i18n.html
+msgid "Metric Low -> High"
+msgstr "Metric Low -> High"
+
+#: ap/templates/i18n.html
+msgid "Metric High -> Low"
+msgstr "Metric High -> Low"
+
+#: ap/templates/i18n.html
+msgid "Serial Ascending"
+msgstr "Ascending"
+
+#: ap/templates/i18n.html
+msgid "Serial Descending"
+msgstr "Descending"
+
+#: ap/templates/multi_axis_plot/multi_axis_plot.html:36
+msgid "MAP div size hover msg"
+msgstr ""
+"Choose how many sub-panels each Div group shows (2, 3, or 6). More "
+"primaries can be selected when a smaller size is used, as long as (size x"
+" number of primaries) stays within 6."
+
+#~ msgid ""
+#~ "Category expansion is performed to "
+#~ "divide the graph using the data of"
+#~ " the selected item."
+#~ msgstr "ดำเนินการหมวดหมู่หารด้วยรายการที่เลือก"
+
+#~ msgid "Unable to connect to data source. No preview data available."
+#~ msgstr "Unable to connect to data source. No preview data available."
 

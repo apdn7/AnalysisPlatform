@@ -347,15 +347,19 @@ const produceWhiskerPlots = (data) => {
         }
     }
 
-    $('.whisker').on('mouseout', (e) => {
-        const isOnHoverPopup = $(e.target).closest('.whisker-hover');
-        if (!isOnHoverPopup) {
+    $('.whisker')
+        .off('mouseout.fppWhisker')
+        .on('mouseout.fppWhisker', (e) => {
+            const isOnHoverPopup = $(e.target).closest('.whisker-hover');
+            if (!isOnHoverPopup) {
+                hideAllWhiskerHover();
+            }
+        });
+    $('.whisker-hover')
+        .off('mouseleave.fppWhisker')
+        .on('mouseleave.fppWhisker', () => {
             hideAllWhiskerHover();
-        }
-    });
-    $('.whisker-hover').on('mouseleave', (e) => {
-        hideAllWhiskerHover();
-    });
+        });
 };
 
 const drawSensorWhisker = (sensorIdx, plotData, clickedVal = null, cfgYMin = null, cfgYMax = null) => {

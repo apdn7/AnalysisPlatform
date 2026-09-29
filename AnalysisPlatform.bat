@@ -701,14 +701,6 @@ exit
     ) else ( if errorlevel 1 ( call :logStartap lapTime "Get File by BITS%tab%%tgt%%tab%via PreConfig" )))
     exit /b 0
   ) else (
-    call :logStartap lapTime "Download by CAUt%tab%%tgt%"
-    echo ---- Try Certutil
-    certutil -urlcache -split -f "%url%" "%dst%"
-  )
-  if not errorlevel 1 (
-    call :logStartap lapTime "Get File by CAUt%tab%%tgt%"
-    exit /b 0
-  ) else (  
     call :logStartap lapTime "Download by Curl%tab%%tgt%"
     echo ---- Try Curl
     curl.exe -v %HTTPS_PROXY%
