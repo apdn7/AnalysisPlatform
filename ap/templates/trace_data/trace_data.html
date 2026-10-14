@@ -68,11 +68,7 @@
     {#	</div>#}
     <br />
     <div id="traceDataTabs" style="display: none;" class="position-relative">
-        <div
-            class="d-flex align-items-center"
-            id="graph-settings-area"
-            style="position: absolute; width: calc(100% - 300px)"
-        >
+        <div class="d-flex align-items-center" id="graph-settings-area" style="position: relative; width: 100%">
             <!--FPP and Histogram use common-->
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
@@ -102,8 +98,10 @@
                 cl='ml-4',
                 customSelect=True)
             }}
+
+            <div class="react-root" data-component="FppPlotStyleSetting" style="margin-left: auto"></div>
         </div>
-        <ul id="tabs" class="nav nav-tabs justify-content-end" role="tablist">
+        <ul id="tabs" class="nav nav-tabs justify-content-end mt-2" role="tablist">
             <li class="nav-item active" onclick="switchTabOption(this)">
                 <a href="#timeSeriestab" id="timeSeriestabMenu" class="nav-link active" role="tab" data-toggle="tab"
                     >{{ _("Full-points Plot") }}</a

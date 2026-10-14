@@ -668,6 +668,8 @@ const drawHeatMap = (orgData, scaleOption = 'auto', autoUpdate = false) => {
     fillDataToFilterModal(orgData.filter_on_demand, () => {
         showHeatMap(false);
     });
+
+    onApplyStyleSetting();
 };
 
 const selectHeatmapMenu = (scaleOption) => {

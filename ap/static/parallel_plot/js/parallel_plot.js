@@ -925,6 +925,7 @@ const dumpData = (type) => {
     const formData = lastUsedFormData || collectFormDataPCP(true);
     formData.set('constraint_range', JSON.stringify(pcpPlot.selectedConstraintRange));
     formData.set(CONST.ONLY_EXPORT_DATA_SELECTED, onlyExportSelectedData);
+    formData.set('selected_na_inf_values', JSON.stringify(pcpPlot.selectedNaInfValue));
     if (onlyExportSelectedData) {
         formData.set('export_from', 'plot');
     }
@@ -1391,8 +1392,8 @@ const onChangeShowCTTime = (e) => {
     const lastElementCheckedId = lastElementChecked?.id || '';
     $(formElements.showCT_Time).data('target-id-to-enable-ct', lastElementCheckedId);
     $(formElements.endProcSelectedItem).trigger('change');
-    setTimeout(function () {
-        applyUserSetting(settingInfo, null, false);
+    setTimeout(async function () {
+        await applyUserSetting(settingInfo, null, false);
         if (!lastElementCheckedId) {
             enableCycleTimeAnalysis();
         }

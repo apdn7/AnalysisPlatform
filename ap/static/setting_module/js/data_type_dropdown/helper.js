@@ -482,7 +482,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
         this.toggleFilterInput(table, dataType, columnType, rowIndex, isFirstLoad);
 
-        this.toggleFormulaInput(table, dataType, columnType, rowIndex);
+        this.toggleFormulaInput(table, dataType, columnType, rowIndex, isFirstLoad);
 
         // disable data type column not input format
         // this.enableDisableFormatText(dataTypeDropdownElement, value); // ES not use
@@ -490,15 +490,16 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
 
         // Do not parse before changing the data type for judgment.
         // Sample data should be parsed only after the formulation is displayed.
-        if (parseData) {
-            this.parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode);
+        if (parseData && !spreadsheet.table.table.isCopyingShownDataType) {
+            this.parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode, beforeDataType);
         }
 
         // Prevent false data type change triggers from paste events
         if (
             [masterDataGroup.MAIN_DATETIME].includes(columnType) &&
             beforeColumnType !== columnType &&
-            beforeDataType !== dataType
+            beforeDataType !== dataType &&
+            !spreadsheet.table.table.isCopyingShownDataType
         ) {
             // remove dummy datetime
             const dummyDatetimeRow = spreadsheet.dummyDateTimeRow();
@@ -506,7 +507,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
                 ProcessConfigSection.removeDummyDatetimeColumn(spreadsheet.table);
             }
         }
-        if (!isFirstLoad) {
+        if (!isFirstLoad && !spreadsheet.table.table.isCopyingShownDataType) {
             ProcessConfigSection.handleMainDateAndMainTime(spreadsheet, dataType, columnType, beforeColumnType);
             // reindexing rows
             spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
@@ -711,9 +712,10 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {number} dataType
      * @param {number} columnType
      * @param {number} rowIndex
+     * @param {boolean} isFirstLoad - preserve existing formulas while initializing or changing pages
      *
      */
-    static toggleFormulaInput(table, dataType, columnType, rowIndex) {
+    static toggleFormulaInput(table, dataType, columnType, rowIndex, isFirstLoad = false) {
         const formulaColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.formula);
         const formulaCell = table.getCellFromCoords(formulaColumnIndex, rowIndex);
         const row = table.getRowDataByIndex(rowIndex);
@@ -729,7 +731,7 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
             // enable input formula in this row
             formulaCell.classList.remove(READONLY_CLASS, 'disabled', 'text-hide');
             // clear all input for dt formula, for judge just hide the formula and not clear it
-            if (isDatetimeFormula(dataType, columnType)) {
+            if (!isFirstLoad && isDatetimeFormula(dataType, columnType)) {
                 table.setValueFromCoords(formulaColumnIndex, rowIndex, '', true);
             }
         } else {
@@ -772,10 +774,11 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * @param {number} rowIndex - rowIndex
      * @param {number} columnType - column type
      * @param sampleDataDisplayMode
+     * @param {string} sourceDataType - data type before the change
      */
-    static parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode) {
+    static parseDataType(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode, sourceDataType) {
         setTimeout(async () => {
-            await parseDataTypeProc(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode);
+            await parseDataTypeProc(spreadsheet, dataType, rowIndex, columnType, sampleDataDisplayMode, sourceDataType);
         });
     }
 
@@ -788,14 +791,18 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
      * and undo history synchronized.
      *
      * @param {HTMLDivElement} dataTypeDropdownElement - source dropdown
-     * @param {HTMLTableRowElement[]} targetRows - rows that may receive the value
+     * @param {number[]} targetRowIndexes - row indexes that may receive the value
      */
-    static copyShownDataTypeToRows(dataTypeDropdownElement, targetRows) {
+    static async copyShownDataTypeToRows(dataTypeDropdownElement, targetRowIndexes) {
         const spreadsheet = spreadsheetProcConfig(dataTypeDropdownElement);
         if (!spreadsheet.isValid()) return;
 
         const table = spreadsheet.table;
-        const sourceRow = dataTypeDropdownElement.closest('tr');
+        const jspreadsheet = table.table;
+        if (jspreadsheet.isCopyingShownDataType) return;
+        const sourceRowIndex = Number(dataTypeDropdownElement.closest('td[data-y]')?.dataset.y);
+        if (!Number.isInteger(sourceRowIndex)) return;
+
         const shownDataType = this.getShowValueElement(dataTypeDropdownElement).textContent.trim();
         const [, sourceColumnType] = this.convertShownDataTypeToColumnTypeAndDataType(shownDataType);
 
@@ -804,31 +811,95 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         if (this.AllowSelectOneAttrs.includes(sourceColumnType)) return;
 
         const shownDataTypeColumnIndex = table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+        const previousPointerEvents = jspreadsheet.el.style.pointerEvents;
+        const loadingElement = SpreadSheetProcessConfig.initLoadingTable(table.tableId);
+        const failedRowIndexes = [];
+        const chunkSize = 25;
 
-        targetRows.forEach((row) => {
-            if (row === sourceRow) return;
+        jspreadsheet.isCopyingShownDataType = true;
+        try {
+            loadingElement.show();
+            loadingElement.total = targetRowIndexes.length;
+            loadingElement.textContent = `0 / ${loadingElement.total}`;
 
-            // JSpreadsheet stores the model row index on each cell, not
-            // necessarily on the <tr>, especially after sorting.
-            const indexedCell = row.querySelector('td[data-y]');
-            const rowIndex = Number(indexedCell?.dataset.y);
-            if (!Number.isInteger(rowIndex)) return;
+            for (let offset = 0; offset < targetRowIndexes.length; offset += chunkSize) {
+                const chunk = targetRowIndexes.slice(offset, offset + chunkSize);
 
-            const rowData = table.getRowDataByIndex(rowIndex);
-            const shownDataTypeCell = table.getCellFromCoords(shownDataTypeColumnIndex, rowIndex);
-            const isReadonly =
-                shownDataTypeCell.classList.contains(READONLY_CLASS) ||
-                shownDataTypeCell.classList.contains('disabled');
+                for (const rowIndex of chunk) {
+                    try {
+                        if (!Number.isInteger(rowIndex)) continue;
+                        if (rowIndex === sourceRowIndex) continue;
 
-            // Do not overwrite master-data rows or AP-generated special rows.
-            if (isMasterDataColumn(rowData.column_type) || checkSpecialRow(rowData) || isReadonly) return;
+                        const rowData = table.getRowDataByIndex(rowIndex);
+                        const shownDataTypeCell = table.getCellFromCoords(shownDataTypeColumnIndex, rowIndex);
+                        if (!rowData || !shownDataTypeCell) continue;
 
-            // Avoid reparsing sample data and creating history entries when the
-            // target already has the selected shown data type.
-            if (shownDataTypeCell.textContent.trim() === shownDataType) return;
+                        const isReadonly =
+                            shownDataTypeCell.classList.contains(READONLY_CLASS) ||
+                            shownDataTypeCell.classList.contains('disabled');
 
-            table.setValueFromCoords(shownDataTypeColumnIndex, rowIndex, shownDataType);
-        });
+                        // An unregistered Judge is still a new editable row. Keep registered
+                        // master-data rows protected, but allow this row to receive the copy.
+                        const isUnregisteredJudge =
+                            rowData.column_type === masterDataGroup.JUDGE && Number(rowData.id) < 0;
+                        const isProtectedMasterDataColumn =
+                            isMasterDataColumn(rowData.column_type) && !isUnregisteredJudge;
+
+                        if (isProtectedMasterDataColumn || checkSpecialRow(rowData) || isReadonly) continue;
+
+                        // Read from the model because cells on other pages are detached
+                        // from tbody and their rendered text may not be up to date.
+                        if (rowData.shown_data_type === shownDataType) continue;
+
+                        table.setValueFromCoords(shownDataTypeColumnIndex, rowIndex, shownDataType);
+                    } catch (error) {
+                        failedRowIndexes.push(rowIndex);
+                        console.error(`Failed to copy data type to Process Config row ${rowIndex + 1}`, error);
+                    }
+                }
+
+                loadingElement.textContent = `${Math.min(offset + chunk.length, loadingElement.total)} / ${
+                    loadingElement.total
+                }`;
+
+                // Yield between chunks so a large table does not block browser
+                // rendering and input handling for the entire bulk operation.
+                await new Promise((resolve) => setTimeout(resolve, 0));
+            }
+        } finally {
+            jspreadsheet.isCopyingShownDataType = false;
+            loadingElement.hide();
+            jspreadsheet.el.style.pointerEvents = previousPointerEvents;
+
+            // Bulk mode suppresses the per-cell re-index operation. Run it once
+            // after all model values and dependent columns have been updated.
+            table.reIndexForSpecialRow(table);
+
+            // Re-attach the rows of the current page so the visible table is
+            // rendered from the values that were just written to the model.
+            if (jspreadsheet.options.pagination > 0) {
+                jspreadsheet.page(jspreadsheet.pageNumber);
+            }
+
+            // Parsing every detached row creates thousands of timers and does
+            // not produce visible output. Parse affected rows on the current
+            // page now; other pages are parsed by the existing page-change flow.
+            const targetRowIndexSet = new Set(targetRowIndexes);
+            const sampleDataDisplayMode = getSampleDataDisplayModeElement(jspreadsheet.el).val();
+            [...jspreadsheet.tbody.rows]
+                .map((row) => Number(row.dataset.y))
+                .filter((rowIndex) => targetRowIndexSet.has(rowIndex) && !failedRowIndexes.includes(rowIndex))
+                .forEach((rowIndex) => {
+                    const rowData = table.getRowDataByIndex(rowIndex);
+                    this.parseDataType(
+                        spreadsheet,
+                        rowData.data_type,
+                        rowIndex,
+                        rowData.column_type,
+                        sampleDataDisplayMode,
+                    );
+                });
+        }
     }
 
     /**
@@ -842,11 +913,20 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
             'div.config-data-type-dropdown',
         );
-        const sourceRow = dataTypeDropdownElement.closest('tr');
-        const siblingRows = [...sourceRow.parentElement.children];
-        const rowsBelow = siblingRows.slice(siblingRows.indexOf(sourceRow) + 1);
+        const spreadsheet = spreadsheetProcConfig(dataTypeDropdownElement);
+        if (!spreadsheet.isValid()) return;
 
-        this.copyShownDataTypeToRows(dataTypeDropdownElement, rowsBelow);
+        const sourceRowIndex = Number(dataTypeDropdownElement.closest('td[data-y]')?.dataset.y);
+        if (!Number.isInteger(sourceRowIndex)) return;
+
+        // `rows` contains the complete model. Only the current page exists in
+        // tbody, so querying DOM rows here would exclude all following pages.
+        const numberOfRows = spreadsheet.table.table.rows.length;
+        const rowIndexesBelow = Array.from({ length: Math.max(numberOfRows - sourceRowIndex - 1, 0) }, (_, index) => {
+            return sourceRowIndex + index + 1;
+        });
+
+        this.copyShownDataTypeToRows(dataTypeDropdownElement, rowIndexesBelow);
     }
 
     /**
@@ -859,11 +939,21 @@ class DataTypeDropdown_Helper extends DataTypeDropdown_Constant {
         const dataTypeDropdownElement = /** @type HTMLDivElement */ currentTarget.closest(
             'div.config-data-type-dropdown',
         );
-        const filteredRows = [...dataTypeDropdownElement.closest('table').querySelectorAll('tbody tr')].filter(
-            (row) => !row.classList.contains('gray') && $(row).is(':visible'),
-        );
+        const spreadsheet = spreadsheetProcConfig(dataTypeDropdownElement);
+        if (!spreadsheet.isValid()) return;
 
-        this.copyShownDataTypeToRows(dataTypeDropdownElement, filteredRows);
+        const table = spreadsheet.table.table;
+        const searchResultIndexes = table.results ? new Set(table.results) : null;
+        const filteredRowIndexes = table.rows
+            .map((_, rowIndex) => rowIndex)
+            .filter((rowIndex) => {
+                if (searchResultIndexes) return searchResultIndexes.has(rowIndex);
+
+                const row = table.rows[rowIndex];
+                return row && !row.classList.contains('gray');
+            });
+
+        this.copyShownDataTypeToRows(dataTypeDropdownElement, filteredRowIndexes);
     }
 
     /**

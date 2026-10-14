@@ -229,6 +229,10 @@ const getProcInfo = async (procId) => {
             procModalElements.optionalFunctions.val(res.data.etl_func);
             procModalElements.dsID.val(res.data.data_source_id);
             procModalElements.fileName.val(res.data.file_name);
+            procModalElements.fileName.prop(
+                'disabled',
+                res.tables.ds_type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type,
+            );
             procModalElements.isShowFileName.prop('checked', !!res.data.is_show_file_name);
             procModalElements.procDateTimeFormatInput.val(res.data.datetime_format || '');
             currentProcData.ds_id = res.data.data_source_id;
@@ -330,7 +334,7 @@ const getProcInfo = async (procId) => {
                 $(procModalElements.fileInputPreview).show();
                 $(procModalElements.grTableDropdown).hide();
             } else if (res.tables.ds_type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type) {
-                $(procModalElements.fileInputPreview).hide();
+                $(procModalElements.fileInputPreview).show();
                 $(procModalElements.grTableDropdown).hide();
             } else if (res.tables.tables.length) {
                 $(procModalElements.fileInputPreview).hide();
@@ -447,7 +451,7 @@ const showProcSettingModal = async (procItem, dbsId = null) => {
             modalName = 'procSettingModal';
 
             if (procId && !currentProcColumns) {
-                await showRecordsBtnFunc();
+                await loadLocalProcessPreview();
             }
             if (procInfoResponse && currentProcColumns) {
                 const functionInfos = await FunctionInfo.getAllFunctionInfosApi(
@@ -593,15 +597,15 @@ const generateProcessRow = (
         </div>
     </td>
     <td class="col-number">${rowNumber + 1}</td>
-    <td>
+    <td title="${_.escape(procShownName || '')}">
         <input data-name-en="${procName}" data-name-jp="${nameJP || ''}" data-name-local="${nameLocal || ''}" name="processName" class="form-control" type="text"
             placeholder="${procConfigTextByLang.procName}" value="${procShownName || ''}" ${procName ? 'disabled' : ''} ${dragDropRowInTable.DATA_ORDER_ATTR}
             onfocusout="hideDataSourceRegistered(this)"/>
     </td>
-    <td>
+    <td title="${_.escape(dbsName || '')}">
         ${dsSelector}
     </td>
-    <td>
+    <td title="${_.escape(tableName || '')}">
         <select class="form-control" name="tableName" ${dbsId ? 'disabled' : ''}>
             ${tableEles}
         </select>

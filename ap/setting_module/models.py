@@ -596,6 +596,7 @@ class CfgDataSource(db.Model):
         csv_detail: CSV file configuration (for CSV type sources).
         web_detail: Web service configuration (for web type sources).
         processes: List of processes using this data source.
+        quick_plot_mapping: Optional retention mapping when Quick Plot created this datasource.
 
     Methods:
         get_by_id: Retrieves data source by ID.
@@ -649,6 +650,11 @@ class CfgDataSource(db.Model):
         # process cannot exists without ds -> delete-orphan
         cascade='all, delete, delete-orphan',
     )
+    quick_plot_mapping: Mapped[Optional[CfgQuickPlotDataSource]] = relationship(
+        back_populates='data_source',
+        passive_deletes=True,
+        uselist=False,
+    )
 
     @classmethod
     def get_by_id(cls, id: int, session: scoped_session = None) -> CfgDataSource:
@@ -692,8 +698,8 @@ class CfgDataSource(db.Model):
         meta_session.query(cls).filter(cls.id == data_source_id).update({cls.polling_frequency: polling_frequency})
 
     @classmethod
-    def check_duplicated_name(cls, dbs_name):
-        dbs = cls.query.filter(cls.name == dbs_name).all()
+    def check_duplicated_name(cls, dbs_name, dbs_id):
+        dbs = cls.query.filter(cls.name == dbs_name, cls.id != dbs_id).all()
         return len(dbs) != 0
 
     def is_csv_or_v2(self):
@@ -760,6 +766,72 @@ class CfgDataSource(db.Model):
     @staticmethod
     def get_datasource_types():
         return {d.name: d.value for d in DBType}
+
+
+class CfgQuickPlotUpload(db.Model):
+    """Persist ownership and retention metadata for one Quick Plot upload.
+
+    Attributes:
+        id: Opaque upload identifier returned to the browser.
+        original_filename: Untrusted client filename retained for display only.
+        stored_filename: Timestamped server-side filename preserving the validated Unicode basename.
+        stored_path: Unique absolute path preserving the configured Quick Plot root casing.
+        size_bytes: Published file size.
+        uploaded_at: UTC upload timestamp.
+        file_expires_at: UTC calendar-month retention deadline.
+        last_error: Last retryable file-cleanup error.
+        data_source_mappings: Datasources registered from this upload.
+    """
+
+    __tablename__ = 'cfg_quick_plot_upload'
+    id: Mapped[str] = mapped_column(sa.String(32), primary_key=True)
+    original_filename: Mapped[str]
+    stored_filename: Mapped[str]
+    stored_path: Mapped[str] = mapped_column(unique=True)
+    size_bytes: Mapped[int]
+    uploaded_at: Mapped[str]
+    file_expires_at: Mapped[str] = mapped_column(index=True)
+    last_error: Mapped[Optional[str]]
+
+    data_source_mappings: Mapped[list[CfgQuickPlotDataSource]] = relationship(
+        back_populates='upload',
+        cascade='all, delete, delete-orphan',
+        passive_deletes=True,
+    )
+
+
+class CfgQuickPlotDataSource(db.Model):
+    """Map one Quick Plot upload to a datasource with an independent retention deadline.
+
+    Attributes:
+        id: Surrogate mapping identifier.
+        quick_plot_upload_id: Owning upload identifier.
+        data_source_id: Uniquely owned datasource.
+        registered_at: UTC registration timestamp.
+        expires_at: UTC calendar-month datasource retention deadline.
+        last_error: Last retryable datasource-cleanup error.
+        upload: Parent upload metadata.
+        data_source: Datasource deleted through the existing deletion service.
+    """
+
+    __tablename__ = 'cfg_quick_plot_data_source'
+    __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    quick_plot_upload_id: Mapped[str] = mapped_column(
+        ForeignKey('cfg_quick_plot_upload.id', ondelete='CASCADE'),
+        index=True,
+    )
+    data_source_id: Mapped[int] = mapped_column(
+        ForeignKey('cfg_data_source.id', ondelete='CASCADE'),
+        index=True,
+        unique=True,
+    )
+    registered_at: Mapped[str]
+    expires_at: Mapped[str] = mapped_column(index=True)
+    last_error: Mapped[Optional[str]]
+
+    upload: Mapped[CfgQuickPlotUpload] = relationship(back_populates='data_source_mappings')
+    data_source: Mapped[Optional[CfgDataSource]] = relationship(back_populates='quick_plot_mapping')
 
 
 class CfgDataSourceDB(db.Model):
@@ -1314,8 +1386,9 @@ class CfgProcessColumn(db.Model):
         return {rec.column_raw_name: rec.filter for rec in recs}
 
     @classmethod
-    def get_by_id(cls, col_id: int):
-        return cls.query.get(col_id)
+    def get_by_id(cls, col_id: int, session: scoped_session = None) -> CfgProcessColumn | None:
+        query = session.query(cls) if session else cls.query
+        return query.get(col_id)
 
     @classmethod
     def gen_label_from_col_id(cls, col_id: int):
@@ -2125,11 +2198,36 @@ class CfgProcess(db.Model):
         return [{cls.id.name: proc.id, cls.name.name: proc.shown_name} for proc in processes]
 
     @classmethod
-    def check_duplicated_name(cls, name_en, name_jp, name_local):
-        check_name_en = len(cls.query.filter(cls.name_en == name_en).all()) != 0 if name_en else False
-        check_name_jp = len(cls.query.filter(cls.name_jp == name_jp).all()) != 0 if name_jp else False
-        check_name_local = len(cls.query.filter(cls.name_local == name_local).all()) != 0 if name_local else False
-        return check_name_en, check_name_jp, check_name_local
+    def check_duplicated_name(cls, name_en, name_jp, name_local, proc_id):
+        current_process = cls.query.filter(cls.id == proc_id).first() if proc_id else None
+
+        def is_duplicated(column, value):
+            if not value:
+                return False
+
+            query = cls.query.filter(column == value)
+
+            if current_process:
+                # Check parent id and ignore checking duplicated
+                family_parent_id = (
+                    current_process.parent_id if current_process.parent_id is not None else current_process.id
+                )
+
+                query = query.filter(
+                    cls.id != family_parent_id,
+                    or_(
+                        cls.parent_id.is_(None),
+                        cls.parent_id != family_parent_id,
+                    ),
+                )
+
+            return query.first() is not None
+
+        return (
+            is_duplicated(cls.name_en, name_en),
+            is_duplicated(cls.name_jp, name_jp),
+            is_duplicated(cls.name_local, name_local),
+        )
 
     def table_name_for_query_datetime(self):
         software_workshop_def = self.data_source.software_workshop_def()
@@ -2817,6 +2915,11 @@ class CfgFilter(db.Model):
         cfg_filter = meta_session.query(cls).get(filter_id)
         if cfg_filter:
             meta_session.delete(cfg_filter)
+
+    @classmethod
+    def get_by_process_column_id(cls, column_id: int, session=None) -> list[CfgFilter]:
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.column_id == column_id).all()
 
 
 class CfgVisualization(db.Model):
@@ -3832,8 +3935,9 @@ class CfgExport(CommonModel):
         return query.filter(cls.id == config_id).first()
 
     @classmethod
-    def get_by_process_id(cls, process_id):
-        return cls.query.filter(cls.main_process_id == process_id).all()
+    def get_by_process_id(cls, process_id, session=None):
+        query = session.query(cls) if session else cls.query
+        return query.filter(cls.main_process_id == process_id).all()
 
     @classmethod
     def delete_by_id(cls, meta_session, config_id):

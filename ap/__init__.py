@@ -51,6 +51,7 @@ from ap.common.constants import (
     MAIN_THREAD,
     NO_CACHING_ENDPOINTS,
     PORT,
+    PREVIEW_DATA_DIR,
     PROCESS_QUEUE,
     REQUEST_THREAD_ID,
     RUN_AFTER_REQUEST,
@@ -123,6 +124,7 @@ dic_config = {
     DB_SECRET_KEY: None,
     SQLITE_CONFIG_DIR: None,
     APP_DB_FILE: None,
+    PREVIEW_DATA_DIR: None,
     UNIVERSAL_DB_FILE: None,
     TESTING: None,
     SHUTDOWN: None,
@@ -274,8 +276,10 @@ def create_app(object_name=None, is_main=False):
 
     # db files
     dic_config[APP_DB_FILE] = app.config[APP_DB_FILE]
+    dic_config[PREVIEW_DATA_DIR] = app.config[PREVIEW_DATA_DIR]
     dic_config[UNIVERSAL_DB_FILE] = app.config[UNIVERSAL_DB_FILE]
     make_dir(dic_config[UNIVERSAL_DB_FILE])
+    make_dir(dic_config[PREVIEW_DATA_DIR])
 
     # testing param
     dic_config[TESTING] = app.config.get(TESTING, None)
@@ -443,12 +447,14 @@ def create_app(object_name=None, is_main=False):
 
     @app.before_request
     def before_request_callback():
+        """Initialize request-scoped tracking without eagerly parsing bounded Quick Plot uploads."""
         g.request_start_time = time.time()
         # get the last time user request
         global dic_request_info
 
-        # get api request thread id
-        thread_id = request.form.get(REQUEST_THREAD_ID, None)
+        # Leave Quick Plot's multipart stream untouched so its endpoint can enforce a parser-level size limit.
+        is_quick_plot_upload = request.endpoint == 'api_setting_module.upload_quick_plot_file'
+        thread_id = None if is_quick_plot_upload else request.form.get(REQUEST_THREAD_ID, None)
         set_request_g_dict(thread_id)
 
         resource_type = request.base_url or ''

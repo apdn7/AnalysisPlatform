@@ -539,13 +539,6 @@ const sidebarCollapseHandle = () => {
         resetTimeoutEvent();
         toutEnter = setTimeout(() => {
             clearTimeout(toutClick);
-            $(sidebarEles.dropdownToggle)
-                .unbind('mouseenter')
-                .on('mouseenter', (e) => {
-                    if ($(e.currentTarget).attr('aria-expanded') === 'false') {
-                        $(e.currentTarget).click();
-                    }
-                });
             if (!isSidebarOpen()) sidebarCollapse();
         }, 2000);
     });
@@ -559,10 +552,20 @@ const sidebarCollapseHandle = () => {
         }, 2000);
     });
 
-    $(sidebarEles.dropdownToggle).on('click', function () {
-        const ele = $(this);
+    $(document)
+        .off('click.sidebarCollapse')
+        .on('click.sidebarCollapse', (event) => {
+            if (isSidebarOpen() && !$(event.target).closest(sidebarEles.sid).length) {
+                resetTimeoutEvent();
+                closeSidebar();
+            }
+        });
+
+    $(sidebarEles.dropdownToggle).on('click', function (event) {
         if ($(sidebarEles.sid).hasClass('active')) {
-            sidebarCollapse(ele);
+            event.preventDefault();
+            event.stopPropagation();
+            sidebarCollapse();
         }
     });
     $(sidebarEles.dropdownToggle).on('mouseleave', () => {
@@ -734,7 +737,95 @@ const setIconMonitoring = () => {
     }
 };
 
+// Share one active menu across Bootstrap dropdowns and custom filter panels.
+let closeActiveHoverDropdown = null;
+
+const bindHoverDropdown = (selector, { menuSelector = '.dropdown-menu', onOpen } = {}) => {
+    $(selector).each((i, button) => {
+        const dropdownButton = $(button);
+        const dropdownMenu = dropdownButton.siblings(menuSelector);
+        // Bootstrap uses the "show" class; custom panels use display visibility.
+        const isBootstrapDropdown = dropdownButton.is('[data-toggle="dropdown"]');
+        const isOpen = () => (isBootstrapDropdown ? dropdownMenu.hasClass('show') : dropdownMenu.is(':visible'));
+        let hideTimeout;
+
+        const closeMenu = () => {
+            clearTimeout(hideTimeout);
+            if (isBootstrapDropdown) {
+                if (isOpen()) {
+                    dropdownButton.dropdown('toggle');
+                }
+            } else {
+                dropdownMenu.hide();
+                dropdownButton.attr('aria-expanded', 'false');
+            }
+            // A delayed close for an older menu must not clear the newly active menu.
+            if (closeActiveHoverDropdown === closeMenu) {
+                closeActiveHoverDropdown = null;
+            }
+        };
+
+        const openMenu = () => {
+            clearTimeout(hideTimeout);
+            // Close the previous menu immediately and cancel its pending hide timer.
+            if (closeActiveHoverDropdown && closeActiveHoverDropdown !== closeMenu) {
+                closeActiveHoverDropdown();
+            }
+            if (!isOpen()) {
+                if (isBootstrapDropdown) {
+                    dropdownButton.dropdown('toggle');
+                } else {
+                    dropdownMenu.show();
+                    dropdownButton.attr('aria-expanded', 'true');
+                }
+                if (isOpen()) {
+                    // Run callbacks only on opening, not when moving from the button into its menu.
+                    onOpen?.(button);
+                }
+            }
+            if (isOpen()) {
+                closeActiveHoverDropdown = closeMenu;
+            }
+        };
+
+        if (isBootstrapDropdown) {
+            // Keep Bootstrap positioning, but disable its default click-to-toggle behavior.
+            dropdownButton
+                .dropdown()
+                .off('click.bs.dropdown')
+                .on('click', (event) => {
+                    event.stopPropagation();
+                });
+            // Clear shared state and timers when Bootstrap closes the menu externally.
+            dropdownButton.parent().on('hidden.bs.dropdown', closeMenu);
+        }
+        dropdownButton
+            .add(dropdownMenu)
+            .on('mouseenter', openMenu)
+            .on('mouseleave', () => {
+                // Allow the pointer to cross the gap between the button and the menu.
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(closeMenu, 150);
+            });
+        // Keyboard navigation uses the same exclusive open/close behavior as hovering.
+        dropdownButton.parent().on('keydown', (event) => {
+            if (event.key === 'Escape' && isOpen()) {
+                event.stopPropagation();
+                closeMenu();
+                dropdownButton.trigger('focus');
+            } else if (['ArrowUp', 'ArrowDown'].includes(event.key) && !isOpen()) {
+                openMenu();
+            }
+        });
+    });
+};
+
 $(async () => {
+    bindHoverDropdown('#Bookmark');
+    $('#user-setting-toggle').on('click', () => {
+        // Close any hover menu when the star button opens the bookmark modal.
+        closeActiveHoverDropdown?.();
+    });
     isDirectFromJumpFunction = !!(getParamFromUrl(goToFromJumpFunction) && localStorage.getItem(sortedColumnsKey));
     isLoadingUserSetting = !!localStorage.getItem('loadingSetting');
     // hide userBookmarkBar
@@ -807,26 +898,26 @@ $(async () => {
             };
             newUserSetting.settings.traceDataForm.push(xOrderIndex);
         }
-        applyUserSetting(newUserSetting, null, true);
+        await applyUserSetting(newUserSetting, null, true);
         autoClickShowGraphButton(null, 1);
     } else {
         // load user input on page load
-        setTimeout(() => {
+        setTimeout(async () => {
             // save original setting info
             originalUserSettingInfo = saveOriginalSetting();
             if (userSettingId) {
-                useUserSetting(userSettingId);
+                await useUserSetting(userSettingId);
                 autoClickShowGraphButton(null, userSettingId);
             } else if (loadingSetting) {
                 const loadingSettingObj = JSON.parse(loadingSetting);
                 const isRedirect = loadingSettingObj.redirect;
                 if (isRedirect) {
-                    useUserSetting(loadingSettingObj.settingID);
+                    await useUserSetting(loadingSettingObj.settingID);
                     autoClickShowGraphButton(loadingSetting);
                 }
             } else if (isUseLatestSetting) {
                 useTileInterface('useLatestSetting').reset();
-                useUserSettingOnLoad();
+                await useUserSettingOnLoad();
             }
         }, 100);
     }
@@ -838,28 +929,24 @@ $(async () => {
 
     setUserRule();
 
-    $('[name=pasteCard]').click((e) => {
+    $('[name=pasteCard]').click(async (e) => {
         const divTarget = e.currentTarget.closest('.card-body');
         // console.log(divTarget);
 
         const sharedSetting = JSON.parse(localStorage.getItem(SHARED_USER_SETTING));
-        useUserSetting(null, sharedSetting, divTarget, false, true);
+        await useUserSetting(null, sharedSetting, divTarget, false, true);
 
-        setTimeout(() => {
-            setTooltip($(e.currentTarget), $(baseEles.i18nPasted).text());
-        }, 2000);
+        setTooltip($(e.currentTarget), $(baseEles.i18nPasted).text());
     });
 
-    $('[name=pastePage]').click((e) => {
+    $('[name=pastePage]').click(async (e) => {
         const key = e?.isDirectFromJumpFunction ? JUMP_SHARED_USER_SETTING : SHARED_USER_SETTING;
         const localShareSetting = getLocalStorageShareUserSetting(key);
         const sharedSetting = localShareSetting?.settings?.traceDataForm || null;
-        useUserSetting(null, sharedSetting, null, false, true);
+        await useUserSetting(null, sharedSetting, null, false, true);
 
-        setTimeout(() => {
-            setTooltip($(e.currentTarget), $(baseEles.i18nPasted).text());
-            // localStorage.removeItem('srcSetting');
-        }, 2000);
+        setTooltip($(e.currentTarget), $(baseEles.i18nPasted).text());
+        // localStorage.removeItem('srcSetting');
     });
 
     $('[name=copyPage]').click(function () {
@@ -1536,6 +1623,7 @@ const updateCleansing = (inputEle) => {
 const cleansingHandling = () => {
     const openEvent = new Event('open', { bubbles: true });
     $('.custom-selection-event')
+        .not('.filter-label-btn-event')
         .off('click')
         .on('click', (e) => {
             const contentDOM = $(e.target)
@@ -2290,3 +2378,20 @@ const checkIsUpdateXY = (newXY, currentXY) => {
     }
     return false;
 };
+
+const onApplyStyleSetting = () => {
+    const setting = window.getStyleLayout?.();
+
+    if (setting) {
+        window.handleOnchangeTheme?.(setting.theme);
+        window.handleOnchangeFontsize?.(setting.size);
+    }
+};
+
+function debounce(fn, delay) {
+    let timer = null;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}

@@ -511,14 +511,6 @@ function ajaxRequest(params) {
     return json;
 }
 
-function debounce(fn, delay) {
-    let timer = null;
-    return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, args), delay);
-    };
-}
-
 const setUpFilterEvents = () => {
     // Event listeners for job filter checkboxes
     document.querySelectorAll('input[name="jobFilter"]').forEach((checkbox) => {

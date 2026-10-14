@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-import json
 import os
 import re
+import unicodedata
 from contextlib import suppress
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from itertools import chain
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -21,11 +24,27 @@ from ap.api.setting_module.services.csv_import import (
 from ap.api.setting_module.services.data_import import (
     NA_VALUES,
     PANDAS_DEFAULT_NA,
-    validate_data,
     validate_datetime,
 )
 from ap.api.setting_module.services.equations import get_all_normal_columns_for_functions
 from ap.api.setting_module.services.master_data_transform_pattern import ColumnRawNameRule
+from ap.api.setting_module.services.preview_data import (
+    PreviewDataset,
+    PreviewMetadata,
+    PreviewProcessingStage,
+    PreviewRequestContext,
+    PreviewSourceError,
+    PreviewSourceKind,
+    PreviewStorageError,
+    build_datasource_location_fingerprint,
+    build_preview_fingerprint,
+)
+from ap.api.setting_module.services.preview_parquet import (
+    get_datasource_preview_path,
+    get_process_preview_path,
+    read_stored_preview,
+    write_preview_atomic,
+)
 from ap.api.setting_module.services.software_workshop_etl_services import (
     POSTGRES_SOFTWARE_WORKSHOP_DEF,
 )
@@ -42,8 +61,9 @@ from ap.api.setting_module.services.web_api import WebAPI
 from ap.common.common_utils import (
     WebAuthenticationType,
     convert_eu_decimal_series,
-    convert_numeric_by_type,
+    convert_numeric_by_type_core,
     get_csv_delimiter,
+    is_int_64,
     is_ja_locale,
 )
 from ap.common.constants import (
@@ -58,7 +78,11 @@ from ap.common.constants import (
     HALF_WIDTH_SPACE,
     IS_JUDGE,
     JUDGE_AVAILABLE,
+    MAX_SAFE_INTEGER,
     MAXIMUM_V2_PREVIEW_ZIP_FILES,
+    PREVIEW_DISPLAY_LIMIT,
+    PREVIEW_EXTERNAL_ANALYSIS_LIMIT,
+    PREVIEW_SCHEMA_VERSION,
     RE_ID_PATTERN,
     RE_SERIAL_PATTERN,
     REVERSED_WELL_KNOWN_COLUMNS,
@@ -66,28 +90,23 @@ from ap.common.constants import (
     SUB_PART_NO_DEFAULT_SUFFIX,
     SUB_PART_NO_PREFIX,
     SUB_PART_NO_SUFFIX,
-    UNDER_SCORE,
-    V2_PREVIEW_LIMIT,
     CSVExtTypes,
     DataColumnType,
     DataGroupType,
     DataType,
     DBType,
-    DefinedLabel,
     MasterDBType,
     ProcessColumnConst,
 )
 from ap.common.log import log_execution_time
-from ap.common.memoize import CustomCache
+from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.path_utils import (
-    check_exist,
     filter_files_by_select_condition,
-    get_preview_data_file_folder,
     get_sorted_files,
     get_sorted_files_by_size,
-    make_dir_from_file_path,
 )
 from ap.common.pydn.dblib import mssqlserver, oracle
+from ap.common.pydn.dblib.db_common import add_double_quote, gen_select_col_str
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.common.services.csv_content import (
@@ -97,10 +116,16 @@ from ap.common.services.csv_header_wrapr import (
     convert_wellknown_col_name,
     gen_colsname_for_duplicated,
 )
-from ap.common.services.data_type import gen_data_types
-from ap.common.services.http_content import orjson_dumps
+from ap.common.services.data_type import (
+    check_data_type,
+    convert_df_str_to_others,
+    gen_data_types_core,
+    gen_data_types_from_prepared,
+    prepare_data_type_values,
+)
 from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji, to_romaji_en
 from ap.common.services.normalization import (
+    NORMALIZE_FORM_NFKC,
     ColumnRenamer,
     normalize_big_rows,
     normalize_list,
@@ -127,62 +152,88 @@ from ap.setting_module.models import (
     make_session,
 )
 from ap.setting_module.schemas import VisualizationSchema
-from ap.setting_module.services.process_config import get_process_columns
-from ap.trace_data.transaction_model import TransactionData
+
+_PREVIEW_NA_VALUES = frozenset(str(value).lower() for value in NA_VALUES)
 
 
-def get_latest_records(
-    data_source_id,
-    table_name,
-    file_name=None,
-    directory=None,
-    limit=5,
-    current_process_id: int | None = None,
-    is_v2_datasource=False,
-    filtered_process_name=None,
-    process_factid=None,
-    master_type: MasterDBType = None,
-    etl_func: str = '',
-    import_filter=None,
-    api_url: str | None = None,
-    ja_locale: bool | None = None,
-):
-    previewed_files = None
-    cols_with_types = []
-    delimiter = 'Auto'
+def resolve_preview_source(
+    current_process_id: int | None,
+    refresh_preview: bool,
+    *,
+    internal_has_rows: bool = False,
+    parquet_available: bool = False,
+) -> PreviewSourceKind | None:
+    """Classify available sources without authorizing generation on a cache miss.
+
+    The main-preview resolver separately opts into external fallback; sample
+    sub-queries must not gain that permission from this compatibility helper.
+    """
+    if refresh_preview or current_process_id is None:
+        return PreviewSourceKind.EXTERNAL
+    if internal_has_rows:
+        return PreviewSourceKind.INTERNAL
+    if parquet_available:
+        return PreviewSourceKind.PARQUET
+    return None
+
+
+@dataclass
+class ExternalPreviewSourceData:
+    """Raw external adapter output for the PREPARED-preview pipeline."""
+
+    dataframe: pd.DataFrame
+    columns: list[str]
+    raw_columns: list[str]
+    data_types: list[int] | None
+    same_values: list[dict[str, bool]] | None
+    previewed_files: list[str] | None
+    has_ct_col: bool | None
+    dummy_datetime_idx: int | None
+    file_name_col_idx: int | None
+    is_v2_history: bool
+    is_gen_cols: list[bool] | None
+    data_source: CfgDataSource | None
+    is_csv_or_v2: bool
+    master_type: MasterDBType | None
+    needs_value_normalization: bool
+    file_name_samples: list[str] | None = None
+    dict_column_name_and_unit: dict[str, str] = field(default_factory=dict)
+
+
+def load_external_preview_source_data(context: PreviewRequestContext) -> ExternalPreviewSourceData:
+    """Load up to the external analysis limit through the existing source adapters."""
+    data_source: CfgDataSource | None = None
+    directory = context.directory
+    file_name = context.file_name
+    delimiter = context.delimiter or 'Auto'
     skip_head = None
     n_rows = None
-    is_transpose = None
-    has_ct_col = True
-    dummy_datetime_idx = None
-    file_name_col_idx = None
+    is_transpose = False
     is_file_checker = False
-    data_source: CfgDataSource | None = None
+    is_v2_datasource = context.is_v2_datasource
+    master_type = context.master_type
+    api_url = context.api_url
+    etl_func = context.etl_func
+    filtered_process_name = context.filtered_process_name
     file_name_include = None
     file_name_exclude = None
     subfolder_include = None
     subfolder_exclude = None
 
-    if ja_locale is None:
-        ja_locale = is_ja_locale()
-
-    if data_source_id:
-        data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
-        if not api_url and data_source.web_detail:
-            api_url = data_source.web_detail.url
-        if not data_source:
-            return None
+    if context.data_source_id is not None:
+        data_source = CfgDataSource.query.get(context.data_source_id)
+        if data_source is None:
+            raise PreviewSourceError(f'Data source does not exist: {context.data_source_id}')
         is_v2_datasource = is_v2_data_source(ds_type=data_source.type)
-        is_csv_or_v2 = data_source.type.lower() in [DBType.CSV.name.lower(), DBType.V2.name.lower()]
+        is_csv_or_v2 = data_source.type.lower() == DBType.CSV.name.lower() or is_v2_datasource
+        if data_source.web_detail and not api_url:
+            api_url = data_source.web_detail.url
         if is_csv_or_v2:
             csv_detail = data_source.csv_detail
-            if not filtered_process_name:
-                filtered_process_name = csv_detail.process_name or False
             directory = csv_detail.directory
-            if not file_name:
-                file_name = csv_detail.directory if csv_detail.is_file_path else None
-            delimiter = csv_detail.delimiter
+            file_name = file_name or (csv_detail.directory if csv_detail.is_file_path else None)
             etl_func = csv_detail.etl_func
+            filtered_process_name = filtered_process_name or csv_detail.process_name or False
             skip_head = csv_detail.skip_head
             n_rows = csv_detail.n_rows
             is_transpose = csv_detail.is_transpose
@@ -198,329 +249,717 @@ def get_latest_records(
     else:
         is_csv_or_v2 = True
 
+    selected_raw_columns = list(context.requested_raw_column_names)
+    if selected_raw_columns and context.process_id is not None:
+        for dependency_column in (
+            CfgProcessColumn.get_col_main_date(context.process_id),
+            CfgProcessColumn.get_col_main_time(context.process_id),
+        ):
+            if dependency_column and dependency_column.column_raw_name not in selected_raw_columns:
+                selected_raw_columns.append(dependency_column.column_raw_name)
     if is_csv_or_v2:
         if is_v2_datasource:
-            dic_preview = preview_v2_data(
+            preview_data = preview_v2_data(
                 directory,
                 delimiter,
-                limit,
+                PREVIEW_EXTERNAL_ANALYSIS_LIMIT,
                 return_df=True,
                 process_name=filtered_process_name,
                 file_name=file_name,
                 show_file_name_column=True,
             )
         else:
-            dic_preview = preview_csv_data(
+            preview_data = preview_csv_data(
                 directory,
                 etl_func,
                 delimiter,
-                limit,
+                PREVIEW_EXTERNAL_ANALYSIS_LIMIT,
                 return_df=True,
-                max_records=DATA_TYPE_ESTIMATION_LIMIT,
+                max_records=PREVIEW_EXTERNAL_ANALYSIS_LIMIT,
                 file_name=file_name,
                 skip_head=skip_head,
                 n_rows=n_rows,
                 is_transpose=is_transpose,
                 show_file_name_column=True,
-                current_process_id=current_process_id,
+                current_process_id=context.process_id,
                 is_file_checker=is_file_checker,
-                encoding=(data_source.csv_detail.encoding if data_source else None),
+                encoding=context.encoding,
+                auto_encoding=context.auto_encoding,
+                fast_preview=True,
+                selected_columns=selected_raw_columns,
                 file_name_include=file_name_include,
                 file_name_exclude=file_name_exclude,
                 subfolder_include=subfolder_include,
                 subfolder_exclude=subfolder_exclude,
             )
-        column_raw_names = dic_preview.get('org_headers')
-        headers = normalize_list(dic_preview.get('header'))
-        headers = [normalize_str(col) for col in headers]
-        data_types = dic_preview.get('dataType')
-        has_ct_col = dic_preview.get('has_ct_col')
-        dummy_datetime_idx = dic_preview.get('dummy_datetime_idx')
-        file_name_col_idx = dic_preview.get('file_name_col_idx')
-        same_values = dic_preview.get('same_values')
-        is_v2_history = dic_preview.get('v2_type') == DBType.V2_HISTORY.value
-        is_gen_cols = dic_preview.get('is_gen_cols')
-        if headers and data_types:
-            cols_with_types = gen_cols_with_types(
-                headers,
-                data_types,
-                same_values,
-                is_v2_history,
-                column_raw_names,
-                dummy_datetime_idx=dummy_datetime_idx,
-                file_name_idx=file_name_col_idx,
-                is_gen_cols=is_gen_cols,
-                import_filter=import_filter,
-                master_type=master_type,
-                ja_locale=ja_locale,
-            )
+        headers = [normalize_str(column) for column in normalize_list(preview_data.get('header'))]
+        return ExternalPreviewSourceData(
+            dataframe=preview_data.get('content', pd.DataFrame()),
+            columns=headers,
+            raw_columns=preview_data.get('org_headers') or [],
+            data_types=preview_data.get('dataType'),
+            same_values=preview_data.get('same_values'),
+            previewed_files=preview_data.get('previewed_files'),
+            has_ct_col=preview_data.get('has_ct_col'),
+            dummy_datetime_idx=preview_data.get('dummy_datetime_idx'),
+            file_name_col_idx=preview_data.get('file_name_col_idx'),
+            is_v2_history=preview_data.get('v2_type') == DBType.V2_HISTORY.value,
+            is_gen_cols=preview_data.get('is_gen_cols'),
+            data_source=data_source,
+            is_csv_or_v2=True,
+            master_type=master_type,
+            needs_value_normalization=bool(preview_data.get('deferred_value_normalization')),
+            file_name_samples=preview_data.get('file_name_samples'),
+        )
 
-        # sort columns
-        # sorted(csv_detail.csv_columns, key=lambda c: c.order or c.id)
-        # cols = {col.column_name for col in sorted_columns if col.column_name in headers}
-        cols = headers
-
-        # get rows
-        df_rows = dic_preview.get('content', None)
-        previewed_files = dic_preview.get('previewed_files')
-    elif api_url:
-        authentication_type: WebAuthenticationType = WebAuthenticationType[data_source.web_detail.authentication_type]
+    if api_url:
+        authentication_type = WebAuthenticationType[data_source.web_detail.authentication_type]
         web_api = WebAPI(
             api_url,
             username=data_source.web_detail.username,
             encrypted_password=data_source.web_detail.password,
             authentication_type=authentication_type,
         )
-        api_data = web_api.get_data(limit=DATA_TYPE_ESTIMATION_LIMIT)
-        cols, df_rows, dict_column_name_and_unit = api_data.cols, api_data.df_rows, api_data.dict_column_name_and_unit
-        data_types = [gen_data_types(df_rows[col]) for col in cols]
-        same_values = check_same_values_in_df(df_rows, cols)
-        if cols and data_types:
-            cols_with_types = gen_cols_with_types(
-                normalize_list(cols),
-                data_types,
-                same_values,
-                column_raw_name=cols,
-                dict_column_name_and_unit=dict_column_name_and_unit,
-                ja_locale=ja_locale,
-            )
-    else:
-        if current_process_id is not None:
-            proc_cfg: CfgProcess = CfgProcess.get_proc_by_id(int(current_process_id))
-            process_factid = process_factid or proc_cfg.process_factid
-            master_type = master_type or proc_cfg.master_type
-        cols, df_rows, dict_column_name_and_unit = get_info_from_db(
-            data_source,
-            table_name,
-            process_factid=process_factid,
+        api_data = web_api.get_data(limit=PREVIEW_EXTERNAL_ANALYSIS_LIMIT)
+        return ExternalPreviewSourceData(
+            dataframe=api_data.df_rows,
+            columns=api_data.cols,
+            raw_columns=api_data.cols,
+            data_types=None,
+            same_values=None,
+            previewed_files=None,
+            has_ct_col=True,
+            dummy_datetime_idx=None,
+            file_name_col_idx=None,
+            is_v2_history=False,
+            is_gen_cols=None,
+            data_source=data_source,
+            is_csv_or_v2=False,
             master_type=master_type,
-            sql_limit=DATA_TYPE_ESTIMATION_LIMIT,
+            needs_value_normalization=False,
+            dict_column_name_and_unit=api_data.dict_column_name_and_unit,
         )
-        if etl_func:
-            df_rows = df_transform(df_rows, etl_func)
-            cols = list(df_rows.columns)
-        data_types = [gen_data_types(df_rows[col]) for col in cols]
-        same_values = check_same_values_in_df(df_rows, cols)
-        if cols and data_types:
-            cols_with_types = gen_cols_with_types(
-                normalize_list(cols),
-                data_types,
-                same_values,
-                column_raw_name=cols,
-                dict_column_name_and_unit=dict_column_name_and_unit,
-                import_filter=import_filter,
-                master_type=master_type,
-                ja_locale=ja_locale,
-            )
 
-    # change name if romaji cols is duplicated
-    cols_with_types, cols_duplicated = change_duplicated_columns(cols_with_types)
-    if is_csv_or_v2 and DataType.DATETIME.value not in data_types:
-        dummy_datetime_idx = 0
-        cols_with_types.insert(
-            dummy_datetime_idx,
-            {
-                'column_name': DATETIME_DUMMY,
-                'data_type': DataType.DATETIME.name,
-                'romaji': DATETIME_DUMMY,
-                'is_date': True,
-                'check_same_value': {'is_null': False, 'is_same': False},
-                'is_checked': True,
-                'is_show': True,
-                'is_dummy_datetime': True,
-            },
-        )
-        cols.insert(dummy_datetime_idx, DATETIME_DUMMY)
-        if is_valid_list(df_rows):
-            df_rows = gen_dummy_datetime(df_rows)
-
-    # filter preview data
-    filters = get_import_filter_for_preview(filter_dict=import_filter or {})
-    df_rows = get_preview_df_with_filter(df_rows, filters)
-
-    # if DATETIME_DUMMY in cols or DataType.DATETIME.value not in data_types:
-    #     dummy_datetime_idx = 0
-    #     has_ct_col = False
-
-    labels = [DefinedLabel.get_by_dbtype(DBType[data_source.type])] if data_source else []
-    rows = []
-    unique_rows_as_category = []
-    unique_rows_as_real = []
-    unique_rows_as_int = []
-    unique_rows_as_int_cat = []
-    df_unique_as_category = pd.DataFrame()
-    df_unique_as_real = pd.DataFrame()
-    df_unique_as_int = pd.DataFrame()
-    df_unique_as_int_cat = pd.DataFrame()
-    col_names = [col['column_name'] for col in cols_with_types]
-    # TODO: How do we make sure col_names and df_rows.columns are in correct order?
-    df_rows.columns = col_names
-    df_unique_sample_processing = df_rows.copy()
-    if is_valid_list(df_rows):
-        for index, col in enumerate(df_rows.columns):
-            judge_formula = JudgeFormula.detect(df_rows[col])
-            cols_with_types[index][IS_JUDGE] = False
-            if judge_formula is not None:
-                cols_with_types[index][JUDGE_AVAILABLE] = True
-                cols_with_types[index][FORMULA] = judge_formula.get_formula()
-            else:
-                cols_with_types[index][JUDGE_AVAILABLE] = False
-
-        # check is judge
-        for index, col in enumerate(df_rows.columns):
-            # check name includes Judge or 判定
-            # the detected datatype should also be TEXT
-            if (
-                JUDGE_NAME_REGEX.search(col)
-                and cols_with_types[index][JUDGE_AVAILABLE]
-                and cols_with_types[index][COL_DATA_TYPE] == DataType.TEXT.name
-            ):
-                cols_with_types[index][IS_JUDGE] = True
-                # force assign boolean datatype to column detected as judge (#676)
-                # TODO: should be actually use raw_data_type here? (it was never available in this flow)
-                cols_with_types[index][COL_DATA_TYPE] = DataType.BOOLEAN.name
-                break
-
-        data_type_by_cols = {}
-        for col_data in cols_with_types:
-            data_type_by_cols[col_data['column_name']] = col_data['data_type']
-        # convert to correct dtypes
-        for col in df_rows.columns:
-            try:
-                if data_type_by_cols[col] in [
-                    DataType.INTEGER_SEP.name,
-                    DataType.EU_INTEGER_SEP.name,
-                    DataType.REAL_SEP.name,
-                    DataType.EU_REAL_SEP.name,
-                ]:
-                    df_unique_sample_processing[col] = convert_eu_decimal_series(
-                        df_unique_sample_processing[col],
-                        data_type_by_cols[col],
-                    )
-                df_unique_as_category[col] = parse_unique_as_category(df_unique_sample_processing[col])
-                df_unique_as_real[col] = parse_unique_as_real(
-                    df_unique_sample_processing[col],
-                )
-                df_unique_as_int[col] = parse_unique_as_int(
-                    df_unique_sample_processing[col],
-                )
-                df_unique_as_int_cat[col] = parse_unique_as_int_cat(
-                    df_unique_sample_processing[col],
-                )
-                if data_type_by_cols[col] == DataType.INTEGER.name:
-                    # TODO: this line always emit errors if our data has empty string!!!!
-                    # See: https://gitlab.com/dot-asterisk/biz-app/analysis-interface/analysisinterface/-/issues/138
-                    df_rows[col] = df_rows[col].astype('float64').astype('Int64')
-
-                if data_type_by_cols[col] == DataType.TEXT.name:
-                    df_rows[col] = df_rows[col].astype(pd.StringDtype())
-                    # if original data is boolean, it should be convert to lower string
-                    # same as text from sql (true/false), instead of python bool type (True/False)
-                    if pd.api.types.is_bool_dtype(df_rows[col]):
-                        df_rows[col] = df_rows[col].str.lower()
-                    # fill na to '' for string column
-                    df_rows[col] = df_rows[col].fillna('')
-            except Exception as e:
-                logger.exception(e)
-                continue
-
-        df_rows[df_rows.select_dtypes(include=['datetime64[ns]']).columns] = df_rows.select_dtypes(
-            include=['datetime64[ns]']
-        ).astype('string')
-
-        rows = transform_df_to_rows(col_names, df_rows, limit)
-        if is_csv_or_v2 and directory and (file_name_col_idx is not None):
-            file_name_candidates = get_sorted_files(directory)
-            file_name_candidates = filter_files_by_select_condition(
-                file_name_candidates,
-                directory,
-                file_name_include=file_name_include,
-                file_name_exclude=file_name_exclude,
-                subfolder_include=subfolder_include,
-                subfolder_exclude=subfolder_exclude,
-            )
-            file_name_data = pd.Series([os.path.basename(path) for path in file_name_candidates])
-            file_name_col_name = col_names[file_name_col_idx]
-            df_unique_as_category[file_name_col_name] = parse_unique_as_category(file_name_data)
-            df_unique_as_real[file_name_col_name] = parse_unique_as_real(file_name_data)
-            df_unique_as_int[file_name_col_name] = parse_unique_as_int(file_name_data)
-            df_unique_as_int_cat[file_name_col_name] = parse_unique_as_int_cat(file_name_data)
-        unique_rows_as_category = transform_df_to_rows(col_names, df_unique_as_category, 10)
-        unique_rows_as_real = transform_df_to_rows(col_names, df_unique_as_real, 10)
-        unique_rows_as_int = transform_df_to_rows(col_names, df_unique_as_int, 10)
-        unique_rows_as_int_cat = transform_df_to_rows(col_names, df_unique_as_int_cat, 10)
-    is_rdb = not is_csv_or_v2
-    return (
-        cols_with_types,
-        rows,
-        cols_duplicated,
-        previewed_files,
-        has_ct_col,
-        dummy_datetime_idx,
-        is_rdb,
-        file_name_col_idx,
-        unique_rows_as_category,
-        unique_rows_as_real,
-        unique_rows_as_int,
-        unique_rows_as_int_cat,
-        labels,
+    if data_source is None:
+        raise PreviewSourceError('A registered datasource is required for an RDB preview')
+    if context.process_id is not None:
+        process = CfgProcess.get_proc_by_id(context.process_id)
+        process_factid = context.process_factid or process.process_factid
+        master_type = master_type or process.master_type
+    else:
+        process_factid = context.process_factid
+    rdb_load_kwargs: dict[str, Any] = {
+        'process_factid': process_factid,
+        'master_type': master_type,
+        'sql_limit': PREVIEW_EXTERNAL_ANALYSIS_LIMIT,
+        'selected_columns': tuple(selected_raw_columns) if selected_raw_columns and not context.etl_func else None,
+    }
+    if context.refresh_preview:
+        rdb_load_kwargs['optional_cache_config'] = OptionalCacheConfig(override=True)
+    columns, dataframe, units = get_info_from_db(data_source, context.table_name, **rdb_load_kwargs)
+    return ExternalPreviewSourceData(
+        dataframe=dataframe,
+        columns=columns,
+        raw_columns=columns,
+        data_types=None,
+        same_values=None,
+        previewed_files=None,
+        has_ct_col=True,
+        dummy_datetime_idx=None,
+        file_name_col_idx=None,
+        is_v2_history=False,
+        is_gen_cols=None,
+        data_source=data_source,
+        is_csv_or_v2=False,
+        master_type=master_type,
+        needs_value_normalization=False,
+        dict_column_name_and_unit=units,
     )
 
 
-def get_sample_from_preview_data(preview_data, columns: list[CfgProcessColumn]):
-    link_cols = {col.column_name: str(col.id) for col in columns}
-    # make dic use cols for validate and parse sensor value by selected type
-    dic_use_cols = {col.column_name: col for col in columns}
-    # bind data from preview_data
-    df = pd.DataFrame(data=preview_data['rows'])
-    # we don't need to pass na values, because the data from `preview_data` is json
-    df = validate_data(df, dic_use_cols)
-    df = df[list(link_cols.keys())]
-    # use column id to get easier from frontend
-    df = df.rename(columns=link_cols)
+def load_external_preview_dataset(context: PreviewRequestContext) -> PreviewDataset:
+    """Build a full, filtered PREPARED dataset from an external source exactly once."""
+    source = load_external_preview_source_data(context)
+    dataframe, columns, raw_columns = _prepare_external_preview_dataframe(source, context)
+    source_data_types = _get_reusable_source_data_types(source, columns, context)
+    if source_data_types is None:
+        inference_dataframe = dataframe
+        if source.needs_value_normalization:
+            inference_dataframe = _normalize_preview_dataframe(dataframe.copy())
+            inference_dataframe = inference_dataframe.apply(clean_na_columns)
+        data_types, same_values = gen_data_types_and_same_values(inference_dataframe, columns)
+    else:
+        data_types = source_data_types
+        same_values = (
+            [dict(same_value) for same_value in source.same_values]
+            if source.same_values is not None and len(source.same_values) == len(columns)
+            else _check_same_values_with_deferred_normalization(dataframe, columns)
+        )
+    columns_metadata = gen_cols_with_types(
+        normalize_list(columns),  # we might be able to normalize columns at _prepare_external_preview_dataframe
+        data_types,
+        same_values,
+        source.is_v2_history,
+        raw_columns,
+        source.dict_column_name_and_unit,
+        dummy_datetime_idx=source.dummy_datetime_idx,
+        file_name_idx=source.file_name_col_idx,
+        is_gen_cols=source.is_gen_cols or [],
+        import_filter=context.import_filter,
+        master_type=source.master_type,
+    )
+    columns_metadata, cols_duplicated = change_duplicated_columns(columns_metadata)
+    dataframe = _filter_external_preview_dataframe(dataframe, source, context)
+    prepared_columns = [column['column_name'] for column in columns_metadata]
+    dataframe.columns = prepared_columns
+    _annotate_preview_judge_columns(dataframe, columns_metadata)
+    timestamp = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
+    source_type = source.data_source.type if source.data_source is not None else DBType.CSV.name
+    metadata = PreviewMetadata(
+        schema_version=PREVIEW_SCHEMA_VERSION,
+        source_kind=PreviewSourceKind.EXTERNAL,
+        origin_source_kind=PreviewSourceKind.EXTERNAL,
+        processing_stage=PreviewProcessingStage.PREPARED,
+        fingerprint=build_preview_fingerprint(
+            context,
+            source_type=source_type,
+            selected_columns=raw_columns,
+        ),
+        data_source_id=context.data_source_id,
+        process_id=context.process_id,
+        created_at=timestamp,
+        refreshed_at=timestamp,
+        row_count=len(dataframe),
+        column_count=len(dataframe.columns),
+        columns=columns_metadata,
+        cols_duplicated=cols_duplicated,
+        previewed_files=source.previewed_files,
+        has_ct_col=source.has_ct_col,
+        dummy_datetime_idx=source.dummy_datetime_idx,
+        is_rdb=not source.is_csv_or_v2,
+        file_name_col_idx=source.file_name_col_idx,
+        source_column_names=[column['column_name'] for column in columns_metadata],
+        file_name_samples=source.file_name_samples,
+    )
+    return PreviewDataset(dataframe=dataframe, metadata=metadata)
+
+
+def _get_reusable_source_data_types(
+    source: ExternalPreviewSourceData,
+    columns: list[str],
+    context: PreviewRequestContext,
+) -> list[int] | None:
+    """Reuse CSV adapter datatypes when later processing cannot change them."""
+    is_v2_source = context.is_v2_datasource or (
+        source.data_source is not None and is_v2_data_source(ds_type=source.data_source.type)
+    )
+    if not source.is_csv_or_v2 or is_v2_source or source.data_types is None or len(source.data_types) != len(columns):
+        return None
+
+    return list(source.data_types)
+
+
+def _get_registered_preview_source_column_names(
+    context: PreviewRequestContext,
+    process_preview_path: Path,
+) -> list[str] | None:
+    """Load the source-schema baseline from Process Parquet."""
+    try:
+        stored_dataset = read_stored_preview(process_preview_path)
+    except PreviewStorageError:
+        logger.exception('Unable to read Process Preview Parquet for process {}', context.process_id)
+        stored_dataset = None
+    if stored_dataset is not None and stored_dataset.metadata.source_column_names is not None:
+        return stored_dataset.metadata.source_column_names
+    return None
+
+
+def create_external_preview(context: PreviewRequestContext) -> PreviewDataset:
+    """Prepare and atomically persist one external preview."""
+    process_preview_path = None
+    registered_source_column_names = None
+    if context.process_id is not None and context.data_source_id is not None:
+        process_preview_path = get_process_preview_path(context.data_source_id, context.process_id)
+        registered_source_column_names = _get_registered_preview_source_column_names(context, process_preview_path)
+
+    dataset = load_external_preview_dataset(context)
+    if process_preview_path is not None:
+        process_columns = TransactionData(context.process_id).get_preview_column_metadata()
+        dataset.metadata.fingerprint = build_preview_fingerprint(
+            context,
+            source_type='process',
+            selected_columns=tuple(column['column_name'] for column in process_columns),
+            process_column_configurations=process_columns,
+        )
+        dataset.metadata.source_column_names = registered_source_column_names or dataset.metadata.source_column_names
+        dataset.metadata.is_refresh_preview = context.refresh_preview
+        preview_path = process_preview_path
+    else:
+        location_fingerprint = build_datasource_location_fingerprint(context)
+        dataset.metadata.fingerprint = location_fingerprint
+        preview_path = get_datasource_preview_path(context, location_fingerprint)
+    write_preview_atomic(preview_path, dataset)
+    return dataset
+
+
+def _prepare_external_preview_dataframe(
+    source: ExternalPreviewSourceData,
+    context: PreviewRequestContext,
+) -> tuple[pd.DataFrame, list[str], list[str]]:
+    """Apply transformations that precede metadata inference."""
+    dataframe = source.dataframe.copy()
+    columns = list(source.columns) or list(dataframe.columns)
+    if len(columns) == len(dataframe.columns):
+        dataframe.columns = columns
+    else:
+        columns = list(dataframe.columns)
+
+    # CSV/V2 adapters already apply their extraction, ETL, and generated columns.
+    # RDB data applies its configured ETL after loading, matching get_latest_records.
+    if not source.is_csv_or_v2 and context.etl_func:
+        dataframe = df_transform(dataframe, context.etl_func)
+        columns = list(dataframe.columns)
+
+    raw_columns = list(source.raw_columns)
+    if len(raw_columns) != len(columns):
+        raw_columns = columns.copy()
+    return dataframe, columns, raw_columns
+
+
+def _filter_external_preview_dataframe(
+    dataframe: pd.DataFrame,
+    source: ExternalPreviewSourceData,
+    context: PreviewRequestContext,
+) -> pd.DataFrame:
+    """Apply import filters after metadata inference and finish normalization."""
+    filters = get_import_filter_for_preview(filter_dict=context.import_filter or {})
+    if source.needs_value_normalization:
+        filter_columns = [filter_item.get('column_name') for filter_item in filters]
+        dataframe = _normalize_dataframe_columns(dataframe, filter_columns)
+        existing_filter_columns = [column for column in filter_columns if column in dataframe.columns]
+        if existing_filter_columns:
+            dataframe[existing_filter_columns] = dataframe[existing_filter_columns].apply(clean_na_columns)
+
+    dataframe = get_preview_df_with_filter(dataframe, filters)
+    if source.needs_value_normalization:
+        dataframe = _normalize_preview_dataframe(dataframe.copy())
+        dataframe = dataframe.apply(clean_na_columns)
+
+    return dataframe
+
+
+def _annotate_preview_judge_columns(dataframe: pd.DataFrame, columns_metadata: list[dict[str, Any]]) -> None:
+    """Populate Judge detection from the complete filtered analysis sample."""
+    for column_metadata in columns_metadata:
+        column_name = column_metadata['column_name']
+        judge_formula = JudgeFormula.detect(dataframe[column_name])
+        column_metadata[IS_JUDGE] = False
+        if judge_formula is None:
+            column_metadata[JUDGE_AVAILABLE] = False
+            continue
+        column_metadata[JUDGE_AVAILABLE] = True
+        column_metadata[FORMULA] = judge_formula.get_formula()
+
+    for column_metadata in columns_metadata:
+        column_name = column_metadata['column_name']
+        if (
+            JUDGE_NAME_REGEX.search(column_name)
+            and column_metadata[JUDGE_AVAILABLE]
+            and column_metadata[COL_DATA_TYPE] == DataType.TEXT.name
+        ):
+            column_metadata[IS_JUDGE] = True
+            column_metadata[COL_DATA_TYPE] = DataType.BOOLEAN.name
+            break
+
+
+def build_preview_response(dataset: PreviewDataset, limit: int = PREVIEW_DISPLAY_LIMIT) -> dict[str, Any]:
+    """Format display rows without mutating the PREPARED analysis DataFrame."""
+    display_limit = max(limit, 0)
+    dataframe = _format_preview_response_dataframe(
+        dataset.dataframe.head(display_limit).copy(),
+        dataset.metadata.columns,
+    )
+    columns = [column['column_name'] for column in dataset.metadata.columns]
+    response_columns = [_to_public_preview_column(column) for column in dataset.metadata.columns]
+    return {
+        'cols': response_columns,
+        'rows': transform_df_to_rows(columns, dataframe, display_limit),
+        'cols_duplicated': dataset.metadata.cols_duplicated,
+        'previewed_files': dataset.metadata.previewed_files,
+        'has_ct_col': dataset.metadata.has_ct_col,
+        'dummy_datetime_idx': dataset.metadata.dummy_datetime_idx,
+        'is_rdb': dataset.metadata.is_rdb,
+        'file_name_col_idx': dataset.metadata.file_name_col_idx,
+    }
+
+
+_PUBLIC_PREVIEW_COLUMN_KEYS = (
+    'column_name',
+    'column_raw_name',
+    'data_type',
+    'name_en',
+    'name_jp',
+    'name_local',
+    'romaji',
+    'unit',
+    'filter',
+    'formula',
+    'column_type',
+    'is_get_date',
+    'is_serial_no',
+    'is_main_serial_no',
+    'is_dummy_datetime',
+    'is_file_name',
+    'is_auto_increment',
+    'check_same_value',
+    'is_checked',
+    'is_show',
+    JUDGE_AVAILABLE,
+    IS_JUDGE,
+)
+
+
+def _to_public_preview_column(column: dict[str, Any]) -> dict[str, Any]:
+    """Remove persistence-only Process fields at the Preview response boundary."""
+    return {key: column[key] for key in _PUBLIC_PREVIEW_COLUMN_KEYS if key in column}
+
+
+def build_unique_preview_response(dataset: PreviewDataset) -> dict[str, list[dict[str, Any]]]:
+    """Build legacy unique/percentile response fields from a prepared dataset."""
+    column_names = [column['column_name'] for column in dataset.metadata.columns]
+    data_types = {
+        column['column_name']: column[COL_DATA_TYPE]
+        for column in dataset.metadata.columns
+        if column['column_name'] in dataset.dataframe.columns
+    }
+    unique_by_kind: tuple[dict[str, pd.Series], ...] = ({}, {}, {}, {})
+    for column in dataset.metadata.columns:
+        column_name = column['column_name']
+        if column_name not in dataset.dataframe.columns:
+            continue
+        series = dataset.dataframe[column_name]
+        if column.get('is_file_name') and dataset.metadata.file_name_samples:
+            series = pd.Series(dataset.metadata.file_name_samples)
+        samples = _calc_unique_samples(series, data_types.get(column_name, DataType.TEXT.name))
+        for values_by_column, sample in zip(unique_by_kind, samples, strict=True):
+            values_by_column[column_name] = sample
+
+    response_keys = (
+        'unique_rows_as_category',
+        'unique_rows_as_real',
+        'unique_rows_as_int',
+        'unique_rows_as_int_cat',
+    )
+    return {
+        response_key: transform_df_to_rows(column_names, pd.DataFrame(values_by_column), 10)
+        for response_key, values_by_column in zip(response_keys, unique_by_kind, strict=True)
+    }
+
+
+def _format_preview_response_dataframe(
+    dataframe: pd.DataFrame,
+    columns_metadata: list[dict[str, Any]],
+) -> pd.DataFrame:
+    """Apply legacy numeric and string formatting only to a display-frame copy."""
+    data_type_by_column = {
+        column['column_name']: column[COL_DATA_TYPE]
+        for column in columns_metadata
+        if column['column_name'] in dataframe.columns
+    }
+    text_columns = []
+    for column_name, data_type in data_type_by_column.items():
+        if data_type == DataType.TEXT.name:
+            text_columns.append(column_name)
+
+    bool_text_columns = [column for column in text_columns if pd.api.types.is_bool_dtype(dataframe[column])]
+    if text_columns:
+        dataframe[text_columns] = dataframe[text_columns].astype(pd.StringDtype()).fillna('')
+    for column_name in bool_text_columns:
+        dataframe[column_name] = dataframe[column_name].str.lower()
+    datetime_columns = dataframe.select_dtypes(include=['datetime64[ns]']).columns
+    dataframe[datetime_columns] = dataframe[datetime_columns].astype('string')
+    return dataframe
+
+
+def _calc_unique_samples(series: pd.Series, data_type: str) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
+    series_for_calc = series
+    if data_type in [
+        DataType.INTEGER_SEP.name,
+        DataType.EU_INTEGER_SEP.name,
+        DataType.REAL_SEP.name,
+        DataType.EU_REAL_SEP.name,
+    ]:
+        # ``convert_eu_decimal_series`` compares against datatype names. Keep
+        # this as a string so separator-formatted values are normalized before
+        # category and percentile samples are calculated.
+        series_for_calc = convert_eu_decimal_series(series_for_calc, data_type)
+
+    category = parse_unique_as_category(series_for_calc)
+
+    # Keep separate try blocks per output to preserve behavior when one output fails.
+    real = pd.Series()
+    integer = pd.Series()
+    integer_category = pd.Series()
+
+    try:
+        numeric, _ = convert_numeric_by_type_core(series_for_calc, DataType.REAL.name)
+    except Exception:
+        numeric = None
+
+    if numeric is not None:
+        try:
+            real_numeric = numeric.dropna()
+            real = pd.Series(np.percentile(real_numeric.astype(pd.Float64Dtype()), [0, 25, 50, 75, 100]))
+        except Exception:
+            real = pd.Series()
+
+        try:
+            maybe_int = numeric.notna() & numeric.mod(1).eq(0) & is_int_64(numeric)
+            int_numeric = numeric.where(maybe_int, np.nan)
+        except Exception:
+            int_numeric = None
+    else:
+        int_numeric = None
+
+    if int_numeric is not None:
+        try:
+            integer_data = int_numeric.dropna()
+            integer = pd.Series(np.percentile(integer_data.astype(pd.Int64Dtype()), [0, 25, 50, 75, 100]))
+        except Exception:
+            integer = pd.Series()
+
+        try:
+            integer_category = pd.Series(
+                int_numeric.astype(pd.Int64Dtype()).unique(),
+            ).reindex(range(10), fill_value=np.nan)
+        except Exception:
+            integer_category = pd.Series()
+
+    return category, real, integer, integer_category
+
+
+def gen_data_types_and_same_values(df: pd.DataFrame, cols: list[str]) -> tuple[list[int], list[dict[str, bool]]]:
+    data_types = []
+    same_values = []
+    for col in cols:
+        source = df[col]
+        prepared, raw_unique = prepare_data_type_values(source)
+        data_types.append(gen_data_types_from_prepared(prepared))
+
+        source_string = source.astype(pd.StringDtype())
+        is_empty = (source_string == EMPTY_STRING) | source_string.isna()
+        is_null = bool(is_empty.all())
+        is_same = len(raw_unique) <= 1
+        same_values.append({'is_null': is_null, 'is_same': bool(is_same)})
+
+    return data_types, same_values
+
+
+def _normalize_preview_dataframe(
+    df: pd.DataFrame,
+    *,
+    is_show_raw_data: bool = False,
+) -> pd.DataFrame:
+    """Normalize a preview-sized dataframe without touching the full inference sample."""
+    return normalize_big_rows(
+        df,
+        list(df.columns),
+        is_show_raw_data=is_show_raw_data,
+        convert_types=False,
+    )
+
+
+def _is_fast_data_type_candidate_valid(prepared: pd.Series, candidate: int) -> bool:
+    """Validate a seed datatype against the full sample using vectorized operations.
+
+    Returning False is intentionally conservative: the caller falls back to the
+    existing inference implementation, preserving behavior for ambiguous data.
+    """
+    if prepared.empty:
+        return False
+
+    data_type = DataType(candidate)
+    if data_type is DataType.INTEGER:
+        numeric = pd.to_numeric(prepared, errors='coerce')
+        if numeric.isna().any() or np.isinf(numeric).any():
+            return False
+        if not numeric.mod(1).eq(0).all():
+            return False
+        if numeric.abs().gt(MAX_SAFE_INTEGER).any():
+            return False
+
+        # Preserve string identity so leading zeroes, explicit plus signs and
+        # decimal notation keep the same behavior as check_data_type_series.
+        if not numeric.astype('int64').astype(str).equals(prepared.astype(str)):
+            return False
+
+        # Exactly 0/1 is classified as BOOLEAN by the legacy implementation.
+        return set(numeric.unique()) != {0, 1}
+
+    if data_type is DataType.REAL:
+        numeric = pd.to_numeric(prepared, errors='coerce')
+        if numeric.isna().any():
+            return False
+        # Match the legacy MAX_SAFE_INTEGER guard. Values above this limit are
+        # kept as TEXT to avoid precision loss when consumed by JavaScript.
+        if numeric.gt(MAX_SAFE_INTEGER).any():
+            return False
+        if np.isinf(numeric).any():
+            raw_inf = prepared.astype(str).str.strip().str.lower().isin({'inf', '-inf'})
+            return bool(raw_inf[np.isinf(numeric)].all())
+        return True
+
+    if data_type is DataType.DATETIME:
+        # Pandas accepts short date/time fragments that the legacy inference
+        # classifies as TEXT. Keep datetime candidates on the exact fallback.
+        return False
+
+    if data_type is DataType.BOOLEAN:
+        boolean_values = set(prepared.astype(str).str.strip().str.lower())
+        return boolean_values in ({'0', '1'}, {'true', 'false'})
+
+    # Locale-separated numeric formats have nuanced legacy rules; use the
+    # compatibility fallback for those relatively uncommon candidates.
+    return False
+
+
+def _infer_data_type_from_full_sample(
+    series: pd.Series,
+    seed: pd.Series,
+    *,
+    is_show_raw_data: bool = False,
+) -> int:
+    """Infer from a small seed and validate against every row in the sample."""
+    seed_prepared, _ = prepare_data_type_values(seed)
+    candidate = gen_data_types_from_prepared(seed_prepared)
+
+    if DataType(candidate) is DataType.TEXT and not seed_prepared.empty:
+        seed_values = set(seed_prepared.astype(str).str.strip().str.lower())
+        # A concrete TEXT value is terminal. A mixed non-text seed can also
+        # collapse to TEXT, but a later datetime may change that legacy result.
+        has_text_value = any(check_data_type(value) is DataType.TEXT for value in seed_prepared)
+        seed_is_unconvertible = convert_df_str_to_others(seed_prepared) is seed_prepared
+        if not seed_values.issubset({'true', 'false'}) and seed_is_unconvertible and has_text_value:
+            return candidate
+
+    prepared, raw_unique = prepare_data_type_values(series)
+    if not seed_prepared.empty and _is_fast_data_type_candidate_valid(prepared, candidate):
+        return candidate
+
+    # Type inference only depends on distinct values. Normalizing the unique
+    # set produces the same result as the full-column fallback while avoiding
+    # repeated work for columns containing many duplicate values.
+    normalized = _normalize_preview_dataframe(
+        raw_unique.to_frame(),
+        is_show_raw_data=is_show_raw_data,
+    )[series.name]
+    return gen_data_types_core(normalized)
+
+
+def _normalize_dataframe_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Normalize only selected columns used by preview filtering."""
+    existing_columns = [column for column in columns if column in df.columns]
+    if not existing_columns:
+        return df
+    normalized = _normalize_preview_dataframe(df[existing_columns])
+    df[existing_columns] = normalized
     return df
 
 
-def get_latest_record_from_preview_file(fp, proc_id, limit=10, import_filter=None):
-    dict_data = json.load(fp)
-    # If dict_data is a string (JSON string), parse it again
-    if isinstance(dict_data, str):
-        dict_data = json.loads(dict_data)
-    proc_col = get_process_columns(proc_id, show_graph=False)
-    cols_org = dict_data.get('cols', [])
-    rows_org = dict_data.get('rows', [])
+def _is_constant_series_including_na(series: pd.Series) -> bool:
+    """Check whether all values are equal, treating missing values as a value."""
+    if series.empty:
+        return True
 
-    # check import filter condition
-    filtered_cols = {(col['column_raw_name'], col['filter']) for col in cols_org if col.get('filter') is not None}
-    import_filter_config = {tuple(import_filter.items())} if import_filter else set()
-    new_filter = list(import_filter_config - filtered_cols)
+    first_value = series.iloc[0]
+    if pd.isna(first_value):
+        return bool(series.isna().all())
+    return bool(series.notna().all() and series.eq(first_value).all())
 
-    if new_filter:
-        # return None to preview again
-        return None
 
-    if not cols_org and not rows_org:
-        return dict_data
+# Column label used when flattening probe values into a single-column frame so a
+# batched normalization can run in one pass.
+PROBE_COLUMN = '__preview_probe__'
 
-    df_data = pd.DataFrame(rows_org)
-    column_name = [col['column_name'] for col in cols_org]
-    data_types = [DataType[col['data_type']].value for col in cols_org]
-    dupl_cols = []
-    _, df_data_details, org_headers, *_ = add_generated_datetime_column(
-        proc_id,
-        df_data,
-        column_name.copy(),
-        column_name.copy(),
-        dupl_cols,
-        data_types,
-    )
-    new_cols_name = list(set(org_headers) - set(column_name))
-    if new_cols_name:
-        col_add = next((col for col in reversed(proc_col) if col.get('column_name') in new_cols_name), None)
-        dict_data['cols'].append(col_add)
-    dict_data['rows'] = transform_df_to_rows(org_headers, df_data_details, limit)
-    return dict_data
 
+def _values_equal_including_na(first: Any, second: Any) -> bool:
+    """Equality of two scalars, treating two missing values as equal."""
+    first_na = pd.isna(first)
+    second_na = pd.isna(second)
+    if first_na or second_na:
+        return bool(first_na and second_na)
+    return bool(first == second)
+
+
+def _check_same_values_with_deferred_normalization(
+    df: pd.DataFrame,
+    cols: list[str],
+    *,
+    is_show_raw_data: bool = False,
+) -> list[dict[str, bool]]:
+    """Match normalized same-value semantics without normalizing every cell."""
+    # Vectorize the null and raw-uniqueness checks across every column at once.
+    # Converting each column to string individually scaled with column count and
+    # dominated preview runtime for wide datasets.
+    df_target = df[cols]
+    is_null_by_col = (df_target.isna() | df_target.eq(EMPTY_STRING)).all()
+    raw_unique_counts = df_target.nunique(dropna=True)
+
+    # Columns whose raw values already differ are the only collapse candidates.
+    not_same_cols = [col for col in cols if raw_unique_counts[col] > 1]
+    raw_unique_by_col: dict[str, pd.Series] = {}
+    probe_values: list[Any] = []
+    for col in not_same_cols:
+        raw_unique = df_target[col].dropna().drop_duplicates()
+        raw_unique_by_col[col] = raw_unique
+        # Keep the first two distinct values as the collapse probe.
+        probe_values.extend(raw_unique.to_numpy()[:2])
+
+    # Normalize every probe value in a single flattened pass. Normalization is
+    # per-cell, so flattening all columns' two-value probes into one series yields
+    # the same per-value result while replacing thousands of per-column string
+    # operations with a single vectorized call.
+    collapsed_cols = []
+    if probe_values:
+        normalized_flat = _normalize_preview_dataframe(
+            pd.DataFrame({PROBE_COLUMN: pd.Series(probe_values, dtype=pd.StringDtype())}),
+            is_show_raw_data=is_show_raw_data,
+        )[PROBE_COLUMN]
+        normalized_pairs = normalized_flat.to_numpy().reshape(-1, 2)
+        collapsed_cols = [
+            col
+            for col, (first, second) in zip(not_same_cols, normalized_pairs, strict=False)
+            if _values_equal_including_na(first, second)
+        ]
+
+    # Only the rare columns whose probe collapsed need the full unique set checked.
+    same_after_normalization = set()
+    if collapsed_cols:
+        full_values: list[Any] = []
+        segments: list[tuple[str, int, int]] = []
+        for col in collapsed_cols:
+            raw_unique = raw_unique_by_col[col]
+            start = len(full_values)
+            full_values.extend(raw_unique.tolist())
+            segments.append((col, start, len(full_values)))
+        normalized_full = _normalize_preview_dataframe(
+            pd.DataFrame({PROBE_COLUMN: pd.Series(full_values, dtype=pd.StringDtype())}),
+            is_show_raw_data=is_show_raw_data,
+        )[PROBE_COLUMN]
+        for col, start, end in segments:
+            if _is_constant_series_including_na(normalized_full.iloc[start:end]):
+                same_after_normalization.add(col)
+
+    same_values = []
+    for col in cols:
+        is_same = True if raw_unique_counts[col] <= 1 else col in same_after_normalization
+        same_values.append({'is_null': bool(is_null_by_col[col]), 'is_same': is_same})
+
+    return same_values
+
+
+from ap.setting_module.services.process_config import get_process_columns
+from ap.trace_data.transaction_model import TransactionData
 
 # def get_col_type_as_cast(col_type):
 #     if col_type == DataType.TEXT.name:
@@ -534,7 +973,6 @@ def get_latest_record_from_preview_file(fp, proc_id, limit=10, import_filter=Non
 #
 #     return None
 
-
 # def gen_data_types_from_factory_type(cols, cols_with_types):
 #     dic_col_type = {col.get('name'): guess_data_types(col.get('type')) for col in cols_with_types}
 #     return [dic_col_type.get(col) for col in cols]
@@ -546,8 +984,11 @@ def get_info_from_db(
     process_factid: str | None = None,
     sql_limit: int = 2000,
     master_type: MasterDBType = None,
+    selected_columns: tuple[str, ...] | None = None,
     sort_column: str | None = None,
     sort_order: str = 'ASC',
+    optional_cache_config: OptionalCacheConfig | None = None,
+    refresh_preview: bool = False,
 ) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     if data_source.type in [
         DBType.POSTGRES_SOFTWARE_WORKSHOP.name,
@@ -556,15 +997,20 @@ def get_info_from_db(
         return get_info_from_db_software_workshop(
             data_source.id,
             process_factid,
-            # Previously sql_limit was not forwarded, so Software Workshop
-            # always used its default limit of 2000.
             sql_limit=sql_limit,
             master_type=master_type,
             sort_column=sort_column,
             sort_order=sort_order,
         )
-
-    return get_info_from_db_normal(data_source.id, table_name, sql_limit)
+    if refresh_preview:
+        optional_cache_config = OptionalCacheConfig(override=True)
+    return get_info_from_db_normal(
+        data_source.id,
+        table_name,
+        sql_limit,
+        selected_columns=selected_columns,
+        optional_cache_config=optional_cache_config,
+    )
 
 
 @CustomCache.memoize(duration=300)
@@ -572,28 +1018,50 @@ def get_info_from_db_normal(
     data_source_id: int,
     table_name: str,
     sql_limit: int = 2000,
+    selected_columns: tuple[str, ...] | None = None,
 ) -> tuple[list[str], pd.DataFrame, dict[str, str]]:
     data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
     with ReadOnlyDbProxy(data_source) as db_instance:
         if not db_instance or not table_name:
             return [], pd.DataFrame(), {}
 
+        select_columns = '*'
+        if selected_columns:
+            available_columns = [column['name'] for column in db_instance.list_table_columns(table_name)]
+            unknown_columns = set(selected_columns) - set(available_columns)
+            if unknown_columns:
+                raise ValueError(f'Unknown columns requested for preview: {sorted(unknown_columns)}')
+            normalized_selected = {normalize_str(column) for column in selected_columns}
+            projected_columns = [
+                column
+                for column in available_columns
+                if column in selected_columns or normalize_str(column) in normalized_selected
+            ]
+            select_columns = gen_select_col_str(projected_columns)
+        quoted_table_name = add_double_quote(table_name)
+
         if isinstance(db_instance, mssqlserver.MSSQLServer):
             # Cast non-Unicode char/varchar/text columns to NVARCHAR so the
             # pymssql client returns Unicode instead of code-page bytes, which
             # otherwise arrive as mojibake for non-ASCII (e.g. CP932) data.
-            mssql_select_columns = db_instance.gen_preview_select_columns(table_name)
+            mssql_select_columns = db_instance.gen_preview_select_columns(
+                table_name,
+                column_names=projected_columns if selected_columns else None,
+            )
             cols, rows = db_instance.run_sql(
-                f'select TOP {sql_limit} {mssql_select_columns} from "{table_name}"',
+                f'select TOP {sql_limit} {mssql_select_columns} from {quoted_table_name}',
                 False,
             )
         elif isinstance(db_instance, oracle.Oracle):
             cols, rows = db_instance.run_sql(
-                f'select * from "{table_name}" where rownum <= {sql_limit}',
+                f'select {select_columns} from {quoted_table_name} where rownum <= {sql_limit}',
                 False,
             )
         else:
-            cols, rows = db_instance.run_sql(f'select * from "{table_name}" limit {sql_limit}', False)
+            cols, rows = db_instance.run_sql(
+                f'select {select_columns} from {quoted_table_name} limit {sql_limit}',
+                False,
+            )
 
     df_rows = normalize_big_rows(rows, cols, strip_quote=False)
     return cols, df_rows, {}
@@ -719,32 +1187,57 @@ def get_csv_data_from_files(
     max_records=5,
     is_file_checker=False,
     encoding=None,
+    selected_columns: list[str] | None = None,
+    auto_encoding: bool | None = None,
 ):
+    if is_transpose:
+        # Physical rows become sensor columns, so the display-row cap must not limit this read.
+        read_limit = n_rows or DATA_TYPE_ESTIMATION_LIMIT
+        limit_includes_header = True
+    else:
+        configured_limits = [value for value in (n_rows, max_records) if value]
+        read_limit = min(configured_limits) if configured_limits else DATA_TYPE_ESTIMATION_LIMIT
+        limit_includes_header = bool(n_rows and read_limit == n_rows)
     file_reader = StructuredFileReader(
         filenames=sorted_files,
         delimiter=csv_delimiter,
         encoding=encoding,
+        auto_encoding=auto_encoding,
         skip_head=skip_head,
         is_transpose=is_transpose,
         max_results=max_records,
-        limit=(n_rows or DATA_TYPE_ESTIMATION_LIMIT),
+        limit=read_limit,
         etl_func=etl_func,
         is_file_checker=is_file_checker,
+        encoding_verify_limit=read_limit,
+        selected_columns=selected_columns,
+        limit_includes_header=limit_includes_header,
     )
     header, data = file_reader.read()
     if not header and not data:
         raise ValueError('Cannot get headers_name and data_details')
 
-    preview_data = get_result(file_reader, is_file_checker=file_reader.is_file_checker)
+    preview_data = list(get_result(file_reader, is_file_checker=file_reader.is_file_checker))
+    if max_records:
+        # Dummy-header generation restores the first source row to the preview data.
+        preview_data[4] = preview_data[4][:max_records]
+    if file_reader.projected_dummy_headers:
+        preview_data[0] = file_reader.projected_dummy_headers
+        preview_data[1] = file_reader.projected_dummy_headers
+        preview_data[5] = [True] * len(file_reader.projected_dummy_headers)
     return (*preview_data,)
 
 
 def clean_na_columns(col_data):
     """Clean NA values in df for preview in table"""
-    na_values_lowers = [str(val).lower() for val in NA_VALUES]
     if pd.api.types.is_string_dtype(col_data):
-        mask = col_data.astype(str).str.lower().isin(na_values_lowers)
-        return col_data.where(~mask, '')
+        mask = np.fromiter(
+            (str(value).lower() in _PREVIEW_NA_VALUES for value in col_data.array),
+            dtype=bool,
+            count=len(col_data),
+        )
+        if mask.any():
+            return col_data.where(~mask, '')
     return col_data
 
 
@@ -776,10 +1269,13 @@ def preview_csv_data(
     is_file_checker=False,
     is_show_raw_data=False,
     encoding=None,
+    fast_preview=False,
+    selected_columns: list[str] | None = None,
     file_name_include=None,
     file_name_exclude=None,
     subfolder_include=None,
     subfolder_exclude=None,
+    auto_encoding: bool | None = None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
     temp_files: list[str] = []
@@ -798,9 +1294,11 @@ def preview_csv_data(
                 subfolder_include=subfolder_include,
                 subfolder_exclude=subfolder_exclude,
             )
+            file_name_samples = [os.path.basename(path) for path in sorted_files[:PREVIEW_DISPLAY_LIMIT]]
             sorted_files = sorted_files[0:5]
         else:
             sorted_files = [file_name]
+            file_name_samples = [os.path.basename(file_name)]
 
         previewed_files = sorted_files.copy()
         sorted_files, temp_files = expand_archive_sources_to_temp_files(
@@ -830,6 +1328,7 @@ def preview_csv_data(
                 'is_transpose': is_transpose,
                 'skip_tail': 0,
                 'previewed_files': previewed_files,
+                'file_name_samples': file_name_samples,
                 'same_values': same_values,
                 # explicit True so the caller doesn't mistake "no files matched" (this
                 # dict has no 'has_ct_col' key otherwise) for "no datetime column found,
@@ -873,6 +1372,8 @@ def preview_csv_data(
                     max_records=max_records,
                     is_file_checker=is_file_checker,
                     encoding=encoding,
+                    auto_encoding=auto_encoding,
+                    selected_columns=selected_columns,
                 )
             except Exception:
                 logger.exception('Failed to read CSV preview files: {}', preview_file_group)
@@ -882,17 +1383,35 @@ def preview_csv_data(
                 csv_file = preview_file_group[0]
                 break
 
+        # Keep deferred normalization internal to dataframe-based preview callers.
+        # List callers expect preview_csv_data to return fully normalized values.
+        use_fast_inference = bool(fast_preview and return_df)
+        inference_limit = min(limit, PREVIEW_DISPLAY_LIMIT) if use_fast_inference else limit
+
         # normalize data detail
         df_data_details, org_headers, header_names, dupl_cols, data_types = extract_data_detail(
             header_names,
             data_details,
             org_header,
             is_show_raw_data=is_show_raw_data,
+            fast_preview=use_fast_inference,
+            preview_limit=inference_limit,
         )
+        needs_value_normalization = use_fast_inference
         has_ct_col = True
         dummy_datetime_idx = None
         file_name_col_idx = None
         if df_data_details is not None:
+            # The full frame is already normalized when it fits inside the inference seed.
+            needs_value_normalization = use_fast_inference and len(df_data_details) > inference_limit
+            if needs_value_normalization:
+                # Downstream datetime validation and generated columns consume
+                # normalized values, as they did before the inference seed was capped.
+                df_data_details = _normalize_preview_dataframe(
+                    df_data_details,
+                    is_show_raw_data=is_show_raw_data,
+                )
+                needs_value_normalization = False
             # sort by datetime
             first_datetime_col_idx = None
             # convert utc
@@ -986,9 +1505,17 @@ def preview_csv_data(
                     is_gen_cols,
                 )
 
-            same_values = check_same_values_in_df(df_data_details, header_names)
+            if use_fast_inference:
+                same_values = _check_same_values_with_deferred_normalization(
+                    df_data_details,
+                    header_names,
+                    is_show_raw_data=is_show_raw_data,
+                )
+            else:
+                same_values = check_same_values_in_df(df_data_details, header_names)
 
-            df_data_details = df_data_details.apply(clean_na_columns)
+            if not needs_value_normalization:
+                df_data_details = df_data_details.apply(clean_na_columns)
             if not return_df:
                 df_data_details = df_data_details.to_records(index=False).tolist()
         elif not return_df:
@@ -1019,6 +1546,7 @@ def preview_csv_data(
             'n_rows': n_rows,
             'is_transpose': is_transpose,
             'previewed_files': previewed_files,
+            'file_name_samples': file_name_samples,
             'has_ct_col': has_ct_col,
             'dummy_datetime_idx': dummy_datetime_idx,
             'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
@@ -1030,6 +1558,7 @@ def preview_csv_data(
             'file_name_col_idx': file_name_col_idx,
             'is_gen_cols': is_gen_cols,
             'is_file_checker': is_file_checker,
+            'deferred_value_normalization': needs_value_normalization,
         }
     finally:
         cleanup_temp_files(temp_files)
@@ -1049,6 +1578,10 @@ def preview_v2_data(
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
     sorted_files = get_sorted_files_by_size(folder_url) if not file_name else [file_name]
+    file_name_samples = [
+        os.path.basename(path)
+        for path in (get_sorted_files(folder_url) if not file_name else sorted_files)[:PREVIEW_DISPLAY_LIMIT]
+    ]
     encoding = None
     csv_file = ''
     skip_head = None
@@ -1067,6 +1600,7 @@ def preview_v2_data(
             'skip_head': skip_head,
             'skip_tail': skip_tail,
             'previewed_files': sorted_files,
+            'file_name_samples': file_name_samples,
             'same_values': same_values,
             'encoding': encoding,
         }
@@ -1093,6 +1627,7 @@ def preview_v2_data(
                 'skip_head': skip_head,
                 'skip_tail': skip_tail,
                 'previewed_files': previewed_files,
+                'file_name_samples': file_name_samples,
                 'same_values': same_values,
                 'encoding': encoding,
             }
@@ -1140,7 +1675,7 @@ def preview_v2_data(
                 file_data_idx += 1
 
             if isinstance(data_details, pd.DataFrame):
-                data_details = data_details[:1000]
+                data_details = data_details[:limit]
                 header_names = data_details.columns.tolist()
 
         if not len(header_names):
@@ -1164,7 +1699,7 @@ def preview_v2_data(
                     file_reader = StructuredFileReader(
                         filenames=[csv_file],
                         delimiter=csv_delimiter,
-                        max_results=V2_PREVIEW_LIMIT,
+                        max_results=min(limit, PREVIEW_EXTERNAL_ANALYSIS_LIMIT),
                     )
                     header_names, data_details = file_reader.read(target_file=csv_file)
                     encoding = file_reader.encoding
@@ -1209,7 +1744,7 @@ def preview_v2_data(
         header_names = rename_abnormal_history_col_names(datasource_type, header_names, is_abnormal_v2)
         header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
         df_data_details = normalize_big_rows(data_details, header_names, is_show_raw_data=is_show_raw_data)
-        data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
+        data_types = [gen_data_types_core(df_data_details[col], is_v2=True) for col in header_names]
         file_name_col_idx = None
         if show_file_name_column:
             (
@@ -1245,7 +1780,7 @@ def preview_v2_data(
                 if is_convert_datetime:
                     df_data_details = convert_csv_timezone(df_data_details, col)
                 df_data_details = df_data_details.dropna(subset=[col])
-                data_types = [gen_data_types(df_data_details[col], is_v2=True) for col in header_names]
+                data_types = [gen_data_types_core(df_data_details[col], is_v2=True) for col in header_names]
 
             df_data_details = df_data_details[0:limit]
             if DataType.DATETIME.value not in data_types and DATETIME_DUMMY not in df_data_details.columns:
@@ -1290,6 +1825,7 @@ def preview_v2_data(
             'skip_head': skip_head,
             'skip_tail': skip_tail,
             'previewed_files': previewed_files,
+            'file_name_samples': file_name_samples,
             'has_ct_col': has_ct_col,
             'dummy_datetime_idx': dummy_datetime_idx,
             'same_values': [{key: bool(value) for key, value in same_value.items()} for same_value in same_values],
@@ -1310,17 +1846,23 @@ def preview_v2_data(
 def check_same_values_in_df(df, cols):
     same_values = []
     for col in cols:
-        df_string = df[col].astype(pd.StringDtype())
-        is_empty = (df_string == EMPTY_STRING) | df_string.isna()
-        is_null = bool(is_empty.all())
-
+        column = df[col]
         # See: https://docs.astral.sh/ruff/rules/pandas-nunique-constant-series-check/
         # Actually, we don't care NA value here
-        value = df[col].dropna().to_numpy()
+        # Filter before converting: nullable integers would otherwise become floats
+        # and distinct large integers could compare equal.
+        values = column.array
+        value = values[~pd.isna(values)].to_numpy()
+        if isinstance(column.dtype, pd.StringDtype):
+            is_null = bool((value == EMPTY_STRING).all())
+        elif pd.api.types.is_numeric_dtype(column.dtype):
+            is_null = value.size == 0
+        else:
+            df_string = column.astype(pd.StringDtype())
+            is_null = bool(((df_string == EMPTY_STRING) | df_string.isna()).all())
         is_same = value.shape[0] == 0 or (value[0] == value).all()
-        is_same = bool(is_same)
 
-        same_values.append({'is_null': is_null, 'is_same': is_same})
+        same_values.append({'is_null': is_null, 'is_same': bool(is_same)})
 
     return same_values
 
@@ -1381,20 +1923,31 @@ def gen_cols_with_types(
             mapped_col_names.append(mapped_col_name)
 
     # extract units before adding suffix
-    extracted_col_names, units = [], []
+    extracted_units_by_col = []
     for mapped_col_name in mapped_col_names:
-        column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name, unit_remove=True)
-        if unit:
-            # if unit extracted by regex, verify unit by m_unit data again
-            valid_unit = MUnit.get_by_unit(unit)
+        column_name_extracted, unit = ColumnRawNameRule.extract_data(mapped_col_name)
+        extracted_units_by_col.append((mapped_col_name, column_name_extracted, unit))
 
-            # if not valid, string normalization applied for column name
-            if not valid_unit:
-                # set unit be empty
-                unit = ''
-                column_name_extracted, _ = ColumnRawNameRule.extract_data(mapped_col_name, unit_remove=False)
-        extracted_col_names.append(column_name_extracted)
-        units.append(unit)
+    extracted_units = {unit for *_col_names, unit in extracted_units_by_col if unit}
+    normalized_units = {unicodedata.normalize(NORMALIZE_FORM_NFKC, unit) for unit in extracted_units}
+    unit_candidates = extracted_units | normalized_units
+    valid_units = (
+        {unit for (unit,) in MUnit.query.with_entities(MUnit.unit).filter(MUnit.unit.in_(unit_candidates)).all()}
+        if unit_candidates
+        else set()
+    )
+
+    extracted_col_names, units = [], []
+    for mapped_col_name, column_name_extracted, unit in extracted_units_by_col:
+        resolved_col_name = column_name_extracted
+        resolved_unit = unit
+        if resolved_unit:
+            normalized_unit = unicodedata.normalize(NORMALIZE_FORM_NFKC, resolved_unit)
+            if resolved_unit not in valid_units and normalized_unit not in valid_units:
+                resolved_unit = ''
+                resolved_col_name, _ = ColumnRawNameRule.extract_data(mapped_col_name, unit_remove=False)
+        extracted_col_names.append(resolved_col_name)
+        units.append(resolved_unit)
 
     extracted_col_names_with_suffix, _ = gen_colsname_for_duplicated(extracted_col_names)
     potential_id_cols = []
@@ -1613,14 +2166,54 @@ def re_order_items_by_datetime_idx(datetime_idx: int, items: list) -> list:
 
 
 @log_execution_time()
-def extract_data_detail(header_names, data_details, org_header=None, is_show_raw_data=False):
+def extract_data_detail(
+    header_names,
+    data_details,
+    org_header=None,
+    is_show_raw_data=False,
+    fast_preview=False,
+    preview_limit=10,
+):
     org_headers = org_header or header_names.copy()
     # normalization
     header_names = normalize_list(header_names)
     header_names = [normalize_str(col) for col in header_names]
     header_names, dupl_cols = gen_colsname_for_duplicated(header_names)
-    df_data_details = normalize_big_rows(data_details, header_names, is_show_raw_data=is_show_raw_data)
-    data_types = [gen_data_types(df_data_details[col]) for col in header_names]
+    if fast_preview:
+        # Keep the inference frame as a single object block. ``convert_dtypes``
+        # splits it into one nullable ExtensionArray block per column, which makes
+        # the head writeback and per-column reads scale with column count. Type
+        # inference below reads unique string values, so the nullable dtypes add
+        # cost without changing the inferred types.
+        df_data_details = pd.DataFrame(data_details, columns=header_names)
+
+        normalized_seed = _normalize_preview_dataframe(
+            df_data_details.head(preview_limit).copy(),
+            is_show_raw_data=is_show_raw_data,
+        )
+        if not normalized_seed.empty:
+            # ``.loc[index, column_labels] = frame`` aligns the RHS on both axes.
+            # With thousands of preview columns that per-label alignment dominates
+            # runtime. The seed shares the frame's row positions and column order,
+            # so assign positionally with a raw ndarray to skip alignment while
+            # producing the same head-normalized values.
+            df_data_details.iloc[: len(normalized_seed)] = normalized_seed.to_numpy()
+
+        data_types = [
+            _infer_data_type_from_full_sample(
+                df_data_details[col],
+                normalized_seed[col],
+                is_show_raw_data=is_show_raw_data,
+            )
+            for col in header_names
+        ]
+    else:
+        df_data_details = normalize_big_rows(
+            data_details,
+            header_names,
+            is_show_raw_data=is_show_raw_data,
+        )
+        data_types = [gen_data_types_core(df_data_details[col]) for col in header_names]
     return df_data_details, org_headers, header_names, dupl_cols, data_types
 
 
@@ -1742,155 +2335,45 @@ def add_generated_datetime_column(
     return header_names, df_data_details, org_headers, data_types, dupl_cols, is_gen_cols
 
 
-def save_preview_ds_file(
-    data_source_id: int,
-    data: dict,
-    table_name: str | None = None,
-    process_factid: str | None = None,
-    master_type: MasterDBType | None = None,
-    etl_func: str | None = None,
-) -> None:
-    """Save datasource preview data to JSON file."""
-    # Generate preview file path based on parameters
-    sample_data_file = gen_latest_record_result_file_path(
-        data_source_id,
-        table_name=table_name,
-        process_factid=process_factid,
-        master_type=master_type,
-        etl_func=etl_func,
-    )
+def build_representative_preview_sample(
+    dataframe: pd.DataFrame,
+    columns_metadata: list[dict[str, Any]],
+) -> pd.DataFrame:
+    """Keep one representative row per non-main column combination.
 
-    # Create directory if it doesn't exist
-    make_dir_from_file_path(sample_data_file)
-
-    try:
-        # Write preview data to JSON file
-        with open(sample_data_file, 'wb') as outfile:
-            data = orjson_dumps(data)
-            outfile.write(data)
-    except Exception as e:
-        # Log exception if file write fails
-        logger.exception(f'Failed to save preview file: {sample_data_file}', exc_info=e)
-
-
-def save_preview_process_file(
-    data_source_id: int,
-    process_id: int,
-    table_name: str | None = None,
-    process_factid: str | None = None,
-    master_type: MasterDBType | None = None,
-    etl_func: str | None = None,
-) -> None:
-    """Copy datasource preview data to process-specific preview file."""
-    # Generate datasource preview file path
-    ds_preview_file = gen_latest_record_result_file_path(
-        data_source_id=data_source_id,
-        table_name=table_name,
-        process_factid=process_factid,
-        master_type=master_type,
-        etl_func=etl_func,
-    )
-
-    # Generate process preview file path
-    sample_data_path = get_preview_data_file_folder(data_source_id)
-    process_preview_file = os.path.join(sample_data_path, f'process_{process_id}.json')
-
-    # Check if datasource preview file exists
-    if not os.path.exists(ds_preview_file):
-        logger.warning(f'No datasource preview to copy: {ds_preview_file}')
-        return
-
-    try:
-        # Read data from datasource preview file
-        with open(ds_preview_file, encoding='utf-8') as infile:
-            data = json.load(infile)
-
-        # Write data to process preview file
-        with open(process_preview_file, 'wb') as outfile:
-            data = orjson_dumps(data)
-            outfile.write(data)
-
-        logger.info(f'Process preview saved (copied): {process_preview_file}')
-
-    except Exception as e:
-        # Log exception if file copy fails
-        logger.exception(f'Copy failed for process {process_id}', exc_info=e)
-
-
-def get_preview_data_files(
-    data_source_id: int,
-    table_name: str | None = None,
-    process_factid: str | None = None,
-    master_type: MasterDBType | None = None,
-    etl_func: str | None = None,
-    process_id: int | None = None,
-) -> str | None:
+    Main time/serial columns remain in the result but are deliberately omitted
+    from the duplicate key for representative samples, so differing timestamps
+    or serial values alone do not prevent equivalent source rows from
+    collapsing. Analysis snapshots and normal display rows retain duplicates
+    to preserve response and percentile parity.
     """
-    Get the preview data file path with priority order:
-    1. If process_id is provided → check process_{process_id}.json first
-    2. If not found or no process_id → fallback to the latest datasource preview file
-       (generated by gen_latest_record_result_file_path)
-
-    Returns: full file path (str) if found, else None
-    """
-    folder_path = get_preview_data_file_folder(data_source_id)
-
-    if not check_exist(folder_path):
-        return None
-
-    # Priority 1: If a process_id is available, check the process file first.
-    if process_id is not None:
-        proc_preview_file = os.path.join(folder_path, f'process_{process_id}.json')
-        if os.path.isfile(proc_preview_file):
-            return proc_preview_file
-
-    # Priority 2: Fallback to the shared datasource preview file.
-    ds_preview_file = gen_latest_record_result_file_path(
-        data_source_id,
-        table_name=table_name,
-        process_factid=process_factid,
-        master_type=master_type,
-        etl_func=etl_func,
-    )
-
-    # Check if the file exists.
-    if os.path.isfile(ds_preview_file):
-        return ds_preview_file
-
-    return None
-
-
-def gen_latest_record_result_file_path(
-    data_source_id: int,
-    table_name: str | None = None,
-    process_factid: str | None = None,
-    master_type: MasterDBType | None = None,
-    etl_func: str | None = None,
-) -> str:
-    """Generate file path for preview data based on parameters.
-
-    Args:
-        data_source_id: ID of the data source (required)
-        table_name: Name of the table (optional)
-        process_factid: Process fact ID (optional)
-        master_type: Master database type (optional)
-        etl_func: ETL function name (optional)
-
-    Returns:
-        str: Full file path for the preview data JSON file
-    """
-    sample_data_path = get_preview_data_file_folder(data_source_id)
-    file_partials = [
-        str(data_source_id),
-        table_name,
-        process_factid,
-        master_type,
-        etl_func,
+    main_column_types = {
+        DataColumnType.DATETIME.value,
+        DataColumnType.MAIN_DATE.value,
+        DataColumnType.MAIN_TIME.value,
+        DataColumnType.MAIN_SERIAL.value,
+    }
+    duplicate_key_columns = [
+        column['column_name']
+        for column in columns_metadata
+        if column['column_name'] in dataframe.columns and not _is_main_preview_column(column, main_column_types)
     ]
-    file_name = UNDER_SCORE.join([p for p in file_partials if p])
-    file_name = f'{file_name}.json'
-    sample_data_file = os.path.join(sample_data_path, file_name)
-    return sample_data_file
+    if not duplicate_key_columns:
+        return dataframe
+    return dataframe.drop_duplicates(subset=duplicate_key_columns, keep='first').reset_index(drop=True)
+
+
+def _is_main_preview_column(column: dict[str, Any], main_column_types: set[int]) -> bool:
+    return bool(
+        column.get('is_get_date')
+        or column.get('is_dummy_datetime')
+        or column.get('is_main_datetime')
+        or column.get('is_main_date')
+        or column.get('is_main_time')
+        or column.get('is_main_serial_no')
+        or column.get('is_main_serial')
+        or column.get(ProcessColumnConst.COLUMN_TYPE.value) in main_column_types
+    )
 
 
 def parse_unique_as_category(data):
@@ -1913,7 +2396,7 @@ def parse_unique_as_real(data):
     :return: Series with 5 percentile values
     """
     try:
-        data, _ = convert_numeric_by_type(data, DataType.REAL.name)
+        data, _ = convert_numeric_by_type_core(data, DataType.REAL.name)
         data = data.dropna()
         return pd.Series(np.percentile(data.astype(pd.Float64Dtype()), [0, 25, 50, 75, 100]))
     except Exception:
@@ -1927,7 +2410,7 @@ def parse_unique_as_int(data):
     :return: Series with 5 percentile values
     """
     try:
-        data, _ = convert_numeric_by_type(data, DataType.INTEGER.name)
+        data, _ = convert_numeric_by_type_core(data, DataType.INTEGER.name)
         data = data.dropna()
         return pd.Series(np.percentile(data.astype(pd.Int64Dtype()), [0, 25, 50, 75, 100]))
     except Exception:
@@ -1941,7 +2424,7 @@ def parse_unique_as_int_cat(data):
     :return: Series with maximum 10 unique int cat values
     """
     try:
-        data, _ = convert_numeric_by_type(data, DataType.INTEGER.name)
+        data, _ = convert_numeric_by_type_core(data, DataType.INTEGER.name)
         data = pd.Series(data.astype(pd.Int64Dtype()).unique())
         return data.reindex(range(10), fill_value=np.nan)
     except Exception:
@@ -1958,6 +2441,9 @@ def check_datasource_connection(data_source: CfgDataSource):
         if not connection_result:
             raise FileNotFoundError('File not found')
         return connection_result
+    if data_source.type == DBType.WEB_API.name:
+        # WebAPI.get_data() performs the authenticated validation and fetch in one request.
+        return True
     else:
         db_instance = ReadOnlyDbProxy(data_source)
         connection_result = db_instance.check_db_connection(data_source)

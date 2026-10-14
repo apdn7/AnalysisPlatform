@@ -2,7 +2,7 @@
     margin-top: 20px;
     display: table;
     border-collapse: collapse;
-    background-color: #222222;
+    background-color: #050505;
 }
 
 .coef-item {
@@ -131,7 +131,6 @@ canvas {
 .colorbar {
     flex-basis: 150px;
     vertical-align: middle;
-    margin: auto 0;
     margin-left: -30px;
 }
 
@@ -143,13 +142,19 @@ canvas {
     margin-left: unset;
 }
 
-.colorbar .js-plotly-plot .plotly .main-svg {
-    background-color: transparent !important;
-}
+/*.colorbar .js-plotly-plot .plotly .main-svg {*/
+/*    background-color: transparent !important;*/
+/*}*/
 
 .colorbar .legend .bg {
     fill: transparent !important;
     z-index: 9999;
+}
+
+#coloScaleBar {
+    height: calc(100% - 40px);
+    margin: 3px 0;
+    padding-top: 5px;
 }
 
 #coloScaleBar .draglayer.cursor-crosshair,

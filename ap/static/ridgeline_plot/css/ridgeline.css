@@ -129,6 +129,7 @@ span.btn-anchor {
 
 .tschart-title-parent {
     width: 40px;
+    max-width: 60px;
     position: relative;
     left: 0px;
 }

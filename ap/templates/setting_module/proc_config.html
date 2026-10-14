@@ -164,7 +164,7 @@
                                                 </div>
                                             </td>
                                             <td class="col-number">{{ loop.index }}</td>
-                                            <td>
+                                            <td title="{{ proc_info.shown_name }}">
                                                 <input
                                                     data-name-en="{{ proc_info.name_en }}"
                                                     data-name-jp="{{ proc_info.name_jp or '' }}"
@@ -177,7 +177,7 @@
                                                     data-order
                                                 />
                                             </td>
-                                            <td class="text-center">
+                                            <td title="{{ proc_info.data_source.name or '' }}">
                                                 <input
                                                     name="databaseName"
                                                     class="form-control"
@@ -186,7 +186,7 @@
                                                     disabled
                                                 />
                                             </td>
-                                            <td>
+                                            <td title="{{ proc_info.table_name or '' }}">
                                                 {% if (proc_info.data_source.type not in ['CSV', 'V2']) %}
                                                     <input
                                                         class="form-control"

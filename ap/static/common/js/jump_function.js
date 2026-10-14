@@ -283,10 +283,79 @@ const getObjectiveVal = () => {
     return currentTraceDat.COMMON.objectiveVar ? Number(currentTraceDat.COMMON.objectiveVar[0]) : undefined;
 };
 
+const getVariableSettingCheckbox = (control) => {
+    if (!control) {
+        return null;
+    }
+
+    if (control.name?.startsWith('GET02_VALS_SELECT')) {
+        return control;
+    }
+
+    const row = control.closest?.('li');
+    const rowCheckbox = row?.querySelector?.('input[name^="GET02_VALS_SELECT"]');
+    if (rowCheckbox) {
+        return rowCheckbox;
+    }
+
+    const matchedCheckboxes = findValidationInputs(
+        `input[name^=GET02_VALS_SELECT][value="${control.value}"]`,
+        document,
+    );
+    return matchedCheckboxes[0] || null;
+};
+
+const getVariableSettingGroupFromControl = (control) => {
+    if (!control) {
+        return null;
+    }
+
+    const nameMatch = control.name?.match(/^(?:GET02_VALS_SELECT|GET02_CATE_SELECT|colorVar)(\d+)$/);
+    if (nameMatch) {
+        return nameMatch[1];
+    }
+
+    const parentMatch = control.dataset?.parentId?.match(/^end-proc-val-div-(\d+)$/);
+    if (parentMatch) {
+        return parentMatch[1];
+    }
+
+    if (control.dataset?.groupId) {
+        return control.dataset.groupId;
+    }
+
+    const ownerMatch = control.closest?.('li')?._virtualListOwner?.id?.match(/^list-end-proc-val-(\d+)$/);
+    if (ownerMatch) {
+        return ownerMatch[1];
+    }
+
+    return null;
+};
+
+const getVariableSettingGroup = (control) => {
+    // HMP numeric color rows have no target checkbox; another card may contain the same column.
+    const directGroup = getVariableSettingGroupFromControl(control);
+    if (directGroup) {
+        return directGroup;
+    }
+
+    const checkbox = getVariableSettingCheckbox(control);
+    if (!checkbox || checkbox === control) {
+        return null;
+    }
+
+    return getVariableSettingGroupFromControl(checkbox);
+};
+
+const getCategoryFilterGroupName = (control) => {
+    const group = getVariableSettingGroup(control);
+    return group ? `GET02_CATE_SELECT${group}` : undefined;
+};
+
 const enableJumpObjective = (objectiveElem) => {
     objectiveElem.prop({ checked: '', disabled: false });
     const objectiveVal = getObjectiveVal();
-    const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
+    const currentPageObjectiveVal = findValidationInputs('input[name=objectiveVar]:checked', document);
     const isPageJumpToHasObjective = HAS_OBJECTIVE_PAGE.includes(getTargetPage()[0]);
     const elemObjectiveVal = jumpEls.jumpObjectiveEls;
     if (isPageJumpToHasObjective && !noneObjective) {
@@ -371,7 +440,7 @@ const checkedDefaultJumpObjective = () => {
     const isJumpToSkd = targetPage === PAGE_NAME.skd;
     const objectiveVariable = getObjectiveVal();
     const currentPageHasObjective = HAS_OBJECTIVE_PAGE.includes(currentPage);
-    const currentPageObjectiveVal = $(`${formElements.endProcItems} input[name=objectiveVar]:checked`);
+    const currentPageObjectiveVal = findValidationInputs('input[name=objectiveVar]:checked', document);
     if (!isJumpToSkd && (!currentPageHasObjective || !currentPageObjectiveVal.length)) {
         $(jumpEls.jumpTblBody).find('tr:first').find('input[type="radio"]').prop('checked', true);
     }
@@ -498,12 +567,9 @@ const showErrorMsg = (errMsg) => {
 };
 
 const getColorVar = () => {
-    const colorVar = $('input[name=colorVar]:checked');
+    const colorVar = findValidationInputs('input[name^=colorVar]:checked', document);
     if (colorVar.length) {
-        let groupName = colorVar.parents('ul').find('input[type=checkbox]')[0].name;
-        if (groupName) {
-            groupName = groupName.replace('VALS', 'CATE');
-        }
+        const groupName = getCategoryFilterGroupName(colorVar[0]);
         const colorID = colorVar[0].value;
 
         return { groupName, colorID };
@@ -714,15 +780,17 @@ const jumpFromHMPToOtherPages = (currentPage, targetPage) => {
     // from HMP to AgP
     // get x, y, color
     const xColId = latestSortColIds[0]?.split('-')[1];
-    const colorColId = $('input[name^=colorVar]:checked').val();
+    const colorVar = getColorVar();
+    const colorColId = colorVar?.colorID;
+    const colorGroup = colorVar?.groupName?.match(/^GET02_CATE_SELECT(\d+)$/)?.[1];
 
     if (colorColId) {
-        addVariableToSettings(colorColId);
+        addVariableToSettings(colorColId, colorGroup);
     }
 
     if (targetPage === PAGE_NAME.agp) {
         //check if div is not selected
-        let isDivSelected = $('select[name=catExpBox] option:selected').text().includes('Div');
+        const isDivSelected = hasDivSelection();
         if (!isDivSelected) {
             dumpedUserSetting.push({
                 id: `catExpItem-${xColId}`,
@@ -1005,13 +1073,9 @@ const sortVarOrdering = (varOrder) => {
     });
 };
 
-const addVariableToSettings = (colId) => {
-    const checkbox = $(`input[name^="GET02_VALS_SELECT"][value="${colId}"]`).first();
-
-    const group = checkbox
-        .closest('[id^="list-end-proc-val-"]')
-        .attr('id')
-        ?.match(/^list-end-proc-val-(\d+)$/)?.[1];
+const addVariableToSettings = (colId, sourceGroup = null) => {
+    const checkbox = findValidationInputs(`input[name^=GET02_VALS_SELECT][value="${colId}"]`, document)[0];
+    const group = sourceGroup != null && sourceGroup !== '' ? String(sourceGroup) : getVariableSettingGroup(checkbox);
 
     if (!group) {
         return;

@@ -6,6 +6,7 @@ import {
     buildSwapMapping,
     compactLayoutState,
     getItemIdFromKey,
+    getLayoutPriorityOrder,
     getValueFromKey,
     isPrimaryValue,
     parseAnySubplotValue,
@@ -198,16 +199,38 @@ export function useLayoutConfigData() {
         setLayout(collectLayoutData());
     }, [collectLayoutData]);
 
-    const registerLayoutColumn = useCallback(
-        (meta: LayoutItemMeta) => {
-            layoutMetaRef.current[String(meta.itemId)] = {
-                ...meta,
-                layoutOrder: meta.layoutOrder ?? Number.MAX_SAFE_INTEGER,
-            };
-            selectDefaultXAxis();
+    const registerLayoutColumns = useCallback(
+        (columns: LayoutItemMeta[]) => {
+            let changed = false;
+            for (const meta of columns) {
+                const key = String(meta.itemId);
+                const column = {
+                    ...meta,
+                    layoutOrder: meta.layoutOrder ?? Number.MAX_SAFE_INTEGER,
+                };
+                const previous = layoutMetaRef.current[key];
+                if (previous && stringifyLayoutItem(previous) === stringifyLayoutItem(column)) continue;
+                layoutMetaRef.current[key] = column;
+                changed = true;
+            }
+            if (changed) selectDefaultXAxis();
         },
         [selectDefaultXAxis],
     );
+
+    const registerLayoutColumn = useCallback(
+        (meta: LayoutItemMeta) => registerLayoutColumns([meta]),
+        [registerLayoutColumns],
+    );
+
+    const getLayoutSortPriorities = useCallback(() => {
+        const priorities: Record<string, number> = {};
+        for (const key of Object.keys(layoutStateRef.current)) {
+            const priority = getLayoutPriorityOrder(getValueFromKey(key));
+            if (priority !== undefined) priorities[getItemIdFromKey(key)] = priority;
+        }
+        return priorities;
+    }, []);
 
     const resetLayoutRefs = useCallback(() => {
         layoutStateRef.current = {};
@@ -279,13 +302,17 @@ export function useLayoutConfigData() {
 
     useEffect(() => {
         window.registerLayoutColumn = registerLayoutColumn;
-        window.pendingLayoutColumns?.forEach(registerLayoutColumn);
+        window.registerLayoutColumns = registerLayoutColumns;
+        window.getLayoutSortPriorities = getLayoutSortPriorities;
+        registerLayoutColumns(window.pendingLayoutColumns ?? []);
         window.pendingLayoutColumns = [];
 
         return () => {
             delete window.registerLayoutColumn;
+            delete window.registerLayoutColumns;
+            delete window.getLayoutSortPriorities;
         };
-    }, [registerLayoutColumn]);
+    }, [getLayoutSortPriorities, registerLayoutColumn, registerLayoutColumns]);
 
     useEffect(() => {
         const handleLayoutChange = (e: Event) => {

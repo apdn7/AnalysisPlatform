@@ -38,96 +38,175 @@
     <div class="section" id="procSettingModal">
         <div class="config-section">
             <div class="row">
-                <div class="col-10 data-source-config">
-                    <div id="fileFolderBrowser" class="file-folder-browser d-flex border-dash-gray d-flex mb-3">
-                        <div class="section-title mr-3" style="padding-top: 6px">
-                            <h5>{{ _('RegisterDataSource') }}</h5>
-                            <h5 style="padding-top: 12px">{{ _('EncodingLabel') }}</h5>
-                        </div>
-                        <div class="directory-form">
-                            <div id="folderBrowser" class="folder-browser">
-                                <div class="d-flex position-relative">
-                                    <input
-                                        type="text"
-                                        name="folderUrl"
-                                        class="form-control already-convert-hankaku"
-                                        id="folderUrl"
-                                        placeholder="{{ _('SourceFileBrowsePlaceholder') }}"
-                                    />
+                <div class="col-sm-12 col-md-10 data-source-config">
+                    <div class="quick-plot-layout mb-3">
+                        <div class="source-registration-panel">
+                            <h5 class="source-registration-title">
+                                {{ _('Auto Registration') }}
+                                <small>({{ _('Path') }})</small>
+                            </h5>
+                            <div id="fileFolderBrowser" class="file-folder-browser d-flex border-dash-gray">
+                                <div class="section-title mr-3" style="padding-top: 6px">
+                                    <h5>{{ _('RegisterDataSource') }}</h5>
+                                    <h5 style="padding-top: 12px">{{ _('EncodingLabel') }}</h5>
                                 </div>
-                                <div class="position-relative d-flex">
-                                    <div class="position-relative" id="registerByFileEncoding" style="width: 150px">
-                                        <select
-                                            type="select"
-                                            name="encodingSelect"
-                                            class="form-control data-not-allow-clear function-var select2-selection--single select2-hidden-accessible select-n-columns"
-                                            id="registerFromFileEncodingSelect"
-                                            data-observer
-                                        >
-                                            {% for key, value in encoding.items() %}
-                                                <option
-                                                    class="encoding-option"
-                                                    value="{{ value.code }}"
-                                                    title="{{ value.language }}"
-                                                    style="display: block"
-                                                >
-                                                    {{ value.code }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="position-relative mx-3" style="align-self: center; width: 100px">
-                                        <div class="file-encoding" id="registerFromFileEncoding"></div>
-                                    </div>
-                                    <div
-                                        id="containerReferenceFile"
-                                        class="position-relative d-flex flex-shrink-1 flex-grow-1"
-                                        style="display: none !important;"
-                                    >
-                                        <label class="align-content-center mb-0 pl-0 mx-2" for="refFileUrl"
-                                            >{{ _('ReferenceFileLabel') }}</label
-                                        >
-                                        <div class="px-0 position-relative flex-shrink-1 flex-grow-1">
+                                <div class="directory-form">
+                                    <div id="folderBrowser" class="folder-browser">
+                                        <div class="d-flex position-relative">
                                             <input
                                                 type="text"
-                                                name="fileName"
+                                                name="folderUrl"
                                                 class="form-control already-convert-hankaku"
-                                                id="refFileUrl"
-                                                placeholder="{{ _('RefFilePlaceholder') }}"
+                                                id="folderUrl"
+                                                placeholder="{{ _('SourceFileBrowsePlaceholder') }}"
                                             />
+                                        </div>
+                                        <div class="position-relative d-flex">
+                                            <div
+                                                class="position-relative"
+                                                id="registerByFileEncoding"
+                                                style="width: 150px"
+                                            >
+                                                <select
+                                                    type="select"
+                                                    name="encodingSelect"
+                                                    class="form-control data-not-allow-clear function-var select2-selection--single select2-hidden-accessible select-n-columns"
+                                                    id="registerFromFileEncodingSelect"
+                                                    data-observer
+                                                >
+                                                    {% for key, value in encoding.items() %}
+                                                        <option
+                                                            class="encoding-option"
+                                                            value="{{ value.code }}"
+                                                            title="{{ value.language }}"
+                                                            style="display: block"
+                                                        >
+                                                            {{ value.code }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div
+                                                class="position-relative mx-3"
+                                                style="align-self: center; width: 100px"
+                                            >
+                                                <div class="file-encoding" id="registerFromFileEncoding"></div>
+                                            </div>
+                                            <div
+                                                id="containerReferenceFile"
+                                                class="position-relative d-flex flex-shrink-1 flex-grow-1"
+                                                style="display: none !important;"
+                                            >
+                                                <label class="align-content-center mb-0 pl-0 mx-2" for="refFileUrl"
+                                                    >{{ _('ReferenceFileLabel') }}</label
+                                                >
+                                                <div class="px-0 position-relative flex-shrink-1 flex-grow-1">
+                                                    <input
+                                                        type="text"
+                                                        name="fileName"
+                                                        class="form-control already-convert-hankaku"
+                                                        id="refFileUrl"
+                                                        placeholder="{{ _('RefFilePlaceholder') }}"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div class="source-registration-details d-flex flex-column">
+                                <span class="source-explanation mb-2">{{ _('SourceExplanation') }}</span>
+                                <div class="d-flex justify-content-end">
+                                    <button
+                                        id="registerDataSourceProcBtn"
+                                        onclick="saveDataSourceAndProc()"
+                                        class="btn btn-primary register-datasource-button"
+                                    >
+                                        {{ _('RegisterDataFileButton') }}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="d-flex flex-column mb-1">
-                        <span class="mb-3">
-                            {% for p in _('SourceExplanation').split('\n') %}
-                                <p class="mb-0" style="line-height: 1.5">{{ p }}</p>
-                            {% endfor %}
-                        </span>
-                        <div class="d-flex justify-content-center mb-3">
-                            <button
-                                id="registerDataSourceProcBtn"
-                                onclick="saveDataSourceAndProc()"
-                                class="btn btn-primary register-datasource-button"
-                            >
-                                {{ _('RegisterDataFileButton') }}
-                            </button>
+                        <div class="quick-plot-panel">
+                            <h5 id="quickPlotTitle" class="quick-plot-title">
+                                {{ _('Quick Plot') }}
+                                <small>{{ _('(File Drop)') }}</small>
+                            </h5>
+                            <div class="quick-plot-body">
+                                <section
+                                    id="quickPlotDropArea"
+                                    class="quick-plot-drop-area"
+                                    tabindex="0"
+                                    role="button"
+                                    aria-labelledby="quickPlotTitle"
+                                    aria-describedby="quickPlotDropPrompt quickPlotNotice quickPlotFileName quickPlotStatus"
+                                >
+                                    <i class="fas fa-cloud-upload-alt quick-plot-cloud" aria-hidden="true"></i>
+                                    <div id="quickPlotDropPrompt" class="quick-plot-prompt">
+                                        <p>{{ _('Drag and drop file here') }}</p>
+                                        <p>{{ _('It will be plotted immediately after uploading.') }}</p>
+                                    </div>
+                                    <input
+                                        id="quickPlotFileInput"
+                                        class="sr-only"
+                                        type="file"
+                                        accept=".csv,.tsv,.ssv,.zip,.7z"
+                                    />
+                                    <div id="quickPlotNotice" class="quick-plot-notice">
+                                        <p>{{ _('Additional files cannot be imported into the same data source.') }}</p>
+                                        <p>{{ _('Registered data is automatically deleted after one month.') }}</p>
+                                        <p>{{ _('The data source name is created from the file name.') }}</p>
+                                        <p class="quick-plot-storage-note">
+                                            {{ _('This file is uploaded to and shared on the DN7 server.') }}<br />
+                                            {{ _('(Under C:\\Analysis\\data\\quickplot on the computer running DN7)') }}
+                                        </p>
+                                        <p>
+                                            {{ _('Personal use is permitted, but when using DN7 in an organization, confirm with your administrator in advance that uploads are allowed.') }}
+                                        </p>
+                                    </div>
+                                    <p id="quickPlotFileName" class="quick-plot-file-name d-none">
+                                        {{ _('No file selected') }}
+                                    </p>
+                                    <div
+                                        id="quickPlotProgress"
+                                        class="progress quick-plot-progress d-none"
+                                        role="progressbar"
+                                        aria-label="{{ _('Upload progress') }}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100"
+                                        aria-valuenow="0"
+                                    >
+                                        <div id="quickPlotProgressBar" class="progress-bar" style="width: 0%"></div>
+                                    </div>
+                                    <p
+                                        id="quickPlotStatus"
+                                        class="quick-plot-status d-none"
+                                        role="status"
+                                        aria-live="polite"
+                                    ></p>
+                                    <p
+                                        id="quickPlotError"
+                                        class="quick-plot-error d-none"
+                                        role="alert"
+                                        aria-live="assertive"
+                                    ></p>
+                                    <span id="i18nQuickPlotUploading" class="d-none">{{ _('Uploading') }}</span>
+                                    <span id="i18nQuickPlotUploadFailed" class="d-none">{{ _('Upload failed') }}</span>
+                                    <span id="i18nQuickPlotInvalidFileType" class="d-none">
+                                        {{ _('Supported files: CSV, TSV, SSV, ZIP, and 7Z.') }}
+                                    </span>
+                                    <span id="i18nQuickPlotFileTooLarge" class="d-none">
+                                        {{ _('The maximum file size is 100 MB.') }}
+                                    </span>
+                                </section>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div id="progressDisplay" class="col-xl-2 progress-display border-dash-gray"></div>
+                <div id="progressDisplay" class="col-sm-12 col-md-2 progress-display border-dash-gray"></div>
             </div>
 
             <div class="col-xl-10 col-md-12 pl-0">
-                <span>
-                    {% for p in _('ProcNameExplanation').split('\n') %}
-                        <p class="mb-0" style="line-height: 1.5">{{ p }}</p>
-                    {% endfor %}
-                </span>
                 <div class="mt-3">
                     <form id="procCfgForm" onSubmit="return false;">
                         <div id="processGeneralInfo" name="processGeneralInfo">
@@ -167,6 +246,36 @@
         </div>
     </div>
     {# End - HTML confirmation modal #}
+
+    {# Quick Plot uses a dedicated modal so existing confirmation callbacks remain untouched. #}
+    <div
+        id="quickPlotReplaceModal"
+        class="modal fade"
+        data-backdrop="static"
+        data-keyboard="false"
+        tabindex="-1"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quickPlotReplaceTitle"
+    >
+        <div class="modal-dialog modal-confirm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 id="quickPlotReplaceTitle" class="modal-title">{{ _('Warning') }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ _('Cancel') }}">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ _('Uploading this file will replace the current Path. Continue?') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="quickPlotReplaceConfirm" type="button" class="btn btn-primary">{{ _('OK') }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _('Cancel') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
@@ -186,8 +295,10 @@
     <script src="{{ url_for('setting_module.static', filename = 'js/register_from_file.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/copy_paste_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/proc_config_modals.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/config_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_table_utils.js') }}"></script>
     <script src="{{ url_for('setting_module.static', filename = 'js/jspreadsheet_process_config.js') }}"></script>
     <script src="{{ url_for('static', filename = 'modules/jspreadsheet/js/index.js') }}"></script>
     <script src="{{ url_for('static', filename = 'modules/jsuites/js/jsuites.js') }}"></script>
+    <script src="{{ url_for('setting_module.static', filename = 'js/quick_plot.js') }}"></script>
 {% endblock %}

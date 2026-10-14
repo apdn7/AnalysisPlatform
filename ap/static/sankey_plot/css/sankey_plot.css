@@ -82,14 +82,6 @@ canvas {
     min-height: 70px;
 }
 
-.plot-container.plotly {
-    background-color: #222;
-}
-
-.plot-container.plotly .main-svg {
-    background: unset !important;
-}
-
 .skd-scp {
     position: relative;
 }

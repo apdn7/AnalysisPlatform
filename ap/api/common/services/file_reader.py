@@ -22,6 +22,7 @@ class StructuredFileReader:
     Attributes:
         filenames: list of file names
         encoding: encoding used to read files
+        auto_encoding: whether encoding detection and decoding fallbacks are enabled
         delimiter: delimiter used to separate columns
         headers: list of column names
         data: list of rows of data
@@ -59,6 +60,11 @@ class StructuredFileReader:
     is_mismatched_cols: bool = False
     etl_func: str | None = None
     is_file_checker: bool = False
+    encoding_verify_limit: int | None = 1000
+    selected_columns: list[str] | None = None
+    limit_includes_header: bool = False
+    projected_dummy_headers: list[str] = dataclasses.field(default_factory=list)
+    auto_encoding: bool | None = None
 
     @overload
     def update(
@@ -144,10 +150,17 @@ class StructuredFileReader:
         detected_encoding = None
         detected_delimiter = None
         # auto-detect selection
-        encoding = None if self.encoding == Encoding.AUTO_DETECT.code else self.encoding
+        # Note: encoding is only AUTO_DETECT during datasource preview or register by file preview
+        # In database, encoding is the detected value during preview
+        encoding = None if (self.auto_encoding or self.encoding == Encoding.AUTO_DETECT.code) else self.encoding
         delimiter = None if self.delimiter == CsvDelimiter.Auto.name else self.delimiter
         if not encoding or not delimiter:
-            detected_delimiter, detected_encoding = get_delimiter_encoding(target_file, preview=True)
+            detected_delimiter, detected_encoding = get_delimiter_encoding(
+                target_file,
+                preview=True,
+                verify_limit=self.encoding_verify_limit,
+                user_selected_encoding=encoding if encoding else None,
+            )
 
         self.encoding = encoding or detected_encoding
         self.delimiter = delimiter or detected_delimiter
@@ -169,50 +182,102 @@ class StructuredFileReader:
         }
 
     def read_single_file(self, filename, is_transpose=False):
-        try:
+        def read_dataframe(encoding: str | None, encoding_errors: str = 'strict'):
             params = self.get_params()
+            params['encoding'] = encoding
+            params['encoding_errors'] = encoding_errors
             if self.limit is not None:
-                params.update({'nrows': self.limit})
+                header_allowance = 0 if self.limit_includes_header else 1
+                params.update({'nrows': self.limit + header_allowance})
 
-            df = pd.read_csv(filename, **params)
+            if self.selected_columns and not is_transpose:
+                header_params = {**params, 'nrows': 1}
+                header_df = pd.read_csv(filename, **header_params)
+                header_values = header_df.iloc[0].fillna('')
+                selected = set(self.selected_columns)
+                normalized_selected = set(normalize_list(self.selected_columns))
+                if self.skip_head == 0:
+                    dummy_headers = ['col', *[f'col_{index:02}' for index in range(1, len(header_values))]]
+                    selected_indices = [
+                        index
+                        for index, header in enumerate(dummy_headers)
+                        if header in selected or normalize_list([header])[0] in normalized_selected
+                    ]
+                    self.projected_dummy_headers = [dummy_headers[index] for index in selected_indices]
+                else:
+                    sanitized_headers, *_ = add_suffix_if_duplicated(list(header_values))
+                    normalized_headers = normalize_list(list(header_values))
+                    selected_indices = [
+                        index
+                        for index, (sanitized, raw, normalized) in enumerate(
+                            zip(sanitized_headers, header_values, normalized_headers, strict=False),
+                        )
+                        if sanitized in selected or raw in selected or normalized in normalized_selected
+                    ]
+                # A generated column such as FileName still needs one physical
+                # column to establish the preview row count.
+                params['usecols'] = selected_indices or [0]
+            return pd.read_csv(filename, **params)
 
-            # transpose df
-            if is_transpose:
-                df = df.T
-
-            # Manually get the header from the file
-            # It's the first row in the DataFrame
-            # Convert NA to empty
-            columns_with_na_as_empty = df.iloc[0].fillna('')
-            # Mask empty columns as `col`, then add suffix to avoid duplication before concatenating DataFrames
-            # dummy_name_filled_columns = add_suffix_for_same_column_name(
-            #     {cid: (col or 'col') for cid, col in enumerate(columns_with_na_as_empty)}
-            # )
-            no_duplicated_cols, *_ = add_suffix_if_duplicated(list(columns_with_na_as_empty))
-            # Remove the original header row (first row) from the DataFrame.
-            df = df.iloc[1:]
-
-            # to merge data by columns
-            # df.columns = columns
-            df.columns = no_duplicated_cols
-            # Restore original column names (including empty) after concatenating the dfs
-            sanitized_columns = dict(zip(no_duplicated_cols, columns_with_na_as_empty, strict=False))
-
-            return df, sanitized_columns
+        try:
+            df = read_dataframe(self.encoding)
         except ParserError as e:
             logger.exception(e)
             raise e
+        except UnicodeDecodeError:
+            if not self.auto_encoding:
+                raise
+            try:
+                logger.exception(f'UnicodeDecodeError with encoding {self.encoding}, trying unicode_escape')
+                df = read_dataframe('unicode_escape')
+            # prior to pandas 1.3, `encoding_errors` wasn't added, and the default behavior was `replace`
+            # after pandas 1.3, `encoding_errors` attribute was added with default value was `raise`
+            # see more: <https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html#:~:text=standard%20encodings%20.-,encoding_errorsstr,-%2C%20optional%2C%20default%20%E2%80%98strict>
+            except UnicodeDecodeError:
+                logger.exception('UnicodeDecodeError with unicode_escape, trying utf-8 with errors=replace')
+                df = read_dataframe(None, encoding_errors='replace')
+
+        # transpose df
+        if is_transpose:
+            df = df.T
+
+        # Manually get the header from the file
+        # It's the first row in the DataFrame
+        # Convert NA to empty
+        columns_with_na_as_empty = df.iloc[0].fillna('')
+        # Mask empty columns as `col`, then add suffix to avoid duplication before concatenating DataFrames
+        # dummy_name_filled_columns = add_suffix_for_same_column_name(
+        #     {cid: (col or 'col') for cid, col in enumerate(columns_with_na_as_empty)}
+        # )
+        no_duplicated_cols, *_ = add_suffix_if_duplicated(list(columns_with_na_as_empty))
+        # Remove the original header row (first row) from the DataFrame.
+        df = df.iloc[1:]
+
+        # to merge data by columns
+        # df.columns = columns
+        df.columns = no_duplicated_cols
+        # Restore original column names (including empty) after concatenating the dfs
+        sanitized_columns = dict(zip(no_duplicated_cols, columns_with_na_as_empty, strict=False))
+
+        return df, sanitized_columns
 
     def read_data_from_files(self, filenames=None):
         """Read data from files"""
         column_names = []
         data_detail = []
         sanitized_column_map = {}
+        original_limit = self.limit
+        remaining_limit = self.limit
 
         try:
             for file in filenames:
+                if remaining_limit is not None and remaining_limit <= 0:
+                    break
+                self.limit = remaining_limit
                 # read data from one file
                 df, sanitized_columns = self.read_single_file(file, is_transpose=self.is_transpose)
+                if remaining_limit is not None:
+                    remaining_limit -= len(df)
                 sanitized_column_map = {**sanitized_column_map, **sanitized_columns}
                 columns_update = not column_names or len(column_names) < len(df.columns)
                 if columns_update:
@@ -257,6 +322,8 @@ class StructuredFileReader:
         except (ParserError, Exception) as e:
             logger.exception(e)
             raise e
+        finally:
+            self.limit = original_limit
 
     def read_data_from_mismatched_headers(self, target_file):
         """
@@ -293,6 +360,21 @@ class StructuredFileReader:
             self.skip_head = chw.get_skip_head(dic_file_info)
             self.skip_tail = chw.get_skip_tail(dic_file_info)
             self.headers = chw.get_columns_name(dic_file_info)
+            if self.selected_columns:
+                sanitized_headers, *_ = add_suffix_if_duplicated(self.headers)
+                selected = set(self.selected_columns)
+                normalized_selected = set(normalize_list(self.selected_columns))
+                normalized_headers = normalize_list(self.headers)
+                self.headers = [
+                    raw
+                    for sanitized, raw, normalized in zip(
+                        sanitized_headers,
+                        self.headers,
+                        normalized_headers,
+                        strict=False,
+                    )
+                    if sanitized in selected or raw in selected or normalized in normalized_selected
+                ]
             etl_headers = chw.get_etl_headers(dic_file_info)
             data_types = chw.get_data_type(dic_file_info)
             self.headers, self.data = self.read_data_normal_file(csv_file)

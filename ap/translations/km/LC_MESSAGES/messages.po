@@ -219,6 +219,14 @@ msgstr "ឈ្មោះដំណើរការ"
 msgid "Table Name"
 msgstr "ឈ្មោះតារាង"
 
+#: ap/templates/setting_module/proc_config_modals.html:1433
+msgid "Merge Data Source Name"
+msgstr "Merge Data Source Name"
+
+#: ap/templates/setting_module/proc_config_modals.html:1453
+msgid "Child Process Table Name"
+msgstr "Child Process Table Name"
+
 # ap/templates/setting_module/background_process.html
 #: ap/templates/setting_module/proc_config_modals.html:23
 msgid "Detail"
@@ -4883,11 +4891,16 @@ msgstr "(Optional) Data file used to estimate data types"
 #: ap/templates/register_by_file.html
 msgid "SourceExplanation"
 msgstr ""
-"If the source is a folder, all files in the folder will be loaded; if the"
-" source is a file, only that file will be loaded.\n"
-"If multiple files are to be loaded or additional data is to be loaded "
-"automatically, please specify a folder as the reference.\n"
-"All files (CSV, TSV, SSV) must have the same column name."
+"Choose either a folder or a file path.\r\n"
+"\tFolder: Loads all files in the folder and automatically imports file "
+"updates and new files.\n"
+"\t\t\t\t All files, including subfolders, must be CSV/TSV/SSV files with "
+"the same column names.\r\n"
+"\tFile: Loads only the selected file. No automatic import of additional "
+"files.\r\n"
+"The following items are generated automatically from the folder name.\n"
+"To use a custom name and modify data types, edit them before clicking "
+"Register."
 
 #: ap/templates/register_by_file.html
 msgid "ProcNameExplanation"
@@ -5901,9 +5914,39 @@ msgstr ""
 "The data source columns have changed. The imported data may no longer be "
 "accurate. Please reinitialize the process and re-register."
 
-#: ap/api/setting_module/controllers.py:495
-msgid "Unable to connect to data source. No preview data available."
-msgstr "Unable to connect to data source. No preview data available."
+#: ap/templates/setting_module/proc_config_modals.html:212
+#: ap/templates/setting_module/proc_config_modals.html:860
+msgid "Preview Update"
+msgstr "Preview Update"
+
+#: ap/templates/setting_module/proc_config_modals.html:864
+msgid "Preview Update will access the external data source."
+msgstr "Preview Update will access the external data source."
+
+#: ap/templates/setting_module/proc_config_modals.html:866
+msgid ""
+"Repeated execution may increase the load on the source system. Do you "
+"want to continue?"
+msgstr ""
+"Repeated execution may increase the load on the source system. Do you "
+"want to continue?"
+
+#: ap/api/setting_module/controllers.py:577
+msgid ""
+"No local preview data is available. Use Preview Update to access the "
+"external data source."
+msgstr ""
+"No local preview data is available. Use Preview Update to access the "
+"external data source."
+
+#: ap/api/setting_module/controllers.py:504
+#: ap/api/setting_module/controllers.py:508
+msgid "Unable to connect to data source. Existing preview data was kept."
+msgstr "Unable to connect to data source. Existing preview data was kept."
+
+#: ap/api/setting_module/controllers.py:616
+msgid "Preview Update failed. Existing preview data was kept."
+msgstr "Preview Update failed. Existing preview data was kept."
 
 #: ap/api/setting_module/controllers.py:398
 msgid "Failed to find connect to URL. Please check your URL."
@@ -6506,6 +6549,91 @@ msgstr ""
 "Choose how many sub-panels each Div group shows (2, 3, or 6). More "
 "primaries can be selected when a smaller size is used, as long as (size x"
 " number of primaries) stays within 6."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Quick Plot"
+msgstr "Quick Plot"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "No file selected"
+msgstr "No file selected"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Upload progress"
+msgstr "Upload progress"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Uploading"
+msgstr "Uploading"
+
+#: ap/api/setting_module/controllers.py
+#: ap/templates/setting_module/register_by_file.html
+msgid "Upload failed"
+msgstr "Upload failed"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Supported files: CSV, TSV, SSV, ZIP, and 7Z."
+msgstr "Supported files: CSV, TSV, SSV, ZIP, and 7Z."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "The selected file exceeds the 100 MB limit."
+msgstr "The selected file exceeds the 100 MB limit."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Uploading this file will replace the current Path. Continue?"
+msgstr "Uploading this file will replace the current Path. Continue?"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Auto Registration"
+msgstr "Auto Registration"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Path"
+msgstr "Path"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "(File Drop)"
+msgstr "(File Drop)"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "It will be plotted immediately after uploading."
+msgstr "It will be plotted immediately after uploading."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Additional files cannot be imported into the same data source."
+msgstr "Additional files cannot be imported into the same data source."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "Registered data is automatically deleted after one month."
+msgstr "Registered data is automatically deleted after one month."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "The data source name is created from the file name."
+msgstr "The data source name is created from the file name."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "This file is uploaded to and shared on the DN7 server."
+msgstr "This file is uploaded to and shared on the DN7 server."
+
+#: ap/templates/setting_module/register_by_file.html
+msgid "(Under C:\\Analysis\\data\\quickplot on the computer running DN7)"
+msgstr "(Under C:\\Analysis\\data\\quickplot on the computer running DN7)"
+
+#: ap/templates/setting_module/register_by_file.html
+msgid ""
+"Personal use is permitted, but when using DN7 in an organization, confirm"
+" with your administrator in advance that uploads are allowed."
+msgstr ""
+"Personal use is permitted, but when using DN7 in an organization, confirm"
+" with your administrator in advance that uploads are allowed."
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcDataSourceLabel"
+msgstr "Data Source Name"
+
+#: ap/templates/setting_module/proc_config_modals.html
+msgid "ProcReferenceFileLabel"
+msgstr "Reference file"
 
 #~ msgid ""
 #~ "Category expansion is performed to "

@@ -35,9 +35,12 @@ class FunctionFieldError(Exception):
     Attributes:
         errors: List of ErrorField objects describing the errors.
         id: Optional function ID where the error occurred.
+        x_array: Optional sampled X values.
+        y_array: Optional sampled Y values.
 
     Methods:
         with_id: Sets the function ID for the error.
+        with_sample_data: Sets the sampled X and Y values for the error response.
         has_error: Checks if any errors are present.
         add_error: Adds one or more ErrorField objects.
         parse: Converts the error to a dictionary format.
@@ -52,13 +55,22 @@ class FunctionFieldError(Exception):
         *,
         id: int | None = None,
         errors: list[ErrorField] | None = None,
+        x_array: list[Any] | None = None,
+        y_array: list[Any] | None = None,
     ) -> None:
         super().__init__(msg)
         self.errors = errors if errors else []
         self.id = id
+        self.x_array = x_array
+        self.y_array = y_array
 
     def with_id(self, id: int) -> FunctionFieldError:
         self.id = id
+        return self
+
+    def with_sample_data(self, x_array: list[Any], y_array: list[Any]) -> FunctionFieldError:
+        self.x_array = x_array
+        self.y_array = y_array
         return self
 
     def has_error(self) -> bool:
@@ -69,7 +81,7 @@ class FunctionFieldError(Exception):
         return self
 
     def parse(self) -> dict[str, Any]:
-        return {'id': self.id, 'errors': self.errors}
+        return {'id': self.id, 'errors': self.errors, 'sample_x': self.x_array, 'sample_y': self.y_array}
 
     def __repr__(self) -> str:
         """

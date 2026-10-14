@@ -79,7 +79,6 @@ const createHeatMap = (prop) => {
         colorbar: {
             title: {
                 text: customFuncTitle,
-                font: 10,
             },
             y: 0.48,
             len: 1.12,
@@ -175,6 +174,9 @@ const createHeatMap = (prop) => {
         config,
     });
     const hdPlot = document.getElementById(prop.canvasId);
+    // Each render starts with legacy defaults, even when reusing an existing graph node.
+    hdPlot.dataset.chmSize = 'base';
+    hdPlot.dataset.chmTheme = 'dark';
     const genCHMDataTable = (fromDate, toDate, zValue) => {
         let tblContent = '<tr>';
         tblContent += genTRItems('From', fromDate);

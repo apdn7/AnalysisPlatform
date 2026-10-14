@@ -375,9 +375,9 @@ const showErrorMsgHeatMapChart = () => {
         DataTypes.BOOLEAN.short,
         DataTypes.JUDGE.short,
     ];
-    const checkedVariablesType = [...$('input[name^=GET02_VALS_SELECT]:checked')].map((el) =>
-        categoryTypes.includes($(el).attr('data-type-shown-name')),
-    );
+    const checkedVariablesType = findValidationInputs('input[name^=GET02_VALS_SELECT]:checked', formElements.formID)
+        .get()
+        .map((el) => categoryTypes.includes($(el).attr('data-type-shown-name')));
     if (!checkedVariablesType.includes(false)) {
         // show error msg
         showToastrMsg(i18n.i18nGotoHMpMsg, MESSAGE_LEVEL.ERROR);
@@ -1537,6 +1537,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         onChangeColNumber();
         onChangePlotType();
         onChangeArrangeDiv();
+        onApplyStyleSetting();
     }
 
     loadingHide();
@@ -1684,7 +1685,7 @@ const genHTMLContentMatrix = (
                      </div>
                     </div>
                 </div>
-                <div class="colorbar ${!stringCol ? 'none-margin' : ''}">
+                <div class="colorbar${!stringCol ? ' none-margin' : ''}">
                   <div id="coloScaleBar"></div>
                 </div>
         </div>
@@ -1863,7 +1864,6 @@ const genColorBarForViolin = (allColors, styles) => {
             ticks: '',
             showticklabels: false,
         },
-        width: 100,
         padding: {
             r: -100,
             l: -100,

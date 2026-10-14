@@ -113,7 +113,7 @@ def add_double_quote(val):
     if not val:
         return val
 
-    return f'"{val}"'
+    return f'"{str(val).replace('"', '""')}"'
 
 
 # def add_quote_to_values(model_cls, dic_values):

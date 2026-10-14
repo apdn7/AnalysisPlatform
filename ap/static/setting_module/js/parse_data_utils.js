@@ -115,13 +115,22 @@ const parseJudgeData = (v, formula = undefined) => {
  * @param sampleDataDisplayMode
  * @param {HTMLDivElement?} dataTypeDropdownElement - a div HTML object of datatype dropdown menu
  */
-const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleDataDisplayMode = null) => {
+const parseDataTypeProc = async (
+    spreadsheet,
+    dataType,
+    idx,
+    columnType,
+    sampleDataDisplayMode = null,
+    sourceDataType = null,
+) => {
     // change background color
     // changeBackgroundColor(ele);
 
-    const vals = [...$(`#${spreadsheet.table.table.el.id}`).find(`tr:eq(${Number(idx) + 1}) .sample-data`)].map((el) =>
-        $(el),
-    );
+    // Rows outside the current JSpreadsheet page are detached from tbody but
+    // remain available in the table model. Resolve the row by model index so
+    // parsing also works after navigating to page 2 and beyond.
+    const rowElement = spreadsheet.table.getRowElementByIndex(Number(idx));
+    const vals = [...rowElement.querySelectorAll('.sample-data')].map((el) => $(el));
 
     // only get sample which have value
     const tableId = spreadsheet.table.tableId;
@@ -150,12 +159,30 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
     };
 
     const attrName = getAttributeName(sampleDataDisplayMode, dataType, columnType);
+    const getSourceValue = (element) => {
+        let value = element.attr(attrName);
+        // Bulk edits defer parsing until a row is visible, after its model datatype has already changed.
+        const sampleDataType =
+            attrName === DATA_ORIGINAL_ATTR ? element.attr('data-original-type') || sourceDataType : sourceDataType;
+        if (sampleDataType !== DataTypes.BOOLEAN.name || sampleDataType === dataType) {
+            return value;
+        }
+
+        // Registered Boolean columns are returned as true/false values. Preserve
+        // their meaning when the user changes to a numeric or text data type.
+        if (value === undefined || value === '') {
+            value = element.text();
+        }
+        const booleanValue = parseBooleanData(value);
+        if (NUMERIC_TYPES.includes(dataType)) {
+            return booleanValue === 'true' ? '1' : booleanValue === 'false' ? '0' : '';
+        }
+        return booleanValue;
+    };
 
     // Parse data using user provided formula
     let sampleDatas = vals.map((e) => e.attr(attrName));
-    const formula = $(`#${spreadsheet.table.table.el.id}`)
-        .find(`tr:eq(${Number(idx) + 1}) .column-formula`)
-        .text();
+    const formula = $(rowElement).find('.column-formula').text();
 
     // try to parse data using formula if it has formula
     const parseByFormula = (isJudgeFormula(columnType) || isDatetimeFormula(dataType, columnType)) && formula;
@@ -182,7 +209,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
     switch (dataType) {
         case DataTypes.INTEGER.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 const isBigInt = !!+e.attr('is-big-int');
                 if (!isBigInt || isRequireParsing) val = parseIntData(val);
                 spreadsheet.table.updateCell(e[0], val, true);
@@ -190,7 +217,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
             break;
         case DataTypes.INTEGER_SEP.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 if (isRequireParsing) {
                     val = val.replaceAll(',', '');
                     val = parseIntData(val);
@@ -200,7 +227,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
             break;
         case DataTypes.EU_INTEGER_SEP.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 if (isRequireParsing) {
                     val = val.replaceAll('.', '');
                     val = val.replaceAll(',', '.');
@@ -211,7 +238,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
             break;
         case DataTypes.REAL.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 if (isRequireParsing) {
                     val = parseFloatData(val);
                 }
@@ -220,7 +247,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
             break;
         case DataTypes.REAL_SEP.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 if (isRequireParsing) {
                     val = val.replaceAll(',', '');
                     val = parseFloatData(val);
@@ -230,7 +257,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
             break;
         case DataTypes.EU_REAL_SEP.name:
             for (const e of vals) {
-                let val = e.attr(attrName);
+                let val = getSourceValue(e);
                 if (isRequireParsing) {
                     val = val.replaceAll('.', '');
                     val = val.replaceAll(',', '.');
@@ -310,7 +337,7 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
                 }
             } else {
                 for (const e of vals) {
-                    let val = e.attr(attrName);
+                    let val = getSourceValue(e);
                     val = trimBoth(String(val));
                     spreadsheet.table.updateCell(e[0], val, true);
                 }
@@ -319,9 +346,10 @@ const parseDataTypeProc = async (spreadsheet, dataType, idx, columnType, sampleD
     }
 };
 
-const parseProcDatetimeFormatSampleData = async (dataType, values) => {
+const parseProcDatetimeFormatSampleData = async (dataType, values, isImportedData = false) => {
     const condition = displayDatetimeFormatCondition();
-    const inputFormat = procModalElements.procDateTimeFormatInput.val().trim();
+    // IMPORTED values were already converted with the Process format, so only auto-format them
+    const inputFormat = isImportedData ? '' : procModalElements.procDateTimeFormatInput.val().trim();
     const isAllEmpty = values.every((val) => val === '' || val === null);
     if (isAllEmpty) return values;
     if (condition.showRawData) {

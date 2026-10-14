@@ -7,6 +7,9 @@ from flask import Blueprint, jsonify, request
 from ap import max_graph_config
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_jump_function import get_graph_context_param
+from ap.api.common.services.show_graph_services import (
+    unify_common_scale_across_procs,
+)
 from ap.api.trace_data.services.csv_export import (
     gen_csv_data,
 )
@@ -90,6 +93,11 @@ def show_graph_fpp(dic_param, orig_graph_param=None, df=None):
         )
         org_dic_param = update_data_from_multiple_dic_params(org_dic_param, fpp_data)
         org_dic_param = update_fpp_data_from_multiple_dic_params(org_dic_param, fpp_data, is_first_dic_param)
+
+    # Common Y scale is computed per process; unify it across (possibly non-linked) processes
+    # so graphs share a single common scale when the common Y-scale option is selected.
+    org_dic_param = unify_common_scale_across_procs(org_dic_param)
+
     # export mode ( output for export mode )
     set_export_dataset_id_to_dic_param(org_dic_param)
     org_dic_param['dataset_id'] = save_draw_graph_trace(vals=trace_log_params(EventType.FPP))

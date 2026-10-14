@@ -438,16 +438,18 @@ const addToolTip = () => {
 
 const loadUserInputAgain = (parent) => {
     const inputForms = $('form');
+
     // load user input on page load
-    setTimeout(() => {
-        inputForms.each((i, form) => {
+    setTimeout(async () => {
+        for (const form of inputForms) {
             try {
                 const userInput = saveLoadUserInput(`#${form.id}`, window.location.pathname, parent);
-                userInput();
+
+                await userInput();
             } catch (e) {
                 console.log(e);
             }
-        });
+        }
     }, 500);
 };
 

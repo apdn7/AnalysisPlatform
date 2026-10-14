@@ -16,6 +16,18 @@ export const buildLayoutStateKey = (value: string, itemId: string | number): str
 // Primary value: '1'~'6'
 export const isPrimaryValue = (value: string): boolean => /^[1-6]$/.test(value);
 
+export function getLayoutPriorityOrder(value: string): number | undefined {
+    if (!value) return undefined;
+
+    const orderPriority = ['', 'lab', 'step', 'main', 'sub', 'add', 'color', 'color_imb'];
+    const match = value.match(/^(\d+)(lab|step|main|sub|add|color|color_imb)?$/);
+    if (!match) return 1;
+
+    const group = Number(match[1]) + 1;
+    const offset = match[2] ?? '';
+    return group + orderPriority.indexOf(offset) * 0.01;
+}
+
 // Any per-subplot value '<order><field>' → { order, field }. '1main'→{1,'main'}, '2lab'→{2,'lab'}.
 // Returns null for primary values ('1'~'6') and non-subplot values.
 export const parseAnySubplotValue = (value: string): ParsedSubplot | null => {

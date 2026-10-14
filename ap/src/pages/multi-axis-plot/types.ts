@@ -20,6 +20,12 @@ export type PlotSeries = {
     marker_size?: number;
     line_width?: number;
     color_group?: string | number | null;
+    // Backend supplies aligned Color values only for non-category columns, regardless of data_type.
+    array_color?: (number | null)[] | null;
+    color_data_type?: string | null;
+    color_column_id?: number | null;
+    color_title?: string | null;
+    is_global_color?: boolean;
     is_numeric_dtype?: boolean;
     is_xaxis_category?: boolean;
     x_axis_datatype?: string;

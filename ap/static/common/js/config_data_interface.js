@@ -460,7 +460,10 @@ class CfgProcess {
         if (this.columns && this.columns.length) {
             return;
         } else {
+            const loadingObj = loadingHandler();
+            loadingObj.show();
             await this.getColumnFromDB();
+            loadingObj.hide();
         }
     };
 

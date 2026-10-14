@@ -2739,6 +2739,53 @@ def calc_scale_info(
     return True
 
 
+def unify_common_scale_across_procs(dic_param):
+    """Unify the common Y scale (SCALE_COMMON) across every plot of all processes.
+
+    In FPP each (possibly non-linked) process is processed independently, so
+    ``calc_raw_common_scale_y`` only sees a single process's plots and SCALE_COMMON is
+    computed per process. When the user selects the common Y-scale option and two processes
+    are not data-linked, their graphs must still share one scale. Here we aggregate the
+    already-computed per-process SCALE_COMMON min/max over all numeric plots and rewrite each
+    numeric plot's SCALE_COMMON in place so they share a single global scale.
+
+    Aggregating the existing per-process SCALE_COMMON values (instead of recomputing from the
+    raw/thinned arrays) preserves the accurate full-data min/max and the per-process exclusion
+    of string/count columns.
+    """
+    array_plotdata = dic_param.get(ARRAY_PLOTDATA) or []
+    if len(array_plotdata) < 2:
+        return dic_param
+
+    string_col_ids = set(dic_param.get(STRING_COL_IDS) or [])
+
+    # Numeric plots are the only ones whose SCALE_COMMON represents a real value range;
+    # string/count columns keep their own SCALE_COMMON untouched.
+    numeric_plots = [
+        plotdata
+        for plotdata in array_plotdata
+        if plotdata.get(SCALE_COMMON) and plotdata.get(END_COL_ID) not in string_col_ids
+    ]
+
+    y_mins = [
+        plotdata[SCALE_COMMON][Y_MIN] for plotdata in numeric_plots if plotdata[SCALE_COMMON].get(Y_MIN) is not None
+    ]
+    y_maxs = [
+        plotdata[SCALE_COMMON][Y_MAX] for plotdata in numeric_plots if plotdata[SCALE_COMMON].get(Y_MAX) is not None
+    ]
+    if not y_mins or not y_maxs:
+        return dic_param
+
+    all_graph_min = min(y_mins)
+    all_graph_max = max(y_maxs)
+
+    for plotdata in numeric_plots:
+        plotdata[SCALE_COMMON][Y_MIN] = all_graph_min
+        plotdata[SCALE_COMMON][Y_MAX] = all_graph_max
+
+    return dic_param
+
+
 @log_execution_time()
 def gen_kde_data_trace_data(dic_param, full_arrays, y_scale_mode: YScaleModes = YScaleModes.AUTO):
     array_plotdata = dic_param.get(ARRAY_PLOTDATA)

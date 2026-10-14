@@ -1,5 +1,81 @@
 # Releases
 
+## 4.9.6
+
+This release primarily focuses on improving support for datasets with a large number of columns.
+In particular, we have optimized the UI to significantly improve rendering performance.
+
+Future versions will further expand the platform's capabilities to enable more efficient analysis of high-dimensional datasets.
+
+New Features
+
+- Improved data source config:
+  - Optimized performance for data sources with large numbers of columns
+  - Uses a virtual list for CSV data sources
+  - Improved deletion speed for data sources with many columns
+  -  <img width="2476" height="1104" alt="data_source_2000cols" src="https://github.com/user-attachments/assets/cd365757-5d7c-4da7-ae99-9d415094dd74" />
+- Improved Process Config
+  - Optimized performance when handling large numbers of columns
+  - Added pagination with previous and next buttons, as in the Variable Select window.
+  - <img width="3510" height="1563" alt="proc-config_2000cols" src="https://github.com/user-attachments/assets/cd090234-c9df-4d39-835a-14d32c976cf8" />
+- Improved the performance of the "Display variable" field.
+  - Uses a virtual list, so the backend no longer needs to return all columns.
+
+- (Config)
+  - Added "Quick Plot"
+    - Import CSV/TSV files by dragging and dropping them or using the file browser.
+    - Data is uploaded to C://Analysis/data/quickplot on the machine hosting AP+DN7.
+    - Uploaded data is deleted after one month.
+    - <img width="2650" height="1641" alt="quickplot" src="https://github.com/user-attachments/assets/fee21a16-5bab-4c09-a452-c3bd1756ff24" />
+
+Improvements
+
+- (Common)
+  - Applied font-size and light/dark mode styling to all charts.
+  - Updated the sidebar to expand all fields when activated.
+  - Improved the layout of the Jump page.
+  - Updated the behavior of some buttons on the navigation bar.
+    - Menus now appear when hovering over the bookmark settings, tour, and filter label buttons.
+  - Improved validation for the "Display graph" button.
+- (FPP)
+  - Added support for a shared Y-axis scale.
+  - High-speed mode (blue data points) is now activated for each Facet.
+- (PCP)
+  - Now displays units configured in Process Config.
+  - PCP now abbreviates long process names to make them easier to read.
+  - <img width="2515" height="625" alt="image" src="https://github.com/user-attachments/assets/674701e8-86e1-4ffa-857f-b9ac957667ea" />
+
+- (WfP)
+  - Added support for CSV/TSV exports.
+- (MAP)
+  - Applied the Jet color scale to real values.
+- (Config)
+  - Added a button to save filter configurations from the on-demand filter modal.
+  - <img width="1737" height="434" alt="image" src="https://github.com/user-attachments/assets/57e9a96f-ccf7-4edf-a197-c50e6dc1d2fc" />
+  - Displays the full process and data source names on hover in config windows.
+- (Misc)
+  - Now uses Parquet for data previews to reduce the number of ETL accesses.
+  - Added favicons to HMP, WFP, MAP, and SCP.
+  - Upgraded Plotly to address an XSS sanitizer bypass in MapLibre GL JS.
+
+Bug Fixes
+
+- (Common)
+  - Fixed an issue where Y-axis text was partially hidden when the font size was set to a large value.
+- (FPP)
+  - Fixed an issue where bookmarks and bookmark graph settings were not applied when loaded in FPP.
+- (PCP)
+  - Fixed a missing data field in exported data.
+- (Config)
+  - Data Source Config:
+    - Fixed a missing column in the CSV config when using transpose.
+    - Fixed CSV imports to fall back to `unicode_escape` when a `UnicodeDecodeError` occurs.
+  - Data Link Config:
+    - Fixed an issue where the proc link preview returned a 500 status code.
+  - Process Config:
+    - Fixed an issue where duplicate process column names were not listed when a duplicate error occurred.
+    - Fixed an issue where the columns for `X` were not displayed in the `extract.reg` function.
+
 ## 4.9.5
 
 New Features

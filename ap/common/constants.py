@@ -42,6 +42,16 @@ REMOVED_OUTLIERS = 'outliers'
 CAST_INF_VALS = 'cast_inf_vals'
 DATA_TYPE_ESTIMATION_LIMIT = 10000
 V2_PREVIEW_LIMIT = 1000
+# Preview data-source lifecycle limits.
+PREVIEW_DISPLAY_LIMIT = 10
+PREVIEW_EXTERNAL_ANALYSIS_LIMIT = 10000
+PREVIEW_INTERNAL_ANALYSIS_LIMIT = 100000
+PREVIEW_PROCESS_PARQUET_CLEANUP_THRESHOLD = 10000
+PREVIEW_WIDE_SOURCE_COLUMN_THRESHOLD = 3000
+PREVIEW_WIDE_SOURCE_ANALYSIS_LIMIT = 10000
+PREVIEW_FUNCTION_SAMPLE_LIMIT = 1000
+PREVIEW_UNIQUE_COLUMN_BATCH_LIMIT = 100
+PREVIEW_SCHEMA_VERSION = 2
 SAMPLE_FUNCTION_DATA_UNIQUE = 50
 
 GA_TRACKING_ID_KEY = 'GA_TRACKING_ID'
@@ -2460,6 +2470,7 @@ ZERO_FILL_PATTERN_2 = r'^{\:([1-9])([<>])(\d+)d?\}$'  # {:1>10}, {:1>10}, {:1<10
 
 # instance folder names
 PREVIEW_DATA_FOLDER = 'preview_data'
+PREVIEW_DATA_DIR = 'PREVIEW_DATA_DIR'
 TRANSACTION_FOLDER = 'transaction'
 CONFIG_DB = 'app.sqlite3'
 SCHEDULER_DB = 'scheduler.sqlite3'
@@ -3021,6 +3032,7 @@ class JobType(Enum):
         DEL_ALL_TRANSACTION_DATA: Delete all transaction data job (30).
         DATA_EXPORT: Data export job (31).
         BULK_PROCESS_REGISTER: Bulk process registration job (32).
+        QUICK_PLOT_CLEANUP: Daily Quick Plot datasource and file retention cleanup job (35).
 
     Methods:
         __str__: Returns the string representation of the job type name.
@@ -3076,6 +3088,7 @@ class JobType(Enum):
     BULK_PROCESS_REGISTER = 32
     BACKUP_JOB_HISTORY = 33
     CLEANUP_JOB_HISTORY = 34
+    QUICK_PLOT_CLEANUP = 35
 
     @classmethod
     def jobs_include_process_id(cls):
@@ -3121,6 +3134,8 @@ class JobType(Enum):
 
     @classmethod
     def jobs_without_management_info(cls):
+        """Return scheduler jobs that should not create user-visible job-history records."""
+        # Lightweight maintenance jobs run silently and do not expose progress through JobManagement.
         return [
             cls.GEN_GLOBAL,
             cls.IDLE_MONITORING,
@@ -3128,6 +3143,7 @@ class JobType(Enum):
             cls.CLEAN_ZIP,
             cls.CLEAN_EXPIRED_REQUEST,
             cls.PROCESS_COMMUNICATE,
+            cls.QUICK_PLOT_CLEANUP,
         ]
 
     @classmethod
@@ -3228,6 +3244,19 @@ class CSVExtTypes(Enum):
     SSV = 'ssv'
     ZIP = 'zip'
     SEVEN_Z = '7z'
+
+
+# Quick Plot uploads are intentionally isolated from configurable application data paths.
+QUICK_PLOT_ROOT = r'C:\Analysis\data\quickplot'
+QUICK_PLOT_MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024
+# Allow bounded multipart headers around the single 100 MB file while rejecting declared oversized requests early.
+QUICK_PLOT_MAX_REQUEST_SIZE_BYTES = QUICK_PLOT_MAX_FILE_SIZE_BYTES + 1024 * 1024
+# Keep text fields bounded above Werkzeug's 64 KB parser chunk so retained multipart boundaries do not reject files.
+QUICK_PLOT_MAX_FORM_MEMORY_SIZE_BYTES = 1024 * 1024
+QUICK_PLOT_UPLOAD_RETENTION_MONTHS = 2
+QUICK_PLOT_DATA_SOURCE_RETENTION_MONTHS = 1
+QUICK_PLOT_STREAM_CHUNK_SIZE_BYTES = 1024 * 1024
+QUICK_PLOT_STALE_PART_HOURS = 24
 
 
 # Archive import/extraction constants

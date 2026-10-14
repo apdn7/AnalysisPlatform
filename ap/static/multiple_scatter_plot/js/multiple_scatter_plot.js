@@ -567,6 +567,8 @@ const scatterTraceData = (formData, clearOnFlyFilter = false, autoUpdate = false
         if (res.is_show_contour_only) {
             showToastrMsg(i18n.hideContourMsg);
         }
+
+        onApplyStyleSetting();
     });
 
     $('#plot-cards').empty();

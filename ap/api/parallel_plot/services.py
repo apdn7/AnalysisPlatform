@@ -317,6 +317,7 @@ def gen_plotdata(
                 'data_group_type': col_cfg.column_type,
                 'is_int_category': col_cfg.is_int_category,
                 'is_judge': col_cfg.is_judge,
+                'unit': col_cfg.unit,
             }
 
             if is_categorical_sensor:

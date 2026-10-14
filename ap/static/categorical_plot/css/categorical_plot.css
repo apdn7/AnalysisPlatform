@@ -322,10 +322,6 @@ canvas {
     max-width: calc((100% - 530px) / 8);
 }
 
-.stp-tab {
-    margin-top: -40px;
-}
-
 @media (max-width: 1200px) {
     .stp-tab {
         margin-top: 0px;

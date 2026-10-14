@@ -588,9 +588,8 @@ const orderCategoryWithOrderSeries = (traceData, clearOnFlyFilter) => {
 };
 
 const produceCategoricalTable = (traceData, options = {}) => {
-    const [categoriesLabel, _] = getLabelAndFilterValues();
-    let { category } = traceData.filter_on_demand;
-    category = category.filter((cate) => categoriesLabel.includes(cate.column_id));
+    const [categoriesLabel] = getLabelAndFilterValues();
+    const category = traceData.filter_on_demand.category.filter((item) => categoriesLabel.includes(item.column_id));
     // fix x-axis with datetime range
     const startDt = traceData.COMMON[CONST.STARTDATE];
     const startTm = traceData.COMMON[CONST.STARTTIME];
@@ -854,9 +853,9 @@ const initIndexModal = () => {
     });
 
     $(formElements.cancelOrderIndexModal).unbind('click');
-    $(formElements.cancelOrderIndexModal).on('click', function () {
+    $(formElements.cancelOrderIndexModal).on('click', async function () {
         setDefault();
-        renderTableContent();
+        await renderTableContent();
         if (currentXOption === CONST.XOPT_TIME) {
             $(formElements.tsXScale).val(currentXOption);
             resetCustomSelect($(formElements.tsXScale));
@@ -917,10 +916,7 @@ function initSelect() {
     });
     updatePriorityAndDisableSelected(formElements.serialTable2, tempName.serial);
 
-    setTimeout(() => {
-        // wait select2 to be shown
-        bindChangeOrderColEvent(formElements.serialTable2, tempName.serial, () => {}, tempName.order);
-    }, 200);
+    bindChangeOrderColEvent(formElements.serialTable2, tempName.serial, () => {}, tempName.order, tempName.process);
 }
 
 function getLastedSelectedValue(tableID, procName, columnName, orderName) {
@@ -941,7 +937,7 @@ function getLastedSelectedValue(tableID, procName, columnName, orderName) {
     latestIndexOrder = [...lastSelectedOrder];
 }
 
-function renderTableContent() {
+async function renderTableContent() {
     $(`${formElements.serialTable2} tbody`).html('');
     // get start proc
     const startProc = getFirstSelectedProc();
@@ -954,7 +950,7 @@ function renderTableContent() {
     const noTableRow = lastSelectedOrder.length <= 0;
     const isShowDefaultRow = hasAvailableOrderColumn && noTableRow;
     if (isShowDefaultRow) {
-        addSerialOrderRow(
+        await addSerialOrderRow(
             formElements.serialTable2,
             tempName.process,
             tempName.serial,
@@ -967,8 +963,9 @@ function renderTableContent() {
             true,
         );
     } else {
-        lastSelectedOrder.forEach((row, i) => {
-            addSerialOrderRow(
+        for (let i = 0; i < lastSelectedOrder.length; i++) {
+            const row = lastSelectedOrder[i];
+            await addSerialOrderRow(
                 formElements.serialTable2,
                 tempName.process,
                 tempName.serial,
@@ -976,27 +973,25 @@ function renderTableContent() {
                 row.serialProcess,
                 row.serialColumn,
                 row.serialOrder,
-                null,
+                i + 1,
                 true,
             );
-        });
+        }
     }
-    setTimeout(() => {
-        selectedSerials = getSelectedOrderCols();
-        selectedProcess = getSelectedOrderCols(formElements.serialTable, 'serialProcess');
-        const availableProcess = new Set(Object.keys(availableOrderingSettings));
-        let availableSerials = [];
-        Object.values(availableOrderingSettings).forEach((cols) => availableSerials.push(...cols));
-        availableSerials = availableSerials.map((colID) => String(colID));
-        selectedSerials = new Set([...selectedSerials, ...availableSerials]);
-        selectedProcess = new Set([...selectedProcess, ...availableProcess]);
-        // disableUnselectedOption(selectedSerials, name.serial);
-        // disableUnselectedOption(selectedProcess, name.process);
-        initSelect();
-    }, 2000);
+    selectedSerials = getSelectedOrderCols();
+    selectedProcess = getSelectedOrderCols(formElements.serialTable, 'serialProcess');
+    const availableProcess = new Set(Object.keys(availableOrderingSettings));
+    let availableSerials = [];
+    Object.values(availableOrderingSettings).forEach((cols) => availableSerials.push(...cols));
+    availableSerials = availableSerials.map((colID) => String(colID));
+    selectedSerials = new Set([...selectedSerials, ...availableSerials]);
+    selectedProcess = new Set([...selectedProcess, ...availableProcess]);
+    // disableUnselectedOption(selectedSerials, name.serial);
+    // disableUnselectedOption(selectedProcess, name.process);
+    initSelect();
 }
 
-function initTableValue() {
+async function initTableValue() {
     currentXOption = lastUsedFormData.get('xOption');
     if (currentXOption === CONST.XOPT_INDEX) {
         getLastedSelectedValue(formElements.serialTable, 'serialProcess', 'serialColumn', 'serialOrder');
@@ -1009,7 +1004,7 @@ function initTableValue() {
             latestIndexOrder = lastSelectedOrder;
         }
     }
-    renderTableContent();
+    await renderTableContent();
 }
 
 function transformIndexOrderParams(formData) {

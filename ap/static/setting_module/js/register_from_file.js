@@ -228,6 +228,7 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
     }
 
     formData.set('encoding', $(registerFromFileEles.encodingSelect).val());
+    latestRecordsFormData = cloneFormData(formData);
 
     try {
         const request = getLatestRecord(formData);
@@ -247,7 +248,7 @@ const handleOnChangeFolderAndFileUrl = async (isVerifyUrl) => {
 
 const fillDatasourceName = (url, isFile) => {
     checkOnFocus = false;
-    const folderName = getDbSourceAndProcessNameFromUrl(url, isFile);
+    const folderName = getAutoFilledDataSourceAndProcessName(url, isFile);
     // loading from external api
     const params = getRequestParams();
     if (params.loadGUIFromUrl) {
@@ -319,7 +320,7 @@ async function isDataSourceNameDuplicate() {
     const dbsName = $(registerFromFileEles.databaseName).val();
 
     let isDuplicate = false;
-    const isDuplicatedDbsName = await checkDuplicatedDataSourceName(dbsName);
+    const isDuplicatedDbsName = await checkDuplicatedDataSourceNameFromDB(dbsName);
     if (isDuplicatedDbsName) {
         isDuplicate = true;
         // show duplicated dbs msg
@@ -350,7 +351,7 @@ async function isProcessNameDuplicate() {
         const processJapaneseNameElement = processJapaneseNameElements[i];
         const processLocalNameElement = processLocalNameElements[i];
         const [isDuplicatedNameSystem, isDuplicatedNameJapanese, isDuplicatedNameLocal] =
-            await checkDuplicatedProcessName(
+            await checkDuplicatedProcessNameFromDB(
                 processSystemNameElement.value,
                 processJapaneseNameElement.value,
                 processLocalNameElement.value,
@@ -510,6 +511,7 @@ async function handleResponseData(request) {
     addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.PROCESSING, registerSteps.SCANNING);
 
     const data = await request;
+    latestRecordsFormData.set('isV2Datasource', data.datasourceConfig.master_type === 'V2' ? 'true' : 'false');
     addMessengerToProgressBar(registerI18n.i18nScanning, ICON_STATUS.SUCCESS, registerSteps.SCANNING, true);
     addMessengerToProgressBar(registerI18n.i18nLoadingData, ICON_STATUS.PROCESSING, registerSteps.LOAD);
 
@@ -532,7 +534,7 @@ async function handleResponseData(request) {
  */
 async function convertStructureData(data) {
     const urlInfo = await getUrlInfo();
-    const dataSourceAndProcessName = getDbSourceAndProcessNameFromUrl(
+    const dataSourceAndProcessName = getAutoFilledDataSourceAndProcessName(
         urlInfo.isFile ? urlInfo.fileUrl : urlInfo.url,
         urlInfo.isFile,
     );
@@ -545,6 +547,7 @@ async function convertStructureData(data) {
         shown_name: dataSourceAndProcessName,
         origin_name: dataSourceAndProcessName,
         dummy_datetime_idx: otherData.dummy_datetime_idx,
+        preview_token: otherData.preview_token,
     };
     // assign Process name after scanning data (Register by file)
     if (isJPLocale) {
@@ -589,6 +592,7 @@ function convertStructureDataV2(data) {
 
                 origin_name: processConfig.origin_name,
                 dummy_datetime_idx: processConfig.dummy_datetime_idx,
+                preview_token: processConfig.preview_token,
             },
             rows: processConfig.rows,
             unique_rows_as_category: processConfig.unique_rows_as_category,
@@ -697,40 +701,7 @@ const resetPreviewTableContent = () => {
 
 const resetPreviewSection = () => {
     $(procModalElements.procPreviewSection).html('');
-};
-
-/**
- * Check Duplicated Data Source Name
- * @param {string} datasourceName
- * @return {Promise<boolean>} - true: is duplicate, false: not duplicate
- */
-const checkDuplicatedDataSourceName = async (datasourceName = '') => {
-    const data = {
-        name: datasourceName,
-    };
-    const response = await fetchData('/ap/api/setting/check_duplicated_db_source', JSON.stringify(data), 'POST');
-    return response.is_duplicated;
-};
-
-/**
- * Check Duplicated Process Name
- * @param {string} nameEn - Name English
- * @param {string} nameJp - Name Japanese
- * @param {string} nameLocal - Name Local
- * @return {Promise<boolean[3]>} - a list of boolean
- *    - true: is duplicate | false: not duplicate,  <--English-->
- *    - true: is duplicate | false: not duplicate,  <--Japanese-->
- *    - true: is duplicate | false: not duplicate,  <--Local-->
- */
-const checkDuplicatedProcessName = async (nameEn = '', nameJp = '', nameLocal = '') => {
-    const data = {
-        name_en: nameEn,
-        name_jp: nameJp,
-        name_local: nameLocal,
-    };
-    /** @type {{is_duplicated: boolean[3]}} */
-    const response = await fetchData('/ap/api/setting/check_duplicated_process_name', JSON.stringify(data), 'POST');
-    return response.is_duplicated;
+    latestRecordsFormData = null;
 };
 
 const getDbSourceAndProcessNameFromUrl = (url, isFile) => {
@@ -740,6 +711,24 @@ const getDbSourceAndProcessNameFromUrl = (url, isFile) => {
         lastPath = lastPath.substring(0, lastPath.lastIndexOf('.'));
     }
     return lastPath;
+};
+
+/**
+ * Derive an auto-filled name without exposing QuickPlot's server-storage filename prefix.
+ * @param {string} url - Current data source or file path.
+ * @param {boolean} isFile - Whether the path identifies a single file.
+ * @return {string} Name for the data source and process inputs.
+ */
+const getAutoFilledDataSourceAndProcessName = (url, isFile) => {
+    const originalFilename =
+        window.quickPlot && typeof window.quickPlot.getOriginalFilenameForPath === 'function'
+            ? window.quickPlot.getOriginalFilenameForPath(url)
+            : null;
+
+    // Only QuickPlot provides the browser filename; every other path retains the established derivation.
+    return originalFilename
+        ? getDbSourceAndProcessNameFromUrl(originalFilename, true)
+        : getDbSourceAndProcessNameFromUrl(url, isFile);
 };
 
 /**
@@ -812,6 +801,7 @@ function collectProcessConfigInfos() {
         const tableId = ProcessConfigSection.processColumnsTableId(processConfigSection.processId);
         const requestProcessConfig = processConfigSection.collectProcessConfig(tableId);
         const processConfig = ProcessConfigSection.splitUsedColumnAndUnusedColumn(requestProcessConfig);
+        processConfig.preview_token = requestProcessConfig.preview_token;
         processConfigs.push(processConfig);
     });
 
@@ -838,6 +828,7 @@ function collectDatasourceInfo() {
  *    proc_configs: RequestProcessData[],
  *    request_id: string,
  *    csv_info: DatasourceConfig,
+ *    quick_plot_upload_id?: string,
  * }}
  */
 function collectAllDataInfo() {
@@ -847,12 +838,22 @@ function collectAllDataInfo() {
     window.newProcessIds = undefined;
     window.sseProcessIds = [];
 
-    return {
+    const requestData = {
         csv_info: datasourceConfig,
         proc_configs: processConfigs,
         import_data: true,
         request_id: window.RegisterByFileRequestID,
     };
+
+    // Attach transient upload ownership only while the displayed Path still identifies it.
+    if (window.quickPlot) {
+        const quickPlotUploadId = window.quickPlot.getActiveUploadIdForPath(registerFromFileEles.folderUrl.val());
+        if (quickPlotUploadId) {
+            requestData.quick_plot_upload_id = quickPlotUploadId;
+        }
+    }
+
+    return requestData;
 }
 
 /**
@@ -943,6 +944,12 @@ const redirectToPage = async (processIds, page) => {
 const resetPage = () => {
     registerFromFileEles.folderUrl.val('').trigger('change');
     showHideRefFile(false);
+
+    // Reset Quick Plot together with the form after successful registration opens the graph page.
+    if (window.quickPlot) {
+        window.quickPlot.reset();
+    }
+
     resetProgressBar();
     resetPreviewTableContent();
     hiddenPreviewContentData();
@@ -1170,18 +1177,46 @@ jQuery(function () {
     // This logic is ONLY for EDGE SERVER to avoid bug relate to merge mode
     setTimeout(() => {
         procModalElements.proc.off('focusout').on('focusout', () => {
-            checkDuplicateProcessName('data-name-en');
+            checkDuplicateProcessName(true, true, false, false);
         });
     }, 200);
 
     let debounceTimer;
-    registerFromFileEles.folderUrl.on('input', (e) => {
+
+    /**
+     * Preserve manual Path behavior while routing uploaded files through the existing single-file preview flow.
+     * @param {JQuery.TriggeredEvent} event - Path input event, optionally carrying Quick Plot detail.
+     * @return {void}
+     */
+    function handleFolderUrlInput(event) {
+        // Read native event detail before the delayed preview starts.
+        const quickPlotContext = event.originalEvent && event.originalEvent.detail;
+        const isQuickPlotEvent = quickPlotContext && quickPlotContext.source === 'quick-plot';
+
+        // Keep or clear the upload association synchronously with the Path change.
+        if (window.quickPlot) {
+            window.quickPlot.handlePathInput(registerFromFileEles.folderUrl.val(), quickPlotContext);
+        }
+
+        // Replace only the pending preview so stale manual or upload events cannot run later.
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            // handle show data when enter a path to the input in Register by file
-            handleOnChangeFolderAndFileUrl(true).then(() => {});
-        }, 300); // Delay input 300ms
-    });
+
+        /**
+         * Start the latest preview after the established Path debounce interval.
+         * @return {void}
+         */
+        function runDelayedFolderPreview() {
+            // Uploaded server paths are known single files and must skip only the folder-or-file choice modal.
+            if (isQuickPlotEvent) {
+                showHideRefFile(false);
+            }
+            handleOnChangeFolderAndFileUrl(!isQuickPlotEvent);
+        }
+
+        debounceTimer = setTimeout(runDelayedFolderPreview, 300); // Delay input 300ms
+    }
+
+    registerFromFileEles.folderUrl.off('input.quickPlotBridge').on('input.quickPlotBridge', handleFolderUrlInput);
 
     registerFromFileEles.refFileUrl.on('input', (e) => {
         clearTimeout(debounceTimer);

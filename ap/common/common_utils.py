@@ -1224,8 +1224,7 @@ def is_int_64(data: Series):
     return (data >= INT64_MIN) & (data <= INT64_MAX)
 
 
-@log_execution_time()
-def convert_numeric_by_type(original_data: pd.Series, provided_data_type) -> tuple[pd.Series, pd.Series]:
+def convert_numeric_by_type_core(original_data: pd.Series, provided_data_type) -> tuple[pd.Series, pd.Series]:
     """Try to convert data to numeric
     return converted series (without dropping) and unconverted series
     """
@@ -1247,6 +1246,11 @@ def convert_numeric_by_type(original_data: pd.Series, provided_data_type) -> tup
     non_numeric_data = original_data[is_non_numeric]
 
     return numeric_data, non_numeric_data
+
+
+@log_execution_time()
+def convert_numeric_by_type(original_data: pd.Series, provided_data_type) -> tuple[pd.Series, pd.Series]:
+    return convert_numeric_by_type_core(original_data, provided_data_type)
 
 
 def find_duplicate_values(key_value_dict: dict[Any, str]) -> dict[str, Any]:

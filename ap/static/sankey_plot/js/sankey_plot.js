@@ -839,6 +839,8 @@ const callToBackEndAPI = (clearOnFlyFilter = false, reselectVars = false, autoUp
 
         // show info table
         showInfoTable(res);
+
+        onApplyStyleSetting();
     });
 
     return requestPromise;

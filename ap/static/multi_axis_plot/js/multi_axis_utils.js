@@ -184,7 +184,7 @@ const multiAxisTraceData = (clearOnFlyFilter, autoUpdate = false) => {
         setXOption();
 
         if (clearOnFlyFilter) {
-            initTableValue();
+            await initTableValue();
         }
 
         showInfoTable(res);
@@ -253,20 +253,25 @@ const getMapPrimaryCount = () => {
 // usable only while (div_size x primary count) fits within MAX_NUMBER_OF_SENSOR sub-plots.
 const updateMapDivSizeOptions = () => {
     const primaryCount = getMapPrimaryCount();
-    $(`select[name=catExpBox] option[value="${facetLevels.DIV}"][data-div-size]`).each((_, opt) => {
-        const $opt = $(opt);
-        const divSize = Number($opt.attr('data-div-size')) || MAX_NUMBER_OF_SENSOR;
-        const isDisabled = primaryCount > Math.floor(MAX_NUMBER_OF_SENSOR / divSize);
-        const wasSelected = $opt.is(':selected');
-        $opt.prop('disabled', isDisabled);
-        // A disabled option keeps being selected and would still be submitted, so the backend
-        // would silently ignore the requested Div size. Clear it to keep both sides consistent.
-        if (isDisabled && wasSelected) {
-            const selectElement = $opt.closest('select');
-            selectElement.val('');
-            selectElement[0]?.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-    });
+    findValidationInputs('select[name=catExpBox]', formElements.formID)
+        .get()
+        .forEach((select) => {
+            $(select)
+                .find(`option[value="${facetLevels.DIV}"][data-div-size]`)
+                .each((_, opt) => {
+                    const $opt = $(opt);
+                    const divSize = Number($opt.attr('data-div-size')) || MAX_NUMBER_OF_SENSOR;
+                    const isDisabled = primaryCount > Math.floor(MAX_NUMBER_OF_SENSOR / divSize);
+                    const wasSelected = $opt.is(':selected');
+                    $opt.prop('disabled', isDisabled);
+                    // A disabled option keeps being selected and would still be submitted, so the backend
+                    // would silently ignore the requested Div size. Clear it to keep both sides consistent.
+                    if (isDisabled && wasSelected) {
+                        $(select).val('');
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+        });
 };
 
 // Called from the shared End Proc component (components.js) after a variable check changes.
@@ -429,6 +434,8 @@ const convertChartInfoToIndex = (data) => {
 };
 
 const handleOnChangeLayout = () => {
+    // Layout events are suppressed during restoration; validate the final state once loading finishes.
+    document.addEventListener('userSettingLoadFinished', updateMapMissingXYBlink);
     document.addEventListener('layoutchange', (e) => {
         if (isSettingLoading) return;
         const { value } = e.detail;

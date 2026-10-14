@@ -303,7 +303,7 @@ const handleLoadExportConfigToGUI = () => {
             const exportConfig = e.detail.export_config;
             const exportDetails = exportConfig.export_details;
             const mockUserSetting = await makeExportUserSettingFromExportConfig(exportConfig);
-            applyUserSetting(
+            await applyUserSetting(
                 {
                     settings: {
                         traceDataForm: mockUserSetting,

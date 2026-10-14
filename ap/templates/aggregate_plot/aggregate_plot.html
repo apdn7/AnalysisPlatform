@@ -71,6 +71,8 @@
             {{ macros.graph_select_box(id='yScale', name='yScale', label=_('Range of Y axis'), values=['1', '2', '3', '4', '5'], texts=[_("Setting scale"), _("Common scale"), _("Threshold line"), _('Auto range'), _('Full range')], cl='ml-4', defaultValue='4', selectedValue='4') }}
             {#            {{ macros.switch_button(id='yAxisPercent', label='Y axis %', cl='ml-4', onChange='showYAxisPercent(this)') }}#}
             {{ macros.graph_selection_percent_count(id='yAxisPercentOrCount', name="yAxisPercentOrCount", values=['count', 'yAxisTotal', 'yAxisFacet'], texts=['Count', 'Y axis % [Total]', 'Y axis % [per Facet]'], cl='ml-4', defaultValue='1', selectedValue='1', onChange='changeYAxisMode(this)') }}
+
+            <div class="react-root" data-component="AggregatePlotStyleSetting" style="margin-left: auto"></div>
         </div>
     </div>
     <div class="plot-content">

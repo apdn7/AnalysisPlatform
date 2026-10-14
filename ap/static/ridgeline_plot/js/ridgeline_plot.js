@@ -950,6 +950,9 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
         });
 
         setPollingData(formData, showGraph, [false, true], requestPromise);
+        setPollingData(formData, showGraph, [false, true]);
+
+        onApplyStyleSetting();
     });
 
     return requestPromise;

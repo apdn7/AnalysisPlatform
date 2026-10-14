@@ -17,6 +17,97 @@ const spreadsheetProcConfig = (element) => {
  * @property {JspreadSheetTable} table
  */
 class SpreadSheetProcessConfig {
+    setupPaginationToolbar() {
+        const table = this.table.table;
+        if (table.el.id !== 'processColumnsTable') return;
+
+        const toolbar = document.getElementById('procPaginationToolbar');
+        const input = document.getElementById('procPaginationJump');
+        const total = document.getElementById('procPaginationTotal');
+        const button = document.getElementById('procPaginationJumpBtn');
+        document.getElementById('procPaginationPages').replaceChildren(table.pagination);
+        toolbar.classList.remove('d-none');
+
+        const updatePagination = table.updatePagination.bind(table);
+        table.updatePagination = () => {
+            updatePagination();
+            const rows = (table.options.search || table.options.filters) && table.results ? table.results : table.rows;
+            const pages = Math.ceil(rows.length / table.options.pagination);
+            const links = table.pagination.children[1];
+            links.replaceChildren();
+            const visiblePages = new Set([1, pages]);
+            for (let page = table.pageNumber; page <= table.pageNumber + 2; page++) {
+                if (page >= 1 && page <= pages) visiblePages.add(page);
+            }
+            let previousPage = 0;
+            for (const page of [...visiblePages].filter((page) => page > 0 && page <= pages).sort((a, b) => a - b)) {
+                if (previousPage && page - previousPage > 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'proc-pagination-ellipsis';
+                    ellipsis.textContent = '...';
+                    links.append(ellipsis);
+                }
+                const link = document.createElement('button');
+                link.type = 'button';
+                link.className = 'jexcel_page';
+                link.textContent = String(page);
+                link.title = String(page);
+                if (page === table.pageNumber + 1) {
+                    link.classList.add('jexcel_page_selected');
+                    link.setAttribute('aria-current', 'page');
+                }
+                links.append(link);
+                previousPage = page;
+            }
+            const navigation = [];
+            for (const [label, page, disabled, text, ariaLabel] of [
+                ['first', 1, !pages || table.pageNumber <= 0, '<<', 'First page'],
+                ['previous', table.pageNumber, !pages || table.pageNumber <= 0, '<', 'Previous page'],
+                ['next', table.pageNumber + 2, !pages || table.pageNumber >= pages - 1, '>', 'Next page'],
+                ['last', pages, !pages || table.pageNumber >= pages - 1, '>>', 'Last page'],
+            ]) {
+                const arrow = document.createElement('button');
+                arrow.type = 'button';
+                arrow.className = 'jexcel_page';
+                arrow.textContent = text;
+                arrow.title = String(page);
+                arrow.setAttribute('aria-label', ariaLabel);
+                arrow.disabled = disabled;
+                if (label === 'first' || label === 'previous') navigation.push(arrow);
+                else links.append(arrow);
+            }
+            navigation.reverse().forEach((arrow) => links.prepend(arrow));
+            input.max = Math.max(1, pages);
+            input.value = pages ? table.pageNumber + 1 : 1;
+            input.disabled = button.disabled = !pages;
+            const start = rows.length ? table.pageNumber * table.options.pagination + 1 : 0;
+            const end = Math.min((table.pageNumber + 1) * table.options.pagination, rows.length);
+            total.textContent = `${start}-${end} / ${rows.length}`;
+        };
+
+        // The pager now lives outside the spreadsheet's delegated mouse handler.
+        table.pagination.onmousedown = (event) => event.stopPropagation();
+        table.pagination.onclick = (event) => {
+            const link = event.target.closest('.jexcel_page');
+            if (!link || link.disabled) return;
+            const page = Number(link.title || link.textContent);
+            table.page(page - 1);
+        };
+        const jump = () => {
+            if (!input.disabled && input.value !== '' && input.reportValidity()) {
+                table.page(Number(input.value) - 1);
+            }
+        };
+        button.onclick = jump;
+        input.onkeydown = (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                jump();
+            }
+        };
+        table.updatePagination();
+    }
+
     /**
      * Internal constructor, outer should never call this.
      * @param {any} element
@@ -32,21 +123,18 @@ class SpreadSheetProcessConfig {
      * @param {boolean} registerByFile - is this register by file?
      * @returns {SpreadSheetProcessConfig}
      */
-    static async create(tableId, data, registerByFile = false) {
+    static create(tableId, data, registerByFile = false) {
         const options = SpreadSheetProcessConfig.options({ registerByFile });
-        const table = JspreadSheetTable.createTable(
-            tableId,
-            options.columns,
-            data,
-            [],
-            options.customEvents,
-            options.customOptions,
-        );
+        JspreadSheetTable.createTable(tableId, options.columns, data, [], options.customEvents, options.customOptions);
 
         const spreadsheet = spreadsheetProcConfig(tableId);
-
+        let selectedMode = document.querySelector('input[name="sampleDataDisplayMode"]:checked');
+        if (registerByFile) {
+            const index = tableId.split('_')[1];
+            selectedMode = document.querySelector(`input[name="sampleDataDisplayMode_${index}"]:checked`);
+        }
         // parse sample data by datatype
-        await SpreadSheetProcessConfig.updateSampleDataByDisplayMode(spreadsheet, SAMPLE_DATA_DISPLAY_MODES.RECORDS);
+        SpreadSheetProcessConfig.updateSampleDataByDisplayMode(spreadsheet, selectedMode.value);
 
         return spreadsheet;
     }
@@ -222,6 +310,92 @@ class SpreadSheetProcessConfig {
         return this.table.findRows({
             [PROCESS_COLUMNS.is_checked]: (cell) => !cell.td.classList.contains('readonly'),
         });
+    }
+
+    getCheckboxRowsForSelection(autoSelect = false, { excludeFileName = true } = {}) {
+        const table = this.table.table;
+        const isCheckedIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.is_checked);
+        const isNullIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.is_null);
+        const isFileNameIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.is_file_name);
+        const idIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.id);
+        const dataTypeIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.data_type);
+        const columnTypeIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.column_type);
+        const isDummyDatetimeIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.is_dummy_datetime);
+
+        return table.options.data.reduce((rows, rowData, rowIndex) => {
+            const td = table.records[rowIndex]?.[isCheckedIndex];
+            if (!td || td.classList.contains(READONLY_CLASS) || td.classList.contains('readonly')) {
+                return rows;
+            }
+
+            if (autoSelect && rowData[isNullIndex]) {
+                return rows;
+            }
+
+            if (excludeFileName && rowData[isFileNameIndex]) {
+                return rows;
+            }
+
+            rows.push({
+                [PROCESS_COLUMNS.is_checked]: {
+                    rowIndex,
+                    columnIndex: isCheckedIndex,
+                    data: rowData[isCheckedIndex],
+                    td,
+                },
+                [PROCESS_COLUMNS.is_null]: {
+                    rowIndex,
+                    columnIndex: isNullIndex,
+                    data: rowData[isNullIndex],
+                    td: table.records[rowIndex]?.[isNullIndex],
+                },
+                [PROCESS_COLUMNS.is_file_name]: {
+                    rowIndex,
+                    columnIndex: isFileNameIndex,
+                    data: rowData[isFileNameIndex],
+                    td: table.records[rowIndex]?.[isFileNameIndex],
+                },
+                [PROCESS_COLUMNS.id]: {
+                    rowIndex,
+                    columnIndex: idIndex,
+                    data: rowData[idIndex],
+                    td: table.records[rowIndex]?.[idIndex],
+                },
+                [PROCESS_COLUMNS.data_type]: {
+                    rowIndex,
+                    columnIndex: dataTypeIndex,
+                    data: rowData[dataTypeIndex],
+                    td: table.records[rowIndex]?.[dataTypeIndex],
+                },
+                [PROCESS_COLUMNS.column_type]: {
+                    rowIndex,
+                    columnIndex: columnTypeIndex,
+                    data: rowData[columnTypeIndex],
+                    td: table.records[rowIndex]?.[columnTypeIndex],
+                },
+                [PROCESS_COLUMNS.is_dummy_datetime]: {
+                    rowIndex,
+                    columnIndex: isDummyDatetimeIndex,
+                    data: rowData[isDummyDatetimeIndex],
+                    td: table.records[rowIndex]?.[isDummyDatetimeIndex],
+                },
+            });
+
+            return rows;
+        }, []);
+    }
+
+    getSelectionCheckboxStatus() {
+        const rows = this.getCheckboxRowsForSelection(false);
+        const selectedAll = rows.every((row) => row[PROCESS_COLUMNS.is_checked].data);
+        const autoSelectedAll = rows.every((row) => {
+            const isChecked = row[PROCESS_COLUMNS.is_checked].data;
+            const isNull = row[PROCESS_COLUMNS.is_null].data;
+
+            return !((isNull && isChecked) || (!isNull && !isChecked));
+        });
+
+        return { selectedAll, autoSelectedAll };
     }
 
     /**
@@ -461,13 +635,88 @@ class SpreadSheetProcessConfig {
         const rowData = this.table.getRowDataByIndex(rowIndex);
         if (rowData.is_file_name) {
             const showFileNameCheckboxEle = getFileNameCheckboxFromElement(cell);
-            showFileNameCheckboxEle.prop('checked', newValueData);
+            if (showFileNameCheckboxEle.length) {
+                showFileNameCheckboxEle.prop('checked', newValueData);
+            }
         }
         // check handle mainDate mainTime when not register proc
         if (!rowData.is_dummy_datetime && rowData.id < 0) {
             ProcessConfigSection.handleMainDateAndMainTime(this, rowData.data_type, rowData.column_type);
         }
         updateCheckedColumn(this.table, newValueData - oldValueData);
+    }
+
+    bulkUpdateCheckboxStatus(rows, isChecked) {
+        const table = this.table.table;
+        const columnIndex = this.table.getIndexHeaderByName(PROCESS_COLUMNS.is_checked);
+        const records = [];
+        let checkedColumnDiff = 0;
+        let changedMainDateTimeRow = null;
+
+        for (const row of rows) {
+            const cell = row[PROCESS_COLUMNS.is_checked];
+            const rowIndex = cell.rowIndex;
+            const td = cell.td;
+            const oldValue = table.options.data[rowIndex][columnIndex];
+            const oldValueData = typeof oldValue === 'boolean' ? oldValue : parseBool(oldValue);
+
+            if (oldValueData === isChecked) {
+                continue;
+            }
+
+            const input = td.querySelector('input[type=checkbox]');
+            if (input) {
+                input.checked = isChecked;
+            }
+            table.options.data[rowIndex][columnIndex] = isChecked;
+            cell.data = isChecked;
+            td.classList.remove(BORDER_RED_CLASS);
+            td.closest('tr').classList.toggle(ROW_UNCHECKED_CLASS_NAME, !isChecked);
+
+            records.push({
+                x: columnIndex,
+                y: rowIndex,
+                col: columnIndex,
+                row: rowIndex,
+                newValue: isChecked,
+                oldValue,
+            });
+            checkedColumnDiff += isChecked ? 1 : -1;
+
+            const isDummyDatetime = row[PROCESS_COLUMNS.is_dummy_datetime].data;
+            const id = row[PROCESS_COLUMNS.id].data;
+            const columnType = row[PROCESS_COLUMNS.column_type].data;
+            const isMainDateTimeType = [
+                masterDataGroup.MAIN_DATE,
+                masterDataGroup.MAIN_TIME,
+                masterDataGroup.MAIN_DATETIME,
+            ].includes(columnType);
+            if (!isDummyDatetime && id < 0 && isMainDateTimeType) {
+                changedMainDateTimeRow = row;
+            }
+        }
+
+        if (!records.length) {
+            return;
+        }
+
+        table.setHistory({
+            action: 'setValue',
+            records,
+            selection: table.selectedCell,
+        });
+        this.table.recordTracingChanges(...records);
+
+        if (changedMainDateTimeRow) {
+            ProcessConfigSection.handleMainDateAndMainTime(
+                this,
+                changedMainDateTimeRow[PROCESS_COLUMNS.data_type].data,
+                changedMainDateTimeRow[PROCESS_COLUMNS.column_type].data,
+            );
+        }
+
+        updateCheckedColumn(this.table, checkedColumnDiff);
+        this.handleChangeMark();
     }
 
     /**
@@ -670,6 +919,8 @@ class SpreadSheetProcessConfig {
 
                 td.classList.add('sample-data');
                 td.setAttribute(DATA_ORIGINAL_ATTR, cell.data);
+                // Datatype edits and pagination must not change the type of these original samples.
+                td.setAttribute('data-original-type', row[PROCESS_COLUMNS.data_type].data);
                 if (isDummyColumn) {
                     td.classList.add('dummy_datetime_col');
                 }
@@ -708,32 +959,15 @@ class SpreadSheetProcessConfig {
         });
     }
 
-    static async updateSampleDataByDisplayMode(spreadsheet, displayMode) {
-        const loadingEl = this.initLoadingTable(spreadsheet.table.tableId);
-        loadingEl.show();
-
-        const shownDataTypes = spreadsheet.table.getColumnDataByHeaderName(PROCESS_COLUMNS.shown_data_type);
-        await Promise.all(
-            // Must separate to another worker because it takes a long time and blocks the UI.
-            shownDataTypes.map((shownDataType, index) =>
-                new Promise((resolve, reject) =>
-                    setTimeout(() => {
-                        try {
-                            spreadsheet.changeShownDataType(index, shownDataType, displayMode, { isFirstLoad: true });
-                            loadingEl.updateProgress();
-                            resolve();
-                        } catch (e) {
-                            reject(e);
-                        }
-                    }),
-                ).catch((e) => {
-                    console.error(e);
-                }),
-            ),
-        ).then(() => {
-            spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
-            loadingEl.hide();
+    static updateSampleDataByDisplayMode(spreadsheet, displayMode) {
+        const shownDataTypeIndex = spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type);
+        // Search results are not contiguous model rows, so use the indexes rendered by JSpreadsheet.
+        [...spreadsheet.table.table.tbody.rows].forEach((row) => {
+            const rowIndex = Number(row.dataset.y);
+            const shownDataType = spreadsheet.table.getDataFromCoords(shownDataTypeIndex, rowIndex);
+            spreadsheet.changeShownDataType(rowIndex, shownDataType, displayMode, { isFirstLoad: true });
         });
+        spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
     }
 
     /**
@@ -794,50 +1028,51 @@ class SpreadSheetProcessConfig {
      */
     handleSearchInput(value, key) {
         const searchableHeaders = this.searchableHeaders();
+        const table = this.table.table;
 
         const matchedRows = this.table.findMatchedDataRows(value, searchableHeaders);
-        const allRows = this.table.getRowsByHeadersAndIndexes();
-
-        const matchedTableRows = $(matchedRows.map(tableRowFromExcelRow));
-        const allTableRows = $(allRows.map(tableRowFromExcelRow));
+        const matchedRowIndexes = matchedRows.map((row) => row[PROCESS_COLUMNS.is_checked].rowIndex);
+        const matchedRowIndexSet = new Set(matchedRowIndexes);
 
         if (key === 'Enter') {
-            // Show all rows and mark them as gray
-            allTableRows.show();
-            allTableRows.addClass('gray');
-
-            // Remove gray for matches rows
-            matchedTableRows.removeClass('gray');
+            table.results = null;
+            table.rows.forEach((rowElement, rowIndex) => {
+                rowElement.classList.toggle('gray', !matchedRowIndexSet.has(rowIndex));
+                rowElement.style.display = '';
+            });
         } else {
-            // Hide all rows and remove gray
-            allTableRows.hide();
-            allTableRows.removeClass('gray');
-
-            // Show matches rows
-            matchedTableRows.show();
+            table.rows.forEach((rowElement) => rowElement.classList.remove('gray'));
+            table.results = value ? matchedRowIndexes : null;
+            table.options.search = true;
         }
+
+        table.updateResult();
     }
 
     handleSearchSetButton() {
-        for (const row of this.nonReadonlyRows()) {
-            const cell = row[PROCESS_COLUMNS.is_checked].td;
-            const ele = $(cell);
-            const rowEle = cell.closest('tr');
-            if (!rowEle.classList.contains('gray') & ele.is(':visible')) {
-                ele.find('input[type=checkbox]').prop('checked', true).trigger('change');
-            }
-        }
+        const rows = this.searchTargetRows();
+        this.bulkUpdateCheckboxStatus(rows, true);
     }
 
     handleSearchResetButton() {
-        for (const row of this.nonReadonlyRows()) {
-            const cell = row[PROCESS_COLUMNS.is_checked].td;
-            const ele = $(cell);
-            const rowEle = cell.closest('tr');
-            if (!rowEle.classList.contains('gray') & ele.is(':visible')) {
-                ele.find('input[type=checkbox]').prop('checked', false).trigger('change');
+        const rows = this.searchTargetRows();
+        this.bulkUpdateCheckboxStatus(rows, false);
+    }
+
+    searchTargetRows() {
+        const table = this.table.table;
+        const searchResultIndexes = table.results ? new Set(table.results) : null;
+
+        return this.getCheckboxRowsForSelection(false, { excludeFileName: true }).filter((row) => {
+            const rowIndex = row[PROCESS_COLUMNS.is_checked].rowIndex;
+            const rowElement = row[PROCESS_COLUMNS.is_checked].td.closest('tr');
+
+            if (rowElement.classList.contains('gray')) {
+                return false;
             }
-        }
+
+            return !searchResultIndexes || searchResultIndexes.has(rowIndex);
+        });
     }
 
     /**
@@ -890,8 +1125,16 @@ class SpreadSheetProcessConfig {
     }
 
     static dataTypeDropdownColumn() {
+        // JSpreadsheet detaches rows outside the current page from the table
+        // DOM. Keep the owning instance separately because `closest()` cannot
+        // resolve it from a detached data-type cell.
+        const spreadsheetInstances = new WeakMap();
+
         return {
             // Methods
+            bindSpreadsheetInstance: function (cell, instance) {
+                spreadsheetInstances.set(cell, instance);
+            },
             closeEditor: function (cell, save) {
                 if (cell.children.length > 0) {
                     // in case not change data type and out click to close dropdown modal
@@ -984,7 +1227,10 @@ class SpreadSheetProcessConfig {
                 }
                 cell.innerHTML = value;
                 const rowIndex = Number(cell.dataset.y);
-                const spreadsheet = spreadsheetProcConfig(cell);
+                const spreadsheet = spreadsheetProcConfig(spreadsheetInstances.get(cell) || cell);
+                if (!spreadsheet.isValid()) {
+                    throw new Error(`Cannot resolve Process Config spreadsheet for row ${rowIndex + 1}`);
+                }
                 const sampleDataDisplayMode = getSampleDataDisplayModeElement(spreadsheet.table.table.el).val();
                 spreadsheet.changeShownDataType(rowIndex, value, sampleDataDisplayMode);
             },
@@ -1013,7 +1259,7 @@ class SpreadSheetProcessConfig {
             },
             {
                 type: 'text',
-                width: '150',
+                width: '130',
                 name: PROCESS_COLUMNS.shown_data_type,
                 title: $(procModali18n.i18nDatatype).text(),
                 options: {},
@@ -1023,7 +1269,7 @@ class SpreadSheetProcessConfig {
                 type: 'text',
                 width: '150',
                 name: PROCESS_COLUMNS.name_en,
-                title: $(procModali18n.i18nEnglishName).text(),
+                title: $('#i18nSystemName').text(),
             },
             {
                 type: 'text',
@@ -1045,7 +1291,7 @@ class SpreadSheetProcessConfig {
             },
             {
                 type: 'text',
-                width: '100',
+                width: String(PROCESS_CONFIG_FORMULA_WIDTH),
                 name: PROCESS_COLUMNS.formula,
                 title: $(procModali18n.i18nJudgeFormulaTitle).text(),
             },
@@ -1057,70 +1303,70 @@ class SpreadSheetProcessConfig {
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_1',
                 title: $(procModali18n.i18nSampleData).text(),
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_2',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_3',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_4',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_5',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_6',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_7',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_8',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_9',
                 title: ' ',
                 readOnly: true,
             },
             {
                 type: 'text',
-                width: '200',
+                width: '160',
                 name: 'sample_data_10',
                 title: ' ',
                 readOnly: true,
@@ -1194,12 +1440,27 @@ class SpreadSheetProcessConfig {
             tableOverflow: true,
             tableHeight: 'calc(100vh - 370px)',
             tableWidth: '100%',
+            pagination: 100,
         };
+        if (docCookies.isJaLocale()) {
+            customOptions['text'] = {
+                showingPage: '{1} 件中 {0} ページを表示',
+            };
+        }
 
         const customEvents = {
             onload: (instance) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
+                spreadsheet.setupPaginationToolbar();
                 const allRows = spreadsheet.table.getRowsByHeadersAndIndexes();
+                const shownDataTypeColumnIndex = spreadsheet.table.getIndexHeaderByName(
+                    PROCESS_COLUMNS.shown_data_type,
+                );
+                const shownDataTypeEditor = spreadsheet.table.table.options.columns[shownDataTypeColumnIndex].editor;
+
+                allRows.forEach((row) => {
+                    shownDataTypeEditor.bindSpreadsheetInstance(row[PROCESS_COLUMNS.shown_data_type].td, instance);
+                });
 
                 spreadsheet.loadCheckBoxStatus(...allRows);
                 spreadsheet.loadIsShowFileNameCheckbox();
@@ -1233,6 +1494,18 @@ class SpreadSheetProcessConfig {
                 spreadsheet.handleChangeCell(c, r, newValue, oldValue);
             },
 
+            onchangepage: async (instance, index, oldPage) => {
+                const spreadsheet = spreadsheetProcConfig(instance);
+                spreadsheet.table.setPage(index);
+                const displayMode = getDisplayModeFromToolsBarsElement(instance);
+                if (!(index === oldPage)) {
+                    if (displayMode === SAMPLE_DATA_DISPLAY_MODES.UNIQUE) {
+                        await ensureUniqueSampleData(spreadsheet);
+                    }
+                    this.updateSampleDataByDisplayMode(spreadsheet, displayMode);
+                }
+            },
+
             onafterchanges: async (instance, records) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 for (const record of records) {
@@ -1259,7 +1532,9 @@ class SpreadSheetProcessConfig {
                         }
                     }
                 }
-                spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
+                if (!spreadsheet.table.table.isCopyingShownDataType) {
+                    spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
+                }
             },
 
             oninsertrow: (instance, rowNumber, numOfRows, rowRecords, insertBefore) => {
@@ -1270,6 +1545,14 @@ class SpreadSheetProcessConfig {
                 });
 
                 const rows = spreadsheet.table.getRowsByHeadersAndIndexes(undefined, rowIndexes);
+                const shownDataTypeColumnIndex = spreadsheet.table.getIndexHeaderByName(
+                    PROCESS_COLUMNS.shown_data_type,
+                );
+                const shownDataTypeEditor = spreadsheet.table.table.options.columns[shownDataTypeColumnIndex].editor;
+                rows.forEach((row) => {
+                    shownDataTypeEditor.bindSpreadsheetInstance(row[PROCESS_COLUMNS.shown_data_type].td, instance);
+                });
+
                 spreadsheet.updateOriginalValueSampleData(...rows);
                 spreadsheet.updateColumnClassName(...rows);
                 spreadsheet.table.customCheckbox(...rows);
@@ -1377,7 +1660,7 @@ const getResetElementFromElement = (element) => {
 
 const getFileNameCheckboxFromElement = (element) => {
     const processSectionElement = element.closest(`[id^="procSettingModalBody"]`);
-    const fileNameCheckBoxElement = processSectionElement.querySelector(`[id^="isShowFileName"]`);
+    const fileNameCheckBoxElement = processSectionElement?.querySelector(`[id^="isShowFileName"]`);
     return $(fileNameCheckBoxElement);
 };
 
@@ -1416,6 +1699,12 @@ const getSpreadSheetFromToolsBarElement = (element) => {
     const speadSheetTableElement = processSectionElement.querySelector(`[id^="processColumnsTable"]`);
 
     return spreadsheetProcConfig(speadSheetTableElement);
+};
+
+const getDisplayModeFromToolsBarsElement = (element) => {
+    const processSectionElement = element.closest(`[id^="procSettingModalBody"]`);
+    const displayModeEl = processSectionElement.querySelector(`[name^="sampleDataDisplayMode"]:checked`);
+    return displayModeEl.value;
 };
 
 const sortColumnGraphConfig = (containerSelector = 'table') => {

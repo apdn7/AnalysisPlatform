@@ -337,7 +337,7 @@ def import_transaction_data_job(process_id: int, job_management: JobManagement):
         generator,
         job_management=job_management,
         after_success_func=finished_transaction_import,
-        after_success_func_kwargs={},
+        after_success_func_kwargs={'process_id': process_id},
     )
     add_gen_proc_link_job(process_id=process_id, is_user_request=True, publish=True)
 

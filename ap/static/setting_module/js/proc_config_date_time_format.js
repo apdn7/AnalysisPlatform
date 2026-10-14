@@ -128,7 +128,8 @@ const showInputFormatDatetimeData = async (spreadsheet, ...rows) => {
     let mainTimeRow = rows.find((row) => row.dataType === DataTypes.TIME.name) || '';
     let dateTimeRow = rows.filter((row) => row.dataType === DataTypes.DATETIME.name);
     const inputFormatEle = getDatetimeFormatInputFromElement(spreadsheet.table.table.el);
-    const inputFormat = inputFormatEle.val().trim();
+    // IMPORTED preview rows were already converted with the Process format, so only auto-format them
+    const inputFormat = isImportedProcPreviewTable(spreadsheet) ? '' : inputFormatEle.val().trim();
     rows = [mainTimeRow, mainDateRow, ...dateTimeRow].filter((row) => row);
     let formatRow = dateTimeRow;
     if (mainDateRow) {
@@ -167,6 +168,15 @@ const showInputFormatDatetimeData = async (spreadsheet, ...rows) => {
 };
 
 const notifyInvalidFormat = () => showToastrMsg('Invalid datetime format!!!', MESSAGE_LEVEL.ERROR);
+
+/**
+ * Whether the spreadsheet is the main Process table filled from an IMPORTED preview
+ * @param {SpreadSheetProcessConfig} spreadsheet
+ * @return {boolean}
+ */
+const isImportedProcPreviewTable = (spreadsheet) =>
+    spreadsheet.table.table.el.id === procModalElements.procConfigTableName &&
+    isImportedPreviewStage(prcPreviewData?.processing_stage);
 
 /**
  * @param {SpreadSheetProcessConfig} - spreadsheet

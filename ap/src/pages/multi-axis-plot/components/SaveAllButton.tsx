@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
-import type { GraphSetting } from '../plotBuilder';
+import { type GraphSetting, getNumericColorRanges } from '../plotBuilder';
 import { type ExportImageSize, savePlotAsPng } from '../plotExport';
 import type { PlotSeries } from '../types';
 
@@ -34,14 +34,33 @@ export default function SaveAllButton({ graphSettings, visiblePlotDataGroups }: 
 
         try {
             const exportSizes = getContextTargetExportSizes();
+            const options = {
+                figureOptions: {
+                    numericColorRanges: getNumericColorRanges(
+                        visiblePlotDataGroups.flat().filter((series) => series.is_global_color),
+                    ),
+                },
+            };
 
             for (const [index, plotData] of visiblePlotDataGroups.entries()) {
                 const exportSize = exportSizes[index];
 
                 if (exportSize) {
-                    await savePlotAsPng(plotData, graphSettings, `multi-axis-plot-panel-${index + 1}`, exportSize);
+                    await savePlotAsPng(
+                        plotData,
+                        graphSettings,
+                        `multi-axis-plot-panel-${index + 1}`,
+                        exportSize,
+                        options,
+                    );
                 } else {
-                    await savePlotAsPng(plotData, graphSettings, `multi-axis-plot-panel-${index + 1}`);
+                    await savePlotAsPng(
+                        plotData,
+                        graphSettings,
+                        `multi-axis-plot-panel-${index + 1}`,
+                        undefined,
+                        options,
+                    );
                 }
             }
         } finally {

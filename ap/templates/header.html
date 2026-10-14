@@ -42,6 +42,7 @@
                 <div class="user-setting-btn">
                     <button
                         type="button"
+                        id="user-setting-toggle"
                         onclick="loadAllUserSetting()"
                         data-toggle="modal"
                         data-target="#loadUserSettingModal"
@@ -56,7 +57,7 @@
                         class="btn btn-setting bookmark-button dropdown-toggle dropdown-btn"
                         type="button"
                         id="Bookmark"
-                        style="padding-right: 4px"
+                        style="padding-right: 4px; background-position: center;"
                         data-toggle="dropdown"
                         aria-haspopup="true"
                         aria-expanded="false"
@@ -103,7 +104,7 @@
             <button
                 type="button"
                 id="loadSettingBtn"
-                class="btn bookmark-button header-btn btn-setting mx-1 load-setting-tile-page hotkey-button"
+                class="btn bookmark-button header-btn btn-setting mr-2 load-setting-tile-page hotkey-button"
                 title="Bookmark"
                 data-toggle="modal"
                 data-target="#loadUserSettingModal"

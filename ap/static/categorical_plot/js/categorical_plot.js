@@ -576,6 +576,8 @@ const showGraph = (clearOnFlyFilter = true, autoUpdate = false) => {
 
         // drag & drop for tables
         $('.ui-sortable').sortable();
+
+        onApplyStyleSetting();
     });
 
     return requestPromise;

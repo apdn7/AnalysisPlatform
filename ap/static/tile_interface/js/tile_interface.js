@@ -60,14 +60,6 @@ function highlightMatchPreserve(element, searchValue) {
     });
 }
 
-function debounce(fn, delay) {
-    let timer = null;
-    return function (...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, args), delay);
-    };
-}
-
 function filterParents() {
     const searchValue = document.getElementById('usage-search').value.trim().toLowerCase();
     document.querySelectorAll('.search-target').forEach((parent) => {
