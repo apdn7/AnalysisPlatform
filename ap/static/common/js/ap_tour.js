@@ -413,6 +413,8 @@ const openTour = (url = undefined, showTour = true) => {
     openNewTab(goToPage);
 };
 $(() => {
+    bindHoverDropdown('#tour-btn');
+
     const tour = tryTourInterface();
     const isTryTour = tour.isTryTour();
     const isBlink = tour.isBlink();

@@ -130,7 +130,12 @@ const getSelectedEndColIds = (parentId = '') => {
     parentId = parentId ? `${parentId} ` : '';
     $(`${parentId}#end-proc-row .end-proc`).each((_, endProc) => {
         const procId = $(endProc).find('[name*="end_proc"] option:selected').val();
-        const cols = $(endProc).find('li [name*=GET02_VALS_SELECT]:checked');
+        const list = $(endProc).find('.grouplist-checkbox-with-search')[0];
+        const cols = $(
+            list?._virtualList
+                ? list._virtualList.querySelectorAll('[name*=GET02_VALS_SELECT]:checked')
+                : $(endProc).find('li [name*=GET02_VALS_SELECT]:checked').get(),
+        );
         cols.each((_, element) => {
             if (element.value && element.value !== 'All') {
                 colIds.push(`${procId}-${element.value}`);
@@ -282,7 +287,12 @@ const loadDataSortColumnsToModal = (graphAreaSuffix = '', force = false, callbac
         $(orderingEls.endColOrderModalOkBtn).on('click', (e) => {
             // remove checked cols
             for (const colId of removeColIds) {
-                $(`input[name^=GET02_VALS_SELECT][value=${colId}]`).prop('checked', false).trigger('change');
+                findValidationInputs(`input[name^=GET02_VALS_SELECT][value="${colId}"]`, document).each((_, input) => {
+                    if (!input.checked) {
+                        return;
+                    }
+                    $(input).prop('checked', false).trigger('change');
+                });
             }
             removeColIds = [];
             sortedColIds = [];
@@ -420,22 +430,25 @@ const handleGoToTopRow = (e, type = 'top') => {
 };
 
 const createOrUpdateSensorOrdering = (event, checkAll = false) => {
-    const selectedEndCols = getSelectedEndColIds();
     if (!$(event.target).attr('name').includes('GET02_VALS_SELECT')) {
         return;
     }
     // if click All input, use default ordering by GUI
+    // only this case needs the full scan of every end proc
     if (checkAll) {
-        latestSortColIds = selectedEndCols;
+        latestSortColIds = getSelectedEndColIds();
         return;
     }
 
     const columnID = $(event.target).val();
     const procID = $(event.target).data('proc-id');
-    if (procID) {
+    // a single checkbox changed -> update the ordering list from that checkbox only,
+    // instead of re-reading all selected columns of all end procs (slow for processes with many columns)
+    // 'All' is the check-all box and is never part of the ordering (same rule as getSelectedEndColIds)
+    if (procID && columnID && columnID !== 'All') {
         const orderingID = `${procID}-${columnID}`;
         const isAdd = $(event.target).is(':checked');
-        if (isAdd && !latestSortColIds.includes(orderingID) && selectedEndCols.includes(orderingID)) {
+        if (isAdd && !latestSortColIds.includes(orderingID)) {
             latestSortColIds.push(orderingID);
         }
         if (!isAdd) {

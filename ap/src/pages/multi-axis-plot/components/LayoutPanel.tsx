@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import * as Popover from '@radix-ui/react-popover';
 
 import {
     type ValidationResult,
+    getItemIdFromKey,
+    getLayoutPriorityOrder,
     getMaxUsedOrder,
     getNextAvailableSubplot,
+    getValueFromKey,
+    isPrimaryValue,
     validateLayoutChange,
 } from '@/pages/multi-axis-plot/layoutStateLogic.ts';
 import ConfirmModal from '@/shared/components/ui/ConfirmModal.tsx';
+import { isActiveReactContainer } from '@/shared/virtualListLifecycle';
 
 import LayoutPanelContent from './LayoutPanelContent.tsx';
 
@@ -27,6 +32,7 @@ type LayoutCheckChangeDetail = {
     checkedItemId: string | number;
     checkedGroupId?: string | number;
     isChecked: boolean;
+    restoreLayout?: boolean;
 };
 
 type LayoutChangeMeta = Pick<
@@ -101,7 +107,7 @@ export default function LayoutPanel({
 
     useEffect(() => {
         currentValueRef.current = currentValue;
-        setOrder(getOrderDropDown(currentValue));
+        setOrder(getLayoutPriorityOrder(currentValue));
     }, [currentValue]);
 
     useEffect(() => {
@@ -121,11 +127,12 @@ export default function LayoutPanel({
 
     useEffect(() => {
         const handleReindex = (e: Event) => {
-            if (!isPanelConnected()) return;
+            if (!isPanelActive()) return;
             const { mapping, itemMapping } = (e as CustomEvent).detail;
             const newValue = itemMapping?.[String(itemId)] ?? mapping[currentValueRef.current];
 
             if (newValue === undefined) return;
+            currentValueRef.current = newValue;
 
             if (newValue === '') {
                 setCurrentValue('');
@@ -140,9 +147,10 @@ export default function LayoutPanel({
 
     useEffect(() => {
         const handleDefaultSelected = (e: Event) => {
-            if (!isPanelConnected()) return;
+            if (!isPanelActive()) return;
             const { itemId: targetItemId, value } = (e as CustomEvent).detail;
             if (String(targetItemId) !== String(itemId)) return;
+            currentValueRef.current = value;
             setCurrentValue(value);
         };
 
@@ -152,10 +160,15 @@ export default function LayoutPanel({
 
     useEffect(() => {
         const handleCheckChange = (e: Event) => {
-            if (!isPanelConnected()) return;
+            if (!isPanelActive()) return;
             const detail = (e as CustomEvent<LayoutCheckChangeDetail>).detail;
             if (!detail || !isCheckChangeForCurrentPanel(detail)) return;
 
+            if (detail.restoreLayout) {
+                selectedRef.current = detail.isChecked;
+                setSelected(detail.isChecked);
+                return;
+            }
             applyCheckedState(detail.isChecked);
         };
 
@@ -165,7 +178,7 @@ export default function LayoutPanel({
 
     useEffect(() => {
         const handleForceReset = (e: Event) => {
-            if (!isPanelConnected()) return;
+            if (!isPanelActive()) return;
             const { targetItemId } = (e as CustomEvent).detail;
             if (String(targetItemId) !== String(itemId)) return;
 
@@ -195,7 +208,7 @@ export default function LayoutPanel({
         );
     };
 
-    const isPanelConnected = () => inputRef.current?.isConnected ?? false;
+    const isPanelActive = () => isActiveReactContainer(inputRef.current);
 
     const isCheckChangeForCurrentPanel = (detail: LayoutCheckChangeDetail) => {
         if (String(detail.checkedItemId) !== String(itemId)) return false;
@@ -224,6 +237,7 @@ export default function LayoutPanel({
         }
 
         dispatchLayoutChange(String(nextOrder), currentValueRef.current, true);
+        currentValueRef.current = String(nextOrder);
         setCurrentValue(String(nextOrder));
     };
 
@@ -234,6 +248,7 @@ export default function LayoutPanel({
 
     const resetCurrentValue = (skipSwap: boolean) => {
         const removedValue = currentValueRef.current;
+        currentValueRef.current = '';
         if (removedValue) {
             dispatchLayoutChange('', removedValue, skipSwap);
             const isBulk = (window as any).__layoutBulkOperation;
@@ -268,10 +283,20 @@ export default function LayoutPanel({
                 detail: columnMeta,
             }),
         );
+        // The default may have been selected before this virtual row mounted.
+        const key = Object.keys(window.getLayoutState?.() ?? {}).find(
+            (key) => getItemIdFromKey(key) === String(itemId),
+        );
+        const value = key === undefined ? '' : getValueFromKey(key);
+        currentValueRef.current = value;
+        setCurrentValue(value);
+        selectedRef.current = isPrimaryValue(value);
+        setSelected(isPrimaryValue(value));
     }, [itemId, groupId, datatype, isCategory, isDummyDatetime, layoutOrder]);
 
-    const applyValue = (newValue: string) => {
-        dispatchLayoutChange(newValue, currentValue);
+    const applyValue = (newValue: string, skipSwap = false) => {
+        dispatchLayoutChange(newValue, currentValueRef.current, skipSwap);
+        currentValueRef.current = newValue;
         setCurrentValue(newValue);
         setOpen(false);
     };
@@ -322,7 +347,7 @@ export default function LayoutPanel({
         applyValue(newValue);
     };
 
-    const overrideLayoutValue = (newValue: string, result: ValidationResult) => {
+    const overrideLayoutValue = (newValue: string, result: ValidationResult, skipSwap = false) => {
         for (const targetItemId of result.conflictItemIds) {
             document.dispatchEvent(
                 new CustomEvent('layoutForceReset', {
@@ -331,7 +356,7 @@ export default function LayoutPanel({
             );
         }
         // Apply new value
-        applyValue(newValue);
+        applyValue(newValue, skipSwap);
 
         setPendingValue(null);
         setConflictInfo(null);
@@ -348,29 +373,19 @@ export default function LayoutPanel({
         setConflictInfo(null);
     };
 
-    const getOrderDropDown = (value) => {
-        if (!value) return undefined;
-
-        const orderPriority = ['', 'lab', 'step', 'main', 'sub', 'add', 'color', 'color_imb'];
-        const match = value.match(/^(\d+)(lab|step|main|sub|add|color|color_imb)?$/);
-
-        if (!match) {
-            return 1;
+    const handleInputChangeLayoutValue = (e: SyntheticEvent<HTMLInputElement>) => {
+        const value = e.currentTarget.value;
+        // Restoring a saved value must not toggle selection or swap an entire subplot.
+        const result = validateLayoutChange(value, itemId, window.getLayoutState?.() ?? {});
+        if (result.isValid) {
+            applyValue(value, true);
+        } else {
+            overrideLayoutValue(value, result, true);
         }
-
-        const group = Number(match[1]) + 1;
-        const offset = match[2] ?? '';
-
-        return group + orderPriority.indexOf(offset) * 0.01;
-    };
-
-    const handleInputChangeLayoutValue = (e) => {
-        const value = e.target.value;
-        dispatchLayoutChange(value, currentValue);
-        setCurrentValue(value);
-        setOpen(false);
-        setOrder(getOrderDropDown(value));
-        handleValueChange(value, true);
+        const isPrimary = /^[1-6]$/.test(value);
+        selectedRef.current = isPrimary;
+        setSelected(isPrimary);
+        setOrder(getLayoutPriorityOrder(value));
     };
 
     const handleOpenChange = (isOpen: boolean) => {
@@ -385,7 +400,13 @@ export default function LayoutPanel({
     const uncheckColumn = () => {
         const $ = (window as any).$;
         if (!$) return;
-        $(`input[name=GET02_VALS_SELECT${groupId}][value="${itemId}"]`).prop('checked', false).trigger('change');
+        const virtualCheckbox = inputRef.current
+            ?.closest('li[data-virtual-row]')
+            ?.querySelector<HTMLInputElement>('.main-checkbox');
+        const checkbox = virtualCheckbox
+            ? $(virtualCheckbox)
+            : $(`input[name=GET02_VALS_SELECT${groupId}][value="${itemId}"]`);
+        checkbox.prop('checked', false).trigger('change');
     };
 
     return (
@@ -399,7 +420,8 @@ export default function LayoutPanel({
                             name="layoutInput"
                             hidden={true}
                             type="text"
-                            onChange={handleInputChangeLayoutValue}
+                            readOnly
+                            onInput={handleInputChangeLayoutValue}
                             value={currentValue}
                             data-priority-order={order}
                         />

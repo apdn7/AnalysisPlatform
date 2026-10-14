@@ -111,8 +111,8 @@ class InputChangeObserver {
 
     // Attach input listeners for real-time changes (input and change events)
     attachInputListeners(elements = null) {
-        // If no specific elements are provided, target all inputs within the targetNode
-        const inputs = elements || this.targetNode?.querySelectorAll('input') || [];
+        // If no specific elements are provided, target all inputs within the targetNode.
+        const inputs = elements || this.targetNode?.querySelectorAll('input, textarea') || [];
 
         inputs.forEach((input) => {
             const inputListener = (event) => {

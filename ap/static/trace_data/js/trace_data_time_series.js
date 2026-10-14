@@ -1396,9 +1396,9 @@ const hideFPPContextMenu = () => {
 const deleteThisRow = (self, isGraphArea) => {
     const tableId = isGraphArea ? formElements.serialTable2 : formElements.serialTable;
     $(self).closest('tr').remove();
-    updateCurrentSelectedProcessSerial(tempName.serial);
 
     if (isGraphArea) {
+        updateCurrentSelectedProcessSerial(tempName.serial, tempName.process);
         initSelect();
         disableUnselectedOption(selectedSerials, tempName.serial);
         disableUnselectedOption(selectedProcess, tempName.process);
@@ -1446,7 +1446,7 @@ const buildColumnHTML = (
     selectedCol = null,
     selectedProcId,
 ) => {
-    const defaultOption = '<option value="" selected>---</option>';
+    const defaultOption = selectedCol ? '<option value="" >---</option>' : '<option value="" selected>---</option>';
     const optionHTMLs = [defaultOption];
     const selectedOrderCols = getSelectedOrderCols(tableId, name);
     let alreadySet = false;
@@ -1577,15 +1577,14 @@ const createOrderColRowHTML = async (
 };
 
 const getSelectedOrderCols = (tableId = formElements.serialTable, serialName = 'serialColumn') => {
-    const numRows = $(`${tableId} tbody tr`).length;
-    if (!numRows) return new Set();
+    const values = $(`${tableId} tbody select[name="${serialName}"]`)
+        .map(function () {
+            return this.value;
+        })
+        .get()
+        .filter(Boolean);
 
-    const selectedCols = $(`select[name=${serialName}]`);
-    return new Set(
-        selectedCols.find(':selected').map(function getVal() {
-            return $(this).val();
-        }),
-    );
+    return new Set(values);
 };
 
 const disableSelectedSerials = (selectedSerials, name = 'serialColumn') => {
@@ -1824,7 +1823,9 @@ const bindChangeOrderColEvent = (
     name = 'serialColumn',
     callback = null,
     orderName = 'serialOrder',
+    processName = 'serialProcess',
 ) => {
+    const usesProcessSerialTracking = name === 'TermSerialColumn';
     const serialSelectEl = $(`select[name=${name}]`);
     serialSelectEl.off('change.serialOrderOptions');
     serialSelectEl.on('change.serialOrderOptions', function onSerialColumnChanged() {
@@ -1835,9 +1836,11 @@ const bindChangeOrderColEvent = (
     serialSelectEl.on('select2:change', (e) => {
         // catch event select option with select2
         updateSerialOrderOptions($(e.currentTarget), orderName);
-        updateCurrentSelectedProcessSerial('TermSerialColumn');
-        updateSelectedProcessSerial(true, e);
-        disableUnselectedOption(selectedSerials, 'TermSerialColumn');
+        if (usesProcessSerialTracking) {
+            updateCurrentSelectedProcessSerial(name, processName);
+            updateSelectedProcessSerial(true, e);
+            disableUnselectedOption(selectedSerials, name);
+        }
         enableOptionSelectedValue(e);
         if (callback) {
             callback();
@@ -1848,16 +1851,20 @@ const bindChangeOrderColEvent = (
 
     serialSelectEl.on('select2:unselecting', (e) => {
         // catch event unselect option with select2
-        updateCurrentSelectedProcessSerial('TermSerialColumn');
-        updateSelectedProcessSerial(false, e);
-        disableUnselectedOption(selectedSerials, 'TermSerialColumn');
+        if (usesProcessSerialTracking) {
+            updateCurrentSelectedProcessSerial(name, processName);
+            updateSelectedProcessSerial(false, e);
+            disableUnselectedOption(selectedSerials, name);
+        }
     });
 
     serialSelectEl.off('select2:opening');
     serialSelectEl.on('select2:opening', (e) => {
         // catch event open drop down with select2
-        updateCurrentSelectedProcessSerial('TermSerialColumn');
-        disableUnselectedOption(selectedSerials, 'TermSerialColumn');
+        if (usesProcessSerialTracking) {
+            updateCurrentSelectedProcessSerial(name, processName);
+            disableUnselectedOption(selectedSerials, name);
+        }
         enableOptionSelectedValue(e);
     });
 
@@ -1867,8 +1874,8 @@ const bindChangeOrderColEvent = (
     const updateSelectedProcessSerial = (isSelect, e) => {
         let serialColDataId;
         const currentElement = $(e.currentTarget);
-        const parentElement = currentElement.parents().eq(1);
-        const serialProcId = parentElement.find(`select[name="TermSerialProcess"] option:selected`).val();
+        const currentRow = currentElement.closest('tr');
+        const serialProcId = currentRow.find(`select[name="${processName}"] option:selected`).val();
         if (isSelect) {
             serialColDataId = e.params.data.id;
             selectedProcessSerial.add(`${serialProcId}-${serialColDataId}`);
@@ -1882,13 +1889,13 @@ const bindChangeOrderColEvent = (
     };
 };
 
-const updateCurrentSelectedProcessSerial = (serialName) => {
+const updateCurrentSelectedProcessSerial = (serialName, processName = 'TermSerialProcess') => {
     const currentProcessSerial = new Set();
     const serialSelects = $(`select[name=${serialName}]`);
     serialSelects.each(function () {
         const selectElement = $(this);
-        const parentElement = selectElement.parents().eq(1);
-        const serialProcId = parentElement.find(`select[name="TermSerialProcess"] option:selected`).val();
+        const currentRow = selectElement.closest('tr');
+        const serialProcId = currentRow.find(`select[name="${processName}"] option:selected`).val();
         const serialColDataId = selectElement.find(':selected').val();
         if (serialColDataId) {
             currentProcessSerial.add(`${serialProcId}-${serialColDataId}`);
@@ -1946,6 +1953,40 @@ const bindDragNDrop = (serialTableBody, tableId = formElements.serialTable, seri
     });
 };
 
+/**
+ * Creates and appends a serial-order configuration row to the specified table.
+ *
+ * The function loads the selected process's columns asynchronously, builds the
+ * row HTML, appends it to the table body, initializes Select2, and enables
+ * drag-and-drop sorting.
+ *
+ * When adding multiple rows, await each call sequentially so that row order is
+ * preserved and later rows can detect columns selected by earlier rows.
+ *
+ * @param {string|null} [tableId=formElements.serialTable]
+ *     CSS selector of the serial-order table. A null value uses
+ *     `formElements.serialTable`.
+ * @param {string} [processName='serialProcess']
+ *     Name attribute for the process select element.
+ * @param {string} [serialName='serialColumn']
+ *     Name attribute for the serial-column select element.
+ * @param {string} [orderName='serialOrder']
+ *     Name attribute for the sort-order select element.
+ * @param {number|string|null} [selectedProc=null]
+ *     Process ID to preselect. Uses the first selected process when omitted.
+ * @param {number|string|null} [selectedCol=null]
+ *     Column ID to preselect.
+ * @param {number|string|null} [selectedOrder=null]
+ *     Sort direction to preselect: `1` for ascending or `0` for descending.
+ * @param {number|null} [priority=null]
+ *     Row priority. When omitted, it is calculated from the current row count.
+ * @param {boolean} [isGraphArea=false]
+ *     Whether the row belongs to the graph-area serial-order table.
+ * @returns {Promise<void>}
+ *     Resolves after the row has been built, appended, and initialized.
+ * @throws {Error}
+ *     Rejects if the selected process is unavailable or its columns cannot be loaded.
+ */
 const addSerialOrderRow = async (
     tableId = formElements.serialTable,
     processName = 'serialProcess',
@@ -1973,8 +2014,10 @@ const addSerialOrderRow = async (
         priority,
         isGraphArea,
     );
-    serialTableBody.append(serialOrderRowHTML);
-    setSelect2Selection(tableId);
+    // Keep the appended nodes so Select2 is applied to the live row, not a detached copy.
+    const serialOrderRow = $(serialOrderRowHTML);
+    serialTableBody.append(serialOrderRow);
+    setSelect2Selection(serialOrderRow);
     bindDragNDrop(serialTableBody, tableId, serialName);
 };
 
@@ -2002,8 +2045,8 @@ const checkAndShowModal = (tableId = formElements.serialTable, firstCol = null, 
 
 const bindXAxisEvents = () => {
     // change x-axis for timeseries chart
-    $(formElements.xOption).off('change');
-    $(formElements.xOption).on('change', function f() {
+    $(formElements.xOption).off('change.xAxis');
+    $(formElements.xOption).on('change.xAxis', function f() {
         const changeValOnly = $(this).data('change-val-only') || false;
         if (!changeValOnly) {
             if ($(this).val() === CONST.XOPT_INDEX && !isSettingLoading) {
@@ -2022,10 +2065,8 @@ const bindXAxisEvents = () => {
             addSerialOrderRow().then(() => {
                 bindChangeProcessEvent();
                 updatePriorityAndDisableSelected();
-                setTimeout(() => {
-                    // wait select2 to be shown
-                    bindChangeOrderColEvent();
-                }, 200);
+                // wait select2 to be shown
+                bindChangeOrderColEvent();
             });
         });
 };

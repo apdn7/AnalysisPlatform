@@ -18,12 +18,15 @@ import { type LayoutData, type SubPlot, useLayoutConfigData } from '@/pages/mult
 
 import {
     type GraphSetting,
+    type NumericColorRanges,
     YAxisShowModes,
     buildPlotFigure,
     createStackedDataCache,
     getChartBodyHeight,
+    getNumericColorRanges,
     themeColor,
 } from '../plotBuilder';
+import { hideNumericLegendPoints, syncNumericHoverLegendColors } from '../plotLegend';
 import { plotConfig } from '../plotSettings';
 import type { PlotSeries, PlotSeriesCollection, SubplotCount } from '../types';
 import './MultiAxisPlot.scss';
@@ -63,7 +66,7 @@ const syncTraceAnnotationVisibility = (
         }
     });
 
-    const annotationVisibilityUpdate: Record<string, boolean> = {};
+    const annotationVisibilityUpdate: Partial<Layout> = {};
 
     annotationTraceNames.forEach((traceName, annotationIndex) => {
         if (!traceName || !visibilityByTraceName.has(traceName)) return;
@@ -77,7 +80,7 @@ const syncTraceAnnotationVisibility = (
 
     // Apply every annotation visibility change from one legend action in a single Plotly update.
     if (Object.keys(annotationVisibilityUpdate).length > 0) {
-        void Plotly.relayout(plot, annotationVisibilityUpdate as Partial<Layout>);
+        void Plotly.relayout(plot, annotationVisibilityUpdate);
     }
 };
 
@@ -313,11 +316,22 @@ function PlotlyReactChart({ data, layout, config, mode, className, style, hovere
         const annotationTraceNames = ((layout.annotations ?? []) as TraceAnnotation[]).map(
             (annotation) => annotation.traceName,
         );
+        let disposed = false;
+        const onBeforeHover = () => {
+            // Hover redraws even when the point is unchanged and plotly_hover is not emitted.
+            queueMicrotask(() => {
+                if (!disposed) syncNumericHoverLegendColors(activePlot);
+            });
+        };
         const onHover = (event) => {
             hoveredPointRef.current = event.points[0];
         };
         const unHover = () => {
             hoveredPointRef.current = null;
+        };
+        const onAfterPlot = () => {
+            hideNumericLegendPoints(activePlot);
+            syncNumericHoverLegendColors(activePlot);
         };
         const onRestyle = (event?: PlotRestyleEvent) => {
             const [update, traceIndices] = event ?? [];
@@ -328,15 +342,20 @@ function PlotlyReactChart({ data, layout, config, mode, className, style, hovere
             syncTraceAnnotationVisibility(activePlot, annotationTraceNames, traceIndices);
         };
 
-        void Plotly.react(activePlot, data, layout, config);
+        void Plotly.react(activePlot, data, layout, config).then(onAfterPlot);
 
+        activePlot.on('plotly_beforehover', onBeforeHover);
         activePlot.on('plotly_hover', onHover);
         activePlot.on('plotly_unhover', unHover);
         activePlot.on('plotly_restyle', onRestyle);
+        activePlot.on('plotly_afterplot', onAfterPlot);
         return () => {
+            disposed = true;
+            activePlot.removeAllListeners('plotly_beforehover');
             activePlot.removeAllListeners('plotly_hover');
             activePlot.removeAllListeners('plotly_unhover');
             activePlot.removeAllListeners('plotly_restyle');
+            activePlot.removeAllListeners('plotly_afterplot');
         };
     }, [data, layout, config, mode]);
 
@@ -396,21 +415,52 @@ type MultiAxisPlotChartProps = {
     chartIndex: number;
     graphSettings: GraphSetting;
     plotData: PlotSeries[];
+    numericColorRanges: NumericColorRanges;
     onClickShowGraph: any;
 };
 
-function MultiAxisPlotChart({ chartIndex, graphSettings, plotData, onClickShowGraph }: MultiAxisPlotChartProps) {
+function MultiAxisPlotChart({
+    chartIndex,
+    graphSettings,
+    plotData,
+    numericColorRanges,
+    onClickShowGraph,
+}: MultiAxisPlotChartProps) {
     const hoveredPointRef = useRef<PlotDatum | null>(null);
+    const chartRef = useRef<HTMLDivElement | null>(null);
+    const [chartWidth, setChartWidth] = useState<number>();
+    const hasGlobalColorbar = plotData.some((series) => series.is_global_color && Array.isArray(series.array_color));
+    useEffect(() => {
+        if (!hasGlobalColorbar) return;
+        const chart = chartRef.current;
+        if (!chart) return;
+
+        const observer = new ResizeObserver(([entry]) => {
+            if (entry.contentRect.width > 0) {
+                setChartWidth(entry.contentRect.width);
+            }
+        });
+        observer.observe(chart);
+        return () => observer.disconnect();
+    }, [hasGlobalColorbar]);
     const subplotCount = Math.max(...plotData.map((series) => series.plot_no)) as SubplotCount;
     const chartHeight = getChartBodyHeight(subplotCount);
     const plotMode = getPlotMode(graphSettings.yAxis);
     const stackedDataCache = useMemo(() => createStackedDataCache(), [plotData]);
     const plotFigure = useMemo(
-        () => buildPlotFigure(plotData, graphSettings, { stackedDataCache, height: chartHeight }),
+        () =>
+            buildPlotFigure(plotData, graphSettings, {
+                stackedDataCache,
+                height: chartHeight,
+                width: chartWidth,
+                numericColorRanges,
+            }),
         [
             plotData,
             stackedDataCache,
+            numericColorRanges,
             chartHeight,
+            chartWidth,
             graphSettings.fontSize,
             graphSettings.theme,
             graphSettings.plotStyle,
@@ -424,6 +474,7 @@ function MultiAxisPlotChart({ chartIndex, graphSettings, plotData, onClickShowGr
 
     return (
         <div
+            ref={chartRef}
             className="multi-axis-plot__chart"
             data-chart-index={chartIndex}
             style={{
@@ -437,6 +488,7 @@ function MultiAxisPlotChart({ chartIndex, graphSettings, plotData, onClickShowGr
                 hoveredPointRef={hoveredPointRef}
                 graphSettings={graphSettings}
                 visiblePlotData={plotData}
+                numericColorRanges={numericColorRanges}
             >
                 <PlotlyReactChart
                     hoveredPointRef={hoveredPointRef}
@@ -456,6 +508,10 @@ export default function MultiAxisPlot() {
     const [graphSettings, setGraphSettings] = useState<GraphSetting>(defaultSettings);
     const [guiPortalNode, setGuiPortalNode] = useState<HTMLElement | null>(null);
     const [plotDataGroups, setPlotDataGroups] = useState<PlotSeries[][]>([]);
+    const numericColorRanges = useMemo(
+        () => getNumericColorRanges(plotDataGroups.flat().filter((series) => series.is_global_color)),
+        [plotDataGroups],
+    );
     const { collectLayoutData, layout, getLayoutState } = useLayoutConfigData();
     const [xDatatype, setXDatatype] = useState('DATETIME');
     const [xOption, setXOption] = useState('TIME');
@@ -615,6 +671,7 @@ export default function MultiAxisPlot() {
                             chartIndex={index}
                             graphSettings={graphSettings}
                             plotData={plotData}
+                            numericColorRanges={numericColorRanges}
                         />
                     ))}
                 </div>

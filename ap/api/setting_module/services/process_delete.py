@@ -1,52 +1,206 @@
 import os
 import shutil
+from contextlib import contextmanager
+from time import monotonic, sleep
 
 from loguru import logger
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm.attributes import set_committed_value
 
 from ap import db
-from ap.common.constants import AnnounceEvent, CacheType, CfgConstantType, JobType, ProcessStatus
+from ap.common.common_utils import chunks
+from ap.common.constants import SQL_IN_MAX, AnnounceEvent, CacheType, CfgConstantType, JobType, ProcessStatus
 from ap.common.jobs.job_info_schema import (
     DelAllTransactionDataJobInfo,
     DelTransactionDataByLimit,
 )
+from ap.common.jobs.jobs import RunningJobs, RunningJobStatus
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventExpireCache, EventQueue, EventRemoveJobs
 from ap.common.path_utils import delete_file, gen_duckdb_file_name, gen_sqlite3_file_name, get_data_path, resource_path
 from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
-from ap.setting_module.models import CfgConstant, CfgDataSource, CfgExport, CfgProcess, JobManagement, make_session
+from ap.setting_module.models import (
+    CfgConstant,
+    CfgDataSource,
+    CfgExport,
+    CfgFilter,
+    CfgFilterDetail,
+    CfgProcess,
+    CfgProcessColumn,
+    CfgTraceKey,
+    JobManagement,
+    make_session,
+)
 from ap.setting_module.services.background_process import send_processing_info
 from ap.setting_module.services.process_config import update_process_status
 from ap.trace_data.transaction_model import TransactionData
 
 
+def _load_process_delete_relationships(session: Session, processes: list[CfgProcess]) -> None:
+    """Batch-load column dependencies while retaining ORM delete and cache events."""
+    filter_options = (
+        selectinload(CfgFilter.cfg_children),
+        selectinload(CfgFilter.filter_details).options(
+            selectinload(CfgFilterDetail.cfg_children),
+            selectinload(CfgFilterDetail.export_filters),
+        ),
+    )
+    column_options = (
+        selectinload(CfgProcessColumn.function_details),
+        selectinload(CfgProcessColumn.children),
+        selectinload(CfgProcessColumn.cfg_filters).options(*filter_options),
+        selectinload(CfgProcessColumn.export_details),
+    )
+    process_ids = [process.id for process in processes]
+    for process_id_chunk in chunks(process_ids, SQL_IN_MAX):
+        # Query even when processes are in the identity map: Query.get() would skip eager loading.
+        session.query(CfgProcess).filter(CfgProcess.id.in_(process_id_chunk)).options(
+            selectinload(CfgProcess.columns).options(*column_options),
+            selectinload(CfgProcess.filters).options(*filter_options),
+        ).all()
+
+
+@contextmanager
+def _skip_redundant_parent_delete_cascades(session: Session):
+    """Avoid re-traversing already scheduled parents for every deleted column/key."""
+    deleted_objects = set(session.deleted)
+    reverse_links = []
+    try:
+        with session.no_autoflush:
+            for obj in deleted_objects:
+                if isinstance(obj, CfgProcessColumn):
+                    relationship = CfgProcessColumn.cfg_process.key
+                elif isinstance(obj, CfgTraceKey):
+                    relationship = CfgTraceKey.cfg_trace.key
+                else:
+                    continue
+                parent = getattr(obj, relationship)
+                if parent in deleted_objects:
+                    reverse_links.append((obj, relationship, parent))
+                    # The full ORM cascade is already in session.deleted. Only suppress the
+                    # redundant reverse traversal during flush; leave foreign keys untouched.
+                    set_committed_value(obj, relationship, None)
+        yield
+    finally:
+        for obj, relationship, parent in reverse_links:
+            set_committed_value(obj, relationship, parent)
+
+
 @log_execution_time()
 def delete_proc_cfg_and_relate_jobs(proc_id):
-    with db.session.begin_nested() as transaction_session:
-        # get all processes to be deleted
-        deleting_processes = CfgProcess.get_all_parents_and_children_processes(
-            proc_id, session=transaction_session.session
+    return _delete_process_and_relate_jobs(proc_id, child_only=False)
+
+
+def _reset_process_delete_session() -> Session:
+    session = db.session()
+    if session.new or session.dirty or session.deleted:
+        raise RuntimeError('Cannot delete process configuration with pending session changes')
+    # Request-side lookups may have already opened a read transaction/snapshot.
+    session.rollback()
+    return session
+
+
+@contextmanager
+def _process_delete_transaction():
+    session = _reset_process_delete_session()
+    try:
+        with session.begin():
+            if session.get_bind().dialect.name == 'sqlite':
+                # Reserve the writer before the first SELECT, avoiding WAL snapshot upgrades.
+                session.connection().exec_driver_sql('BEGIN IMMEDIATE')
+            yield session
+            with _skip_redundant_parent_delete_cascades(session):
+                session.flush()
+    except OperationalError as error:
+        logger.error(
+            'Process deletion transaction failed: sqlite_errorcode={}, sqlite_errorname={}',
+            getattr(error.orig, 'sqlite_errorcode', None),
+            getattr(error.orig, 'sqlite_errorname', None),
         )
-        # get ids incase sqlalchemy session is dead
-        deleting_process_ids = [proc.id for proc in deleting_processes]
+        raise
 
-        # stop all jobs before deleting
-        target_jobs = JobType.jobs_include_process_id()
-        for p in deleting_process_ids:
-            EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=p))
-            remove_export_jobs_by_process_id(p)
 
-        for cfg_process in deleting_processes:
-            transaction_session.session.delete(cfg_process)
+def _wait_for_process_jobs(process_ids: list[int], timeout: float = 30) -> None:
+    deadline = monotonic() + timeout
+    while process_ids:
+        running_jobs = RunningJobs.get_running_jobs()
+        lock = RunningJobs.lock()
+        if running_jobs is None or lock is None:
+            raise RuntimeError('Cannot confirm that process jobs have stopped')
+        with lock:
+            active_jobs = [
+                job
+                for job in running_jobs.values()
+                if job.proc_id in process_ids and job.status is RunningJobStatus.EXECUTING
+            ]
+            for job in active_jobs:
+                job.update(wait_to_kill=True, running_jobs=running_jobs)
+        if not active_jobs:
+            return
+        if monotonic() >= deadline:
+            raise TimeoutError(f'Process jobs did not stop before deletion: {[job.id for job in active_jobs]}')
+        sleep(0.1)
 
-        transaction_session.commit()
 
-    delete_pulled_data_folders(deleting_process_ids)
+def _stop_process_delete_jobs(process_ids: list[int]) -> None:
+    events = []
+    for process_id in process_ids:
+        events.append(EventRemoveJobs(job_types=JobType.jobs_include_process_id(), process_id=process_id))
+        for cfg_export in CfgExport.get_by_process_id(process_id):
+            events.append(
+                EventRemoveJobs(
+                    job_types=JobType.jobs_include_export_id(), process_id=process_id, export_id=cfg_export.id
+                )
+            )
+    # Jobs must be able to commit their final status while we wait for them.
+    _reset_process_delete_session()
+    for event in events:
+        EventQueue.put(event)
+    _wait_for_process_jobs(process_ids)
 
-    for p in deleting_process_ids:
-        delete_transaction_db_file(p)
 
-    return deleting_process_ids
+def _mark_processes_for_deletion(session: Session, processes: list[CfgProcess]) -> None:
+    _load_process_delete_relationships(session, processes)
+    with session.no_autoflush:
+        for process in processes:
+            session.delete(process)
+
+
+def _cleanup_deleted_processes(process_ids: list[int]) -> None:
+    delete_process_data_files(process_ids)
+
+
+def _get_processes_for_deletion(session: Session, proc_id: int, child_only: bool) -> list[CfgProcess]:
+    if child_only:
+        process = session.get(CfgProcess, proc_id)
+        return [process] if process is not None else []
+    return CfgProcess.get_all_parents_and_children_processes(proc_id, session=session)
+
+
+def _delete_process_and_relate_jobs(proc_id, child_only, reload_related_process_data=False):
+    session = _reset_process_delete_session()
+    processes = _get_processes_for_deletion(session, proc_id, child_only)
+    process_ids = [process.id for process in processes]
+    _stop_process_delete_jobs(process_ids)
+    if not process_ids:
+        return []
+
+    parent_id = None
+    with _process_delete_transaction() as session:
+        processes = _get_processes_for_deletion(session, proc_id, child_only)
+        if {process.id for process in processes} != set(process_ids):
+            raise RuntimeError('Process group changed while stopping jobs; retry deletion')
+        if reload_related_process_data:
+            parent = CfgProcess.get_parent(proc_id, session=session)
+            parent_id = parent.id if parent is not None else None
+        _mark_processes_for_deletion(session, processes)
+
+    _cleanup_deleted_processes(process_ids)
+    if parent_id is not None:
+        reinitialize_and_reimport_merged_process(parent_id)
+    return process_ids
 
 
 def _build_delete_modal_entry(proc: CfgProcess) -> dict:
@@ -129,30 +283,9 @@ def delete_child_process_and_relate_jobs(proc_id, reload_related_process_data=Fa
     removed from the already-loaded data (mirrors the "Edit merged process" init_parent
     flow in ``post_proc_config``).
     """
-    # Resolve the parent (merged) process before deletion, because the relationship
-    # is lost once the child row is removed.
-    parent = CfgProcess.get_parent(proc_id)
-    parent_id = parent.id if parent else None
-
-    with db.session.begin_nested() as transaction_session:
-        cfg_process = transaction_session.session.query(CfgProcess).get(proc_id)
-        if cfg_process is None:
-            return []
-
-        # stop jobs of this child only before deleting
-        EventQueue.put(EventRemoveJobs(job_types=JobType.jobs_include_process_id(), process_id=proc_id))
-        remove_export_jobs_by_process_id(proc_id)
-
-        transaction_session.session.delete(cfg_process)
-        transaction_session.commit()
-
-    delete_pulled_data_folders([proc_id])
-    delete_transaction_db_file(proc_id)
-
-    if reload_related_process_data and parent_id is not None:
-        reinitialize_and_reimport_merged_process(parent_id)
-
-    return [proc_id]
+    return _delete_process_and_relate_jobs(
+        proc_id, child_only=True, reload_related_process_data=reload_related_process_data
+    )
 
 
 @log_execution_time()
@@ -175,9 +308,9 @@ def reinitialize_and_reimport_merged_process(parent_id):
 
 
 @log_execution_time()
-def remove_export_jobs_by_process_id(process_id):
+def remove_export_jobs_by_process_id(process_id, meta_session=None):
     try:
-        cfg_exports = CfgExport.get_by_process_id(process_id)
+        cfg_exports = CfgExport.get_by_process_id(process_id, session=meta_session)
         for cfg_export in cfg_exports:
             EventQueue.put(
                 EventRemoveJobs(
@@ -209,10 +342,9 @@ def delete_transaction_when_initial_process(proc_id):
     for p in deleting_process_ids:
         EventQueue.put(EventRemoveJobs(job_types=target_jobs, process_id=p))
 
-    delete_pulled_data_folders(deleting_process_ids)
+    delete_process_data_files(deleting_process_ids)
 
     for p in deleting_process_ids:
-        delete_transaction_db_file(p)
         # recreate tables
         trans_data = TransactionData(p)
         with (
@@ -307,24 +439,47 @@ def delete_transaction_data(job_management: JobManagement):
 
 
 def del_data_source(ds_id):
-    """
-    Delete data source
-    :param ds_id:
-    :return:
-    """
-    deleted_process_ids = []
+    """Delete one datasource and every related process without splitting metadata session ownership.
 
-    with make_session() as meta_session:
-        ds = meta_session.query(CfgDataSource).get(ds_id)
-        if not ds:
+    The metadata deletion is committed first and the process data files are removed afterwards.
+    If the datasource deletion or the commit fails, the metadata is rolled back and every
+    transaction DB file and pulled data folder is still intact, so the operation can be retried.
+
+    Args:
+        ds_id: Identifier of the datasource to delete.
+
+    Returns:
+        Ordered, de-duplicated process identifiers deleted with the datasource, or ``None`` when absent.
+    """
+    session = _reset_process_delete_session()
+    ds = session.get(CfgDataSource, ds_id)
+    if ds is None:
+        session.rollback()
+        return None
+    process_ids = [process.id for process in _get_datasource_delete_processes(session, ds)]
+    _stop_process_delete_jobs(process_ids)
+
+    with _process_delete_transaction() as session:
+        ds = session.get(CfgDataSource, ds_id)
+        if ds is None:
             return None
+        processes = _get_datasource_delete_processes(session, ds)
+        if {process.id for process in processes} != set(process_ids):
+            raise RuntimeError('Data source processes changed while stopping jobs; retry deletion')
+        _mark_processes_for_deletion(session, processes)
+        session.delete(ds)
 
-        # delete data
-        for proc in list(ds.processes or []):
-            deleted_process_ids.extend(delete_proc_cfg_and_relate_jobs(proc.id))
-        meta_session.delete(ds)
+    _cleanup_deleted_processes(process_ids)
+    return process_ids
 
-    return list(dict.fromkeys(deleted_process_ids))
+
+def _get_datasource_delete_processes(session: Session, data_source: CfgDataSource) -> list[CfgProcess]:
+    processes = {}
+    for process in data_source.processes:
+        if process.id not in processes:
+            for related in CfgProcess.get_all_parents_and_children_processes(process.id, session=session):
+                processes[related.id] = related
+    return list(processes.values())
 
 
 def del_data_sources(ds_ids):
@@ -358,6 +513,22 @@ def del_data_sources(ds_ids):
 def delete_transaction_db_file(proc_id: int):
     delete_file(gen_sqlite3_file_name(proc_id))
     delete_file(gen_duckdb_file_name(proc_id))
+
+
+def delete_process_data_files(process_ids: list[int]) -> None:
+    """Remove the on-disk data of already deleted processes.
+
+    This is the irreversible part of a process deletion: the pulled data folders and the
+    per-process transaction DB files. Call it only after the metadata transaction that removed
+    those processes committed, so a rollback can never leave a configured process without data.
+
+    Args:
+        process_ids: Identifiers of the processes whose data files must be removed.
+    """
+    delete_pulled_data_folders(process_ids)
+
+    for process_id in process_ids:
+        delete_transaction_db_file(process_id)
 
 
 def delete_pulled_data_folders(process_ids: list[int]):

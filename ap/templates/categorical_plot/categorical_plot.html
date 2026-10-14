@@ -86,13 +86,14 @@
 
     <br />
     <div id="categoricalPlotArea" class="plot-content" style="display: none">
-        <div class="flex-row-center" id="graph-settings-area">
+        <div class="flex-row-center d-flex" id="graph-settings-area">
             {{ macros.info_i_mark() }}
             {{ macros.on_demand_filter() }}
             {{ macros.summary_option(prefix='var', buttonId='varSummarySelectBtn', optionName='SummaryOption', cl='ml-2') }}
             {{ macros.jump_button() }}
             {{ macros.frequency_scale(name='frequencyScale', cl='ml-4') }}
             {{ macros.scale_option(name='HistScale', className='ml-4', defaultOption='1') }}
+            <div class="react-root" data-component="CategoricalPlotStyleSetting" style="margin-left: auto"></div>
         </div>
         <div id="CatePlotCards" class="stratifiedTabs mt-2" data-str-by="var"></div>
         <div id="stContentTab">

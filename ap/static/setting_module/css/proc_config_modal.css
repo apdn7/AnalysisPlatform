@@ -141,6 +141,89 @@
     font-size: 18px;
 }
 
+/* --- Sample-data controls drawn ON the columns table header row ------------
+   Design (プロセス設定 改善案): the display-mode switch belongs to the
+   サンプルデータ header group and the horizontal scroll arrows sit at the right
+   end of that same header row -- not in the tools bar above the table.
+
+   The markup stays inside the tools bar on purpose: every consumer resolves
+   them with `closest('[id^="procSettingModalBody"]')` + a name/id prefix (see
+   getSampleDataDisplayModeElement / handleScrollSampleDataTable), and the
+   onchange handlers are inline attributes, so only the painted position is
+   changed here. The offsets themselves are measured from the real table header
+   by alignSampleDataHeaderControls() and published as custom properties on the
+   tools bar (the positioning context), so nothing is hard-coded against a
+   particular set of visible columns. */
+#procSettingModal .proc-config-tools-bar {
+    /* Fallbacks for the first paint / before the table exists.
+       alignSampleDataHeaderControls() overwrites them with measured values. */
+    --pc-header-top: 48px;
+    --pc-header-height: 28px;
+    --pc-sample-data-left: 0px;
+    --pc-arrows-right: 8px;
+    /* Header cells are drawn with a 1px frame (see custom_jspreadsheet.css). The
+       measured top/height/right cover the whole cell box, borders included, so the
+       overlays are inset by that much - otherwise their opaque background paints
+       over the table's own header grid lines. */
+    --pc-header-border: 1px;
+    /* Keeps the switch clear of the Filter column boundary on its left, so that
+       column separator stays visible instead of being covered. */
+    --pc-sample-data-gap: 12px;
+}
+
+#procSettingModal .proc-config-tools-bar .sample-data-display-mode,
+#procSettingModal .proc-config-tools-bar .scroll-content {
+    position: absolute;
+    top: calc(var(--pc-header-top) + var(--pc-header-border));
+    height: calc(var(--pc-header-height) - 2 * var(--pc-header-border));
+    display: flex;
+    align-items: center;
+    /* Same background as a process-columns-table header cell (see
+       custom_jspreadsheet.css) so the overlay cleanly replaces the header text
+       underneath instead of double-printing it. */
+    background-color: #303030;
+    /* The controls must stay within the header row: anything taller would spill
+       onto the first data row and over the row's bottom grid line. */
+    overflow: hidden;
+    z-index: 99;
+}
+
+#procSettingModal .proc-config-tools-bar .sample-data-display-mode {
+    left: calc(var(--pc-sample-data-left) + var(--pc-sample-data-gap));
+    padding: 0 8px;
+    white-space: nowrap;
+}
+
+/* Match the surrounding column headers; the two radio labels stay normal weight. */
+#procSettingModal .proc-config-tools-bar .sample-data-display-mode > label {
+    font-weight: bolder;
+    line-height: 1;
+}
+
+/* Bootstrap gives .custom-control a 1.5rem min-height plus its own margins, which
+   is taller than a header row - drop them so the radios sit inside the row. The
+   label line-height is left alone: the radio dot is absolutely positioned against
+   it, so shrinking it would move the dot off-centre. */
+#procSettingModal .proc-config-tools-bar .sample-data-display-mode .custom-control-inline {
+    min-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: 0.75rem;
+}
+
+#procSettingModal .proc-config-tools-bar .scroll-content {
+    right: calc(var(--pc-arrows-right) + var(--pc-header-border));
+    left: auto;
+    width: 111px;
+    padding: 0 4px;
+    justify-content: space-between;
+}
+
+/* Default line-height would make an 18px icon taller than the header row. */
+#procSettingModal .proc-config-tools-bar .scroll-content span {
+    line-height: 1;
+}
+
 tr.row-unchecked td {
     color: gray !important;
 }

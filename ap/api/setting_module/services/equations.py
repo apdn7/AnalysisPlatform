@@ -184,7 +184,8 @@ class EquationSampleData(BaseModel):
         df_root = df_root.reset_index()
         df_root = df_root.drop_duplicates(subset=[ARRAY_X, ARRAY_Y])
         df_root = df_root.replace('', pd.NA)
-        df_root = df_root.dropna(subset=[ARRAY_X, ARRAY_Y, SAMPLE_DATA], how='all')
+        dropna_columns = [column for column in (ARRAY_X, ARRAY_Y, SAMPLE_DATA) if column in df_root.columns]
+        df_root = df_root.dropna(subset=dropna_columns, how='all')
 
         # sort by requirement
         # 1. 1st row: Both x and y are not NA
@@ -213,23 +214,30 @@ class EquationSampleData(BaseModel):
             },
         )
 
-        # Convert datetime format before evaluation
-        df = df_root.copy()
-        df = self.format_datetime(df)
-        equation = get_function_class_by_id(equation_id=self.equation_id).from_kwargs(
-            **self.model_dump(),
-        )
+        try:
+            # Convert datetime format before evaluation
+            df = self.format_datetime(df_root.copy())
+            equation = get_function_class_by_id(equation_id=self.equation_id).from_kwargs(
+                **self.model_dump(),
+            )
+            evaluated_data = equation.evaluate(
+                df,
+                out_col=SAMPLE_DATA,
+                x_col=ARRAY_X,
+                y_col=ARRAY_Y,
+                x_dtype=self.x_data_type,
+                y_dtype=self.y_data_type,
+            )
+            output_type = equation.get_output_type(x_data_type=self.x_data_type, y_data_type=self.y_data_type)
+        except FunctionFieldError as err:
+            df_result = self.sampling_data(df_root)
+            err.with_sample_data(
+                x_array=df_result[ARRAY_X].tolist(),
+                y_array=df_result[ARRAY_Y].tolist(),
+            )
+            raise
 
-        evaluate = equation.evaluate(
-            df,
-            out_col=SAMPLE_DATA,
-            x_col=ARRAY_X,
-            y_col=ARRAY_Y,
-            x_dtype=self.x_data_type,
-            y_dtype=self.y_data_type,
-        )
-        sample_data = evaluate[SAMPLE_DATA]
-        output_type = equation.get_output_type(x_data_type=self.x_data_type, y_data_type=self.y_data_type)
+        sample_data = evaluated_data[SAMPLE_DATA]
 
         # orjson can't parse infinity
         # https://github.com/ijl/orjson?tab=readme-ov-file#float

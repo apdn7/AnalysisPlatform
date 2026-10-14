@@ -8,7 +8,14 @@ import numpy as np
 import pandas as pd
 from pandas import Series
 
-from ap.common.constants import INF_STR, MAX_SAFE_INTEGER, MIN_DATETIME_LEN, MINUS_INF_STR, DataType
+from ap.common.constants import (
+    DATA_TYPE_ESTIMATION_LIMIT,
+    INF_STR,
+    MAX_SAFE_INTEGER,
+    MIN_DATETIME_LEN,
+    MINUS_INF_STR,
+    DataType,
+)
 from ap.common.log import log_execution_time
 
 na_values = [None, '', 'nan', 'NA', np.nan, np.inf, -np.inf]
@@ -37,6 +44,42 @@ dtype_pattern = {
     DataType.TEXT: [re.compile(r'^\d{6}-\d{4}$')],
 }
 extra_int_pattern = {DataType.INTEGER: [re.compile(r'^-?\d+\.0$')]}
+_CANONICAL_INTEGER_PATTERN = re.compile(r'(?:0|-?[1-9][0-9]*)\Z')
+
+
+def _numeric_data_type(series: Series, is_v2: bool) -> int | None:
+    """Skip pandas conversions only when the existing numeric rules are unambiguous."""
+    # Scalar iteration suits short previews; keep vectorized inference for long columns.
+    if len(series) > DATA_TYPE_ESTIMATION_LIMIT or isinstance(series.dtype, pd.ArrowDtype):
+        return None
+    if pd.api.types.is_integer_dtype(series.dtype):
+        values = {int(value) for value in series.array if not pd.isna(value)}
+    elif pd.api.types.is_float_dtype(series.dtype) and not is_v2:
+        values = {value for value in series.array if not pd.isna(value) and math.isfinite(value)}
+        if not values or max(values) > MAX_SAFE_INTEGER:
+            return DataType.TEXT.value
+        return DataType.REAL.value
+    elif isinstance(series.dtype, pd.StringDtype):
+        values = set()
+        for value in series.array:
+            if pd.isna(value) or value in ('', 'nan', 'NA'):
+                continue
+            # Noncanonical numbers (leading zeros, signs, exponents, etc.) retain
+            # the original pattern/conversion precedence, including the V2 rules.
+            if len(value) > 20 or not _CANONICAL_INTEGER_PATTERN.fullmatch(value):
+                return None
+            number = int(value)
+            if number < np.iinfo(np.int64).min or number > MAX_SAFE_INTEGER:
+                return None
+            values.add(number)
+    else:
+        return None
+
+    if not values or max(values) > MAX_SAFE_INTEGER:
+        return DataType.TEXT.value
+    if values == {0, 1}:
+        return DataType.BOOLEAN.value
+    return DataType.INTEGER.value
 
 
 def detect_type_from_patterns(series: pd.Series, extra_pattern=None):
@@ -78,33 +121,46 @@ def detect_type_from_patterns(series: pd.Series, extra_pattern=None):
     return None
 
 
-@log_execution_time()
-def gen_data_types(series: Series, is_v2=False):
+def prepare_data_type_values(series: Series) -> tuple[Series, Series]:
+    raw_unique = series.drop_duplicates().dropna()
+    prepared = raw_unique
+    # drop 'NA' in series if series is ('1.1', 'NA')
+    # BUG: BooleanArray raising on comparison to string: https://github.com/pandas-dev/pandas/pull/44533
+    if prepared.dtypes.name != 'boolean':
+        prepared = prepared.replace(na_values, pd.NA).dropna()
+    return prepared, raw_unique
+
+
+def gen_data_types_core(series: Series, is_v2=False):
     """
     Check datatype of a list of columns
     :param is_v2:
     :param series:
     :return:
     """
-    series = series.drop_duplicates().dropna()
-    # drop 'NA' in series if series is ('1.1', 'NA')
-    # BUG: BooleanArray raising on comparison to string: https://github.com/pandas-dev/pandas/pull/44533
-    if series.dtypes.name != 'boolean':
-        series = series.replace(na_values, pd.NA).dropna()
+    numeric_type = _numeric_data_type(series, is_v2)
+    if numeric_type is not None:
+        return numeric_type
 
+    prepared, _ = prepare_data_type_values(series)
+    return gen_data_types_from_prepared(prepared, is_v2=is_v2)
+
+
+def gen_data_types_from_prepared(prepared: Series, is_v2=False):
+    """Infer a datatype from values already prepared by prepare_data_type_values."""
     # for v2, try to convert dtypes from float to int
     # if data=[1.0, 2.0] (to avoid wrong data-type prediction)
-    if not series.empty:
+    if not prepared.empty:
         extra_pattern = extra_int_pattern if is_v2 else None
-        dtype = detect_type_from_patterns(series, extra_pattern=extra_pattern)
+        dtype = detect_type_from_patterns(prepared, extra_pattern=extra_pattern)
         if dtype:
             return dtype
 
-    data_type = check_data_type_series(series)
+    data_type = check_data_type_series(prepared)
     if data_type is not None:
         return data_type
 
-    data_types = [check_data_type(val) for val in series]
+    data_types = [check_data_type(val) for val in prepared]
 
     if DataType.TEXT in data_types:
         return DataType.TEXT.value
@@ -120,7 +176,7 @@ def gen_data_types(series: Series, is_v2=False):
         return DataType.TEXT.value
 
     if DataType.REAL in data_types:
-        return check_float_type(series)
+        return check_float_type(prepared)
 
     if DataType.INTEGER in data_types:
         return DataType.INTEGER.value
@@ -132,6 +188,11 @@ def gen_data_types(series: Series, is_v2=False):
         return DataType.EU_REAL_SEP.value
 
     return DataType.TEXT.value
+
+
+@log_execution_time()
+def gen_data_types(series: Series, is_v2=False):
+    return gen_data_types_core(series, is_v2=is_v2)
 
 
 def convert_series_to_str(s: Series) -> Series:

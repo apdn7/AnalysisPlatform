@@ -10,7 +10,8 @@ const defaultConfig = {
 export const apiClient = {
     async get<T>(url: string, config?: any): Promise<T> {
         try {
-            return await axiosInstance.get(url, { ...defaultConfig, ...config });
+            const response = await axiosInstance.get<T>(url, { ...defaultConfig, ...config });
+            return response.data;
         } catch (error: any) {
             throw error.response?.data || error;
         }
@@ -18,7 +19,8 @@ export const apiClient = {
 
     async post<T>(url: string, data?: any, config?: any): Promise<T> {
         try {
-            return await axiosInstance.post(url, data, { ...defaultConfig, ...config });
+            const response = await axiosInstance.post<T>(url, data, { ...defaultConfig, ...config });
+            return response.data;
         } catch (error: any) {
             throw error.response?.data || error;
         }
@@ -26,7 +28,8 @@ export const apiClient = {
 
     async put<T>(url: string, data?: any, config?: any): Promise<T> {
         try {
-            return await axiosInstance.put(url, data, { ...defaultConfig, ...config });
+            const response = await axiosInstance.put<T>(url, data, { ...defaultConfig, ...config });
+            return response.data;
         } catch (error: any) {
             throw error.response?.data || error;
         }
@@ -35,7 +38,8 @@ export const apiClient = {
     async delete<T>(url: string, config?: any): Promise<T> {
         // Add data via the config (following AxiosRequestConfig) if need
         try {
-            return await axiosInstance.delete(url, { ...defaultConfig, ...config });
+            const response = await axiosInstance.delete<T>(url, { ...defaultConfig, ...config });
+            return response.data;
         } catch (error: any) {
             throw error.response?.data || error;
         }

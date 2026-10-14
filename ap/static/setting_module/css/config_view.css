@@ -159,16 +159,20 @@ input[type='checkbox']:not(.graphNavToggle) {
     height: 35px;
 }
 
-.select2-container .select2-selection--single .select2-selection__rendered {
+.select2-container .select2-selection--single:not([aria-controls*='select-language']) .select2-selection__rendered {
     padding-left: 15px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__rendered {
+.select2-container--default
+    .select2-selection--single:not([aria-controls*='select-language'])
+    .select2-selection__rendered {
     color: #ffffff;
     line-height: 30px;
 }
 
-.select2-container--default .select2-selection--single .select2-selection__arrow {
+.select2-container--default
+    .select2-selection--single:not([aria-controls*='select-language'])
+    .select2-selection__arrow {
     height: 30px;
 }
 
@@ -411,11 +415,40 @@ td.pr-row {
 #procSettingModal .modal-body {
     padding: 0.3rem 1rem;
 }
+
+#procSettingModal .modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+#procSettingModal #procSettingModalBody {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+#procSettingModal #processColumnsTable {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+#procSettingModal #processColumnsTable .jexcel_content {
+    flex: 1 1 auto;
+    overflow: auto;
+    min-height: 0;
+}
+#procSettingModal #processColumnsTable .jexcel_pagination {
+    flex: 0 0 auto;
+}
 #procSettingModal .form-group {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.15rem;
 }
 #procSettingModal .col-form-label {
-    padding-bottom: 0.3rem !important;
+    padding-top: 0.15rem !important;
+    padding-bottom: 0.15rem !important;
 }
 /* for header of preview table */
 #procSettingModal .table .thead-light th {
@@ -437,13 +470,413 @@ td.pr-row {
     justify-content: center;
 }
 #procSettingModal .modal-footer {
-    padding: 0 1rem !important;
+    padding: 0.4rem 1rem !important;
+}
+
+.proc-general-info-row {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    column-gap: 20px;
+}
+
+#procSettingModal .proc-config-tools-bar {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr);
+    column-gap: 20px;
+}
+
+#procSettingModal .proc-datetime-tools {
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+#procSettingModal #refactorProcSetting {
+    justify-self: end;
+    grid-column: 3;
+    grid-row: 1;
+}
+
+#procSettingModal .proc-column-tools {
+    grid-column: 1;
+    gap: 0.25rem 0;
+}
+
+#procPaginationToolbar {
+    --proc-pagination-height: calc(1.2 * 0.9375rem + 0.75rem);
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 0.9375rem;
+}
+
+#procPaginationToolbar .jexcel_pagination > div:first-child {
+    display: none;
+}
+
+#procPaginationToolbar .jexcel_pagination > div {
+    padding: 0;
+    align-items: center;
+    gap: 4px;
+}
+
+#procPaginationToolbar .jexcel_page {
+    width: var(--proc-pagination-height);
+    height: var(--proc-pagination-height);
+    line-height: 1.5;
+    flex-shrink: 0;
+    font-size: inherit;
+}
+
+#procPaginationJump {
+    width: 56px;
+    min-width: 0;
+    padding: 0 4px;
+    text-align: center;
+}
+
+#procPaginationJump::-webkit-inner-spin-button {
+    opacity: 1;
+}
+
+#procPaginationJumpBtn {
+    height: var(--proc-pagination-height);
+    padding: 0 6px;
+    border: 1px solid #58717d;
+    border-radius: 0;
+    background: #303d44;
+    color: #acd4eb;
+    font-size: inherit;
+    line-height: 1.5;
+}
+
+#procPaginationToolbar button.jexcel_page {
+    padding: 0;
+    margin: 0;
+    border: 1px solid #58717d;
+    border-radius: 0;
+    background: #303d44;
+    color: #acd4eb;
+    cursor: pointer;
+}
+
+#procPaginationToolbar button.jexcel_page_selected {
+    border-color: #82b2cf;
+    background: #4e87ad;
+    color: #fff;
+}
+
+#procPaginationToolbar button.jexcel_page:not(:disabled):hover,
+#procPaginationJumpBtn:not(:disabled):hover {
+    background: #4e87ad;
+}
+
+#procPaginationToolbar button.jexcel_page:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+#procPaginationToolbar .proc-pagination-ellipsis {
+    color: #acd4eb;
+}
+
+.proc-general-info-col {
+    min-width: 0;
+}
+/* Shared CSV/DB proportions, after reserving the two column gaps. */
+.proc-general-info-name-col {
+    flex: 29 1 0;
+}
+.proc-general-info-name-col > .form-group.row > label {
+    white-space: nowrap;
+    overflow: visible;
+}
+/* Neutralize Bootstrap's .row negative side-margins (-15px) and its
+   .col-sm-* 15px gutter padding for these 3 rows (Process Name / Japanese
+   Name / Local Name). Left in place, col-sm-3's rendered box ends up
+   being 25% of (name-col-width + 30px bleed) minus its own 30px padding --
+   a few px short of a clean 25%, which is exactly what made テーブル名's
+   label (see .proc-table-name-label below, sized as a plain 8.5% = 25% of
+   name-col's 34%) not quite line up with it. With the gutters zeroed,
+   col-sm-3 is a clean, predictable 25% of name-col's own width, so both
+   labels are computed the same simple way and land at the same x. */
+.proc-general-info-name-col .form-group.row {
+    margin-left: 0;
+    margin-right: 0;
+}
+.proc-general-info-name-col .form-group.row > .col-sm-3 {
+    padding-left: 0;
+    padding-right: 0.5rem;
+}
+.proc-general-info-name-col .form-group.row > .col-sm-9 {
+    padding-left: 0;
+    padding-right: 0;
+}
+.proc-general-info-source-col {
+    flex: 58 1 0;
+}
+
+#procSettingModal #procCfgForm,
+#procSettingModal .process-name-group .form-control {
+    min-width: 0;
+}
+
+/* Keep Bootstrap gutters inside the source column, not over its edges. */
+#procSettingModal .proc-general-info-source-col .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#procSettingModal .proc-general-info-source-col > .mb-2.row,
+#procSettingModal .proc-general-info-source-col .form-group.row {
+    display: grid;
+    grid-template-columns: var(--pc-label-track) minmax(0, 1fr);
+    align-items: center;
+}
+
+#procSettingModal .proc-general-info-source-col .row > .col-sm-9,
+#procSettingModal .proc-general-info-source-col .row > .col-sm-12 {
+    min-width: 0;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+#procSettingModal .proc-general-info-source-col .row > label {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+}
+
+.proc-general-info-source-col > .mb-2.row {
+    margin-bottom: 0.15rem;
+}
+
+.proc-general-info-comment-col {
+    flex: 11 1 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.proc-general-info-comment-col .form-group {
+    margin-bottom: 0;
+}
+
+.proc-general-info-comment-col > .mb-2.row {
+    margin-bottom: 0.15rem;
+}
+.proc-general-info-comment-col label[for='cfgProcComment'] {
+    text-align: left;
+}
+
+/* The textarea simply eats whatever vertical space the Comment column has left
+   after its own label (and, when the data source has tables, the Optional
+   function label pinned to the bottom of the column). Previously this was two
+   hard-coded heights (78px / 39px) picked to match the 3 stacked name rows --
+   which then had to be re-tuned by hand every time those rows changed height.
+
+   flex-basis MUST stay 0 rather than auto: a <textarea> intrinsically wants two
+   text rows (~50px), which is taller than the three name rows beside it, so an
+   `auto` basis would let the Comment column - not the name column - decide the
+   height of .proc-general-info-row and open an extra gap above the テーブル名 row. */
+.proc-general-info-comment-col .form-group:has(textarea[name='cfgProcComment']) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.proc-general-info-comment-col textarea[name='cfgProcComment'] {
+    width: 100%;
+    flex: 1 1 0;
+    height: auto;
+    min-height: 0;
+    resize: vertical;
+}
+
+/* Data sources that expose tables (Snowflake, Software Workshop, ...) additionally
+   show the Optional function label at the bottom of the Comment column and the
+   テーブル名 row underneath. In that layout the comment box is just one ordinary
+   field row, so the Optional function label lands on the 現地語名 row and テーブル名
+   keeps the same gap to the rows above that those rows have to each other.
+   `.group-table-dropdown` is toggled with jQuery show()/hide(), hence the inline
+   style test. */
+.proc-general-info-comment-col:has(.proc-optional-function-label-wrap:not([style*='display: none']))
+    .form-group:has(textarea[name='cfgProcComment']),
+.proc-general-info-comment-col:has(.proc-optional-function-label-wrap:not([style*='display: none']))
+    textarea[name='cfgProcComment'] {
+    flex: 0 0 auto;
+}
+
+.proc-general-info-comment-col:has(.proc-optional-function-label-wrap:not([style*='display: none']))
+    textarea[name='cfgProcComment'] {
+    height: var(--pc-field-height, 30px);
+    margin-top: 3px;
 }
 
 .process-name-group {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    column-gap: 15px;
+    grid-template-columns: 1fr;
+    row-gap: 0.15rem;
+}
+.process-name-group .form-group label {
+    min-width: 95px;
+}
+
+/* No column-gap on the row itself -- the two gaps needed (label-to-select,
+   select-to-Optional-function) aren't the same size (~0.5rem vs 20px), so
+   each is applied individually below instead of a uniform row-level gap. */
+.proc-table-name-row {
+    display: flex;
+    align-items: center;
+}
+/* 8.5% = 25% of name-col's own 34% flex-basis -- the exact same fraction
+   of the full row that Process Name's col-sm-3 label occupies inside
+   name-col (see the gutter-neutralizing rules on .proc-general-info-name-col
+   above, which is what makes col-sm-3 a clean 25% rather than a few px
+   off). Label and select are now DIRECT children of .proc-table-name-row
+   (see the HTML), so this 8.5% -- like the other flex-basis values below --
+   is relative to the same row width Process Name's label uses, and they
+   land at the identical x regardless of modal width. */
+.proc-table-name-label {
+    flex: 0 0 8.5%;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+}
+/* Select starts right where name-col's own content column (英語名/現地語名
+   inputs) starts (8.5%, right after the label) and is sized to end exactly
+   where the Label (ラベル) select ends in the row above: that's
+   34% + 20px + 38% (name-col + the gap to source-col + source-col) minus
+   this label's own 8.5% = 63.5% + 20px. Both this and the row above are
+   computed purely against the same row width -- no nested-percentage trap,
+   no live-measured px guess. */
+.proc-table-name-select-col {
+    flex: 0 0 calc(63.5% + 20px);
+    min-width: 0;
+}
+/* Optional function's dropdown -- lined up with the Comment column (which
+   also starts 20px after the Data Source column ends), so the same 20px
+   gap is applied here via margin instead of the row's own column-gap
+   (which would also -- unwantedly -- add 20px between the label and
+   select above). */
+.proc-optional-function-col {
+    padding-left: 1%;
+    flex: 0 0 27%;
+    min-width: 0;
+    margin-left: 20px;
+}
+
+.proc-optional-function-label-wrap {
+    margin-top: auto;
+}
+
+/* Wrapper for the absolutely-positioned Optional function warning icon. It has no
+   in-flow content, but .btn's padding/transparent border still reserved a few
+   pixels above the dropdown and therefore made the テーブル名 row taller than the
+   rows above it. The icon is positioned against the modal, not against this
+   label, so collapsing the box does not move it. */
+#procSettingModal #optionalFunctionList > label.btn-warning-mark {
+    height: 0;
+    padding: 0;
+    border: 0;
+}
+
+.proc-optional-function-label {
+    display: block;
+    text-align: left;
+    padding: 0 0 0.15rem 0;
+}
+/* long table names shouldn't overflow/collide with the Optional function
+   block next to them */
+#procSettingModal .group-table-dropdown #dbTableList .select2-selection__rendered {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* --- 入力部分の縦幅最小化 (design: プロセス設定 改善案) ---------------------
+   Give the columns table more room by shrinking ONLY the vertical rhythm of the
+   general-info input area. Widths, the label/field x-alignment rules above and
+   font sizes are untouched.
+
+   Two things have to hold for the three columns to stay on the same baselines:
+   (1) every control - plain input, select2 single select, select2 tag box and
+       the preview button - is exactly --pc-field-height tall, and
+   (2) every row uses the SAME bottom margin. The name column nests an inner
+       .form-group inside the outer .form-group.row, so that inner one is zeroed;
+       otherwise its margin stacks and the name rows drift down relative to the
+       data source / comment columns row after row. */
+#procSettingModal #processGeneralInfo {
+    --pc-field-height: 30px;
+    --pc-btn-track: 140px;
+    /* Fit "Data Source Name" and its padding without overlapping the field. */
+    --pc-label-track: 11rem;
+}
+
+#procSettingModal #processGeneralInfo h5 {
+    margin-bottom: 0;
+}
+
+/* Same gap as the .mb-2.row rules of the data source / comment columns above. */
+#procSettingModal #processGeneralInfo .form-group {
+    margin-bottom: 0.15rem;
+}
+
+/* Inner wrapper of the 英語名 / 日本語名 / 現地語名 rows - the outer row already
+   provides the gap. */
+#procSettingModal .process-name-group,
+#procSettingModal .process-name-group .form-group {
+    row-gap: 0;
+    margin-bottom: 0;
+}
+
+#procSettingModal #processGeneralInfo input.form-control,
+#procSettingModal #processGeneralInfo select.form-control,
+#procSettingModal #processGeneralInfo .select2-container .select2-selection--single,
+#procSettingModal #processGeneralInfo .input-with-select-btn .btn {
+    height: var(--pc-field-height);
+    min-height: var(--pc-field-height);
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#procSettingModal #processGeneralInfo .input-with-select-btn .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+#procSettingModal
+    #processGeneralInfo
+    .select2-container--default
+    .select2-selection--single
+    .select2-selection__rendered {
+    line-height: calc(var(--pc-field-height) - 2px);
+}
+
+#procSettingModal #processGeneralInfo .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: calc(var(--pc-field-height) - 2px);
+}
+
+/* Tag box (ラベル). It may wrap onto a second line when many labels are picked,
+   so only the empty/one-line height is pinned to the shared field height. */
+#procSettingModal #processGeneralInfo .select2-container .select2-selection--multiple {
+    min-height: var(--pc-field-height);
+    padding-bottom: 0;
+}
+
+#procSettingModal #processGeneralInfo .select2-container .select2-selection--multiple .select2-selection__choice {
+    margin-top: 2px;
+}
+
+/* 参照ファイル row (only rendered inside #procSettingModal). It used to be nudged
+   up by 4px, with the matching 4px given back below, to fit the old field
+   heights. Now that every control shares one height that nudge is exactly what
+   put this row out of line with 日本語名 next to it. */
+div#fileInputPreview {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .input-with-select-btn {
@@ -452,6 +885,296 @@ td.pr-row {
     flex-wrap: nowrap;
     align-content: center;
     align-items: center;
+}
+
+#procSettingModal .proc-preview-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--pc-btn-track);
+    gap: 0.25rem;
+}
+
+#procSettingModal .proc-preview-field {
+    min-width: 0;
+}
+
+#procSettingModal .proc-preview-field .select2-container {
+    width: 100% !important;
+}
+/* DB row 2 shares the CSV label/button tracks; row 3 is the unchanged label row. */
+#procSettingModal .proc-table-ds-layout .proc-table-name-row {
+    /* jQuery show() can restore the pre-DB inline display:flex after a CSV switch. */
+    display: grid !important;
+    grid-template-columns: var(--pc-label-track) minmax(0, 1fr) max-content minmax(0, 1fr) var(--pc-btn-track);
+    align-items: center;
+    /* Override Bootstrap mb-2 to match the reference-file row's gap. */
+    margin-bottom: 0.15rem !important;
+}
+
+#procSettingModal .proc-table-ds-layout .proc-table-name-label,
+#procSettingModal .proc-table-ds-layout .proc-optional-function-label {
+    display: block;
+    text-align: right;
+    padding: 0 0.5rem 0 0;
+    margin: 0;
+}
+#procSettingModal .proc-table-ds-layout .proc-optional-function-label-wrap {
+    margin-top: 0;
+}
+
+#procSettingModal .proc-table-ds-layout button[name='showRecords'] {
+    height: var(--pc-field-height, 30px);
+    min-height: var(--pc-field-height, 30px);
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Select2 may have measured a pixel width while the modal was hidden. */
+#procSettingModal .proc-general-info-source-col .select2-container {
+    width: 100% !important;
+    max-width: 100%;
+}
+
+/* Select2 appends popups to body. Override the global 100% popup width,
+   not the closed control; resizeListOptionSelect2 caps the available viewport. */
+.select2-container .proc-config-dropdown {
+    width: max-content !important;
+    box-sizing: border-box;
+}
+
+.proc-config-dropdown .select2-results__option,
+.proc-config-dropdown .select2-results__option > .row > div {
+    white-space: normal;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+}
+
+/* Wrapped text must not overlap the next option's fixed-height row. */
+.proc-config-dropdown .select2-results__option {
+    height: auto;
+    min-height: 24px;
+}
+
+/* Function X/Y previously used a fixed 550px inner dropdown. */
+.proc-config-dropdown .function-var-dropdown {
+    width: auto;
+}
+
+#procSettingModal .proc-table-ds-layout .proc-table-name-select-col,
+#procSettingModal .proc-table-ds-layout .proc-optional-function-col,
+#procSettingModal .proc-table-ds-layout #optionalFunctionList {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#procSettingModal .proc-table-ds-layout .proc-table-name-select-col,
+#procSettingModal .proc-table-ds-layout .proc-optional-function-col {
+    padding-right: 0.25rem;
+}
+
+@media (max-width: 1199px) {
+    #procSettingModal .proc-general-info-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    #procSettingModal .proc-general-info-col {
+        flex: 0 0 auto;
+    }
+
+    #procSettingModal .proc-general-info-comment-col textarea[name='cfgProcComment'] {
+        flex: 0 0 auto;
+        min-height: calc(var(--pc-field-height) * 2);
+    }
+}
+
+@media (max-width: 575px) {
+    #procSettingModal .proc-general-info-name-col .form-group.row {
+        flex-direction: column;
+    }
+
+    #procSettingModal .proc-general-info-name-col .form-group.row > label {
+        text-align: left;
+    }
+
+    #procSettingModal .proc-general-info-source-col > .mb-2.row,
+    #procSettingModal .proc-general-info-source-col .form-group.row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #procSettingModal .proc-general-info-source-col .row > label {
+        text-align: left;
+        white-space: normal;
+    }
+
+    #procSettingModal .proc-table-ds-layout .proc-table-name-row {
+        grid-template-columns: minmax(0, 1fr) var(--pc-btn-track);
+        row-gap: 0.15rem;
+    }
+
+    #procSettingModal .proc-table-ds-layout .proc-table-name-label,
+    #procSettingModal .proc-table-ds-layout .proc-optional-function-label-wrap {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    #procSettingModal .proc-table-ds-layout .proc-optional-function-label {
+        text-align: left;
+    }
+
+    #procSettingModal .proc-table-ds-layout .proc-table-name-select-col,
+    #procSettingModal .proc-table-ds-layout .proc-optional-function-col {
+        grid-column: 1;
+    }
+
+    #procSettingModal .proc-table-ds-layout button[name='showRecords'] {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
+
+/* Merge Mode keeps Preview beside the source, as in its three-row header design. */
+#procSettingMergeModeModal #parentProcessGeneralInfo {
+    --pc-field-height: 30px;
+    --pc-btn-track: 110px;
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo h5 {
+    margin-bottom: 0;
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo .form-group {
+    margin-bottom: 0.25rem;
+}
+
+/* Each inner form group already supplies the same gap as the source grid. */
+#procSettingMergeModeModal .process-name-group {
+    row-gap: 0;
+}
+
+#procSettingMergeModeModal .process-name-group .form-group:last-child,
+#procSettingMergeModeModal .proc-merge-source-row:last-child {
+    margin-bottom: 0;
+}
+
+#procSettingMergeModeModal .proc-general-info-source-col {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) max-content minmax(0, 1fr);
+    align-items: center;
+    align-content: start;
+    gap: 0.25rem;
+}
+
+#procSettingMergeModeModal .proc-merge-source-row {
+    display: contents;
+}
+
+#procSettingMergeModeModal .proc-merge-source-row > .proc-preview-row,
+#procSettingMergeModeModal .proc-merge-source-row:not(.proc-merge-table-row) > .proc-merge-field {
+    grid-column: 2 / -1;
+}
+
+#procSettingMergeModeModal .proc-preview-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--pc-btn-track);
+    column-gap: 0.25rem;
+}
+
+/* Saved merge processes hide Preview; its grid track must not leave an empty slot. */
+#procSettingMergeModeModal .proc-preview-row:has(> button[name='showRecords'][style*='display: none']) {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+#procSettingMergeModeModal .proc-merge-source-row > label {
+    padding: 0 0.5rem 0 0;
+    white-space: nowrap;
+}
+
+#procSettingMergeModeModal .proc-merge-field,
+#procSettingMergeModeModal .process-name-group input {
+    min-width: 0;
+}
+
+#procSettingMergeModeModal .proc-general-info-source-col .select2-container {
+    width: 100% !important;
+    max-width: 100%;
+}
+
+/* The ETL warning is an overlay, not an extra line above its dropdown. */
+#procSettingMergeModeModal #childOptionalFunctionList > .btn-warning-mark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo input.form-control,
+#procSettingMergeModeModal #parentProcessGeneralInfo .select2-selection--single,
+#procSettingMergeModeModal #parentProcessGeneralInfo button[name='showRecords'] {
+    height: var(--pc-field-height);
+    min-height: var(--pc-field-height);
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo button[name='showRecords'] {
+    white-space: nowrap;
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo .select2-selection__rendered {
+    line-height: calc(var(--pc-field-height) - 2px);
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo .select2-selection__arrow {
+    height: calc(var(--pc-field-height) - 2px);
+}
+
+#procSettingMergeModeModal #parentProcessGeneralInfo .select2-selection--multiple {
+    min-height: var(--pc-field-height);
+    padding-bottom: 0;
+}
+
+@media (max-width: 1199px) {
+    #procSettingMergeModeModal .proc-general-info-row {
+        flex-direction: column;
+        row-gap: 0.5rem;
+    }
+
+    #procSettingMergeModeModal .proc-general-info-col {
+        flex: 0 0 auto;
+    }
+
+    #procSettingMergeModeModal textarea[name='cfgProcComment'] {
+        flex: 0 0 auto;
+        min-height: calc(var(--pc-field-height) * 2);
+    }
+}
+
+@media (max-width: 575px) {
+    #procSettingMergeModeModal .proc-general-info-name-col > .form-group.row {
+        flex-direction: column;
+    }
+
+    #procSettingMergeModeModal .proc-general-info-name-col > .form-group.row > .col-sm-3,
+    #procSettingMergeModeModal .proc-merge-source-row > label {
+        text-align: left;
+    }
+
+    #procSettingMergeModeModal .proc-general-info-source-col {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.15rem;
+    }
+
+    #procSettingMergeModeModal .proc-merge-source-row > label {
+        white-space: normal;
+    }
+
+    #procSettingMergeModeModal .proc-merge-source-row > .proc-preview-row,
+    #procSettingMergeModeModal .proc-merge-source-row:not(.proc-merge-table-row) > .proc-merge-field {
+        grid-column: 1 / -1;
+    }
 }
 
 .file-encoding {

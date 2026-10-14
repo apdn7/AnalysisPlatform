@@ -25,12 +25,13 @@ const getTRDataValues = (tr) => {
 /**
  * parse clipboard string
  * @param {string} copiedText - clipboard string
+ * @param {boolean} preserveTrailingEmptyCells - retain empty columns at the end of each row
  * @return {Array.<Array.<string>>}
  */
-const transformCopiedTextToTable = (copiedText) => {
+const transformCopiedTextToTable = (copiedText, preserveTrailingEmptyCells = false) => {
     const records = copiedText.replace(/\r\n+$/, '').split('\r\n');
     return records
-        .map((rec) => rec.replace(/\t+$/, ''))
+        .map((rec) => (preserveTrailingEmptyCells ? rec : rec.replace(/\t+$/, '')))
         .filter((row) => row !== '')
         .map((row) => row.split('\t'));
 };

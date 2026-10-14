@@ -66,6 +66,8 @@ a:focus {
 }
 
 #sidebar {
+    display: flex;
+    flex-direction: column;
     width: 230px;
     position: fixed;
     top: 0;
@@ -130,9 +132,17 @@ a[aria-expanded='true'] {
 }
 
 .sidebar-body {
-    max-height: calc(100% - 100px);
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 0;
     overflow-y: auto;
     position: relative;
+}
+
+#sidebar .sidebar-header,
+#sidebar .sidebar-search,
+#sidebar .sidebar-bottom {
+    flex-shrink: 0;
 }
 
 .sidebar-shutdown {

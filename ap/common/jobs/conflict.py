@@ -15,6 +15,11 @@ PRIORITY_JOBS = [
     JobType.FACTORY_PAST_IMPORT.name,
 ]
 
+# Quick Plot cleanup may delete an entire datasource, its processes, transaction databases,
+# and source file. It must therefore run only while the scheduler is otherwise idle, and no
+# other scheduled job may start until cleanup has completed.
+GLOBALLY_EXCLUSIVE_JOBS = {JobType.QUICK_PLOT_CLEANUP.name}
+
 # check parallel running
 # ex: (JobType.CSV_IMPORT, JobType.GEN_GLOBAL): False
 #       csv import and gen global can not run in the same time
@@ -100,6 +105,10 @@ def is_conflict_with_other_jobs(job_id, job_name, proc_id, running_jobs: DictPro
         # Do not check conflict with executed jobs
         if running_job.status is RunningJobStatus.EXECUTED:
             continue
+
+        if job_name in GLOBALLY_EXCLUSIVE_JOBS or running_job.name in GLOBALLY_EXCLUSIVE_JOBS:
+            logger.info(f'{job_id}: cannot run in parallel with globally exclusive job {running_job.id}')
+            return True
 
         if is_job_existed_in_exclusive_jobs_with_ids(job_name, running_job.name):
             logger.info(f'{job_id}: existed in exclusive jobs with {running_job.name}')

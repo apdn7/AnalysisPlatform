@@ -56,6 +56,8 @@
             {{ macros.switch_button(id='showContourInput', name='showContourInput', label=_("with shading"), title=_('Contour hover msg'), cl='contour-button', onChange='showContour()') }}
             {{ macros.switch_button(id='showHeatmapInput', name='showHeatmapInput', label=_("Heatmap"), title=_('Heatmap hover msg'), cl='ml-4', onChange='showMSPHeatmap()', defaultVal=True) }}
             <div class="ml-4 msp-chart-title"><span id="x-title"></span><span id="y-title"></span></div>
+
+            <div class="react-root" data-component="MultiScatterPlotStyleSetting" style="margin-left: auto"></div>
         </div>
     </div>
     <div class="plot-content">

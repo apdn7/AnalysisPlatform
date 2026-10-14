@@ -104,10 +104,13 @@
                 <div class="d-flex">
                     <form class="flex-grow-1 mr-4 w-100" id="procCfgForm" onSubmit="return false;">
                         <div id="processGeneralInfo" name="processGeneralInfo">
-                            <div class="row">
-                                <div class="col-sm-12">
+                            <div class="d-flex proc-general-info-row">
+                                <div class="proc-general-info-col proc-general-info-name-col">
                                     <div class="form-group row">
-                                        <label for="processName" class="col-sm-3 col-form-label label-right">
+                                        <label
+                                            for="processName"
+                                            class="col-sm-3 col-form-label label-right text-nowrap"
+                                        >
                                             <h5>{{ _("Process Name") }}</h5>
                                         </label>
                                         <div class="col-sm-9 process-name-group">
@@ -128,6 +131,17 @@
                                                     data-observer=""
                                                 />
                                             </div>
+                                            <span
+                                                id="processName-error-msg"
+                                                class="error text-danger"
+                                                style="display: none; text-align: left; font-size: smaller;"
+                                                >{{ _("Already registered") }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label label-right"></label>
+                                        <div class="col-sm-9 process-name-group">
                                             <div class="form-group d-flex align-items-center">
                                                 <label class="mr-2 mb-0" for="processJapaneseName"
                                                     >{{ _('Japanese Name') }}</label
@@ -142,6 +156,11 @@
                                                     data-observer=""
                                                 />
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-3 col-form-label label-right"></label>
+                                        <div class="col-sm-9 process-name-group">
                                             <div class="form-group d-flex align-items-center">
                                                 <label class="mr-2 mb-0" for="processLocalName"
                                                     >{{ _('Local Name') }}</label
@@ -156,100 +175,148 @@
                                                     data-observer=""
                                                 />
                                             </div>
-
-                                            <span
-                                                id="processName-error-msg"
-                                                class="error text-danger"
-                                                style="display: none; text-align: left; font-size: smaller;"
-                                                >{{ _("Already registered") }}</span
-                                            >
                                         </div>
                                     </div>
                                     {{ macros.input_hidden('processID') }}
                                     {{ macros.input_hidden('processDsID') }}
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    {{ macros.input_row('cfgProcComment',_("Comment"),'','text',3,9) }}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    {{ macros.single_selectbox('databaseName',_("Data Source Name"),{},1,3,9) }}
-                                </div>
-                            </div>
-                            <div class="row group-table-dropdown mb-2">
-                                <label for="tableName" class="col-sm-3 col-form-label label-right">
-                                    <h5>{{ _("Table Name") }}</h5>
-                                </label>
-                                <div class="col-sm-9">
-                                    <div class="d-flex align-items-center">
-                                        <div id="dbTableList" style="width: 60%;">
-                                            <select
-                                                class="form-control select2-selection--single"
-                                                name="tableName"
-                                                id="tableName"
-                                            ></select>
-                                        </div>
-                                        <div class="d-flex justify-content-center align-items-center flex-grow-1">
-                                            <label
-                                                for="cfgOptionalFunction"
-                                                class="col-form-label label-right ml-3 mr-2"
-                                                style="min-width: 140px"
-                                            >
-                                                <h5 title="{{ _('Process config optional function Hover') }}">
-                                                    <span class="hint-text">{{ _("Optional function") }}</span>
-                                                </h5>
-                                            </label>
-                                            <div id="optionalFunctionList" style="width: 100%;">
-                                                <label
-                                                    type="button"
-                                                    class="btn mb-0 p-md-0 btn-warning-mark"
-                                                    style="display: block"
-                                                >
-                                                    <i
-                                                        id="optional-func-warning-mark"
-                                                        class="fas fa-triangle-exclamation position-absolute blink"
-                                                        style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
-                                                    ></i>
+                                <div class="proc-general-info-col proc-general-info-source-col">
+                                    {{ macros.single_selectbox('databaseName',_("ProcDataSourceLabel"),{},1,3,9) }}
+                                    <div class="row">
+                                        <div class="col-sm-12" id="fileInputPreview">
+                                            <div class="form-group row">
+                                                <!-- "参照ファイル" (reference file used for data-type estimation), not
+                                                     the "ファイル名" column checkbox in the tools bar below -- they are
+                                                     two different things, so they must not share a translation key. -->
+                                                <label for="fileName" class="col-sm-3 col-form-label label-right">
+                                                    <h5>{{ _("ProcReferenceFileLabel") }}</h5>
                                                 </label>
-                                                {{ macros.etl_optional_function_dropdown('cfgOptionalFunction', 'cfgOptionalFunction', true, py_etl_scripts) }}
+                                                <div class="col-sm-9 input-with-select-btn proc-preview-row">
+                                                    <input
+                                                        type="text"
+                                                        name="fileName"
+                                                        class="form-control"
+                                                        value=""
+                                                        id="fileName"
+                                                        placeholder="{{ _('ShowPreviewByFile') }}"
+                                                        onchange="filePathProcessing(this)"
+                                                        style="flex: 1 1 auto"
+                                                    />
+                                                    <!-- start show preview area: from v4.7.10; moved onto the fileName row so it
+                                                         shares the same width as the Data Source Name / Label fields above/below -->
+                                                    <button
+                                                        name="showRecords"
+                                                        type="button"
+                                                        class="btn btn-secondary"
+                                                        disabled
+                                                    >
+                                                        {{ _("Show") }}
+                                                    </button>
+                                                    <!-- end show preview area -->
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="form-group row">
+                                        <label for="cfgProcLabel" class="col-sm-3 col-form-label label-right">
+                                            <h5>{{ _("Label") }}</h5>
+                                        </label>
+                                        <div class="col-sm-9 input-with-select-btn proc-preview-row">
+                                            <div class="proc-preview-field">
+                                                <select
+                                                    id="cfgProcLabel"
+                                                    class="form-control selection-tags"
+                                                    multiple="multiple"
+                                                ></select>
+                                            </div>
+                                            <button name="previewUpdate" type="button" class="btn btn-primary" disabled>
+                                                {{ _("Preview Update") }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="proc-general-info-col proc-general-info-comment-col">
+                                    <!-- Label wrapped in the SAME ".mb-2.row" + "col-form-label" structure as
+                                         the Data Source Name row above (macros.single_selectbox), instead of a
+                                         bare <label>. This makes the browser compute this row's height with the
+                                         exact same box model (h5 font size, col-form-label padding, flex .row)
+                                         as the sibling row, so it lines up automatically -- no padding/margin
+                                         guessing needed to match row 1 across columns. -->
+                                    <div class="mb-2 row">
+                                        <label for="cfgProcComment" class="col-sm-12 col-form-label">
+                                            <h5>{{ _("Comment") }}</h5>
+                                        </label>
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <textarea
+                                            name="cfgProcComment"
+                                            class="form-control"
+                                            id="cfgProcComment"
+                                            data-observer=""
+                                        ></textarea>
+                                        <span
+                                            id="cfgProcComment-error-msg"
+                                            class="error text-danger"
+                                            style="display: none; text-align: left; font-size: smaller;"
+                                            >{{ _("Already registered") }}</span
+                                        >
+                                    </div>
+                                    <!-- Just the "Optional function" LABEL lives here, positioned (via CSS
+                                         margin-top) to line up with row 3 (現地語名) -- its actual dropdown is
+                                         a separate block down in the Table Name row below, lined up with the
+                                         Table Name select instead. Carries "group-table-dropdown" so
+                                         proc_config_modals.js's existing show()/hide()/toggle() calls on that
+                                         class (CSV/V2/WEB_API -> hidden, DB-with-tables -> shown) affect this
+                                         label too, in sync with the Table Name row and the dropdown below. -->
+                                    <div class="proc-optional-function-label-wrap group-table-dropdown">
+                                        <label
+                                            for="cfgOptionalFunction"
+                                            class="col-form-label proc-optional-function-label"
+                                        >
+                                            <h5 title="{{ _('Process config optional function Hover') }}">
+                                                <span class="hint-text">{{ _("Optional function") }}</span>
+                                            </h5>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-sm-12 hide" id="fileInputPreview">
-                                    {{ macros.input_and_select_btn('fileName',_("File name"),'',_("ShowPreviewByFile"),'text',3,9, 'filePathProcessing(this)') }}
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="cfgProcLabel" class="col-sm-3 col-form-label label-right">
-                                    <h5>{{ _("Label") }}</h5>
+                            <div class="proc-table-name-row group-table-dropdown mb-2">
+                                <label for="tableName" class="col-form-label label-right proc-table-name-label">
+                                    <h5>{{ _("Table Name") }}</h5>
                                 </label>
-                                <div class="col-sm-9">
+                                <div id="dbTableList" class="proc-table-name-select-col">
                                     <select
-                                        id="cfgProcLabel"
-                                        class="form-control selection-tags"
-                                        multiple="multiple"
+                                        class="form-control select2-selection--single"
+                                        name="tableName"
+                                        id="tableName"
                                     ></select>
+                                </div>
+                                <!-- Optional function's dropdown, lined up with the Table Name select on this
+                                     row -- its label sits up at row 3 in the Comment column instead (see
+                                     proc-optional-function-label-wrap above). -->
+                                <div class="proc-optional-function-col">
+                                    <div id="optionalFunctionList" style="width: 100%;">
+                                        <label
+                                            type="button"
+                                            class="btn mb-0 p-md-0 btn-warning-mark"
+                                            style="display: block"
+                                        >
+                                            <i
+                                                id="optional-func-warning-mark"
+                                                class="fas fa-triangle-exclamation position-absolute blink"
+                                                style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                            ></i>
+                                        </label>
+                                        {{ macros.etl_optional_function_dropdown('cfgOptionalFunction', 'cfgOptionalFunction', true, py_etl_scripts) }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </form>
-                    <!-- start show preview area: from v4.7.10 -->
-                    <div class="flex-grow-1 d-flex align-items-end mb-1 pr-xl-5 pr-md-3">
-                        <button name="showRecords" type="button" class="btn btn-secondary" style="min-width: 105px;">
-                            {{ _("Show") }}
-                        </button>
-                    </div>
-                    <!-- end show preview area -->
                 </div>
 
-                <div class="row mx-2 d-flex justify-content-between align-items-center mt-2 position-relative">
-                    <div class="d-flex justify-content-between align-items-center">
+                <div class="mr-4 align-items-center mt-2 position-relative proc-config-tools-bar">
+                    <div class="d-flex align-items-center flex-wrap proc-column-tools">
                         <div id="selectAllColumn" class="custom-control custom-checkbox mr-3" style="">
                             <input
                                 type="checkbox"
@@ -288,7 +355,24 @@
                                 Reset
                             </button>
                         </div>
-                        <div id="showFileNameCol" class="custom-control custom-checkbox ml-3">
+                        <div id="procPaginationToolbar" class="d-flex align-items-center ml-3 d-none">
+                            <span id="procPaginationTotal" class="text-nowrap" aria-live="polite"></span>
+                            <div id="procPaginationPages"></div>
+                            <input
+                                id="procPaginationJump"
+                                type="number"
+                                min="1"
+                                step="1"
+                                class="form-control"
+                                aria-label="{{ _('Page') }}"
+                            />
+                            <button id="procPaginationJumpBtn" type="button" class="btn simple-btn">
+                                {{ _('Jump') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center position-relative proc-datetime-tools">
+                        <div id="showFileNameCol" class="custom-control custom-checkbox mr-3">
                             <input
                                 type="checkbox"
                                 class="custom-control-input"
@@ -302,10 +386,6 @@
                                 >{{ _("File name") }}</label
                             >
                         </div>
-                    </div>
-                    <div
-                        class="d-flex justify-content-between align-items-center position-relative ml-2 mt-lg-0 mt-md-2"
-                    >
                         <div id="procDateTimeFormatCheckbox" class="custom-control custom-checkbox ml-5 ml-md-0">
                             <input
                                 type="checkbox"
@@ -332,45 +412,52 @@
                                 onchange="handleProcDatetimeFormatInput(this)"
                             />
                         </div>
-                        <div class="ml-3">
-                            <label
-                                class="mb-0 mr-2"
-                                title="{{ _('It is possible to choose between displaying the values of each record or the unique values of each column in the sample data') }}"
+                    </div>
+                    <!-- Sample data display mode is a DIRECT child of the tools bar on purpose: it is
+                         painted onto the columns table header row (see .sample-data-display-mode in
+                         proc_config_modal.css) and the tools bar is the ".position-relative" element the
+                         measured offsets are expressed against. Nesting it back inside the datetime-format
+                         group -- which is also position-relative -- would offset it a second time and push
+                         it outside the modal body's overflow. -->
+                    <div class="sample-data-display-mode">
+                        <label
+                            class="mb-0 mr-2"
+                            title="{{ _('It is possible to choose between displaying the values of each record or the unique values of each column in the sample data') }}"
+                        >
+                            <span class="hint-text"> {{ _('SampleDataLabel') }} </span>
+                        </label>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input
+                                type="radio"
+                                class="custom-control-input"
+                                id="sampleDataRecords"
+                                name="sampleDataDisplayMode"
+                                value="records"
+                                data-observer
+                                onchange="changeSampleDataDisplayMode(this)"
+                                checked="checked"
+                            />
+                            <label class="custom-control-label" for="sampleDataRecords"
+                                >{{ _('RecordsDisplayModeLabel') }}</label
                             >
-                                <span class="hint-text"> {{ _('SampleDataLabel') }} </span>
-                            </label>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="sampleDataRecords"
-                                    name="sampleDataDisplayMode"
-                                    value="records"
-                                    data-observer
-                                    onchange="changeSampleDataDisplayMode(this)"
-                                    checked="checked"
-                                />
-                                <label class="custom-control-label" for="sampleDataRecords"
-                                    >{{ _('RecordsDisplayModeLabel') }}</label
-                                >
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="sampleDataUnique"
-                                    name="sampleDataDisplayMode"
-                                    value="unique"
-                                    data-observer
-                                    onchange="changeSampleDataDisplayMode(this)"
-                                />
-                                <label class="custom-control-label" for="sampleDataUnique"
-                                    >{{ _('UniqueDisplayModeLabel') }}</label
-                                >
-                            </div>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline">
+                            <input
+                                type="radio"
+                                class="custom-control-input"
+                                id="sampleDataUnique"
+                                name="sampleDataDisplayMode"
+                                value="unique"
+                                data-observer
+                                onchange="changeSampleDataDisplayMode(this)"
+                            />
+                            <label class="custom-control-label" for="sampleDataUnique"
+                                >{{ _('UniqueDisplayModeLabel') }}</label
+                            >
                         </div>
                     </div>
-                    <div id="refactorProcSetting" class="">
+
+                    <div id="refactorProcSetting" class="d-flex align-items-center flex-nowrap flex-shrink-0">
                         <div class="scroll-content">
                             <span id="sampleDataScrollToLeft"><i class="fa fa-angle-double-left"></i></span>
                             <span id="sampleDataScrollToLeftOneStep"><i class="fa fa-angle-left"></i></span>
@@ -905,6 +992,32 @@
     </div>
 </div>
 
+<div
+    id="confirmPreviewUpdateModal"
+    class="modal confirmation-modal fade in"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ _("Preview Update") }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _("Preview Update will access the external data source.") }}</p>
+                <p>
+                    {{ _("Repeated execution may increase the load on the source system. Do you want to continue?") }}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="confirmPreviewUpdate" class="btn btn-primary">{{ _("OK") }}</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ _("Cancel") }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="confirmImportDataModal" class="modal confirmation-modal fade in" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-confirm">
         <div class="modal-content">
@@ -1256,13 +1369,13 @@
                                 {{ macros.alert_message("alertProcessConfigMergeModeErrorMsg") }}
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-10">
+                        <div class="d-flex proc-general-info-row">
+                            <div class="proc-general-info-col proc-general-info-name-col">
                                 <div class="form-group row">
-                                    <label for="processName" class="col-sm-4 col-form-label label-right">
+                                    <label for="mergeProcName" class="col-sm-3 col-form-label label-right">
                                         <h5>{{ _("Process Name") }}</h5>
                                     </label>
-                                    <div class="col-sm-8 process-name-group">
+                                    <div class="col-sm-9 process-name-group">
                                         <div class="form-group d-flex align-items-center">
                                             <label
                                                 class="mr-2 mb-0"
@@ -1316,80 +1429,88 @@
                                 {{ macros.input_hidden('processID') }}
                                 {{ macros.input_hidden('processDsID') }}
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                {{ macros.input_row('cfgProcComment',_("Comment"),'','text',4,8, 'mergeProcComment') }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                {{ macros.single_selectbox('databaseName',_("Merge Data Source Name"),{},1,4,8, false, false, true, 'mergeProcDatasourceName') }}
-                            </div>
-                            <div class="col-sm-2">
-                                <button name="showRecords" type="button" class="btn btn-primary">
-                                    {{ _("Show") }}
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10" id="dbTableList">
-                                <div class="mb-2 row">
-                                    <label for="childTableName" class="col-sm-4 col-form-label label-right">
-                                        <h5>{{ _("Child Process Table Name") }}</h5>
+                            <div class="proc-general-info-col proc-general-info-source-col">
+                                <div class="form-group proc-merge-source-row">
+                                    <label for="mergeProcDatasourceName" class="col-form-label label-right">
+                                        <h5>{{ _("Merge Data Source Name") }}</h5>
                                     </label>
-                                    <div class="col-sm-8">
-                                        <div class="d-flex align-items-center">
-                                            <div id="dbTableList" style="width: 60%">
-                                                <select
-                                                    class="form-control select2-selection--single"
-                                                    name="childTableName"
-                                                    id="childTableName"
-                                                ></select>
-                                            </div>
-                                            <label
-                                                for="cfgOptionalFunction"
-                                                class="col-form-label label-right ml-3 mr-2"
-                                                style="min-width: 140px"
+                                    <div class="proc-preview-row">
+                                        <div class="proc-merge-field">
+                                            <select
+                                                class="form-control select2-selection--single select-n-columns"
+                                                name="databaseName"
+                                                id="mergeProcDatasourceName"
+                                                data-observer=""
                                             >
-                                                <h5 title="{{ _('Process config optional function Hover') }}">
-                                                    <span class="hint-text">{{ _("Optional function") }}</span>
-                                                </h5>
-                                            </label>
-                                            <div class="d-flex justify-content-center align-items-center flex-grow-1">
-                                                <div id="childOptionalFunctionList" style="width: 100%">
-                                                    <label
-                                                        type="button"
-                                                        class="btn mb-0 p-md-0 btn-warning-mark"
-                                                        style="display: block"
-                                                    >
-                                                        <i
-                                                            id="optional-func-warning-mark"
-                                                            class="fas fa-triangle-exclamation position-absolute blink"
-                                                            style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
-                                                        ></i>
-                                                    </label>
-                                                    {{ macros.etl_optional_function_dropdown('cfgOptionalFunctionChild', 'cfgOptionalFunctionChild', true, py_etl_scripts) }}
-                                                </div>
-                                            </div>
+                                                <option value="">---</option>
+                                            </select>
                                         </div>
+                                        <button name="showRecords" type="button" class="btn btn-primary">
+                                            {{ _("Show") }}
+                                        </button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-10">
-                                <div class="row form-group">
-                                    <label for="cfgProcLabelMergeMode" class="col-sm-4 col-form-label label-right">
+                                <div class="form-group proc-merge-source-row proc-merge-table-row">
+                                    <label for="childTableName" class="col-form-label label-right">
+                                        <h5>{{ _("Child Process Table Name") }}</h5>
+                                    </label>
+                                    <div id="dbTableList" class="proc-merge-field">
+                                        <select
+                                            class="form-control select2-selection--single"
+                                            name="childTableName"
+                                            id="childTableName"
+                                        ></select>
+                                    </div>
+                                    <label for="cfgOptionalFunctionChild" class="col-form-label label-right">
+                                        <h5 title="{{ _('Process config optional function Hover') }}">
+                                            <span class="hint-text">{{ _("Optional function") }}</span>
+                                        </h5>
+                                    </label>
+                                    <div id="childOptionalFunctionList" class="proc-merge-field position-relative">
+                                        <label
+                                            type="button"
+                                            class="btn mb-0 p-md-0 btn-warning-mark"
+                                            style="display: block"
+                                        >
+                                            <i
+                                                id="optional-func-warning-mark"
+                                                class="fas fa-triangle-exclamation position-absolute blink"
+                                                style="top: 12px; right: 50px; z-index: 1; display: none; color:yellow;"
+                                            ></i>
+                                        </label>
+                                        {{ macros.etl_optional_function_dropdown('cfgOptionalFunctionChild', 'cfgOptionalFunctionChild', true, py_etl_scripts) }}
+                                    </div>
+                                </div>
+                                <div class="form-group proc-merge-source-row">
+                                    <label for="cfgProcLabelMergeMode" class="col-form-label label-right">
                                         <h5>{{ _("Label") }}</h5>
                                     </label>
-                                    <div class="col-sm-8">
+                                    <div class="proc-merge-field">
                                         <select
                                             id="cfgProcLabelMergeMode"
                                             class="form-control selection-tags"
                                             multiple="multiple"
                                         ></select>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="proc-general-info-col proc-general-info-comment-col">
+                                <label for="mergeProcComment" class="col-form-label">
+                                    <h5>{{ _("Comment") }}</h5>
+                                </label>
+                                <div class="form-group mb-0">
+                                    <textarea
+                                        name="cfgProcComment"
+                                        class="form-control"
+                                        id="mergeProcComment"
+                                        data-observer=""
+                                    ></textarea>
+                                    <span
+                                        id="mergeProcComment-error-msg"
+                                        class="error text-danger"
+                                        style="display: none; text-align: left; font-size: smaller;"
+                                        >{{ _("Already registered") }}</span
+                                    >
                                 </div>
                             </div>
                         </div>

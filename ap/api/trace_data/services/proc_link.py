@@ -9,6 +9,7 @@ from pytz import utc
 
 from ap import scheduler
 from ap.api.common.services.sql_generator import gen_sql_proc_link_count
+from ap.api.setting_module.services.preview_cleanup import cleanup_process_preview_after_data_update
 from ap.common.constants import AnnounceEvent, CacheType, JobType
 from ap.common.jobs.job_info_schema import GenProcLinkCountJobInfo
 from ap.common.log import log_execution_time
@@ -53,6 +54,11 @@ def gen_proc_link_count_job(is_publish=True, is_user_request: bool = False):
 
 def finished_transaction_import(process_id=None, publish: bool = True, is_user_request: bool = False):
     logger.info('TRANSACTION_UPDATED_SUCCESS')
+    if process_id is not None:
+        try:
+            cleanup_process_preview_after_data_update(process_id)
+        except Exception:
+            logger.exception('Failed to clean Process Preview Parquet after import: process_id={}', process_id)
     EventQueue.put(EventBackgroundAnnounce(data=True, event=AnnounceEvent.TRANSACTION_UPDATED))
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 

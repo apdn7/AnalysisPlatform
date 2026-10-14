@@ -328,15 +328,20 @@ const collectInputAsFormData = (clearOnFlyFilter, autoUpdate = false) => {
 const transformColorsParams = (formData) => {
     // delete colorVar because there is empty selection in value
     formData.delete('colorVar');
+    formData.delete('aggColorVar');
     // get colorVar from active GUI
     const colorVars = {};
-    $('select[name=colorVar]')
+    const selectedTargetIDs = new Set(
+        findValidationInputs('input[name^=GET02_VALS_SELECT]:checked', formElements.formID)
+            .get()
+            .map((el) => $(el).val()),
+    );
+    findValidationInputs('select[name=colorVar]', formElements.formID)
         .get()
         .forEach((ele) => {
             const targetID = $(ele).data('target-var-id');
             const colorVal = $(ele).val();
-            const isObjectiveVar = $(`input[name^=GET02_VALS_SELECT][value=${targetID}]`).prop('checked');
-            if (colorVal && colorVal !== '' && isObjectiveVar) {
+            if (colorVal && colorVal !== '' && selectedTargetIDs.has(String(targetID))) {
                 colorVars[targetID] = colorVal;
             }
         });
@@ -395,6 +400,8 @@ const queryDataAndShowAGP = (clearOnFlyFilter = false, autoUpdate = false) => {
         }
 
         setPollingData(formData, longPollingHandler, [], requestPromise);
+
+        onApplyStyleSetting();
     });
 
     return requestPromise;
@@ -822,14 +829,9 @@ const setYAxisOption = () => {
 };
 
 const isSetFacet = () => {
-    const matches = [];
-
-    $("[name='catExpBox']").map((i, el) => {
-        const valOption = $(el).find(':selected').val();
-        if (valOption) {
-            matches.push(valOption);
-        }
-    });
-
-    return matches.length > 0;
+    return (
+        findValidationInputs('select[name=catExpBox]', formElements.formID)
+            .find('option:selected')
+            .filter((_, opt) => Boolean($(opt).val())).length > 0
+    );
 };

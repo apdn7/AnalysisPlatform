@@ -199,4 +199,13 @@ class WaveformPlot extends APPlot {
     onYTitleHover() {
         attachYTitleHovers(this.plotDOM);
     }
+
+    onApplyStyleSetting() {
+        const setting = window.getStyleLayout?.();
+
+        if (setting) {
+            window.handleOnchangeTheme?.(setting.theme);
+            window.handleOnchangeFontsize?.(setting.size);
+        }
+    }
 }

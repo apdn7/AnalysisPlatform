@@ -18,6 +18,7 @@ class ParallelPlot {
         this.selectedConstraintRange = {};
         this.selectedNaInfValue = {};
         this.objectiveDimInfo = {};
+        this.processNameAbbreviationMap = new Map(); // Map to store process name abbreviations
 
         // init objective variable
         this.setObjective();
@@ -155,8 +156,14 @@ class ParallelPlot {
     // bind events of plot
     bindEvents() {
         const plotDOM = document.getElementById(this.plotDOMId);
+        // keep mode bar (download image button, ...) at right side of visible area when scrolling chart
+        $(plotDOM)
+            .off('scroll.modeBar')
+            .on('scroll.modeBar', () => this.fixModeBarPosition());
         // bind event after plot
         plotDOM.on('plotly_afterplot', () => {
+            this.syncProcessLegendColor();
+            this.fixModeBarPosition();
             const dPVar = this.dimensions.map((dim) => dim.dimID);
             const dNames = this.dimensions.map((dim) => dim.dimName);
             const axisDim = $('.axis-title');
@@ -266,6 +273,15 @@ class ParallelPlot {
                 'hoverCompareCartesian',
                 'toggleSpikelines',
                 'sendDataToCloud',
+                'toImage', // replaced by button below to save image with process name legend
+            ],
+            modeBarButtonsToAdd: [
+                {
+                    name: 'toImageWithLegend',
+                    title: 'Download plot as a png',
+                    icon: Plotly.Icons.camera,
+                    click: (gd) => this.downloadPlotWithLegend(gd),
+                },
             ],
             displaylogo: false,
         };
@@ -278,7 +294,8 @@ class ParallelPlot {
         if (widthByDim >= this.plotWidth) {
             plotWidth = widthByDim;
         }
-        return {
+
+        const layout = {
             plot_bgcolor: '#303030',
             paper_bgcolor: '#303030',
             font: { color: CONST.WHITE },
@@ -292,6 +309,174 @@ class ParallelPlot {
             },
             margin: { l: 150, r: 150 },
         };
+
+        return layout;
+    }
+
+    // get legend items (P1: Process1, ...) of abbreviated process names which are shown on chart
+    genProcessLegendItems() {
+        // only list processes which are shown on chart (dimensions may be cut by top N setting)
+        const shownProcIds = new Set(this.dimensions.map((dim) => String(dim.process)));
+        const shownProcNames = new Set(
+            this.traceData.array_plotdata
+                .filter((col) => shownProcIds.has(String(col.col_detail.proc_id)))
+                .map((col) => col.col_detail.proc_shown_name),
+        );
+        return Array.from(this.processNameAbbreviationMap.entries())
+            .filter(([fullName, abbrev]) => fullName !== abbrev && shownProcNames.has(fullName))
+            .map(([fullName, abbrev]) => ({ abbrev, fullName }));
+    }
+
+    // show process name legend at right side of chart (outside of scroll area)
+    renderProcessLegend() {
+        const plotDOM = $(`#${this.plotDOMId}`);
+        const chartWrapper = plotDOM.parent();
+        let legendDOM = chartWrapper.find('.pcp-process-legend');
+        if (!legendDOM.length) {
+            legendDOM = $('<div class="pcp-process-legend"></div>');
+            plotDOM.after(legendDOM);
+        }
+
+        const legendItems = this.genProcessLegendItems();
+        if (!legendItems.length) {
+            legendDOM.empty().hide();
+            chartWrapper.removeClass('has-process-legend').css('background-color', '');
+            return;
+        }
+
+        legendDOM.empty();
+        legendItems.forEach(({ abbrev, fullName }) => {
+            // use text() to avoid html injection from process name
+            legendDOM.append(
+                $('<div class="pcp-process-legend-item"></div>')
+                    .append($('<b></b>').text(`${abbrev}:`))
+                    .append(document.createTextNode(` ${fullName}`)),
+            );
+        });
+        chartWrapper.addClass('has-process-legend');
+        legendDOM.show();
+    }
+
+    // chart and legend are shown in one frame: use chart background / text color (changed by theme setting)
+    fixModeBarPosition() {
+        const plotDOM = document.getElementById(this.plotDOMId);
+        const modeBar = plotDOM && plotDOM.querySelector('.modebar-container');
+        if (!modeBar) return;
+        // mode bar is at right edge of whole chart, move it to right edge of visible area
+        const maxScrollLeft = plotDOM.scrollWidth - plotDOM.clientWidth;
+        modeBar.style.right = `${Math.max(0, maxScrollLeft - plotDOM.scrollLeft)}px`;
+    }
+
+    syncProcessLegendColor() {
+        const plotDOM = document.getElementById(this.plotDOMId);
+        const fullLayout = plotDOM._fullLayout;
+        const legendDOM = $(plotDOM).siblings('.pcp-process-legend');
+        if (!fullLayout || !legendDOM.is(':visible')) return;
+        $(plotDOM).parent().css('background-color', fullLayout.paper_bgcolor);
+        legendDOM.css('color', fullLayout.font.color);
+    }
+
+    // save chart image with process name legend
+    // (legend on screen is html outside of chart, so add it to image as annotation at right side of chart)
+    downloadPlotWithLegend(gd) {
+        const layout = _.cloneDeep(gd.layout);
+        const legendItems = this.genProcessLegendItems();
+        if (legendItems.length) {
+            const fontSize = 12;
+            const pad = 8;
+            const gap = 10;
+            const maxTextWidth = 200 - 2 * pad - 2; // same max width as legend on screen
+            const fontFamily = gd._fullLayout.font.family;
+            const measure = (text) => visualTextLength(text, fontSize, fontFamily);
+            // escape html because Plotly annotation text supports some html tags
+            const escape = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // wrap by character (same as css word-break: break-all of legend on screen)
+            const lines = []; // plain text to measure width
+            const htmlLines = []; // text shown in annotation
+            legendItems.forEach(({ abbrev, fullName }) => {
+                const itemLines = [];
+                let line = '';
+                for (const char of `${abbrev}: ${fullName}`) {
+                    if (line && measure(line + char) > maxTextWidth) {
+                        itemLines.push(line);
+                        line = char;
+                    } else {
+                        line += char;
+                    }
+                }
+                itemLines.push(line);
+                lines.push(...itemLines);
+                // first line of each item starts with abbreviation (P1:), show it in bold
+                const boldPrefix = `${abbrev}:`;
+                htmlLines.push(
+                    ...itemLines.map((text, i) =>
+                        i === 0 ? `<b>${escape(boldPrefix)}</b>${escape(text.slice(boldPrefix.length))}` : escape(text),
+                    ),
+                );
+            });
+            const legendWidth = Math.ceil(Math.max(...lines.map(measure))) + 2 * pad + 2;
+
+            // extend image width for legend column, chart size is not changed
+            const { paper_bgcolor: bgColor, font } = gd._fullLayout;
+            // use actual margin on screen (Plotly extends right margin automatically to show colorbar),
+            // so chart in image is same as on screen
+            const { l, r, t, b } = gd._fullLayout._size;
+            const margin = { l, r, t, b };
+            layout.margin = { ...margin, r: r + legendWidth + 2 * gap };
+            const chartRight = layout.width - margin.l; // right edge of chart (before extending) from plot area left
+            layout.width += legendWidth + 2 * gap;
+            const plotAreaWidth = layout.width - layout.margin.l - layout.margin.r;
+            const plotAreaHeight = layout.height - margin.t - margin.b;
+            const dividerX = chartRight / plotAreaWidth;
+            // same look as screen: legend column separated from chart by a vertical line
+            layout.shapes = [
+                ...(layout.shapes || []),
+                {
+                    type: 'line',
+                    xref: 'paper',
+                    yref: 'paper',
+                    x0: dividerX,
+                    x1: dividerX,
+                    y0: -margin.b / plotAreaHeight,
+                    y1: 1 + margin.t / plotAreaHeight,
+                    line: { color: '#444444', width: 1 },
+                },
+            ];
+            layout.annotations = [
+                {
+                    x: dividerX,
+                    xref: 'paper',
+                    xanchor: 'left',
+                    xshift: gap, // same left margin as legend on screen
+                    y: 1 + margin.t / plotAreaHeight,
+                    yref: 'paper',
+                    yanchor: 'top',
+                    yshift: -30, // same top margin as legend on screen
+                    text: htmlLines.join('<br>'),
+                    align: 'left',
+                    showarrow: false,
+                    bgcolor: bgColor,
+                    bordercolor: font.color,
+                    borderwidth: 1,
+                    borderpad: pad,
+                    font: {
+                        color: font.color,
+                        size: fontSize,
+                    },
+                },
+            ];
+        }
+        const imageOptions = gd._context.toImageButtonOptions || {};
+        Plotly.downloadImage(
+            { data: gd.data, layout },
+            {
+                format: imageOptions.format || 'png',
+                filename: imageOptions.filename || 'newplot',
+                width: layout.width,
+                height: layout.height,
+            },
+        );
     }
 
     // get dimension values with NA
@@ -403,6 +588,41 @@ class ParallelPlot {
 
         return dimLabel;
     }
+
+    // Calculate byte length of UTF-8 string
+    getByteLength(str) {
+        let byteLength = 0;
+        for (let i = 0; i < str.length; i++) {
+            const code = str.charCodeAt(i);
+            // UTF-8 encoding: 1 byte for ASCII (0-127), 2 bytes for 128-2047, 3 bytes for 2048-65535
+            if (code <= 0x7f) {
+                byteLength += 1;
+            } else if (code <= 0x7ff) {
+                byteLength += 2;
+            } else {
+                byteLength += 3;
+            }
+        }
+        return byteLength;
+    }
+
+    // Get abbreviated process name (P1, P2, etc.) if longer than 20 bytes
+    getAbbreviatedProcessName(processName) {
+        if (!this.processNameAbbreviationMap.has(processName)) {
+            const byteLength = this.getByteLength(processName);
+            if (byteLength > 20) {
+                // count only abbreviated names (short names are also stored in map)
+                const abbreviationIndex =
+                    Array.from(this.processNameAbbreviationMap.entries()).filter(([name, abbrev]) => name !== abbrev)
+                        .length + 1;
+                this.processNameAbbreviationMap.set(processName, `P${abbreviationIndex}`);
+            } else {
+                this.processNameAbbreviationMap.set(processName, processName);
+            }
+        }
+        return this.processNameAbbreviationMap.get(processName);
+    }
+
     // gen dimension color
     genPCPDimLabel(colData, corr) {
         let labelColor = CONST.WHITE;
@@ -414,16 +634,19 @@ class ParallelPlot {
         } else if (Number(colData.col_detail.proc_id) === Number(startProcID)) {
             labelColor = CONST.LIGHT_BLUE;
         }
-        let dimProcName = shortTextName(colData.col_detail.proc_shown_name, CONST.LIMIT_SIZE_NAME);
+        // Use abbreviated process name if longer than 20 bytes
+        const abbreviatedProcName = this.getAbbreviatedProcessName(colData.col_detail.proc_shown_name);
+        let dimProcName = shortTextName(abbreviatedProcName, CONST.LIMIT_SIZE_NAME);
         let dimSensorName = shortTextName(colData.col_detail.col_shown_name);
-        let dimLabel = `<span style="color: ${labelColor};" class="dim-sensor">${dimSensorName}</span><br>`;
+        let unit = colData.col_detail.unit ? ` [${colData.col_detail.unit}]` : '';
+        let dimLabel = `<span style="color: ${labelColor};" class="dim-sensor">${dimSensorName}${unit}</span><br>`;
         dimLabel += `<span style="color: ${labelColor};" class="dim-proc">${dimProcName}[${applySignificantDigit(corr)}]</span>`;
         if (!isNumCol) {
             let special_corr = '';
             if (ParallelProps.intTypes.includes(colData.col_detail.type)) {
                 special_corr = `[${applySignificantDigit(corr)}]`;
             }
-            dimLabel = `<span style="color: ${labelColor};">${dimSensorName}</span><br>`;
+            dimLabel = `<span style="color: ${labelColor};">${dimSensorName}${unit}</span><br>`;
             dimLabel += `<span is-category style="color: ${labelColor};">${dimProcName}${special_corr}</span>`;
         }
         return dimLabel;
@@ -568,6 +791,7 @@ class ParallelPlot {
                 is_judge: colData.col_detail.is_judge,
             };
         }
+        const unit = colData.col_detail.unit ? ` [${colData.col_detail.unit}]` : '';
         return {
             values: dim.values,
             ticktext: notShowTicks ? null : dim.ticktext,
@@ -578,6 +802,7 @@ class ParallelPlot {
             dimID: `${colData.col_detail.proc_id}-${colData.col_detail.col_id}`, // dPV
             dimName: `${colData.col_detail.col_shown_name} ${colData.col_detail.proc_shown_name}`,
             isNum: this.isNumberVariable(colData.end_col_id, colData),
+            unit: unit,
             correlation: corr,
             range: dimRange,
             colId: colData.end_col_id,
@@ -972,6 +1197,7 @@ class ParallelPlot {
     show(isReturnToDefaultOrderingParams) {
         // gen dimension data
         this.genData();
+        this.renderProcessLegend();
         if (Object.keys(this.data).length === 0) {
             return;
         }

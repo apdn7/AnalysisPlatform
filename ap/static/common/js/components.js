@@ -224,96 +224,99 @@ const endProcSortable = () => {
  * @param {string} parentId
  */
 const inputCheckInlineEvents = (parentId) => {
-    $(`#${parentId} li.list-group-item`).on('click', function (e) {
-        if (
-            $(e.target).is('input') ||
-            ($(e.target).is('label') && $(e.target).attr('for')) ||
-            $(e.target).is('.layout-variable-cell__trigger, .display-layout-value')
-        ) {
-            return;
-        }
-        // prevent event click on border of li_tag START
-        const boxWidth = $(this).outerWidth();
-        const boxHeight = $(this).outerHeight();
-        const borderWidth = parseInt($(this).css('border-width')) + parseInt($(this).css('padding-top'));
+    $(`#${parentId}`)
+        .off('click.inputCheckInline', 'li.list-group-item')
+        .on('click.inputCheckInline', 'li.list-group-item', function (e) {
+            if (
+                $(e.target).is('input') ||
+                ($(e.target).is('label') && $(e.target).attr('for')) ||
+                $(e.target).closest('[data-layout-ui]').length ||
+                $(e.target).is('.layout-variable-cell__trigger, .display-layout-value')
+            ) {
+                return;
+            }
+            // prevent event click on border of li_tag START
+            const boxWidth = $(this).outerWidth();
+            const boxHeight = $(this).outerHeight();
+            const borderWidth = parseInt($(this).css('border-width')) + parseInt($(this).css('padding-top'));
 
-        if (
-            e.offsetX < borderWidth ||
-            e.offsetX > boxWidth - borderWidth ||
-            e.offsetY < borderWidth ||
-            e.offsetY > boxHeight - borderWidth
-        ) {
-            return;
-        }
-        // prevent event click on border of li_tag END
+            if (
+                e.offsetX < borderWidth ||
+                e.offsetX > boxWidth - borderWidth ||
+                e.offsetY < borderWidth ||
+                e.offsetY > boxHeight - borderWidth
+            ) {
+                return;
+            }
+            // prevent event click on border of li_tag END
 
-        const firstInputIsChecked = $(e.currentTarget).find('input:eq(0)')[0].checked;
-        const childInputElems = $(e.target).find('input');
+            const firstInputIsChecked = $(e.currentTarget).find('input:eq(0)')[0].checked;
+            const childInputElems = $(e.target).find('input');
 
-        const isLabelInput = $(e.target)
-            .closest('.fit-item')
-            .find('input[type=checkbox]')
-            .hasClass('checkbox-all-labels');
-        if (isLabelInput) {
-            return;
-        }
-        if ($(e.target).is('select') || $(e.target).is('[class^="select2-selection__"]')) {
-            return;
-        }
+            const isLabelInput = $(e.target)
+                .closest('.fit-item')
+                .find('input[type=checkbox]')
+                .hasClass('checkbox-all-labels');
+            if (isLabelInput) {
+                return;
+            }
+            if ($(e.target).is('select') || $(e.target).is('[class^="select2-selection__"]')) {
+                return;
+            }
 
-        const [childInput] = childInputElems.length ? childInputElems : $(e.target).parent().find('input');
-        // check if this input is CL
-        const isSecondaryCheckbox =
-            ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(childInput?.name) ||
-            childInput?.name?.startsWith('layoutVariable') ||
-            (childInput && childInput?.name?.includes('GET02_CATE_SELECT'));
+            const [childInput] = childInputElems.length ? childInputElems : $(e.target).parent().find('input');
+            // check if this input is CL
+            const isSecondaryCheckbox =
+                ['thresholdBox', 'catExpBox', 'objectiveVar', 'colorVar'].includes(childInput?.name) ||
+                childInput?.name?.startsWith('layoutVariable') ||
+                (childInput && childInput?.name?.includes('GET02_CATE_SELECT'));
 
-        if (isSecondaryCheckbox) {
-            $(e.target)
-                .find('input:visible')
-                .each((idx, item) => {
-                    let inputStatus = true;
-                    if (item.type === 'checkbox' || item.name == 'colorVar') {
-                        inputStatus = !childInput.checked;
-                    }
-                    $(item).prop('checked', inputStatus).trigger('change');
-                });
-            return;
-        }
-        if (childInputElems.length || !isSecondaryCheckbox) {
-            // if (childInputElems.length) {
-            $(e.currentTarget)
-                .find('input:visible')
-                .each((idx, item) => {
-                    if ($(item).hasClass('checkbox-all-labels')) {
-                        return;
-                    }
-                    // fpp label column
-                    if ($(item).attr('data-autoselect') === 'false' || $(item).prop('disabled')) {
-                        return;
-                    }
-                    if (item.type === 'radio' && !['colorVar', 'judgeVar'].includes(item.name)) {
-                        item.checked = true;
-                    } else if (item.type === 'checkbox') {
-                        item.checked = !firstInputIsChecked;
-                    }
-                    $(item).trigger('change');
-                });
-        } else {
-            // to check CL input
-            $(e.target)
-                .parent()
-                .find('input')
-                .each((idx, item) => {
-                    if (item.type === 'radio') {
-                        item.checked = true;
-                    } else if (item.type === 'checkbox') {
-                        item.checked = !childInput.checked;
-                    }
-                    $(item).trigger('change');
-                });
-        }
-    });
+            if (isSecondaryCheckbox) {
+                $(e.target)
+                    .find('input:visible')
+                    .each((idx, item) => {
+                        let inputStatus = true;
+                        if (item.type === 'checkbox' || item.name == 'colorVar') {
+                            inputStatus = !childInput.checked;
+                        }
+                        $(item).prop('checked', inputStatus).trigger('change');
+                    });
+                return;
+            }
+            if (childInputElems.length || !isSecondaryCheckbox) {
+                // if (childInputElems.length) {
+                $(e.currentTarget)
+                    .find('input:visible')
+                    .each((idx, item) => {
+                        if ($(item).hasClass('checkbox-all-labels')) {
+                            return;
+                        }
+                        // fpp label column
+                        if ($(item).attr('data-autoselect') === 'false' || $(item).prop('disabled')) {
+                            return;
+                        }
+                        if (item.type === 'radio' && !['colorVar', 'judgeVar'].includes(item.name)) {
+                            item.checked = true;
+                        } else if (item.type === 'checkbox') {
+                            item.checked = !firstInputIsChecked;
+                        }
+                        $(item).trigger('change');
+                    });
+            } else {
+                // to check CL input
+                $(e.target)
+                    .parent()
+                    .find('input')
+                    .each((idx, item) => {
+                        if (item.type === 'radio') {
+                            item.checked = true;
+                        } else if (item.type === 'checkbox') {
+                            item.checked = !childInput.checked;
+                        }
+                        $(item).trigger('change');
+                    });
+            }
+        });
 };
 
 /**
@@ -359,13 +362,14 @@ const genColDOM = ({
 
 let limitedCheckedList = [];
 
-const dispatchLayoutCheckChange = ({ checkedItemId, checkedGroupId, isChecked }) => {
+const dispatchLayoutCheckChange = ({ checkedItemId, checkedGroupId, isChecked, restoreLayout = false }) => {
     document.dispatchEvent(
         new CustomEvent('layoutCheckChange', {
             detail: {
                 checkedItemId,
                 checkedGroupId,
                 isChecked,
+                restoreLayout,
             },
         }),
     );
@@ -568,6 +572,19 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     let isChecked;
     const isExpand = itemIds.length > 4;
     const itemList = [];
+    const layoutColumns = [];
+
+    const checkedIdSet = new Set(props.checkedIds || []);
+    const catLabelSet = new Set(props.catLabels || []);
+
+    const dataFilterSystemIdSet = new Set((props.dataFilterSystem || []).map((col) => col.id));
+
+    const colorValSelectedMap = new Map((props.colorValsSelected || []).map((val) => [val.id, val]));
+
+    const availableColorVarMap = new Map((props.availableColorVars || []).map((col) => [col.id, col]));
+
+    const hasExistingDivSelection =
+        props.itemDataTypes && props.isDivRequired && !isSettingLoading && hasDivSelection();
     for (let i = 0; i < itemIds.length; i++) {
         const itemId = itemIds[i];
         const itemVal = itemVals[i];
@@ -597,7 +614,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         if (props.itemDataTypes) {
             colDataType = DataTypes[props.itemDataTypes[i]].org_type;
             // auto select div for main serial or serial Time vis
-            if (!hasDivSelection() && !divSelected && props.isDivRequired && !isSettingLoading) {
+            if (!hasExistingDivSelection && !divSelected && props.isDivRequired && !isSettingLoading) {
                 if (props.hasMasterSerial && props.columnInfo[i].columnType === masterDataGroup.MAIN_SERIAL) {
                     autoSelectDiv = 'selected';
                     divSelected = true;
@@ -650,11 +667,11 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             let clSelection = '';
             let checked = '';
             // todo: check category item
-            if (props.catLabels && props.catLabels.length && props.catLabels.includes(itemId)) {
+            if (props.catLabels && props.catLabels.length && catLabelSet.has(itemId)) {
                 clSelection = 'selected="selected"';
             }
             // Auto check label or filter for data type Filter (System)
-            if (props.dataFilterSystem.find((col) => col.id === itemId)) {
+            if (dataFilterSystemIdSet.has(itemId)) {
                 checked = 'checked';
             }
             const categoryGroupId = props.groupIDx || 1;
@@ -679,8 +696,9 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                 isDummyDatetime: !!props.itemDummyDatetimes?.[i],
                 layoutOrder: i,
             };
+            layoutColumns.push(dropdownProps);
 
-            layoutDOM = `<div class="react-root" data-component="LayoutDropDown"
+            layoutDOM = `<div class="react-root" data-component="LayoutDropDown" data-control-id="reactlayout-${itemId}"
                 data-props='${JSON.stringify(dropdownProps)}'></div>`;
         }
         let categoryLabelDOM = null;
@@ -701,7 +719,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         if (isShowColor) {
             if (props.colorAsDropdown) {
                 const dropdownColorId = `agp-color-${itemId}`;
-                const colorValSelected = props.colorValsSelected.find((val) => val.id === dropdownColorId);
+                const colorValSelected = colorValSelectedMap.get(dropdownColorId);
                 colorDOM = `<select name="colorVar" id="${dropdownColorId}" onchange="" 
                     data-load-level="2" class="form-control level-select select2-selection--single select-n-columns"
                     data-target-var-id="${itemId}">
@@ -712,7 +730,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                     colorValSelected &&
                     colorValSelected.value
                 ) {
-                    const col = props.availableColorVars.find((col) => col.id === parseInt(colorValSelected.value));
+                    const col = availableColorVarMap.get(parseInt(colorValSelected.value));
                     colorDOM += `<option value="${col.id}" title="${col.name_en}">${col.shown_name}</option>`;
                 }
                 colorDOM += `</select>`;
@@ -745,7 +763,7 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
                             </div>`;
         }
 
-        isChecked = props.checkedIds && props.checkedIds.includes(itemId) ? 'checked' : '';
+        isChecked = props.checkedIds && checkedIdSet.has(itemId) ? 'checked' : '';
         const dataIsGetDate = colDataTypeShowName === DataTypes.DATETIME.short ? 'data-is_get_date=true' : '';
         const isHideCheckInput =
             (props.hideStrVariable && colDataType === DataTypes.STRING.name) ||
@@ -756,7 +774,8 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         const inputEl = !isHideCheckInput
             ? `<input type="${inputType}" name="${props.name}" data-name="${itemVal}" ${isXYAxisPage ? 'data-order=2' : ''}
             class="custom-control-input check-item ${mainChkBoxClass} ${isRequiredInput}"  value="${itemId}"
-            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-type-shown-name="${colDataTypeShowName}" ${dataIsGetDate}>`
+            id="${chkBoxId}" ${isChecked} data-proc-id="${props.procId || ''}" data-group-id="${props.groupIDx || ''}"
+            data-parent-id="${parentId}" data-type-shown-name="${colDataTypeShowName}" ${dataIsGetDate}>`
             : '';
 
         const option = `
@@ -789,6 +808,15 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             ),
         );
     }
+
+    const virtualItems = itemList.map((html, index) => ({
+        id: String(itemIds[index]),
+        html,
+        // Keep this in case we ever want to restore original order.
+        originalIndex: index,
+        // These correspond to the two sortable name columns.
+        sortValues: [String(itemVals[index] ?? ''), String(props.itemNames?.[index] ?? itemVals[index] ?? '')],
+    }));
 
     const sensorListId = `list-${id}`;
     let noFilterOption = null;
@@ -939,15 +967,62 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
             <div class="floating-dropdown-parent ${labelClass} ${expandClass} w-100">
                 ${expandArrow}
                 ${searchItems(id)}
-                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true" data-is-extend="false">
+                <ul class="list-group grouplist-checkbox-with-search" id="${sensorListId}" data-init-sort="true" data-is-extend="false" data-show-layout="${!!props.showLayout}">
                     ${genDetailItem(true, noFilterOption)}
                     ${genDetailItem(true, allOption)}
-                    ${itemList.join(' ')}
+              <li
+        id="${sensorListId}-virtual-top"
+        aria-hidden="true"
+        style="
+            height: 0;
+            min-height: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            pointer-events: none;
+        "
+    ></li>
+
+    <li
+        id="${sensorListId}-virtual-bottom"
+        aria-hidden="true"
+        style="
+            height: 0;
+            min-height: 0;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            pointer-events: none;
+        "
+    ></li>
                 </ul>
             </div>
             ${label ? '</div>' : ''}
         </div>`;
+    destroyVirtualLists(document.getElementById(parentId));
     $(`#${parentId}`).empty().append(groupList);
+
+    // Register offscreen columns too, without mounting every virtual row.
+    if (props.showLayout) {
+        if (window.registerLayoutColumns) {
+            window.registerLayoutColumns(layoutColumns);
+        } else {
+            window.pendingLayoutColumns = [...(window.pendingLayoutColumns || []), ...layoutColumns];
+        }
+    }
+
+    const virtualList = initVirtualList({
+        listId: sensorListId,
+        items: virtualItems,
+        overscan: 5,
+        estimatedRowHeight: 30,
+    });
+    const findListInputs = (selector) =>
+        $(
+            virtualList
+                ? virtualList.querySelectorAll(selector)
+                : document.querySelectorAll(`#${sensorListId} ${selector}`),
+        );
 
     // show sensors as a floating list when hover for 1s
     showSensorAsFloatingList(sensorListId);
@@ -959,22 +1034,35 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
 
         const mainCheckBoxs =
             getCurrentPage() === 'map'
-                ? $(`#${this.closest('.list-group').id} .${mainChkBoxClass}:not([data-is_get_date=true])`)
-                : $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`);
+                ? findListInputs(`.${mainChkBoxClass}:not([data-is_get_date=true])`)
+                : findListInputs(`.${mainChkBoxClass}`);
 
         if (getCurrentPage() === 'map') {
+            const previousBulkOperation = window.__layoutBulkOperation;
             window.__layoutBulkOperation = true;
-            if (isChecked) {
-                mainCheckBoxs.prop('checked', false).trigger('change');
-                // check first MAX_NUMBER_OF_SENSOR checkbox
-                const mainCheckboxWithoutCT = mainCheckBoxs.filter(':not([data-type-shown-name=CT])');
+            try {
+                // Keep reset/reselect transitions and cleanup of unchecked rows with layout/secondary state.
+                const inputsToReset = mainCheckBoxs.filter((_, input) => {
+                    if (input.checked) return true;
+                    const row = input.closest('li.list-group-item');
+                    return (
+                        row.querySelector('[name=layoutInput]')?.value ||
+                        row.querySelector(
+                            '[name=objectiveVar]:checked, [name=thresholdBox]:checked, .as-label-input:checked',
+                        )
+                    );
+                });
+                inputsToReset.prop('checked', false).trigger('change');
+                if (isChecked) {
+                    // check first MAX_NUMBER_OF_SENSOR checkbox
+                    const mainCheckboxWithoutCT = mainCheckBoxs.filter(':not([data-type-shown-name=CT])');
 
-                mainCheckboxWithoutCT.slice(0, MAX_NUMBER_OF_SENSOR).prop('checked', true).trigger('change');
-                $(this).prop('checked', true);
-            } else {
-                mainCheckBoxs.prop('checked', false).trigger('change');
+                    mainCheckboxWithoutCT.slice(0, MAX_NUMBER_OF_SENSOR).prop('checked', true).trigger('change');
+                    $(this).prop('checked', true);
+                }
+            } finally {
+                window.__layoutBulkOperation = previousBulkOperation;
             }
-            window.__layoutBulkOperation = false;
         } else {
             mainCheckBoxs.prop('checked', isChecked);
         }
@@ -982,200 +1070,209 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
         $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', !$(this).prop('checked'));
         if ($(this).is(':checked') === false) {
             // reset objective
-            const objectiveEle = $(this.closest('ul.list-group')).find('input[name=objectiveVar]:checked');
+            const objectiveEle = findListInputs('input[name=objectiveVar]:checked');
             if (objectiveEle.data('is-target')) {
                 objectiveEle.prop('checked', false);
             }
         }
-        limitedCheckedList = [];
-        // find all check items
-        $(`#${parentId}`)
-            .parents()
-            .find('input[name^=GET02_VALS_SELECT]:checked')
-            .not('.checkbox-all')
-            .each((_, item) => limitedCheckedList.push($(item)));
+        limitedCheckedList = getCheckedVariablesInOrder(resolveVirtualForm(this) ?? document);
         countVariables(parentId, props.groupIDx);
         compareSettingChange();
         createOrUpdateSensorOrdering(e, true);
     });
     // check all labels and filters
     $(`.checkbox-all-labels`).change(function f() {
-        $(`#${this.closest('.list-group').id} .as-label-input`).prop('checked', $(this).prop('checked'));
+        findListInputs('.as-label-input').prop('checked', $(this).prop('checked'));
         return;
     });
     // check to mark no filter
     $(`#checkbox-no-filter-${id + parentId}`).change(function f() {
         $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', !$(this).prop('checked'));
-        $(`#${this.closest('.list-group').id} .${mainChkBoxClass}`).prop('checked', !$(this).prop('checked'));
+        findListInputs(`.${mainChkBoxClass}`).prop('checked', !$(this).prop('checked'));
         compareSettingChange();
     });
 
     // check event
-    $(`#${id} .check-item`).on('change', function f(e) {
-        const checkboxNoFilter = $(`#${this.closest('.list-group').id} .checkbox-no-filter`);
-        let thresholdBox = undefined;
-        try {
-            thresholdBox = $(`#threshold-${this.id}`);
-        } catch (e) {
-            console.log(e);
-        }
-
-        const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
-
-        const isChecked = $(this).is(':checked');
-        if (!isChecked) {
-            $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', $(this).prop('checked'));
+    findListInputs('.check-item')
+        .off('change.virtualListCheckItem')
+        .on('change.virtualListCheckItem', function f(e) {
+            const deferGroupUpdate = e.deferGroupUpdate === true;
+            const currentListId = this.closest('.list-group')?.id ?? sensorListId;
+            const checkboxNoFilter = $(`#${currentListId} .checkbox-no-filter`);
             const parentRow = $(this.closest('li.list-group-item.form-check'));
-            parentRow.find('[name=objectiveVar]').prop('checked', false).trigger('change');
-            if (thresholdBox) {
-                thresholdBox.prop('checked', false);
-            }
-            if (isCheckLimit) {
-                limitedCheckedList = limitedCheckedList.filter((el) => $(el).attr('id') !== $(this).attr('id'));
-                if (isXYAxisPage) {
-                    $(this).removeAttr('data-sensor');
-                    $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
+            const thresholdBox = parentRow.find(`[id="threshold-${this.id}"]`);
 
-                    const attr = $(this).attr('data-proc-id');
-                    const val = $(this).val();
-                    $(`#xy-axis-${attr}-${val}`).empty();
+            const isCheckLimit = MAX_NUMBER_OF_SENSOR && /VALS_SELECT/.test($(this).attr('name'));
+
+            const isChecked = $(this).is(':checked');
+            if (!isChecked) {
+                $(`#${currentListId} .checkbox-all`).prop('checked', $(this).prop('checked'));
+                parentRow.find('[name=objectiveVar]').prop('checked', false).trigger('change');
+                if (thresholdBox.length) {
+                    thresholdBox.prop('checked', false);
+                }
+                if (isCheckLimit) {
+                    limitedCheckedList = limitedCheckedList.filter((el) => $(el).attr('id') !== $(this).attr('id'));
+                    if (isXYAxisPage) {
+                        $(this).removeAttr('data-sensor');
+                        $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
+
+                        parentRow.find('.xy-axis').empty();
+                    }
+                }
+            } else {
+                if (thresholdBox.length) {
+                    thresholdBox.prop('checked', true);
+                }
+                if (isCheckLimit) {
+                    if (!isXYAxisPage || !limitedCheckedList.some((el) => el.attr('id') === this.id)) {
+                        limitedCheckedList.push($(this));
+                    }
+                    if (isXYAxisPage) {
+                        $(this.closest('.list-group-item')).find('[name=catExpBox]').val('').trigger('change');
+                        $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', true);
+                    }
                 }
             }
-        } else {
-            if (thresholdBox) {
-                thresholdBox.prop('checked', true);
+            if (checkboxNoFilter.is(':checked')) {
+                checkboxNoFilter.prop('checked', false);
             }
-            if (isCheckLimit) {
-                limitedCheckedList.push($(this));
-                if (isXYAxisPage) {
-                    $(this.closest('.list-group-item')).find('[name=catExpBox]').val('').trigger('change');
-                    $(this.closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', true);
+
+            // Modify checkbox of ALL when all checkbox is checked
+            // apply for card != filter condition
+            if (!deferGroupUpdate) {
+                if (
+                    findListInputs(`.${mainChkBoxClass}:not([name="thresholdBox"]):checked`).length === itemIds.length
+                ) {
+                    if (!$(`#${id}`).closest('.filter-condition-card').length) {
+                        $(`#${currentListId} .checkbox-all`).prop('checked', true);
+                    }
+                } else {
+                    $(`#${currentListId} .checkbox-all`).prop('checked', false);
+                }
+
+                // check no filter when uncheck all items
+                if (findListInputs('.check-item:not([name="thresholdBox"]):not(:checked)').length === itemIds.length) {
+                    $(`#${currentListId} .checkbox-no-filter`).prop('checked', true);
                 }
             }
-        }
-        if (checkboxNoFilter.is(':checked')) {
-            checkboxNoFilter.prop('checked', false);
-        }
 
-        // Modify checkbox of ALL when all checkbox is checked
-        // apply for card != filter condition
-        if ($(`#${id} .${mainChkBoxClass}:not([name="thresholdBox"]):checked`).length === itemIds.length) {
-            if (!this.closest('.filter-condition-card')) {
-                $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', true);
-            }
-        } else {
-            $(`#${this.closest('.list-group').id} .checkbox-all`).prop('checked', false);
-        }
+            // only allow selected 2 items in list
+            if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR && $(this).is(':checked')) {
+                // shift first item from list if $(this) is checked
+                // to avoid shift/uncheck 2 items at same time
+                // we should also remove count total variables from process which had a checkbox removed
+                const idStart = 'end-proc-val-div-';
+                const removedItemParentId =
+                    limitedCheckedList[0].closest(`div[id^=${idStart}`).attr('id') ??
+                    limitedCheckedList[0].attr('data-parent-id');
+                const removedItemGroupIdx =
+                    removedItemParentId?.replace(idStart, '') ?? limitedCheckedList[0].attr('data-group-id');
+                $(limitedCheckedList[0]).prop('checked', false);
 
-        // check no filter when uncheck all items
-        if ($(`#${id} .check-item:not([name="thresholdBox"]):not(:checked)`).length === itemIds.length) {
-            $(`#${this.closest('.list-group').id} .checkbox-no-filter`).prop('checked', true);
-        }
+                const removedListGroupId =
+                    limitedCheckedList[0].closest('.list-group').attr('id') ??
+                    $(`#${removedItemParentId}`).find('.list-group').attr('id');
+                $(`#${removedListGroupId} .checkbox-all`).prop('checked', false);
 
-        // only allow selected 2 items in list
-        if (isCheckLimit && limitedCheckedList.length > MAX_NUMBER_OF_SENSOR && $(this).is(':checked')) {
-            // shift first item from list if $(this) is checked
-            // to avoid shift/uncheck 2 items at same time
-            // we should also remove count total variables from process which had a checkbox removed
-            const idStart = 'end-proc-val-div-';
-            let removedItemParentId = limitedCheckedList[0].closest(`div[id^=${idStart}`).attr('id');
-            let removedItemGroupIdx = removedItemParentId.replace(idStart, '');
-            $(limitedCheckedList[0]).prop('checked', false);
+                // Notify layout to reset column removed due to MAX limit
+                dispatchLayoutCheckChange({
+                    checkedItemId: limitedCheckedList[0].val(),
+                    checkedGroupId: removedItemGroupIdx,
+                    isChecked: false,
+                });
+                countVariables(removedItemParentId, removedItemGroupIdx, -1);
 
-            const removedListGroupId = limitedCheckedList[0].closest('.list-group').attr('id');
-            $(`#${removedListGroupId} .checkbox-all`).prop('checked', false);
+                if (isXYAxisPage) {
+                    $(limitedCheckedList[0].closest('.list-group-item'))
+                        .find('[name=catExpBox]')
+                        .prop('disabled', false);
+                    // remove data-sensor attr
+                    limitedCheckedList[0].removeAttr('data-sensor');
 
-            // Notify layout to reset column removed due to MAX limit
-            dispatchLayoutCheckChange({
-                checkedItemId: limitedCheckedList[0].val(),
-                checkedGroupId: removedItemGroupIdx,
-                isChecked: false,
-            });
-            countVariables(removedItemParentId, removedItemGroupIdx);
-
-            if (isXYAxisPage) {
-                $(limitedCheckedList[0].closest('.list-group-item')).find('[name=catExpBox]').prop('disabled', false);
-                // remove data-sensor attr
-                limitedCheckedList[0].removeAttr('data-sensor');
-
-                const attr = limitedCheckedList[0].attr('data-proc-id');
-                const val = limitedCheckedList[0].val();
-                $(`#xy-axis-${attr}-${val}`).empty();
-            }
-            limitedCheckedList.shift();
-        }
-
-        // in case of either x or y data type is string, color variable will be changed belong with string sensor.
-        if (isXYAxisPage && limitedCheckedList.length > 0) {
-            const xSensor = limitedCheckedList[0];
-            const xSensorType = xSensor ? $(`#dataType-${xSensor.val()}`).val() : '';
-            const ySensor = limitedCheckedList[1];
-            const ySensorType = ySensor ? $(`#dataType-${ySensor.val()}`).val() : '';
-            if (xSensor && xSensorType === DataTypes.STRING.short) {
-                $(`#scp-color-${xSensor.val()}`).prop('checked', true);
-            } else if (ySensor && ySensorType === DataTypes.STRING.short) {
-                $(`#scp-color-${ySensor.val()}`).prop('checked', true);
+                    // Virtual rows can be detached; update the badge through its owning checkbox.
+                    limitedCheckedList[0].closest('.list-group-item').find('.xy-axis').empty();
+                }
+                limitedCheckedList.shift();
             }
 
-            // set x, y flag
-            if (limitedCheckedList[0]) {
-                limitedCheckedList[0].attr('data-sensor', 'x');
+            // in case of either x or y data type is string, color variable will be changed belong with string sensor.
+            if (isXYAxisPage && limitedCheckedList.length > 0) {
+                const xSensor = limitedCheckedList[0];
+                const xSensorType = xSensor ? $(`#dataType-${xSensor.val()}`).val() : '';
+                const ySensor = limitedCheckedList[1];
+                const ySensorType = ySensor ? $(`#dataType-${ySensor.val()}`).val() : '';
+                if (xSensor && xSensorType === DataTypes.STRING.short) {
+                    $(`#scp-color-${xSensor.val()}`).prop('checked', true);
+                } else if (ySensor && ySensorType === DataTypes.STRING.short) {
+                    $(`#scp-color-${ySensor.val()}`).prop('checked', true);
+                }
 
-                const attr = limitedCheckedList[0].attr('data-proc-id');
-                const val = limitedCheckedList[0].val();
-                $(`#xy-axis-${attr}-${val}`).text('X');
+                // set x, y flag
+                if (limitedCheckedList[0]) {
+                    limitedCheckedList[0].attr('data-sensor', 'x');
+
+                    limitedCheckedList[0].closest('.list-group-item').find('.xy-axis').text('X');
+                }
+                if (limitedCheckedList[1]) {
+                    limitedCheckedList[1].attr('data-sensor', 'y');
+
+                    limitedCheckedList[1].closest('.list-group-item').find('.xy-axis').text('Y');
+                }
+
+                compareSettingChange();
             }
-            if (limitedCheckedList[1]) {
-                limitedCheckedList[1].attr('data-sensor', 'y');
 
-                const attr = limitedCheckedList[1].attr('data-proc-id');
-                const val = limitedCheckedList[1].val();
-                $(`#xy-axis-${attr}-${val}`).text('Y');
+            // Notify LayoutDropdown components to update their items when a variable is checked/unchecked
+            if (/VALS_SELECT/.test($(this).attr('name'))) {
+                dispatchLayoutCheckChange({
+                    checkedItemId: $(this).val(),
+                    checkedGroupId: props.groupIDx,
+                    isChecked: $(this).is(':checked'),
+                    restoreLayout: e.restoreLayout === true,
+                });
             }
 
-            compareSettingChange();
-        }
-
-        // Notify LayoutDropdown components to update their items when a variable is checked/unchecked
-        if (/VALS_SELECT/.test($(this).attr('name'))) {
-            dispatchLayoutCheckChange({
-                checkedItemId: $(this).val(),
-                checkedGroupId: props.groupIDx,
-                isChecked: $(this).is(':checked'),
-            });
-        }
-
-        countVariables(parentId, props.groupIDx);
-        createOrUpdateSensorOrdering(e);
-
-        // MAP logic
-        if (props.showLayout) {
-            // Div2/Div3/Div6 availability depends on how many primary subplots the layout draws,
-            // not on how many variables are checked (X axis / Lab / Color are checked columns too).
-            // The MAP page owns that rule; defer so React has applied this check to the layout state.
-            setTimeout(() => window.updateMapDivSizeOptions?.(), 0);
-
-            // if check -> check select (filter) else unchecked filter
-            const colId = $(this).val();
-            const hasFacetSelected = $(`#catExpItem-${colId}`).val() !== '';
-            if (!hasFacetSelected) {
-                $(`#categoryFilter-${colId}`).prop('checked', isChecked);
+            // a real user click toggles exactly 1 variable -> update the count directly.
+            // programmatic .trigger('change') can be fired without a state change, so re-count in that case
+            const isCountedVariable =
+                /^GET02_VALS_SELECT/.test($(this).attr('name') || '') && !$(this).hasClass('checkbox-all');
+            const countDelta = e.originalEvent && isCountedVariable ? (isChecked ? 1 : -1) : null;
+            if (!deferGroupUpdate) {
+                countVariables(parentId, props.groupIDx, countDelta);
             }
-        }
-    });
+            createOrUpdateSensorOrdering(e);
+
+            // MAP logic
+            if (props.showLayout) {
+                // Div2/Div3/Div6 availability depends on how many primary subplots the layout draws,
+                // not on how many variables are checked (X axis / Lab / Color are checked columns too).
+                // The MAP page owns that rule; defer so React has applied this check to the layout state.
+                setTimeout(() => window.updateMapDivSizeOptions?.(), 0);
+
+                // if check -> check select (filter) else unchecked filter
+                const colId = $(this).val();
+                const hasFacetSelected = $(`#catExpItem-${colId}`).val() !== '';
+                if (!hasFacetSelected) {
+                    $(`#categoryFilter-${colId}`).prop('checked', isChecked);
+                }
+            }
+        });
 
     // remove check color radio button when click selected again
-    $('.uncheck-when-click').on('click', (e) => {
-        const currentEl = $(e.currentTarget).parent().find('input');
-        const check = currentEl.prop('checked');
-        if (check) {
-            setTimeout(() => {
-                currentEl.prop('checked', false).trigger('change');
-            }, 100);
-        }
-    });
+    findListInputs('.uncheck-when-click')
+        .off('click.virtualListUncheck')
+        .on('click.virtualListUncheck', (e) => {
+            const currentEl = $(e.currentTarget).parent().find('input');
+            const check = currentEl.prop('checked');
+            if (check) {
+                setTimeout(() => {
+                    currentEl.prop('checked', false).trigger('change');
+                }, 100);
+            }
+        });
 
-    handleSearchItems(id);
+    handleSearchItems(id, parentId, props, itemIds);
 
     addAttributeToElement(`#${parentId}`, {}, props);
     if (parentId.includes('cond-proc-others')) {
@@ -1186,7 +1283,469 @@ const addGroupListCheckboxWithSearch = (parentId, id, label, itemIds, itemVals, 
     }
     onchangeRequiredInput();
 };
+const initVirtualList = ({ listId, items, overscan = 5, estimatedRowHeight = 30 }) => {
+    const list = document.getElementById(listId);
+    const topSpacer = document.getElementById(`${listId}-virtual-top`);
+    const bottomSpacer = document.getElementById(`${listId}-virtual-bottom`);
 
+    if (!list || !topSpacer || !bottomSpacer) {
+        return null;
+    }
+
+    const createItems = (items) => {
+        const template = document.createElement('template');
+
+        template.innerHTML = items.map((item) => item.html.trim()).join('');
+
+        const rows = Array.from(template.content.children);
+        rows.forEach((row, index) => {
+            row._virtualListOwner = list;
+            row.dataset.virtualRow = 'true';
+            row.dataset.virtualItemId = items[index].id;
+        });
+
+        return items.map((item, index) => ({
+            ...item,
+            row: rows[index] ?? null,
+        }));
+    };
+
+    const dispatchVirtualListUpdate = () => {
+        list.dispatchEvent(
+            new CustomEvent('virtualListUpdated', {
+                bubbles: true,
+                detail: {
+                    listId,
+                    itemCount: allItems.length,
+                },
+            }),
+        );
+    };
+
+    let allItems = createItems(items);
+    // Index owning rows rather than controls, which React can mount or replace later.
+    const rowsByControlId = new Map();
+    allItems.forEach(({ row }) => {
+        if (!row) return;
+        [row, ...row.querySelectorAll('[id], [data-control-id]')].forEach((element) => {
+            const controlId = element.id || element.dataset.controlId;
+            if (!controlId) return;
+            if (!rowsByControlId.has(controlId)) {
+                rowsByControlId.set(controlId, new Set());
+            }
+            rowsByControlId.get(controlId).add(row);
+        });
+    });
+    let currentItems = [...allItems];
+    let activeSearch = null;
+    let rowHeight = estimatedRowHeight;
+    let lastStartIndex = -1;
+    let lastEndIndex = -1;
+    let rafId = null;
+    let destroyed = false;
+
+    list.dataset.virtualized = 'true';
+    list.style.overflowAnchor = 'none';
+
+    const setupStickyHeaders = () => {
+        const headers = Array.from(list.querySelectorAll(':scope > li.keep-header'));
+
+        let stickyTop = 0;
+
+        headers.forEach((header) => {
+            header.style.position = 'sticky';
+            header.style.top = `${stickyTop}px`;
+            header.style.zIndex = '20';
+
+            stickyTop += header.getBoundingClientRect().height;
+        });
+
+        return stickyTop;
+    };
+
+    const removeVirtualRows = () => {
+        if (topSpacer.parentNode !== list || bottomSpacer.parentNode !== list) {
+            return;
+        }
+
+        let node = topSpacer.nextSibling;
+
+        while (node && node !== bottomSpacer) {
+            const nextNode = node.nextSibling;
+
+            node.remove();
+
+            node = nextNode;
+        }
+    };
+
+    const createRows = (startIndex, endIndex) => {
+        const fragment = document.createDocumentFragment();
+
+        for (let index = startIndex; index < endIndex; index++) {
+            const item = currentItems[index];
+            const row = item.row;
+
+            if (!row) {
+                continue;
+            }
+
+            row.dataset.virtualRow = 'true';
+            row.dataset.virtualIndex = index;
+            row.dataset.virtualItemId = item.id;
+
+            fragment.appendChild(row);
+        }
+
+        return fragment;
+    };
+
+    const render = (force = false) => {
+        if (destroyed || topSpacer.parentNode !== list || bottomSpacer.parentNode !== list) {
+            return;
+        }
+
+        const savedScrollTop = list.scrollTop;
+
+        const headerHeight = setupStickyHeaders();
+
+        const viewportHeight = Math.max(0, list.clientHeight - headerHeight);
+
+        const firstVisibleIndex = Math.floor(savedScrollTop / rowHeight);
+
+        const visibleCount = Math.ceil(viewportHeight / rowHeight);
+
+        const startIndex = Math.max(0, firstVisibleIndex - overscan);
+
+        const endIndex = Math.min(currentItems.length, firstVisibleIndex + visibleCount + overscan);
+
+        if (!force && startIndex === lastStartIndex && endIndex === lastEndIndex) {
+            return;
+        }
+
+        lastStartIndex = startIndex;
+        lastEndIndex = endIndex;
+
+        const fragment = createRows(startIndex, endIndex);
+
+        const topHeight = startIndex * rowHeight;
+
+        const bottomHeight = (currentItems.length - endIndex) * rowHeight;
+
+        topSpacer.style.height = `${topHeight}px`;
+
+        topSpacer.style.minHeight = `${topHeight}px`;
+
+        bottomSpacer.style.height = `${bottomHeight}px`;
+
+        bottomSpacer.style.minHeight = `${bottomHeight}px`;
+
+        removeVirtualRows();
+
+        list.insertBefore(fragment, bottomSpacer);
+
+        list.scrollTop = savedScrollTop;
+    };
+
+    const sortItems = (compareFn, { resetScroll = true } = {}) => {
+        const before = allItems.map((item) => item.id);
+
+        allItems = allItems
+            .map((item, index) => ({
+                item,
+                index,
+            }))
+            .sort((a, b) => {
+                const result = compareFn(a.item, b.item);
+
+                if (result !== 0) {
+                    return result;
+                }
+
+                return a.index - b.index;
+            })
+            .map(({ item }) => item);
+
+        const changed = before.some((id, index) => id !== allItems[index]?.id);
+
+        if (!changed) {
+            return false;
+        }
+
+        applySearch();
+        lastStartIndex = -1;
+        lastEndIndex = -1;
+
+        if (resetScroll) {
+            list.scrollTop = 0;
+        }
+
+        render(true);
+
+        return true;
+    };
+
+    const getSearchCells = (item) => Array.from(item.row?.querySelectorAll('.search-col') ?? []);
+
+    const matchesSearch = (item, regex) => {
+        const searchText = getSearchCells(item)
+            .map((cell) => cell.textContent)
+            .join('')
+            .toLowerCase();
+        return regex.test(searchText);
+    };
+
+    const applySearch = () => {
+        allItems.forEach((item) => {
+            getSearchCells(item).forEach((cell) => cell.classList.remove('gray'));
+        });
+
+        if (!activeSearch) {
+            currentItems = [...allItems];
+            return currentItems;
+        }
+
+        const matchedItems = allItems.filter((item) => matchesSearch(item, activeSearch.regex));
+        if (activeSearch.showAll) {
+            allItems.forEach((item) => {
+                getSearchCells(item).forEach((cell) => {
+                    cell.classList.toggle('gray', !activeSearch.regex.test(cell.textContent.toLowerCase()));
+                });
+            });
+            currentItems = [...allItems];
+        } else {
+            currentItems = matchedItems;
+        }
+
+        return matchedItems;
+    };
+
+    const searchItems = (searchPattern, { resetScroll = true, showAll = false } = {}) => {
+        activeSearch = searchPattern
+            ? {
+                  regex: new RegExp(searchPattern, 'i'),
+                  showAll,
+              }
+            : null;
+        const matchedItems = applySearch();
+
+        if (resetScroll) {
+            list.scrollTop = 0;
+        } else {
+            const maxScrollTop = Math.max(0, (currentItems.length - 1) * rowHeight);
+            list.scrollTop = Math.min(list.scrollTop, maxScrollTop);
+        }
+
+        lastStartIndex = -1;
+        lastEndIndex = -1;
+        render(true);
+
+        return matchedItems.map((item) => item.row).filter(Boolean);
+    };
+
+    const compareSortKeys = (aKeys, bKeys) => {
+        for (let index = 0; index < aKeys.length; index++) {
+            if (aKeys[index] < bKeys[index]) {
+                return -1;
+            }
+            if (aKeys[index] > bKeys[index]) {
+                return 1;
+            }
+        }
+        return 0;
+    };
+
+    const sortSelectedFirst = (isSimple = null) => {
+        const layoutPriorities = getLayoutSortPrioritiesForList(list, false);
+        if (typeof getSortKeys === 'function' && layoutPriorities !== false) {
+            // MAP needs authoritative priorities; other lists retain shared role ordering.
+            return sortItems((a, b) =>
+                compareSortKeys(
+                    getSortKeys(a.row, isSimple, layoutPriorities),
+                    getSortKeys(b.row, isSimple, layoutPriorities),
+                ),
+            );
+        }
+
+        return sortItems((a, b) => {
+            const aChecked = a.row?.querySelector('.main-checkbox')?.checked ?? false;
+            const bChecked = b.row?.querySelector('.main-checkbox')?.checked ?? false;
+            return aChecked === bChecked ? 0 : aChecked ? -1 : 1;
+        });
+    };
+
+    const sortByColumn = (columnIndex, asc = true) => {
+        $(list).data('init-sort', false);
+
+        return sortItems((a, b) => {
+            const valueA = String(a.sortValues[columnIndex] ?? '').toUpperCase();
+
+            const valueB = String(b.sortValues[columnIndex] ?? '').toUpperCase();
+
+            if (valueA === valueB) {
+                return 0;
+            }
+
+            if (asc) {
+                return valueA > valueB ? 1 : -1;
+            }
+
+            return valueA > valueB ? -1 : 1;
+        });
+    };
+
+    const querySelectorAll = (selector, controlId = null) => {
+        const result = [];
+        const queryRow = (row) => {
+            if (!row) {
+                return;
+            }
+            if (row.matches(selector)) {
+                result.push(row);
+            }
+            result.push(...row.querySelectorAll(selector));
+        };
+        const indexedRows = rowsByControlId.get(controlId);
+        if (indexedRows) {
+            indexedRows.forEach(queryRow);
+        } else {
+            allItems.forEach(({ row }) => queryRow(row));
+        }
+        return result;
+    };
+
+    const appendControlValue = (formData, control) => {
+        if (!control.name || control.disabled) {
+            return;
+        }
+
+        if (control instanceof HTMLInputElement) {
+            const ignoredTypes = ['button', 'reset', 'submit', 'image'];
+            if (
+                ignoredTypes.includes(control.type) ||
+                (['checkbox', 'radio'].includes(control.type) && !control.checked)
+            ) {
+                return;
+            }
+            if (control.type === 'file') {
+                Array.from(control.files).forEach((file) => formData.append(control.name, file));
+                return;
+            }
+        }
+
+        if (control instanceof HTMLSelectElement && control.multiple) {
+            Array.from(control.selectedOptions).forEach((option) => formData.append(control.name, option.value));
+            return;
+        }
+
+        formData.append(control.name, control.value);
+    };
+
+    const handleFormData = (event) => {
+        querySelectorAll('input, select, textarea').forEach((control) => {
+            if (!control.isConnected) {
+                appendControlValue(event.formData, control);
+            }
+        });
+    };
+
+    const handleScroll = () => {
+        if (rafId !== null) {
+            return;
+        }
+
+        rafId = requestAnimationFrame(() => {
+            rafId = null;
+
+            render();
+        });
+    };
+
+    list.addEventListener('scroll', handleScroll, {
+        passive: true,
+    });
+    const form = list.closest('form');
+    form?.addEventListener('formdata', handleFormData);
+
+    const resizeObserver = new ResizeObserver(() => {
+        lastStartIndex = -1;
+        lastEndIndex = -1;
+
+        render(true);
+    });
+
+    resizeObserver.observe(list);
+
+    render(true);
+
+    const firstRenderedRow = list.querySelector(':scope > li[data-virtual-row]');
+
+    if (firstRenderedRow) {
+        const measuredHeight = firstRenderedRow.getBoundingClientRect().height;
+
+        if (measuredHeight > 0 && measuredHeight !== rowHeight) {
+            rowHeight = measuredHeight;
+
+            lastStartIndex = -1;
+            lastEndIndex = -1;
+
+            render(true);
+        }
+    }
+
+    const api = {
+        render() {
+            lastStartIndex = -1;
+            lastEndIndex = -1;
+
+            render(true);
+        },
+
+        sortSelectedFirst,
+
+        sortByColumn,
+
+        querySelectorAll,
+
+        hasControlId(controlId) {
+            return rowsByControlId.has(controlId);
+        },
+
+        destroy() {
+            if (destroyed) {
+                return;
+            }
+            destroyed = true;
+            delete list.dataset.virtualized;
+
+            list.removeEventListener('scroll', handleScroll);
+            form?.removeEventListener('formdata', handleFormData);
+
+            resizeObserver.disconnect();
+
+            if (rafId !== null) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
+            allItems.forEach(({ row }) => {
+                if (!row) return;
+                window.unmountReactComponents?.(row);
+                delete row._virtualListOwner;
+            });
+            rowsByControlId.clear();
+            removeVirtualRows();
+
+            delete list._virtualList;
+        },
+        searchItems,
+    };
+
+    list._virtualList = api;
+    dispatchVirtualListUpdate();
+
+    return api;
+};
 /**
  * Search item for ETL
  * @returns {string}
@@ -1337,11 +1896,26 @@ const createGroupTable = (data, isSnowFlake) => {
  * Count variables in a parent container and update count display
  * @param {string} parentId
  * @param {string} groupId
+ * @param {?number} delta - known change of the checked count (+1/-1) of a single variable.
+ *                          Scanning every item of a group is expensive for processes with many columns,
+ *                          so apply the delta directly and only re-count when the delta is unknown (null).
  */
-const countVariables = (parentId, groupId) => {
-    const selectedVariablesCount = $(`#${parentId}`)
-        .find('input[name^=GET02_VALS_SELECT]:checked')
-        .not('.checkbox-all').length;
+const countVariables = (parentId, groupId, delta = null) => {
+    const countElem = $(`#count-variables-${groupId}`);
+    if (delta && countElem.length) {
+        const currentCount = parseInt(countElem.text(), 10);
+        if (!isNaN(currentCount)) {
+            countElem.text(Math.max(currentCount + delta, 0));
+            countTotalVariables();
+            return;
+        }
+    }
+
+    const parent = document.getElementById(parentId);
+    const list = parent?.querySelector('.grouplist-checkbox-with-search');
+    const selectedVariablesCount = list?._virtualList
+        ? list._virtualList.querySelectorAll('input[name^=GET02_VALS_SELECT]:checked:not(.checkbox-all)').length
+        : $(parent).find('input[name^=GET02_VALS_SELECT]:checked').not('.checkbox-all').length;
     $(`#count-variables-${groupId}`).text(selectedVariablesCount);
     countTotalVariables();
 };
@@ -1373,15 +1947,78 @@ const countTotalVariables = () => {
     }
 };
 
+const resolveVirtualRootElement = (root) => {
+    if (!root) return null;
+    if (root.jquery) {
+        return root[0] || null;
+    }
+    if (typeof root === 'string') {
+        return document.querySelector(root);
+    }
+    return root;
+};
+
+const resolveVirtualListOwner = (element) => {
+    const rootElement = resolveVirtualRootElement(element);
+    if (!rootElement) return null;
+    const row =
+        rootElement.closest?.('li.list-group-item') ??
+        (rootElement.matches?.('li.list-group-item') ? rootElement : null);
+    return (
+        row?._virtualListOwner ?? rootElement._virtualListOwner ?? rootElement.closest?.('[data-virtualized="true"]')
+    );
+};
+
+const resolveVirtualForm = (element) => {
+    const rootElement = resolveVirtualRootElement(element);
+    const directForm = rootElement?.closest?.('form');
+    if (directForm) {
+        return directForm;
+    }
+    const virtualListOwner = resolveVirtualListOwner(rootElement);
+    if (virtualListOwner) {
+        return virtualListOwner.closest?.('form') ?? null;
+    }
+    return currentFormID ? document.querySelector(currentFormID) : null;
+};
+
+const getCheckedVariablesInOrder = (root = document) => {
+    const rootElement = resolveVirtualRootElement(root) ?? document;
+    const virtualLists = rootElement.matches?.('.grouplist-checkbox-with-search')
+        ? [rootElement, ...rootElement.querySelectorAll('.grouplist-checkbox-with-search')]
+        : rootElement.querySelectorAll('.grouplist-checkbox-with-search');
+    const selector = 'input[name^=GET02_VALS_SELECT]:checked:not(.checkbox-all)';
+    return Array.from(virtualLists)
+        .flatMap((list) =>
+            Array.from(
+                list._virtualList ? list._virtualList.querySelectorAll(selector) : list.querySelectorAll(selector),
+            ),
+        )
+        .map((input) => $(input));
+};
+
+const normalizeScopedRadioGroup = (input) => {
+    if (!input?.checked || input.type !== 'radio' || !input.name) {
+        return;
+    }
+    // Detached radios are outside the native group but still submitted by the virtual list.
+    const scopeRoot = resolveVirtualForm(input) ?? document;
+    findValidationInputs(`input[type=radio][name="${input.name}"]`, scopeRoot).each((_, radio) => {
+        if (radio !== input) {
+            radio.checked = false;
+        }
+    });
+};
+
 /**
  * Get selected variables in end-proc card
  * @param {jQuery} cardElem
  * @returns {string[]}
  */
 const getEndProcVariableSelected = (cardElem) => {
-    const listEndProcValElem = cardElem.find(`[id*="list-end-proc-val"]`);
-    const listInputValElem = listEndProcValElem.find(
+    const listInputValElem = findValidationInputs(
         'input[name*="GET02_VALS_SELECT"]:not([id*="checkbox-all-end-proc-val"]):checked',
+        cardElem,
     );
     return listInputValElem.toArray().map((e) => $(e).attr('id'));
 };
@@ -1424,7 +2061,11 @@ const onchangeJudge = (e) => {
     const parentRow = _this.parents('li');
     const facetEl = parentRow.find('[name=catExpBox]');
     const isSelfChecked = _this.prop('checked');
-    const isAnyJudgeChecked = $('input[name="judgeVar"]:checked').length > 0;
+    const formRoot = resolveVirtualForm(e) ?? document;
+    if (isSelfChecked) {
+        normalizeScopedRadioGroup(e);
+    }
+    const isAnyJudgeChecked = findValidationInputs('input[name="judgeVar"]:checked', formRoot).length > 0;
     const judgeConditionCard = $('#judgeConditionCard');
     const NGCondition = $('#NGCondition');
     const NGConditionValue = $('#NGConditionValue');
@@ -1481,41 +2122,63 @@ const searchItems = (id) => {
 /**
  * Handle search items events
  * @param {string} id
+ * @param {string} parentId
+ * @param {object} props
+ * @param {string[]} itemIds
  */
-const handleSearchItems = (id) => {
-    initCommonSearchInput($(`#search-${id}`), 'flex-grow-1');
-    const parent = $(`#search-${id}`).closest('.form-group');
+const handleSearchItems = (id, parentId, props, itemIds) => {
+    const searchInput = $(`#search-${id}`);
+    initCommonSearchInput(searchInput, 'flex-grow-1');
+    const parent = searchInput.closest('.form-group');
     const currentParentDivId = parent.length > 0 ? parent[0].id : null;
     if (!currentParentDivId) return;
 
-    const originalCheckBoxs = $(`#${currentParentDivId} li`);
+    const parentElement = document.getElementById(currentParentDivId);
+    const virtualLists = Array.from(parentElement.querySelectorAll('[data-virtualized="true"]')).filter(
+        (list) => list._virtualList,
+    );
+    const originalRows = new Set(parentElement.querySelectorAll('li'));
+    virtualLists.forEach((list) => {
+        list._virtualList.querySelectorAll('li').forEach((row) => originalRows.add(row));
+    });
+    const originalCheckBoxs = $([...originalRows]);
     let selectedEls = [];
     const sensorListID = `#list-${id}`;
+    const isVariableSelection = /VALS_SELECT/.test(props.name);
+    const filterCard = parent.closest('.cond-proc');
 
-    // multi select search with input immediately
-    $(`#search-${id}`).off('keypress input');
-    $(`#search-${id}`).on('keypress input', (event) => {
+    const handleSearchInput = debounce((event) => {
         const searchEle = event.currentTarget;
         let value = stringNormalization(searchEle.value.toLowerCase());
-        // event.target.value = value;
-
         value = makeRegexForSearchCondition(value);
 
         const regex = new RegExp(value, 'i');
-        selectedEls = $(`#${searchEle.closest('.form-group').id} li`).filter(function f(index) {
+        const formId = searchEle.closest('.form-group').id;
+        const isEnter = event.keyCode === KEY_CODE.ENTER;
+
+        if (virtualLists.length) {
+            const matchedRows = virtualLists.flatMap((list) =>
+                list._virtualList.searchItems(value, {
+                    resetScroll: true,
+                    showAll: isEnter,
+                }),
+            );
+            selectedEls = $(matchedRows);
+            return;
+        }
+
+        selectedEls = $(`#${formId} li`).filter(function f(index) {
             const searchEls = $(this).find('.search-col');
             searchEls.removeClass('gray');
-            const val = searchEls.text().toLowerCase();
-            // keep to show first (header) row as index = 0
+            const searchText = searchEls.text().toLowerCase();
             if (index) {
-                $(this).toggle(regex.test(val));
-
-                return regex.test(val);
+                $(this).toggle(regex.test(searchText));
+                return regex.test(searchText);
             }
             return false;
         });
 
-        if (event.keyCode === KEY_CODE.ENTER) {
+        if (isEnter) {
             $(`#${searchEle.closest('.form-group').id} li`).filter(function () {
                 const searchEls = $(this).find('.search-col');
                 const val = searchEls.text().toLowerCase();
@@ -1532,35 +2195,90 @@ const handleSearchItems = (id) => {
                 return regex.test(val);
             });
         }
+    }, 200);
+    // multi select search with input immediately
+    searchInput.off('.virtualListSearch').on('keypress.virtualListSearch input.virtualListSearch', (event) => {
+        handleSearchInput(event);
     });
 
     // handle on click set selected items button
-    $(`#setBtnSearch-${id}`).on('click', function () {
-        selectedEls.find('input.main-checkbox').prop('checked', true).trigger('change');
-        sortCheckItems();
-    });
+    $(`#setBtnSearch-${id}`)
+        .off('.virtualListSearch')
+        .on('click.virtualListSearch', function () {
+            // Keep list order: jQuery.find would move rendered rows ahead of detached virtual rows.
+            let checkboxes = $(
+                $(selectedEls)
+                    .toArray()
+                    .flatMap((row) =>
+                        Array.from(row.querySelectorAll('input.main-checkbox:not(:checked):not(:disabled)')),
+                    ),
+            );
+            if (isVariableSelection && MAX_NUMBER_OF_SENSOR) {
+                // Checking every match evicts the oldest selections first, so only the last
+                // MAX_NUMBER_OF_SENSOR matches can survive; skip the ones that would be evicted anyway.
+                checkboxes = checkboxes.slice(-MAX_NUMBER_OF_SENSOR);
+            }
+            checkboxes.prop('checked', true);
+            // Detached virtual rows cannot bubble an ownership change to the filter card.
+            if (checkboxes.length) filterCard.removeData('autoEndProcFilter');
+            if (isVariableSelection) {
+                // Keep batch metadata off extra arguments used as callbacks by other change handlers.
+                checkboxes.each((_, checkbox) => {
+                    $(checkbox).trigger($.Event('change', { deferGroupUpdate: true }));
+                });
+            }
+            updateCheckboxGroupState(id, itemIds);
+            countVariables(parentId, props.groupIDx);
+            sortCheckItems();
+        });
 
     // handle on click reset selected items button
-    $(`#resetBtnSearch-${id}`).on('click', function () {
-        const checkBoxNoFilter = originalCheckBoxs.find('input.checkbox-no-filter');
-        if (checkBoxNoFilter.length && !selectedEls.length) {
-            // reset in filter component
-            originalCheckBoxs.parent().find('input[name=thresholdBox]').prop('checked', false).trigger('change');
-            checkBoxNoFilter.prop('checked', true).trigger('change');
-        }
-        if (selectedEls.length) {
-            // reset only searched element
-            selectedEls.find('input.main-checkbox').prop('checked', false).trigger('change');
-        }
-        if (!selectedEls.length && !checkBoxNoFilter.length) {
-            // reset all input, select
-            originalCheckBoxs.parent().find('input[type=checkbox]').prop('checked', false).trigger('change');
-            originalCheckBoxs.parent().find('input[type=radio]').prop('checked', false).trigger('change');
-            originalCheckBoxs.parent().find('select').val('').trigger('change');
-        }
+    $(`#resetBtnSearch-${id}`)
+        .off('.virtualListSearch')
+        .on('click.virtualListSearch', function () {
+            const checkBoxNoFilter = originalCheckBoxs.find('input.checkbox-no-filter');
+            if (filterCard.length && !selectedEls.length) {
+                const hasSelection =
+                    originalCheckBoxs.find('input:checked:not(.checkbox-no-filter)').length > 0 ||
+                    (!checkBoxNoFilter.length &&
+                        originalCheckBoxs
+                            .find('select')
+                            .toArray()
+                            .some((select) => $(select).val() != null && $(select).val() !== ''));
+                // Reset handlers emit change even on a no-op; keep untouched automatic filters owned.
+                if (!hasSelection && (!checkBoxNoFilter.length || checkBoxNoFilter.prop('checked'))) {
+                    sortCheckItems();
+                    return;
+                }
+                filterCard.removeData('autoEndProcFilter');
+            }
+            if (checkBoxNoFilter.length && !selectedEls.length) {
+                // reset in filter component
+                originalCheckBoxs.find('input[name=thresholdBox]').prop('checked', false).trigger('change');
+                checkBoxNoFilter.prop('checked', true).trigger('change');
+            }
+            if (selectedEls.length) {
+                // reset only searched element
+                const checkboxes = selectedEls.find('input.main-checkbox:is(:checked)');
+                checkboxes.prop('checked', false);
+                if (checkboxes.length) filterCard.removeData('autoEndProcFilter');
+                if (isVariableSelection) {
+                    checkboxes.each((_, checkbox) => {
+                        $(checkbox).trigger($.Event('change', { deferGroupUpdate: true }));
+                    });
+                }
+                updateCheckboxGroupState(id, itemIds);
+                countVariables(parentId, props.groupIDx);
+            }
+            if (!selectedEls.length && !checkBoxNoFilter.length) {
+                // reset all input, select
+                originalCheckBoxs.find('input[type=checkbox]').prop('checked', false).trigger('change');
+                originalCheckBoxs.find('input[type=radio]').prop('checked', false).trigger('change');
+                originalCheckBoxs.find('select').val('').trigger('change');
+            }
 
-        sortCheckItems();
-    });
+            sortCheckItems();
+        });
 
     const sortCheckItems = () => {
         const isChanged = sortHtmlElements($(sensorListID));
@@ -1721,6 +2439,7 @@ const cardRemovalByClick = (parentId = '', callbackFunc = null, dicParams = null
                         if (groupId !== undefined) {
                             document.dispatchEvent(new CustomEvent('processChanged', { detail: { groupId } }));
                         }
+                        destroyVirtualLists(card[0]);
                         card.find('*').off().empty();
                         card.parent().remove();
                         countTotalVariables();
@@ -1801,7 +2520,8 @@ const condLineOnChange = async (
     prefix = '',
     { isNew = false, is_pca_filter = false, showThresholdBox = true } = {},
 ) => {
-    const selectedProc = $(`#${prefix}cond-proc-process-${count}`).val();
+    const processSelect = $(`#${prefix}cond-proc-process-${count}`)[0];
+    const selectedProc = $(processSelect).val();
     if (selectedLines.length === 0) {
         $(`#${prefix}cond-proc-machine-div-${count}`).css('display', 'none');
         $(`#${prefix}cond-proc-machine-${count}`).remove();
@@ -1819,6 +2539,13 @@ const condLineOnChange = async (
 
         if (!isEmpty(procInfo)) {
             await procInfo.updateFilters();
+            if (
+                !processSelect?.isConnected ||
+                processSelect.value !== selectedProc ||
+                document.getElementById(`${prefix}cond-proc-process-${count}`) !== processSelect
+            ) {
+                return;
+            }
             const machineFilter = procInfo.getOneFilterByType(filterTypes.MACHINE);
             if (machineFilter) {
                 const filterDetails = machineFilter.filter_details || [];
@@ -1907,11 +2634,21 @@ const condProcOnChange = async (
     allowCallInnerFunc = true,
     showThresholdBox = true,
 ) => {
+    const processSelect = document.getElementById(`${prefix}cond-proc-process-${count}`);
+    const selectedProc = selectedProcId || $(processSelect).val();
+    // A stale explicit process must not clear the current card's filters.
+    if (
+        !processSelect?.isConnected ||
+        processSelect.value !== String(selectedProc) ||
+        document.getElementById(`${prefix}cond-proc-process-${count}`) !== processSelect
+    ) {
+        return;
+    }
+
     // remove old elements
     clearFilterContent(prefix, count);
 
     // selected process
-    const selectedProc = selectedProcId || $(`#${prefix}cond-proc-process-${count}`).val();
     if (isEmpty(selectedProc) && allowCallInnerFunc) {
         checkIfProcessesAreLinked();
         return;
@@ -1922,6 +2659,13 @@ const condProcOnChange = async (
 
     // update proc filters
     await procInfo.updateFilters();
+    if (
+        !processSelect?.isConnected ||
+        processSelect.value !== String(selectedProc) ||
+        document.getElementById(`${prefix}cond-proc-process-${count}`) !== processSelect
+    ) {
+        return;
+    }
 
     const [lineIds, lineVals] = getFilterByTypes(procInfo, filterTypes.LINE);
 
@@ -2164,6 +2908,10 @@ const handleSyncFilterDataAfterCloseModal = ($partialViewModal) => {
             const parentFormId = $this.data('parent-from-id');
             const procId = $this.val();
             const isPCAFilter = $this.data('is-pca-filter') === 'true';
+            const isCurrentSelection = () =>
+                element.isConnected &&
+                element.value === procId &&
+                document.getElementById(`${prefix}cond-proc-process-${count}`) === element;
 
             if (procId) {
                 // Snapshot currently checked checkbox values within this cond-proc card
@@ -2178,7 +2926,13 @@ const handleSyncFilterDataAfterCloseModal = ($partialViewModal) => {
                     .map((_, el) => $(el).val())
                     .get();
                 await procConfigs[procId].updateProcFilters();
+                if (!isCurrentSelection()) {
+                    return;
+                }
                 await condProcOnChange(procId, count, prefix, parentFormId, isPCAFilter, false);
+                if (!isCurrentSelection()) {
+                    return;
+                }
 
                 // Re-apply previously checked values if they still exist
                 if (prevCheckedVals && prevCheckedVals.length) {
@@ -2257,11 +3011,14 @@ const changeFacetLevel = (e) => {
         $(e).val('');
     }
     const currentSelectedID = $(e).attr('id');
-    const formID = $(e).closest('form').attr('id');
-    const currentTabID = '';
+    const formElement = resolveVirtualForm(e);
+    const formID = formElement?.id || '';
     const judgeEl = $(e).parents('li').find('[name=judgeVar]:checked');
-
-    const findSameLevelSet = $(`#${currentTabID}end-proc-row select[name=catExpBox][id!=${currentSelectedID}]`);
+    const facetScope =
+        formElement?.querySelector('#end-proc-row') ?? document.getElementById('end-proc-row') ?? formElement;
+    const findSameLevelSet = findValidationInputs('select[name=catExpBox]', facetScope).filter(
+        (_, sel) => sel.id !== currentSelectedID,
+    );
     if (currentLevelSet === facetLevels.LV_1) {
         $(findSameLevelSet).each((_, sel) => {
             if ($(sel).val() === facetLevels.LV_1) {
@@ -2540,19 +3297,22 @@ const genFullCategoryData = (categoryIds, stepChartDat, allGroupNames) => {
  * Handle objective variable change event
  */
 const changeObjectiveVarEvent = (e) => {
-    const stringColInputElms = $('.is-string-col input');
-    const stringColLabelElms = $('.is-string-col label');
-    const hasObjectiveCol = $('input[name=objectiveVar]:checked').length;
+    const formRoot = resolveVirtualForm(e) ?? document;
+    if (e.checked) {
+        normalizeScopedRadioGroup(e);
+    }
+    const stringColInputElms = findValidationInputs('.is-string-col input', formRoot);
+    const stringColLabelElms = findValidationInputs('.is-string-col label', formRoot);
+    const hasObjectiveCol = findValidationInputs('input[name=objectiveVar]:checked', formRoot).length;
     if (!hasObjectiveCol) {
         // reset all Str cols which are already checked
         stringColInputElms.removeClass('show-ele');
         stringColLabelElms.removeClass('show-ele');
-        stringColLabelElms.each(function () {
-            const beforeStyle = window.getComputedStyle(this, '::before');
-            if (beforeStyle && beforeStyle.visibility === 'hidden') {
-                $(this).parent().find('input').prop('checked', false).trigger('change');
-            }
-        });
+        if (getCurrentPage() === 'gl') {
+            stringColInputElms.filter('input[type=checkbox][name^=GET02_VALS_SELECT]:checked').each((_, input) => {
+                $(input).prop('checked', false).trigger('change');
+            });
+        }
     } else {
         stringColInputElms.addClass('show-ele');
         stringColLabelElms.addClass('show-ele');
@@ -2733,21 +3493,18 @@ const tooltipsToggle = (ele) => {
 };
 
 /**
- * Get selected label and filter values
+ * Get selected labels and filters, including detached virtual-list controls.
  * @returns {number[][]}
  */
 const getLabelAndFilterValues = () => {
-    const categoriesFilter = $('input[id^=categoryFilter]:checked')
-        .map(function () {
-            return parseInt($(this).val());
-        })
-        .get();
-    const categoriesLabel = $('input[id^=categoryLabel]:checked')
-        .map(function () {
-            return parseInt($(this).val());
-        })
-        .get();
-    return [categoriesLabel, categoriesFilter];
+    return ['categoryLabel', 'categoryFilter'].map((prefix) => {
+        const selector = `input[id^="${prefix}"]:checked`;
+        const inputs = new Set(document.querySelectorAll(selector));
+        document.querySelectorAll('[data-virtualized="true"]').forEach((list) => {
+            list._virtualList?.querySelectorAll(selector).forEach((input) => inputs.add(input));
+        });
+        return [...inputs].map((input) => parseInt(input.value, 10));
+    });
 };
 
 /**
@@ -2756,18 +3513,49 @@ const getLabelAndFilterValues = () => {
  */
 const toggleWidth = (event) => {
     event.stopPropagation();
-    const ulEl = $(event.target).closest('ul');
-    const isExtendSystemName = ulEl.find('.sys-name').hasClass('extended-width-sys-name');
-    if (!isExtendSystemName) {
-        ulEl.find('.sys-name').removeClass('default-width-sys-name').addClass('extended-width-sys-name');
-        ulEl.find('.jp-name').css({ width: '20%', flex: 'unset' });
-        ulEl.find('#btn-extend-toggle').html('&#x27FD;').attr('title', $('#i18nExtentVariableNameLonger').text());
-        ulEl.find('span[idx="0"]').show();
+    const ulEl = event.target.closest('ul');
+    if (ulEl._virtualList) {
+        const systemNames = $(ulEl._virtualList.querySelectorAll('.sys-name'));
+        if (systemNames.hasClass('extended-width-sys-name')) {
+            $(ulEl)
+                .find('li.keep-header .sys-name')
+                .removeClass('extended-width-sys-name')
+                .addClass('default-width-sys-name');
+            systemNames.removeClass('extended-width-sys-name').addClass('default-width-sys-name');
+            $(ulEl).find('li.keep-header .jp-name').css({ width: '', flex: '1' });
+            $(ulEl._virtualList.querySelectorAll('.jp-name')).css({ width: '', flex: '1' });
+            $(ulEl).find('#btn-extend-toggle').html('&#x27FE;').attr('title', $('#i18nExtentSysNameLonger').text());
+            $(ulEl).find('span[idx="0"]').hide();
+        } else {
+            $(ulEl)
+                .find('li.keep-header .sys-name')
+                .removeClass('default-width-sys-name')
+                .addClass('extended-width-sys-name');
+            systemNames.removeClass('default-width-sys-name').addClass('extended-width-sys-name');
+            $(ulEl).find('li.keep-header .jp-name').css({ width: '20%', flex: 'unset' });
+            $(ulEl._virtualList.querySelectorAll('.jp-name')).css({ width: '20%', flex: 'unset' });
+            $(ulEl)
+                .find('#btn-extend-toggle')
+                .html('&#x27FD;')
+                .attr('title', $('#i18nExtentVariableNameLonger').text());
+            $(ulEl).find('span[idx="0"]').show();
+        }
     } else {
-        ulEl.find('.sys-name').removeClass('extended-width-sys-name').addClass('default-width-sys-name');
-        ulEl.find('.jp-name').css({ width: '', flex: '1' });
-        ulEl.find('#btn-extend-toggle').html('&#x27FE;').attr('title', $('#i18nExtentSysNameLonger').text());
-        ulEl.find('span[idx="0"]').hide();
+        const isExtendSystemName = $(ulEl).find('.sys-name').hasClass('extended-width-sys-name');
+        if (!isExtendSystemName) {
+            $(ulEl).find('.sys-name').removeClass('default-width-sys-name').addClass('extended-width-sys-name');
+            $(ulEl).find('.jp-name').css({ width: '20%', flex: 'unset' });
+            $(ulEl)
+                .find('#btn-extend-toggle')
+                .html('&#x27FD;')
+                .attr('title', $('#i18nExtentVariableNameLonger').text());
+            $(ulEl).find('span[idx="0"]').show();
+        } else {
+            $(ulEl).find('.sys-name').removeClass('extended-width-sys-name').addClass('default-width-sys-name');
+            $(ulEl).find('.jp-name').css({ width: '', flex: '1' });
+            $(ulEl).find('#btn-extend-toggle').html('&#x27FE;').attr('title', $('#i18nExtentSysNameLonger').text());
+            $(ulEl).find('span[idx="0"]').hide();
+        }
     }
 };
 
@@ -2957,4 +3745,21 @@ const attachYTitleHovers = (canvasID) => {
     $barChart.on('mouseleave', yTitleSelector, function () {
         hideTickLabelTooltip();
     });
+};
+
+const updateCheckboxGroupState = (id, itemIds) => {
+    const list = document.getElementById(`list-${id}`);
+    const selector = '.main-checkbox:not([name="thresholdBox"])';
+    const $mainCheckboxes = $(
+        list?._virtualList ? list._virtualList.querySelectorAll(selector) : $(`#${id}`).find(selector),
+    );
+
+    const checkedCount = $mainCheckboxes.filter(':checked').length;
+
+    const isAllChecked = checkedCount === itemIds.length;
+    const isNoneChecked = checkedCount === 0;
+
+    $(`#${id} .checkbox-all`).prop('checked', isAllChecked);
+
+    $(`#${id} .checkbox-no-filter`).prop('checked', isNoneChecked);
 };

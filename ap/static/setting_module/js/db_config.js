@@ -256,6 +256,100 @@ const toggleFileSelectConditionInputs = (isFilePath) => {
     }
 };
 
+let csvPreviewColumns = [];
+let csvPreviewRows = [];
+let csvPreviewVirtualScrollHandler = null;
+let csvPreviewVirtualRafId = null;
+
+const CSV_PREVIEW_COLUMN_WIDTH = 180;
+const CSV_PREVIEW_OVERSCAN = 10;
+const CSV_PREVIEW_COLUMN_STYLE = `box-sizing:border-box;min-width:${CSV_PREVIEW_COLUMN_WIDTH}px;width:${CSV_PREVIEW_COLUMN_WIDTH}px;max-width:${CSV_PREVIEW_COLUMN_WIDTH}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis`;
+
+const escapeCsvPreviewTitle = (value) =>
+    String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+const renderVirtualCsvPreview = (force = false) => {
+    const container = document.querySelector(csvResourceElements.dataTbl);
+    if (!container || !csvPreviewColumns.length) return;
+
+    const table = container.querySelector('table');
+    const headerRow = table?.querySelector('thead tr');
+    const tbody = table?.querySelector('tbody');
+    if (!table || !headerRow || !tbody) return;
+
+    const visibleCount = Math.ceil(container.clientWidth / CSV_PREVIEW_COLUMN_WIDTH);
+    const firstVisibleIndex = Math.floor(container.scrollLeft / CSV_PREVIEW_COLUMN_WIDTH);
+    const startIndex = Math.max(0, firstVisibleIndex - CSV_PREVIEW_OVERSCAN);
+    const endIndex = Math.min(csvPreviewColumns.length, firstVisibleIndex + visibleCount + CSV_PREVIEW_OVERSCAN);
+
+    if (!force && Number(table.dataset.virtualStart) === startIndex && Number(table.dataset.virtualEnd) === endIndex) {
+        return;
+    }
+    table.dataset.virtualStart = startIndex;
+    table.dataset.virtualEnd = endIndex;
+
+    const leftWidth = startIndex * CSV_PREVIEW_COLUMN_WIDTH;
+    const rightWidth = (csvPreviewColumns.length - endIndex) * CSV_PREVIEW_COLUMN_WIDTH;
+    const spacer = (tag, width) =>
+        width > 0
+            ? `<${tag} class="csv-preview-virtual-spacer" style="min-width:${width}px;width:${width}px;padding:0;border:0"></${tag}>`
+            : '';
+
+    let headerHtml = spacer('th', leftWidth);
+    for (let idx = startIndex; idx < endIndex; idx++) {
+        const column = csvPreviewColumns[idx];
+        headerHtml += `<th style="${CSV_PREVIEW_COLUMN_STYLE}">
+            <input id="col-${idx}" class="data-type-predicted" value="${column.datatype}" type="hidden">
+            <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+                <label class="column-name${column.columnColor}" for="" title="${escapeCsvPreviewTitle(column.name)}">${column.name}</label>
+            </div>
+        </th>`;
+    }
+    headerHtml += spacer('th', rightWidth);
+    headerRow.innerHTML = headerHtml;
+
+    const rowsHtml = csvPreviewRows
+        .map((row) => {
+            let rowHtml = `<tr>${spacer('td', leftWidth)}`;
+            for (let idx = startIndex; idx < endIndex; idx++) {
+                const cell = row[idx];
+                rowHtml += `<td data-original="${cell.rawVal}" class="${cell.columnColor}" style="${CSV_PREVIEW_COLUMN_STYLE}" title="${escapeCsvPreviewTitle(cell.rawVal)}">${cell.rawVal}</td>`;
+            }
+            return `${rowHtml}${spacer('td', rightWidth)}</tr>`;
+        })
+        .join('');
+    tbody.innerHTML = rowsHtml;
+};
+
+const initVirtualCsvPreview = () => {
+    const container = document.querySelector(csvResourceElements.dataTbl);
+    if (!container) return;
+
+    if (csvPreviewVirtualScrollHandler) {
+        container.removeEventListener('scroll', csvPreviewVirtualScrollHandler);
+    }
+    csvPreviewVirtualScrollHandler = () => {
+        if (csvPreviewVirtualRafId) return;
+        csvPreviewVirtualRafId = requestAnimationFrame(() => {
+            csvPreviewVirtualRafId = null;
+            renderVirtualCsvPreview();
+        });
+    };
+    container.addEventListener('scroll', csvPreviewVirtualScrollHandler, { passive: true });
+    // A previous data source may have left the grid scrolled to the right; without this the
+    // first window is computed from that stale offset and the user sees empty spacers.
+    container.scrollLeft = 0;
+    renderVirtualCsvPreview(true);
+};
+
+// Forget the columns of the preview that is no longer on screen. getCsvColumns() reads this
+// array when saving, so leaving a previous data source's columns behind would let them be
+// written to the data source being edited now.
+const clearCsvPreviewState = () => {
+    csvPreviewColumns = [];
+    csvPreviewRows = [];
+};
+
 const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true) => {
     $(csvResourceElements.fileName).text(res.file_name);
     $(`${csvResourceElements.dataTbl} table thead tr`).html('');
@@ -274,43 +368,32 @@ const showLatestRecordsFromDS = (res, hasDT = true, useSuffix = true) => {
     const predictedDatatypes = res.dataType;
     const dummyDatetimeIdx = res.dummy_datetime_idx;
     const colsName = useSuffix ? res.header : res.org_headers;
-    colsName.forEach((column, idx) => {
+
+    csvPreviewColumns = colsName.map((column, idx) => {
         let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
         const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
         if (isDuplCol) {
             columnColor += ' dupl_col';
             hasDuplCols = true;
         }
-        const datatype = predictedDatatypes[idx];
-        const tblHeader = `<th>
-                    <input id="col-${idx}" class="data-type-predicted" value="${datatype}" type="hidden">
-                    <div class="">
-                        <label class="column-name${columnColor}" for="">${column}</label>
-                    </div>
-                </th>`;
-        $(`${csvResourceElements.dataTbl} table thead tr`).append(tblHeader);
+        return { name: column, datatype: predictedDatatypes[idx], columnColor };
     });
 
-    res.content.forEach((row) => {
-        let rowContent = '<tr>';
-        row.forEach((val, idx) => {
-            const datatype = predictedDatatypes[idx];
+    csvPreviewRows = res.content.map((row) =>
+        row.map((val, idx) => {
             let columnColor = dummyDatetimeIdx === idx ? ' dummy_datetime_col' : '';
             const isDuplCol = res.has_dupl_cols ? res.same_values[idx].is_dupl : false;
-            if (isDuplCol) {
-                columnColor += ' dupl_col';
-            }
-            const rawVal = trimBoth(String(val));
-            rowContent += `<td data-original="${rawVal}" class="${columnColor}">${rawVal}</td>`;
-        });
-        rowContent += '</tr>';
-        $(`${csvResourceElements.dataTbl} table tbody`).append(rowContent);
-    });
+            if (isDuplCol) columnColor += ' dupl_col';
+            return { rawVal: trimBoth(String(val)), columnColor };
+        }),
+    );
+
+    $(`${csvResourceElements.dataTbl}`).show();
+    initVirtualCsvPreview();
     csvResourceElements.csvFileName = res.file_name;
     $(csvResourceElements.skipHead).val(res.skip_head);
     $(csvResourceElements.skipTail).val(res.skip_tail);
     $(csvResourceElements.isFileChecker).val(res.is_file_checker);
-    $(`${csvResourceElements.dataTbl}`).show();
     if (!isV2) {
         updateBtnStyleWithValidation($(csvResourceElements.csvSubmitBtn), false);
         if (res.file_name && hasDT && ((res.has_dupl_cols && useSuffix) || !res.has_dupl_cols)) {
@@ -427,6 +510,7 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
 
             // hide preview table
             $(csvResourceElements.dataTbl).hide();
+            clearCsvPreviewState();
             disabledSaveDBBtn();
             return;
         }
@@ -491,6 +575,7 @@ const showResources = async (isFilePath = undefined, isValidFolder = undefined, 
                 });
                 $(csvResourceElements.dataTbl).hide();
                 $(csvResourceElements.fileName).hide();
+                clearCsvPreviewState();
                 disabledSaveDBBtn();
                 return;
             }
@@ -609,33 +694,13 @@ const validateDBName = () => {
     };
 };
 
-const validateExistDBName = (dbName) => {
-    let isOk = true;
+const validateExistDBName = async (dbName) => {
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
-    const currentName = currentDSTR.find('input[name="name"]').val();
 
-    const getFormData = genJsonfromHTML('#tblDbConfig', 'root', true);
-    const dbNames = getFormData('name');
-
-    if (dbNames.root.name != '') {
-        // 既存レコードを修正案する場合。
-        if (dataSrcId) {
-            const index = dbNames.root.name.indexOf(currentName);
-            if (index > -1) {
-                dbNames.root.name.splice(index, 1);
-            }
-        }
-
-        for (let i = 0; i < dbNames.root.name.length; i++) {
-            if (dbNames.root.name[i] === dbName) {
-                isOk = false;
-                break;
-            }
-        }
-    }
+    const isDuplicated = await checkDuplicatedDataSourceNameFromDB(dbName, dataSrcId);
 
     return {
-        isOk,
+        isOk: !isDuplicated,
         message: $(dbConfigElements.i18nDbSourceExist).text(),
     };
 };
@@ -697,6 +762,7 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
             // データソース名とコメントの値を設定する。
             const dbType = getDbType(dsConfig.id);
             currentDSTR.find(`input[name="${itemName}"]`).val($(`#${dbType.toLowerCase()}_dbsourcename`).val());
+            currentDSTR.find(`input[name="${itemName}"]`).closest('td').attr('title', dsConfig.name);
             currentDSTR.find('textarea[name="comment"]').val($(`#${dbType.toLowerCase()}_comment`).val());
 
             PollingFrequencyOption.updateOptionsPollingFre(
@@ -785,6 +851,7 @@ const saveDataSource = (dsCode, dsConfig, isDirectlyImport = false) => {
 
             // データソース名とコメントの値を設定する。
             currentDSTR.find(`input[name="${itemName}"]`).val(dsConfig.name);
+            currentDSTR.find(`input[name="${itemName}"]`).closest('td').attr('title', dsConfig.name);
             currentDSTR.find('textarea[name="comment"]').val(dsConfig.comment);
             PollingFrequencyOption.updateOptionsPollingFre(
                 currentDSTR,
@@ -855,6 +922,7 @@ const saveV2DataSource = (dsConfig) => {
 
                 // データソース名とコメントの値を設定する。
                 currentDSTR.find(`input[name="${itemName}"]`).val(dbs.name);
+                currentDSTR.find(`input[name="${itemName}"]`).closest('td').attr('title', dbs.name);
                 currentDSTR.find('textarea[name="comment"]').val(dbs.comment);
                 currentDSTR.find('select[name="type"]').val(dbs.type);
                 PollingFrequencyOption.updateOptionsPollingFre(
@@ -962,23 +1030,22 @@ const getCsvColumns = () => {
     const columnNames = [];
     const columnTypes = [];
     const orders = [];
-    // $(csvResourceElements.dataTypeSelector).each((i, item) => {
-    $(csvResourceElements.dataTypePredicted).each((i, item) => {
-        const columnName = $(`#col-${i}`).parent().find(csvResourceElements.columnName).text();
+    csvPreviewColumns.forEach((column, i) => {
         let dataType;
-        if (parseInt($(item).val(), 10) === DataTypes.NONE.value) {
+        if (parseInt(column.datatype, 10) === DataTypes.NONE.value) {
             dataType = originalTypes[3];
         } else {
-            dataType = originalTypes[$(item).val()];
+            dataType = originalTypes[column.datatype];
         }
         columnTypes.push(dataType);
-        columnNames.push(columnName);
+        // .text() used to stringify this; numeric dummy headers must stay strings
+        columnNames.push(String(column.name));
         orders.push(i + 1);
     });
     return [columnNames, columnTypes, orders];
 };
 
-const validateCsvInfo = (isV2) => {
+const validateCsvInfo = async (isV2) => {
     if (!validateDBName().isOk) {
         displayRegisterMessage('#alert-msg-csvDbname', {
             message: validateDBName().message,
@@ -988,9 +1055,10 @@ const validateCsvInfo = (isV2) => {
     }
 
     // データベース名の存在をチェックする。
-    if (!validateExistDBName($(dbConfigElements.csvDBSourceName).val()).isOk && !isV2) {
+    const validateDBSName = await validateExistDBName($(dbConfigElements.csvDBSourceName).val());
+    if (!validateDBSName.isOk && !isV2) {
         displayRegisterMessage('#alert-msg-csvDbname', {
-            message: validateExistDBName().message,
+            message: validateDBSName.message,
             is_error: true,
         });
         return false;
@@ -1101,14 +1169,15 @@ const genCsvInfo = async () => {
     return dictDataSrc;
 };
 
-const validateV2CSVDBSources = (dbs) => {
+const validateV2CSVDBSources = async (dbs) => {
     // check duplicated db name
     let isDuplicatedDBName = false;
     for (const v2Dbs of dbs) {
         const dbName = v2Dbs.name;
-        if (!validateExistDBName(dbName).isOk) {
+        const validateDBSName = await validateExistDBName(dbName);
+        if (!validateDBSName.isOk) {
             displayRegisterMessage('#alert-msg-csvDbname', {
-                message: validateExistDBName().message,
+                message: validateDBSName.message,
                 is_error: true,
             });
             isDuplicatedDBName = true;
@@ -1126,7 +1195,7 @@ const saveCSVDataSource = async (isV2 = false) => {
         // update V2 process data to dictDataSrc
         const v2DatasourceByProcess = getV2ProcessData(dictDataSrc);
 
-        if (validateV2CSVDBSources(v2DatasourceByProcess)) return;
+        if (await validateV2CSVDBSources(v2DatasourceByProcess)) return;
         hideAlertMessages();
         if (v2DatasourceByProcess.length > 1) {
             // show modal messenger
@@ -1162,7 +1231,7 @@ const saveCSVInfo = async () => {
         return;
     }
     const isV2 = $(csvResourceElements.csvSubmitBtn).attr('data-isV2') === 'true';
-    if (validateCsvInfo(isV2)) {
+    if (await validateCsvInfo(isV2)) {
         await saveCSVDataSource(isV2);
     }
 };
@@ -1172,7 +1241,7 @@ const saveCSVInfo = async () => {
 // const saveDBDataSource
 
 // DBInfoの入力をチェックする
-const validateDBInfo = () => {
+const validateDBInfo = async () => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
     const dbType = getDbType(dbItemId);
     const dbTypePrefix = dbType.toLowerCase();
@@ -1203,9 +1272,10 @@ const validateDBInfo = () => {
     }
 
     // データベース名の存在をチェックする。
-    if (!validateExistDBName($(`#${dbTypePrefix}_dbsourcename`).val()).isOk) {
+    const validateDBSName = await validateExistDBName($(`#${dbTypePrefix}_dbsourcename`).val());
+    if (!validateDBSName.isOk) {
         displayRegisterMessage(`#alert-${dbTypePrefix}-validation`, {
-            message: validateExistDBName().message,
+            message: validateDBSName.message,
             is_error: true,
         });
         return false;
@@ -1316,23 +1386,23 @@ const saveDBDataSource = (dataSrcId, dictDataSrc) => {
     $('.modal').modal('hide');
 };
 
-const saveDBInfo = () => {
-    if (validateDBInfo()) {
+const saveDBInfo = async () => {
+    if (await validateDBInfo()) {
         const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
         const dictDataSrc = genDBInfo();
         saveDBDataSource(dataSrcId, dictDataSrc);
     }
 };
 
-const saveDBSourceWeb = () => {
+const saveDBSourceWeb = async () => {
     const dictDataSrc = genWebInfo();
-    if (validateWebInfor(dictDataSrc)) {
+    if (await validateWebInfor(dictDataSrc)) {
         const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
         saveDBDataSource(dataSrcId, dictDataSrc);
     }
 };
 
-const validateWebInfor = (dictDataSrc) => {
+const validateWebInfor = async (dictDataSrc) => {
     const dbItemId = currentDSTR.attr(csvResourceElements.dataSrcId);
     const dbType = getDbType(dbItemId);
     const domDBPrefix = dbType.toLowerCase();
@@ -1377,9 +1447,10 @@ const validateWebInfor = (dictDataSrc) => {
     }
 
     // データベース名の存在をチェックする。
-    if (!validateExistDBName($(`#${domDBPrefix}_dbsourcename`).val()).isOk) {
+    const validateDBSName = await validateExistDBName($(`#${domDBPrefix}_dbsourcename`).val());
+    if (!validateDBSName.isOk) {
         displayRegisterMessage(`#alert-${domDBPrefix}-validation`, {
-            message: validateExistDBName().message,
+            message: validateDBSName.message,
             is_error: true,
         });
         return false;
@@ -1831,6 +1902,7 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             // Default selected
             $(csvResourceElements.alertMsgCheckFolder).hide();
             $(csvResourceElements.dataTbl).hide();
+            clearCsvPreviewState();
 
             $(`${dbConfigElements.csvModal} #okBtn`).attr('data-ds-id', dictDataSrc.id);
             $(`${dbConfigElements.csvModal} #showResources`).attr('data-ds-id', dictDataSrc.id);
@@ -2314,8 +2386,15 @@ const getV2ProcessData = (dictDataSrc) => {
     const v2Datasources = [];
     const v2SelectedProcess = getCheckedV2Processes();
     if (v2SelectedProcess.length) {
+        // v2_data_source_save re-detects the columns server side and overwrites
+        // csv_detail.csv_columns, so carrying them here only means deep-cloning and uploading
+        // the same list once per selected process. Drop them once, before cloning.
+        const baseDataSrc = {
+            ...dictDataSrc,
+            csv_detail: { ...dictDataSrc.csv_detail, csv_columns: [] },
+        };
         v2SelectedProcess.forEach((processName) => {
-            const subDatasourceByProcess = JSON.parse(JSON.stringify(dictDataSrc));
+            const subDatasourceByProcess = JSON.parse(JSON.stringify(baseDataSrc));
             const suffix = processName === DUMMY_V2_PROCESS_NAME ? '' : `_${processName}`;
             // #825: We do not need to add suffix when the datasource already exists
             if (!subDatasourceByProcess.id) {
@@ -2392,6 +2471,7 @@ $(() => {
             if ($(csvResourceElements.folderUrlInput).val().length === 0) {
                 $(csvResourceElements.alertMsgCheckFolder).hide();
                 $(csvResourceElements.dataTbl).hide();
+                clearCsvPreviewState();
                 $(dbConfigElements.csvDBSourceName).val('');
                 return;
             }
@@ -2618,8 +2698,8 @@ const showSoftwareWorkshopConfirmationModal = () => {
     $(dbElements.confirmSaveSoftwareWorkshopProcesses).modal('show');
 };
 
-const bulkImportSoftwareWorkshop = () => {
-    if (validateDBInfo()) {
+const bulkImportSoftwareWorkshop = async () => {
+    if (await validateDBInfo()) {
         // call SW Register
         const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
         const dictDataSrc = genDBInfo();
@@ -2632,8 +2712,8 @@ const bulkImportSoftwareWorkshop = () => {
     }
 };
 
-const bulkRegisterSoftwareWorkshop = () => {
-    if (validateDBInfo()) {
+const bulkRegisterSoftwareWorkshop = async () => {
+    if (await validateDBInfo()) {
         // call SW Register
         const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
         const dictDataSrc = genDBInfo();

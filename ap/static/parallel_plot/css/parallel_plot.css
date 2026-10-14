@@ -119,3 +119,38 @@ text.axis-title.fineSelect {
 .hidden-important {
     display: none !important;
 }
+
+/* process name legend (P1: Process1, ...) at right side of PCP chart, in same frame with chart */
+.chart-wrapper.has-process-legend {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.chart-wrapper.has-process-legend #paracord-plot {
+    flex: 1 1 auto;
+    min-width: 0;
+    border-right: 1px solid #444444; /* separate chart and legend */
+}
+
+.pcp-process-legend {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    max-width: 200px;
+    margin: 30px 10px 0 10px;
+    padding: 8px;
+    border: 1px solid currentColor; /* text color is synced with chart theme by JS */
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    word-break: break-all; /* wrap long process name right after "P1: " */
+}
+
+.pcp-process-legend-item + .pcp-process-legend-item {
+    margin-top: 4px;
+}
+
+/* Plotly.toImage (download image button) draws a temporary copy of chart at left: -5000px,
+   chart wider than 5000px (many columns) is shown on screen while saving -> move it out of screen */
+body > div[style*='left: -5000px'] {
+    left: -100000px !important;
+}

@@ -65,6 +65,7 @@ from ap.common.constants import (
     IS_OVER_UNIQUE_LIMIT,
     IS_THIN_DATA,
     MAX_CATEGORY_SHOW,
+    MAX_GRAPH_COUNT,
     NA_STR,
     NEG_CUMSUM,
     NONE_IDXS,
@@ -195,15 +196,20 @@ def gen_graph_fpp(graph_param, dic_param, max_graph=None, df=None):
     dic_data, is_graph_limited = gen_dic_data(dic_proc_cfgs, df, graph_param, graph_param_with_cate, max_graph)
     dic_param[IS_GRAPH_LIMITED] = is_graph_limited
 
+    dic_param = gen_dic_param(graph_param, df, dic_param, dic_data)
+    gen_dic_serial_data_from_df(df, dic_proc_cfgs, dic_param)
+
     is_thin_data = False
     # 4000 chunks x 3 values(min,median,max)
     dic_thin_param = None
-    if len(df) > THIN_DATA_COUNT:
-        is_thin_data = True
-        dic_thin_param = deepcopy(dic_param)
+    if graph_param.common.cat_exp:
+        max_group_points = get_max_records_per_facet_group(df, graph_param)
+        is_thin_data = max_group_points > THIN_DATA_COUNT
+    else:
+        is_thin_data = len(df) > THIN_DATA_COUNT
 
-    dic_param = gen_dic_param(graph_param, df, dic_param, dic_data)
-    gen_dic_serial_data_from_df(df, dic_proc_cfgs, dic_param)
+    if is_thin_data:
+        dic_thin_param = deepcopy(dic_param)
 
     # calculate neg_ratio if it has judge in col
     for sql_label, string_col in dic_str_cols.items():
@@ -341,6 +347,30 @@ def set_str_category_data(dic_param, dic_ranks):
             continue
 
         dic_cate['data'] = pd.Series(dic_cate.get('data')).map(dic_ranks[col_id])  # TODO: check
+
+
+@log_execution_time()
+def get_max_records_per_facet_group(df: DataFrame, graph_param) -> int:
+    facet_col_ids = graph_param.common.cat_exp or []
+
+    facet_labels = []
+    for cfg_col in graph_param.get_col_cfgs(facet_col_ids):
+        rank_label = gen_derived_column_name(RANK_COL, cfg_col.bridge_column_name)
+        if rank_label in df.columns:
+            facet_labels.append(rank_label)
+            continue
+
+        if cfg_col.bridge_column_name in df.columns:
+            facet_labels.append(cfg_col.bridge_column_name)
+
+    if not facet_labels:
+        return len(df)
+
+    group_sizes = df.groupby(facet_labels, dropna=False).size()
+    if group_sizes.empty:
+        return 0
+
+    return int(group_sizes.iloc[:MAX_GRAPH_COUNT].max())
 
 
 @log_execution_time()

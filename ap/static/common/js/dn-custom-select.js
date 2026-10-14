@@ -68,8 +68,8 @@ const initCustomSelect = () => {
             customSelect.find('.dn-custom-select--select--list').addClass('select-hide');
         });
 
-        select.off('change');
-        select.on('change', (e) => {
+        select.off('change.customSelect');
+        select.on('change.customSelect', (e) => {
             resetCustomSelect($(e.currentTarget));
         });
 

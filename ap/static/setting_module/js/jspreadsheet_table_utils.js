@@ -50,6 +50,8 @@ const ROW_SELECTED_CLASS_NAME = 'row-selected';
 const COLUMN_IS_CHECKED_CLASS_NAME = 'column-is-checked';
 const COLUMN_IS_CHECKED_HEADER = 'Selected';
 const COLUMN_IS_CHECKED_TITLE = ' ';
+// Keep the initial formula column and its editor's restored width in sync.
+const PROCESS_CONFIG_FORMULA_WIDTH = 150;
 
 /**
  * @param {any} element
@@ -110,6 +112,10 @@ class JspreadSheetTable {
         /** @type {TableTracingChanges} */
         this.tableTracingChanges = {};
 
+        this.page = 1;
+
+        this.limit = undefined;
+
         if (this.table) {
             this.headersByIndex = getOrAssign(this.table.table, 'headersByIndex', () => {
                 return this.table.options.columns.map((header, index) => ({ ...header, index }));
@@ -127,6 +133,8 @@ class JspreadSheetTable {
             );
 
             this.tableTracingChanges = getOrAssign(this.table.table, 'tableTracingChanges', {});
+
+            this.limit = getOrAssign(this.table.options, 'pagination', undefined);
         }
     }
 
@@ -381,6 +389,14 @@ class JspreadSheetTable {
                     customEvents.onselection(instance, x1, y1, x2, y2, origin);
                 }
             },
+
+            onchangepage: (instance, index, oldPage) => {
+                const spreadsheet = jspreadsheetTable(instance);
+                spreadsheet.handleOneClickDropDown();
+                if (customEvents.onchangepage != null) {
+                    customEvents.onchangepage(instance, index, oldPage);
+                }
+            },
         };
         const inner = jspreadsheet(document.getElementById(tableId), {
             ...options,
@@ -443,9 +459,9 @@ class JspreadSheetTable {
         const data = spreadsheet.getDataFromCoords(x, y);
         const width = getCellTextWidth(data);
         if (x === index) {
-            spreadsheet.table.setWidth(index, width + 100);
+            spreadsheet.table.setWidth(index, Math.max(PROCESS_CONFIG_FORMULA_WIDTH, width + 100));
         } else {
-            spreadsheet.table.setWidth(index, 100);
+            spreadsheet.table.setWidth(index, PROCESS_CONFIG_FORMULA_WIDTH);
         }
     }
 
@@ -455,6 +471,13 @@ class JspreadSheetTable {
     setLoaded() {
         this.loaded = true;
         this.table.table.loaded = true;
+    }
+
+    /**
+     * @param {number} pageIndex - index of page
+     */
+    setPage(pageIndex) {
+        this.page = pageIndex + 1;
     }
 
     /**
@@ -479,7 +502,7 @@ class JspreadSheetTable {
      * @return {number}
      */
     numberOfRows() {
-        return this.table.tbody.childElementCount;
+        return this.table.rows.length;
     }
 
     /**
@@ -508,6 +531,7 @@ class JspreadSheetTable {
         this.tableTracingChanges = {
             numberOfRows: this.numberOfRows(),
             changedPositions: new Set(),
+            hasBulkChange: false,
             trackingHeaderIndexes,
             originalData: structuredClone(this.table.options.data),
         };
@@ -555,6 +579,15 @@ class JspreadSheetTable {
                     changedPositions.delete(changedKey);
                 }
             }
+        }
+    }
+
+    /**
+     * Mark a reset of the table data without retaining a per-cell change list.
+     */
+    recordBulkChange() {
+        if (this.enabledTracingChanges()) {
+            this.tableTracingChanges.hasBulkChange = true;
         }
     }
 
@@ -720,6 +753,14 @@ class JspreadSheetTable {
     }
 
     /**
+     * Replace all table data. Jspreadsheet intentionally resets native history.
+     * @param {any[][]} data
+     */
+    setData(data) {
+        this.table.setData(data);
+    }
+
+    /**
      * @param {HTMLTableCellElement} cell
      * @param {any} value
      * @param {boolean} force
@@ -862,6 +903,26 @@ class JspreadSheetTable {
         const visibleHeaders = this.getVisibleHeaders().map((h) => h.name);
         const visibleCheckHeaders = _.intersection(visibleHeaders, checkHeaders);
         const checkIndexes = new Set(visibleCheckHeaders.map((headerName) => this.getIndexHeaderByName(headerName)));
+
+        if (this.tableTracingChanges.hasBulkChange) {
+            const { numberOfRows, originalData, trackingHeaderIndexes } = this.tableTracingChanges;
+            if (numberOfRows !== this.numberOfRows()) {
+                return true;
+            }
+
+            for (let rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
+                for (const columnIndex of trackingHeaderIndexes) {
+                    if (
+                        checkIndexes.has(columnIndex) &&
+                        String(originalData[rowIndex][columnIndex]) !==
+                            String(this.table.options.data[rowIndex][columnIndex])
+                    ) {
+                        return true;
+                    }
+                }
+            }
+            this.tableTracingChanges.hasBulkChange = false;
+        }
 
         // Create a new array to avoid modifying `Set` inplace.
         const changedPositions = Array.from(this.tableTracingChanges.changedPositions);

@@ -599,8 +599,8 @@
 
 .jexcel_page_selected
 {
-    font-weight:bold;
-    background-color:#f3f3f3;
+    background-color:#fff;
+    color: #222;
 }
 
 .jexcel_toolbar

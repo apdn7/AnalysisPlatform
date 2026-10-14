@@ -3,7 +3,9 @@ from typing import Union
 
 from flask import Blueprint, render_template, request
 from flask_babel import get_locale
+from loguru import logger
 
+from ap.api.common.services.filter_service import save_selected_filters
 from ap.api.common.services.plot_view import gen_graph_plot_view
 from ap.api.common.services.show_graph_database import get_config_data
 from ap.api.common.services.show_graph_services import update_draw_data_trace_log
@@ -232,3 +234,20 @@ def data_count_in_range():
         end_date,
     )
     return orjson_dumps(data_count), 200
+
+
+@api_common_blueprint.route('/register_in_filter_config', methods=['POST'])
+def register_in_filter_config():
+    """
+    Register selected filters in filter config
+
+    Returns:
+        status: bool, 200
+    """
+    request_data = json.loads(request.data)
+    try:
+        output = save_selected_filters(request_data)
+        return orjson_dumps({'status': output}), 200
+    except Exception as e:
+        logger.error(f'Error in register_in_filter_config: {e!s}')
+        return orjson_dumps({'status': False, 'error': str(e)}), 200

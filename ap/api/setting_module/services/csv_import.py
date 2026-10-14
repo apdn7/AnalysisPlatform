@@ -84,6 +84,7 @@ from ap.common.constants import (
     CSVExtTypes,
     DataType,
     DBType,
+    Encoding,
     JobStatus,
     JobType,
 )
@@ -295,6 +296,7 @@ def import_csv(
         limit=(data_src.n_rows or DATA_TYPE_ESTIMATION_LIMIT),  # to preview only, update when need
         etl_func=data_src.etl_func,
         is_file_checker=is_file_checker,
+        auto_encoding=data_src.auto_encoding,
     )
     # To preview data
     if check_structure_target:
@@ -1081,7 +1083,7 @@ def validate_columns(checked_cols, csv_cols, use_dummy_datetime, dummy_datetime_
 @log_execution_time()
 def csv_to_df(
     transformed_file,
-    data_src,
+    data_src: CfgDataSourceCSV,
     head_skips,
     data_first_row,
     skip_row,
@@ -1117,6 +1119,10 @@ def csv_to_df(
     n_rows = get_limit_records(is_transpose=data_src.is_transpose, n_rows=data_src.n_rows)
     read_csv_param.update({'nrows': n_rows})
 
+    # The runtime encoding may already be resolved; keep the datasource's original Auto intent.
+    auto_encoding = bool(
+        data_src.auto_encoding or not data_src.encoding or data_src.encoding == Encoding.AUTO_DETECT.code
+    )
     # get encoding
     if not encoding:
         if from_file:
@@ -1139,6 +1145,8 @@ def csv_to_df(
     try:
         df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)
     except UnicodeDecodeError:
+        if not auto_encoding:
+            raise
         try:
             read_csv_param.update({'encoding': 'unicode_escape'})
             df = read_csv_with_transpose(transformed_file, is_transpose=data_src.is_transpose, **read_csv_param)

@@ -226,7 +226,7 @@ const getInvalidFilters = (key) => {
     return data;
 };
 
-const getSortKeys = (targetEle, isSimple = null) => {
+const getSortKeys = (targetEle, isSimple = null, layoutPriorities = null) => {
     const lastPosNumber = 9999;
     const keys = [];
     const liGrey = $(targetEle).hasClass('li-grey');
@@ -258,7 +258,9 @@ const getSortKeys = (targetEle, isSimple = null) => {
 
     // Order layout in MaP page
     const layoutElm = $(targetEle).find('input[name=layoutInput]');
-    const priorityOrder = layoutElm && layoutElm.val() && layoutElm.attr('data-priority-order');
+    const priorityOrder = layoutPriorities
+        ? layoutPriorities[val]
+        : layoutElm && layoutElm.val() && layoutElm.attr('data-priority-order');
 
     if (val === 'NO_FILTER') {
         keys.push(0);
@@ -340,10 +342,25 @@ const getSortKeys = (targetEle, isSimple = null) => {
     return keys;
 };
 
+const getLayoutSortPrioritiesForList = (list, emptyMapFallback = null) => {
+    if (getCurrentPage() !== PAGE_NAME.map || list?.dataset.showLayout !== 'true') {
+        return null;
+    }
+    const layoutPriorities = window.getLayoutSortPriorities?.();
+    // Preserve the default null contract; virtual lists opt into false for empty MAP state.
+    return layoutPriorities && Object.keys(layoutPriorities).length > 0 ? layoutPriorities : emptyMapFallback;
+};
+
 const sortHtmlElements = (parentEle, isSimple = null, isMouseLeave = false) => {
     let isChanged = false;
     let isSettingChanged = false;
     const ul = $(parentEle);
+
+    const virtualList = ul[0]?._virtualList;
+
+    if (virtualList) {
+        return virtualList.sortSelectedFirst(isSimple);
+    }
 
     if (currentHoverFromData && currentFormID) {
         const newFormData = new FormData($(currentFormID)[0]);
@@ -368,9 +385,10 @@ const sortHtmlElements = (parentEle, isSimple = null, isMouseLeave = false) => {
     $(ul).find('.sortCol').removeClass('asc desc');
 
     const items = ul.find('.list-group-item').get();
+    const layoutPriorities = getLayoutSortPrioritiesForList(ul[0]);
     items.sort((a, b) => {
-        const aKeys = getSortKeys(a, isSimple);
-        const bKeys = getSortKeys(b, isSimple);
+        const aKeys = getSortKeys(a, isSimple, layoutPriorities);
+        const bKeys = getSortKeys(b, isSimple, layoutPriorities);
 
         for (let i = 0; i < aKeys.length; i++) {
             const keyA = aKeys[i];
@@ -589,13 +607,30 @@ const saveLoadUserInput = (
         return;
     }
 
+    const queryFormElements = (elementSelector, controlId = null) => {
+        const result = Array.from(form.querySelectorAll(elementSelector));
+        const virtualRoot = parent ? form.querySelector(`#${CSS.escape(parent)}`) : form;
+        const virtualSelector = parent ? elementSelector.replace(`#${parent} `, '') : elementSelector;
+        const virtualLists = Array.from(virtualRoot?.querySelectorAll('[data-virtualized="true"]') ?? []);
+        const hasIndexedControl =
+            controlId && virtualLists.some((list) => list._virtualList?.hasControlId?.(controlId));
+
+        virtualLists.forEach((list) => {
+            if (hasIndexedControl && list._virtualList?.hasControlId && !list._virtualList.hasControlId(controlId)) {
+                return;
+            }
+            list._virtualList?.querySelectorAll(virtualSelector, controlId).forEach((element) => result.push(element));
+        });
+
+        return [...new Set(result)];
+    };
+
     let key;
     if (localStorageKey) {
         key = localStorageKey;
     } else {
         key = `${localStorageKeyPrefix}_${formId}_saveUserInput`;
     }
-    const elements = form.querySelectorAll('input, textarea, select');
     const tabPanes = document.querySelectorAll('.tab-pane');
 
     const checkActiveTab = (el) => {
@@ -606,7 +641,7 @@ const saveLoadUserInput = (
         const serializeData = [];
         let isCheckedShowCycleTime = false;
 
-        elements.forEach((el) => {
+        queryFormElements('input, textarea, select').forEach((el) => {
             const data = {
                 id: el.id,
                 name: el.name,
@@ -787,17 +822,24 @@ const saveLoadUserInput = (
     };
 
     // call all event of element
-    const callAllEvent = (ele, events = ['change']) => {
-        // const events = window.getEventListeners(ele);
-        // for (eventName in events) {
-        //     events[eventName].forEach(e => e.listener.call());
-        // }
-
-        for (const eventName of events) {
+    const callAllEvent = async (ele, events = ['change']) => {
+        for (const event of events) {
             try {
-                $(ele).trigger(eventName);
+                const pendingTasks = [];
+
+                const jqueryEvent = typeof event === 'string' ? $.Event(event) : event;
+
+                jqueryEvent.waitUntil = (promise) => {
+                    pendingTasks.push(Promise.resolve(promise));
+                };
+
+                $(ele).trigger(jqueryEvent);
+
+                if (pendingTasks.length) {
+                    await Promise.all(pendingTasks);
+                }
             } catch (error) {
-                continue;
+                console.error(error);
             }
         }
     };
@@ -858,13 +900,13 @@ const saveLoadUserInput = (
         return genBtn;
     };
 
-    const genNewEle = (btn, ele) => {
+    const genNewEle = async (btn, ele) => {
         // 200 loop
         for (let i = 0; i < MAX_DYNAMIC_CARD; i++) {
             // console.log(`genNewEle: ${i}, ${ele.name}`);
             const btnAddNew = checkEleExistOnScreen(btn, ele);
             if (btnAddNew) {
-                callAllEvent(btnAddNew, (events = ['click']));
+                await callAllEvent(btnAddNew, (events = ['click']));
             } else {
                 break;
             }
@@ -888,7 +930,7 @@ const saveLoadUserInput = (
     };
 
     // count element need to generate:
-    const genDynamicEle = (eles) => {
+    const genDynamicEle = async (eles) => {
         const dicBtn = {};
         for (let i = 0; i < eles.length; i++) {
             const el = eles[i];
@@ -914,20 +956,18 @@ const saveLoadUserInput = (
                 eleNames.push(ele.name);
                 // check if process is exists then render HTML elements
                 if (procConfigs[ele.value] && !['TermSerialProcess', 'serialProcess'].includes(ele.name)) {
-                    genNewEle(btn, ele);
+                    await genNewEle(btn, ele);
                 }
 
                 if (ele.name === DATETIME_RANGE_PICKER_CLASS) {
                     ele.value = convertDatetimePickerSeparator(ele.value);
-                    callAllEvent($(`#${btn}`), ['click']);
+                    await callAllEvent($(`#${btn}`), ['click']);
                     // APPLY VALUE TO RENDERED DATE TIME PICKER
                     const dates = $('.datetimerange-group').find(`[name=${DATETIME_RANGE_PICKER_CLASS}]`);
                     const renderedInput = dates[dates.length - 1];
                     $(renderedInput).val(ele.value).trigger('change');
 
-                    setTimeout(() => {
-                        removeUnusedDate();
-                    }, 200);
+                    removeUnusedDate();
                 }
             }
             removeUnusedEle(btn, eleNames);
@@ -935,12 +975,12 @@ const saveLoadUserInput = (
         return eles;
     };
 
-    const loadActiveTab = (data) => {
+    const loadActiveTab = async (data) => {
         for (const v of data) {
             const el = $(`#${v.id}`)[0];
             if (el && !checkActiveTab(el)) {
                 isUserSwitchedTab = false;
-                callAllEvent(`a[href="#${v.id}"]`, ['click']);
+                await callAllEvent(`a[href="#${v.id}"]`, ['click']);
             }
         }
     };
@@ -957,7 +997,13 @@ const saveLoadUserInput = (
     };
 
     // todo: check 09/16 endtime
-    const loadNonRadioCheckEle = (data, agpColorVars = [], reactElement = false) => {
+    const loadNonRadioCheckEle = async (
+        data,
+        agpColorVars = [],
+        reactElement = false,
+        allowNameFallback = true,
+        retryUnavailableOptions = false,
+    ) => {
         const remainEles = [];
         const srcSetting = getLocalStorageSrcSetting();
         const desSetting = window.location.pathname;
@@ -965,7 +1011,10 @@ const saveLoadUserInput = (
         // load value
         for (const v of data) {
             // issue #943: Ignore data finder items to prevent snapshot differences when loading bookmarks
-            if (!v.name || v.id.includes('data-finder')) {
+            if (!v.name || v.id?.includes('data-finder')) {
+                continue;
+            }
+            if (v.name === 'layoutInput' && getCurrentPage() !== PAGE_NAME.map) {
                 continue;
             }
 
@@ -979,8 +1028,9 @@ const saveLoadUserInput = (
                 }
             }
             try {
-                let eleSelector = buildEleSelector(v.name, null, v.id);
-                input = form.querySelector(eleSelector);
+                const eleSelector = buildEleSelector(v.name, null, v.id);
+                // Mounted controls take precedence; only search detached virtual rows on a miss.
+                input = form.querySelector(eleSelector) ?? queryFormElements(eleSelector, v.id)[0] ?? null;
                 // selection
                 if (v.name === 'remove_outlier_type' && v.value === 'majority') {
                     continue;
@@ -994,11 +1044,30 @@ const saveLoadUserInput = (
                 }
 
                 if (input === null || input === undefined) {
+                    if (v.name === 'layoutInput') {
+                        // Restore by column identity, including panels not yet rendered by the virtual list.
+                        const itemId = v.id?.startsWith('reactlayout-') ? v.id.slice('reactlayout-'.length) : null;
+                        if (itemId !== null) {
+                            const roots = queryFormElements(
+                                `[data-virtual-item-id="${CSS.escape(itemId)}"] .react-root[data-component="LayoutDropDown"]`,
+                                v.id,
+                            );
+                            roots.forEach((root) => window.mountLayoutDropdowns?.(root));
+                        }
+                        remainEles.push(v);
+                        continue;
+                    }
                     if (!isDateTimePickerEl(v.name)) {
-                        eleSelector = buildEleSelector(v.name);
-                        input = form.querySelector(eleSelector);
-                        if (input === null || input === undefined) {
+                        if (!allowNameFallback) {
                             remainEles.push(v);
+                            continue;
+                        }
+                        const inputsByName = queryFormElements(buildEleSelector(v.name));
+                        input = inputsByName.length === 1 ? inputsByName[0] : null;
+                        if (input === null || input === undefined) {
+                            if (retryUnavailableOptions) {
+                                remainEles.push(v);
+                            }
                             continue;
                         }
                     } else {
@@ -1027,13 +1096,23 @@ const saveLoadUserInput = (
 
             if (input.type === 'select-one') {
                 // check available options
-                const availableOptions = Array.from(input.options).map((opt) => opt.value);
-                if (!availableOptions.includes(v.value)) {
+                if (!Array.prototype.some.call(input.options, (opt) => opt.value === v.value)) {
+                    if (retryUnavailableOptions) {
+                        remainEles.push(v);
+                    }
                     continue;
                 }
             }
 
             if (v.type === 'text' && v.id.includes('react') && reactElement) {
+                if (
+                    v.name === 'layoutInput' &&
+                    getCurrentPage() === PAGE_NAME.map &&
+                    typeof window.getLayoutState !== 'function'
+                ) {
+                    remainEles.push(v);
+                    continue;
+                }
                 const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 
                 nativeSetter?.call(input, v.value);
@@ -1062,12 +1141,12 @@ const saveLoadUserInput = (
             input.value = v.value;
             const isEndProc = input.id?.startsWith('end-proc-process');
             const events = isEndProc ? [$.Event('change', { colorVals: agpColorVars })] : ['change'];
-            callAllEvent(input, events);
+            await callAllEvent(input, events);
         }
         return remainEles;
     };
 
-    const loadRadioCheckboxEle = (data) => {
+    const loadRadioCheckboxEle = async (data, retry = true, restoreLayout = false) => {
         const remainEles = [];
         // load value
         for (const v of data) {
@@ -1084,21 +1163,30 @@ const saveLoadUserInput = (
             ) {
                 eleSelector = buildEleSelector(null, null, v.id);
             } else {
-                eleSelector = buildEleSelector(v.name);
+                eleSelector = buildEleSelector(v.name, null, v.id);
             }
             try {
-                input = form.querySelectorAll(eleSelector);
-                if (input === null || input === undefined) {
-                    remainEles.push(v);
+                input = queryFormElements(eleSelector, v.id);
+                if (!input.length && v.name) {
+                    input = queryFormElements(buildEleSelector(v.name));
+                }
+                if (!input.length) {
+                    if (retry) {
+                        remainEles.push(v);
+                    }
                     continue;
                 }
             } catch (error) {
-                remainEles.push(v);
+                if (retry) {
+                    remainEles.push(v);
+                }
                 continue;
             }
 
+            let isMatched = false;
             for (const el of input) {
                 if (el.value === v.value) {
+                    isMatched = true;
                     if (v.type === 'radio') {
                         $(el).attr('checked', v.checked);
                         $(el).trigger('change');
@@ -1110,9 +1198,16 @@ const saveLoadUserInput = (
                     const isCycleTimeElm = el.id === 'show-ct-time' && el.name === 'is_show_ct_time';
                     el.checked = v.checked;
                     if (oldCheck !== el.checked && !isCycleTimeElm) {
-                        callAllEvent(el);
+                        const events =
+                            restoreLayout && v.name?.startsWith('GET02_VALS_SELECT')
+                                ? [$.Event('change', { restoreLayout: true })]
+                                : ['change'];
+                        await callAllEvent(el, events);
                     }
                 }
+            }
+            if (!isMatched) {
+                remainEles.push(v);
             }
         }
         return remainEles;
@@ -1160,28 +1255,40 @@ const saveLoadUserInput = (
         const layoutElements = [];
         const reactElements = [];
         const indexVals = [];
+        const isMapPage = getCurrentPage() === PAGE_NAME.map;
+        const restoreLayout = isMapPage && data.some((v) => v.name === 'layoutInput');
         for (const v of data) {
+            if (!isMapPage && layoutBoxs.includes(v.name)) {
+                continue;
+            }
+            if (xIndexNames.includes(v.name)) {
+                indexVals.push(v);
+                continue;
+            }
+
             const isCheckboxOrRadioIgnore =
                 endProcCheckBoxes.some((prefix) => v.name?.startsWith(prefix)) ||
                 endProcRadios.some((prefix) => v.name?.startsWith(prefix));
             const isSelectBoxesIgnore = endProcSelectBoxes.some((name) => v.name === name);
             const isLayoutBoxIgnore = layoutBoxs.some((name) => v.name === name);
             const isReactEls = reactInputEls.some((name) => v.name === name);
+            const isLayoutPrimary = restoreLayout && v.name?.startsWith('GET02_VALS_SELECT');
             if ((v.type === 'radio' || v.type === 'checkbox') && !isReactEls) {
+                if (isLayoutPrimary && ['All', 'NO_FILTER'].includes(v.value)) continue;
                 // change colorVar radio to checkbox #1128
                 if (v.type === 'radio' && v.name === 'colorVar' && v.checked) {
                     v.type = 'checkbox';
                     v.id = `color-var-${v.value}`;
                     delete v.name;
                 }
-                if (isCheckboxOrRadioIgnore && !v.checked) continue;
+                if (isCheckboxOrRadioIgnore && !v.checked && !isLayoutPrimary) continue;
                 radioChecks.push(v);
             } else if (v.isActiveTab) {
                 activeTabs.push(v);
             } else if (Number(v.level) === 2) {
                 if (isSelectBoxesIgnore && !v.value) continue;
                 others2.push(v);
-            } else if (isLayoutBoxIgnore && v.value) {
+            } else if (isLayoutBoxIgnore) {
                 layoutElements.push(v);
             } else if (isReactEls && getCurrentPage() === PAGE_NAME.map) {
                 // map page load xOption from react then we load it after
@@ -1189,15 +1296,17 @@ const saveLoadUserInput = (
             } else {
                 others1.push(v);
             }
-            if (xIndexNames.includes(v.name)) {
-                indexVals.push(v);
-            }
         }
 
+        if (restoreLayout) {
+            // Free old selections before checking replacements, so the shared selection limit cannot evict them.
+            const isUncheckedPrimary = (v) => v.name?.startsWith('GET02_VALS_SELECT') && !v.checked;
+            radioChecks.sort((a, b) => Number(isUncheckedPrimary(b)) - Number(isUncheckedPrimary(a)));
+        }
         return [activeTabs, radioChecks, others1, others2, layoutElements, reactElements, indexVals];
     };
 
-    const loadIndex = (data) => {
+    const loadIndex = async (data) => {
         if (!$('#xAxisModal').length) return;
         const procs = [];
         const cols = [];
@@ -1214,7 +1323,8 @@ const saveLoadUserInput = (
             }
         }
 
-        procs.forEach(async (proc, i) => {
+        for (let i = 0; i < procs.length; i++) {
+            const proc = procs[i];
             await addSerialOrderRow(
                 null,
                 'serialProcess',
@@ -1223,14 +1333,12 @@ const saveLoadUserInput = (
                 Number(proc.value),
                 Number(cols[i].value),
                 Number(orders[i].value),
+                i + 1,
             );
-            bindChangeProcessEvent();
-            updatePriorityAndDisableSelected();
-            setTimeout(() => {
-                // wait select2 to be shown
-                bindChangeOrderColEvent();
-            }, 200);
-        });
+        }
+        bindChangeProcessEvent();
+        updatePriorityAndDisableSelected();
+        bindChangeOrderColEvent();
     };
 
     const handlerSettingDefaultDivide = (data, srcSetting) => {
@@ -1280,90 +1388,176 @@ const saveLoadUserInput = (
         }
     };
 
-    const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
-        if (isLoad) {
-            let data;
-            if (isSaveToLocalStorage) {
-                const shareSettings = getLocalStorageShareUserSetting(key);
-                data = shareSettings?.settings?.traceDataForm || null;
-            } else {
-                data = savedData;
-            }
+    const BOOKMARK_LOAD_TIMEOUT_MS = 6_000;
 
-            if (!data) {
+    const waitForFormUpdate = (deadline) =>
+        new Promise((resolve) => {
+            const timeout = Math.max(0, deadline - performance.now());
+            if (!timeout) {
+                resolve(false);
                 return;
             }
-            const jumpDefaultRangeTime = data.find((e) => e.name === DEFAULT_DATETIME_RANGE);
-            const isJumpPath = window.location.href.includes(goToFromJumpFunction);
-            const isUseDefaultRangeTime = isJumpPath && jumpDefaultRangeTime !== undefined;
-            const srcSetting = getLocalStorageSrcSetting();
 
-            // gen dynamic eles
-            genDynamicEle(data);
-            updateShareUserSetting(srcSetting?.pageName, getCurrentPage(), data);
+            let timeoutId;
+            const observer = new MutationObserver(() => finish(true));
+            const handleVirtualListUpdate = () => finish(true);
+            const finish = (isUpdated) => {
+                observer.disconnect();
+                form.removeEventListener('virtualListUpdated', handleVirtualListUpdate);
+                document.removeEventListener('layoutColumnRegistered', handleVirtualListUpdate);
+                clearTimeout(timeoutId);
+                resolve(isUpdated);
+            };
 
-            const [activeTabs, radioChecks, others1, others2, layoutElements, reactElements, indexVals] =
-                divideElementGroup(data);
-            const colorVals = others2.filter((e) => e.name === 'colorVar');
+            observer.observe(form, { childList: true, subtree: true });
+            form.addEventListener('virtualListUpdated', handleVirtualListUpdate);
+            document.addEventListener('layoutColumnRegistered', handleVirtualListUpdate);
+            timeoutId = setTimeout(() => finish(false), timeout);
+        });
 
-            if (isSaveToLocalStorage) {
-                loadActiveTab(activeTabs);
+    const loadElementsWhenReady = async (data, loader, fallbackLoader, finalLoader, phase) => {
+        let remainEles = data;
+        let deadline;
+        while (remainEles.length) {
+            const previousCount = remainEles.length;
+            remainEles = await loader(remainEles);
+            if (!remainEles.length) {
+                return;
             }
-            const remainOthers1 = loadNonRadioCheckEle(others1, colorVals);
+            if (remainEles.length < previousCount) {
+                deadline = performance.now() + BOOKMARK_LOAD_TIMEOUT_MS;
+                continue;
+            }
+            remainEles = await fallbackLoader(remainEles);
+            if (!remainEles.length) {
+                return;
+            }
+            if (remainEles.length < previousCount) {
+                deadline = performance.now() + BOOKMARK_LOAD_TIMEOUT_MS;
+                continue;
+            }
+            // Start after awaited API/setup work; only actual restoration progress renews the UI wait.
+            deadline ??= performance.now() + BOOKMARK_LOAD_TIMEOUT_MS;
+            if (!(await waitForFormUpdate(deadline))) {
+                break;
+            }
+        }
 
-            setTimeout(() => {
-                loadNonRadioCheckEle(remainOthers1);
-            }, 200);
+        if (remainEles.length) {
+            remainEles = await finalLoader(remainEles);
+        }
+        if (remainEles.length) {
+            const identifiers = remainEles.slice(0, 10).map((ele) => ele.id || ele.name);
+            console.warn(
+                `Bookmark loading timed out during ${phase}`,
+                JSON.stringify({
+                    unresolvedCount: remainEles.length,
+                    identifiers,
+                }),
+            );
+        }
+    };
 
-            setTimeout(() => {
-                const remainOthers2 = loadNonRadioCheckEle(others2);
-                setTimeout(() => {
-                    loadNonRadioCheckEle(remainOthers2);
-                    loadIndex(indexVals);
-                }, 200);
+    const loadUserInput = async (data, isSaveToLocalStorage) => {
+        const jumpDefaultRangeTime = data.find((e) => e.name === DEFAULT_DATETIME_RANGE);
+        const isJumpPath = window.location.href.includes(goToFromJumpFunction);
+        const isUseDefaultRangeTime = isJumpPath && jumpDefaultRangeTime !== undefined;
+        const srcSetting = getLocalStorageSrcSetting();
 
-                setTimeout(() => {
-                    const remainRadioChecks = loadRadioCheckboxEle(radioChecks);
-                    loadNonRadioCheckEle(layoutElements, [], true);
+        await genDynamicEle(data);
+        updateShareUserSetting(srcSetting?.pageName, getCurrentPage(), data);
 
-                    setTimeout(() => {
-                        loadRadioCheckboxEle(remainRadioChecks);
-                        loadNonRadioCheckEle(reactElements, [], true);
+        const [activeTabs, radioChecks, others1, others2, layoutElements, reactElements, indexVals] =
+            divideElementGroup(data);
+        const colorVals = others2.filter((e) => e.name === 'colorVar');
 
-                        // Set default datetime range for jump target page
-                        if (isUseDefaultRangeTime) {
-                            setDefaultCyclicTermConfig(jumpDefaultRangeTime.value, true);
-                        }
-                        // Handler set default division
-                        handlerSettingDefaultDivide(data, srcSetting);
-                        loadXYAxis(data);
-                    }, 200);
+        if (isSaveToLocalStorage) {
+            await loadActiveTab(activeTabs);
+        }
 
-                    // load invalid
-                    const allTabs = getAllTabs();
-                    allTabs.each((i, tab) => {
-                        // sort element
-                        const searchGroups = getConditionGroups(tab);
-                        for (const searchGroup of searchGroups) {
-                            sortHtmlElements(searchGroup);
-                        }
+        await loadElementsWhenReady(
+            others1,
+            async (elements) => await loadNonRadioCheckEle(elements, colorVals, false, false, true),
+            async (elements) => await loadNonRadioCheckEle(elements, colorVals, false, true, true),
+            async (elements) => await loadNonRadioCheckEle(elements, colorVals),
+            'primary controls',
+        );
+        await Promise.all([
+            loadElementsWhenReady(
+                others2,
+                async (elements) => await loadNonRadioCheckEle(elements, [], false, false, true),
+                async (elements) => await loadNonRadioCheckEle(elements, [], false, true, true),
+                async (elements) => await loadNonRadioCheckEle(elements),
+                'generated controls',
+            ),
+            loadIndex(indexVals),
+        ]);
+        const restoreLayout = getCurrentPage() === PAGE_NAME.map && layoutElements.length > 0;
+        await loadElementsWhenReady(
+            radioChecks,
+            async (elements) => await loadRadioCheckboxEle(elements, true, restoreLayout),
+            async (elements) => await loadRadioCheckboxEle(elements, true, restoreLayout),
+            async (elements) => await loadRadioCheckboxEle(elements, false, restoreLayout),
+            'radio and checkbox controls',
+        );
+        await loadElementsWhenReady(
+            layoutElements,
+            async (elements) => await loadNonRadioCheckEle(elements, [], true, false, true),
+            async (elements) => await loadNonRadioCheckEle(elements, [], true, true, true),
+            async (elements) => await loadNonRadioCheckEle(elements, [], true),
+            'layout controls',
+        );
+        await loadElementsWhenReady(
+            reactElements,
+            async (elements) => await loadNonRadioCheckEle(elements, [], true, false, true),
+            async (elements) => await loadNonRadioCheckEle(elements, [], true, true, true),
+            async (elements) => await loadNonRadioCheckEle(elements, [], true),
+            'React controls',
+        );
 
-                        // sort element
-                        const otherGroups = getNonConditionGroups(tab);
-                        for (const otherGroup of otherGroups) {
-                            sortHtmlElements(otherGroup);
-                        }
-                    });
-                }, 500);
-            }, 1000);
-            setTimeout(() => {
-                if (currentFormID && isLoadNew) {
-                    const form = $(currentFormID);
-                    currentFromDataFromLoadSetting = new FormData(form[0]);
-                    resetChangeSettingMark();
-                }
+        if (isUseDefaultRangeTime) {
+            setDefaultCyclicTermConfig(jumpDefaultRangeTime.value, true);
+        }
+        handlerSettingDefaultDivide(data, srcSetting);
+        loadXYAxis(data);
+
+        const allTabs = getAllTabs();
+        allTabs.each((i, tab) => {
+            const searchGroups = getConditionGroups(tab);
+            for (const searchGroup of searchGroups) {
+                sortHtmlElements(searchGroup);
+            }
+
+            const otherGroups = getNonConditionGroups(tab);
+            for (const otherGroup of otherGroups) {
+                sortHtmlElements(otherGroup);
+            }
+        });
+
+        if (currentFormID && isLoadNew) {
+            const form = $(currentFormID);
+            currentFromDataFromLoadSetting = new FormData(form[0]);
+            resetChangeSettingMark();
+        }
+    };
+
+    const innerFunc = (isLoad = true, isSaveToLocalStorage = true, savedData = null) => {
+        if (isLoad) {
+            const data = isSaveToLocalStorage
+                ? getLocalStorageShareUserSetting(key)?.settings?.traceDataForm || null
+                : savedData;
+
+            if (!data) {
                 isSettingLoading = false;
-            }, 3500);
+                return;
+            }
+            const loadingObj = loadingHandler();
+            loadingObj.show();
+            return loadUserInput(data, isSaveToLocalStorage).finally(() => {
+                loadingObj.hide();
+                isSettingLoading = false;
+                document.dispatchEvent(new Event('userSettingLoadFinished'));
+            });
         } else if (isSaveToLocalStorage) {
             saveUserInput();
         } else {
@@ -1714,7 +1908,7 @@ const handleGoToSettingPage = (e, userSettingId, settingPage) => {
         goToSettingPage(userSettingId, settingPage);
     }
 };
-const useUserSetting = (
+const useUserSetting = async (
     userSettingId = null,
     sharedSetting = null,
     onlyLoad = null,
@@ -1725,7 +1919,7 @@ const useUserSetting = (
     reqHeaders.append('Content-Type', 'application/json');
     isSettingLoading = true;
 
-    fetch('/ap/api/setting/load_user_setting', {
+    await fetch('/ap/api/setting/load_user_setting', {
         method: 'POST',
         headers: reqHeaders,
         body: JSON.stringify({
@@ -1741,17 +1935,21 @@ const useUserSetting = (
             if (!fromPaste) {
                 currentLoadSetting = userSetting;
             }
-            applyUserSetting(userSetting, onlyLoad, isLoadNew);
+            return applyUserSetting(userSetting, onlyLoad, isLoadNew);
         })
-        .catch((error) => console.log('error', error));
+        .catch((error) => console.log('error', error))
+        .finally(() => {
+            // Failed requests and empty bookmarks never reach the form loader's cleanup.
+            isSettingLoading = false;
+        });
 };
 
-const useUserSettingOnLoad = () => {
+const useUserSettingOnLoad = async () => {
     const reqHeaders = new Headers();
     reqHeaders.append('Content-Type', 'application/json');
 
     const page = window.location.pathname;
-    fetch(`/ap/api/setting/user_setting_page_top?page=${page}`, {
+    await fetch(`/ap/api/setting/user_setting_page_top?page=${page}`, {
         method: 'GET',
         headers: reqHeaders,
     })
@@ -1759,7 +1957,7 @@ const useUserSettingOnLoad = () => {
         .then((json) => {
             const userSetting = json.data;
             currentLoadSetting = userSetting;
-            applyUserSetting(userSetting);
+            return applyUserSetting(userSetting);
         })
         .catch((error) => console.log('error', error));
 };
@@ -1774,7 +1972,7 @@ const showIndexInforBox = () => {
     }
 };
 
-const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
+const applyUserSetting = async (userSetting, onlyLoad = null, isLoadNew = true) => {
     if (isEmpty(userSetting)) return;
     isSettingLoading = true;
 
@@ -1787,6 +1985,7 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
 
     // load user setting to gui
     let loadFunc;
+    let loadPromise;
     for (const formId in userInputs) {
         if (onlyLoad) {
             loadFunc = saveLoadUserInput(onlyLoad, '', '', null, isLoadNew);
@@ -1800,7 +1999,7 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
             if (isShowCTTime(settingData)) {
                 $(formElements.showCT_Time).prop('checked', true);
             }
-            loadFunc(true, false, settingData);
+            loadPromise = await loadFunc(true, false, settingData);
             break;
         }
     }
@@ -1819,6 +2018,7 @@ const applyUserSetting = (userSetting, onlyLoad = null, isLoadNew = true) => {
     if (userInputs.column_ordering) {
         latestSortColIds = userInputs.column_ordering;
     }
+    return loadPromise;
 };
 
 // save current user setting on global variable, beside that it will show title & "Overwrite save" button on UI
@@ -2373,18 +2573,33 @@ const editUserSetting = () => {
     }
     return true;
 };
-const compareSettingChange = () => {
+// name excluded from the setting comparison
+const EXCLUDED_COMPARE_SETTING_KEYS = ['export_from'];
+
+const serializeSettingFormData = (formData) =>
+    JSON.stringify([...formData.entries()].filter(([key]) => !EXCLUDED_COMPARE_SETTING_KEYS.includes(key)));
+
+// the loaded setting never changes between 2 comparisons, so serialize it once per assignment
+let baselineSettingFormData = null;
+let baselineSettingJson = null;
+const getBaselineSettingJson = () => {
+    if (baselineSettingFormData !== currentFromDataFromLoadSetting) {
+        baselineSettingFormData = currentFromDataFromLoadSetting;
+        baselineSettingJson = currentFromDataFromLoadSetting
+            ? serializeSettingFormData(currentFromDataFromLoadSetting)
+            : null;
+    }
+    return baselineSettingJson;
+};
+
+let pendingSettingCompareTimeout = null;
+const SETTING_COMPARE_DEBOUNCE_MS = 100;
+
+const applySettingChange = () => {
     if (currentFormID) {
-        const newFormData = new FormData($(currentFormID)[0]);
-        if (currentFromDataFromLoadSetting && newFormData) {
-            // remove exclude name from form
-            ['export_from'].map((val) => {
-                currentFromDataFromLoadSetting.delete(val);
-                newFormData.delete(val);
-            });
-            isSettingChanged =
-                JSON.stringify([...currentFromDataFromLoadSetting.entries()]) !==
-                JSON.stringify([...newFormData.entries()]);
+        const baselineJson = getBaselineSettingJson();
+        if (baselineJson !== null) {
+            isSettingChanged = baselineJson !== serializeSettingFormData(new FormData($(currentFormID)[0]));
         }
     }
 
@@ -2404,7 +2619,39 @@ const compareSettingChange = () => {
     }
 };
 
+/**
+ * Compare current form with the loaded setting.
+ * Serializing the whole form is expensive, and 1 click in End Process fires many change events
+ * (checkbox + jQuery triggers), so the comparison is coalesced and only the final state is applied.
+ * Call flushSettingChange() before reading isSettingChanged.
+ */
+const compareSettingChange = () => {
+    cancelPendingSettingChange();
+    pendingSettingCompareTimeout = setTimeout(() => {
+        pendingSettingCompareTimeout = null;
+        applySettingChange();
+    }, SETTING_COMPARE_DEBOUNCE_MS);
+};
+
+const cancelPendingSettingChange = () => {
+    if (pendingSettingCompareTimeout) {
+        clearTimeout(pendingSettingCompareTimeout);
+        pendingSettingCompareTimeout = null;
+    }
+};
+
+/** Run a pending comparison immediately, so isSettingChanged is up to date when it is read */
+const flushSettingChange = () => {
+    if (!pendingSettingCompareTimeout) {
+        return;
+    }
+    cancelPendingSettingChange();
+    applySettingChange();
+};
+
 const resetChangeSettingMark = () => {
+    // a pending comparison is based on the previous baseline -> it must not turn the mark on again
+    cancelPendingSettingChange();
     isSettingChanged = false;
     $('#setting-change-mark').hide();
     $(window).off('beforeunload');
@@ -2414,6 +2661,7 @@ const resetChangeSettingMark = () => {
 };
 
 const showSettingChangeModalHandler = (callback) => {
+    flushSettingChange();
     if (isSettingChanged) {
         $(settingModals.changeSettingConfirmModal).modal('show');
 
@@ -2422,12 +2670,12 @@ const showSettingChangeModalHandler = (callback) => {
             $('#saveUserSetting').trigger('click');
         });
 
-        $('#discardSaveChangeSetting').on('click', () => {
+        $('#discardSaveChangeSetting').on('click', async () => {
             $(settingModals.changeSettingConfirmModal).modal('hide');
             // load unchanged setting
             if (currentLoadSetting) {
                 currentFromDataFromLoadSetting = null;
-                useUserSetting(currentLoadSetting.id);
+                await useUserSetting(currentLoadSetting.id);
             }
             resetChangeSettingMark();
             callback();
@@ -2461,8 +2709,8 @@ const goToOtherPage = (href, inplace = true, emptyPage = false, mainPage = '', u
     }
 };
 
-const handleUseUserSetting = (id) => {
-    useUserSetting(id);
+const handleUseUserSetting = async (id) => {
+    await useUserSetting(id);
     // hide modal when click load button
     $(settingModals.loadSettingModal).modal('hide');
 };
@@ -2498,15 +2746,18 @@ const handleSelectAllShowUserSetting = (e) => {
 };
 
 const isSaveGraphSetting = () => {
+    flushSettingChange();
     return currentLoadSetting && currentLoadSetting.save_graph_settings && !isSettingChanged;
 };
 
 const isLoadingFromJumpPage = () => {
+    flushSettingChange();
     const isJumpPath = window.location.href.includes(goToFromJumpFunction);
     return !currentLoadSetting && !isSettingChanged && isJumpPath;
 };
 
 const isSaveColumnOrdering = () => {
+    flushSettingChange();
     if (!(currentLoadSetting | 0)) return false;
     const settings = JSON.parse(currentLoadSetting.settings);
     return !isSettingChanged && settings.column_ordering && settings.column_ordering.length;

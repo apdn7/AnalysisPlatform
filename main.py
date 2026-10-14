@@ -112,6 +112,7 @@ if is_main:
         )
         from ap.api.trace_data.services.proc_link import proc_link_count_job
         from ap.setting_module.models import CfgConstant
+        from ap.setting_module.services.quick_plot import add_quick_plot_cleanup_job
         from ap.trace_data.transaction_model import create_all_transaction_tables
 
         # unlock db
@@ -147,6 +148,11 @@ if is_main:
 
         # delete req_id created > 24h ago
         add_job_delete_expired_request()
+
+        # Use the development-only interval when configured; production keeps the daily cleanup schedule.
+        add_quick_plot_cleanup_job(
+            cleanup_interval_seconds=app.config.get('QUICK_PLOT_CLEANUP_INTERVAL_SECONDS'),
+        )
 
         # add job delete limit transaction
         add_delete_transaction_data_job()

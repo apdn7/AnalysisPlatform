@@ -15,11 +15,12 @@ from ap.api.setting_module.services.factory_import import (
     factory_import_job,
     factory_past_import_job,
 )
+from ap.api.setting_module.services.preview_data import PreviewRequestContext
 from ap.api.setting_module.services.process_delete import (
     delete_all_transaction_data_job,
     delete_transaction_data_job,
 )
-from ap.api.setting_module.services.show_latest_record import get_latest_records
+from ap.api.setting_module.services.show_latest_record import load_external_preview_dataset
 from ap.api.setting_module.services.web_api_import import import_web_api_job
 from ap.common.common_utils import add_seconds, parse_int_value
 from ap.common.constants import (
@@ -351,14 +352,26 @@ def update_process_info(process_id: int, status: ProcessStatus, ja_locale: bool)
     """
     with make_session() as meta_session:
         process = meta_session.query(CfgProcess).get(process_id)
-        (detected_columns, *_tmp_) = get_latest_records(
+        preview_context = PreviewRequestContext(
             data_source_id=process.data_source_id,
+            process_id=process.id,
             table_name=process.table_name,
-            limit=1000,
+            file_name=None,
+            directory=None,
             process_factid=process.process_factid,
             master_type=MasterDBType[process.master_type],
-            ja_locale=ja_locale,
+            etl_func='',
+            import_filter={},
+            api_url=None,
+            encoding=None,
+            delimiter=None,
+            is_v2_datasource=False,
+            filtered_process_name=None,
+            requested_column_names=(),
+            requested_raw_column_names=(),
+            refresh_preview=False,
         )
+        detected_columns = load_external_preview_dataset(preview_context).metadata.columns
         sw_columns = []
         for col in detected_columns:
             col_dtype = DataColumnType.GENERATED.value

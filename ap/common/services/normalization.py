@@ -23,6 +23,7 @@ DIC_IGNORE_NORMALIZATION = {
     ],  # process_name is used by V2, keep original value to extract again
     'cfg_data_source_db': ['host', 'dbname', 'schema', 'username', 'password'],
     'cfg_process_column': ['column_raw_name'],
+    'cfg_quick_plot_upload': ['original_filename', 'stored_filename', 'stored_path'],
 }
 
 # convert postal mark in string to `post`, done before normalize_str
@@ -149,38 +150,51 @@ def normalize_df(df: DataFrame, col):
     return normalize_series(df[col])
 
 
-@log_execution_time()
-def normalize_series(orig_series):
-    # Convert the column to string type
-    series = convert_df_str_to_others(orig_series)
-    series_type = series.dtypes.name
-    if series_type == 'object':
+def normalize_text_series(series: Series) -> Series:
+    if series.dtypes.name == 'object':
         series = series.astype(pd.StringDtype())
-    elif series_type == 'string':
-        pass
-    else:
-        return orig_series
+    elif series.dtypes.name != 'string':
+        return series
 
-    # Chain string operations
     series = series.str.normalize(NORMALIZE_FORM_NFKC).str.replace(r'\s+', HAN_SPACE, regex=True).str.strip()
-
     for replace_from, replace_to in REPLACE_PAIRS:
         series = series.str.replace(replace_from, replace_to)
-
     return series
 
 
 @log_execution_time()
-def normalize_big_rows(rows, headers=None, strip_quote=True, return_dataframe=True, is_show_raw_data=False):
+def normalize_series(orig_series):
+    # Convert the column to string type
+    series = convert_df_str_to_others(orig_series)
+    if series.dtypes.name not in ('object', 'string'):
+        return orig_series
+    return normalize_text_series(series)
+
+
+@log_execution_time()
+def normalize_big_rows(
+    rows,
+    headers=None,
+    strip_quote=True,
+    return_dataframe=True,
+    is_show_raw_data=False,
+    convert_types=True,
+):
     df = pd.DataFrame(rows, columns=headers)
     df = df.convert_dtypes()
 
+    # Collect each transformed column and rebuild the frame once. Assigning
+    # ``df[col] = ...`` repeatedly inside the loop fragments the block manager and
+    # scales poorly with column count; building from a dict keeps the exact same
+    # per-column results without the fragmentation overhead.
+    normalized_columns = {}
     for col in df.columns:
-        series = convert_df_str_to_others(df[col])
+        column = df[col]
+        series = convert_df_str_to_others(column) if convert_types else column
         series_type = series.dtypes.name
         if series_type == 'object':
             # df[col] = df[col].fillna('')
-            df[col] = df[col].astype(pd.StringDtype())
+            column = column.astype(pd.StringDtype())
             implement_flag = True
         elif series_type == 'string':
             # df[col] = df[col].fillna('')
@@ -191,11 +205,16 @@ def normalize_big_rows(rows, headers=None, strip_quote=True, return_dataframe=Tr
 
         if implement_flag:
             if strip_quote:
-                df[col] = df[col].str.strip("'")
+                column = column.str.strip("'")
 
             # for preview, show empty if there is NA
             if not is_show_raw_data:
-                df[col] = normalize_df(df, col)
+                column = normalize_series(column) if strip_quote else normalize_text_series(column)
+
+        normalized_columns[col] = column
+
+    if normalized_columns:
+        df = pd.DataFrame(normalized_columns, index=df.index)
 
     if return_dataframe:
         return df

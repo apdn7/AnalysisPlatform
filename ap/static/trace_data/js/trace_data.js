@@ -208,6 +208,7 @@ $(() => {
         const currentTraceData = graphStore.getTraceData();
         // TODO: should update than re-draw
         drawHistogramsTab(currentTraceData, fppScaleOption.yAxis, false, fppScaleOption.xAxis);
+        reapplyFppStyle();
     });
 
     // set copy clipboard for setting information
@@ -272,7 +273,7 @@ const buildTimeSeriesCardHTML = (chartOption, cssName) => {
                 proc="${endProcName}" sensor="${sensorId}">
                 <div class="cursor-hint"></div>
                 <div class="${cssName} shadow-sm">
-                    <div class="card-body">
+                    <div class="card-body plot-area">
                         <span class="btn-anchor"
                             data-pinned="false"
                             onclick="pinTSChart('area${index}');"><i class="fas fa-anchor"></i></span>
@@ -936,6 +937,10 @@ const traceDataChart = (data, clearOnFlyFilter) => {
     // draw charts in histogram tab
     drawHistogramsTab(data);
 
+    // Re-apply FppPlotStyleSetting to all newly created Plotly and Chart.js charts.
+    // Runs after produceWhiskerPlots + drawHistogramsTab so every chart is included.
+    reapplyFppStyle();
+
     // TODO add comment
     sessionStorage.setItem(tabID, 'JSON.stringify(histObjs)');
 
@@ -1292,7 +1297,7 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
 
         // TODO:  lay nhung column va process o res de disable chinh xac hon.
         if (clearOnFlyFilter) {
-            initTableValue();
+            await initTableValue();
         }
 
         res.filter_on_demand.category = orderCategoryWithOrderSeries(res, clearOnFlyFilter);
@@ -1306,9 +1311,9 @@ const traceData = (clearOnFlyFilter, autoUpdate) => {
 
         // Rebuild filter modal only on non-auto-update flow to avoid repeated heavy rebinding.
         if (!autoUpdate) {
-            fillDataToFilterModal(res.filter_on_demand, () => {
-                bindCategorySort();
-                handleSubmit(false, false);
+            fillDataToFilterModal(res.filter_on_demand, async () => {
+                await bindCategorySort();
+                await handleSubmit(false, false);
             });
         }
 
@@ -1568,6 +1573,7 @@ const onChangeYScale = () => {
         const currentTraceData = graphStore.getTraceData();
 
         drawHistogramsTab(currentTraceData, fppScaleOption.yAxis, false, fppScaleOption.xAxis);
+        reapplyFppStyle();
     });
 };
 
@@ -1582,11 +1588,16 @@ const handleExportData = (type) => {
 const bindScatterPlotEvents = () => {
     $(formElements.showScatterPlotSelect).on('change', (e) => {
         // check facets
-        const facetLv1 = $('select[name=catExpBox] option:selected[value="1"]').length;
-        const facetLv2 = $('select[name=catExpBox] option:selected[value="2"]').length;
+        const facetOptions = findValidationInputs('select[name=catExpBox]', formElements.formID).find(
+            'option:selected',
+        );
+        const facetLv1 = facetOptions.filter((_, opt) => $(opt).val() === '1').length;
+        const facetLv2 = facetOptions.filter((_, opt) => $(opt).val() === '2').length;
         if (facetLv1 || facetLv2) {
             // uncheck facets
-            $('select[name=catExpBox] option[value=""]').prop('selected', true);
+            findValidationInputs('select[name=catExpBox]', formElements.formID)
+                .find('option[value=""]')
+                .prop('selected', true);
         }
     });
 };
@@ -1600,4 +1611,22 @@ const goToGraphConfigPageFPP = (url) => {
 
     const procId = graphStore.getArrayPlotData(selectedCanvasId).end_proc_id;
     goToOtherPage(`${url}?proc_id=${procId}`, false);
+};
+
+/**
+ * Re-apply the current FppPlotStyleSetting to every Plotly and Chart.js chart.
+ * Routes through the window bridge so Plotly relayout and the Chart.js custom-event
+ * listeners share a single execution path. Gracefully no-ops when the lazy React
+ * component has not yet exposed the required window functions.
+ */
+const reapplyFppStyle = () => {
+    if (typeof window.getStyleLayout !== 'function') return;
+    const { theme, size } = window.getStyleLayout();
+    if (typeof window.handleOnchangeTheme === 'function') {
+        window.handleOnchangeTheme(theme);
+    }
+    if (typeof window.handleOnchangeFontsize === 'function') {
+        window.handleOnchangeFontsize(size);
+    }
+    adjustCatetoryTableLength();
 };

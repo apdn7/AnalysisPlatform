@@ -36,6 +36,7 @@ const modalEls = {
     colorBox: $('#colorBox'),
     colorBoxTitle: $('#colorTitle'),
     sortBtn: $('#filterSortBtn'),
+    registerInFilterConfigBtn: $('#catFilterRegisterInFilterConfig'),
 };
 const orderColumn = (processID, columnID, orderType) => {
     return {
@@ -44,7 +45,7 @@ const orderColumn = (processID, columnID, orderType) => {
         serialOrder: Number(orderType),
     };
 };
-const bindCategorySort = () => {
+const bindCategorySort = async () => {
     const currentTrace = graphStore.traceDataResult;
     // get category order from on-demand filter
     const categoryBox = modalEls.categoriesBox;
@@ -83,7 +84,7 @@ const bindCategorySort = () => {
         if (updateOrderCols.length) {
             // update index modal content
             lastSelectedOrder = updateOrderCols;
-            renderTableContent();
+            await renderTableContent();
         }
     }
 };
@@ -122,16 +123,11 @@ const filterDataModal = {
     div: [],
 };
 
-const isPageHaveLabelAndFilter = () => {
-    const currentPage = getCurrentPage();
-    return currentPage === PAGE_NAME.fpp;
-};
-
 function fillDataToFilterModal(data = filterDataModal, callback) {
-    const [categoriesLabel, categoriesFilter] = getLabelAndFilterValues();
-    if (isPageHaveLabelAndFilter()) {
-        data.filter = data.filter.filter((e) => categoriesFilter.includes(e.column_id));
-        data.category = data.category.filter((item, index, self) => categoriesLabel.includes(item.column_id));
+    if (getCurrentPage() === PAGE_NAME.fpp) {
+        const [categoriesLabel, categoriesFilter] = getLabelAndFilterValues();
+        data.filter = data.filter.filter((item) => categoriesFilter.includes(item.column_id));
+        data.category = data.category.filter((item) => categoriesLabel.includes(item.column_id));
     }
     let facetHtml = renderFilterHtml(data.facet);
     let categoryHtml = renderFilterHtml(data.category);
@@ -248,6 +244,27 @@ function fillDataToFilterModal(data = filterDataModal, callback) {
             onChangeAllOption();
             onDemandFilterInputCheck();
         }, 500);
+    });
+
+    // Register in Filter Config
+    modalEls.registerInFilterConfigBtn.unbind('click');
+    modalEls.registerInFilterConfigBtn.click(async () => {
+        // collect all checked items
+        dicConfirmed = copyDict(dicChecked);
+
+        // call API to register selected filters
+        const response = await fetchData(
+            '/ap/api/common/register_in_filter_config',
+            JSON.stringify(dicConfirmed),
+            'POST',
+        );
+
+        // show toast message when success or error
+        if (response && response.status) {
+            showToastrMsg('Selected filters registered successfully.', MESSAGE_LEVEL.INFO);
+        } else {
+            showToastrMsg('Failed to register selected filters.', MESSAGE_LEVEL.ERROR);
+        }
     });
 
     function init() {

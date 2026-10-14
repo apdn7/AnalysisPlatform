@@ -97,14 +97,16 @@ class JudgeFormula(ConversionFormula):
     def detect(cls, series: pd.Series) -> Self | None:
         series = series.dropna()
         try:
-            if series.nunique() <= 2:
+            unique_values = series.unique()
+            if len(unique_values) <= 2:
+                unique_strings = {str(val) for val in unique_values}
                 for i, judge_formula in enumerate(JUDGE_FORMULAS):
-                    if judge_formula.positive in [str(val) for val in series.unique()]:
+                    if judge_formula.positive in unique_strings:
                         return judge_formula
 
                 # if NG only has in data set positive is Null
                 for i, judge_formula in enumerate(JUDGE_FORMULAS):
-                    if judge_formula.negative in [str(val) for val in series.unique()]:
+                    if judge_formula.negative in unique_strings:
                         return JudgeFormula(
                             positive='Null',
                             negative=judge_formula.negative,

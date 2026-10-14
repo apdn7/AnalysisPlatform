@@ -344,9 +344,11 @@ $(() => {
 const loading = $('.loading');
 
 const validateDTypesForHMp = () => {
-    const selectedVariables = [...$('input[name^=GET02_VALS_SELECT]:checked')];
+    const selectedVariables = findValidationInputs('input[name^=GET02_VALS_SELECT]:checked', formElements.formID).get();
 
-    const targetVariableTypes = selectedVariables.map((el) => $(`#dataType-${$(el).val()}`).val());
+    const targetVariableTypes = selectedVariables.map((el) =>
+        findValidationInputs(`[id="dataType-${$(el).val()}"]`, formElements.formID).val(),
+    );
     const selectedTypes = new Set(targetVariableTypes).size;
 
     // add case "Cat" and "Str" to show in HMp
@@ -371,7 +373,7 @@ const validateDTypesForHMp = () => {
 
 const checkWrongColorType = () => {
     // Allow show HMP Heat Map graph with color map (z-axis) is [Ratio(%)] and [Count] when not select color variable
-    const colorVars = $('input[name^=colorVar]:checked').length;
+    const colorVars = findValidationInputs('input[name^=colorVar]:checked', formElements.formID).length;
     const functionCate = formElements.functionCate.val();
     return !colorVars && !CATEGORY_FUNCTION_ALLOWED_METHODS.includes(functionCate);
 };
@@ -783,6 +785,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         onChangeChartScale();
         onChangeColNumber();
         onChangeArrangeDiv();
+        onApplyStyleSetting();
     }
 
     loadingHide();
@@ -988,7 +991,7 @@ const genHTMLContentMatrix = (
         `;
     };
 
-    const chartDom = `<div class="scpchart-wrapper d-flex">
+    const chartDom = `<div id="scpchart-dom" class="scpchart-wrapper d-flex">
                 <div class="flex-grow-1" id="scpChartGrp" style="width: calc(100% - 30px);">
                   <div id="scpchart-content" class="position-relative" style="width: calc(100% - 50px); height:  calc(100% - 20px); margin-left: 50px;">
                     

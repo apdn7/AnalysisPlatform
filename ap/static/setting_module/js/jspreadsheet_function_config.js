@@ -1182,12 +1182,19 @@ class SpreadSheetFunctionConfig {
         const customOptions = {
             // freezeColumns: firstSampleDataIndex,
             tableOverflow: true,
-            tableHeight: 'calc(100vh - 370px)',
+            tableHeight: 'min(20vh, 200px)',
             tableWidth: '100%',
             allowManualDeleteRow: true,
         };
 
         const customEvents = {
+            onselection: (instance, x1, y1, x2, y2) => {
+                const row = instance.querySelector(`tbody tr[data-y="${y2}"]`);
+                if (row) {
+                    FunctionInfo.scrollRowIntoView(row);
+                }
+            },
+
             /**
              * Onload event
              * @param {jspreadsheet.JspreadsheetInstanceElement} instance

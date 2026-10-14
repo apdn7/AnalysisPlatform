@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-import Plotly from 'plotly.js/dist/plotly';
-
 import FontSizeBlock from '@/shared/components/ui/FontSizeBlock.tsx';
 import ThemeBlock from '@/shared/components/ui/ThemeBlock.tsx';
 
@@ -57,7 +55,7 @@ export default function PCPPlotStyleSetting({}) {
         const labelSize = fontSize.label[sizeKey] ?? fontSize.label.base;
         const scale = labelSize / fontSize.label.base;
 
-        Plotly.restyle(
+        window.Plotly.restyle(
             plotDOM,
             {
                 'font.size': fontSize.tick[sizeKey],
@@ -98,7 +96,7 @@ export default function PCPPlotStyleSetting({}) {
             'font.color': colors.text,
         };
 
-        Plotly.update(
+        window.Plotly.update(
             plotDOM,
             traceUpdate,
             layoutUpdate,

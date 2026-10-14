@@ -2,7 +2,7 @@ import io
 import os.path
 import shutil
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from time import sleep
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -20,7 +20,6 @@ from ap.common.multiprocess_sharing import EventQueue
 from ap.common.path_utils import (
     get_config_db_path,
     get_data_path,
-    get_files,
     get_instance_path,
     get_preview_data_path,
     get_scheduler_db_path,
@@ -34,26 +33,31 @@ from ap.setting_module.models import CfgProcess
 from ap.trace_data.transaction_model import TransactionData
 
 PREVIEW_DATA_FILE_NAME = 'data_preview.zip'
+_PREVIEW_PARQUET_SUFFIX = '.parquet'
+_LEGACY_PREVIEW_JSON_SUFFIX = '.json'
+_PENDING_PREVIEW_FOLDER = '_pending'
 
 
 def zip_preview_folder_to_byte() -> io.BytesIO | None:
-    """returns: zip archive"""
+    """Archive persistent Preview Parquet files for configuration export."""
     preview_data_path = Path(get_preview_data_path())
     if not preview_data_path.is_dir():
         return None
 
+    preview_files = [
+        path
+        for path in preview_data_path.rglob(f'*{_PREVIEW_PARQUET_SUFFIX}')
+        if path.is_file() and _PENDING_PREVIEW_FOLDER not in path.relative_to(preview_data_path).parts
+    ]
+    if not preview_files:
+        return None
+
     archive = io.BytesIO()
     with ZipFile(archive, 'w', ZIP_DEFLATED, compresslevel=9) as zip_archive:
-        for file_path in get_files(preview_data_path.__str__(), extension=['json']):
-            _file_path = Path(file_path)
-            with (
-                zip_archive.open(os.path.join(_file_path.parent.name, _file_path.name), 'w') as file,
-                _file_path.open(
-                    'rb',
-                ) as f,
-            ):
-                file.write(f.read())
+        for preview_file in preview_files:
+            zip_archive.write(preview_file, preview_file.relative_to(preview_data_path))
 
+    archive.seek(0)
     return archive
 
 
@@ -192,11 +196,30 @@ def import_config_and_master(file_path):
     file_names = sorted(input_zip.namelist())
     for name in file_names:
         if name in [PREVIEW_DATA_FILE_NAME]:
-            with ZipFile(input_zip.open(name)) as f:
-                f.extractall(get_preview_data_path())
+            _restore_preview_archive(input_zip.open(name))
             continue
 
         input_zip.extract(name, get_instance_path())
+
+
+def _restore_preview_archive(archive_file) -> None:
+    """Restore Preview Parquet and legacy JSON migration input only."""
+    preview_data_path = Path(get_preview_data_path())
+    with ZipFile(archive_file) as preview_archive:
+        for member in preview_archive.infolist():
+            relative_path = PurePosixPath(member.filename)
+            if not _is_restorable_preview_member(relative_path):
+                continue
+            output_path = preview_data_path.joinpath(*relative_path.parts)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            with preview_archive.open(member) as source, output_path.open('wb') as destination:
+                shutil.copyfileobj(source, destination)
+
+
+def _is_restorable_preview_member(path: PurePosixPath) -> bool:
+    if path.is_absolute() or not path.parts or '..' in path.parts or _PENDING_PREVIEW_FOLDER in path.parts:
+        return False
+    return path.suffix.casefold() in {_PREVIEW_PARQUET_SUFFIX, _LEGACY_PREVIEW_JSON_SUFFIX}
 
 
 def truncate_datatables():

@@ -16,6 +16,7 @@ from zipfile import ZipFile
 import numpy as np
 import pandas as pd
 from flask import Response
+from loguru import logger
 
 from ap.api.efa.services.etl import detect_file_stream_delimiter
 from ap.common.common_utils import detect_encoding
@@ -72,26 +73,44 @@ def get_encoding_name(encoding):
     return encoding
 
 
-def verify_encoding(f_name, delimiter, encoding):
+def verify_encoding(f_name, delimiter, encoding, nrows=1000, is_auto=False):
     try:
-        pd.read_csv(f_name, sep=delimiter, encoding=encoding, nrows=1000, on_bad_lines='skip')
-    except Exception as e:
-        raise EncodingException(f_name, encoding) from e
+        pd.read_csv(f_name, sep=delimiter, encoding=encoding, nrows=nrows, on_bad_lines='skip')
+    except UnicodeDecodeError as e:
+        # Detected encoding failed, retry with unicode_escape
+        if is_auto:
+            logger.exception(
+                'UnicodeDecodeError occurred while reading with detected encoding %s, trying unicode_escape', encoding
+            )
+            try:
+                pd.read_csv(f_name, sep=delimiter, encoding='unicode_escape', nrows=nrows, on_bad_lines='skip')
+            except UnicodeDecodeError:
+                logger.exception(
+                    'UnicodeDecodeError occurred while reading the file %s with unicode_escape, reading with utf-8 and '
+                    'replacing errors',
+                    f_name,
+                )
+                pd.read_csv(
+                    f_name, sep=delimiter, encoding=None, nrows=nrows, on_bad_lines='skip', encoding_errors='replace'
+                )
+        else:
+            # User-selected encoding failed, raise EncodingException
+            raise EncodingException(f_name, encoding) from e
 
 
-def get_delimiter_encoding(f_name, preview=False, skip_head: int | None = None, encoding=None):
+def get_delimiter_encoding(
+    f_name, preview=False, skip_head: int | None = None, user_selected_encoding=None, verify_limit=1000
+):
     with open_with_zip(f_name, 'rb') as f:
         if skip_head is not None and skip_head != 0:
             f.readlines(skip_head)
         metadata = get_metadata(f, is_full_scan_metadata=True, default_csv_delimiter=',')
         delimiter = metadata.get(DELIMITER_KW)
+        detected_encoding = metadata.get(ENCODING_KW)
 
-        # if encoding is not set, get from metadata
-        if not encoding:
-            encoding = metadata.get(ENCODING_KW)
-
+        encoding = user_selected_encoding if user_selected_encoding is not None else detected_encoding
         # verify encoding again
-        verify_encoding(f_name, delimiter, encoding)
+        verify_encoding(f_name, delimiter, encoding, nrows=verify_limit, is_auto=user_selected_encoding is None)
 
         # todo: verify pandas read_csv with BOM
         # if preview:

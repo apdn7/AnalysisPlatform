@@ -12,6 +12,16 @@ export const COLOR_SCALES = [
     '#bcbd22',
 ];
 
+export const NUMERIC_COLOR_SCALE: Array<[number, string]> = [
+    [0, '#0000ff'],
+    [0.1666, '#009fff'],
+    [0.3333, '#00ffff'],
+    [0.5, '#00ff00'],
+    [0.6666, '#ffff00'],
+    [0.8333, '#ff7f00'],
+    [1, '#ff0000'],
+];
+
 export const plotConfig: Partial<Config> = {
     displayModeBar: true,
     displaylogo: false,

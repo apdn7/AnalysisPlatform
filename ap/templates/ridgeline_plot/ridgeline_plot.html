@@ -90,7 +90,7 @@
     <br />
     <div id="CatePlotCards" style="display: none">
         <div class="row showOutlier">
-            <div class="col-12 d-flex align-items-center" id="graph-settings-area">
+            <div class="col-9 d-flex align-items-center" id="graph-settings-area">
                 <div>{{ macros.info_i_mark() }}</div>
                 {{ macros.on_demand_filter() }}
                 {{ macros.order_btn(graphArea='1', callbackFunc='() => {handleSortGraphPosition();}') }}
@@ -98,6 +98,11 @@
                 {{ macros.scale_option(name='yScaleOption', className='ml-4', onChange='changeRLPScale()') }}
                 {{ macros.switch_button(id='showXAxis', label=_('Show x-axis labels'), cl='ml-4', onChange='showXAxisLabel(this)') }}
             </div>
+            <div
+                class="react-root"
+                data-component="RidgelinePlotStyleSetting"
+                style="margin-left: auto; margin-right: 15px"
+            ></div>
         </div>
         <div class="plot-content">
             <div class="card cate-plot-cards chart-wrapper clearfix ui-sortable" id="RLPCard"></div>

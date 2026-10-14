@@ -253,8 +253,9 @@ const sendDataGAWhenClickFilterButton = (filterButtonPosition = '') => {
 $(() => {
     showAllLabelsInUse();
 
-    $('.filter-label-btn-event').on('click', (e) => {
-        const position = e.currentTarget.getAttribute('data-position');
-        sendDataGAWhenClickFilterButton(position);
+    // Let filter panels share the active menu with bookmarks and tours, while preserving GA tracking.
+    bindHoverDropdown('.filter-label-btn-event', {
+        menuSelector: '.custom-selection-content-event',
+        onOpen: (button) => sendDataGAWhenClickFilterButton(button.getAttribute('data-position')),
     });
 });

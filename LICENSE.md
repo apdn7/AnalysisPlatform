@@ -2,7 +2,7 @@
 
 The MIT License (MIT)
 
-Copyright (c) 2019-2025 DENSO Corporation, F-IoT DAC Team & Rainbow7 + Bridge7, Tatsunori Kojo, Genta Kikuchi, Sho Takahashi, Takero Arakawa, Le Sy Khanh Duy, Tran Ngoc Tinh, Nguyen Van Hoai, Ho Hoang Tung, Pham Minh Hoang, Tran Thi Kim Tuyen, Toshikuni Shinohara and DENSO contributors
+Copyright (c) 2019-2026 DENSO Corporation, F-IoT DAC Team & Rainbow7 + Bridge7, Tatsunori Kojo, Genta Kikuchi, Sho Takahashi, Takero Arakawa, Le Sy Khanh Duy, Tran Ngoc Tinh, Nguyen Van Hoai, Ho Hoang Tung, Pham Minh Hoang, Tran Thi Kim Tuyen, Toshikuni Shinohara and DENSO contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

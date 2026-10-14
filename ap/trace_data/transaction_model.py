@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime as dt
 from collections import namedtuple
 from collections.abc import Iterator
+from dataclasses import dataclass
 from datetime import datetime
 from functools import cached_property
 from typing import Any, ClassVar, Union
@@ -30,6 +31,9 @@ from ap.common.common_utils import (
 )
 from ap.common.constants import (
     DATE_FORMAT_SQLITE_STR,
+    PREVIEW_INTERNAL_ANALYSIS_LIMIT,
+    PREVIEW_WIDE_SOURCE_ANALYSIS_LIMIT,
+    PREVIEW_WIDE_SOURCE_COLUMN_THRESHOLD,
     SQL_PARAM_SYMBOL,
     BaseEnum,
     DataColumnType,
@@ -46,6 +50,25 @@ from ap.setting_module.models import (
     CfgProcess,
     CfgProcessColumn,
 )
+
+
+@dataclass(frozen=True)
+class PreviewTableAvailability:
+    """Availability and row count of a Process transaction table for Preview."""
+
+    table_exists: bool
+    row_count: int
+
+    @property
+    def has_rows(self) -> bool:
+        return self.row_count > 0
+
+
+def get_internal_preview_table_availability(process: int | CfgProcess) -> PreviewTableAvailability:
+    """Inspect an Internal preview source through TransactionData and TxnDataConnection."""
+    transaction_data = TransactionData(process)
+    with TxnDataConnection(process_id=transaction_data.process_id, readonly_transaction=True) as data_con:
+        return transaction_data.get_preview_table_availability(data_con)
 
 
 class TransactionData:
@@ -112,8 +135,12 @@ class TransactionData:
         delete_process: Delete process table.
         remove_transaction_by_time_range: Remove transactions by time range.
         get_max_date_time_by_process_id: Get maximum datetime.
-        get_min_date_time_by_process_id: Get minimum datetime.
-        get_latest_records_by_process_id: Get latest records.
+         get_min_date_time_by_process_id: Get minimum datetime.
+         get_latest_records_by_process_id: Get latest records.
+         get_preview_latest_records: Get the newest preview records in display order.
+         get_preview_record_limit: Get the analysis limit for the physical schema.
+         get_preview_process_columns: Resolve Preview bridge columns to Process columns.
+         map_preview_dataframe_to_process_columns: Hide internal bridge identifiers.
         get_datetime_value: Get datetime values.
         get_column_value_by_id: Get column values by ID.
         table_model: Get SQLAlchemy table model.
@@ -198,6 +225,16 @@ class TransactionData:
     def count_data(self, data_con: DuckDB) -> int:
         sql = sa.select(sa.func.count(1)).select_from(sa.table(self.table_name))
         return data_con.run_sql(sql).fetchone()[0] or 0
+
+    def get_preview_table_availability(self, data_con: DuckDB) -> PreviewTableAvailability:
+        """Return whether the transaction table exists and how many rows it contains.
+
+        The caller intentionally receives connection/query failures unchanged so
+        Preview resolution can distinguish them from an absent or empty table.
+        """
+        if self.table_name not in data_con.list_tables():
+            return PreviewTableAvailability(table_exists=False, row_count=0)
+        return PreviewTableAvailability(table_exists=True, row_count=self.count_data(data_con))
 
     @log_execution_time()
     def get_pandas_column_dtypes(self, data_con: DuckDB) -> dict[str, ExtensionDtype]:
@@ -403,6 +440,86 @@ class TransactionData:
         if limit is not None:
             sql = sql.limit(limit)
         return data_con.run_sql(sql).fetchdf()
+
+    def get_preview_latest_records(
+        self,
+        data_con: DuckDB,
+        limit: int,
+        column_names: tuple[str, ...] = (),
+    ) -> pd.DataFrame:
+        """Return a projected newest-row sample in ascending main-datetime order."""
+        if limit <= 0:
+            raise ValueError('Preview latest-record limit must be positive')
+
+        datetime_column_name = self.getdate_column.bridge_column_name
+        datetime_column = self.table_model.c[datetime_column_name]
+        selected_column_names = tuple(dict.fromkeys(column_names))
+        if selected_column_names:
+            selected_columns = [self.table_model.c[column_name] for column_name in selected_column_names]
+            inner_columns = (
+                selected_columns
+                if datetime_column_name in selected_column_names
+                else [*selected_columns, datetime_column]
+            )
+            latest_records = sa.select(*inner_columns).order_by(datetime_column.desc()).limit(limit).subquery()
+            sql = sa.select(*(latest_records.c[column_name] for column_name in selected_column_names)).order_by(
+                latest_records.c[datetime_column_name],
+            )
+        else:
+            latest_records = sa.select(self.table_model).order_by(datetime_column.desc()).limit(limit).subquery()
+            sql = sa.select(latest_records).order_by(latest_records.c[datetime_column_name])
+        return data_con.run_sql(sql).fetchdf()
+
+    def get_preview_record_limit(self, data_con: DuckDB) -> int:
+        """Choose the Internal preview limit from the physical transaction schema."""
+        physical_column_count = len(data_con.column_types(self.table_name))
+        if physical_column_count > PREVIEW_WIDE_SOURCE_COLUMN_THRESHOLD:
+            return PREVIEW_WIDE_SOURCE_ANALYSIS_LIMIT
+        return PREVIEW_INTERNAL_ANALYSIS_LIMIT
+
+    def get_preview_process_columns(
+        self,
+        bridge_column_names: tuple[str, ...] = (),
+        *,
+        include_transaction_functions: bool = False,
+    ) -> list[CfgProcessColumn]:
+        """Resolve requested transaction bridge columns to saved Process columns."""
+        # Main previews exclude functions; explicit projections may read persisted outputs.
+        include_stored_functions = include_transaction_functions or bool(bridge_column_names)
+        process_columns_by_bridge_name = {
+            column.bridge_column_name: column
+            for column in self.cfg_process_columns
+            if column.bridge_column_name
+            and (not column.is_function_column or (include_stored_functions and column.is_transaction_column))
+        }
+        if not bridge_column_names:
+            return list(process_columns_by_bridge_name.values())
+
+        unknown_columns = set(bridge_column_names) - set(process_columns_by_bridge_name)
+        if unknown_columns:
+            raise ValueError(f'Unknown Process preview columns: {sorted(unknown_columns)}')
+        return [process_columns_by_bridge_name[column_name] for column_name in bridge_column_names]
+
+    def get_preview_column_metadata(
+        self,
+        bridge_column_names: tuple[str, ...] = (),
+    ) -> list[dict[str, Any]]:
+        """Return saved Process column configuration without source re-analysis."""
+        return [column.as_dict() for column in self.get_preview_process_columns(bridge_column_names)]
+
+    def map_preview_dataframe_to_process_columns(
+        self,
+        dataframe: pd.DataFrame,
+        bridge_column_names: tuple[str, ...] = (),
+    ) -> pd.DataFrame:
+        """Drop internal columns and rename transaction bridge names to Process names."""
+        process_columns = self.get_preview_process_columns(bridge_column_names)
+        selected_bridge_column_names = [column.bridge_column_name for column in process_columns]
+        missing_columns = set(selected_bridge_column_names) - set(dataframe.columns)
+        if missing_columns:
+            raise ValueError(f'Internal preview is missing Process columns: {sorted(missing_columns)}')
+        column_name_mapping = {column.bridge_column_name: column.column_name for column in process_columns}
+        return dataframe.loc[:, selected_bridge_column_names].rename(columns=column_name_mapping)
 
     @cached_property
     def table_model(self) -> sa.Table:

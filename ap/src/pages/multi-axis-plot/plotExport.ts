@@ -1,6 +1,7 @@
 import Plotly from 'plotly.js/dist/plotly';
 
 import { type GraphSetting, type PlotFigureOptions, buildPlotFigure } from './plotBuilder';
+import { withHiddenNumericLegendPoints } from './plotLegend';
 import type { PlotSeries, SubplotCount } from './types';
 
 const EXPORT_WIDTH = 1920;
@@ -28,6 +29,7 @@ const buildExportFigure = (
 ) =>
     buildPlotFigure(plotData, graphSettings, {
         ...options.figureOptions,
+        width: size.width,
         height: options.figureOptions?.height ?? size.height,
     });
 
@@ -38,11 +40,13 @@ export const getPlotPngBlob = async (
     options: ExportOptions = {},
 ): Promise<Blob> => {
     const exportSize = normalizeExportSize(size);
-    const imageUrl = await Plotly.toImage(buildExportFigure(plotData, graphSettings, exportSize, options), {
-        format: 'png',
-        width: exportSize.width,
-        height: exportSize.height,
-    });
+    const imageUrl = await withHiddenNumericLegendPoints<string>(() =>
+        Plotly.toImage(buildExportFigure(plotData, graphSettings, exportSize, options), {
+            format: 'png',
+            width: exportSize.width,
+            height: exportSize.height,
+        }),
+    );
     const response = await fetch(imageUrl);
 
     return response.blob();
@@ -56,12 +60,14 @@ export const savePlotAsPng = async (
     options: ExportOptions = {},
 ): Promise<void> => {
     const exportSize = normalizeExportSize(size);
-    await Plotly.downloadImage(buildExportFigure(plotData, graphSettings, exportSize, options), {
-        format: 'png',
-        filename,
-        width: exportSize.width,
-        height: exportSize.height,
-    });
+    await withHiddenNumericLegendPoints(() =>
+        Plotly.downloadImage(buildExportFigure(plotData, graphSettings, exportSize, options), {
+            format: 'png',
+            filename,
+            width: exportSize.width,
+            height: exportSize.height,
+        }),
+    );
 };
 
 export const copyPlotToClipboard = async (

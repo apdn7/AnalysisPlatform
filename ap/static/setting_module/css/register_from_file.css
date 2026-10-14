@@ -18,7 +18,7 @@
 
 .file-folder-browser {
     padding: 10px;
-    height: 105px;
+    min-height: 105px;
 }
 
 .border-dash-gray {
@@ -29,6 +29,7 @@
 
 .progress-display {
     height: fit-content;
+    margin-top: 37px;
     padding: 20px;
     min-height: 105px;
 }
@@ -42,6 +43,224 @@
 
 .directory-form {
     flex: 1;
+    min-width: 0;
+}
+
+/* Keep the established source controls beside Quick Plot on wide screens. */
+.quick-plot-layout {
+    display: grid;
+    grid-template-columns: minmax(520px, 1fr) minmax(340px, 420px);
+    gap: 15px;
+    /* Let either panel grow the row while keeping their bottom edges aligned. */
+    align-items: stretch;
+}
+
+/* Give both input methods the same title baseline without stretching their framed content. */
+.source-registration-panel,
+.quick-plot-panel {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.quick-plot-panel {
+    min-height: 0;
+}
+
+.quick-plot-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.source-registration-title,
+.quick-plot-title {
+    margin: 0 0 6px;
+    font-size: 1.55rem;
+    line-height: 1.25;
+}
+
+.source-registration-title {
+    text-align: left;
+}
+
+.source-registration-title small {
+    font-size: 0.65em;
+}
+
+.quick-plot-title {
+    text-align: left;
+}
+
+/* Keep the design's explanatory label subordinate to the Quick Plot name. */
+.quick-plot-title small {
+    font-size: 0.72em;
+}
+
+.source-registration-details {
+    flex: 1;
+    padding-top: 14px;
+}
+
+/* Keep Register Data at the row bottom when upload details grow Quick Plot. */
+.source-registration-details > .justify-content-end {
+    margin-top: auto;
+    padding-top: 18px;
+}
+
+/* Use an inset outline to reproduce the design's nested dashed drop frame. */
+.quick-plot-drop-area {
+    position: static;
+    display: flex;
+    flex: 1;
+    min-height: 260px;
+    align-items: center;
+    /* Center the content when it fits, but fall back to top alignment when it is
+       taller than the panel so the cloud icon is never clipped by scroll pinning. */
+    justify-content: safe center;
+    flex-direction: column;
+    /* Symmetric padding keeps the drop area balanced; safe center aligns content to
+       the top only when it is taller than the panel. */
+    padding: 10px 20px;
+    overflow: visible;
+    border: 1px dashed #777777;
+    outline: 1px dashed #777777;
+    outline-offset: -9px;
+    text-align: center;
+    background-color: #303030;
+    cursor: pointer;
+}
+
+.quick-plot-drop-area:focus,
+.quick-plot-drop-area.is-dragover {
+    border-color: #bdbdbd;
+    outline-color: #bdbdbd;
+    box-shadow: inset 0 0 18px rgb(255 255 255 / 8%);
+    background-color: #303030;
+}
+
+.quick-plot-drop-area:focus {
+    box-shadow:
+        inset 0 0 18px rgb(255 255 255 / 8%),
+        0 0 0 2px rgb(102 175 233 / 35%);
+    outline: 1px dashed #bdbdbd;
+    outline-offset: -9px;
+}
+
+.quick-plot-cloud {
+    display: block;
+    margin: 0 auto 10px;
+    color: #ffffff;
+    font-size: 2.4rem;
+}
+
+.quick-plot-prompt,
+.quick-plot-file-name,
+.quick-plot-status,
+.quick-plot-error {
+    margin-bottom: 4px;
+}
+
+.quick-plot-prompt {
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+/* Group each design note into readable paragraphs without changing the drop target. */
+.quick-plot-prompt p,
+.quick-plot-notice p {
+    margin-bottom: 0;
+}
+
+.quick-plot-notice {
+    margin: 8px 0 6px;
+    font-size: 0.78rem;
+    line-height: 1.3;
+}
+
+.quick-plot-storage-note {
+    margin-top: 10px;
+}
+
+.quick-plot-choose-button {
+    margin: 8px 0;
+}
+
+.quick-plot-file-name {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    color: #cccccc;
+    white-space: nowrap;
+}
+
+.quick-plot-progress {
+    width: 100%;
+    height: 10px;
+    margin: 10px auto;
+    display: inline-table;
+    overflow: unset;
+}
+
+#quickPlotProgressBar {
+    display: inherit;
+    width: 100%;
+    height: 10px;
+    min-height: 10px;
+}
+
+.quick-plot-status {
+    min-height: 1em;
+}
+
+.quick-plot-error {
+    min-height: 1em;
+    color: #ffb3b3;
+}
+
+@media (max-width: 1660px) {
+    .section {
+        padding: 20px 2vw 20px 2vw;
+    }
+}
+
+/* Stack the panels before source controls become too narrow for translated labels. */
+@media (max-width: 1200px) {
+    .quick-plot-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Only constrain the drop area when the viewport is narrow or short. */
+@media (max-width: 1200px), (max-height: 650px) {
+    .quick-plot-drop-area {
+        min-height: 0;
+        max-height: 60vh;
+        overflow: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .data-source-config {
+        padding-right: 0;
+    }
+
+    #progressDisplay {
+        margin-top: 0;
+        margin-left: 2vw;
+        flex: 0 0 calc(100% - 2vw);
+    }
+}
+
+/* Let the existing source labels and inputs wrap on small screens. */
+@media (max-width: 575.98px) {
+    .file-folder-browser {
+        flex-direction: column;
+    }
+
+    .file-folder-browser .section-title {
+        margin-right: 0 !important;
+    }
 }
 
 .register-datasource-button {
@@ -91,4 +310,17 @@
 
 [id^='processGeneralInfo'] div.form-group.row {
     align-items: baseline;
+}
+
+.source-explanation {
+    white-space: pre-wrap;
+    tab-size: 4;
+}
+
+[name='processGeneralInfo'] > div > div {
+    padding-right: 0;
+}
+
+#procSettingModal > div > div.row {
+    margin-right: 0;
 }

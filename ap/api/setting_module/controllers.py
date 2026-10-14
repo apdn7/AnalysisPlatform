@@ -6,7 +6,9 @@ import os
 import tempfile
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
 from typing import Any
+from uuid import UUID, uuid4
 
 import flask
 import flask_migrate
@@ -19,6 +21,8 @@ from flask_babel import gettext as _
 from loguru import logger
 from pydantic import ValidationError
 from pytz import utc
+from werkzeug.exceptions import RequestEntityTooLarge
+from werkzeug.formparser import parse_form_data
 
 from ap import background_jobs, close_sessions, dic_config, max_graph_config, scheduler
 from ap.api.common.services.show_graph_services import check_path_exist, sorted_function_details
@@ -67,6 +71,12 @@ from ap.api.setting_module.services.polling_frequency import (
     handle_update_polling,
     has_important_changes,
 )
+from ap.api.setting_module.services.preview_data import PreviewRequestContext, parse_refresh_preview
+from ap.api.setting_module.services.preview_function import resolve_function_preview
+from ap.api.setting_module.services.preview_parquet import write_generation_preview
+from ap.api.setting_module.services.preview_proc_link import resolve_proc_link_preview
+from ap.api.setting_module.services.preview_resolver import resolve_preview_dataset
+from ap.api.setting_module.services.preview_unique import PreviewGenerationMismatch, resolve_unique_preview
 from ap.api.setting_module.services.process_delete import (
     classify_processes_for_delete,
     del_data_sources,
@@ -79,24 +89,18 @@ from ap.api.setting_module.services.process_delete import (
 )
 from ap.api.setting_module.services.save_load_user_setting import map_form, transform_settings
 from ap.api.setting_module.services.show_latest_record import (
+    build_preview_response,
     check_datasource_connection,
     gen_preview_data_check_dict,
     gen_v2_columns_with_types,
     get_last_distinct_sensor_values,
-    get_latest_record_from_preview_file,
-    get_latest_records,
-    get_preview_data_files,
-    get_sample_from_preview_data,
     preview_csv_data,
     preview_v2_data,
     save_master_vis_config,
-    save_preview_ds_file,
-    save_preview_process_file,
 )
 from ap.api.setting_module.services.shutdown_app import shut_down_app
 from ap.api.trace_data.services.proc_link import (
     add_gen_proc_link_job,
-    get_first_valid_value_for_proc_link_preview,
     proc_link_count_job,
     show_proc_link_info,
 )
@@ -120,6 +124,11 @@ from ap.common.constants import (
     FILE_NAME,
     FISCAL_YEAR_START_MONTH,
     OSERR,
+    PREVIEW_DISPLAY_LIMIT,
+    PREVIEW_FUNCTION_SAMPLE_LIMIT,
+    PREVIEW_UNIQUE_COLUMN_BATCH_LIMIT,
+    QUICK_PLOT_MAX_FORM_MEMORY_SIZE_BYTES,
+    QUICK_PLOT_MAX_REQUEST_SIZE_BYTES,
     SHUTDOWN,
     UI_ORDER_DB,
     UNDER_SCORE,
@@ -144,14 +153,12 @@ from ap.common.constants import (
     ProcessStatus,
     SampleDataDisplayMode,
 )
-from ap.common.custom_exception import DatabaseConnectionError
 from ap.common.datetime_format_utils import convert_datetime_format
 from ap.common.db_maintenance import backup_config_db
 from ap.common.memoize import clear_cache
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.multiprocess_sharing.events import EventKillJobs
 from ap.common.path_utils import get_error_trace_path, get_export_setting_path, get_files, get_log_path, make_dir
-from ap.common.pydn.dblib.transaction import TxnDataConnection
 from ap.common.scheduler import run_after_request
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_and_master_data import (
@@ -214,17 +221,18 @@ from ap.setting_module.services.process_config import (
     get_process_visualizations,
     query_database_tables,
 )
+from ap.setting_module.services.quick_plot import QuickPlotUploadError, store_quick_plot_upload
 from ap.setting_module.services.register_from_file import (
     get_latest_records_for_register_by_file,
     get_url_to_redirect,
     handle_importing_by_one_click,
+    promote_registered_process_preview,
 )
 from ap.setting_module.services.trace_config import (
     gen_cfg_trace,
     get_all_processes_traces_info,
     trace_config_crud,
 )
-from ap.trace_data.transaction_model import TransactionData
 
 api_setting_module_blueprint = Blueprint('api_setting_module', __name__, url_prefix='/ap/api/setting')
 
@@ -437,11 +445,150 @@ def show_latest_records_for_register_by_file():
     """
     dic_form = request.form.to_dict()
     file_name = dic_form.get('fileName') or None
-    limit = parse_int_value(dic_form.get('limit')) or 10
+    limit = min(
+        parse_int_value(dic_form.get('limit')) or PREVIEW_DISPLAY_LIMIT,
+        PREVIEW_FUNCTION_SAMPLE_LIMIT,
+    )
     folder = dic_form.get('folder') or None
     encoding = request.form.get('encoding') or Encoding.AUTO_DETECT.code
-    latest_rec = get_latest_records_for_register_by_file(file_name, folder, limit, encoding=encoding)
+    latest_rec = get_latest_records_for_register_by_file(
+        file_name,
+        folder,
+        limit,
+        encoding=encoding,
+    )
     return json_dumps(latest_rec)
+
+
+def _build_external_preview_context(
+    *,
+    data_source_id: str | None,
+    process_id: str | None,
+    table_name: str | None,
+    file_name: str | None,
+    directory: str | None,
+    process_factid: str | None,
+    master_type: MasterDBType | None,
+    etl_func: str,
+    import_filter: dict[str, Any],
+    api_url: str | None,
+    encoding: str | None = None,
+    delimiter: str | None = None,
+    is_v2_datasource: bool = False,
+    filtered_process_name: str | None = None,
+    requested_column_names: tuple[str, ...] = (),
+    requested_raw_column_names: tuple[str, ...] = (),
+    refresh_preview: bool = False,
+) -> PreviewRequestContext:
+    resolved_data_source_id = parse_int_value(data_source_id)
+    data_source = CfgDataSource.query.get(resolved_data_source_id) if resolved_data_source_id is not None else None
+    csv_detail = getattr(data_source, 'csv_detail', None) if data_source else None
+    resolved_encoding = encoding or getattr(csv_detail, 'encoding', None)
+    resolved_delimiter = delimiter or getattr(csv_detail, 'delimiter', None)
+    return PreviewRequestContext(
+        data_source_id=resolved_data_source_id,
+        process_id=parse_int_value(process_id) if process_id and process_id != 'null' else None,
+        table_name=table_name,
+        file_name=file_name,
+        directory=directory,
+        process_factid=process_factid,
+        master_type=master_type,
+        etl_func=etl_func,
+        import_filter=import_filter,
+        api_url=api_url,
+        encoding=resolved_encoding,
+        auto_encoding=getattr(csv_detail, 'auto_encoding', None),
+        delimiter=resolved_delimiter,
+        is_v2_datasource=is_v2_datasource,
+        filtered_process_name=filtered_process_name,
+        requested_column_names=requested_column_names,
+        requested_raw_column_names=requested_raw_column_names,
+        refresh_preview=refresh_preview,
+    )
+
+
+_MAIN_PREVIEW_UNIQUE_KEYS = (
+    'unique_rows_as_category',
+    'unique_rows_as_real',
+    'unique_rows_as_int',
+    'unique_rows_as_int_cat',
+)
+
+
+def _build_empty_main_preview_result() -> dict[str, Any]:
+    return {
+        'cols': [],
+        'rows': [],
+        'cols_duplicated': [],
+        'fail_limit': None,
+        'has_ct_col': None,
+        'dummy_datetime_idx': None,
+        'data_group_type': {key: DataColumnType[key].value for key in DataColumnType.get_keys()},
+        'is_rdb': False,
+        'file_name_col_idx': None,
+        'transform_error': False,
+        'labels': [],
+        'message': None,
+        'processing_stage': None,
+        **{key: [] for key in _MAIN_PREVIEW_UNIQUE_KEYS},
+    }
+
+
+def _parse_unique_requested_columns(dic_form: dict[str, str]) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Validate the Process-to-raw column request used by unique samples."""
+    try:
+        parsed_column_names = json.loads(dic_form.get('columnNames') or '[]')
+    except json.JSONDecodeError:
+        parsed_column_names = []
+    if not isinstance(parsed_column_names, list):
+        parsed_column_names = []
+    column_names = tuple(
+        dict.fromkeys(
+            column_name for column_name in parsed_column_names if isinstance(column_name, str) and column_name
+        )
+    )[:PREVIEW_UNIQUE_COLUMN_BATCH_LIMIT]
+
+    try:
+        parsed_raw_column_names = json.loads(dic_form.get('columnRawNames') or '{}')
+    except json.JSONDecodeError:
+        parsed_raw_column_names = {}
+    if not isinstance(parsed_raw_column_names, dict):
+        parsed_raw_column_names = {}
+    raw_column_names = tuple(
+        raw_column_name
+        for column_name in column_names
+        if isinstance(raw_column_name := parsed_raw_column_names.get(column_name) or column_name, str)
+        and raw_column_name
+    )
+    return column_names, raw_column_names
+
+
+def _parse_import_filter(value: str | None) -> dict[str, Any] | None:
+    try:
+        parsed = json.loads(value or '{}')
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _enforce_main_preview_contract(result: dict[str, Any]) -> dict[str, Any]:
+    response = _build_empty_main_preview_result()
+    response.update(result)
+    response.update({key: [] for key in _MAIN_PREVIEW_UNIQUE_KEYS})
+    return response
+
+
+def _has_data_source_column_changes(old_column_names: list[str], new_columns: list[dict[str, Any]]) -> bool:
+    """Compare datasource columns while ignoring columns generated only for Preview."""
+    old_column_name_set = set(old_column_names)
+    new_column_names = set()
+    for column in new_columns:
+        column_name = column['column_name']
+        if column.get('is_dummy_datetime') or column.get('is_file_name'):
+            old_column_name_set.discard(column_name)
+            continue
+        new_column_names.add(column_name)
+    return old_column_name_set != new_column_names
 
 
 @api_setting_module_blueprint.route('/show_latest_records', methods=['POST'])
@@ -456,139 +603,286 @@ def show_latest_records():
     data_source_id = dic_form.get('databaseName') or dic_form.get('processDsID')
     table_name = dic_form.get('tableName') or None
     file_name = dic_form.get('fileName') or None
-    limit = parse_int_value(dic_form.get('limit')) or 10
+    limit = min(
+        parse_int_value(dic_form.get('limit')) or PREVIEW_DISPLAY_LIMIT,
+        PREVIEW_FUNCTION_SAMPLE_LIMIT,
+    )
     folder = dic_form.get('folder') or None
     current_process_id = dic_form.get('currentProcessId', None)
+    current_process_id_for_preview = current_process_id if current_process_id and current_process_id != 'null' else None
     process_factid = dic_form.get('processFactId', None)
     master_type = dic_form.get('masterType', None)
     master_type = MasterDBType[master_type] if master_type else None
     etl_func = dic_form.get('etlFunc', '')
-    import_filter = json.loads(dic_form.get('filter') or '{}')
+    result = _build_empty_main_preview_result()
+    import_filter = _parse_import_filter(dic_form.get('filter'))
+    if import_filter is None:
+        return json_dumps(result), 400
     api_url = dic_form.get('apiUrl', None)
+    refresh_preview = parse_refresh_preview(dic_form.get('refreshPreview'))
 
     response_code = 200
-    result = {
-        'cols': [],
-        'rows': [],
-        'cols_duplicated': [],
-        'fail_limit': None,
-        'has_ct_col': None,
-        'dummy_datetime_idx': None,
-        'is_rdb': False,
-        'file_name_col_idx': None,
-        'transform_error': False,
-        'unique_rows_as_category': [],
-        'unique_rows_as_real': [],
-        'unique_rows_as_int': [],
-    }
-    preview_data = None
-    old_cols_from_file = None
 
-    if current_process_id and current_process_id != 'null' and not file_name:
-        preview_file_name = get_preview_data_files(
-            data_source_id, table_name, process_factid, master_type, etl_func, current_process_id
-        )
-        if preview_file_name:
-            try:
-                with open(preview_file_name, encoding='utf-8') as file:
-                    preview_data = get_latest_record_from_preview_file(file, current_process_id, limit)
-                    old_cols_from_file = [col['column_name'] for col in preview_data.get('cols', [])]
-            except Exception as e:
-                logger.exception(e)
-
-        # For registered process: Try connecting to datasource
+    if refresh_preview and current_process_id_for_preview and not file_name:
+        # Only an explicit Preview Update validates the registered datasource.
         try:
             data_source: CfgDataSource = CfgDataSource.query.get(data_source_id)
             check_datasource_connection(data_source)
-        except (FileNotFoundError, DatabaseConnectionError) as e:
+        except Exception as e:
             logger.exception(e)
-            # If the data source cannot be accessed, data is loaded from a pre-saved JSON file.
-            if preview_data:
-                return json_dumps(preview_data), response_code
-            result['message'] = _('Unable to connect to data source. No preview data available.')
-            return json_dumps(result), response_code
+            result['message'] = _('Unable to connect to data source. Existing preview data was kept.')
+            return json_dumps(result), 503
 
-    # Try to get data from source first
+    # Main previews may generate on a cache miss; sample sub-queries stay local.
     try:
-        latest_rec = get_latest_records(
-            data_source_id,
-            table_name,
-            file_name,
-            folder,
-            limit,
-            current_process_id,
+        context = _build_external_preview_context(
+            data_source_id=data_source_id,
+            process_id=current_process_id,
+            table_name=table_name,
+            file_name=file_name,
+            directory=folder,
             process_factid=process_factid,
             master_type=master_type,
             etl_func=etl_func,
-            api_url=api_url,
             import_filter=import_filter,
+            api_url=api_url,
+            refresh_preview=refresh_preview,
         )
-        if latest_rec:
-            (
-                cols_with_types,
-                rows,
-                cols_duplicated,
-                previewed_files,
-                has_ct_col,
-                dummy_datetime_idx,
-                is_rdb,
-                file_name_col_idx,
-                unique_rows_as_category,
-                unique_rows_as_real,
-                unique_rows_as_int,
-                unique_rows_as_int_cat,
-                labels,
-            ) = latest_rec
-
-            # === Column change check section ===
-            column_changed_message = None
-            if old_cols_from_file is not None:
-                new_cols = [col['column_name'] for col in cols_with_types]
-                # set comparison for elements
-                if set(old_cols_from_file) != set(new_cols):
-                    column_changed_message = _(
-                        'The data source columns have changed. The imported data may no longer be accurate.'
-                        ' Please reinitialize the process and re-register.'
-                    )
-
-            dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
-            data_group_type = {key: DataColumnType[key].value for key in DataColumnType.get_keys()}
-            result = {
-                'cols': cols_with_types,
-                'rows': rows,
-                'cols_duplicated': cols_duplicated,
-                'fail_limit': dic_preview_limit,
-                'has_ct_col': has_ct_col,
-                'dummy_datetime_idx': None if is_rdb else dummy_datetime_idx,
-                'data_group_type': data_group_type,
-                'is_rdb': is_rdb,
-                'file_name_col_idx': file_name_col_idx,
-                'transform_error': False,
-                'unique_rows_as_category': unique_rows_as_category,
-                'unique_rows_as_real': unique_rows_as_real,
-                'unique_rows_as_int': unique_rows_as_int,
-                'unique_rows_as_int_cat': unique_rows_as_int_cat,
-                'labels': [DefinedLabel(label).name for label in labels],
-            }
-            # Save the fetched data to JSON file
-            save_preview_ds_file(
-                int(data_source_id),
-                result,
-                table_name=table_name,
-                process_factid=process_factid,
-                master_type=master_type,
-                etl_func=etl_func,
+        dataset = resolve_preview_dataset(context, generate_if_missing=True)
+        if dataset is None:
+            if refresh_preview:
+                result['message'] = _('Preview Update failed. Existing preview data was kept.')
+                return json_dumps(result), 500
+            result['message'] = _(
+                'No valid local preview is available. Use Preview Update to load data from the external source.'
             )
-            result['message'] = column_changed_message
-            result = json_dumps(result)
-            return result, response_code
+            return json_dumps(result), response_code
+        preview_response = build_preview_response(dataset, limit=limit)
+        cols_with_types = preview_response['cols']
+        rows = preview_response['rows']
+        previewed_files = preview_response['previewed_files']
+        is_rdb = preview_response['is_rdb']
+        column_changed_message = None
+        if (
+            refresh_preview
+            and current_process_id_for_preview
+            and dataset.metadata.source_column_names is not None
+            and _has_data_source_column_changes(dataset.metadata.source_column_names, cols_with_types)
+        ):
+            column_changed_message = _(
+                'The data source columns have changed. The imported data may no longer be accurate.'
+                ' Please reinitialize the process and re-register.'
+            )
+        labels = []
+        if data_source_id:
+            data_source = CfgDataSource.query.get(data_source_id)
+            if data_source:
+                labels = [DefinedLabel.get_by_dbtype(DBType[data_source.type]).name]
+
+        dic_preview_limit = gen_preview_data_check_dict(rows, previewed_files)
+        data_group_type = result['data_group_type']
+        result = {
+            'cols': cols_with_types,
+            'rows': rows,
+            'cols_duplicated': preview_response['cols_duplicated'],
+            'fail_limit': dic_preview_limit,
+            'has_ct_col': preview_response['has_ct_col'],
+            'dummy_datetime_idx': None if is_rdb else preview_response['dummy_datetime_idx'],
+            'data_group_type': data_group_type,
+            'is_rdb': is_rdb,
+            'file_name_col_idx': preview_response['file_name_col_idx'],
+            'transform_error': False,
+            'unique_rows_as_category': [],
+            'unique_rows_as_real': [],
+            'unique_rows_as_int': [],
+            'unique_rows_as_int_cat': [],
+            'labels': labels,
+            # IMPORTED rows already had the Process datetime format applied during import.
+            'processing_stage': dataset.metadata.processing_stage.value,
+        }
+        result['message'] = column_changed_message
+        generation = uuid4().hex
+        try:
+            write_generation_preview(context, dataset, generation)
+        except Exception as error:
+            logger.exception(error)
+            result = _build_empty_main_preview_result()
+            if refresh_preview:
+                result['message'] = _('Preview Update failed. Existing preview data was kept.')
+                return json_dumps(result), 500
+            return json_dumps(result), response_code
+        result = json_dumps(result)
+        return result, response_code, {'X-Preview-Generation': generation}
     except ETLException as e:
         result['transform_error'] = e.get_message()
         response_code = e.status_code
         return json_dumps(result), response_code
     except Exception as e:
         logger.exception(e)
+        if refresh_preview:
+            result = _build_empty_main_preview_result()
+            result['message'] = _('Preview Update failed. Existing preview data was kept.')
+            return json_dumps(result), 500
         return json_dumps(result), response_code
+
+
+@api_setting_module_blueprint.route('/show_latest_records_function_sample', methods=['POST'])
+def show_latest_records_function_sample():
+    """Get up to 1000 sample rows for function-column X/Y inputs on demand."""
+    dic_form = request.form.to_dict()
+    data_source_id = dic_form.get('databaseName') or dic_form.get('processDsID')
+    table_name = dic_form.get('tableName') or None
+    file_name = dic_form.get('fileName') or None
+    limit = min(parse_int_value(dic_form.get('limit')) or 1000, 1000)
+    folder = dic_form.get('folder') or None
+    current_process_id = dic_form.get('currentProcessId', None)
+    current_process_id_for_preview = current_process_id if current_process_id and current_process_id != 'null' else None
+    process_factid = dic_form.get('processFactId', None)
+    master_type = dic_form.get('masterType', None)
+    master_type = MasterDBType[master_type] if master_type else None
+    etl_func = dic_form.get('etlFunc', '')
+    import_filter = _parse_import_filter(dic_form.get('filter'))
+    result = {'samples': {}}
+    if import_filter is None:
+        return Response(json_dumps(result), status=400, mimetype='application/json')
+    api_url = dic_form.get('apiUrl', None)
+    column_names = json.loads(dic_form.get('columnNames') or '[]')
+    column_names = [column_name for column_name in column_names if isinstance(column_name, str) and column_name]
+    column_raw_names = json.loads(dic_form.get('columnRawNames') or '{}')
+    if not isinstance(column_raw_names, dict):
+        column_raw_names = {}
+    selected_raw_column_names: list[str] = []
+    for column_name in column_names:
+        raw_column_name = column_raw_names.get(column_name) or column_name
+        if isinstance(raw_column_name, str) and raw_column_name:
+            selected_raw_column_names.append(raw_column_name)
+    selected_raw_column_names.extend(
+        column_name for column_name in import_filter if isinstance(column_name, str) and column_name
+    )
+    selected_raw_column_names = list(dict.fromkeys(selected_raw_column_names))
+
+    request_started_at = perf_counter()
+    source_elapsed = 0.0
+
+    def log_timing(stage: str) -> None:
+        total_elapsed = perf_counter() - request_started_at
+        logger.debug(
+            'show_latest_records_function_sample stage={} source={:.4f}s total={:.4f}s limit={} cols={}',
+            stage,
+            source_elapsed,
+            total_elapsed,
+            limit,
+            len(column_names),
+        )
+
+    def json_response(payload: dict, status: int = 200) -> Response:
+        return Response(json_dumps(payload), status=status, mimetype='application/json')
+
+    if not column_names:
+        log_timing('empty_column_names')
+        return json_response(result)
+
+    source_started_at = perf_counter()
+    try:
+        context = _build_external_preview_context(
+            data_source_id=data_source_id,
+            process_id=current_process_id_for_preview,
+            table_name=table_name,
+            file_name=file_name,
+            directory=folder,
+            process_factid=process_factid,
+            master_type=master_type,
+            etl_func=etl_func,
+            import_filter=import_filter,
+            api_url=api_url,
+            requested_column_names=tuple(column_names),
+            requested_raw_column_names=tuple(selected_raw_column_names),
+        )
+        function_preview = resolve_function_preview(context, limit=limit)
+        result['samples'] = function_preview.samples
+        # Lets the client skip re-applying the Process datetime format to IMPORTED samples.
+        result['processing_stage'] = (
+            function_preview.processing_stage.value if function_preview.processing_stage else None
+        )
+    except ETLException as e:
+        result['transform_error'] = e.get_message()
+        log_timing('source_etl_exception')
+        return json_response(result, e.status_code)
+    except Exception as e:
+        logger.exception(e)
+    finally:
+        source_elapsed = perf_counter() - source_started_at
+
+    log_timing('source_done')
+    return json_response(result)
+
+
+@api_setting_module_blueprint.route('/show_latest_records_unique_sample', methods=['POST'])
+def show_latest_records_unique_sample():
+    """Calculate unique/percentile sample data on demand."""
+    dic_form = request.form.to_dict()
+    data_source_id = dic_form.get('databaseName') or dic_form.get('processDsID')
+    table_name = dic_form.get('tableName') or None
+    file_name = dic_form.get('fileName') or None
+    folder = dic_form.get('folder') or None
+    current_process_id = dic_form.get('currentProcessId', None)
+    process_factid = dic_form.get('processFactId', None)
+    master_type = dic_form.get('masterType', None)
+    master_type = MasterDBType[master_type] if master_type else None
+    etl_func = dic_form.get('etlFunc', '')
+    result = {
+        'unique_rows_as_category': [],
+        'unique_rows_as_real': [],
+        'unique_rows_as_int': [],
+        'unique_rows_as_int_cat': [],
+    }
+    import_filter = _parse_import_filter(dic_form.get('filter'))
+    if import_filter is None:
+        return json_dumps(result), 400
+    api_url = dic_form.get('apiUrl', None)
+    encoding = dic_form.get('encoding') or None
+    is_v2_datasource = dic_form.get('isV2Datasource') == 'true'
+    filtered_process_name = dic_form.get('filteredProcessName') or None
+    requested_column_names, requested_raw_column_names = _parse_unique_requested_columns(dic_form)
+    generation = dic_form.get('previewGeneration') or ''
+
+    response_code = 200
+
+    try:
+        parsed_generation = UUID(hex=generation)
+    except (ValueError, AttributeError):
+        return json_dumps(result), 400
+    if parsed_generation.version != 4 or parsed_generation.hex != generation:
+        return json_dumps(result), 400
+
+    try:
+        context = _build_external_preview_context(
+            data_source_id=data_source_id,
+            process_id=current_process_id,
+            table_name=table_name,
+            file_name=file_name,
+            directory=folder,
+            process_factid=process_factid,
+            master_type=master_type,
+            etl_func=etl_func,
+            import_filter=import_filter,
+            api_url=api_url,
+            encoding=encoding,
+            is_v2_datasource=is_v2_datasource,
+            filtered_process_name=filtered_process_name,
+            requested_column_names=requested_column_names,
+            requested_raw_column_names=requested_raw_column_names,
+        )
+        result = resolve_unique_preview(context, generation)
+    except PreviewGenerationMismatch:
+        response_code = 409
+    except ETLException as e:
+        result['transform_error'] = e.get_message()
+        response_code = e.status_code
+    except Exception as e:
+        logger.exception(e)
+
+    return json_dumps(result), response_code
 
 
 @api_setting_module_blueprint.route('/get_csv_resources', methods=['POST'])
@@ -1151,15 +1445,6 @@ def post_proc_config():
             process = create_or_update_process_cfg(request_process, unused_columns, labels, meta_session=session)
             process = process.clone()
             output_data = process_schema.dump(process)
-            # save preview_process by process id
-            save_preview_process_file(
-                output_data['data_source_id'],
-                output_data['id'],
-                output_data['table_name'],
-                output_data['process_factid'],
-                output_data['master_type'],
-                output_data['etl_func'],
-            )
 
             if is_new_proc:
                 # In case new process, do update transaction table immediately
@@ -1188,6 +1473,18 @@ def post_proc_config():
                     request_process.id,
                     session=session,
                 )
+
+        # Publish an immediate Process preview from the cached datasource preview so
+        # opening the settings screen before the first import does not access the
+        # external source. Best-effort: never fail registration over a preview.
+        saved_process_id = output_data.get('id')
+        if saved_process_id:
+            try:
+                saved_process = CfgProcess.get_proc_by_id(saved_process_id)
+                if saved_process is not None:
+                    promote_registered_process_preview(saved_process)
+            except Exception:
+                logger.exception('Failed to promote Process preview for process_id=%s', saved_process_id)
 
         for process in processes_to_queue_jobs:
             add_required_jobs_after_update_transaction_table(process, is_new_process=is_new_proc)
@@ -1771,7 +2068,9 @@ def get_jobs():
 @api_setting_module_blueprint.route('/check_duplicated_db_source', methods=['POST'])
 def check_duplicated_db_source_name():
     dbs_name = json.loads(request.data).get('name', '')
-    is_duplicated = CfgDataSource.check_duplicated_name(dbs_name)
+    dbs_id = json.loads(request.data).get('datasource_id', None)
+    dbs_id = parse_int_value(dbs_id)
+    is_duplicated = CfgDataSource.check_duplicated_name(dbs_name, dbs_id)
     return jsonify({'is_duplicated': is_duplicated}), 200
 
 
@@ -1781,17 +2080,16 @@ def check_duplicated_process_name():
     name_en = params.get('name_en', '')
     name_jp = params.get('name_jp', '')
     name_local = params.get('name_local', '')
+    proc_id = parse_int_value(params.get('process_id', None))
     is_duplicated_en, is_duplicated_jp, is_duplicated_local = CfgProcess.check_duplicated_name(
-        name_en,
-        name_jp,
-        name_local,
+        name_en, name_jp, name_local, proc_id
     )
     return jsonify({'is_duplicated': [is_duplicated_en, is_duplicated_jp, is_duplicated_local]}), 200
 
 
 @api_setting_module_blueprint.route('/register_source_and_proc', methods=['POST'])
-@login_required
 def register_source_and_proc():
+    """Register datasource/process metadata and preserve the existing import-job response contract."""
     try:
         new_process_ids = handle_importing_by_one_click(request.json)
 
@@ -1801,6 +2099,10 @@ def register_source_and_proc():
             'is_first_imported': False,
         }
         EventQueue.put(EventBackgroundAnnounce(data=data_register_data, event=AnnounceEvent.DATA_REGISTER))
+    except QuickPlotUploadError as error:
+        # Quick Plot association failures are client errors and must not create registration metadata.
+        data = {'message': _('Database Setting failed to save'), 'is_error': True, 'detail': str(error)}
+        return jsonify(data), error.status_code
     except Exception as e:
         logger.exception(e)
         data = {'message': _('Database Setting failed to save'), 'is_error': True, 'detail': str(e)}
@@ -1808,6 +2110,37 @@ def register_source_and_proc():
 
     data = {'message': _('Database Setting saved.'), 'is_error': False, 'processIds': new_process_ids}
     return jsonify(data), 200
+
+
+@api_setting_module_blueprint.route('/quick_plot/upload', methods=['POST'])
+def upload_quick_plot_file():
+    """Validate and stream one Quick Plot multipart file into private server storage."""
+    try:
+        # Parse through a request-scoped bounded parser so chunked bodies cannot spool unbounded content.
+        _upload_stream, upload_form, upload_files = parse_form_data(
+            request.environ,
+            max_content_length=QUICK_PLOT_MAX_REQUEST_SIZE_BYTES,
+            max_form_memory_size=QUICK_PLOT_MAX_FORM_MEMORY_SIZE_BYTES,
+        )
+
+        # Require exactly one file part with the fixed field name to avoid ambiguous upload selection.
+        if set(upload_files.keys()) != {'file'} or len(upload_files.getlist('file')) != 1 or len(upload_form) != 0:
+            raise QuickPlotUploadError('Exactly one multipart file field named "file" is required.')
+
+        # Delegate bounded streaming, atomic publication, and metadata persistence to the service layer.
+        upload_result = store_quick_plot_upload(upload_files.getlist('file')[0])
+        return jsonify(upload_result), 200
+    except RequestEntityTooLarge:
+        # The parser rejects oversized declared and chunked bodies before multipart spooling can grow unbounded.
+        error = QuickPlotUploadError('The selected file exceeds the 100 MB limit.', status_code=413)
+        return jsonify({'message': _('Upload failed'), 'is_error': True, 'detail': str(error)}), error.status_code
+    except QuickPlotUploadError as error:
+        # Return validation and size failures as explicit client errors.
+        return jsonify({'message': _('Upload failed'), 'is_error': True, 'detail': str(error)}), error.status_code
+    except Exception as error:
+        # Unexpected storage/database failures are logged without exposing file content.
+        logger.exception('Quick Plot upload failed')
+        return jsonify({'message': _('Upload failed'), 'is_error': True, 'detail': str(error)}), 500
 
 
 @api_setting_module_blueprint.route('/redirect_to_page', methods=['POST'])
@@ -2119,29 +2452,9 @@ def proc_link_preview():
     try:
         samples = []
         if process_id:
-            # get_sample_transaction
-            trans_data = TransactionData(process_id)
-            with TxnDataConnection(process_id=process_id, readonly_transaction=True) as data_con:
-                link_cols = trans_data.cfg_process.get_linking_columns()
-                samples = trans_data.get_sample_data(data_con, columns=link_cols)
-                samples = get_first_valid_value_for_proc_link_preview(samples)
-                if samples.empty:
-                    # get data from preview_data of process
-                    etl_func = trans_data.cfg_process.etl_func
-                    file_name = get_preview_data_files(
-                        trans_data.cfg_process.data_source_id, etl_func=etl_func, process_id=process_id
-                    )
-                    if file_name:
-                        with open(file_name, encoding='utf-8') as file:
-                            samples = get_latest_record_from_preview_file(file, process_id)
-                            samples = get_sample_from_preview_data(samples, link_cols).replace('', pd.NA)
-                            samples = get_first_valid_value_for_proc_link_preview(samples)
-
-                # after get data from transaction and preview file, if samples is empty => return None for all column
-                if samples.empty:
-                    samples = pd.DataFrame([[None] * len(samples.columns)], columns=samples.columns)
-                else:
-                    samples = samples.iloc[:1].to_dict(orient='records')[0]
+            process = CfgProcess.query.get(process_id)
+            if process:
+                samples = resolve_proc_link_preview(process)
         return orjson_dumps({'process_id': process_id, 'data': samples})
     except ValueError:
         pass

@@ -1,5 +1,8 @@
 const changeSampleDataDisplayMode = async (e) => {
     const sampleDataDisplayMode = e.value;
     const spreadsheet = getSpreadSheetFromToolsBarElement(e);
-    await SpreadSheetProcessConfig.updateSampleDataByDisplayMode(spreadsheet, sampleDataDisplayMode);
+    if (sampleDataDisplayMode === SAMPLE_DATA_DISPLAY_MODES.UNIQUE) {
+        await ensureUniqueSampleData(spreadsheet);
+    }
+    SpreadSheetProcessConfig.updateSampleDataByDisplayMode(spreadsheet, sampleDataDisplayMode);
 };

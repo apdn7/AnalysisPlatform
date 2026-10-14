@@ -124,7 +124,11 @@ def get_datasource_type(process_id, meta_session: scoped_session = None):
 def is_v2_data_source(ds_type=None, process_id=None, meta_session: scoped_session = None):
     ds_type = ds_type or get_datasource_type(process_id, meta_session=meta_session)
     if ds_type:
-        return ds_type.lower() == DBType.V2.name.lower()
+        return ds_type.lower() in {
+            DBType.V2.name.lower(),
+            DBType.V2_MULTI.name.lower(),
+            DBType.V2_HISTORY.name.lower(),
+        }
     return False
 
 

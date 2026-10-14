@@ -192,10 +192,11 @@ const handlerCancelChangeDefinitionMainSerialFunctionCol = () => {
 };
 
 const handlerConfirmReloadFunctionCol = () => {
-    FunctionInfo.removeAllFunctionRows();
     changeMainSerialToSerial();
-    dbFunctionCols?.map((data) => new FunctionInfo(data))?.forEach((functionInfo) => functionInfo.addNewFunctionRow());
-    FunctionInfo.initDropdownFunctionName();
+    // The function table may have been destroyed while the reload confirmation
+    // was pending. Reuse the normal loader so it recreates the spreadsheet,
+    // repopulates its rows, and takes a fresh change-tracking snapshot.
+    FunctionInfo.loadFunctionListTableAndInitDropDown(dbFunctionCols ?? []);
     $(functionConfigElements.confirmReloadFunctionColumnModal).modal('hide');
 };
 

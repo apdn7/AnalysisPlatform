@@ -68,6 +68,7 @@
  *    data_source: string | null,
  *    is_csv: boolean | null,
  *    origin_name: string?,  // This field serve for V2 processes
+ *    preview_token: string?,
  * }} ProcessConfig
  */
 
@@ -337,6 +338,7 @@ class ProcessConfigSection {
         };
 
         this.dummyDatetimeColumnAndData = null;
+        this.previewToken = sectionHTMLObject.dataset.previewToken || null;
         sectionHTMLObject.__object__ = this;
     }
 
@@ -365,6 +367,7 @@ class ProcessConfigSection {
             columns: procColumnsData(tableId, true),
             datetime_format: datetimeFormat,
             labels: this.labels.get(),
+            preview_token: this.previewToken,
         };
 
         // No need fields in this time
@@ -383,7 +386,7 @@ class ProcessConfigSection {
      * @return {RequestProcessData} - an object contains process columns infos
      */
     static splitUsedColumnAndUnusedColumn(processConfig) {
-        const { labels, ...rest } = processConfig;
+        const { labels, preview_token, ...rest } = processConfig;
         const usedProcessConfig = { ...rest };
         const unusedProcessConfig = { ...rest };
 
@@ -394,6 +397,7 @@ class ProcessConfigSection {
             proc_config: usedProcessConfig,
             unused_columns: unusedProcessConfig,
             labels,
+            preview_token,
         };
     }
 
@@ -524,7 +528,7 @@ class ProcessConfigSection {
      */
     static #generateProcessConfigHeaderHTML(processConfig) {
         return `
-<div class="extend-section" id="procSettingModalBody_${processConfig.id}" data-process-id="${processConfig.id}">
+<div class="extend-section" id="procSettingModalBody_${processConfig.id}" data-process-id="${processConfig.id}" data-preview-token="${processConfig.preview_token ?? ''}">
    <div class="config-section">
       <div class="col-xl-10 col-md-12 pl-0">
         <form id="procCfgForm_${processConfig.id}" onsubmit="return false;">
@@ -717,7 +721,7 @@ class ProcessConfigSection {
                             </div>
                         </div>
                     </div>
-                    <div id="refactorProcSetting">
+                    <div id="refactorProcSetting" class="d-flex align-items-center flex-nowrap flex-shrink-0">
                         <div class="scroll-content">
                             <span id="sampleDataScrollToLeft"><i class="fa fa-angle-double-left"></i></span>
                             <span id="sampleDataScrollToLeftOneStep"><i class="fa fa-angle-left"></i></span>

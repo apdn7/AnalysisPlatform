@@ -92,6 +92,11 @@ class MAPDataResponse(BaseModel):
     x_process_name: str
     y_process_name: str
     color_group: str | int | None = None
+    array_color: list[float | None] | None = None
+    color_data_type: str | None = None
+    color_column_id: int | None = None
+    color_title: str | None = None
+    is_global_color: bool = False
     category_boundaries: list[dict[str, Any]] | None = None
     x_axis_tickvals: list[Any] | None = None
     x_axis_ticktext: list[str] | None = None

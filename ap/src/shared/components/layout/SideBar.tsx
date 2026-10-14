@@ -303,7 +303,7 @@ export default function Sidebar() {
                 </li>
             </ul>
 
-            <div className="position-absolute p-0 m-0 w-100" style={{ bottom: 0 }}>
+            <div className="sidebar-bottom p-0 m-0 w-100">
                 <div className="sidebar-marquee" style={{ visibility: 'collapse' }}>
                     <div className="marquee">
                         <div className="marquee-content">

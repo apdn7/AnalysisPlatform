@@ -71,7 +71,35 @@ declare const appContext: any;
 
 declare const showHideShutDownButton: () => void;
 
+interface HTMLLIElement {
+    _virtualListOwner?: HTMLElement;
+}
+
+interface HTMLElement {
+    _virtualList?: {
+        destroy: () => void;
+    };
+}
+
 interface Window {
+    // Legacy style updates also use Plotly's flat dotted-path syntax.
+    Plotly: typeof import('plotly.js') & {
+        relayout(
+            root: import('plotly.js').Root,
+            update: Record<string, unknown>,
+        ): Promise<import('plotly.js').PlotlyHTMLElement>;
+        restyle(
+            root: import('plotly.js').Root,
+            update: Record<string, unknown>,
+            traceIndices?: number | number[],
+        ): Promise<import('plotly.js').PlotlyHTMLElement>;
+        update(
+            root: import('plotly.js').Root,
+            traceUpdate: Record<string, unknown>,
+            layoutUpdate: Record<string, unknown>,
+            traceIndices?: number | number[],
+        ): Promise<import('plotly.js').PlotlyHTMLElement>;
+    };
     getStyleLayout?: () => {
         theme: themeKey;
         size: sizeKey;
@@ -79,8 +107,10 @@ interface Window {
     handleOnchangeTheme?: (themeKey) => void;
     handleOnchangeFontsize?: (sizeKey) => void;
     mountLayoutDropdowns?: (root?: ParentNode) => void;
+    unmountReactComponents?: (root: ParentNode) => void;
     collectLayoutData?: () => Partial<LayoutData>;
     getLayoutState?: () => LayoutState;
+    getLayoutSortPriorities?: () => Record<string, number>;
     setMapXOption?: (value: string) => void;
     setMapPlotData?: (
         data: PlotSeriesCollection,
@@ -103,6 +133,7 @@ interface Window {
         isDummyDatetime: boolean;
         layoutOrder: number;
     }) => void;
+    registerLayoutColumns?: (columns: NonNullable<Window['pendingLayoutColumns']>) => void;
     pendingLayoutColumns?: Array<{
         itemId: string | number;
         groupId?: string | number;
@@ -142,3 +173,7 @@ declare const FontAwesome: {
         i2svg: (options?: { node?: Element | Document }) => Promise<void>;
     };
 };
+
+declare const Chart: any;
+
+declare const adjustCatetoryTableLength: () => void;

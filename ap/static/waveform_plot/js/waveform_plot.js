@@ -52,7 +52,7 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
         res.array_plotdata.forEach((plotData, index) => {
             const chartId = `tv-card-${index}`;
             const cardHtml = `
-                <div class="card-border chart-wrapper waveform-plot-card" style="width: 100%; height: calc(30vw - 1rem);">
+                <div id="waveform-plot" class="card-border chart-wrapper waveform-plot-card" style="width: 100%; height: calc(30vw - 1rem);">
                     <div id="${chartId}" class="position-relative w-100 h-100"></div>
                 </div>
             `;
@@ -75,6 +75,7 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
             waveform.draw();
             waveform.onHover();
             waveform.onYTitleHover();
+            waveform.onApplyStyleSetting();
         });
     }
     // scroll to chart
@@ -82,14 +83,17 @@ const showWaveformChart = (res, setting = undefined, clearOnFlyFilter = false) =
 };
 
 const checkValidSelectedVariables = () => {
-    const selectedVariables = [...$('input[name^=GET02_VALS_SELECT]:checked')];
+    const selectedVariables = findValidationInputs('input[name^=GET02_VALS_SELECT]:checked', formElements.formID).get();
     const targetVariableShownType = selectedVariables.map((el) => $(el).attr('data-type-shown-name'));
     let isValid =
         targetVariableShownType.includes(DataTypes.REAL.short) ||
         targetVariableShownType.includes(DataTypes.DATETIME.short) ||
         targetVariableShownType.includes(DataTypes.INTEGER.short);
     // div is required
-    const hasDivValue = $('select[name=catExpBox] option:selected').text().includes('Div');
+    const hasDivValue = findValidationInputs('select[name=catExpBox]', formElements.formID)
+        .find('option:selected')
+        .text()
+        .includes('Div');
     if (!hasDivValue) {
         isValid = false;
         // updateStyleButtonByCheckingValid(true);
@@ -247,6 +251,15 @@ const getwaveformFormData = (formEleID, clearOnFlyFilter = null) => {
     formData = transformXY(formData);
 
     return formData;
+};
+
+const dumpData = (type) => {
+    const formData = lastUsedFormData || transformFormdata(true);
+    handleExportDataCommon(type, formData);
+};
+
+const handleExportData = (type) => {
+    showGraphAndDumpData(type, dumpData);
 };
 
 $(() => {

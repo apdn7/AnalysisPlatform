@@ -1,13 +1,29 @@
 .jump-content {
     display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
     justify-content: space-between;
     max-height: 85vh;
+}
+
+.jump-page-list {
     overflow-y: scroll;
 }
 
 .jump-page-list,
 .jump-sensor-list {
     width: calc(100% / 2 - 20px);
+}
+
+.jump-sensor-list {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.jump-sensor-list-header,
+.jump-options-area {
+    flex-shrink: 0;
 }
 
 .jump-recommended {
@@ -51,7 +67,22 @@
 }
 
 .jump-sensor-table {
-    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.jump-sensor-table > :first-child {
+    flex-shrink: 0;
+}
+
+#jumpSensorTbl_wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .jump-sensor-table table {
@@ -87,9 +118,15 @@
 }
 
 #jumpModal .modal-body {
+    display: flex;
+    flex-direction: column;
     max-height: 95vh;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: hidden;
+}
+
+#jumpModal .modal-body > :not(.jump-content) {
+    flex-shrink: 0;
 }
 
 #jumpSensorTbl tr {

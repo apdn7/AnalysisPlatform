@@ -19,11 +19,20 @@ let currentProcDataCols = [];
 let userEditedProcName = false;
 let userEditedDSName = false;
 let prcPreviewData;
+let latestRecordsFormData = null;
+let latestRecordsPreviewGeneration = null;
 let procSampleDataLength = {};
 
+// Mirrors PreviewProcessingStage.IMPORTED returned by the preview APIs
+const PREVIEW_PROCESSING_STAGE_IMPORTED = 'imported';
 let prcRawDataWith1000Data = {};
 let prcPreviewWith1000Data = {};
 let prcPreviewDataOfFunctionColumn = {};
+// Process column ids whose raw samples came from IMPORTED (already datetime-formatted) data
+let importedSampleProcessColumnIds = new Set();
+let functionSampleBatchByProcessColumnId = new Map();
+let functionSampleRequestId = 0;
+let uniqueSampleDataByColumn = {};
 let isClickPreview = false;
 let isClickPreviewMergeMode = false;
 let allProcessColumns = [];
@@ -55,16 +64,19 @@ const procModalElements = {
     procNameMergeMode: $('#procSettingMergeModeModal input[name=processName]'),
     procJapaneseName: $('#procSettingModal input[name=processJapaneseName]'),
     procLocalName: $('#procSettingModal input[name=processLocalName]'),
-    comment: $('#procSettingModal input[name=cfgProcComment]'),
+    comment: $('#procSettingModal textarea[name=cfgProcComment]'),
     label: $('#procSettingModal select[id=cfgProcLabel]'),
     isShowFileName: $('#procSettingModal input[name=isShowFileName]'),
     databases: $('#procSettingModal select[name=databaseName]'),
     databasesMergeMode: $('#procSettingMergeModeModal select[name=databaseName]'),
-    mergeProcComment: $('#procSettingMergeModeModal input#mergeProcComment'),
+    mergeProcComment: $('#procSettingMergeModeModal textarea#mergeProcComment'),
     tables: $('#procSettingModal select[name=tableName]'),
     optionalFunctions: $('#procSettingModal select[name=cfgOptionalFunction]'),
     childOptionalFunctions: $('#mergeModeModalBody select[name=cfgOptionalFunctionChild]'),
     showRecordsBtn: $('#procSettingModal button[name=showRecords]'),
+    previewUpdateBtn: $('#procSettingModal button[name=previewUpdate]'),
+    confirmPreviewUpdateModal: $('#confirmPreviewUpdateModal'),
+    confirmPreviewUpdateBtn: $('#confirmPreviewUpdateModal button[name=confirmPreviewUpdate]'),
     etlFuncWarningMark: $('#procSettingModal #optional-func-warning-mark'),
     childEtlFuncWarningMark: $('#mergeModeModalBody #optional-func-warning-mark'),
     btnFuncWarningMark: $('.btn-warning-mark'),
@@ -196,7 +208,7 @@ const procModalElements = {
     mergeModeTableBase: '.merge-mode-tables-base',
     mergeModeTables: $('#procSettingMergeModeModal select[name=childTableName]'),
     mergeModeLabel: $('#procSettingMergeModeModal select[id=cfgProcLabelMergeMode]'),
-    mergeModeInputComment: $('#procSettingMergeModeModal input[name=cfgProcComment]'),
+    mergeModeInputComment: $('#procSettingMergeModeModal textarea[name=cfgProcComment]'),
     mergeProcSearchInput: $('#procSettingMergeModeModal input#mergeProcSearchInput'),
     generatedDateTimeColumnName: 'DatetimeGenerated',
     collapseFunctionConfigID: '#functionSettingWithCollapse',
@@ -332,13 +344,47 @@ const translateToEng = async (text) => {
     return result;
 };
 
+const updateProcessPreviewButtons = (referenceFileValid = true) => {
+    const selectedSource = getSelectedOptionOfSelect(procModalElements.databases);
+    const sourceType = selectedSource.attr('type')?.toLowerCase();
+    const needsTable = sourceType && ![...DB_CONFIG_CSV_TYPES, DB.DB_CONFIGS.WEB_API.type].includes(sourceType);
+    const canPreview = Boolean(
+        referenceFileValid && selectedSource.val() && (!needsTable || procModalElements.tables.val()),
+    );
+    procModalElements.showRecordsBtn.prop('disabled', !canPreview);
+    procModalElements.previewUpdateBtn.prop('disabled', !canPreview || !procModalCurrentProcId);
+};
+
+const invalidateProcessPreview = () => {
+    prcPreviewData = null;
+    latestRecordsFormData = null;
+    latestRecordsPreviewGeneration = null;
+    currentProcColumns = null;
+    currentProcDataCols = [];
+    currentLatestProcDataCols = [];
+    clearDerivedSampleCaches();
+    clearProcModalColumnTable(procModalElements.procConfigTableName);
+    updateProcessPreviewButtons();
+};
+
+const clearDerivedSampleCaches = () => {
+    prcRawDataWith1000Data = {};
+    prcPreviewWith1000Data = {};
+    prcPreviewDataOfFunctionColumn = {};
+    importedSampleProcessColumnIds = new Set();
+    functionSampleBatchByProcessColumnId = new Map();
+    functionSampleRequestId += 1;
+    uniqueSampleDataByColumn = {};
+};
+
 const setProcessName = async (dataRowID = null) => {
+    updateProcessPreviewButtons();
     const procDOM = $(`#tblProcConfig tr[data-rowid=${dataRowID}]`);
     const procNameInput = procModalElements.proc.val();
     const ignoreRenameProcess = procModalElements.optionalFunctions.data(DATA_IGNORE_CHANGE);
 
     if (userEditedProcName && procNameInput) {
-        await showRecordsBtnFunc();
+        invalidateProcessPreview();
         return;
     }
     const dsSelection = getSelectedOptionOfSelect(procModalElements.databases);
@@ -416,16 +462,89 @@ const setProcessName = async (dataRowID = null) => {
             selectedDsType,
         );
 
-    // enable click preview btn when db + dataTable is chosen
-    if (!procModalCurrentProcId && dsIsDB && dsNameSelection && tableNameSelection) {
-        await showRecordsBtnFunc();
+    const canPreview = (dsIsDB && dsNameSelection && tableNameSelection) || (!dsIsDB && dsNameSelection);
+    if (!procModalCurrentProcId && canPreview) {
+        invalidateProcessPreview();
+        // Load the datasource preview once on a cold open. This is a normal
+        // (non-refresh) request: the backend serves a cached datasource preview when
+        // one exists and otherwise reads the source exactly once to generate and cache
+        // it. Preview Update remains the only path that force-refreshes from the source.
+        await loadProcessPreview(false);
     }
+};
 
-    // enable click preview btn when ds is chosen
-    if (!procModalCurrentProcId && !dsIsDB && dsNameSelection) {
-        // remove selected table
-        // $(`table[name=${procModalElements.processColumnsTable}] tbody`).empty();
-        await showRecordsBtnFunc();
+// --- Table-based data source general-info layout ---------------------------
+// Every data source that exposes the テーブル名 / オプション機能 block (i.e. any
+// table-based source: regular DB, Snowflake, Software Workshop, ... - anything
+// that is NOT CSV and NOT Web API) uses a rearranged general-info block: the
+// source column stacks データソース -> テーブル名 / オプション機能 / Show ->
+// ラベル / Preview Update, leaving only コメント in the comment column.
+// An unselected source uses the same layout, with the source-dependent controls disabled.
+// CSV keeps its own server-rendered layout; Web API shows neither block. The
+// single field instances are physically relocated (never duplicated) so element
+// IDs stay unique; a hidden anchor remembers each field's home position so the
+// default layout is restored for CSV / Web API. Relocation is idempotent across
+// repeated modal opens / data source switches.
+let procInfoLayoutAnchored = false;
+
+const anchorProcInfoField = ($node, key) => {
+    if (!$node.length || $node.attr('data-proc-home')) return;
+    $node.attr('data-proc-home', key);
+    // [hidden] -> display:none, so the anchor never participates in flex/grid layout.
+    $(`<span class="proc-info-home-anchor" data-proc-home-for="${key}" hidden></span>`).insertBefore($node);
+};
+
+const ensureProcInfoLayoutAnchors = () => {
+    if (procInfoLayoutAnchored) return;
+    const $info = $('#processGeneralInfo');
+    if (!$info.length) return;
+    anchorProcInfoField($info.find('button[name=showRecords]').first(), 'showBtn');
+    anchorProcInfoField($info.find('button[name=previewUpdate]').first(), 'previewBtn');
+    anchorProcInfoField($info.find('.proc-table-name-row').first(), 'tableRow');
+    anchorProcInfoField($info.find('.proc-optional-function-label-wrap').first(), 'optLabel');
+    anchorProcInfoField($info.find('.proc-optional-function-col').first(), 'optCol');
+    // ラベル row = the .form-group.row wrapper that holds #cfgProcLabel (keeps the
+    // select2 markup that lives next to the <select> intact when relocated).
+    anchorProcInfoField($('#cfgProcLabel').closest('.form-group.row'), 'labelRow');
+    procInfoLayoutAnchored = true;
+};
+
+const restoreProcInfoField = (key) => {
+    const $node = $(`[data-proc-home="${key}"]`).first();
+    const $anchor = $(`.proc-info-home-anchor[data-proc-home-for="${key}"]`).first();
+    if ($node.length && $anchor.length) $anchor.after($node);
+};
+
+const applyProcInfoLayoutForTableDataSource = (isTableDataSource) => {
+    const $info = $('#processGeneralInfo');
+    if (!$info.length) return;
+
+    if (isTableDataSource) {
+        ensureProcInfoLayoutAnchors();
+        $info.addClass('proc-table-ds-layout');
+
+        const $sourceCol = $info.find('.proc-general-info-source-col').first();
+        const $tableRow = $(`[data-proc-home="tableRow"]`).first();
+        const $labelRow = $(`[data-proc-home="labelRow"]`).first();
+
+        // Move the existing nodes, including Select2 markup and bound handlers.
+        // Keep the label row last so repeated opens/switches preserve all three rows.
+        $labelRow.before($tableRow);
+        $tableRow.append($(`[data-proc-home="optLabel"]`).first());
+        $tableRow.append($(`[data-proc-home="optCol"]`).first());
+        $tableRow.append($(`[data-proc-home="showBtn"]`).first());
+        $sourceCol.append($labelRow);
+        $labelRow.find('.proc-preview-row').append($(`[data-proc-home="previewBtn"]`).first());
+    } else if ($info.hasClass('proc-table-ds-layout')) {
+        $info.removeClass('proc-table-ds-layout');
+        // Restore the table row first: it carries optCol's anchor back to its home.
+        restoreProcInfoField('tableRow');
+        restoreProcInfoField('optCol');
+        restoreProcInfoField('optLabel');
+        // labelRow first (carries previewBtn's anchor), then the Preview Update button.
+        restoreProcInfoField('labelRow');
+        restoreProcInfoField('previewBtn');
+        restoreProcInfoField('showBtn');
     }
 };
 
@@ -433,10 +552,17 @@ const setProcessName = async (dataRowID = null) => {
 const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
     // if new row have process name, set new process name in modal
     if (!databaseId || isEmpty(databaseId)) {
+        procModalElements.tables.empty();
+        procModalElements.fileName.prop('disabled', false);
+        applyProcInfoLayoutForTableDataSource(true);
+        $(procModalElements.fileInputPreview).hide();
+        $(procModalElements.grTableDropdown).show();
+        propGroupTableDropdown(true);
         await setProcessName(dataRowID);
         return;
     }
     procModalElements.tables.empty();
+    updateProcessPreviewButtons();
     propGroupTableDropdown(false);
     clearProcModalColumnTable(procModalElements.procConfigTableName);
 
@@ -453,29 +579,40 @@ const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
             cache: false,
         });
 
+        // Rearrange the general-info block for any table-based data source (shows
+        // the テーブル名 dropdown); restore the default layout for CSV / Web API.
+        const dsTypeLower = res.ds_type.toLowerCase();
+        // Web API keeps the reference row for alignment but cannot use a local file.
+        procModalElements.fileName.prop('disabled', dsTypeLower === DB.DB_CONFIGS.WEB_API.type);
+        const isTableBasedDs =
+            !!res.tables && !DB_CONFIG_CSV_TYPES.includes(dsTypeLower) && dsTypeLower !== DB.DB_CONFIGS.WEB_API.type;
+        applyProcInfoLayoutForTableDataSource(isTableBasedDs);
+
+        // Update visibility before awaiting the preview so restored fields cannot
+        // flash in their home positions while the request is pending.
         if (DB_CONFIG_CSV_TYPES.includes(res.ds_type.toLowerCase())) {
             // enable formula input
             isEnableFormulaForDs = true;
             procModalElements.tables.empty();
             propGroupTableDropdown(true);
+            // hide 'table' dropdown if there is CSV datasource
+            $(procModalElements.fileInputPreview).show();
+            $(procModalElements.grTableDropdown).hide();
             if (!procModalCurrentProcId) {
                 // new process, should enable file name
                 resetIsShowFileName();
                 await setProcessName(dataRowID);
             }
-            // hide 'table' dropdown if there is CSV datasource
-            $(procModalElements.fileInputPreview).show();
-            $(procModalElements.grTableDropdown).hide();
         } else if (res.ds_type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type) {
             isEnableFormulaForDs = false;
             disableIsShowFileName();
 
+            // Preserve the preview row when reference files do not apply.
+            $(procModalElements.fileInputPreview).show();
+            $(procModalElements.grTableDropdown).hide();
             if (!procModalCurrentProcId) {
                 await setProcessName(dataRowID);
             }
-
-            $(procModalElements.fileInputPreview).hide();
-            $(procModalElements.grTableDropdown).hide();
         } else if (res.tables) {
             isEnableFormulaForDs = false;
             disableIsShowFileName();
@@ -485,16 +622,16 @@ const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
                 procModalElements.tables.val('');
             }
 
+            $(procModalElements.fileInputPreview).hide();
+            $(procModalElements.grTableDropdown).show();
             if (!procModalCurrentProcId) {
                 await setProcessName(dataRowID);
             }
-
-            $(procModalElements.fileInputPreview).hide();
-            $(procModalElements.grTableDropdown).show();
         }
     } catch (e) {
         showToastrMsg(procModali18n.i18nloadTablesFailedMsg, MESSAGE_LEVEL.ERROR);
     } finally {
+        updateProcessPreviewButtons();
         loadingObj.hide();
     }
 };
@@ -539,10 +676,6 @@ const loadTableNameSelectOptions = (data, optSelected, elemTbl) => {
     });
 };
 
-const toggleDBTableAndFileName = () => {
-    $(procModalElements.grTableDropdown).toggle();
-    $(procModalElements.fileInputPreview).toggle();
-};
 // load current proc name, database name and tables name
 
 // const displayDataSourceFieldsByType = (datasourceType) => {
@@ -552,6 +685,8 @@ const toggleDBTableAndFileName = () => {
 const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
     // set current proc
     procModalCurrentProcId = procId;
+    procModalElements.showRecordsBtn.prop('disabled', true);
+    procModalElements.previewUpdateBtn.prop('disabled', true);
 
     // load databases
     const dbInfo = await getAllDatabaseConfig();
@@ -589,15 +724,35 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
         const selectedDbInfo = dbInfo.filter((db) => Number(db.id) === Number(currentDs))[0];
 
         const isCSVDS = selectedDbInfo && DB_CONFIG_CSV_TYPES.includes(selectedDbInfo.type.toLowerCase());
+        const isWebApiDS = selectedDbInfo && selectedDbInfo.type.toLowerCase() === DB.DB_CONFIGS.WEB_API.type;
+        procModalElements.fileName.prop('disabled', Boolean(isWebApiDS));
 
-        // hide 'table' dropdown if there is CSV datasource
-        $(procModalElements.procModal).on('shown.bs.modal', () => {
-            const isHiddenFileInput = $(procModalElements.fileInputPreview).is(':hidden');
-            const isHiddenDbTble = $(procModalElements.grTableDropdown).is(':hidden');
-            if ((isCSVDS && isHiddenFileInput) || (!isCSVDS && isHiddenDbTble)) {
-                toggleDBTableAndFileName();
-            }
-        });
+        // Set the data source fields (File name vs Table Name/Optional function) directly
+        // for the current open. Do NOT defer this to `shown.bs.modal`: the modal is shown
+        // earlier (inside getProcInfo) and its fade transition often completes before this
+        // async loadProcModal finishes, so a handler registered here would fire one open
+        // late and display the previously opened process's field type. Setting display
+        // synchronously here is deterministic and works whether or not the modal is
+        // already visible.
+        if (isWebApiDS) {
+            $(procModalElements.fileInputPreview).show();
+            $(procModalElements.grTableDropdown).hide();
+        } else if (isCSVDS) {
+            $(procModalElements.fileInputPreview).show();
+            $(procModalElements.grTableDropdown).hide();
+        } else if (!selectedDbInfo) {
+            // Default to the DB layout; the empty-source branch below disables its controls.
+            $(procModalElements.fileInputPreview).hide();
+            $(procModalElements.grTableDropdown).show();
+        } else {
+            $(procModalElements.fileInputPreview).hide();
+            $(procModalElements.grTableDropdown).show();
+        }
+
+        // Unselected and table-based sources share the DB layout. CSV / Web API
+        // restore their own layout when a source is chosen.
+        applyProcInfoLayoutForTableDataSource(!isCSVDS && !isWebApiDS);
+        updateProcessPreviewButtons();
 
         // do not enable isShowFileName for non csv-v2 data sources
         if (!isCSVDS) {
@@ -636,7 +791,7 @@ const loadProcModal = async (procId = null, dataRowID = null, dbsId = null) => {
             const dataRowId = currentProcItem.attr('data-rowid');
             await setProcessName(dataRowId);
             // gen header of spead table
-            await SpreadSheetProcessConfig.create(procModalElements.procConfigTableName, []);
+            SpreadSheetProcessConfig.create(procModalElements.procConfigTableName, []);
         }
     }
 
@@ -654,6 +809,10 @@ const storePreviousValue = (element) => {
 // --- B-Sprint36+80 #5 ---
 
 const clearProcModalColumnTable = (tableId) => {
+    if (tableId === 'processColumnsTable') {
+        document.getElementById('procPaginationPages').replaceChildren();
+        document.getElementById('procPaginationToolbar').classList.add('d-none');
+    }
     // remove old table
     const spreadsheet = spreadsheetProcConfig(tableId);
     spreadsheet.table.destroyTable();
@@ -686,6 +845,7 @@ const generateProcessList = async (
                 ...col,
                 ...dicProcessCols[col.column_name],
                 column_raw_name: columnRawName,
+                judge_available: col.judge_available,
                 filter: col.filter,
                 formula: col.formula,
             };
@@ -840,6 +1000,10 @@ const generateProcessList = async (
 
     // update index for special case
     dataRows = updateIndexForSpecialRow(dataRows);
+    uniqueDataCategory = uniqueDataCategory || [];
+    uniqueDataReal = uniqueDataReal || [];
+    uniqueDataInt = uniqueDataInt || [];
+    uniqueDataIntCat = uniqueDataIntCat || [];
     dataRows.forEach((dataRow) => {
         uniqueDataCategoryRows.push(uniqueDataCategory.map((data) => data[dataRow.column_name]));
         uniqueDataRealRows.push(uniqueDataReal.map((data) => data[dataRow.column_name]));
@@ -847,7 +1011,7 @@ const generateProcessList = async (
         uniqueDataIntCatRows.push(uniqueDataIntCat.map((data) => data[dataRow.column_name]));
     });
 
-    const spreadsheet = await SpreadSheetProcessConfig.create(tableId, dataRows, registerByFile);
+    const spreadsheet = SpreadSheetProcessConfig.create(tableId, dataRows, registerByFile);
     spreadsheet.updateUniqueSampleDataAttributes(
         uniqueDataCategoryRows,
         uniqueDataRealRows,
@@ -882,6 +1046,208 @@ const generateProcessList = async (
     }
 };
 
+const cloneFormData = (formData) => {
+    const clonedFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+        clonedFormData.append(key, value);
+    }
+    return clonedFormData;
+};
+
+const refreshLatestRecordsGeneration = async (formData) => {
+    let refreshed = false;
+    try {
+        await $.ajax({
+            url: '/ap/api/setting/show_latest_records',
+            data: cloneFormData(formData),
+            dataType: 'json',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            success: (_json, _textStatus, jqXHR) => {
+                latestRecordsPreviewGeneration = jqXHR.getResponseHeader('X-Preview-Generation');
+                refreshed = Boolean(latestRecordsPreviewGeneration);
+            },
+            error: (error) => console.log('error', error),
+        });
+    } catch (error) {
+        console.log('error', error);
+    }
+    return refreshed;
+};
+
+const UNIQUE_SAMPLE_COLUMN_BATCH_SIZE = 100;
+const UNIQUE_SAMPLE_RESPONSE_KEYS = [
+    'unique_rows_as_category',
+    'unique_rows_as_real',
+    'unique_rows_as_int',
+    'unique_rows_as_int_cat',
+];
+
+const getUniqueSampleDataFromApi = async (formData) => {
+    const result = { data: null, status: null };
+    try {
+        await $.ajax({
+            url: '/ap/api/setting/show_latest_records_unique_sample',
+            data: formData,
+            dataType: 'json',
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            success: (json, _textStatus, jqXHR) => {
+                result.data = json;
+                result.status = jqXHR.status;
+            },
+            error: (e) => {
+                console.log('error', e);
+                result.data = e.responseJSON;
+                result.status = e.status;
+            },
+        });
+    } catch (e) {
+        result.data = e.responseJSON;
+        result.status = e.status;
+    }
+    return result;
+};
+
+const mergeUniqueSampleData = (target, source) => {
+    UNIQUE_SAMPLE_RESPONSE_KEYS.forEach((responseKey) => {
+        (source?.[responseKey] || []).forEach((row, index) => {
+            target[responseKey][index] = { ...target[responseKey][index], ...row };
+        });
+    });
+    return target;
+};
+
+const mergeUniqueSampleDataByColumn = (source) => {
+    UNIQUE_SAMPLE_RESPONSE_KEYS.forEach((responseKey) => {
+        (source?.[responseKey] || []).forEach((row, index) => {
+            Object.entries(row).forEach(([columnName, values]) => {
+                const cachedValues = [...(uniqueSampleDataByColumn[columnName]?.[responseKey] || [])];
+                cachedValues[index] = values;
+                uniqueSampleDataByColumn[columnName] = {
+                    ...uniqueSampleDataByColumn[columnName],
+                    [responseKey]: cachedValues,
+                };
+            });
+        });
+    });
+};
+
+const getRenderedProcessRows = (spreadsheet) => {
+    const rowIndexes = [...spreadsheet.table.table.tbody.rows]
+        .map((row) => Number(row.dataset.y))
+        .filter(Number.isInteger);
+    return spreadsheet.table.getRowsByHeadersAndIndexes(undefined, rowIndexes);
+};
+
+const getMissingUniqueSampleColumns = (spreadsheet) => {
+    const cachedColumnNames = new Set(Object.keys(uniqueSampleDataByColumn));
+
+    const columnRawNames = {};
+    const columnNames = [];
+    getRenderedProcessRows(spreadsheet).forEach((row) => {
+        const columnName = row[PROCESS_COLUMNS.column_name]?.data;
+        if (!columnName || cachedColumnNames.has(columnName) || columnNames.includes(columnName)) return;
+        columnNames.push(columnName);
+        columnRawNames[columnName] = row[PROCESS_COLUMNS.column_raw_name]?.data || columnName;
+    });
+    return { columnNames, columnRawNames };
+};
+
+const getUniqueSampleDataInBatchesOnce = async (formData, columnNames, columnRawNames, previewGeneration) => {
+    const mergedData = Object.fromEntries(UNIQUE_SAMPLE_RESPONSE_KEYS.map((responseKey) => [responseKey, []]));
+    for (let start = 0; start < columnNames.length; start += UNIQUE_SAMPLE_COLUMN_BATCH_SIZE) {
+        const batchColumnNames = columnNames.slice(start, start + UNIQUE_SAMPLE_COLUMN_BATCH_SIZE);
+        const batchColumnRawNames = Object.fromEntries(
+            batchColumnNames.map((columnName) => [columnName, columnRawNames[columnName] || columnName]),
+        );
+        const batchFormData = cloneFormData(formData);
+        batchFormData.set('columnNames', JSON.stringify(batchColumnNames));
+        batchFormData.set('columnRawNames', JSON.stringify(batchColumnRawNames));
+        batchFormData.set('previewGeneration', previewGeneration);
+        const batchResult = await getUniqueSampleDataFromApi(batchFormData);
+        if (batchResult.status !== 200) return batchResult;
+        mergeUniqueSampleData(mergedData, batchResult.data);
+    }
+    return { data: mergedData, status: 200 };
+};
+
+const getUniqueSampleDataInBatches = async (formData, columnNames, columnRawNames) => {
+    const previewGeneration = latestRecordsPreviewGeneration;
+    let result = await getUniqueSampleDataInBatchesOnce(formData, columnNames, columnRawNames, previewGeneration);
+    if (result.status === 409 && (await refreshLatestRecordsGeneration(formData))) {
+        const retryGeneration = latestRecordsPreviewGeneration;
+        result = await getUniqueSampleDataInBatchesOnce(formData, columnNames, columnRawNames, retryGeneration);
+    }
+    return result.status === 200 ? result.data : null;
+};
+
+const hasUniqueSampleData = (data) => {
+    return Boolean(
+        data &&
+        (data.unique_rows_as_category?.length ||
+            data.unique_rows_as_real?.length ||
+            data.unique_rows_as_int?.length ||
+            data.unique_rows_as_int_cat?.length),
+    );
+};
+
+const ensureUniqueSampleData = async (spreadsheet) => {
+    if (!latestRecordsFormData) {
+        return false;
+    }
+
+    const { columnNames, columnRawNames } = getMissingUniqueSampleColumns(spreadsheet);
+    if (!columnNames.length) return Object.keys(uniqueSampleDataByColumn).length > 0;
+
+    const loadingObj = loadingHandler('#configLoadingScreen');
+    loadingObj.show();
+    let uniqueSampleData = null;
+    try {
+        const formData = cloneFormData(latestRecordsFormData);
+        if (formData.get('isV2Datasource') === 'true') {
+            const sectionElement = spreadsheet.table.table.el.closest('[id^="procSettingModalBody_"]');
+            const processOriginNameElement = sectionElement?.querySelector('input[name="processOriginName"]');
+            if (processOriginNameElement?.value) {
+                formData.set('filteredProcessName', processOriginNameElement.value);
+            }
+        }
+        uniqueSampleData = await getUniqueSampleDataInBatches(formData, columnNames, columnRawNames);
+    } finally {
+        loadingObj.hide();
+    }
+
+    if (!hasUniqueSampleData(uniqueSampleData)) {
+        return false;
+    }
+
+    mergeUniqueSampleDataByColumn(uniqueSampleData);
+
+    const rows = getRenderedProcessRows(spreadsheet);
+    const uniqueDataCategoryRows = [];
+    const uniqueDataRealRows = [];
+    const uniqueDataIntRows = [];
+    const uniqueDataIntCatRows = [];
+    rows.forEach((row) => {
+        const columnName = row[PROCESS_COLUMNS.column_name].data;
+        const cachedData = uniqueSampleDataByColumn[columnName] || {};
+        uniqueDataCategoryRows.push(cachedData.unique_rows_as_category || []);
+        uniqueDataRealRows.push(cachedData.unique_rows_as_real || []);
+        uniqueDataIntRows.push(cachedData.unique_rows_as_int || []);
+        uniqueDataIntCatRows.push(cachedData.unique_rows_as_int_cat || []);
+    });
+    spreadsheet.updateUniqueSampleDataAttributes(
+        uniqueDataCategoryRows,
+        uniqueDataRealRows,
+        uniqueDataIntRows,
+        uniqueDataIntCatRows,
+        ...rows,
+    );
+    return true;
+};
+
 const showTotalCheckedColumns = (ele, totalColumns, totalCheckedColumn) => {
     procModalElements.totalCheckedColumnsContent.show();
     const totalColumnsEle = getTotalColumnElementFromElement(ele);
@@ -906,6 +1272,7 @@ const updateIndexForSpecialRow = (dataRows) => {
 const cleanOldData = () => {
     // clear user editted input flag
     userEditedProcName = false;
+    clearDerivedSampleCaches();
 
     // clear old procInfo
     currentProcColumns = null;
@@ -1089,21 +1456,7 @@ const updateSelectAllCheckbox = (tableId) => {
     if (renderedCols) {
         // update select all check box based on current selected columns
         const spreadsheet = spreadsheetProcConfig(tableId);
-        const nonReadonlyRows = spreadsheet.nonReadonlyRows();
-        const selectedAll = nonReadonlyRows.every((row) => row[PROCESS_COLUMNS.is_checked].data);
-
-        // autoSelectedAll will be false if:
-        // - at least one null row is checked
-        // - at least one non-null row is not checked
-        const autoSelectedAll = nonReadonlyRows.every((row) => {
-            const isChecked = row[PROCESS_COLUMNS.is_checked].data;
-            const isNull = row[PROCESS_COLUMNS.is_null].data;
-
-            const nullRowIsChecked = isNull && isChecked;
-            const nonNullRowIsNotChecked = !isNull && !isChecked;
-
-            return !(nullRowIsChecked || nonNullRowIsNotChecked);
-        });
+        const { selectedAll, autoSelectedAll } = spreadsheet.getSelectionCheckboxStatus();
 
         changeSelectionCheckbox(autoSelectedAll, selectedAll);
     }
@@ -1120,19 +1473,8 @@ const handleCheckAutoAndAllSelect = (el, autoSelect = false) => {
     }
 
     const spreadsheet = getSpreadSheetFromToolsBarElement(el);
-    let selectedRows = spreadsheet.nonReadonlyRows();
-
-    /** @type {HTMLTableCellElement[]} */
-    let selectedCells = [];
-    if (selectedRows && autoSelect) {
-        selectedRows = selectedRows.filter((row) => !row[PROCESS_COLUMNS.is_null].data);
-    }
-    // file name row should be not checked
-    const fileNameRow = spreadsheet.fileNameRow() || {};
-    selectedRows = selectedRows.filter((row) => !_.isEqual(row, fileNameRow));
-
-    selectedCells.push(...selectedRows.map((row) => row[PROCESS_COLUMNS.is_checked].td));
-    $(selectedCells).find('input[type=checkbox]').prop('checked', isChecked).trigger('change');
+    const selectedRows = spreadsheet.getCheckboxRowsForSelection(autoSelect);
+    spreadsheet.bulkUpdateCheckboxStatus(selectedRows, isChecked);
 };
 
 const preventSelectAll = (preventFlag = false) => {
@@ -1250,7 +1592,12 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Prom
         type: 'POST',
         contentType: false,
         processData: false,
-        success: async (json) => {
+        success: async (json, _textStatus, jqXHR) => {
+            // A failed refresh must leave the current preview and its sample context intact.
+            latestRecordsFormData = cloneFormData(formData);
+            // Generation retries and lazy samples must never replay a confirmed external refresh.
+            latestRecordsFormData.delete('refreshPreview');
+            latestRecordsPreviewGeneration = jqXHR.getResponseHeader('X-Preview-Generation');
             loadingObj.hide();
             if (json.cols_duplicated) {
                 showToastrMsg(i18nCommon.colsDuplicated);
@@ -1270,6 +1617,7 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Prom
                     is_warning: true,
                 });
             }
+            clearDerivedSampleCaches();
             prcPreviewData = { ...json, rows: json.rows.slice(0, 10) };
             currentLatestProcDataCols = prcPreviewData
                 ? prcPreviewData.cols.map((col, index) => {
@@ -1281,7 +1629,12 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Prom
                 // show predict labels
                 procModalElements.label.val(prcPreviewData.labels).trigger('change');
             }
-            await getProcessPreviewWith1000Data(json.rows);
+            if (json.is_legacy_preview) {
+                prcPreviewWith1000Data = {};
+                prcPreviewDataOfFunctionColumn = {};
+            } else {
+                await getProcessPreviewWith1000Data(json.rows, isImportedPreviewStage(json.processing_stage));
+            }
             FunctionInfo.resetInputFunctionInfo(false, false);
             FunctionInfo.removeAllFunctionRows();
             showToastrMsgFailLimit(prcPreviewData);
@@ -1309,12 +1662,26 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Prom
             resolve();
         },
         error: (e) => {
-            if (e.responseJSON?.transform_error) {
+            let errorResponse = e.responseJSON;
+            if (!errorResponse && e.responseText) {
+                try {
+                    errorResponse = JSON.parse(e.responseText);
+                } catch (_error) {
+                    errorResponse = null;
+                }
+            }
+            if (errorResponse?.transform_error) {
                 showWarningMark(
                     procModalElements.etlFuncWarningMark,
                     procModalElements.alertProcessConfigErrorID,
-                    e.responseJSON.transform_error,
+                    errorResponse.transform_error,
                 );
+            }
+            if (!isEmpty(errorResponse?.message)) {
+                displayRegisterMessage(procModalElements.alertColumnNameModifiedWarningMsg, {
+                    message: errorResponse.message,
+                    is_warning: true,
+                });
             }
             loadingObj.hide();
             console.log('error', e);
@@ -1323,7 +1690,50 @@ const showLatestRecords = (formData, clearSelectedColumnBody = true) => new Prom
     });
 });
 
-const getProcessPreviewWith1000Data = async (rows) => {
+const loadProcessPreview = async (refreshPreview = false) => {
+    const currentShownTableName = getSelectedOptionOfSelect(procModalElements.tables).val() || null;
+    const currentOptionalFunction = getSelectedOptionOfSelect(procModalElements.optionalFunctions).val() || null;
+    const currentShownDataSource = getSelectedOptionOfSelect(procModalElements.databases).val() || null;
+    const clearDataFlg = checkClearColumnsTable(Number(currentShownDataSource), currentShownTableName);
+    const procModalForm = $(procModalElements.formId);
+    const formData = new FormData(procModalForm[0]);
+    if (!formData.get('tableName') && currentShownTableName) {
+        formData.set('tableName', currentShownTableName);
+    }
+    const processFactId = getSelectedOptionOfSelect(procModalElements.tables).attr('process_fact_id') || '';
+    formData.set('processFactId', processFactId);
+    const masterType = getSelectedOptionOfSelect(procModalElements.tables).attr('master_type') || '';
+    if (masterType) {
+        formData.set('masterType', masterType);
+    }
+    // Set currentProcessId in order to include registered Process configuration.
+    if (procModalCurrentProcId) {
+        formData.set('currentProcessId', procModalCurrentProcId);
+    }
+    formData.set('limit', 10);
+    if (currentOptionalFunction) {
+        formData.set('etlFunc', currentOptionalFunction);
+    }
+    formData.set('filter', JSON.stringify(getFilterExpression()));
+    if (refreshPreview) {
+        formData.set('refreshPreview', 'true');
+    }
+    preventSelectAll(true);
+
+    if (procModalCurrentProcId) {
+        $(procModalElements.isShowFileName).prop('disabled', true);
+    }
+
+    $(procModalElements.selectAllColumn).css('display', 'block');
+    $(procModalElements.autoSelectAllColumn).css('display', 'block');
+    procModalElements.etlFuncWarningMark.hide();
+    resetSampleDataDisplayModeRadio();
+    await showLatestRecords(formData, clearDataFlg);
+};
+
+const loadLocalProcessPreview = async () => loadProcessPreview(false);
+
+const getProcessPreviewWith1000Data = async (rows, isImportedData = false) => {
     // prcPreviewWith1000Data = json;
     currentProcDataCols = procModalCurrentProcId ? currentProcDataCols : currentLatestProcDataCols;
 
@@ -1361,12 +1771,25 @@ const getProcessPreviewWith1000Data = async (rows) => {
     }, {});
     for (const [columnId, values] of Object.entries(prcRawDataWith1000Data)) {
         const dataType = dictDataType[columnId];
-        const parseValues = await parseDataByDataType(dataType, values);
+        setSampleDataImported(columnId, isImportedData);
+        const parseValues = await parseDataByDataType(dataType, values, false, false, isImportedData);
         prcPreviewWith1000Data[columnId] = parseValues;
     }
 };
 
-const parseDataByDataType = async (dataType, values, isBigInt = false, isJudge = false) => {
+const isImportedPreviewStage = (processingStage) => processingStage === PREVIEW_PROCESSING_STAGE_IMPORTED;
+
+const setSampleDataImported = (processColumnId, isImportedData) => {
+    if (isImportedData) {
+        importedSampleProcessColumnIds.add(Number(processColumnId));
+    } else {
+        importedSampleProcessColumnIds.delete(Number(processColumnId));
+    }
+};
+
+const isSampleDataImported = (processColumnId) => importedSampleProcessColumnIds.has(Number(processColumnId));
+
+const parseDataByDataType = async (dataType, values, isBigInt = false, isJudge = false, isImportedData = false) => {
     switch (dataType) {
         case DataTypes.INTEGER.name:
             if (!isBigInt) {
@@ -1384,13 +1807,13 @@ const parseDataByDataType = async (dataType, values, isBigInt = false, isJudge =
             values = values.map((value) => parseFloatData(value));
             break;
         case DataTypes.DATETIME.name:
-            values = await parseProcDatetimeFormatSampleData(dataType, values);
+            values = await parseProcDatetimeFormatSampleData(dataType, values, isImportedData);
             break;
         case DataTypes.DATE.name:
-            values = await parseProcDatetimeFormatSampleData(dataType, values);
+            values = await parseProcDatetimeFormatSampleData(dataType, values, isImportedData);
             break;
         case DataTypes.TIME.name:
-            values = await parseProcDatetimeFormatSampleData(dataType, values);
+            values = await parseProcDatetimeFormatSampleData(dataType, values, isImportedData);
             break;
         case DataTypes.REAL_SEP.name:
             values = values.map((value) => {
@@ -1440,7 +1863,7 @@ const handleEnglishNameChange = (ele) => {
 };
 
 const handleEmptySystemNameJP = async (ele, targetEle) => {
-    const systemNameInput = $(ele).parent().siblings().children(`input[name=${targetEle}]`);
+    const systemNameInput = $(ele).closest('[name="processGeneralInfo"]').find(`input[name=${targetEle}]`);
     if (!$(systemNameInput).val()) {
         $(systemNameInput).val(await convertEnglishRomaji([$(ele).val()]));
         $(systemNameInput)[0].dataset.originalValue = $(systemNameInput).val();
@@ -1448,7 +1871,7 @@ const handleEmptySystemNameJP = async (ele, targetEle) => {
 };
 
 const handleEmptySystemName = async (ele, targetEle) => {
-    const systemNameInput = $(ele).parent().siblings().children(`input[name=${targetEle}]`);
+    const systemNameInput = $(ele).closest('[name="processGeneralInfo"]').find(`input[name=${targetEle}]`);
     if (!$(systemNameInput).val()) {
         const removed = await convertNonAscii([$(ele).val()]);
         $(systemNameInput).val(removed);
@@ -1507,15 +1930,21 @@ const englishAndMasterNameValidator = (spreadsheet) => {
         showBorderRedClass(emptiedEnglishNames);
     }
     if (!_.isEmpty(duplicatedEnglishNames)) {
-        nameErrors.add($(procModali18n.duplicatedSystemName).text() || '');
+        nameErrors.add(
+            `${$(procModali18n.duplicatedSystemName).text() || ''} (${_.escape(Object.keys(duplicatedEnglishNames).join(', '))})`,
+        );
         showBorderRedClass(duplicatedEnglishNames);
     }
     if (!_.isEmpty(duplicatedJapaneseNames)) {
-        nameErrors.add($(procModali18n.duplicatedJapaneseName).text() || '');
+        nameErrors.add(
+            `${$(procModali18n.duplicatedJapaneseName).text() || ''} (${_.escape(Object.keys(duplicatedJapaneseNames).join(', '))})`,
+        );
         showBorderRedClass(duplicatedJapaneseNames);
     }
     if (!_.isEmpty(duplicatedLocalNames)) {
-        nameErrors.add($(procModali18n.duplicatedLocalName).text() || '');
+        nameErrors.add(
+            `${$(procModali18n.duplicatedLocalName).text() || ''} (${_.escape(Object.keys(duplicatedLocalNames).join(', '))})`,
+        );
         showBorderRedClass(duplicatedLocalNames);
     }
 
@@ -1523,65 +1952,59 @@ const englishAndMasterNameValidator = (spreadsheet) => {
     return Array.from(nameErrors) || [];
 };
 
-const checkDuplicateProcessName = (
-    attr = 'data-name-en',
+const checkDuplicateProcessName = async (
     isShowMsg = true,
-    errorMsg = $(procModalElements.msgProcNameAlreadyExist).text(),
+    checkNameEn = true,
+    checkNameJP = true,
+    checkNameLocal = true,
 ) => {
     if (!checkOnFocus) return;
-    let inputEl = procModalElements.proc;
-    // get current list of (process-mastername)
-    let existingProcIdMasterNames = {};
-    // in procs list table
-    if (processes && !attr) {
-        existingProcIdMasterNames = Object.values(processes).map((proc) => proc.name);
-    }
-    // in modal opening
-    if (isEmpty(existingProcIdMasterNames)) {
-        $('#tblProcConfig tr').each(function f() {
-            const procId = $(this).data('proc-id');
-            const rowId = $(this).attr('id');
-            if (rowId) {
-                const masterName = $(`#${rowId} input[name=processName]`).attr(attr) || '';
-                existingProcIdMasterNames[`${procId}`] = masterName;
-            }
-        });
-        if (attr === 'data-name-jp') {
-            inputEl = procModalElements.procJapaneseName;
-        }
-        if (attr === 'data-name-local') {
-            inputEl = procModalElements.procLocalName;
-        }
-    }
-    // check for duplication
-    const beingEditedProcName = inputEl.val();
-    const existingMasterNames = Object.values(existingProcIdMasterNames);
-    const isEditingSameProc = existingProcIdMasterNames[currentProcItem.data('proc-id')] === beingEditedProcName;
-    if (beingEditedProcName && existingMasterNames.includes(beingEditedProcName) && !isEditingSameProc) {
+    const procId = currentProcItem.data('proc-id') || null;
+    const nameEnInput = procModalElements.proc;
+    const nameJpInput = procModalElements.procJapaneseName;
+    const nameLocalInput = procModalElements.procLocalName;
+    const data = {
+        name_en: checkNameEn ? nameEnInput.val() : '',
+        name_jp: checkNameJP ? nameJpInput.val() : '',
+        name_local: checkNameLocal ? nameLocalInput.val() : '',
+        process_id: procId,
+    };
+
+    const isDuplicated = await checkDuplicatedProcessNameFromDB(
+        data.name_en,
+        data.name_jp,
+        data.name_local,
+        data.process_id,
+    );
+    const [is_duplicated_en, is_duplicated_jp, is_duplicated_local] = isDuplicated;
+    const isValid = isDuplicated.every((val) => !val);
+    showMsgCheckDuplicatedProcessName(is_duplicated_en, isShowMsg, nameEnInput);
+    showMsgCheckDuplicatedProcessName(is_duplicated_jp, isShowMsg, nameJpInput);
+    showMsgCheckDuplicatedProcessName(is_duplicated_local, isShowMsg, nameLocalInput);
+    return isValid;
+};
+
+const showMsgCheckDuplicatedProcessName = (isDuplicated, isShowMsg, elementInput) => {
+    const errorMsg = $(procModalElements.msgProcNameAlreadyExist).text();
+    if (isDuplicated) {
         if (isShowMsg) {
-            // show warning message
             displayRegisterMessage(procModalElements.alertProcessNameErrorMsg, {
                 message: errorMsg,
                 is_error: true,
             });
         }
-        inputEl.addClass('column-name-invalid');
-        return true;
+        elementInput.addClass('column-name-invalid');
     } else {
         if (isShowMsg) {
             $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
         }
-        inputEl.removeClass('column-name-invalid');
+        elementInput.removeClass('column-name-invalid');
     }
-    return false;
 };
 
-const isDuplicatedProcessName = () => {
-    const isNameEnDup = checkDuplicateProcessName('data-name-en', false);
-    const isNameJpDup = checkDuplicateProcessName('data-name-jp', false);
-    const isNameLocalDup = checkDuplicateProcessName('data-name-local', false);
-
-    if (isNameEnDup || isNameJpDup || isNameLocalDup) {
+const isDuplicatedProcessName = async () => {
+    const isValid = await checkDuplicateProcessName(false);
+    if (!isValid) {
         // show msg
         displayRegisterMessage(procModalElements.alertProcessNameErrorMsg, {
             message: $(procModalElements.msgProcNameAlreadyExist).text(),
@@ -1597,7 +2020,7 @@ const scrollTopProcModal = () => {
     $(procModalElements.procModal).animate({ scrollTop: 0 }, 'fast');
 };
 
-const validateProcName = () => {
+const validateProcName = async () => {
     let notBlank = true;
     // get current list of (process-mastername)
     const masterName = procModalElements.proc.val();
@@ -1617,7 +2040,7 @@ const validateProcName = () => {
         $(procModalElements.alertProcessNameErrorMsg).css('display', 'none');
     }
 
-    const notDuplicated = !isDuplicatedProcessName();
+    const notDuplicated = !(await isDuplicatedProcessName());
 
     return notBlank && notDuplicated;
 };
@@ -2042,6 +2465,7 @@ const postProcConfig = (data) =>
 // update name after save proc
 const updateProcessName = ({ trEl, res }) => {
     $(trEl).find('input[name="processName"]').val(res.data.shown_name).prop('disabled', true);
+    $(trEl).find('input[name="processName"]').closest('td').attr('title', res.data.shown_name);
     $(trEl).find('input[name="processName"]').attr('data-name-en', res.data.name_en);
     $(trEl).find('input[name="processName"]').attr('data-name-jp', res.data.name_jp);
     $(trEl).find('input[name="processName"]').attr('data-name-local', res.data.name_local);
@@ -2061,6 +2485,10 @@ const handleChangeSelectToInput = ({ element, elName, value }) => {
     const selectEl = $(element).find(`select[name=${elName}]`);
     $(selectEl).next().remove(); // remove spanEl of select2
     $(selectEl).replaceWith($newInputEl);
+    $(element)
+        .find(`input[name=${elName}]`)
+        .closest('td')
+        .attr('title', value ?? '');
 };
 
 /**
@@ -2132,11 +2560,11 @@ const validateProcessColumn = (processTableId, isFromProcessConfig) => {
     return true;
 };
 
-const runRegisterProcConfigFlow = (edit = false) => {
+const runRegisterProcConfigFlow = async (edit = false) => {
     clearWarning();
 
     // validate proc name null
-    const validateFlg = validateProcName();
+    const validateFlg = await validateProcName();
     if (!validateFlg) {
         scrollTopProcModal();
         return;
@@ -2246,29 +2674,241 @@ const copyAllProcSettingInfo = (e) => {
  * @param {jQuery} e - JqueryEvent
  */
 const pasteAllProcSettingInfo = (e) => {
-    navigator.clipboard.readText().then(function (text) {
-        const tableData = transformCopiedTextToTable(text);
-        if (tableData === null) {
-            return;
-        }
-        const ele = e.currentTarget;
-        const spreadsheet = getSpreadSheetFromToolsBarElement(ele);
+    navigator.clipboard
+        .readText()
+        .then(async function (text) {
+            const tableData = transformCopiedTextToTable(text, true);
+            const spreadsheet = getSpreadSheetFromToolsBarElement(e.currentTarget);
+            const visibleHeaders = spreadsheet.table.getVisibleHeaders();
 
-        // warning and abort if we don't have enough rows
-        if (spreadsheet.table.table.rows.length !== tableData.length) {
-            showToastrMsg('Number of records mismatch. Please check and copy again', MESSAGE_LEVEL.WARN);
-            return;
-        }
+            // Reject malformed clipboard data before changing any rows.
+            if (
+                spreadsheet.table.numberOfRows() !== tableData.length ||
+                tableData.some((row) => row.length !== visibleHeaders.length)
+            ) {
+                showToastrMsg('Number of records mismatch. Please check and copy again', MESSAGE_LEVEL.WARN);
+                return;
+            }
 
-        const headers = spreadsheet.table.getHeaders();
-        tableData.forEach((rowData, rowIndex) => {
-            const spreadsheetData = {};
-            rowData.forEach((value, columnIndex) => (spreadsheetData[headers[columnIndex].name] = value));
-            spreadsheet.table.updateRow(rowIndex, spreadsheetData, false, false);
-        });
+            const jspreadsheet = spreadsheet.table.table;
+            if (jspreadsheet.isCopyingShownDataType) return;
 
-        showToastPasteFromClipboardSuccessful();
-    }, showToastPasteFromClipboardFailed);
+            const data = jspreadsheet.options.data;
+            const indexes = {
+                shownDataType: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.shown_data_type),
+                columnType: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.column_type),
+                dataType: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.data_type),
+                id: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.id),
+                isDummyDatetime: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.is_dummy_datetime),
+                nameEn: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.name_en),
+                nameJp: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.name_jp),
+                nameLocal: spreadsheet.table.getIndexHeaderByName(PROCESS_COLUMNS.name_local),
+            };
+            const clipboardIndexes = {
+                shownDataType: visibleHeaders.findIndex((header) => header.name === PROCESS_COLUMNS.shown_data_type),
+                nameEn: visibleHeaders.findIndex((header) => header.name === PROCESS_COLUMNS.name_en),
+                nameJp: visibleHeaders.findIndex((header) => header.name === PROCESS_COLUMNS.name_jp),
+                nameLocal: visibleHeaders.findIndex((header) => header.name === PROCESS_COLUMNS.name_local),
+            };
+            const sampleDataDisplayMode = getSampleDataDisplayModeElement(jspreadsheet.el).val();
+            const normalizeClipboardValue = (value) => (typeof value === 'string' ? stringNormalization(value) : value);
+            const japaneseConversionPlan = [];
+            const localConversionPlan = [];
+
+            tableData.forEach((clipboardRow, rowIndex) => {
+                // Explicit valid English clipboard intent wins even when a JP/local value also changes.
+                const englishValue = correctEnglishName(normalizeClipboardValue(clipboardRow[clipboardIndexes.nameEn]));
+                if (String(englishValue).length > 0) return;
+
+                const rowData = data[rowIndex];
+                const japaneseValue = normalizeClipboardValue(clipboardRow[clipboardIndexes.nameJp]);
+                const localValue = normalizeClipboardValue(clipboardRow[clipboardIndexes.nameLocal]);
+                const englishBlanked = String(rowData[indexes.nameEn]).length > 0;
+                const japaneseChanged = String(rowData[indexes.nameJp]) !== String(japaneseValue);
+                const localChanged = String(rowData[indexes.nameLocal]) !== String(localValue);
+
+                if (String(japaneseValue).length > 0 && (japaneseChanged || (englishBlanked && !localChanged))) {
+                    japaneseConversionPlan.push({ rowIndex, value: japaneseValue });
+                } else if (String(localValue).length > 0 && (localChanged || englishBlanked)) {
+                    localConversionPlan.push({ rowIndex, value: localValue });
+                }
+            });
+
+            let hasChange = false;
+            let reconciliationValues = null;
+            const previousIgnoreHistory = jspreadsheet.ignoreHistory;
+            const previousIgnoreEvents = jspreadsheet.ignoreEvents;
+            const previousCopyingShownDataType = jspreadsheet.isCopyingShownDataType;
+            const previousPointerEvents = jspreadsheet.el.style.pointerEvents;
+
+            jspreadsheet.ignoreHistory = true;
+            // Bulk mode prevents datatype transitions from scheduling per-row parsing and reconciliation.
+            jspreadsheet.isCopyingShownDataType = true;
+            jspreadsheet.el.style.pointerEvents = 'none';
+            try {
+                // Finish all fallible work before datatype staging mutates jspreadsheet.options.data.
+                const [convertedJapaneseNames, convertedLocalNames] = await Promise.all([
+                    japaneseConversionPlan.length
+                        ? convertEnglishRomaji(japaneseConversionPlan.map(({ value }) => value))
+                        : [],
+                    localConversionPlan.length ? convertNonAscii(localConversionPlan.map(({ value }) => value)) : [],
+                ]);
+                if (
+                    convertedJapaneseNames.length !== japaneseConversionPlan.length ||
+                    convertedLocalNames.length !== localConversionPlan.length
+                ) {
+                    throw new Error('Name conversion returned an unexpected number of results');
+                }
+
+                // Apply native cell updates without per-cell name conversion and change tracking.
+                jspreadsheet.ignoreEvents = true;
+                for (let rowIndex = 0; rowIndex < tableData.length; rowIndex++) {
+                    const rowData = data[rowIndex];
+                    const clipboardRow = tableData[rowIndex];
+                    const shownDataTypeCell = spreadsheet.table.getCellFromCoords(indexes.shownDataType, rowIndex);
+
+                    // Other pages have not loaded their datatype-dependent readonly state yet.
+                    spreadsheet.changeShownDataType(rowIndex, rowData[indexes.shownDataType], sampleDataDisplayMode, {
+                        isFirstLoad: true,
+                    });
+
+                    // Datatype owns the readonly state of later columns, so transition it before loading those values.
+                    if (!shownDataTypeCell.classList.contains(READONLY_CLASS)) {
+                        const oldShownDataType = rowData[indexes.shownDataType];
+                        const beforeColumnType = rowData[indexes.columnType];
+                        const shownDataType = spreadsheet.handleBeforeChangeCell(
+                            shownDataTypeCell,
+                            indexes.shownDataType,
+                            rowIndex,
+                            clipboardRow[clipboardIndexes.shownDataType],
+                        );
+                        if (String(oldShownDataType) !== String(shownDataType)) {
+                            jspreadsheet.updateCell(indexes.shownDataType, rowIndex, shownDataType);
+                            hasChange = true;
+                            const columnType = rowData[indexes.columnType];
+                            const mainDateTimeTypes = [
+                                masterDataGroup.MAIN_DATE,
+                                masterDataGroup.MAIN_TIME,
+                                masterDataGroup.MAIN_DATETIME,
+                            ];
+                            if (
+                                mainDateTimeTypes.includes(beforeColumnType) ||
+                                mainDateTimeTypes.includes(columnType)
+                            ) {
+                                const shouldPrioritizeMainDatetime =
+                                    columnType === masterDataGroup.MAIN_DATETIME &&
+                                    reconciliationValues?.[1] !== masterDataGroup.MAIN_DATETIME;
+                                if (!reconciliationValues || shouldPrioritizeMainDatetime) {
+                                    reconciliationValues = [rowData[indexes.dataType], columnType, beforeColumnType];
+                                }
+                            }
+                        }
+                    }
+
+                    for (let visibleColumnIndex = 0; visibleColumnIndex < visibleHeaders.length; visibleColumnIndex++) {
+                        const header = visibleHeaders[visibleColumnIndex];
+                        if (header.name === PROCESS_COLUMNS.shown_data_type) continue;
+
+                        const cell = spreadsheet.table.getCellFromCoords(header.index, rowIndex);
+                        if (cell.classList.contains(READONLY_CLASS)) continue;
+
+                        const oldValue = rowData[header.index];
+                        let value = spreadsheet.handleBeforeChangeCell(
+                            cell,
+                            header.index,
+                            rowIndex,
+                            clipboardRow[visibleColumnIndex],
+                        );
+                        if (header.name === PROCESS_COLUMNS.is_checked) {
+                            value = value === true || value === 1 || String(value).toLowerCase() === 'true';
+                        }
+                        if (String(oldValue) === String(value)) continue;
+
+                        jspreadsheet.updateCell(header.index, rowIndex, value);
+                        hasChange = true;
+
+                        if (
+                            header.name === PROCESS_COLUMNS.is_checked &&
+                            !rowData[indexes.isDummyDatetime] &&
+                            rowData[indexes.id] < 0 &&
+                            [masterDataGroup.MAIN_DATE, masterDataGroup.MAIN_TIME].includes(rowData[indexes.columnType])
+                        ) {
+                            if (reconciliationValues?.[1] !== masterDataGroup.MAIN_DATETIME) {
+                                reconciliationValues = [
+                                    rowData[indexes.dataType],
+                                    rowData[indexes.columnType],
+                                    rowData[indexes.columnType],
+                                ];
+                            }
+                        }
+                    }
+                }
+
+                japaneseConversionPlan.forEach(({ rowIndex, value }, index) => {
+                    const rowData = data[rowIndex];
+                    const convertedName = correctEnglishName(convertedJapaneseNames[index]);
+                    if (
+                        String(rowData[indexes.nameEn]).length === 0 &&
+                        String(rowData[indexes.nameJp]) === String(value) &&
+                        String(rowData[indexes.nameEn]) !== String(convertedName)
+                    ) {
+                        jspreadsheet.updateCell(indexes.nameEn, rowIndex, convertedName);
+                        hasChange = true;
+                    }
+                });
+                localConversionPlan.forEach(({ rowIndex, value }, index) => {
+                    const rowData = data[rowIndex];
+                    const convertedName = correctEnglishName(convertedLocalNames[index]);
+                    if (
+                        String(rowData[indexes.nameEn]).length === 0 &&
+                        String(rowData[indexes.nameLocal]) === String(value) &&
+                        String(rowData[indexes.nameEn]) !== String(convertedName)
+                    ) {
+                        jspreadsheet.updateCell(indexes.nameEn, rowIndex, convertedName);
+                        hasChange = true;
+                    }
+                });
+
+                if (hasChange) {
+                    jspreadsheet.isCopyingShownDataType = false;
+                    // Reconciliation can insert rows, which need the normal row initialization events.
+                    jspreadsheet.ignoreEvents = previousIgnoreEvents;
+                    if (reconciliationValues) {
+                        ProcessConfigSection.handleMainDateAndMainTime(spreadsheet, ...reconciliationValues);
+                    }
+                    jspreadsheet.ignoreEvents = true;
+                    spreadsheet.table.reIndexForSpecialRow(spreadsheet.table);
+                    spreadsheet.loadTotalCheckedColumns();
+                    spreadsheet.table.recordBulkChange();
+                    spreadsheet.handleChangeMark();
+                    // Refresh visible samples now; page navigation parses the remaining rows.
+                    await Promise.all(
+                        [...jspreadsheet.tbody.rows].map((row) => {
+                            const rowIndex = Number(row.dataset.y);
+                            const rowData = spreadsheet.table.getRowDataByIndex(rowIndex);
+                            return parseDataTypeProc(
+                                spreadsheet,
+                                rowData.raw_data_type,
+                                rowIndex,
+                                rowData.column_type,
+                                sampleDataDisplayMode,
+                            );
+                        }),
+                    );
+                }
+            } finally {
+                jspreadsheet.ignoreHistory = previousIgnoreHistory;
+                jspreadsheet.ignoreEvents = previousIgnoreEvents;
+                jspreadsheet.isCopyingShownDataType = previousCopyingShownDataType;
+                jspreadsheet.el.style.pointerEvents = previousPointerEvents;
+                if (hasChange) {
+                    spreadsheet.table.resetHistory();
+                }
+            }
+
+            showToastPasteFromClipboardSuccessful();
+        })
+        .catch(showToastPasteFromClipboardFailed);
 };
 
 const selectAllColsHandler = (e) => {
@@ -2302,6 +2942,7 @@ const hideCheckColMenu = (e) => {
     $(procModalElements.checkColsContextMenu).css({ display: 'none' });
 };
 
+// TODO: Remove legacy code. This is no longer used
 const bindSelectColumnsHandler = () => {
     $('table[name=latestDataTable] thead th').each((i, th) => {
         th.addEventListener('contextmenu', selectAllColsHandler, false);
@@ -2412,6 +3053,9 @@ $(() => {
                 procModalElements.createOrUpdateProcCfgBtn.css('display', 'block');
                 enableColumnAfterInitialize();
                 reloadFunctionInfo();
+                // After initialization, transaction data does not exist
+                // Therefore, we fall back to the datasource's preview cache
+                // procModalElements.showRecordsBtn.trigger('click');
             })
             .catch(() => {
                 // hide loading
@@ -2468,8 +3112,9 @@ $(() => {
     // Databases onchange
     procModalElements.databases.change(async () => {
         procDsSelected = getSelectedOptionOfSelect(procModalElements.databases).val();
+        const isMergeMode = await isMergeModeFromProcConfig();
         if (
-            isMergeModeFromProcConfig() &&
+            isMergeMode &&
             !document.querySelector(procModalElements.confirmMergeMode).deactivate &&
             userEditedProcName
         ) {
@@ -2548,6 +3193,8 @@ $(() => {
         clearTimeout(debounceTimer);
         $(procModalElements.alertReferenceFileErrorID).hide();
         trimQuotesSpacesAndUpdate(e.target);
+        invalidateProcessPreview();
+        updateProcessPreviewButtons(false);
         debounceTimer = setTimeout(async () => {
             if (e.target.value) {
                 $.ajax({
@@ -2560,8 +3207,10 @@ $(() => {
                     contentType: 'application/json',
                     success: (res) => {
                         if (res.is_valid) {
-                            $(procModalElements.showRecordsBtn).trigger('click');
+                            updateProcessPreviewButtons();
+                            procModalElements.showRecordsBtn.trigger('click');
                         } else {
+                            updateProcessPreviewButtons(false);
                             displayRegisterMessage(procModalElements.alertReferenceFileErrorID, {
                                 message: $(procModali18n.i18nInvalidFilePathMessage).text(),
                                 is_error: true,
@@ -2570,69 +3219,34 @@ $(() => {
                     },
                 });
             } else {
-                $(procModalElements.showRecordsBtn).trigger('click');
+                updateProcessPreviewButtons();
+                procModalElements.showRecordsBtn.trigger('click');
             }
         }, 300);
     });
 
     // Show records button click event
-    showRecordsBtnFunc = async (event) => {
+    showRecordsBtnFunc = async (event, refreshPreview = false) => {
         event?.preventDefault();
-        const currentShownTableName = getSelectedOptionOfSelect(procModalElements.tables).val() || null;
-        const currentOptionalFunction = getSelectedOptionOfSelect(procModalElements.optionalFunctions).val() || null;
-        const currentShownDataSource = getSelectedOptionOfSelect(procModalElements.databases).val() || null;
-        const clearDataFlg = checkClearColumnsTable(Number(currentShownDataSource), currentShownTableName);
-        const procModalForm = $(procModalElements.formId);
-        const formData = new FormData(procModalForm[0]);
-        if (!formData.get('tableName') && currentShownTableName) {
-            formData.set('tableName', currentShownTableName);
-        }
-        const processFactId = getSelectedOptionOfSelect(procModalElements.tables).attr('process_fact_id') || '';
-        formData.set('processFactId', processFactId);
-        const masterType = getSelectedOptionOfSelect(procModalElements.tables).attr('master_type') || '';
-        if (masterType) {
-            formData.set('masterType', masterType);
-        }
-        // set currentProcessId in order to check if we need to show generated column in backend
-        if (procModalCurrentProcId) {
-            formData.set('currentProcessId', procModalCurrentProcId);
-        }
-        // get 1000 records by limit param
-        formData.set('limit', 1000);
-        // Set etl function
-        if (currentOptionalFunction) {
-            formData.set('etlFunc', currentOptionalFunction);
-        }
-        // set filter
-        const filter = getFilterExpression();
-
-        formData.set('filter', JSON.stringify(filter));
-        preventSelectAll(true);
-
-        // disable show file name if we are viewing imported process
-        if (procModalCurrentProcId) {
-            $(procModalElements.isShowFileName).prop('disabled', true);
-        }
-
-        // TODO
-        // disable datetime format if we are viewing imported process
-
-        // reset select all checkbox when click showRecordsBtn
-        $(procModalElements.selectAllColumn).css('display', 'block');
-        $(procModalElements.autoSelectAllColumn).css('display', 'block');
-
-        // Hide warning mark
-        procModalElements.etlFuncWarningMark.hide();
-        resetSampleDataDisplayModeRadio();
-        // reset first datetime checked
-        await showLatestRecords(formData, clearDataFlg);
+        const button = refreshPreview ? procModalElements.previewUpdateBtn : procModalElements.showRecordsBtn;
+        if (button.prop('disabled')) return;
+        await loadProcessPreview(refreshPreview);
     };
     procModalElements.showRecordsBtn.click(showRecordsBtnFunc);
+    procModalElements.previewUpdateBtn.off('click').on('click', (event) => {
+        event.preventDefault();
+        if (procModalCurrentProcId && !procModalElements.previewUpdateBtn.prop('disabled')) {
+            procModalElements.confirmPreviewUpdateModal.modal('show');
+        }
+    });
+    procModalElements.confirmPreviewUpdateBtn.off('click').on('click', async () => {
+        procModalElements.confirmPreviewUpdateModal.modal('hide');
+        await showRecordsBtnFunc(null, true);
+    });
 
     // Show preview to merge mode
-    const showPreviewToMergeProcess = (event) => {
+    const showPreviewToMergeProcess = async (event) => {
         event.preventDefault();
-
         preventSelectAll(true);
 
         // reset first datetime checked
@@ -2645,18 +3259,18 @@ $(() => {
         currentProcessNameLocal = 'en';
         // Hide warning mark
         procModalElements.childEtlFuncWarningMark.hide();
-        mergeModeProcess();
+        await mergeModeProcess();
     };
     procModalElements.showPreviewBtnToMerge.click((event) => showPreviewToMergeProcess(event));
 
     procModalElements.proc.on('focusout', () => {
-        checkDuplicateProcessName('data-name-en');
+        checkDuplicateProcessName(true, true, false, false);
     });
     procModalElements.procJapaneseName.on('focusout', () => {
-        checkDuplicateProcessName('data-name-jp');
+        checkDuplicateProcessName(true, false, true, false);
     });
     procModalElements.procLocalName.on('focusout', () => {
-        checkDuplicateProcessName('data-name-local');
+        checkDuplicateProcessName(true, false, false, true);
     });
 
     $(procModalElements.revertChangeAsLinkIdBtn).click(() => {
@@ -2892,6 +3506,7 @@ const initSearchProcessColumnsTable = (tableEle, fromRegisterByFile) => {
     const searchInput = getSearchInputElementFromElement(tableEle);
     const searchSetBtn = getSetElementFromElement(tableEle);
     const searchResetBtn = getResetElementFromElement(tableEle);
+    let uniqueSampleSearchTimeout;
     initCommonSearchInput(searchInput);
     if (!fromRegisterByFile) {
         initRemoveSearchInputEvent(procModalElements.removeFuncInputSearch);
@@ -2903,6 +3518,13 @@ const initSearchProcessColumnsTable = (tableEle, fromRegisterByFile) => {
         const spreadsheet = getSpreadSheetFromToolsBarElement(ele);
         let value = stringNormalization(this.value.toLowerCase());
         spreadsheet.handleSearchInput(value, event.key);
+        spreadsheet.table.table.page(0);
+        clearTimeout(uniqueSampleSearchTimeout);
+        uniqueSampleSearchTimeout = setTimeout(async () => {
+            if (getDisplayModeFromToolsBarsElement(ele) !== SAMPLE_DATA_DISPLAY_MODES.UNIQUE) return;
+            await ensureUniqueSampleData(spreadsheet);
+            SpreadSheetProcessConfig.updateSampleDataByDisplayMode(spreadsheet, SAMPLE_DATA_DISPLAY_MODES.UNIQUE);
+        }, 300);
     });
 
     searchSetBtn.on('click', function (event) {
@@ -2933,6 +3555,57 @@ const handleScrollSampleDataTable = (tableId) => {
         $scrollToRightOneStepSpan,
         $procConfigContent,
     );
+
+    alignSampleDataHeaderControls(tableId);
+};
+
+/**
+ * Draw the sample-data display-mode switch and the horizontal scroll arrows on the
+ * header row of the process columns table (design プロセス設定 改善案: they belong to
+ * the サンプルデータ header group, not to the tools bar above the table).
+ *
+ * Measurement only -- the jspreadsheet-generated header markup is never mutated and
+ * the controls stay where they are in the DOM, so the existing lookups
+ * (`closest('[id^="procSettingModalBody"]')`) and inline onchange handlers keep
+ * working. The measured offsets are published as CSS custom properties on the tools
+ * bar, which is the positioning context of both overlays.
+ *
+ * The switch is pinned to the LEFT EDGE OF THE SAMPLE-DATA AREA rather than following
+ * the sample_data_1 cell: every column before it is frozen, so that edge is a fixed x
+ * while the sample-data columns scroll underneath it.
+ *
+ * Safe to call repeatedly - it only writes custom properties.
+ * @param {string} tableId - id of the process columns table container
+ */
+const alignSampleDataHeaderControls = (tableId) => {
+    const tableEl = document.getElementById(tableId);
+    if (!tableEl) return;
+
+    // Only the process config modal moves these controls onto the header row.
+    const toolsBarEl = tableEl.parentElement?.querySelector('.proc-config-tools-bar');
+    const headerRowEl = tableEl.querySelector('.jexcel > thead > tr');
+    const contentEl = tableEl.querySelector('.jexcel_content');
+    if (!toolsBarEl || !headerRowEl || !contentEl) return;
+
+    const firstSampleDataEl = spreadsheetProcConfig(tableEl)?.table?.getTableHeaderElement(`${SAMPLE_DATA_KEY}_1`);
+    if (!firstSampleDataEl) return;
+
+    const toolsBarRect = toolsBarEl.getBoundingClientRect();
+    const headerRect = headerRowEl.getBoundingClientRect();
+    const contentRect = contentEl.getBoundingClientRect();
+    // Undo the horizontal scroll instead of reading offsetLeft: offsetLeft depends on
+    // which ancestor jspreadsheet happens to position, while `rect.left + scrollLeft`
+    // is always the cell's x at scrollLeft === 0, i.e. the left edge of the
+    // sample-data area right after the frozen columns.
+    const sampleDataLeft = firstSampleDataEl.getBoundingClientRect().left + contentEl.scrollLeft;
+    // Never let a stale/odd measurement push the switch outside the table, where the
+    // modal body's `overflow: hidden` would silently clip it away.
+    const clampedSampleDataLeft = Math.min(Math.max(sampleDataLeft, contentRect.left), contentRect.right - 200);
+
+    toolsBarEl.style.setProperty('--pc-header-top', `${headerRect.top - toolsBarRect.top}px`);
+    toolsBarEl.style.setProperty('--pc-header-height', `${headerRect.height}px`);
+    toolsBarEl.style.setProperty('--pc-sample-data-left', `${clampedSampleDataLeft - toolsBarRect.left}px`);
+    toolsBarEl.style.setProperty('--pc-arrows-right', `${toolsBarRect.right - contentRect.right}px`);
 };
 
 /**
@@ -3080,16 +3753,16 @@ const handleHoverTableRowInMergeMode = () => {
         .on('mouseleave', mouseLeaver);
 };
 
-const isDuplicateProcessNameSystemName = () => {
-    const isNameEnDup = checkDuplicateProcessName('', false);
+const isDuplicateProcessNameSystemName = async () => {
+    const isValid = await checkDuplicateProcessName(false, true, false, false);
     removeDuplicateClass('column-name-invalid');
-    return isNameEnDup;
+    return !isValid;
 };
 
-const isMergeModeFromProcConfig = () => {
+const isMergeModeFromProcConfig = async () => {
     let listDataSourceName = [];
     let isSameDataSource = false;
-    let isDuplicatedSystemName = isDuplicateProcessNameSystemName();
+    let isDuplicatedSystemName = await isDuplicateProcessNameSystemName();
     const allProcesses = Object.keys(processes).map((key) => processes[key]) || [];
 
     // system name of parent process
@@ -3711,6 +4384,31 @@ const isSelectedMainDatetimeInProcessConfig = () => {
 $(() => {
     initLabelSelectionTags();
 
+    // Delegate so Select2 reinitialization cannot remove the modal-only sizing.
+    // Its dropdown lives under body, so scope popup CSS with a separate class.
+    procModalElements.procModal
+        .off('.procConfigDropdown', 'select')
+        .on('select2:opening.procConfigDropdown', 'select', function () {
+            const select2 = $(this).data('select2');
+            select2.options.set('dropdownAutoWidth', true);
+            select2.$dropdown.addClass('proc-config-dropdown');
+        })
+        .on('select2:open.procConfigDropdown', 'select', function () {
+            const select2El = $(this);
+            const resizeDropdown = () => resizeListOptionSelect2({ select2El });
+            resizeDropdown();
+            // Bind after Select2's own positioning listener so the cap uses its new left edge.
+            $(window).off('resize.procConfigDropdown').on('resize.procConfigDropdown', resizeDropdown);
+        })
+        .on('select2:close.procConfigDropdown', 'select', function () {
+            $(window).off('resize.procConfigDropdown');
+        });
+    procModalElements.procModal
+        .off('hidden.bs.modal.procConfigDropdown')
+        .on('hidden.bs.modal.procConfigDropdown', () => {
+            $(window).off('resize.procConfigDropdown');
+        });
+
     $(`${procModalElements.mergeModeTableChild} table tbody`).on('scroll', function () {
         $(`${procModalElements.mergeModeTableBase} table tbody`).scrollLeft($(this).scrollLeft());
     });
@@ -3726,6 +4424,17 @@ $(() => {
             block: 'start',
         });
     });
+
+    // The sample-data header overlays are positioned from measured geometry, so they
+    // must be re-measured whenever that geometry can change. Namespaced + `off` first
+    // so reopening the modal cannot stack duplicate handlers.
+    const reAlignSampleDataHeaderControls = () => alignSampleDataHeaderControls(procModalElements.procConfigTableName);
+    $(window)
+        .off('resize.procConfigSampleDataHeader')
+        .on('resize.procConfigSampleDataHeader', reAlignSampleDataHeaderControls);
+    procModalElements.procModal
+        .off('shown.bs.modal.procConfigSampleDataHeader')
+        .on('shown.bs.modal.procConfigSampleDataHeader', reAlignSampleDataHeaderControls);
 });
 
 const addStateInitialize = () => {

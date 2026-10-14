@@ -15,7 +15,12 @@ import type { PlotDatum } from 'plotly.js';
 
 import { triggerNativeChange } from '@/shared/utils/helpers.ts';
 
-import { type GraphSetting, applyDefaultSeriesColors } from '../plotBuilder';
+import {
+    type GraphSetting,
+    type NumericColorRanges,
+    applyDefaultSeriesColors,
+    getNumericColorRanges,
+} from '../plotBuilder';
 import { type ExportImageSize, copyPlotToClipboard, savePlotAsPng } from '../plotExport';
 import type { PlotSeries } from '../types';
 
@@ -23,6 +28,7 @@ type Props = {
     children: ReactNode;
     graphSettings: GraphSetting;
     visiblePlotData: PlotSeries[];
+    numericColorRanges?: NumericColorRanges;
     hoveredPointRef: RefObject<PlotDatum | null>;
     onClickShowGraph: any;
 };
@@ -244,6 +250,7 @@ export default function PlotContextMenu({
     children,
     graphSettings,
     visiblePlotData,
+    numericColorRanges,
     hoveredPointRef,
     onClickShowGraph,
 }: Props) {
@@ -288,6 +295,7 @@ export default function PlotContextMenu({
     const visiblePlotNumbers = [...new Set(visiblePlotData.map((series) => series.plot_no))].sort(
         (plotNumberA, plotNumberB) => plotNumberA - plotNumberB,
     );
+    const colorRanges = { ...getNumericColorRanges(visiblePlotData), ...numericColorRanges };
 
     const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
         const targetPlot = getTargetPlotNumber(
@@ -434,6 +442,7 @@ export default function PlotContextMenu({
                                           menu.exportSize,
                                           {
                                               figureOptions: {
+                                                  numericColorRanges: colorRanges,
                                                   showLegend: false,
                                                   normalizeSubplots: true,
                                                   reserveLegendSpace: false,
@@ -463,6 +472,7 @@ export default function PlotContextMenu({
                                   void runPlotAction((plotData) =>
                                       copyPlotToClipboard(plotData, graphSettings, menu.exportSize, {
                                           figureOptions: {
+                                              numericColorRanges: colorRanges,
                                               showLegend: false,
                                               normalizeSubplots: true,
                                               reserveLegendSpace: false,
@@ -496,6 +506,7 @@ export default function PlotContextMenu({
                                           graphSettings,
                                           'multi-axis-plot-panel',
                                           menu.panelExportSize,
+                                          { figureOptions: { numericColorRanges: colorRanges } },
                                       ),
                                   )
                               }
@@ -508,7 +519,9 @@ export default function PlotContextMenu({
                               aria-disabled={isProcessing || isDisableCopyToClipboard}
                               onClick={() =>
                                   void runPanelAction((plotData) =>
-                                      copyPlotToClipboard(plotData, graphSettings, menu.panelExportSize),
+                                      copyPlotToClipboard(plotData, graphSettings, menu.panelExportSize, {
+                                          figureOptions: { numericColorRanges: colorRanges },
+                                      }),
                                   )
                               }
                           >

@@ -109,9 +109,9 @@ canvas {
     margin-left: unset;
 }
 
-.colorbar .js-plotly-plot .plotly .main-svg {
-    background-color: transparent !important;
-}
+/*.colorbar .js-plotly-plot .plotly .main-svg {*/
+/*    background-color: transparent !important;*/
+/*}*/
 
 .colorbar .legend .bg {
     fill: transparent !important;

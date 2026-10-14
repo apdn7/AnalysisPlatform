@@ -698,12 +698,33 @@ def _resolve_default_x_values(
     return x_values, x_axis_title, show_x_axis_with_index
 
 
+def _color_values_label(color_col: CfgProcessColumn) -> str:
+    return gen_derived_column_name('map_color', str(color_col.label))
+
+
+def _attach_numeric_color_values(
+    target_df: pd.DataFrame, source_df: pd.DataFrame, color_col: CfgProcessColumn | None
+) -> None:
+    if color_col and not color_col.is_category:
+        label = _color_values_label(color_col)
+        # Keep color separate from X/Y: either axis may overwrite the same column during binning.
+        values = (
+            source_df[label]
+            if label in source_df
+            else pd.Series(get_data_from_cfg_column(source_df, color_col), index=source_df.index)
+        )
+        target_df[label] = pd.to_numeric(values.reindex(target_df.index), errors='coerce').replace(
+            [np.inf, -np.inf], np.nan
+        )
+
+
 def _build_x_binned_plot_groups(
     df: pd.DataFrame,
     x_axis_col: CfgProcessColumn,
     target_col: CfgProcessColumn,
     color_col: CfgProcessColumn | None = None,
     div_col: CfgProcessColumn | None = None,
+    is_color_imb: bool = False,
 ) -> tuple[list[tuple[str | None, pd.DataFrame]], str]:
     """Aggregate X bins"""
     target_cols = [x_axis_col, target_col]
@@ -716,6 +737,9 @@ def _build_x_binned_plot_groups(
         target_cols.append(color_col)
 
     d = get_sub_df_by_col_ids(df, target_cols)[0][1]
+    is_numeric_color = bool(color_col and not color_col.is_category and not is_color_imb)
+    if is_numeric_color:
+        _attach_numeric_color_values(d, df, color_col)
     x_col = x_axis_col.label
     y_col = target_col.label
     if d.empty or x_col not in d.columns or y_col not in d.columns:
@@ -733,8 +757,22 @@ def _build_x_binned_plot_groups(
         d[x_min_col] = df.loc[d.index, x_min_col]
         d[x_max_col] = df.loc[d.index, x_max_col]
 
-    color_label = color_col.label if color_col and color_col.label in d.columns else None
-    group_cols = [x_col, *([color_label] if color_label else [])]
+    color_label = (
+        _color_values_label(color_col)
+        if is_numeric_color
+        else color_col.label
+        if color_col and color_col.label in d.columns
+        else None
+    )
+    group_cols = list(
+        dict.fromkeys(
+            [
+                x_col,
+                *([color_label] if color_label else []),
+                *([div_col.label] if is_numeric_color and div_col else []),
+            ]
+        )
+    )
     values = d[y_col]
 
     if is_datetime64_any_dtype(values) or target_col.data_type == DataType.DATETIME.name:
@@ -774,13 +812,15 @@ def _build_x_binned_plot_groups(
             axis=1,
         )
 
-    if not color_label:
+    if not color_label or is_numeric_color:
         output_cols = [
             x_col,
             y_col,
+            *([color_label] if is_numeric_color else []),
+            *([div_col.label] if is_numeric_color and div_col else []),
             *([x_bin_label_col, x_min_col, x_max_col] if x_bin_label_col in aggregated_df.columns else []),
         ]
-        return [('', aggregated_df[output_cols])], y_axis_title
+        return [('', aggregated_df[list(dict.fromkeys(output_cols))])], y_axis_title
 
     return [
         (
@@ -802,6 +842,8 @@ def _build_y_binned_plot_groups(
     x_axis_col: CfgProcessColumn,
     target_col: CfgProcessColumn,
     div_col: CfgProcessColumn | None = None,
+    color_col: CfgProcessColumn | None = None,
+    is_color_imb: bool = False,
 ) -> list[tuple[str | None, pd.DataFrame]]:
     """Return count series grouped by equal-width Y bins."""
     target_cols = [x_axis_col, target_col]
@@ -809,8 +851,13 @@ def _build_y_binned_plot_groups(
     # add div_col into df
     if div_col:
         target_cols.append(div_col)
+    is_numeric_color = bool(color_col and not color_col.is_category and not is_color_imb)
+    if is_numeric_color:
+        target_cols.append(color_col)
 
     source_df = get_sub_df_by_col_ids(df, target_cols)[0][1]
+    if is_numeric_color:
+        _attach_numeric_color_values(source_df, df, color_col)
     if source_df.empty or x_axis_col.label not in source_df.columns or target_col.label not in source_df.columns:
         return []
 
@@ -830,10 +877,25 @@ def _build_y_binned_plot_groups(
         else binned_df[y_bin_col].drop_duplicates().tolist()
     )
 
-    counts = binned_df.groupby([x_col, y_bin_col], dropna=False, sort=False).size().reset_index(name='count')
-    count_matrix = (
-        counts.pivot(index=x_col, columns=y_bin_col, values='count').reindex(index=x_values, columns=y_bins).fillna(0)
+    count_keys = list(
+        dict.fromkeys(
+            [
+                x_col,
+                *([_color_values_label(color_col)] if is_numeric_color else []),
+                *([div_col.label] if is_numeric_color and div_col else []),
+            ]
+        )
     )
+    counts = binned_df.groupby([*count_keys, y_bin_col], dropna=False, sort=False).size().reset_index(name='count')
+    if is_numeric_color:
+        # Split counts by actual source colors rather than inventing a color for an aggregate.
+        color_points = source_df[count_keys].drop_duplicates()
+    else:
+        count_matrix = (
+            counts.pivot(index=x_col, columns=y_bin_col, values='count')
+            .reindex(index=x_values, columns=y_bins)
+            .fillna(0)
+        )
     label_map = binned_df.attrs.get('bin_y_label', {})
     bin_fmt = binned_df.attrs.get('bin_y_fmt', '')
 
@@ -843,10 +905,16 @@ def _build_y_binned_plot_groups(
             group_name = next((label for key, label in label_map.items() if pd.isna(key)), 'NA')
         else:
             group_name = label_map.get(y_bin, _format_bin_value(y_bin, bin_fmt))
+        if is_numeric_color:
+            bin_counts = counts[counts[y_bin_col].isna() if pd.isna(y_bin) else counts[y_bin_col] == y_bin]
+            group_df = color_points.merge(bin_counts.drop(columns=y_bin_col), on=count_keys, how='left')
+            group_df[y_col] = group_df.pop('count').fillna(0).astype(int)
+        else:
+            group_df = pd.DataFrame({x_col: x_values, y_col: count_matrix[y_bin].astype(int).tolist()})
         groups.append(
             (
                 group_name,
-                pd.DataFrame({x_col: x_values, y_col: count_matrix[y_bin].astype(int).tolist()}),
+                group_df,
             )
         )
     return groups
@@ -994,7 +1062,13 @@ def _build_plot_groups(
         target_cols.extend(hover_cols)
     if color_col:
         target_cols.append(color_col)
-        group_dfs = get_sub_df_by_col_ids(df, target_cols, color_by=str(color_col.label))
+        # ColImb keeps discrete groups and category limits even for non-category columns.
+        if not color_col.is_category and not is_color_imb:
+            sub_df = get_sub_df_by_col_ids(df, target_cols)[0][1]
+            _attach_numeric_color_values(sub_df, df, color_col)
+            group_dfs = [('', sub_df)]
+        else:
+            group_dfs = get_sub_df_by_col_ids(df, target_cols, color_by=str(color_col.label))
 
         # compute ratio if primary is numeric only
         # Use absolute values so negative numbers are not treated as small values.
@@ -1068,6 +1142,8 @@ def _build_plot_response(
     color_group: str | None = None,
     color_shown_name: str | None = None,
     is_global_color: bool = False,
+    color_col: CfgProcessColumn | None = None,
+    array_color: list[Any] | None = None,
     facet_group: str | None = None,
     category_boundaries: list[dict[str, Any]] | None = None,
     x_axis_tickvals: list[Any] | None = None,
@@ -1106,6 +1182,12 @@ def _build_plot_response(
     # Facet (Lv1/Lv2) label is rendered separately (top-left of the subplot),
     # not mixed into the y-axis title/primary variable name.
     facet_label = facet_group or None
+    color_title = color_col.shown_name + (f' [{color_col.unit}]' if color_col.unit else '') if color_col else None
+    numeric_color = (
+        pd.to_numeric(pd.Series(array_color, dtype=object), errors='coerce')
+        if color_col and not color_col.is_category and array_color is not None
+        else None
+    )
 
     name = target_name
     if color_group:
@@ -1139,6 +1221,13 @@ def _build_plot_response(
         x_process_name=x_process_name,
         y_process_name=target_col.cfg_process.shown_name,
         color_group=color_group,
+        array_color=[float(value) if pd.notna(value) and np.isfinite(value) else None for value in numeric_color]
+        if numeric_color is not None
+        else None,
+        color_data_type=color_col.data_type if color_col else None,
+        color_column_id=color_col.id if color_col else None,
+        color_title=color_title,
+        is_global_color=is_global_color if color_col else False,
         legend_group='',
         category_boundaries=category_boundaries,
         x_axis_tickvals=x_axis_tickvals,
@@ -1227,6 +1316,13 @@ def get_flatten_data(
     if force_index_xaxis:
         y_bin_mode = False
     layout_index = layout_index or build_map_layout_index(layout_request)
+    global_color_id = layout_index.get_color_id()
+    global_numeric_color_col = graph_param.get_col_cfg(global_color_id) if global_color_id else None
+    if global_numeric_color_col and (
+        global_numeric_color_col.is_category
+        or global_color_id in (layout_index.layout.color_imb, layout_index.layout.color_imb_x)
+    ):
+        global_numeric_color_col = None
     # Resolve X-axis data once because every subplot reuses the same X-axis metadata.
     x_axis = _resolve_x_axis_context(layout_index, df, graph_param)
 
@@ -1292,6 +1388,13 @@ def get_flatten_data(
     for _facet_group, _df in dfs:
         _df = _df.reset_index(drop=True)
         if x_bin_mode:
+            for col_id in layout_index.get_map_cols():
+                color_cfg = layout_index.resolve_color(col_id)
+                color_col = (
+                    graph_param.get_col_cfg(color_cfg.color_id) if color_cfg.color_id else global_numeric_color_col
+                )
+                if not color_cfg.is_color_imb:
+                    _attach_numeric_color_values(_df, _df, color_col)
             if x_axis.datatype == DataType.DATETIME.name:
                 _df[x_axis.col_cfg.label] = pd.to_datetime(_df[x_axis.col_cfg.label], errors='coerce')
             _df, _ = make_bin(_df, x_axis.col_cfg.label, axis='x', bin_mode=x_bin_mode)
@@ -1414,20 +1517,37 @@ def get_flatten_data(
 
             color_cfg = layout_index.resolve_color(col_id)
             color_col = graph_param.get_col_cfg(color_cfg.color_id) if color_cfg.color_id else None
+            is_global_color = color_cfg.is_global_color
+            if color_cfg.color_id is None and global_numeric_color_col:
+                # Legacy overlays suppress grouping/ColImb, not numeric point coloring.
+                # Keep color_cfg unchanged so this fallback cannot introduce secondary axes.
+                color_col = global_numeric_color_col
+                is_global_color = True
+            is_numeric_color = bool(color_col and not color_col.is_category and not color_cfg.is_color_imb)
 
             # group data with target column (main/sub/add), label/step, color
             agg_y_axis_title = None
             is_numeric_dtype = True if x_bin_mode or y_bin_mode else _is_numeric_plot_column(target_col)
             if y_bin_mode:
                 grouped_frames = _build_y_binned_plot_groups(
-                    _df, x_axis.col_cfg, target_col=target_col, div_col=div_col
+                    _df,
+                    x_axis.col_cfg,
+                    target_col=target_col,
+                    div_col=div_col,
+                    color_col=color_col,
+                    is_color_imb=color_cfg.is_color_imb,
                 )
                 agg_y_axis_title = MAP_AGG_COUNT
                 labels = None
                 is_datetime_label = False
             elif x_bin_mode:
                 grouped_frames, agg_y_axis_title = _build_x_binned_plot_groups(
-                    _df, x_axis.col_cfg, target_col=target_col, color_col=color_col, div_col=div_col
+                    _df,
+                    x_axis.col_cfg,
+                    target_col=target_col,
+                    color_col=color_col,
+                    div_col=div_col,
+                    is_color_imb=color_cfg.is_color_imb,
                 )
             else:
                 grouped_frames = _build_plot_groups(
@@ -1472,6 +1592,9 @@ def get_flatten_data(
                         array_x=fallback_array_x,
                         array_y=[],
                         is_numeric_dtype=is_numeric_dtype,
+                        color_col=color_col,
+                        array_color=[] if is_numeric_color else None,
+                        is_global_color=is_global_color,
                         facet_group=facet_group_name,
                         category_boundaries=category_boundaries or None,
                         x_axis_tickvals=x_axis_tickvals,
@@ -1489,8 +1612,8 @@ def get_flatten_data(
                 continue
 
             # Show only the top N categories: 16 for a shared color, 8 for a per-subplot color.
-            # Categories outside the top N are dropped.
-            if color_col:
+            # Categories outside the top N become Others; ordinary numeric Color keeps every value.
+            if color_col and not is_numeric_color:
                 top_n = (
                     ColorCategoryLimit.GLOBAL.value
                     if color_cfg.is_global_color
@@ -1559,6 +1682,11 @@ def get_flatten_data(
                         category_hover_values = _build_category_hover_values(sub_df, selected_category_hover_columns)
 
                     array_x, array_y = _apply_step_overlay(array_x, source_array_y, overlay_type)
+                    array_color = _apply_step_overlay_to_values(
+                        sub_df[_color_values_label(color_col)].tolist() if is_numeric_color else None,
+                        source_array_y,
+                        overlay_type,
+                    )
                     category_hover_values = _apply_step_overlay_to_values(
                         category_hover_values,
                         source_array_y,
@@ -1596,7 +1724,11 @@ def get_flatten_data(
                             # (factorizing) each Div sub-panel's own categories independently — that
                             # would give every sub-panel its own compact 0..n positions and lose the
                             # ability to compare x position across sub-panels.
-                            array_x = sub_df[x_axis.col_cfg.label].map(global_category_position).tolist()
+                            array_x = _apply_step_overlay_to_values(
+                                sub_df[x_axis.col_cfg.label].map(global_category_position).tolist(),
+                                source_array_y,
+                                overlay_type,
+                            )
                             x_axis_tickvals, x_axis_ticktext = global_category_tickvals, global_category_ticktext
                             encoded_x_values = True
                         # if x_option=INDEX, use index instead of datetime for array_x
@@ -1606,9 +1738,10 @@ def get_flatten_data(
                         else:
                             # encode category value to show original value of x_axis
                             array_x, _ = pd.factorize(sub_df[x_axis.col_cfg.label])
-                            array_x = array_x.tolist()
+                            encoded_array_x = array_x.tolist()
+                            array_x = _apply_step_overlay_to_values(encoded_array_x, source_array_y, overlay_type)
                             x_axis_tickvals, x_axis_ticktext = (
-                                array_x,
+                                encoded_array_x,
                                 sub_df[x_axis.col_cfg.label].astype(str).tolist(),
                             )
                             encoded_x_values = True
@@ -1647,7 +1780,9 @@ def get_flatten_data(
                             is_numeric_dtype=is_numeric_dtype,
                             color_group=str(color_group) if color_group is not None else None,
                             color_shown_name=color_col.shown_name if color_col else None,
-                            is_global_color=color_cfg.is_global_color,
+                            is_global_color=is_global_color,
+                            color_col=color_col,
+                            array_color=array_color,
                             facet_group=facet_group_name,
                             category_boundaries=category_boundaries or None,
                             x_axis_tickvals=x_axis_tickvals,

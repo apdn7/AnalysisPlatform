@@ -1,0 +1,2 @@
+import{t as e}from"./main.bundle.js";import{t}from"./GroupButton.js";var n=e(),r=[`base`,`s`,`m`,`l`,`xl`],i=[`Base`,`S`,`M`,`L`,`XL`];function a({fontSizeValue:e,onChange:a}){return(0,n.jsx)(t,{group:r,activeValue:e,labels:i,onChange:e=>{a?.(e)}})}var o=[`dark`,`light`];function s({themeValue:e,onChange:r}){return(0,n.jsx)(`div`,{className:`ml-3`,children:(0,n.jsx)(t,{group:o,activeValue:e,onChange:e=>{r?.(e)}})})}export{a as n,s as t};
+//# sourceMappingURL=ThemeBlock2.js.map

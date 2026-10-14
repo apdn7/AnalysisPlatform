@@ -890,19 +890,30 @@ const generateRegisterMessage = (message, isError = false, isWarning = false) =>
     };
 };
 
+const destroyVirtualLists = (root) => {
+    if (!root) {
+        return;
+    }
+
+    const lists = root.matches?.('.grouplist-checkbox-with-search') ? [root] : [];
+    lists.push(...(root.querySelectorAll?.('.grouplist-checkbox-with-search') ?? []));
+    lists.forEach((list) => list._virtualList?.destroy());
+};
+
 // delete closest element
 const delClosestEle = (e, closestEle) => {
-    e.closest(closestEle).remove();
+    const target = e.closest(closestEle);
+    destroyVirtualLists(target);
+    target.remove();
 };
 
 const sidebarEles = {
     sid: '#sidebar',
     sidebarIds: '#sidebar, #content',
-    collapseIn: '.collapse.in',
-    aExpanded: 'a[aria-expanded=true]',
-    dropdownToggle: '.side-dropdown-toggle',
-    parentEles: 'span.nav-text, .sidebar-header a, .logo-header',
-    ulList: 'ul.list-unstyled',
+    collapseIn: '#sidebar .collapse.in',
+    dropdownToggle: '#sidebar .side-dropdown-toggle',
+    parentEles: '#sidebar span.nav-text, #sidebar .sidebar-header a, #sidebar .logo-header',
+    menuCollapse: '#sidebarBody .collapse',
     cfgSm: 'cfgSm',
     sidebarCollapseId: '#sidebarCollapse',
     collapse: '.collapse',
@@ -920,21 +931,14 @@ const sidebarCollapse = () => {
     };
     $(sidebarEles.sidebarIds).toggleClass('active');
     $(sidebarEles.collapseIn).toggleClass('in');
-    // Set collapse for submenu
-    $(sidebarEles.aExpanded).attr('aria-expanded', 'false');
     $(sidebarEles.dropdownToggle).toggleClass('noafter');
     $(sidebarEles.parentEles).toggleClass('hide');
 
-    $(sidebarEles.dropdownToggle).each((k, e) => {
-        if ($(e).not('collapsed')) {
-            $(e).addClass('collapsed');
-        }
-    });
-    $(sidebarEles.ulList).removeClass('show');
     initCommonSearchInput($(sidebarEles.searchBox));
 
     // handle event for searchBox | start
     if (isSidebarOpen()) {
+        resetSidebarMenu();
         $(sidebarEles.searchBox).focus();
 
         // add event input to searchBox
@@ -951,8 +955,8 @@ const sidebarCollapse = () => {
                     const dataSearchText = $(this).data('search');
                     if (dataSearchText && dataSearchText.toLowerCase().includes(searchStr.toLowerCase())) {
                         // open menu list
-                        $(sidebarEles.ulList).addClass('show');
-                        $('a[data-toggle="collapse"]').hide();
+                        $(sidebarEles.menuCollapse).addClass('show');
+                        $(sidebarEles.dropdownToggle).hide();
 
                         // show matching results
                         $(this).show();
@@ -960,7 +964,7 @@ const sidebarCollapse = () => {
                     } else {
                         // hide un-matching results
                         $(this).hide();
-                        $('a[data-toggle="collapse"]').hide();
+                        $(sidebarEles.dropdownToggle).hide();
                     }
                 });
             });
@@ -981,7 +985,8 @@ const sidebarCollapse = () => {
                 }
             });
     } else {
-        resetSidebarMenu();
+        $(sidebarEles.menuCollapse).removeClass('show');
+        $(sidebarEles.dropdownToggle).attr('aria-expanded', 'false').addClass('collapsed');
         $(sidebarEles.searchBox).val('');
     }
     // handle event for searchBox | end
@@ -995,12 +1000,12 @@ const resetSidebarMenu = () => {
     $(sidebarEles.sidebarMenulist).each(function () {
         $(this).show();
     });
-    $('a[data-toggle="collapse"]').show();
+    $(sidebarEles.dropdownToggle).show();
     // remove css for a.go-to-page
-    $('.go-to-page').removeClass('sidebar-is-searching');
+    $('#sidebar .go-to-page').removeClass('sidebar-is-searching');
 
-    // collapse menu list
-    $(sidebarEles.ulList).removeClass('show');
+    $(sidebarEles.menuCollapse).addClass('show');
+    $(sidebarEles.dropdownToggle).attr('aria-expanded', 'true').removeClass('collapsed');
 };
 
 const isSidebarOpen = () => {
@@ -1010,14 +1015,7 @@ const isSidebarOpen = () => {
     return true;
 };
 
-const menuCollapse = () => {
-    setTimeout(() => {
-        $('#sidebar .collapse.show').collapse('hide');
-    }, 500);
-};
-
 const closeSidebar = () => {
-    menuCollapse();
     if (isSidebarOpen()) {
         sidebarCollapse();
     }
@@ -2378,8 +2376,15 @@ function genHistCounts(histLabels, arrayVals, labelMin, labelMax) {
 }
 
 const hasDivSelection = () => {
-    return $('select[name=catExpBox] option:selected').text().includes('Div');
+    return findValidationInputs('select[name=catExpBox]', document)
+        .toArray()
+        .some((select) => {
+            const selectedOption = select.selectedOptions?.[0];
+            return selectedOption?.text?.includes('Div') || false;
+        });
 };
+
+const endProcChangeVersions = new WeakMap();
 
 const endProcMultiSelectOnChange = async (count, props) => {
     const selectedProc = $(`#end-proc-process-${count}`);
@@ -2389,14 +2394,24 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const procId = selectedProc[0].value;
     const procInfo = procConfigs[procId];
     const startProcId = getStartProcId();
+    const selectElement = selectedProc[0];
+    const version = (endProcChangeVersions.get(selectElement) || 0) + 1;
+    endProcChangeVersions.set(selectElement, version);
+    const isCurrent = () =>
+        selectElement.isConnected &&
+        selectElement.value === procId &&
+        endProcChangeVersions.get(selectElement) === version;
 
     // Remove condProc cards that have no-link-warning-sign
-    await removeCondProcWithNoLinkWarning(startProcId);
+    await removeCondProcWithNoLinkWarning(startProcId, isCurrent);
+    if (!isCurrent()) return false;
 
     $(`#count-variables-${count}`).text(0);
 
     // remove old elements
-    $(`#end-proc-val-div-${count}`).find('*').off().empty();
+    const variableContainer = document.getElementById(`end-proc-val-div-${count}`);
+    destroyVirtualLists(variableContainer);
+    $(variableContainer).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
     document.dispatchEvent(new CustomEvent('processChanged', { detail: { groupId: count } }));
     if (procInfo == null) {
@@ -2407,6 +2422,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
 
     // update proc filters
     await procInfo.updateFilters();
+    if (!isCurrent()) return false;
 
     const ids = [];
     const vals = [];
@@ -2418,6 +2434,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     const isCategories = [];
     const columnInfo = [];
     await procInfo.updateColumns();
+    if (!isCurrent()) return false;
     const procColumns = procInfo.getColumns();
 
     const dataTypeTargets = props.showStrColumn ? CfgProcess_CONST.ALL_TYPES : CfgProcess_CONST.NUMERIC_TYPES;
@@ -2540,9 +2557,11 @@ const endProcMultiSelectOnChange = async (count, props) => {
     setColorRelativeStartEndProc();
     checkIfProcessesAreLinked();
     checkShowingWarningMessageForUpdatingMainSerialInShowGraph(procId).then();
-    if (startProcId && procId) {
-        const hasLink = await isLinkedWithProcess(startProcId, procId);
-        if (hasLink) {
+    const filterStartProcId = getStartProcId();
+    if (filterStartProcId && procId) {
+        const hasLink = await isLinkedWithProcess(filterStartProcId, procId);
+        if (!isCurrent()) return false;
+        if (hasLink && getStartProcId() === filterStartProcId) {
             addFilterProcessByProcessId(procId);
         }
     }
@@ -2633,27 +2652,44 @@ const addEndProcMultiSelect = (procIds, procNames, props = endProcessProps, posi
                      </div>
                     </div>`;
 
-        $('#end-proc-row div').last().before(proc);
-        $(`#end-proc-process-${count}`).on('change', (e) => {
+        const handleEndProcChange = async (e) => {
             const eleNumber = e.currentTarget.getAttribute('data-id');
             const isShowCTTime = $(formElements.showCT_Time).prop('checked');
+
             props.colorValsSelected = e.colorVals || [];
+
             if (isShowCTTime !== undefined && props.hideCTCol !== undefined) {
                 props.hideCTCol = isShowCTTime ? !isShowCTTime : true;
             }
+
             const variableSelected = getEndProcVariableSelected($(e.currentTarget).closest('.card'));
+
             removeLimitedCheckedList(variableSelected);
-            endProcMultiSelectOnChange(eleNumber, props).then((r) => {
-                if (onChangeCallbackFunc) {
-                    if (onChangeCallbackDicParam) {
-                        onChangeCallbackFunc(onChangeCallbackDicParam);
-                    } else {
-                        onChangeCallbackFunc(e);
-                    }
+
+            if ((await endProcMultiSelectOnChange(eleNumber, props)) === false) return;
+
+            if (onChangeCallbackFunc) {
+                if (onChangeCallbackDicParam) {
+                    onChangeCallbackFunc(onChangeCallbackDicParam);
+                } else {
+                    onChangeCallbackFunc(e);
                 }
-            });
+            }
+
             countTotalVariables();
             currentHoverFromData = null;
+        };
+        $('#end-proc-row div').last().before(proc);
+        $(`#end-proc-process-${count}`).on('change', (e) => {
+            const task = handleEndProcChange(e);
+
+            if (e.waitUntil) {
+                e.waitUntil(task);
+            } else {
+                task.catch((error) => {
+                    console.error(error);
+                });
+            }
         });
 
         cardRemovalByClick('#end-proc-row div', onCloseCallbackFunc, onCloseCallbackDicParam);
@@ -3252,7 +3288,7 @@ class GraphStore {
         const objectiveVariable = currentTrace.COMMON.objectiveVar
             ? Number(currentTrace.COMMON.objectiveVar[0])
             : undefined;
-        const hasObjectiveVarInGUI = $('input[name=objectiveVar]:checked').length;
+        const hasObjectiveVarInGUI = findValidationInputs('input[name=objectiveVar]:checked', document).length;
         // const latestSortProcs = latestSortColIds.map(val => Number(val.split('-')[0]));
         // const endProcIds = latestSortProcs.filter((procId, index, procs) => procs.indexOf(procId) === index);
         const endProcIds = getSelectedEndProcIds();
@@ -3576,9 +3612,9 @@ const transformFacetParams = (formData, eleIdPrefix = '') => {
         // MAP-only: the chosen Div2/Div3/Div6 option carries its size in data-div-size.
         // Other pages never render that attribute, so divSize stays undefined there.
         const endProcDiv = eleIdPrefix ? `${eleIdPrefix}-end-proc-row` : 'end-proc-row';
-        const selectedDivOption = $(
-            `#${endProcDiv} select[name="catExpBox"] option:selected[value="${facetLevels.DIV}"]`,
-        ).filter((_, opt) => $(opt).attr('data-div-size'));
+        const selectedDivOption = findValidationInputs('select[name="catExpBox"]', `#${endProcDiv}`)
+            .find(`option:selected[value="${facetLevels.DIV}"]`)
+            .filter((_, opt) => $(opt).attr('data-div-size'));
         const divSize = selectedDivOption.first().attr('data-div-size');
         if (divSize) {
             formData.set('div_size', divSize);
@@ -3646,7 +3682,8 @@ const initAvailableColorVars = (availableColorVars, callback, isIncludeNoColorOp
 
 const getSetFacetValue = (value, name, formData, eleIdPrefix) => {
     const endProcDiv = eleIdPrefix ? `${eleIdPrefix}-end-proc-row` : 'end-proc-row';
-    const facetItem = $(`#${endProcDiv} select[name="catExpBox"] option:selected[value="${value}"]`)
+    const facetItem = findValidationInputs('select[name="catExpBox"]', `#${endProcDiv}`)
+        .find(`option:selected[value="${value}"]`)
         .parent()
         .attr('id');
     if (facetItem) {
@@ -4663,6 +4700,14 @@ const initSortIcon = (containerSelector = 'table') => {
                 .sort(comparer(idx, asc))
                 .forEach((row) => $(containerEl).append(row));
         } else {
+            const virtualList = containerEl[0]?._virtualList;
+
+            // NEW virtual list
+            if (virtualList) {
+                virtualList.sortByColumn(Number(idx), asc);
+
+                return;
+            }
             $(containerEl).data('init-sort', false);
             Array.from($(containerEl).find('li:not(.keep-header)'))
                 .sort((a, b) => {
@@ -4972,14 +5017,9 @@ const checkShowScatter = () => {
 };
 
 const checkHasFacet = () => {
-    let hasFacet = false;
-    $('select[name=catExpBox]').each((k, elm) => {
-        if ($(elm).val()) {
-            hasFacet = true;
-        }
-    });
-
-    return hasFacet;
+    return findValidationInputs('select[name=catExpBox]', document)
+        .toArray()
+        .some((elm) => !!elm.value);
 };
 
 const bindFilterChangeEvents = (selectedProc) => {
@@ -5386,14 +5426,16 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
     return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
 };
 const reselectVariablesToShowGraph = () => {
+    const guiInputs = findValidationInputs('input[name^=GET02_VALS_SELECT]', document);
     $('input[name^=selectedVar]').each((_v, el) => {
         const elStatus = $(el).is(':checked');
-        const guiDOM = $(`input[name^=GET02_VALS_SELECT][value=${$(el).val()}]`);
-        const guiStatus = guiDOM.prop('checked');
-
-        if (elStatus !== guiStatus) {
-            guiDOM.prop('checked', elStatus).trigger('change');
-        }
+        guiInputs
+            .filter((_, input) => input.value === $(el).val())
+            .each((_, input) => {
+                if (elStatus !== input.checked) {
+                    $(input).prop('checked', elStatus).trigger('change');
+                }
+            });
     });
     // revalidate form before call show_graph
     const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
@@ -6235,6 +6277,7 @@ const scrollToEle = (eleID) => {
  * @param {number} processId
  */
 const addFilterProcessByProcessId = (processId) => {
+    if (isSettingLoading) return;
     // check this process has filter config?
     const filterCfg = procConfigs[processId].getFilters();
     if (filterCfg.length === 0) return;
@@ -6254,12 +6297,22 @@ const addFilterProcessByProcessId = (processId) => {
         [...$('button[name=btnAddCondProc]')].forEach((el) => $(el).trigger('click'));
     }
 
-    setTimeout(() => {
-        parentCondCardDivs = getEmptyCondCards(selectName);
-        if (parentCondCardDivs.length) {
-            parentCondCardDivs[0].find(selectName).val(processId).trigger('change');
-        }
-    }, 1000);
+    // Adding a condition card is synchronous; a delayed callback can restore an obsolete process.
+    parentCondCardDivs = getEmptyCondCards(selectName);
+    if (parentCondCardDivs.length) {
+        const card = parentCondCardDivs[0];
+        card.find(selectName).val(processId).trigger('change');
+        card.data('autoEndProcFilter', String(processId));
+        // Once edited, the card belongs to the user rather than the display-process selection.
+        card.off('.autoEndProcFilter').on(
+            'change.autoEndProcFilter',
+            'input[type=checkbox], input[type=radio], select',
+            () => card.removeData('autoEndProcFilter'),
+        );
+        card.on('click.autoEndProcFilter', 'button[name=openFilterConfigModalBtn]', () =>
+            card.removeData('autoEndProcFilter'),
+        );
+    }
 };
 
 /**
@@ -6291,9 +6344,9 @@ const getShowingFilterProcess = () => {
 
 /**
  * Remove condProc cards that have no-link-warning-sign icon
- * This function is called when endProc is changed to clean up unlinked filter conditions
+ * Also remove untouched automatic filters no longer used by a display process.
  */
-const removeCondProcWithNoLinkWarning = async (startProcId) => {
+const removeCondProcWithNoLinkWarning = async (startProcId, isCurrent = () => true) => {
     const condProcCards = $('.cond-proc');
 
     const removeFilterCard = async (card) => {
@@ -6306,9 +6359,24 @@ const removeCondProcWithNoLinkWarning = async (startProcId) => {
     };
 
     for (let i = 0; i < condProcCards.length; i++) {
+        if (!isCurrent()) return;
         const card = condProcCards[i];
         const condProcSelect = $(card).find('select[name^="cond_proc"]');
         const condProcValue = condProcSelect.val();
+
+        // Restored settings must not inherit transient auto-removal ownership.
+        if (isSettingLoading) $(card).removeData('autoEndProcFilter');
+        const autoProcessId = $(card).data('autoEndProcFilter');
+        const isUnusedAutoFilter =
+            autoProcessId !== undefined &&
+            autoProcessId === condProcValue &&
+            !$('select[name^="end_proc"]')
+                .toArray()
+                .some((select) => select.value === autoProcessId);
+        if (isUnusedAutoFilter) {
+            await removeFilterCard(card);
+            continue;
+        }
 
         if (!condProcValue) continue;
 
@@ -6319,6 +6387,8 @@ const removeCondProcWithNoLinkWarning = async (startProcId) => {
         }
         // Check if condProc has link with endProc
         const hasLink = await isLinkedWithProcess(startProcId, condProcValue);
+        if (!isCurrent()) return;
+        if (!card.isConnected || condProcSelect.val() !== condProcValue) continue;
 
         // If no link, remove the card
         if (!hasLink) {
@@ -6377,10 +6447,11 @@ class zIndexModals {
 
 /**
  * Handle loading component is show and hide by only one logic flow.
+ * @param {string} [selector='.loading']
  * @return {{show: show, hide: hide, forceHide: forceHide}}
  */
-const loadingHandler = () => {
-    const $loadingEl = $('.loading');
+const loadingHandler = (selector = '.loading') => {
+    const $loadingEl = $(selector);
     const isShowingByOtherLogic = $loadingEl.is(':visible');
     const show = () => {
         if (isShowingByOtherLogic) {

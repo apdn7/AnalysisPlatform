@@ -14,7 +14,9 @@ import duckdb_extension_sqlite_scanner
 
 from ap.common.constants import (
     CONFIG_DB,
+    PREVIEW_DATA_DIR,
     PREVIEW_DATA_FOLDER,
+    QUICK_PLOT_ROOT,
     SCHEDULER_DB,
     TRANSACTION_FOLDER,
     UNIVERSAL_DB_FILE,
@@ -152,6 +154,16 @@ def get_temp_path():
     return temp_dir
 
 
+def get_quick_plot_path() -> str:
+    """Return the fixed private directory used for Quick Plot uploads.
+
+    Returns:
+        The absolute Windows path reserved for Quick Plot files.
+    """
+    # Keep this path independent from the current instance directory so retention ownership is unambiguous.
+    return QUICK_PLOT_ROOT
+
+
 def get_cache_path():
     """Get cache folder path
 
@@ -239,6 +251,12 @@ def get_preview_data_file_folder(data_source_id):
 
 
 def get_preview_data_path():
+    from ap import dic_config
+
+    preview_dir = dic_config.get(PREVIEW_DATA_DIR)
+    if preview_dir:
+        return preview_dir
+
     data_folder = get_instance_path()
     return resource_path(data_folder, PREVIEW_DATA_FOLDER, level=AbsPath.SHOW)
 
