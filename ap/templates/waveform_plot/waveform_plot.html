@@ -5,7 +5,7 @@
 {% block midbody %}
     <div class="card monitor-icons" id="wfpSettingCard">
         <form id="traceDataForm" class="GUIForm">
-            {{ macros.scatter_end_proc(procs,'', title=_('WfP Display variable hover'), isShowMinMax=false) }}
+            {{ macros.scatter_end_proc(procs,'', title=_('WfP Display variable hover'), isShowMinMax=false, page_key='wfp') }}
             {{ macros.data_finder_card() }}
             {{ macros.start_proc(procs,'', traceData=false, showDataFinder=True) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.')) }}

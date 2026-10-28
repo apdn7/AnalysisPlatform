@@ -93,6 +93,7 @@
             "common/js/libs/Chart.min.js",
             "common/js/libs/chartjs-adapter-moment.min.js",
             "common/js/libs/chartjs-plugin-annotation-latest.min.js",
+            "trace_data/js/trace_data_style.js",
             "trace_data/js/trace_data_time_series.js",
             "trace_data/js/trace_data_histogram.js",
             "trace_data/js/trace_data_step_bar_chart.js",

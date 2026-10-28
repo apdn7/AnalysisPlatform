@@ -239,6 +239,7 @@ const onChangeScaleOption = () => {
         yScaleOption = settings.yScale;
         xAxisOrder = settings.xAxisOrder;
         drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
+        onApplyStyleSetting();
     });
 
     formElements.xAxisOrderOption.on('change', () => {
@@ -816,6 +817,7 @@ const changeYAxisMode = (e) => {
     yScaleOption = settings.yScale;
     xAxisOrder = settings.xAxisOrder;
     drawAGP(currentData, xAxisOrder, yScaleOption, yAxisDisplayMode);
+    onApplyStyleSetting();
 };
 
 const setYAxisOption = () => {

@@ -261,6 +261,7 @@ const procModali18n = {
     i18nJudgeNo: '#i18nJudgeNo',
     i18nCopyToFiltered: '#i18nCopyToFiltered',
     i18nColumnRawName: '#i18nColumnRawName',
+    i18nSystemName: '#i18nSystemName',
     i18nEnglishName: '#i18nEnglishName',
     i18nJapaneseName: '#i18nJapaneseName',
     i18nLocalName: '#i18nLocalName',
@@ -352,7 +353,7 @@ const updateProcessPreviewButtons = (referenceFileValid = true) => {
         referenceFileValid && selectedSource.val() && (!needsTable || procModalElements.tables.val()),
     );
     procModalElements.showRecordsBtn.prop('disabled', !canPreview);
-    procModalElements.previewUpdateBtn.prop('disabled', !canPreview || !procModalCurrentProcId);
+    procModalElements.previewUpdateBtn.prop('disabled', !canPreview);
 };
 
 const invalidateProcessPreview = () => {
@@ -600,6 +601,7 @@ const loadTables = async (databaseId, dataRowID = null, selectedTbl = null) => {
             $(procModalElements.grTableDropdown).hide();
             if (!procModalCurrentProcId) {
                 // new process, should enable file name
+                procModalElements.fileName.val(res.reference_file || '');
                 resetIsShowFileName();
                 await setProcessName(dataRowID);
             }
@@ -810,7 +812,7 @@ const storePreviousValue = (element) => {
 
 const clearProcModalColumnTable = (tableId) => {
     if (tableId === 'processColumnsTable') {
-        document.getElementById('procPaginationPages').replaceChildren();
+        document.getElementById('procPaginationToolbar').replaceChildren();
         document.getElementById('procPaginationToolbar').classList.add('d-none');
     }
     // remove old table
@@ -3188,14 +3190,19 @@ $(() => {
     });
 
     // This should not affect the field on register by file page
-    let debounceTimer;
-    $('#procCfgForm #fileName').on('input', (e) => {
-        clearTimeout(debounceTimer);
-        $(procModalElements.alertReferenceFileErrorID).hide();
-        trimQuotesSpacesAndUpdate(e.target);
-        invalidateProcessPreview();
-        updateProcessPreviewButtons(false);
-        debounceTimer = setTimeout(async () => {
+    $('#procCfgForm #fileName')
+        .on('input', (e) => {
+            $(e.target).data('referenceEdited', true);
+            $(procModalElements.alertReferenceFileErrorID).hide();
+            trimQuotesSpacesAndUpdate(e.target);
+            invalidateProcessPreview();
+            updateProcessPreviewButtons(false);
+        })
+        .on('change blur', (e) => {
+            // Restoring the original value does not emit change, but still invalidates the preview.
+            if (e.type === 'blur' && !$(e.target).data('referenceEdited')) return;
+            $(e.target).removeData('referenceEdited');
+            trimQuotesSpacesAndUpdate(e.target);
             if (e.target.value) {
                 $.ajax({
                     url: csvResourceElements.apiCheckFolderUrl,
@@ -3203,6 +3210,7 @@ $(() => {
                     data: JSON.stringify({
                         url: e.target.value,
                         isFile: true,
+                        process_data_source_id: procModalElements.dsID.val() || procModalElements.databases.val(),
                     }),
                     contentType: 'application/json',
                     success: (res) => {
@@ -3212,7 +3220,7 @@ $(() => {
                         } else {
                             updateProcessPreviewButtons(false);
                             displayRegisterMessage(procModalElements.alertReferenceFileErrorID, {
-                                message: $(procModali18n.i18nInvalidFilePathMessage).text(),
+                                message: res.err_msg || $(procModali18n.i18nInvalidFilePathMessage).text(),
                                 is_error: true,
                             });
                         }
@@ -3222,8 +3230,13 @@ $(() => {
                 updateProcessPreviewButtons();
                 procModalElements.showRecordsBtn.trigger('click');
             }
-        }, 300);
-    });
+        })
+        .on('keydown', (e) => {
+            if (e.key === 'Enter' && !e.isComposing && !e.originalEvent?.isComposing) {
+                e.preventDefault();
+                e.target.blur();
+            }
+        });
 
     // Show records button click event
     showRecordsBtnFunc = async (event, refreshPreview = false) => {
@@ -3235,7 +3248,7 @@ $(() => {
     procModalElements.showRecordsBtn.click(showRecordsBtnFunc);
     procModalElements.previewUpdateBtn.off('click').on('click', (event) => {
         event.preventDefault();
-        if (procModalCurrentProcId && !procModalElements.previewUpdateBtn.prop('disabled')) {
+        if (!procModalElements.previewUpdateBtn.prop('disabled')) {
             procModalElements.confirmPreviewUpdateModal.modal('show');
         }
     });
@@ -4383,6 +4396,31 @@ const isSelectedMainDatetimeInProcessConfig = () => {
 
 $(() => {
     initLabelSelectionTags();
+
+    const modalBody = procModalElements.procModalBody[0];
+    if (modalBody) {
+        const columnsTable = document.getElementById(procModalElements.procConfigTableName);
+        let modalLayoutFrame = null;
+        // Defer parent sizing to avoid resizing observed children during observer delivery.
+        const modalLayoutObserver = new ResizeObserver(() => {
+            if (modalLayoutFrame !== null) return;
+            modalLayoutFrame = requestAnimationFrame(() => {
+                modalLayoutFrame = null;
+                if (!modalBody.getClientRects().length) return;
+                const controlsHeight = columnsTable.getBoundingClientRect().top - modalBody.getBoundingClientRect().top;
+                const tableMinHeight = parseFloat(getComputedStyle(columnsTable).minHeight);
+                const paddingBottom = parseFloat(getComputedStyle(modalBody).paddingBottom);
+                const minHeight = `${Math.ceil(controlsHeight + tableMinHeight + paddingBottom)}px`;
+                if (modalBody.style.minHeight !== minHeight) {
+                    modalBody.style.minHeight = minHeight;
+                }
+            });
+        });
+        Array.from(modalBody.children).forEach((child) => modalLayoutObserver.observe(child));
+        procModalElements.procModal.off('shown.bs.modal.procConfigScroll').on('shown.bs.modal.procConfigScroll', () => {
+            procModalElements.procModal.find('.modal-content').scrollTop(0);
+        });
+    }
 
     // Delegate so Select2 reinitialization cannot remove the modal-only sizing.
     // Its dropdown lives under body, so scope popup CSS with a separate class.

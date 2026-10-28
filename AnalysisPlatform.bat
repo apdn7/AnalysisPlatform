@@ -1207,9 +1207,9 @@ endlocal & exit /b 0
   ::: pip
   set "main_pip=%path_python%\Scripts\pip.exe"
   set "path_pi_pyz=%path_python%\pip.pyz"
-  set "ver_pip=26.0.1"
+  set "ver_pip=26.2.2"
   set "pkg_com=pip==%ver_pip% setuptools==82.0.0 wheel==0.46.3"
-  set "pkg_env=virtualenv==20.36.1"
+  set "pkg_env=virtualenv==21.14.12"
   ::: Oracle
   set "path_oc_zip=%path_main%\Oracle-Portable.zip"
   set "path_oracle=%path_main%\Oracle-Portable"

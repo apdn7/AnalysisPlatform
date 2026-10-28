@@ -332,6 +332,55 @@ const reloadPageAfterInterval = () => {
     $.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales['en-US']);
 })(jQuery);
 
+const renderJobPagination = (jobTable) => {
+    const options = jobTable.bootstrapTable('getOptions');
+    jobTable
+        .closest('.bootstrap-table')
+        .children('.fixed-table-pagination')
+        .each(function () {
+            const pagination = $(this);
+            let container = pagination.children('.job-pagination')[0];
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'job-pagination';
+                this.appendChild(container);
+            }
+            const pageSizeLinks = [...pagination.find('.page-list')[0].querySelectorAll('a')];
+            const pageSizeControl = document.createElement('select');
+            pageSizeControl.setAttribute('aria-label', document.getElementById('i18nPagination').dataset.pageSize);
+            for (const link of pageSizeLinks) {
+                const option = document.createElement('option');
+                option.value = option.textContent = link.textContent.trim();
+                pageSizeControl.append(option);
+            }
+            pageSizeControl.value = String(options.pageSize);
+            pageSizeControl.onchange = () => pageSizeLinks[pageSizeControl.selectedIndex].click();
+            renderProcessPagination(container, {
+                compact: true,
+                page: options.pageNumber,
+                pageSize: options.pageSize,
+                total: options.totalRows,
+                pageSizeControl,
+                onPageChange: (page) => jobTable.bootstrapTable('selectPage', page),
+            });
+
+            // The compact select delegates limit changes to BootstrapTable's original handlers.
+            pagination.children('.pagination').hide();
+            pagination.children('.pagination-detail').hide();
+            pagination.addClass('job-pagination-layout').show();
+        });
+};
+
+const initJobPagination = (jobTable) => {
+    jobTable
+        .off('.jobPagination')
+        .on(
+            'post-body.bs.table.jobPagination page-change.bs.table.jobPagination load-success.bs.table.jobPagination',
+            () => renderJobPagination(jobTable),
+        );
+    renderJobPagination(jobTable);
+};
+
 $(() => {
     // init job table with bootstrap
     // load filter options
@@ -342,6 +391,7 @@ $(() => {
         paginationVAlign: 'both',
         pageSize: 20, // set default page size to 20
         pageList: [10, 20, 50, 100],
+        smartDisplay: false, // Keep all native page-size choices available even for empty/small results.
         locale: $('option:selected', $(ids.selectLanguage)).attr('bootstrap-locale'),
         errorPage: isFailedJobPage(),
         undefinedText: '', // for null or undefined value, replace to EMPTY_STRING
@@ -360,6 +410,7 @@ $(() => {
             { field: 'detail' },
         ],
     });
+    initJobPagination(jobTable);
 
     $('#btnCopyToClipboard').on('click', () => copyToClipboard());
 

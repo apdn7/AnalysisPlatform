@@ -74,8 +74,8 @@ table#jobDetailTable thead tr th {
 }
 
 .bootstrap-table .fixed-table-container .fixed-table-body {
-    overflow-y: unset !important;
-    overflow-x: unset !important;
+    overflow-y: unset;
+    overflow-x: unset;
 }
 
 .bootstrap-table .fixed-table-container .table thead th .sortable {
@@ -184,5 +184,59 @@ span.btn-group.dropdown {
 .job-list-main {
     width: 100%;
     flex: 1;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.job-list-main > .card-table {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.job-list-main #jobDataTableWrapper {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    min-width: 0;
+    min-height: 0;
+}
+
+.job-list-main #jobDataTableWrapper > .justify-content-between {
+    flex-wrap: wrap;
+}
+
+.job-list-main #jobDataTable {
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.job-list-main #jobDataTable > .bootstrap-table {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+}
+
+.job-list-main #jobDataTable .fixed-table-container {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.job-list-main #jobDataTable .fixed-table-body {
     overflow: auto;
+}
+
+.job-list-main #jobTable > thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.job-list-main #jobDataTable .fixed-table-pagination {
+    flex-shrink: 0;
 }

@@ -97,7 +97,7 @@
 
 .multi-axis-plot__context-menu-label {
     padding: 6px 14px 4px;
-    color: #666;
+    color: #999;
     font-size: 12px;
     font-weight: 600;
 }
@@ -416,7 +416,7 @@ button.layout-variable-cell__trigger:after {
 
     &__panel-wrapper {
         z-index: 1200;
-        width: 356px;
+        width: fit-content;
         max-width: calc(100vw - 16px);
         max-height: var(--radix-popover-content-available-height);
         overflow-y: auto;
@@ -440,16 +440,15 @@ button.layout-variable-cell__trigger:after {
 
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     padding: 12px;
-    font-family: 'Calibri Light', serif;
 
     &__section-title {
-        margin-bottom: 6px;
+        margin-bottom: 3px;
         font-weight: 600;
         color: #ffffff;
         font-size: 14px;
-        text-transform: uppercase;
+        text-transform: none;
         letter-spacing: 0.05em;
     }
 
@@ -462,6 +461,20 @@ button.layout-variable-cell__trigger:after {
         .layout-toggle-btn {
             width: var(--layout-column-width);
         }
+    }
+
+    &__overlay-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        column-gap: 4px;
+    }
+
+    &__overlay-note {
+        font-size: 10px;
+        color: #c1c1c1;
+        overflow-wrap: anywhere;
     }
 
     &__primary-list {
@@ -500,9 +513,9 @@ button.layout-variable-cell__trigger:after {
     }
 
     &__divider {
-        height: 1px;
-        background: rgba(255, 255, 255, 0.1);
-        margin-bottom: 12px;
+        height: 2px;
+        background: #7e7e7e;
+        margin-bottom: 4px;
     }
 }
 
@@ -555,6 +568,10 @@ button.layout-variable-cell__trigger:after {
     column-gap: var(--layout-button-gap);
     margin-bottom: 6px;
 
+    &:last-child {
+        margin-bottom: 0;
+    }
+
     &__label {
         width: var(--layout-column-width);
         font-size: 14px;
@@ -562,6 +579,15 @@ button.layout-variable-cell__trigger:after {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+
+        &--annotated {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    &__description {
+        margin-left: 4px;
     }
 
     &__buttons {

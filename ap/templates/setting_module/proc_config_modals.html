@@ -119,7 +119,7 @@
                                                     class="mr-2 mb-0"
                                                     for="processName"
                                                     title="{{ _('SystemNameHoverMsg') }}"
-                                                    ><span class="hint-text">{{ _("English Name") }}</span
+                                                    ><span class="hint-text">{{ _("System Name") }}</span
                                                     ><span style="color: yellow;">*</span></label
                                                 >
                                                 <input
@@ -355,21 +355,7 @@
                                 Reset
                             </button>
                         </div>
-                        <div id="procPaginationToolbar" class="d-flex align-items-center ml-3 d-none">
-                            <span id="procPaginationTotal" class="text-nowrap" aria-live="polite"></span>
-                            <div id="procPaginationPages"></div>
-                            <input
-                                id="procPaginationJump"
-                                type="number"
-                                min="1"
-                                step="1"
-                                class="form-control"
-                                aria-label="{{ _('Page') }}"
-                            />
-                            <button id="procPaginationJumpBtn" type="button" class="btn simple-btn">
-                                {{ _('Jump') }}
-                            </button>
-                        </div>
+                        <div id="procPaginationToolbar" class="ml-3 d-none"></div>
                     </div>
                     <div class="d-flex justify-content-end align-items-center position-relative proc-datetime-tools">
                         <div id="showFileNameCol" class="custom-control custom-checkbox mr-3">
@@ -705,7 +691,7 @@
                                 </div>
                                 <div class="form-group d-flex align-items-center" id="functionColumnSystemName">
                                     <label for="functionColumnSystemName" class="function-config-label">
-                                        {{ _("English Name") }}
+                                        {{ _("System Name") }}
                                     </label>
                                     <div class="function-config-value">
                                         <input type="text" name="functionColumnSystemName" class="form-control" />
@@ -1323,7 +1309,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">*</th>
-                                <th scope="col">{{ _("English Name") }}</th>
+                                <th scope="col">{{ _("System Name") }}</th>
                                 <th scope="col">{{ _("Japanese Name") }}</th>
                                 <th scope="col">{{ _("Local Name") }}</th>
                                 <th scope="col">{{ _("X/me") }}</th>
@@ -1381,7 +1367,7 @@
                                                 class="mr-2 mb-0"
                                                 for="mergeProcName"
                                                 title="{{ _('SystemNameHoverMsg') }}"
-                                                ><span class="hint-text">{{ _("English Name") }}</span
+                                                ><span class="hint-text">{{ _("System Name") }}</span
                                                 ><span style="color: yellow;">*</span></label
                                             >
                                             <input
@@ -1542,7 +1528,7 @@
                                     <tr>
                                         <th class="column-order">*</th>
                                         <th class="system" title="{{ _('SystemNameHoverMsg') }}">
-                                            <span class="hint-text">{{ _("English Name") }}</span>
+                                            <span class="hint-text">{{ _("System Name") }}</span>
                                             <span style="color: yellow;">*</span>
                                         </th>
                                         <th class="japanese-name">{{ _('Japanese Name') }}</th>

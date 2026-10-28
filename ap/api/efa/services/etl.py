@@ -1,6 +1,7 @@
 import importlib.util
 import os
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Union
 from uuid import uuid4
 
@@ -131,16 +132,7 @@ class PyETLInterface(ABC):
 
 @log_execution_time()
 def csv_transform(fname, etl_func, proc_id=None):
-    """Transform to standard csv"""
-    if proc_id:
-        csv_base_dir = get_base_dir(fname)
-        out_dir = get_etl_path(str(proc_id), csv_base_dir)
-        make_dir(out_dir)
-    else:
-        out_dir = get_temp_path()
-
-    output_fname = None
-
+    """Transform to CSV. Callers must delete the result after reading."""
     if etl_func.endswith('.py'):
         py_etl_path = os.path.join(get_user_scripts_path(), 'py', etl_func)
         if os.path.isfile(py_etl_path):
@@ -159,24 +151,33 @@ def csv_transform(fname, etl_func, proc_id=None):
                     df = etl_instance.extract(fname)
                     validated_df = etl_instance.validate(df)
                     transformed_df = etl_instance.transform(validated_df)
-
+                    out_dir = get_etl_path(str(proc_id), get_base_dir(fname)) if proc_id else get_temp_path()
+                    make_dir(out_dir)
                     output_fname = os.path.join(out_dir, f'{uuid4().hex}.{CSVExtTypes.CSV.value}')
-                    transformed_df.to_csv(output_fname, index=False)
-                    break
+                    try:
+                        transformed_df.to_csv(output_fname, index=False)
+                    except BaseException:
+                        Path(output_fname).unlink(missing_ok=True)
+                        raise
+                    return output_fname
 
-            if not output_fname:
-                raise ValueError(f'No valid ETL class found in {etl_func}')
+            raise ValueError(f'No valid ETL class found in {etl_func}')
 
-    if output_fname is None and is_internal_version:
-        output_fname = call_com_read(fname, out_dir)
+    if is_internal_version:
+        if proc_id:
+            csv_base_dir = get_base_dir(fname)
+            out_dir = get_etl_path(str(proc_id), csv_base_dir)
+            make_dir(out_dir)
+        else:
+            out_dir = get_temp_path()
+        return call_com_read(fname, out_dir)
 
-    return output_fname
+    return None
 
 
 @log_execution_time()
 def df_transform(df, etl_func):
     """Transform factory df to standard df"""
-    out_dir = get_temp_path()
     transformed_df = None
     if etl_func.endswith('.py'):
         py_etl_path = os.path.join(get_user_scripts_path(), 'py', etl_func)
@@ -202,8 +203,6 @@ def df_transform(df, etl_func):
                         )
                         raise ETLException(error_msg=error_msg) from e
 
-                    output_fname = os.path.join(out_dir, f'{uuid4().hex}.{CSVExtTypes.CSV.value}')
-                    transformed_df.to_csv(output_fname, index=False)
                     break
 
             if transformed_df.empty:
@@ -237,7 +236,7 @@ def call_com_read(fname, out_dir):
     dic_data = {}  # filecheckr does not need input data
     dic_task = {'func': target_func, 'file': FILE, 'fpath': fname}
 
-    wrapr_utils = safe_import('ap.script.r_scripts.wrapr.wrapr_utils') if is_internal_version else None
+    wrapr_utils = safe_import('user.scripts_r.wrapr.wrapr_utils') if is_internal_version else None
     # define and run pipeline
     try:
         pipe = wrapr_utils.RPipeline(get_wrapr_path(), out_dir, use_pkl=False, verbose=True)
@@ -287,7 +286,7 @@ def call_com_view(fname, out_dir):
     dic_data = {}
     dic_task = {'func': target_func, 'file': FILE, 'fpath': fname, 'pass': json_str}
 
-    wrapr_utils = safe_import('ap.script.r_scripts.wrapr.wrapr_utils') if is_internal_version else None
+    wrapr_utils = safe_import('user.scripts_r.wrapr.wrapr_utils') if is_internal_version else None
     # define and run pipeline
     try:
         pipe = wrapr_utils.RPipeline(get_wrapr_path(), out_dir, use_pkl=False, verbose=True)

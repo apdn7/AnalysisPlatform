@@ -548,6 +548,10 @@ const initializeDateTimeRangePicker = (dtId = null, isClassName = false) => {
             // initialize date picker
             $(element).daterangepicker(config);
 
+            // Remember the value auto-filled at init so consumers (e.g. the React Variable Select modal)
+            // can tell whether the user later changed the range or kept the default (current time).
+            $(element).attr('data-default-datetime-range', $(element).val() || '');
+
             if (!isSetDefaultValue) {
                 $(element).on('apply.daterangepicker', function(ev, picker) {
                     $(this).val(picker.startDate.format(DATETIME_PICKER_FORMAT) + DATETIME_PICKER_SEPARATOR + picker.endDate.format(DATETIME_PICKER_FORMAT));

@@ -223,20 +223,25 @@ const drawAgPPlot = (
         if (isXOrderByYValue) {
             const currentPlot = document.getElementById(canvasId);
             const renderedTickTextElements = document.querySelectorAll(`#${canvasId} .xtick text`);
-            // calculated like tickSize
-            const fontSize = renderedTickTextElements.length > 5 ? 10 : 12;
-            const ellipsisPixelLen = visualTextLength('...', fontSize);
-            const pixelLenLimit = (chartViewHeightNumber / 4) * (window.innerHeight / 100); // 25% of chart's height
-            renderedTickTextElements.forEach((ele, i) => {
-                ele.innerHTML = formatVerticalLabel(
-                    ele.dataset.unformatted,
-                    pixelLenLimit,
-                    ellipsisPixelLen,
-                    ele.getAttribute('x'),
-                    ele.getAttribute('y'),
-                    fontSize,
-                );
-            });
+            const fontSize =
+                currentPlot?.layout?.xaxis?.tickfont?.size ?? (renderedTickTextElements.length > 5 ? 10 : 12);
+            const previousFont = ctx.font;
+            try {
+                const ellipsisPixelLen = visualTextLength('...', fontSize);
+                const pixelLenLimit = (chartViewHeightNumber / 4) * (window.innerHeight / 100); // 25% of chart's height
+                renderedTickTextElements.forEach((ele, i) => {
+                    ele.innerHTML = formatVerticalLabel(
+                        ele.dataset.unformatted,
+                        pixelLenLimit,
+                        ellipsisPixelLen,
+                        ele.getAttribute('x'),
+                        ele.getAttribute('y'),
+                        fontSize,
+                    );
+                });
+            } finally {
+                ctx.font = previousFont;
+            }
             $('g.xtick text')
                 .off('mouseover')
                 .on('mouseover', (e) => {

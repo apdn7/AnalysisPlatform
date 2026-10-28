@@ -1097,12 +1097,8 @@ const showXAxisLabel = (element) => {
         .find('.ridgeLineCard-full')
         .each((i, card) => {
             const layout = {
-                xaxis: {
-                    tickvals: isShowAxis ? rlpXAxis[comparetype][i] : [],
-                },
-                margin: {
-                    b: isShowAxis ? 23 : 15,
-                },
+                'xaxis.tickvals': isShowAxis ? rlpXAxis[comparetype][i] : [],
+                'margin.b': isShowAxis ? 23 : 15,
             };
             Plotly.relayout(card.id, layout);
         });
@@ -1113,7 +1109,10 @@ const showXAxisLabel = (element) => {
             const layout = judgeLayout[i];
             layout.xaxis.tickvals = isShowAxis ? judgeXAxis[comparetype][i] : [];
             layout.margin.b = isShowAxis ? 23 : 15;
-            Plotly.relayout(card.id, layout);
+            Plotly.relayout(card.id, {
+                'xaxis.tickvals': layout.xaxis.tickvals,
+                'margin.b': layout.margin.b,
+            });
         });
 };
 
@@ -1138,18 +1137,12 @@ const changeRLPScale = () => {
         .each((i, card) => {
             const variableIDx = Number(card.id.split('-')[1]);
             const layout = {
-                xaxis: {
-                    tickvals: isShowAxis ? rlpXAxis[comparetype][i] : [],
-                },
-                margin: {
-                    b: isShowAxis ? 23 : 15,
-                },
+                'xaxis.tickvals': isShowAxis ? rlpXAxis[comparetype][i] : [],
+                'margin.b': isShowAxis ? 23 : 15,
             };
             const { yMin, yMax } = getYSaleOption(resData.array_plotdata[variableIDx]);
             if (yMin !== undefined && yMax !== undefined) {
-                layout.yaxis = {
-                    range: [yMin, yMax],
-                };
+                layout['yaxis.range'] = [yMin, yMax];
             }
             // for EMD
             let emdArr = resData.emd[i];
@@ -1164,9 +1157,7 @@ const changeRLPScale = () => {
             if (EMDRange) {
                 // padding 10% for EMD graph
                 const EMDPadding = (EMDRange[1] - EMDRange[0]) * 0.1;
-                layout.yaxis2 = {
-                    range: [EMDRange[0] - EMDPadding, EMDRange[1] + EMDPadding],
-                };
+                layout['yaxis2.range'] = [EMDRange[0] - EMDPadding, EMDRange[1] + EMDPadding];
             }
             Plotly.relayout(card.id, layout);
         });

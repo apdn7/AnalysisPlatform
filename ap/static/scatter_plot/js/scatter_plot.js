@@ -1378,6 +1378,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                         [actualHeight, figSize] = setChartSize(scpMatrix, chartHeight, hasColorBar, isShowDateTime);
                         Plotly.Plots.resize(document.getElementById('sctr-card'));
                         genVLabels(vLabels, 'sctr-card', actualHeight, figSize, res.x_name, res.y_name);
+                        onApplyStyleSetting();
                     }, 500);
                 });
             }
@@ -1441,6 +1442,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 $('html,body').animate({ scrollTop: scpCardPosition }, 1000);
             }
             initFilterModal(res, clearOnFlyFilter);
+            onApplyStyleSetting();
         };
 
         if (settings) {
@@ -1537,7 +1539,6 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         onChangeColNumber();
         onChangePlotType();
         onChangeArrangeDiv();
-        onApplyStyleSetting();
     }
 
     loadingHide();

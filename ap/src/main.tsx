@@ -31,6 +31,7 @@ const components = {
     ),
     SankeyPlotStyleSetting: lazy(() => import('@/pages/sankey_plot/components/SankeyPlotStyleSetting.tsx')),
     FppPlotStyleSetting: lazy(() => import('@/pages/full_points_plot/components/FppPlotStyleSetting.tsx')),
+    VariableSelectPage: lazy(() => import('@/pages/VariableSelect/components/VariableSelect.tsx')),
 };
 
 const mountedComponents = new WeakMap<Element, Root>();

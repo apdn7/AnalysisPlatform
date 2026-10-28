@@ -22,7 +22,7 @@
 {% block midbody %}
     <div class="card monitor-icons">
         <form class="GUIForm" id="traceDataForm" onSubmit="return false;">
-            {{ macros.end_proc(procs,'', traceData=false, showStartProc=true, title=_('MAP select variables hover msg')) }}
+            {{ macros.end_proc(procs,'', traceData=false, showStartProc=true, title=_('MAP select variables hover msg'), page_key='map') }}
             {{ macros.data_finder_card() }}
             {{ macros.start_proc(showAutoUpdate=false) }}
             {{ macros.cond_proc([],'', title=_('Graph Filter: Limits data to be displayed to a subset.'), is_optional=true) }}

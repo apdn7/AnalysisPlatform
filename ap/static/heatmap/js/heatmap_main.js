@@ -537,7 +537,7 @@ const genColorScaleBar = (colorData, zmin, zmax, title, customScaleSets = null, 
         paper_bgcolor: CONST.BGR_COLOR,
         plot_bgcolor: CONST.BGR_COLOR,
     };
-    Plotly.newPlot('coloScaleBar', data, layout, { displayModeBar: false });
+    return Plotly.newPlot('coloScaleBar', data, layout, { displayModeBar: false });
 };
 
 // generate scatter hover information
@@ -636,7 +636,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
             return scpCloneData.filter((plot) => !plot.is_empty_graph);
         };
 
-        const showGraph = (settings = { isShowForward: false }) => {
+        const showGraph = async (settings = { isShowForward: false }) => {
             const scpCloneData = cloneScpPlotData();
             let sortKey = 'sort_key';
             scpCloneData.sort((a, b) => b.h_label - a.h_label);
@@ -683,16 +683,23 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                     aggColorFunc: aggColorFunc,
                 };
                 heatmapData = { scpMatrix, option, zoomRange };
-                genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
-                    zoomRange = event;
-                    const sets = updateSetting({
-                        res,
-                        currentSetting: getCurrentSettings(),
+                const graphRoot = document.getElementById('scpchart-dom');
+                try {
+                    await genHeatMapPlots(scpMatrix, option, zoomRange, (event) => {
+                        zoomRange = event;
+                        const sets = updateSetting({
+                            res,
+                            currentSetting: getCurrentSettings(),
+                        });
+                        showGraph(sets);
                     });
-                    showGraph(sets);
-                });
+                } finally {
+                    if (document.getElementById('scpchart-dom') === graphRoot) loadingHide();
+                }
+                if (document.getElementById('scpchart-dom') !== graphRoot) return;
             }
 
+            onApplyStyleSetting();
             // hide loading icon
             loadingHide();
 
@@ -709,10 +716,11 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 res,
                 currentSetting: settings,
             });
-            showGraph(updateSeting);
+            await showGraph(updateSeting);
         } else {
-            showGraph();
+            await showGraph();
         }
+        if (response !== res) return;
 
         const handleSelectChange = ({ selector, isSetChartScale = false, callback, timeout }) => {
             $(selector)
@@ -720,12 +728,12 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 .on('change', () => {
                     if (isSetChartScale) return;
                     loadingShow();
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         const graphSetting = updateSetting({
                             res,
                             currentSetting: getCurrentSettings(),
                         });
-                        callback(graphSetting);
+                        await callback(graphSetting);
                     }, timeout);
                 });
         };
@@ -735,7 +743,7 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
                 selector: `select[name=${els.scpChartScale}`,
                 isSetChartScale: chartType === scpChartType.HEATMAP,
                 callback: (graphSetting) => {
-                    showGraph(graphSetting);
+                    return showGraph(graphSetting);
                 },
                 timeout: 1000,
             });
@@ -785,7 +793,6 @@ const showSCP = async (res, settings = undefined, clearOnFlyFilter = false, auto
         onChangeChartScale();
         onChangeColNumber();
         onChangeArrangeDiv();
-        onApplyStyleSetting();
     }
 
     loadingHide();
@@ -1016,6 +1023,7 @@ const genHTMLContentMatrix = (
 };
 
 const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => {
+    const renderPromises = [];
     let allColorValSets = [];
     const allYValues = [];
     const allXValues = [];
@@ -1084,7 +1092,7 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
             heatmapGraph.isShowY = j === 0;
             heatmapGraph.isShowX = i === scpData.length - 1;
             heatmapGraph.canvasId = canvasID;
-            generateHeatmapPlot(heatmapGraph, option, zoomRange);
+            renderPromises.push(generateHeatmapPlot(heatmapGraph, option, zoomRange));
             graphDiv.on('plotly_relayout', (eventdata) => {
                 callback(eventdata);
             });
@@ -1146,15 +1154,18 @@ const genHeatMapPlots = (scpData, option, zoomRange = null, callback = null) => 
         discreteColors = Array.from(new Set(discreteColors));
         discreteColors.sort((a, b) => b - a);
     }
-    genColorScaleBar(
-        filteredValSets,
-        colorScale.zmin,
-        colorScale.zmax,
-        colorBarTitle,
-        colorScale.scale,
-        discreteColors,
-        option.colorBarHeight,
+    renderPromises.push(
+        genColorScaleBar(
+            filteredValSets,
+            colorScale.zmin,
+            colorScale.zmax,
+            colorBarTitle,
+            colorScale.scale,
+            discreteColors,
+            option.colorBarHeight,
+        ),
     );
+    return Promise.all(renderPromises);
 };
 
 const callToBackEndAPI = (settings = undefined, clearOnFlyFilter = false, autoUpdate = false) => {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import * as Popover from '@radix-ui/react-popover';
 
+import { getDisplayLabel } from '@/pages/multi-axis-plot/layoutLabels.ts';
 import {
     type ValidationResult,
     getItemIdFromKey,
@@ -40,37 +41,13 @@ type LayoutChangeMeta = Pick<
     'itemId' | 'groupId' | 'datatype' | 'isCategory' | 'isDummyDatetime' | 'layoutOrder'
 >;
 
-const VALUE_LABEL_MAP: Record<string, string> = {
-    x_axis: 'X-axis',
-    lab: 'Lab',
-    lab_x: 'LabX',
-    color: 'Color',
-    color_x: 'ColorX',
-    color_imb: 'ColImb',
-    color_imb_x: 'ColImbX',
+// Virtual-list rows are unmounted and mounted again with a new React root when they scroll back
+// into view, so the initial value is restored from the layout store instead of starting empty.
+const getStoredLayoutValue = (itemId: string | number): string => {
+    const layoutState = window.getLayoutState?.() ?? {};
+    const key = Object.keys(layoutState).find((stateKey) => getItemIdFromKey(stateKey) === String(itemId));
+    return key ? getValueFromKey(key) : '';
 };
-
-function getDisplayLabel(value: string): string {
-    if (!value) return '---';
-    if (VALUE_LABEL_MAP[value]) return VALUE_LABEL_MAP[value];
-
-    const match = value.match(/^([1-6])(.+)$/);
-    if (match) {
-        const [, num, field] = match;
-        const fieldLabelMap: Record<string, string> = {
-            lab: 'Lab',
-            step: 'Step',
-            main: 'Main',
-            sub: '-2nd',
-            add: 'Auto',
-            color: 'Color',
-            color_imb: 'ColImb',
-        };
-        return `${num}${fieldLabelMap[field] ?? field}`;
-    }
-
-    return value;
-}
 
 export default function LayoutPanel({
     itemId = '',
@@ -83,8 +60,9 @@ export default function LayoutPanel({
 }: LayoutVariableCellProps) {
     const { t } = useTranslation();
 
-    const [selected, setSelected] = useState(isSelected);
-    const [currentValue, setCurrentValue] = useState('');
+    const [storedValue] = useState(() => getStoredLayoutValue(itemId));
+    const [selected, setSelected] = useState(storedValue ? isPrimaryValue(storedValue) : isSelected);
+    const [currentValue, setCurrentValue] = useState(storedValue);
     const currentValueRef = useRef(currentValue);
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [order, setOrder] = useState(null);
@@ -191,6 +169,14 @@ export default function LayoutPanel({
 
     const dispatchLayoutChange = (value: string, previousValue: string, skipSwap = false) => {
         const { itemId, groupId, datatype, isCategory, isDummyDatetime, layoutOrder } = layoutChangeMetaRef.current;
+        const row = inputRef.current?.closest('li');
+        if (row) {
+            if (value) {
+                delete row.dataset.recentlyUnchecked;
+            } else if (previousValue) {
+                row.dataset.recentlyUnchecked = 'true';
+            }
+        }
         document.dispatchEvent(
             new CustomEvent('layoutchange', {
                 detail: {
@@ -292,6 +278,9 @@ export default function LayoutPanel({
         setCurrentValue(value);
         selectedRef.current = isPrimaryValue(value);
         setSelected(isPrimaryValue(value));
+        // Declared after the event listeners above, so every listener is attached at this point.
+        // Variable Select waits for this marker before writing layout values from outside.
+        inputRef.current?.setAttribute('data-layout-ready', 'true');
     }, [itemId, groupId, datatype, isCategory, isDummyDatetime, layoutOrder]);
 
     const applyValue = (newValue: string, skipSwap = false) => {

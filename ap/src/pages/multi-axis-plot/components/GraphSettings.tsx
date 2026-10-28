@@ -23,6 +23,7 @@ export default function MaPGraphSettings({
     isDisableYOptions,
     onXAxisChange,
     onYAxisChange,
+    onPlotStyleChange,
     xOptionValue,
     layout,
     ...rest
@@ -55,10 +56,7 @@ export default function MaPGraphSettings({
     };
 
     const handleOnchangePlotStyle = (plotStyle: string) => {
-        setGraphSettings((prev) => ({
-            ...prev,
-            plotStyle: plotStyle,
-        }));
+        onPlotStyleChange(plotStyle);
     };
 
     const handleOnchangeTranspose = (transpose: boolean) => {

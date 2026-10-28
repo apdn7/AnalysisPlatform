@@ -1,4 +1,5 @@
 import dataclasses
+from pathlib import Path
 from typing import Any, overload
 
 import numpy as np
@@ -401,7 +402,10 @@ class StructuredFileReader:
         for file_path in self.filenames:
             preview_file_path = csv_transform(file_path, etl_func)
             if preview_file_path and not isinstance(preview_file_path, Exception):
-                header, data = self.read_data_normal_file(preview_file_path)
+                try:
+                    header, data = self.read_data_normal_file(preview_file_path)
+                finally:
+                    Path(preview_file_path).unlink(missing_ok=True)
                 break
         return header, data
 
@@ -414,8 +418,6 @@ class StructuredFileReader:
     def read_data_normal_file(self, target_file: str | None = None) -> tuple[Any, Any]:
         """Read target_file by pandas directly"""
         filenames = [target_file] if target_file else self.filenames
-
-        # detect file delimiter and encoding
         if filenames:
             self.detect_file_delimiter_and_encoding(filenames[0])
 

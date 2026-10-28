@@ -45,6 +45,7 @@
 
 .ridgeLineCard-full {
     flex: 1;
+    min-width: 0;
     margin-right: 24px;
 }
 
@@ -129,7 +130,6 @@ span.btn-anchor {
 
 .tschart-title-parent {
     width: 40px;
-    max-width: 60px;
     position: relative;
     left: 0px;
 }

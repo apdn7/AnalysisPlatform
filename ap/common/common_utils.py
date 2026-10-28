@@ -366,7 +366,7 @@ def add_double_quotes(instr: str):
 #         logger.info(self.r('.libPaths()'))
 #
 #         # R package folder
-#         self.source = resource_path('ap', 'script', 'r_scripts', package)
+#         self.source = resource_path('user', 'scripts_r', package)
 #         self.r(f'source("{self.source}")')
 #
 #     def __call__(self, func, *args, _number_of_recheck_r_output=1000, **kwargs) -> object:

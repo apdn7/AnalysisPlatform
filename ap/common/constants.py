@@ -3033,6 +3033,7 @@ class JobType(Enum):
         DATA_EXPORT: Data export job (31).
         BULK_PROCESS_REGISTER: Bulk process registration job (32).
         QUICK_PLOT_CLEANUP: Daily Quick Plot datasource and file retention cleanup job (35).
+        CSV_PREVIEW: User-initiated CSV Show preview outcome (36).
 
     Methods:
         __str__: Returns the string representation of the job type name.
@@ -3089,6 +3090,7 @@ class JobType(Enum):
     BACKUP_JOB_HISTORY = 33
     CLEANUP_JOB_HISTORY = 34
     QUICK_PLOT_CLEANUP = 35
+    CSV_PREVIEW = 36
 
     @classmethod
     def jobs_include_process_id(cls):
@@ -3111,7 +3113,7 @@ class JobType(Enum):
 
     @classmethod
     def jobs_include_data_source_id(cls):
-        return [cls.PULL_DATA, cls.BULK_PROCESS_REGISTER]
+        return [cls.PULL_DATA, cls.BULK_PROCESS_REGISTER, cls.CSV_PREVIEW]
 
     @classmethod
     def jobs_can_increase_disk_usage(cls):

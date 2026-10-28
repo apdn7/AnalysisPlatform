@@ -5915,6 +5915,27 @@ msgstr "Export column name"
 msgid "System Name"
 msgstr "System Name"
 
+msgid "Process Detail"
+msgstr "Process Detail"
+
+msgid "Link Process"
+msgstr "Link Process"
+
+msgid "Variable List"
+msgstr "Variable List"
+
+msgid "Reference"
+msgstr "Reference"
+
+msgid "Option"
+msgstr "Option"
+
+msgid "Rows"
+msgstr "Rows"
+
+msgid "Failed to fetch process details."
+msgstr "Failed to fetch process details."
+
 #: ap/templates/i18n.html
 msgid "Once per week"
 msgstr "Once per week"
@@ -6405,10 +6426,7 @@ msgid "Per-plot settings"
 msgstr "Per-plot settings"
 
 msgid "Overlay on Main/Secondary/Auto-scaled Axis"
-msgstr "Overlay on Main/Secondary/Auto-scaled Axis"
-
-msgid "Color by category"
-msgstr "Color by category"
+msgstr "Overlay: Main / Secondary / Auto-scaled Axis"
 
 msgid "layout.error.alreadyUsed"
 msgstr "\"{{value}}\" is already used by another item."
@@ -6689,6 +6707,656 @@ msgstr "Data Source Name"
 #: ap/templates/setting_module/proc_config_modals.html
 msgid "ProcReferenceFileLabel"
 msgstr "Reference file"
+
+#: ap/api/setting_module/controllers.py
+msgid "ReferenceFileOutsideSource"
+msgstr ""
+"External paths cannot be specified for reference files.\n"
+"Please specify a path located within the referenced folder."
+
+#: ap/api/setting_module/controllers.py
+msgid "ReferenceFileOutsideSourceOnSave"
+msgstr "Files outside the referenced folder cannot be configured."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Load History"
+msgstr "Load History"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Normal end"
+msgstr "Normal end"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Job Time"
+msgstr "Time"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Details"
+msgstr "Details"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Group"
+msgstr "Group"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Error Name"
+msgstr "Name"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Cause"
+msgstr "Cause"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Hint"
+msgstr "Hint"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File: OS Error"
+msgstr "File: OS Error"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "The specified file does not exist."
+msgstr "The specified file does not exist."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Check the file name, path, and current directory."
+msgstr "Check the file name, path, and current directory."
+
+#: ap/templates/setting_module/db_config_modals.html
+#, python-format
+msgid "Valid Data: %(count)s records; Empty Files: %(files)s"
+msgstr "Valid Data: %(count)s records; Empty Files: %(files)s"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "sec"
+msgstr "sec"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config_modals.html
+msgid "No data"
+msgstr "No data"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config_modals.html
+msgid "ErrorMsgCommon"
+msgstr "An error occurred. Please try again."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Target Files"
+msgstr ""
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Loading target files..."
+msgstr ""
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "No target files found."
+msgstr ""
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Unable to list target files."
+msgstr ""
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Showing the first 100 target files."
+msgstr ""
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Other Ext."
+msgstr ""
+
+#: ap/common/error_hints/catalog.py
+msgid "Other"
+msgstr "Other"
+
+#: ap/common/error_hints/catalog.py
+msgid "Unclassified Error"
+msgstr "Unclassified Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "This exception is not registered"
+msgstr "This exception is not registered"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check detailed logs"
+msgstr "Check detailed logs"
+
+#: ap/common/error_hints/catalog.py
+msgid "Syntax Error"
+msgstr "Syntax Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "The code contains invalid syntax"
+msgstr "The code contains invalid syntax"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check parentheses, colons, and quotation marks"
+msgstr "Check parentheses, colons, and quotation marks"
+
+#: ap/common/error_hints/catalog.py
+msgid "Indentation Error"
+msgstr "Indentation Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "The indentation is invalid"
+msgstr "The indentation is invalid"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check indentation level and spacing"
+msgstr "Check indentation level and spacing"
+
+#: ap/common/error_hints/catalog.py
+msgid "Tab Error"
+msgstr "Tab Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Tabs and spaces are mixed"
+msgstr "Tabs and spaces are mixed"
+
+#: ap/common/error_hints/catalog.py
+msgid "Use a consistent indentation style"
+msgstr "Use a consistent indentation style"
+
+#: ap/common/error_hints/catalog.py
+msgid "Name and Variable Error"
+msgstr "Name and Variable Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Undefined Variable"
+msgstr "Undefined Variable"
+
+#: ap/common/error_hints/catalog.py
+msgid "A variable is referenced before definition"
+msgstr "A variable is referenced before definition"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the variable name and definition"
+msgstr "Check the variable name and definition"
+
+#: ap/common/error_hints/catalog.py
+msgid "Uninitialized Local Variable"
+msgstr "Uninitialized Local Variable"
+
+#: ap/common/error_hints/catalog.py
+msgid "A local variable was referenced before assignment"
+msgstr "A local variable was referenced before assignment"
+
+#: ap/common/error_hints/catalog.py
+msgid "Ensure the variable is assigned in all branches"
+msgstr "Ensure the variable is assigned in all branches"
+
+#: ap/common/error_hints/catalog.py
+msgid "Type Error"
+msgstr "Type Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Type Mismatch"
+msgstr "Type Mismatch"
+
+#: ap/common/error_hints/catalog.py
+msgid "An unexpected type was supplied"
+msgstr "An unexpected type was supplied"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check variable and argument types"
+msgstr "Check variable and argument types"
+
+#: ap/common/error_hints/catalog.py
+msgid "Value Error"
+msgstr "Value Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Invalid Value"
+msgstr "Invalid Value"
+
+#: ap/common/error_hints/catalog.py
+msgid "A value is outside the accepted range"
+msgstr "A value is outside the accepted range"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input and configuration values"
+msgstr "Check input and configuration values"
+
+#: ap/common/error_hints/catalog.py
+msgid "Attribute Error"
+msgstr "Attribute Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Missing Attribute"
+msgstr "Missing Attribute"
+
+#: ap/common/error_hints/catalog.py
+msgid "The attribute or method does not exist"
+msgstr "The attribute or method does not exist"
+
+#: ap/common/error_hints/catalog.py
+msgid "Verify the object type"
+msgstr "Verify the object type"
+
+#: ap/common/error_hints/catalog.py
+msgid "Index and Key Error"
+msgstr "Index and Key Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Index Out of Range"
+msgstr "Index Out of Range"
+
+#: ap/common/error_hints/catalog.py
+msgid "An invalid index was referenced"
+msgstr "An invalid index was referenced"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check element count and index value"
+msgstr "Check element count and index value"
+
+#: ap/common/error_hints/catalog.py
+msgid "Missing Key"
+msgstr "Missing Key"
+
+#: ap/common/error_hints/catalog.py
+msgid "The key or column does not exist"
+msgstr "The key or column does not exist"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the key or column name"
+msgstr "Check the key or column name"
+
+#: ap/common/error_hints/catalog.py
+msgid "Arithmetic Error"
+msgstr "Arithmetic Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Division by Zero"
+msgstr "Division by Zero"
+
+#: ap/common/error_hints/catalog.py
+msgid "A division by zero was attempted"
+msgstr "A division by zero was attempted"
+
+#: ap/common/error_hints/catalog.py
+msgid "Ensure the divisor is not zero"
+msgstr "Ensure the divisor is not zero"
+
+#: ap/common/error_hints/catalog.py
+msgid "Overflow Error"
+msgstr "Overflow Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "A numeric overflow occurred"
+msgstr "A numeric overflow occurred"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input values and data types"
+msgstr "Check input values and data types"
+
+#: ap/common/error_hints/catalog.py
+msgid "File and OS Error"
+msgstr "File and OS Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "File Not Found"
+msgstr "File Not Found"
+
+#: ap/common/error_hints/catalog.py
+msgid "The specified file does not exist"
+msgstr "The specified file does not exist"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check filename, path, and working directory"
+msgstr "Check filename, path, and working directory"
+
+#: ap/common/error_hints/catalog.py
+msgid "Permission Denied"
+msgstr "Permission Denied"
+
+#: ap/common/error_hints/catalog.py
+msgid "Access to the file was denied"
+msgstr "Access to the file was denied"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check permissions and file usage"
+msgstr "Check permissions and file usage"
+
+#: ap/common/error_hints/catalog.py
+msgid "OS Error"
+msgstr "OS Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "An operating system error occurred"
+msgstr "An operating system error occurred"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the detailed error message"
+msgstr "Check the detailed error message"
+
+#: ap/common/error_hints/catalog.py
+msgid "Module and Library Error"
+msgstr "Module and Library Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Import Failed"
+msgstr "Import Failed"
+
+#: ap/common/error_hints/catalog.py
+msgid "Importing a module failed"
+msgstr "Importing a module failed"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check libraries and import statements"
+msgstr "Check libraries and import statements"
+
+#: ap/common/error_hints/catalog.py
+msgid "Module Not Found"
+msgstr "Module Not Found"
+
+#: ap/common/error_hints/catalog.py
+msgid "The module could not be found"
+msgstr "The module could not be found"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check installation and environment"
+msgstr "Check installation and environment"
+
+#: ap/common/error_hints/catalog.py
+msgid "Memory Error"
+msgstr "Memory Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Out of Memory"
+msgstr "Out of Memory"
+
+#: ap/common/error_hints/catalog.py
+msgid "Insufficient memory available"
+msgstr "Insufficient memory available"
+
+#: ap/common/error_hints/catalog.py
+msgid "Reduce data size or memory usage"
+msgstr "Reduce data size or memory usage"
+
+#: ap/common/error_hints/catalog.py
+msgid "Runtime Error"
+msgstr "Runtime Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Runtime Failure"
+msgstr "Runtime Failure"
+
+#: ap/common/error_hints/catalog.py
+msgid "A runtime error occurred"
+msgstr "A runtime error occurred"
+
+#: ap/common/error_hints/catalog.py
+msgid "Maximum Recursion Depth Exceeded"
+msgstr "Maximum Recursion Depth Exceeded"
+
+#: ap/common/error_hints/catalog.py
+msgid "Too many recursive calls were made"
+msgstr "Too many recursive calls were made"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check termination conditions"
+msgstr "Check termination conditions"
+
+#: ap/common/error_hints/catalog.py
+msgid "Communication and Network Error"
+msgstr "Communication and Network Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Connection Failed"
+msgstr "Connection Failed"
+
+#: ap/common/error_hints/catalog.py
+msgid "A connection could not be established"
+msgstr "A connection could not be established"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check network and destination"
+msgstr "Check network and destination"
+
+#: ap/common/error_hints/catalog.py
+msgid "Timeout"
+msgstr "Timeout"
+
+#: ap/common/error_hints/catalog.py
+msgid "Response time exceeded the limit"
+msgstr "Response time exceeded the limit"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check timeout settings and connectivity"
+msgstr "Check timeout settings and connectivity"
+
+#: ap/common/error_hints/catalog.py
+msgid "Data Conversion Error"
+msgstr "Data Conversion Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Text Decoding Error"
+msgstr "Text Decoding Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "The file encoding does not match the reading encoding"
+msgstr "The file encoding does not match the reading encoding"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check utf-8, utf-8-sig, or cp932"
+msgstr "Check utf-8, utf-8-sig, or cp932"
+
+#: ap/common/error_hints/catalog.py
+msgid "Text Encoding Error"
+msgstr "Text Encoding Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "The output encoding cannot represent the text"
+msgstr "The output encoding cannot represent the text"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check output encoding settings"
+msgstr "Check output encoding settings"
+
+#: ap/common/error_hints/catalog.py
+msgid "Assertion Error"
+msgstr "Assertion Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "Assertion Failed"
+msgstr "Assertion Failed"
+
+#: ap/common/error_hints/catalog.py
+msgid "An assertion condition was not satisfied"
+msgstr "An assertion condition was not satisfied"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input data and assumptions"
+msgstr "Check input data and assumptions"
+
+#: ap/common/error_hints/catalog.py
+msgid "File Format Error"
+msgstr "File Format Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "CSV Parse Error"
+msgstr "CSV Parse Error"
+
+#: ap/common/error_hints/catalog.py
+msgid "The CSV or TSV format is invalid"
+msgstr "The CSV or TSV format is invalid"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check delimiter and header settings"
+msgstr "Check delimiter and header settings"
+
+#: ap/common/error_hints/catalog.py
+msgid "Empty File"
+msgstr "Empty File"
+
+#: ap/common/error_hints/catalog.py
+msgid "No readable data exists"
+msgstr "No readable data exists"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check file contents"
+msgstr "Check file contents"
+
+msgid "Show idx"
+msgstr "Show idx"
+
+msgid "Show items"
+msgstr "Show items"
+
+msgid "Display"
+msgstr "Display"
+
+msgid "Variable Select"
+msgstr "Variable Select"
+
+msgid "Show selected only"
+msgstr "Show selected only"
+
+msgid "Show unselected only"
+msgstr "Show unselected only"
+
+msgid "Show DataLink items only"
+msgstr "Show DataLink items only"
+
+msgid "Select all"
+msgstr "Select all"
+
+msgid "Exclude key"
+msgstr "Exclude key"
+
+msgid "Selected"
+msgstr "Selected"
+
+msgid "Variable select remaining"
+msgstr "{{count}} left"
+
+msgid "Simple filter"
+msgstr "Simple filter"
+
+msgid "All same values"
+msgstr "All same values"
+
+msgid "All empty (NA)"
+msgstr "All empty (NA)"
+
+msgid "Failed to select process columns."
+msgstr "Failed to select process columns."
+
+msgid "Failed to fetch process columns."
+msgstr "Failed to fetch process columns."
+
+msgid "Retry"
+msgstr "Retry"
+
+msgid "Variable name"
+msgstr "Variable name"
+
+msgid "Clear search"
+msgstr "Clear search"
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Jump"
+msgstr "Jump"
+
+msgid "Loading..."
+msgstr "Loading..."
+
+msgid "idx"
+msgstr "idx"
+
+msgid "Function"
+msgstr "Function"
+
+msgid "System"
+msgstr "System"
+
+msgid "Local"
+msgstr "Local"
+
+msgid "Formula"
+msgstr "Formula"
+
+msgid "Note"
+msgstr "Note"
+
+msgid "Assignment"
+msgstr "Assignment"
+
+msgid "No."
+msgstr "No."
+
+msgid "Record"
+msgstr "Record"
+
+msgid "Unique"
+msgstr "Unique"
+
+msgid "Variable select All hover"
+msgstr ""
+"Show all idx values. (Resets \"Show idx\" to Start=1, Size=0, and "
+"Interval=1)"
+
+msgid "Variable select Set hover"
+msgstr ""
+"Checks the Plot box (□ → ☑) for all displayed idx values, including those"
+" on other pages."
+
+msgid "Variable select Exclude key hover"
+msgstr ""
+"Excludes serial and datetime fields. (Recommended to exclude by default "
+"for SkD, PCP, etc.)"
+
+msgid "Variable select Simple filter hover"
+msgstr ""
+"This evaluation is based only on a small sample of data and should be "
+"considered a rough estimate."
+
+msgid "Variable select Plot hover"
+msgstr ""
+"Plots the variables with a checked box (☑).\n"
+"Filter values: 0 = None, 1 = Set, 2 = Available for Configuration."
+
+msgid "Variable select Process header hover"
+msgstr ""
+"☑ Variables to Plot\n"
+"◉ Starting process (its datetime column is used as the common x-axis)"
+
+msgid "Label Step"
+msgstr "Labels & Steps (Thresholds / Control Values)"
+
+msgid "Main axis"
+msgstr ""
+
+msgid "Secondary axis"
+msgstr ""
+
+msgid "No axis"
+msgstr ""
+
+msgid "No axis: Auto-scaled series with hidden axis"
+msgstr ""
+
+msgid "Color by category"
+msgstr "Color by category"
+
+#: ap/templates/header.html
+msgid "Shortkey List"
+msgstr "Shortkey List"
+
+#: ap/templates/header.html
+msgid "Open sidebar menu"
+msgstr "Open sidebar menu"
+
+#: ap/templates/header.html
+msgid "Open Bookmark list"
+msgstr "Open Bookmark list"
+
+#: ap/templates/header.html
+msgid "Open configuration page in a new tab"
+msgstr "Open configuration page in a new tab"
 
 #~ msgid ""
 #~ "Category expansion is performed to "

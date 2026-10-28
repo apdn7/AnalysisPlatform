@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import FontSizeBlock from '@/pages/multi-axis-plot/components/FontSizeBlock.tsx';
 import ThemeBlock from '@/pages/multi-axis-plot/components/ThemeBlock.tsx';
+import { type PlotStyleUpdate, usePlotStyleUpdate } from '@/shared/hooks/usePlotStyleUpdate';
 
 const fontSize = {
     tick: {
@@ -42,51 +43,126 @@ const themeColor = {
         light: '#000000',
     },
 };
+
+type TickText = string | number | boolean | null;
+type RlpPlotDOM = HTMLElement & {
+    layout?: { xaxis?: { ticktext?: TickText[] } };
+    _fullLayout?: {
+        width?: number;
+        _size?: { w?: number };
+        xaxis?: { ticktext?: TickText[]; tickfont?: { family?: string } };
+        yaxis2?: { nticks?: number };
+    };
+};
+
+const originalTickTexts = new WeakMap<HTMLElement, TickText[]>();
+const originalTitleWidths = new WeakMap<HTMLElement, number>();
+
 export default function RidgelinePlotStyleSetting() {
     const sizeRef = useRef('base');
     const themeRef = useRef('dark');
-    const titleParentWidthsRef = useRef(new WeakMap<Element, number>());
+    const { isUpdating, runStyleUpdate, cancelStyleUpdate } = usePlotStyleUpdate();
 
-    const handleOnchangeFontSize = (sizeKey: string) => {
+    const getLayoutUpdateJobs = (layoutUpdate: Record<string, unknown>): PlotStyleUpdate[] => {
+        const plots = document.querySelectorAll<RlpPlotDOM>('.js-plotly-plot');
+        return Array.from(plots, (plotDOM) => () => {
+            if (plotDOM.isConnected === false) return;
+            const update = { ...layoutUpdate };
+            const tickSize = update['xaxis.tickfont.size'];
+            if (typeof tickSize === 'number') {
+                let tickTexts = originalTickTexts.get(plotDOM);
+                if (tickTexts === undefined) {
+                    const currentTexts = plotDOM._fullLayout?.xaxis?.ticktext ?? plotDOM.layout?.xaxis?.ticktext;
+                    if (currentTexts) {
+                        tickTexts = [...currentTexts];
+                        originalTickTexts.set(plotDOM, tickTexts);
+                    }
+                }
+                if (tickTexts) {
+                    const largeFont = tickSize >= fontSize.tick.l;
+                    let step = 1;
+                    if (largeFont) {
+                        const width =
+                            plotDOM._fullLayout?._size?.w ?? plotDOM._fullLayout?.width ?? plotDOM.clientWidth;
+                        const fontFamily = plotDOM._fullLayout?.xaxis?.tickfont?.family ?? 'Arial';
+                        const previousFont = ctx.font;
+                        let textWidth: number;
+                        try {
+                            textWidth = Math.max(
+                                0,
+                                ...tickTexts.flatMap((text) =>
+                                    String(text)
+                                        .split(/<br\s*\/?>/i)
+                                        .map((line) => visualTextLength(line, tickSize, fontFamily)),
+                                ),
+                            );
+                        } finally {
+                            ctx.font = previousFont;
+                        }
+                        step = Math.max(2, Math.ceil(((textWidth + tickSize) * tickTexts.length) / width));
+                    }
+                    // Empty SVG text has an origin-based bounding box that makes legacy Plotly grow auto-margins.
+                    update['xaxis.ticktext'] = tickTexts.map((text, index) =>
+                        index % step || (typeof text === 'string' && !text.trim()) ? '\u00a0' : text,
+                    );
+                    update['xaxis.tickangle'] = largeFont ? 0 : 'auto';
+                }
+                const scale = tickSize / fontSize.tick.base;
+                update['yaxis.nticks'] = Math.max(2, Math.floor(5 / scale));
+                if (plotDOM._fullLayout?.yaxis2) {
+                    update['yaxis2.nticks'] = tickSize === fontSize.tick.base ? 3 : 1;
+                    update['yaxis2.automargin'] = true;
+                }
+            }
+            return window.Plotly.relayout(plotDOM, update);
+        });
+    };
+
+    const applyLayoutUpdate = (layoutUpdate: Record<string, unknown>) => {
+        getLayoutUpdateJobs(layoutUpdate).forEach((update) => {
+            void update();
+        });
+    };
+
+    const updateFontStyle = (sizeKey: string) => {
         sizeRef.current = sizeKey;
 
         const labelSize = fontSize.label[sizeKey] ?? fontSize.label.base;
         const tickSize = fontSize.tick[sizeKey] ?? fontSize.tick.base;
 
         const scale = labelSize / fontSize.label.base;
-        const titleDOMs = document.querySelectorAll('.tschart-title');
-        const titleParentDOMs = document.querySelectorAll('.tschart-title-parent');
+        const titleDOMs = document.querySelectorAll<HTMLElement>('.tschart-title');
+        const titleParentDOMs = document.querySelectorAll<HTMLElement>('.tschart-title-parent');
 
         if (titleDOMs.length && titleParentDOMs.length) {
-            Array.from(titleDOMs).forEach((titleDOM: any) => {
-                titleDOM.style.fontSize = `${tickSize}px`;
+            titleDOMs.forEach((titleDOM) => {
+                titleDOM.style.fontSize = `${labelSize}px`;
             });
-            Array.from(titleParentDOMs).forEach((titleParentDOM: any) => {
-                let originalWidth = titleParentWidthsRef.current.get(titleParentDOM);
+            titleParentDOMs.forEach((titleParentDOM) => {
+                let originalWidth = originalTitleWidths.get(titleParentDOM);
                 if (originalWidth === undefined) {
                     const computedWidth = Number.parseFloat(window.getComputedStyle(titleParentDOM).width);
                     originalWidth = Number.isFinite(computedWidth) ? computedWidth : 40;
-                    titleParentWidthsRef.current.set(titleParentDOM, originalWidth);
+                    originalTitleWidths.set(titleParentDOM, originalWidth);
                 }
                 titleParentDOM.style.width = `${Math.round(originalWidth * scale)}px`;
             });
         }
 
-        const updateFont = {
+        return {
+            'autosize': true,
             'font.size': tickSize,
             'legend.font.size': labelSize,
             'xaxis.tickfont.size': tickSize,
+            'xaxis.automargin': true,
             'yaxis.tickfont.size': tickSize,
+            'yaxis.automargin': true,
             'xaxis.title.font.size': labelSize,
             'yaxis.title.font.size': labelSize,
         };
-        const plots = document.querySelectorAll('.js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            window.Plotly.relayout(plotDOM, updateFont);
-        });
     };
 
-    const handleOnchangeTheme = (newTheme: string) => {
+    const updateThemeStyle = (newTheme: string) => {
         themeRef.current = newTheme;
         const colors = {
             background: themeColor.background[newTheme],
@@ -94,15 +170,17 @@ export default function RidgelinePlotStyleSetting() {
             border: themeColor.border[newTheme],
         };
 
-        const titleDOMs = document.querySelectorAll('.tschart-title');
+        const titleDOMs = document.querySelectorAll<HTMLElement>('.tschart-title');
+        const titleParentDOMs = document.querySelectorAll<HTMLElement>('.tschart-title-parent');
 
-        if (titleDOMs.length) {
-            Array.from(titleDOMs).forEach((titleDOM: any) => {
-                titleDOM.style.backgroundColor = colors.background;
-            });
-        }
+        titleDOMs.forEach((titleDOM) => {
+            titleDOM.style.backgroundColor = 'transparent';
+        });
+        titleParentDOMs.forEach((titleParentDOM) => {
+            titleParentDOM.style.backgroundColor = colors.background;
+        });
 
-        const layoutUpdate = {
+        return {
             'paper_bgcolor': colors.background,
             'plot_bgcolor': colors.background,
             'font.color': colors.text,
@@ -110,11 +188,28 @@ export default function RidgelinePlotStyleSetting() {
             'xaxis.tickfont.color': colors.text,
             'yaxis.tickfont.color': colors.text,
         };
+    };
 
-        const plots = document.querySelectorAll('.js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            window.Plotly.relayout(plotDOM, layoutUpdate);
-        });
+    const handleOnchangeFontSize = (sizeKey: string) => {
+        cancelStyleUpdate();
+        applyLayoutUpdate(updateFontStyle(sizeKey));
+    };
+
+    const handleOnchangeTheme = (newTheme: string) => {
+        cancelStyleUpdate();
+        applyLayoutUpdate(updateThemeStyle(newTheme));
+    };
+
+    const changeFontSize = (sizeKey: string) => {
+        if (sizeKey === sizeRef.current) return handleOnchangeFontSize(sizeKey);
+        sizeRef.current = sizeKey;
+        void runStyleUpdate(() => getLayoutUpdateJobs(updateFontStyle(sizeKey)));
+    };
+
+    const changeTheme = (themeKey: string) => {
+        if (themeKey === themeRef.current) return handleOnchangeTheme(themeKey);
+        themeRef.current = themeKey;
+        void runStyleUpdate(() => getLayoutUpdateJobs(updateThemeStyle(themeKey)));
     };
 
     useEffect(() => {
@@ -131,17 +226,26 @@ export default function RidgelinePlotStyleSetting() {
             handleOnchangeFontSize(sizeKey);
         };
 
+        window.applyPlotStyle = () => {
+            cancelStyleUpdate();
+            applyLayoutUpdate({
+                ...updateThemeStyle(themeRef.current),
+                ...updateFontStyle(sizeRef.current),
+            });
+        };
+
         return () => {
             delete window.getStyleLayout;
             delete window.handleOnchangeFontsize;
             delete window.handleOnchangeTheme;
+            delete window.applyPlotStyle;
         };
     }, []);
 
     return (
         <div className="d-flex flex-row justify-content-center align-items-center">
-            <FontSizeBlock onChange={handleOnchangeFontSize} fontSizeValue={sizeRef.current} />
-            <ThemeBlock onChange={handleOnchangeTheme} themeValue={themeRef.current} />
+            <FontSizeBlock onChange={changeFontSize} fontSizeValue={sizeRef.current} disabled={isUpdating} />
+            <ThemeBlock onChange={changeTheme} themeValue={themeRef.current} disabled={isUpdating} />
         </div>
     );
 }

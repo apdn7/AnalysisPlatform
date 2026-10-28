@@ -923,8 +923,8 @@ class ImportHistoryTable(BaseModel):
         return gen_import_history_table_name(proc_id)
 
     @classmethod
-    def table(cls, proc_id: int):
-        return sa.Table(
+    def table(cls, proc_id: int, *, include_committed_at: bool = False):
+        table = sa.Table(
             cls.get_table_name(proc_id),
             sa.MetaData(),
             sa.Column('job_id', sa.Integer),
@@ -939,10 +939,20 @@ class ImportHistoryTable(BaseModel):
             sa.Column('created_at', sa.Text),
             sa.Column('updated_at', sa.Text),
         )
+        # Existing readers must also work before an old process has imported again.
+        if include_committed_at:
+            table.append_column(sa.Column('committed_at', sa.Text))
+        return table
+
+    @classmethod
+    def ensure_committed_at_column(cls, meta_con: SQLite3, process_id: int):
+        table_name = cls.get_table_name(process_id)
+        if not meta_con.is_column_existing(table_name, 'committed_at'):
+            meta_con.execute_sql(f'ALTER TABLE "{table_name}" ADD COLUMN committed_at TEXT', auto_commit=False)
 
     @classmethod
     def create_table_sql(cls, proc_id: int) -> str:
-        table = cls.table(proc_id)
+        table = cls.table(proc_id, include_committed_at=True)
         create_table_stmt = CreateTable(table, if_not_exists=True)
         sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_table_stmt)
         return sqlite3_compiled_stmt.string
@@ -954,6 +964,26 @@ class ImportHistoryTable(BaseModel):
         create_index_stmt = CreateIndex(index, if_not_exists=True)
         sqlite3_compiled_stmt = gen_sql_compiled_stmt(create_index_stmt)
         return sqlite3_compiled_stmt.string
+
+    @classmethod
+    def get_latest_import_time(cls, meta_con: SQLite3, process_id: int) -> str | None:
+        """Last confirmed commit, with DONE-only fallback for unmarked legacy history."""
+        table = cls.table(process_id)
+        if table.name not in meta_con.list_tables():
+            return None
+        legacy_time = sa.case(
+            (
+                sa.and_(table.c.imported_row > 0, table.c.status == JobStatus.DONE.name),
+                sa.func.coalesce(sa.func.nullif(table.c.end_tm, ''), table.c.created_at),
+            )
+        )
+        imported_at = legacy_time
+        if meta_con.is_column_existing(table.name, 'committed_at'):
+            table.append_column(sa.Column('committed_at', sa.Text))
+            imported_at = sa.func.coalesce(table.c.committed_at, legacy_time)
+        stmt = sa.select(sa.func.max(imported_at).label('imported_at'))
+        _, rows = meta_con.run_sql(stmt)
+        return rows[0]['imported_at'] if rows else None
 
     @classmethod
     def get_import_history(cls, process_id: int) -> ImportHistoryRecord | None:

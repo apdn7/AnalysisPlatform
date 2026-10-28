@@ -85,6 +85,7 @@ MAP_DEFAULT_DIV_SIZE = 6  # legacy behavior: div_by_cat set but no div_size => o
 MAP_DIV_SIZE = 'div_size'
 MAP_NUM_PRIMARIES = 'num_primaries'
 MAP_DIV_ORIENTATION = 'div_orientation'
+MAP_GROUP_COL = '__map_group__'
 
 # Lab (data label) display limit: when Lab/LabX is configured and the data point count
 # exceeds this threshold, prompt the user instead of silently rendering 100+ overlapping labels.
@@ -453,6 +454,9 @@ def get_sub_df_by_col_ids(
 
     # Reorder the columns to match the input target_cols list (keeping only existing ones)
     final_cols = list(dict.fromkeys(col.label for col in target_cols if col.label in sub_df.columns))
+    if MAP_GROUP_COL in df.columns:
+        sub_df[MAP_GROUP_COL] = df[MAP_GROUP_COL]
+        final_cols.append(MAP_GROUP_COL)
 
     if not color_by:
         return [('', sub_df[final_cols])]
@@ -768,6 +772,7 @@ def _build_x_binned_plot_groups(
         dict.fromkeys(
             [
                 x_col,
+                *([MAP_GROUP_COL] if MAP_GROUP_COL in d.columns else []),
                 *([color_label] if color_label else []),
                 *([div_col.label] if is_numeric_color and div_col else []),
             ]
@@ -779,6 +784,8 @@ def _build_x_binned_plot_groups(
         datetime_values = pd.to_datetime(values, errors='coerce')
         if datetime_values.notna().any():
             seconds = datetime_values.sort_values().diff().dt.total_seconds()
+            if MAP_GROUP_COL in d.columns:
+                seconds = datetime_values.sort_values().groupby(d[MAP_GROUP_COL]).diff().dt.total_seconds()
             q1 = seconds.quantile(0.25)
             q3 = seconds.quantile(0.75)
             d['_value'] = seconds.where(seconds <= q3 + 3 * (q3 - q1), 0).fillna(0).reindex(d.index, fill_value=0)
@@ -816,6 +823,7 @@ def _build_x_binned_plot_groups(
         output_cols = [
             x_col,
             y_col,
+            *([MAP_GROUP_COL] if MAP_GROUP_COL in aggregated_df.columns else []),
             *([color_label] if is_numeric_color else []),
             *([div_col.label] if is_numeric_color and div_col else []),
             *([x_bin_label_col, x_min_col, x_max_col] if x_bin_label_col in aggregated_df.columns else []),
@@ -829,6 +837,7 @@ def _build_x_binned_plot_groups(
                 [
                     x_col,
                     y_col,
+                    *([MAP_GROUP_COL] if MAP_GROUP_COL in group_df.columns else []),
                     *([x_bin_label_col, x_min_col, x_max_col] if x_bin_label_col in group_df.columns else []),
                 ]
             ],
@@ -881,13 +890,15 @@ def _build_y_binned_plot_groups(
         dict.fromkeys(
             [
                 x_col,
+                *([MAP_GROUP_COL] if MAP_GROUP_COL in source_df.columns else []),
                 *([_color_values_label(color_col)] if is_numeric_color else []),
                 *([div_col.label] if is_numeric_color and div_col else []),
             ]
         )
     )
     counts = binned_df.groupby([*count_keys, y_bin_col], dropna=False, sort=False).size().reset_index(name='count')
-    if is_numeric_color:
+    has_split_points = is_numeric_color or MAP_GROUP_COL in source_df.columns
+    if has_split_points:
         # Split counts by actual source colors rather than inventing a color for an aggregate.
         color_points = source_df[count_keys].drop_duplicates()
     else:
@@ -905,7 +916,7 @@ def _build_y_binned_plot_groups(
             group_name = next((label for key, label in label_map.items() if pd.isna(key)), 'NA')
         else:
             group_name = label_map.get(y_bin, _format_bin_value(y_bin, bin_fmt))
-        if is_numeric_color:
+        if has_split_points:
             bin_counts = counts[counts[y_bin_col].isna() if pd.isna(y_bin) else counts[y_bin_col] == y_bin]
             group_df = color_points.merge(bin_counts.drop(columns=y_bin_col), on=count_keys, how='left')
             group_df[y_col] = group_df.pop('count').fillna(0).astype(int)
@@ -1083,6 +1094,7 @@ def _build_plot_groups(
 def _limit_top_categories(
     group_dfs: list[tuple[str | None, pd.DataFrame]],
     top_n: int,
+    category_order: list[Any] | None = None,
 ) -> list[tuple[str | None, pd.DataFrame]]:
     """Keep the top N categories by data count and merge the rest into a single "Others" group.
 
@@ -1093,16 +1105,80 @@ def _limit_top_categories(
     if len(group_dfs) <= top_n:
         return group_dfs
 
-    ranked = sorted(group_dfs, key=lambda item: (-len(item[1]), item[1].index.min()))
-    kept_groups = {group_name for group_name, _ in ranked[:top_n]}
+    if category_order is None:
+        ranked = sorted(group_dfs, key=lambda item: (-len(item[1]), item[1].index.min()))
+        category_order = [group_name for group_name, _ in ranked]
+    # Group's reference aggregates have distinct NaN keys for the same missing Color.
+    kept_groups = {normalize_category_value(value) for value in category_order[:top_n]}
 
-    top_frames = [item for item in group_dfs if item[0] in kept_groups]
-    other_frames = [group_df for group_name, group_df in group_dfs if group_name not in kept_groups]
+    top_frames = [item for item in group_dfs if normalize_category_value(item[0]) in kept_groups]
+    other_frames = [
+        group_df for group_name, group_df in group_dfs if normalize_category_value(group_name) not in kept_groups
+    ]
     if not other_frames:
         return top_frames
 
     others_df = pd.concat(other_frames).sort_index()
     return [(OTHERS_GROUP_NAME, others_df), *top_frames]
+
+
+def _prepare_group_data(df: pd.DataFrame, group_col: CfgProcessColumn) -> pd.DataFrame:
+    """Preserve raw Group values before axis transformations and binning."""
+    return df.assign(
+        **{MAP_GROUP_COL: pd.Series(get_data_from_cfg_column(df, group_col), index=df.index, dtype=object)}
+    )
+
+
+def _split_group_subframes(
+    sub_dfs: list[tuple[Any, pd.DataFrame]],
+    group_enabled: bool,
+) -> list[tuple[int, Any, str | None, pd.DataFrame]]:
+    """Split within each existing Div slot, keeping panel and color identities unchanged."""
+    frames = []
+    for idx, (div_name, frame) in enumerate(sub_dfs):
+        if not group_enabled:
+            frames.append((idx, div_name, None, frame))
+            continue
+        frames.extend(
+            (idx, div_name, _format_hover_value(value), group_df)
+            for value, group_df in frame.groupby(MAP_GROUP_COL, sort=False, observed=True)
+        )
+    return frames
+
+
+def _get_div_subframes(frame: pd.DataFrame, div_by_cat: str | None, div_size: int) -> list[tuple[Any, pd.DataFrame]]:
+    if not div_by_cat:
+        return [('', frame.copy())]
+    # Preserve baseline Div slots before Group changes aggregate rows or omits null categories.
+    return sorted(
+        frame.copy().groupby(div_by_cat),
+        key=lambda item: (-len(item[1]), item[1].index.min()),
+    )[:div_size]
+
+
+def _get_group_log_reference(
+    frame: pd.DataFrame,
+    target_col: CfgProcessColumn,
+    x_axis: XAxisContext,
+    overlay_type: str | None,
+    is_numeric_dtype: bool,
+    sort_by_category: bool,
+    aggregated_coordinate_by_value: dict[Any, int],
+    use_data_point_index: bool,
+) -> bool:
+    """Evaluate the same transformed Y values as the unsplit parent trace."""
+    if not is_numeric_dtype:
+        return False
+    if sort_by_category:
+        frame = frame.sort_values(by=[x_axis.col_cfg.label])
+    if x_axis.use_aggregated_category_axis and not use_data_point_index:
+        row_order, _ = build_aggregated_category_trace_order(
+            frame[x_axis.col_cfg.label].tolist(), aggregated_coordinate_by_value
+        )
+        frame = frame.iloc[row_order]
+    values = frame[target_col.label].tolist()
+    values = _apply_step_overlay_to_values(values, values, overlay_type)
+    return determine_log_scale_mode(YScaleModes.AUTO, values)
 
 
 def _attach_data_point_index(
@@ -1139,7 +1215,10 @@ def _build_plot_response(
     array_x: list[Any],
     array_y: list[Any],
     is_numeric_dtype: bool,
+    is_log_scale_available: bool | None = None,
     color_group: str | None = None,
+    group_value: str | None = None,
+    group_column_name: str | None = None,
     color_shown_name: str | None = None,
     is_global_color: bool = False,
     color_col: CfgProcessColumn | None = None,
@@ -1157,6 +1236,7 @@ def _build_plot_response(
     x_bin_mins: list[Any] | None = None,
     x_bin_maxs: list[Any] | None = None,
     category_hover_values: list[str] | None = None,
+    category_hover_values_unplotted: list[str] | None = None,
     encoded_x_values: bool = False,
     is_sort_by_data_order: bool = False,
     y_fmt: str = '',
@@ -1167,7 +1247,8 @@ def _build_plot_response(
     """Build a serialized MAP response for one plot/group."""
     # Centralize MAPDataResponse creation so all plot variants share the same serialization logic.
     marker_size, line_width = _get_plot_style(array_y)
-    is_log_scale_available = determine_log_scale_mode(YScaleModes.AUTO, array_y) if is_numeric_dtype else False
+    if is_log_scale_available is None:
+        is_log_scale_available = determine_log_scale_mode(YScaleModes.AUTO, array_y) if is_numeric_dtype else False
     unit = f' [{target_col.unit}]' if target_col.unit else ''
     target_name = f'{target_col.shown_name}{unit}'
 
@@ -1221,6 +1302,8 @@ def _build_plot_response(
         x_process_name=x_process_name,
         y_process_name=target_col.cfg_process.shown_name,
         color_group=color_group,
+        group_value=group_value,
+        group_column_name=group_column_name,
         array_color=[float(value) if pd.notna(value) and np.isfinite(value) else None for value in numeric_color]
         if numeric_color is not None
         else None,
@@ -1242,6 +1325,7 @@ def _build_plot_response(
         x_bin_mins=x_bin_mins,
         x_bin_maxs=x_bin_maxs,
         category_hover_values=category_hover_values,
+        category_hover_values_unplotted=category_hover_values_unplotted,
         encoded_x_values=encoded_x_values,
         is_sort_by_data_order=is_sort_by_data_order,
         y_fmt=y_fmt,
@@ -1316,6 +1400,9 @@ def get_flatten_data(
     if force_index_xaxis:
         y_bin_mode = False
     layout_index = layout_index or build_map_layout_index(layout_request)
+    group_col = graph_param.get_col_cfg(layout_request.group) if layout_request.group is not None else None
+    if group_col:
+        df = _prepare_group_data(df, group_col)
     global_color_id = layout_index.get_color_id()
     global_numeric_color_col = graph_param.get_col_cfg(global_color_id) if global_color_id else None
     if global_numeric_color_col and (
@@ -1346,6 +1433,10 @@ def get_flatten_data(
     if not x_axis.col_cfg:
         return []
     selected_category_hover_columns = _resolve_category_hover_columns(graph_param)
+    if group_col:
+        selected_category_hover_columns = [
+            column for column in selected_category_hover_columns if column[0] != group_col.label
+        ]
     selected_category_hover_col_cfgs = []
     selected_category_hover_col_ids: set[int] = set()
     for cate_proc in graph_param.common.cate_procs or []:
@@ -1422,14 +1513,13 @@ def get_flatten_data(
         is_sort_by_data_order = graph_param.common.x_option.upper() == XAxisOption.DATA_VALUE.value
         order_column_labels = get_order_column_labels(graph_param, _df)
         is_xaxis_available_to_encode = verify_xaxis_need_to_encoded(graph_param.common.x_option, x_axis.is_category)
-        # Div's "common x-axis": when Div is active and the x-axis is Cat Value, every Div
-        # sub-panel must position its point on the SAME axis — built from every distinct x-axis
-        # category value across the whole facet (not just the values belonging to that one Div
-        # sub-panel) — so sub-panels can be visually compared by x position, not merely by index
+        # Div/Group's "common x-axis": in Cat Value mode, every split trace must use the SAME axis,
+        # built from every distinct x-axis category value across the whole facet, so traces
+        # can be visually compared by x position, not merely by index
         # count. Original order is intentionally excluded: it already shows each row's true
         # absolute position, so a "global" axis there would mean 0..(dataset size), not this.
         use_global_div_category_axis = (
-            bool(div_by_cat)
+            bool(div_by_cat or group_col)
             and graph_param.common.x_option == XAxisOption.CAT_VALUE.value
             and not force_index_xaxis
             and x_axis.col_cfg is not None
@@ -1443,11 +1533,9 @@ def get_flatten_data(
             # the real values only live under the column's before_rank markup counterpart,
             # which this helper already knows to prefer.
             global_category_source = get_data_from_cfg_column(_df, x_axis.col_cfg) if x_axis.col_cfg.id else []
-            global_categories = sorted({value for value in global_category_source if value is not None})
-            # Fall back to each sub-panel's own compact axis if the whole facet has too many
-            # distinct categories — same cutoff already used for the per-panel encoding below,
-            # so a huge combined axis doesn't silently replace it with something unreadable.
-            if len(global_categories) >= ColorCategoryLimit.UNIQUE_DATA_PER_COLOR.value:
+            global_categories = sorted({value for value in global_category_source if pd.notna(value)})
+            # Keep the legacy Div cutoff; Group traces always need shared category coordinates.
+            if not group_col and len(global_categories) >= ColorCategoryLimit.UNIQUE_DATA_PER_COLOR.value:
                 use_global_div_category_axis = False
             else:
                 global_category_position = {value: idx for idx, value in enumerate(global_categories)}
@@ -1486,6 +1574,14 @@ def get_flatten_data(
             and is_xaxis_as_grid_ordering
             and len(set(x_values)) >= ColorCategoryLimit.UNIQUE_DATA_PER_COLOR.value
         )
+        use_group_index_axis = (
+            bool(group_col)
+            and is_xaxis_as_cat_ordering
+            and not x_axis.use_aggregated_category_axis
+            and not force_index_xaxis
+            and not x_bin_mode
+            and not y_bin_mode
+        )
 
         if x_axis.use_aggregated_category_axis:
             x_axis_tickvals, x_axis_ticktext = aggregated_tickvals, aggregated_ticktext
@@ -1494,13 +1590,17 @@ def get_flatten_data(
                 build_category_tick_data(x_values)
                 if (use_category_boundary_axis and category_boundaries)
                 or should_use_index_for_xaxis
+                or (use_group_index_axis and not is_large_data_point_xaxis)
                 or (is_sort_by_data_order and not is_large_data_point_xaxis)
                 else (None, None)
             )
         use_category_boundary_axis = bool(category_boundaries)
         response_x_axis_category = False if force_index_xaxis else x_axis.is_category or use_category_boundary_axis
         plot_data: list[dict[str, Any]] = []
-        encoded_x_values = x_axis.use_aggregated_category_axis
+        group_primary_log_flags: dict[int | str | None, bool] = {}
+        encoded_x_values = x_axis.use_aggregated_category_axis or (
+            use_group_index_axis and not is_large_data_point_xaxis
+        )
         for col_id in layout_index.get_map_cols():
             target_col = graph_param.get_col_cfg(col_id)
             if not target_col:
@@ -1560,7 +1660,35 @@ def get_flatten_data(
                     div_col=div_col,
                     hover_cols=selected_category_hover_col_cfgs,
                 )
+            reference_frames = grouped_frames
+            if group_col and (x_bin_mode or y_bin_mode):
+                # Aggregate without Group, not by concatenating its aggregates: sums, counts,
+                # duration and zero-filled Y bins can otherwise change the AUTO decision.
+                reference_df = _df.drop(columns=MAP_GROUP_COL)
+                if y_bin_mode:
+                    reference_frames = _build_y_binned_plot_groups(
+                        reference_df,
+                        x_axis.col_cfg,
+                        target_col=target_col,
+                        div_col=div_col,
+                        color_col=color_col,
+                        is_color_imb=color_cfg.is_color_imb,
+                    )
+                else:
+                    reference_frames, _ = _build_x_binned_plot_groups(
+                        reference_df,
+                        x_axis.col_cfg,
+                        target_col=target_col,
+                        color_col=color_col,
+                        div_col=div_col,
+                        is_color_imb=color_cfg.is_color_imb,
+                    )
             plot_no = layout_index.get_plot_no(col_id)
+            unplotted_hover_columns = [
+                (col.label, col.shown_name)
+                for col in selected_category_hover_col_cfgs
+                if layout_index.get_plot_no(col.id) != plot_no and (group_col is None or col.id != group_col.id)
+            ]
             is_x_axis = layout_index.is_x_axis(col_id)
 
             original_array_x = []
@@ -1619,9 +1747,19 @@ def get_flatten_data(
                     if color_cfg.is_global_color
                     else ColorCategoryLimit.PER_SUBPLOT.value
                 )
-                grouped_frames = _limit_top_categories(grouped_frames, top_n)
+                category_order = None
+                if group_col and (x_bin_mode or y_bin_mode):
+                    category_order = [
+                        value
+                        for value, _ in sorted(reference_frames, key=lambda item: (-len(item[1]), item[1].index.min()))
+                    ]
+                grouped_frames = _limit_top_categories(grouped_frames, top_n, category_order=category_order)
+                if group_col:
+                    reference_frames = _limit_top_categories(reference_frames, top_n)
             if force_index_xaxis:
                 grouped_frames = _attach_data_point_index(_df, grouped_frames)
+                if group_col:
+                    reference_frames = grouped_frames
 
             # Limit ColImb ≤ MAX_AXES secondary axes per subplot.
             # Retain the groups with the greatest skew (lowest P90 ratio); the remainder fall to the primary axis.
@@ -1639,23 +1777,46 @@ def get_flatten_data(
                 candidates.sort(key=lambda item: item[1])  # Smallest ratio = most skewed
                 imbalanced_groups = {g for g, _ in candidates[: ColorImbThreshold.MAX_AXES.value]}
 
+            reference_subframes = (
+                {
+                    normalize_category_value(color_group): _get_div_subframes(frame, div_by_cat, div_size)
+                    for color_group, frame in reference_frames
+                }
+                if group_col
+                else {}
+            )
             for color_group, _sub_df in grouped_frames:
-                if div_by_cat:
-                    # All div_size slots are distinct category values for this primary — no slot
-                    # is reserved for the full/overall (unfiltered) data anymore.
-                    grouped_by_div = [(div_name, div_df) for (div_name, div_df) in _sub_df.copy().groupby(div_by_cat)]
-                    # Keep the div_size groups with the most data points (ties broken by whichever
-                    # appears earliest), and display them in that same most-to-least order — so the
-                    # first panel is always the family with the most data, not simply the first
-                    # alphabetically.
-                    sub_dfs = sorted(
-                        grouped_by_div,
-                        key=lambda item: (-len(item[1]), item[1].index.min()),
-                    )[:div_size]
+                group_log_flags = []
+                if group_col:
+                    parent_sub_dfs = reference_subframes[normalize_category_value(color_group)]
+                    sub_dfs = parent_sub_dfs
+                    if x_bin_mode or y_bin_mode:
+                        sub_dfs = [('', _sub_df.copy())]
+                    if div_by_cat and (x_bin_mode or y_bin_mode):
+                        sub_dfs = [
+                            (div_name, _sub_df[_sub_df[div_by_cat] == div_name]) for div_name, _ in parent_sub_dfs
+                        ]
+                    for idx, (_, parent_df) in enumerate(parent_sub_dfs):
+                        log_flag = _get_group_log_reference(
+                            parent_df,
+                            target_col,
+                            x_axis,
+                            overlay_type,
+                            is_numeric_dtype,
+                            graph_param.common.x_option == XAxisOption.CAT_VALUE.value and not force_index_xaxis,
+                            aggregated_coordinate_by_value,
+                            force_index_xaxis and MAP_DATA_POINT_INDEX_COL in _df.columns,
+                        )
+                        group_log_flags.append(log_flag)
+                        if overlay_type == CommonLayoutEnum.PRIMARY.value:
+                            slot = plot_no if not div_by_cat else ((plot_no - 1) * div_size + idx + 1)
+                            # The first baseline primary Color owns the axis even if all its Group
+                            # values are null (including when that Color is ColImb).
+                            group_primary_log_flags.setdefault(slot, log_flag)
                 else:
-                    sub_dfs = [('', _sub_df.copy())]
+                    sub_dfs = _get_div_subframes(_sub_df, div_by_cat, div_size)
 
-                for idx, (div_name, div_df) in enumerate(sub_dfs):
+                for idx, div_name, group_value, div_df in _split_group_subframes(sub_dfs, bool(group_col)):
                     # cap at div_size sub-panels per primary (2 for Div2, 3 for Div3, 6 for Div6)
                     if div_by_cat and idx >= div_size:
                         continue
@@ -1678,8 +1839,10 @@ def get_flatten_data(
                         array_x = sub_df[x_axis.col_cfg.label].tolist()
                     source_array_y = sub_df[target_col.label].tolist()
                     category_hover_values = None
+                    category_hover_values_unplotted = None
                     if not x_bin_mode and not y_bin_mode:
                         category_hover_values = _build_category_hover_values(sub_df, selected_category_hover_columns)
+                        category_hover_values_unplotted = _build_category_hover_values(sub_df, unplotted_hover_columns)
 
                     array_x, array_y = _apply_step_overlay(array_x, source_array_y, overlay_type)
                     array_color = _apply_step_overlay_to_values(
@@ -1689,6 +1852,11 @@ def get_flatten_data(
                     )
                     category_hover_values = _apply_step_overlay_to_values(
                         category_hover_values,
+                        source_array_y,
+                        overlay_type,
+                    )
+                    category_hover_values_unplotted = _apply_step_overlay_to_values(
+                        category_hover_values_unplotted,
                         source_array_y,
                         overlay_type,
                     )
@@ -1712,6 +1880,7 @@ def get_flatten_data(
                     if (
                         not force_index_xaxis
                         and not use_category_boundary_axis
+                        and not use_group_index_axis
                         and not x_axis.show_x_axis_with_index
                         and is_xaxis_available_to_encode
                         and not (is_large_data_point_xaxis and (is_sort_by_data_order or is_xaxis_as_grid_ordering))
@@ -1720,10 +1889,7 @@ def get_flatten_data(
                             sub_df[x_axis.col_cfg.label].nunique() >= ColorCategoryLimit.UNIQUE_DATA_PER_COLOR.value
                         )
                         if use_global_div_category_axis:
-                            # Position on the shared, whole-facet category axis instead of encoding
-                            # (factorizing) each Div sub-panel's own categories independently — that
-                            # would give every sub-panel its own compact 0..n positions and lose the
-                            # ability to compare x position across sub-panels.
+                            # Factorizing each Div/Group trace separately would align different categories.
                             array_x = _apply_step_overlay_to_values(
                                 sub_df[x_axis.col_cfg.label].map(global_category_position).tolist(),
                                 source_array_y,
@@ -1778,7 +1944,10 @@ def get_flatten_data(
                             array_x=array_x,
                             array_y=array_y,
                             is_numeric_dtype=is_numeric_dtype,
+                            is_log_scale_available=group_log_flags[idx] if group_col else None,
                             color_group=str(color_group) if color_group is not None else None,
+                            group_value=group_value,
+                            group_column_name=group_col.shown_name if group_col else None,
                             color_shown_name=color_col.shown_name if color_col else None,
                             is_global_color=is_global_color,
                             color_col=color_col,
@@ -1797,6 +1966,7 @@ def get_flatten_data(
                             x_bin_mins=x_bin_mins,
                             x_bin_maxs=x_bin_maxs,
                             category_hover_values=category_hover_values,
+                            category_hover_values_unplotted=category_hover_values_unplotted,
                             encoded_x_values=encoded_x_values,
                             is_sort_by_data_order=is_sort_by_data_order,
                             y_fmt=get_fmt_from_array(array_y),
@@ -1805,6 +1975,10 @@ def get_flatten_data(
                             show_x_axis_with_index=x_axis.show_x_axis_with_index,
                         )
                     )
+        if group_col:
+            for plot in plot_data:
+                if plot['group_value'] is not None:
+                    plot['group_primary_log_scale_available'] = group_primary_log_flags.get(plot['plot_no'])
         faceted_data.append(plot_data)
     return faceted_data
 

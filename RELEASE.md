@@ -1,5 +1,47 @@
 # Releases
 
+## 5.0.0
+
+Updated pip to 26.2.2 and Brotli to 1.2.1 to address security vulnerabilities.
+
+Core Changes
+
+- Added the `Variable Select` interface.
+  - Designed for advanced users who work with multiple tables and large numbers of columns.
+  - You can select variables from multiple processes at once and view the actual data in each column.
+  - <img width="400" alt="image" src="https://github.com/user-attachments/assets/c0890071-4419-4d00-bbb1-368610e21ba0" />
+  - <img width="800" alt="variable-select" src="https://github.com/user-attachments/assets/7c4a803b-db27-4021-8f5f-29b6cb214edc" />
+
+- Made the `Optional Function` in the CSV/TSV import settings easier to configure and debug.
+  - Moved the Python code to a more accessible location.
+  - Moved from `\ap\script\user_scripts` to `user\scripts_etl`.
+  - Added error diagnostics for the `Optional Function` in the CSV/TSV import configuration.
+    - Makes it easier to debug preprocessing functions.
+    - <img width="800" alt="image" src="https://github.com/user-attachments/assets/41591487-ad10-443c-9da2-c296bf649552" />
+
+Improvements
+
+- Improved the CSV/TSV Import Config.
+  - Added a list of past data import jobs.
+    - <img width="800" alt="image" src="https://github.com/user-attachments/assets/025c48ee-68a5-44b1-a2b1-21a6d66a545f" />
+  - Updated the `Optional Function` workflow to avoid writing intermediate CSV files to `data\etl` and `data\temp`.
+  - Added custom file extensions when `Optional Function` is set. For example, you can set .log to import files with extension .log.
+
+- Changed the behavior of `Jump`.
+  - `Jump` now uses the default cleansing option of the destination page.
+- (Process Config)
+  - Automatically fill in Japanese-name fields when source column headers contain Japanese text, also when using the English locale.
+- (Misc)
+  - Improved chart style updates with a loading indicator, sequential processing, and protection against older updates overwriting newer selections.
+  - Added keyboard shortcut **Ctrl + ,** to open configuration page in a new tab.
+  - Added a shortcut reference in the help menu.
+  - Optimized source file discovery with depth-limited directory traversal and improved access error detection.
+
+Bug Fixes
+
+- Process Config: Reduced unnecessary scrolling.
+- `Display variable` field: Prevented deselected variables from jumping to the bottom of the dropdown list.
+
 ## 4.9.6
 
 This release primarily focuses on improving support for datasets with a large number of columns.

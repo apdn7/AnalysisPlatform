@@ -1,4 +1,4 @@
-from pydantic import BaseModel, computed_field, field_validator
+from pydantic import BaseModel, PositiveInt, computed_field, field_validator
 
 from ap.common.constants import BaseEnum, JobStatus, JobType
 
@@ -64,6 +64,7 @@ class SearchParamsDTO(BaseModel):
         job_types (list[str] | None): List of job types to filter by. Accepts type names or filter groups
             (IMPORT, PAST_IMPORT, DATA_LINK, OTHERS). Automatically converted to actual job types. Defaults to [].
         ignore_job_types (list[str]): List of job types to exclude from results. Defaults to [].
+        db_code (int | None): Positive datasource ID to filter jobs by. Defaults to None.
 
     Properties:
         page (int): Computed property that calculates the current page number based on offset and limit.
@@ -80,6 +81,7 @@ class SearchParamsDTO(BaseModel):
     statuses: list[str] | None = []
     job_types: list[str] | None = []
     ignore_job_types: list[str] = []
+    db_code: PositiveInt | None = None
 
     @computed_field
     @property

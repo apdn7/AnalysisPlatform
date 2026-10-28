@@ -1,11 +1,10 @@
-from ap.api.efa.services.etl import PyETLInterface
 import pandas as pd
+
+from ap.api.efa.services.etl import PyETLInterface
 
 
 class DoNothing(PyETLInterface):
-    """
-    Template ETL class that does nothing to the data
-    """
+    """Template ETL class that does nothing to the data"""
 
     def extract(self, fname: str) -> pd.DataFrame:
         """
@@ -35,7 +34,7 @@ class DoNothing(PyETLInterface):
     class ImportSchema(PyETLInterface.ImportSchema):
         """
         Define assumed schema (if necessary)
-        Example
+        Example:
             datetime: str
             product_no: str
             lot_no: int

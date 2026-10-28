@@ -6,6 +6,7 @@ from flask_babel import get_locale, gettext
 from flask_babel import gettext as _
 
 from ap import is_internal_version
+from ap.api.setting_module.services.csv_preview_errors import initialize_csv_preview_owner
 from ap.common.authorization import is_authorized
 from ap.common.common_utils import (
     sort_processes_by_parent_children_relationship,
@@ -52,6 +53,8 @@ setting_module_blueprint = Blueprint(
 
 @setting_module_blueprint.route('/config')
 def config_screen():
+    # Establish ownership before overlapping preview requests can create different session cookies.
+    initialize_csv_preview_owner()
     data_sources = CfgDataSource.get_all()
     ds_schema = DataSourcePublicSchema(many=True)
 
@@ -88,7 +91,7 @@ def config_screen():
     r_etl_path = os.path.join(get_wrapr_path(), 'func', 'etl')  # r etl folder path
 
     r_etl_scripts = get_etl_scripts(r_etl_path) if is_internal_version else []
-    py_etl_scripts = get_etl_scripts(py_etl_path)
+    py_etl_scripts = get_etl_scripts(py_etl_path, extension='.py')
 
     etl_scripts = r_etl_scripts + py_etl_scripts
     output_dict.update({'etl_scripts': etl_scripts})

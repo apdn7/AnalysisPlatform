@@ -1,0 +1,237 @@
+.container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-bottom: 1px solid #555;
+    background: #292929;
+}
+
+.searchInput {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 3px 26px 3px 6px;
+    border: 1px solid #666;
+    border-radius: 2px;
+    font-size: 13px;
+    background-color: #171717;
+    color: #eee;
+    height: 24px;
+
+    &:focus {
+        outline: none;
+        border-color: #73a9d0;
+        box-shadow: 0 0 0 1px rgb(115 169 208 / 30%);
+    }
+
+    &::placeholder {
+        color: #aaa;
+    }
+}
+
+.searchClearButton {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transform: translateY(-50%);
+
+    &:hover {
+        color: #fff;
+    }
+
+    &:focus-visible {
+        outline: 1px solid #73a9d0;
+        outline-offset: 1px;
+    }
+}
+
+.clearButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: #bbb;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+        background-color: #444;
+        color: #fff;
+        border-color: #666;
+    }
+
+    &:active {
+        background-color: #555;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: transparent;
+    }
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    background-color: #222;
+    border: 1px solid #666;
+    border-radius: 2px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 45%);
+    z-index: 100000;
+    max-height: 240px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: none;
+
+    &.open {
+        display: block;
+    }
+}
+
+.dropdownContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.dropdownItem {
+    display: grid;
+    grid-template-columns: minmax(0, 45%) minmax(0, 55%);
+    padding: 0;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 13px;
+    color: #eee;
+    min-height: 26px;
+
+    &:hover {
+        background-color: #40586a;
+    }
+
+    &.selected {
+        background-color: #4e83aa;
+        color: #fff;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.dropdownItemCol1 {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #555;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .dropdownItem.selected & {
+        border-right-color: #73a9d0;
+    }
+}
+
+.dropdownItemCol2 {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 5px 8px;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdownEmpty {
+    padding: 12px 10px;
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    background: #222;
+}
+
+.selectedValue {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 4px 8px;
+    background-color: #222;
+    border: 1px solid #555;
+    border-radius: 2px;
+    min-height: 24px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.4;
+
+    &:hover {
+        border-color: #777;
+    }
+
+    &:focus-within {
+        border-color: #73a9d0;
+        box-shadow: 0 0 0 1px rgb(115 169 208 / 30%);
+    }
+}
+
+.selectedText {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-right: 3px solid transparent;
+    border-left: 3px solid transparent;
+    border-top: 5px solid #ddd;
+    margin: 1px 2px 0 4px;
+    flex-shrink: 0;
+}

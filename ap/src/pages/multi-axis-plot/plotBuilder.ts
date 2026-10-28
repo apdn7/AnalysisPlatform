@@ -201,6 +201,7 @@ const CATEGORY_BOUNDARY_MAX_LABELS = 128;
 const CATEGORY_BOUNDARY_LINE_FACTOR = 0.85;
 const CATEGORY_BOUNDARY_FONT_SIZE = 10;
 const CATEGORY_BOUNDARY_Y_SHIFT = -2;
+const PLOT_FONT_FAMILY = 'Calibri Light';
 const LEGEND_MAX_WIDTH = 200;
 const GLOBAL_COLORBAR_SPACE = 160;
 const TICK_GAP = 0.00042;
@@ -325,10 +326,14 @@ const usesLogScale = (series: PlotSeries, yAxisMode: YAxisShowModes): boolean =>
         ((series.is_log_scale_available && yAxisMode === YAxisShowModes.Normal) || yAxisMode === YAxisShowModes.LogOn),
     );
 
-const getSeriesDisplayName = (series: PlotSeries, yAxisMode: YAxisShowModes): string => {
+const getSeriesDisplayName = (
+    series: PlotSeries,
+    yAxisMode: YAxisShowModes,
+    useLogScale = usesLogScale(series, yAxisMode),
+): string => {
     if (yAxisMode !== YAxisShowModes.Normal) return series.name;
 
-    return `${series.name} (${usesLogScale(series, yAxisMode) ? 'Log on' : 'Log off'})`;
+    return `${series.name} (${useLogScale ? 'Log on' : 'Log off'})`;
 };
 
 export const createStackedDataCache = (): StackedDataCache => new Map();
@@ -351,8 +356,26 @@ const getLegendGroup = (series: PlotSeries, isDivMode?: boolean): string => {
         : `series-${series.plot_no}-${series.end_col_id}-${series.key}`;
 };
 
+const getTraceUid = (series: PlotSeries): string => {
+    const uid = `${series.end_col_id}-${series.plot_no}`;
+    if (series.group_column_name == null) return uid;
+    // Plotly uses trace UIDs directly in CSS selectors when cleaning up after a redraw.
+    const groupUid = JSON.stringify([series.key, series.color_group, series.group_value]).replace(/[\s\S]/g, (char) =>
+        char.charCodeAt(0).toString(16).padStart(4, '0'),
+    );
+    return `${uid}-${groupUid}`;
+};
+
+const getGroupedAxisKey = (series: PlotSeries): string | undefined =>
+    series.group_column_name != null
+        ? JSON.stringify([series.end_col_id, series.class, series.is_color_imb_group ? series.color_group : null])
+        : undefined;
+
 export const applyDefaultSeriesColors = (seriesList: PlotSeries[], theme: string): PlotSeries[] => {
     const colorByGroup = new Map<string, string>();
+    const groupedSeriesColors = new Map<string, string>();
+    const hasGrouping = seriesList.some((series) => series.group_column_name != null);
+    const variableCount = new Set(seriesList.map((series) => getLegendGroup(series))).size;
     let colorGroupCount = 0;
 
     return seriesList.map((series, index) => {
@@ -368,9 +391,17 @@ export const applyDefaultSeriesColors = (seriesList: PlotSeries[], theme: string
             color = colorByGroup.get(colorGroupKey);
         }
 
-        const defaultColor = color || COLOR_SCALES[index % COLOR_SCALES.length];
+        // Splitting a variable into Group traces must not consume additional palette colors.
+        const seriesKey = getLegendGroup(series);
+        if (hasGrouping && !groupedSeriesColors.has(seriesKey)) {
+            groupedSeriesColors.set(seriesKey, COLOR_SCALES[groupedSeriesColors.size % COLOR_SCALES.length]);
+        }
+        const defaultColor =
+            color || (hasGrouping ? groupedSeriesColors.get(seriesKey) : COLOR_SCALES[index % COLOR_SCALES.length]);
         const useThemeYAxisColor =
-            (Boolean(series.color) || Boolean(colorGroupKey) || seriesList.length === 1) &&
+            (Boolean(series.color) ||
+                Boolean(colorGroupKey) ||
+                (hasGrouping ? variableCount === 1 : seriesList.length === 1)) &&
             series.is_color_imb_group !== true;
         const yColor = series.yColor || (useThemeYAxisColor ? themeColor.text[theme] : defaultColor);
 
@@ -450,7 +481,11 @@ const getMaximumSubAxisNumber = (seriesList: PlotSeries[]): number => {
         0,
         ...groupPlot.map((group) =>
             Math.min(
-                group.filter((item) => item.class === 'sub' || item.is_color_imb_group === true).length,
+                new Set(
+                    group
+                        .filter((item) => item.class === 'sub' || item.is_color_imb_group === true)
+                        .map((item, index) => getGroupedAxisKey(item) ?? index),
+                ).size,
                 MAX_SECONDARY_AXES,
             ),
         ),
@@ -646,11 +681,18 @@ const buildAxisPlan = (
 
     const axisBySeriesIndex: Array<AxisRef> = [];
     const extraAxes: AxisPlan['extraAxes'] = [];
+    const groupedAxes = new Map<string, AxisRef>();
     let subAxisIndex = 0;
     let yAxisNumber = nextYAxisNumber;
 
     cell.series.forEach((series, index) => {
         const isImbalanceGroup = series.is_color_imb_group === true;
+        const groupAxisKey = getGroupedAxisKey(series);
+        const existingAxis = groupAxisKey === undefined ? undefined : groupedAxes.get(groupAxisKey);
+        if (existingAxis) {
+            axisBySeriesIndex[index] = existingAxis;
+            return;
+        }
         const takesSecondaryAxis =
             ((series.class === PlotPriority.SUB || isImbalanceGroup) && subAxisIndex < MAX_SECONDARY_AXES) ||
             series.class === PlotPriority.ADD;
@@ -658,6 +700,7 @@ const buildAxisPlan = (
         if (takesSecondaryAxis) {
             const axis = yAxisRef(yAxisNumber);
             axisBySeriesIndex[index] = axis;
+            if (groupAxisKey !== undefined) groupedAxes.set(groupAxisKey, axis);
             // ADD has no visible axis; SUB and imbalanced color groups show a secondary axis.
             extraAxes.push({ axis, series, order: subAxisIndex, visible: series.class !== PlotPriority.ADD });
             subAxisIndex += 1;
@@ -666,6 +709,7 @@ const buildAxisPlan = (
         }
 
         axisBySeriesIndex[index] = cell.primaryYAxis;
+        if (groupAxisKey !== undefined) groupedAxes.set(groupAxisKey, cell.primaryYAxis);
     });
 
     return {
@@ -681,10 +725,11 @@ const buildTrace = (
     settings: GraphSetting,
     yValues: number[],
     coloraxis?: string,
+    useLogScale?: boolean,
 ): Data => {
     const yAxisMode = settings.yAxis;
     const { stacked, percent } = getYAxisMode(yAxisMode);
-    const displayName = getSeriesDisplayName(series, yAxisMode);
+    const displayName = getSeriesDisplayName(series, yAxisMode, useLogScale);
     const textLabels = Array.isArray(series.text) ? series.text : [];
     // Plotly renders text as SVG nodes, so only enable text mode when the primary series has actual labels.
     const hasText =
@@ -715,12 +760,27 @@ const buildTrace = (
         Boolean(series.is_x_axis_binned) &&
         Array.isArray(series.x_bin_labels) &&
         series.x_bin_labels.length === yValues.length;
+    // Percent Y no longer duplicates the original Select values. Keep those values available
+    // when switching modes without fetching data again, including older cached responses.
+    const categoryHoverValues =
+        !percent && series.category_hover_values_unplotted !== undefined
+            ? series.category_hover_values_unplotted
+            : series.category_hover_values;
     const hasCategoryHoverValues =
-        Array.isArray(series.category_hover_values) &&
-        series.category_hover_values.length === yValues.length &&
-        series.category_hover_values.some((value) => (value ?? '').trim().length > 0);
+        Array.isArray(categoryHoverValues) &&
+        categoryHoverValues.length === yValues.length &&
+        categoryHoverValues.some((value) => (value ?? '').trim().length > 0);
     const hasColorHoverValues = Array.isArray(series.array_color);
     const colorTitle = (series.color_title ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const hasGroup = series.group_column_name != null;
+    const groupTitle = (series.group_column_name ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    const groupValue = String(series.group_value ?? '---')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
 
     const useOriginalArrayX = !!series.category_boundaries;
     const customData =
@@ -728,7 +788,7 @@ const buildTrace = (
             ? yValues.map((_, index) => [
                   text?.[index] ?? '',
                   hasXBinLabels ? (series.x_bin_labels?.[index] ?? '') : '',
-                  hasCategoryHoverValues ? (series.category_hover_values?.[index] ?? '') : '',
+                  hasCategoryHoverValues ? (categoryHoverValues?.[index] ?? '') : '',
                   useOriginalArrayX ? (series.original_array_x?.[index] ?? '') : '',
                   hasColorHoverValues
                       ? Number.isFinite(series.array_color[index])
@@ -742,6 +802,7 @@ const buildTrace = (
     const xBinHoverLine = hasXBinLabels ? `[%{customdata[1]}]<br>` : '';
     const categoryHoverLine = hasCategoryHoverValues ? `%{customdata[2]}<br>` : '';
     const colorHoverLine = hasColorHoverValues ? '%{meta.colorTitle} = %{customdata[4]}<br>' : '';
+    const groupHoverLine = hasGroup ? '%{meta.groupTitle}: %{meta.groupValue}<br>' : '';
     let xHoverLine = !hasXBinLabels || yAxisMode === YAxisShowModes.Normal ? 'x=%{x}<br>' : '';
 
     xHoverLine = useOriginalArrayX ? 'x=%{customdata[3]}<br>' : xHoverLine;
@@ -772,14 +833,14 @@ const buildTrace = (
             width: isStepLine ? 2 : series.line_width || 3,
             shape: isStepLine ? 'hvh' : 'linear',
         },
-        uid: `${series.end_col_id}-${series.plot_no}`,
+        uid: getTraceUid(series),
         marker,
         textfont: { color: themeColor.text[settings.theme], size: fontSize.tick[settings.fontSize] },
         textposition: 'top center',
         cliponaxis: false,
         customdata: customData,
-        meta: hasColorHoverValues ? { colorTitle } : undefined,
-        hovertemplate: `${xBinHoverLine}<b>${displayName}</b><br>${categoryHoverLine}${textHoverLine}${colorHoverLine}${xHoverLine}y=%{y${percent ? ':.2f' : ''}}${percent ? '%' : ''}<extra></extra>`,
+        meta: hasColorHoverValues || hasGroup ? { colorTitle, groupTitle, groupValue } : undefined,
+        hovertemplate: `${xBinHoverLine}<b>${displayName}</b><br>${groupHoverLine}${categoryHoverLine}${textHoverLine}${colorHoverLine}${xHoverLine}y=%{y${percent ? ':.2f' : ''}}${percent ? '%' : ''}<extra></extra>`,
     } as Data;
 };
 
@@ -807,12 +868,39 @@ const buildPlotLegendName = (
     fontSize: number,
 ): string => {
     if (!title) return '';
-    const batch1 = `${title}${unit ? ` [${unit}]` : ''}`;
-    const batch2 = `${showProcess ? `<br>(${processName})` : ''}`;
-    return (
-        trimTextLengthByPixel(batch1, LEGEND_MAX_WIDTH, fontSize) +
-        trimTextLengthByPixel(batch2, LEGEND_MAX_WIDTH, fontSize)
-    );
+    const text = `${title}${unit ? ` [${unit}]` : ''}`;
+    const characters = Array.from(text);
+    const measure = (value: string) => visualTextLength(value, fontSize, PLOT_FONT_FAMILY);
+    const fitLine = (characters: string[], suffix = ''): number => {
+        let start = 0;
+        let end = characters.length;
+        while (start < end) {
+            const middle = Math.ceil((start + end) / 2);
+            if (measure(characters.slice(0, middle).join('') + suffix) <= LEGEND_MAX_WIDTH) {
+                start = middle;
+            } else {
+                end = middle - 1;
+            }
+        }
+        return start;
+    };
+    const truncateLine = (value: string): string => {
+        const characters = Array.from(value);
+        return measure(value) <= LEGEND_MAX_WIDTH
+            ? value
+            : characters.slice(0, fitLine(characters, '...')).join('') + '...';
+    };
+    const firstLineLength = fitLine(characters);
+    const firstLine = characters.slice(0, firstLineLength).join('');
+    const remainder = characters.slice(firstLineLength).join('');
+    const lines = [firstLine];
+    if (remainder) {
+        lines.push(truncateLine(remainder));
+    }
+    if (showProcess) {
+        lines.push(truncateLine(`(${processName})`));
+    }
+    return lines.map((line) => line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')).join('<br>');
 };
 
 const getTickFormat = (series: PlotSeries, isCategory: boolean) => {
@@ -893,7 +981,7 @@ const buildBaseLayout = (graphSettings: GraphSetting): Partial<Layout> => ({
     margin: { t: 30, r: 210, b: 52, l: 56 },
     font: {
         color: themeColor.text[graphSettings.theme],
-        family: 'Calibri Light',
+        family: PLOT_FONT_FAMILY,
         size: fontSize.label[graphSettings.fontSize],
     },
     legend: {
@@ -1310,6 +1398,9 @@ export const buildPlotFigure = (
     const visibleColorLegendGroups = new Set<string>();
     const colorAxesByKey = new Map<string, string>();
     const layout = buildBaseLayout(graphSettings);
+    if (normalizedSeriesList.some((series) => series.group_column_name != null)) {
+        layout.hovermode = 'closest';
+    }
     const yAxisUIRevision = buildPlotUIRevision(normalizedSeriesList, graphSettings);
     layout.showlegend = showLegend;
     layout.margin = {
@@ -1324,6 +1415,15 @@ export const buildPlotFigure = (
         const { stacked, percent } = getYAxisMode(graphSettings.yAxis);
         const stackedValues = getStackedValues(cell, graphSettings.yAxis, options.stackedDataCache);
         const { plan, nextYAxisNumber } = buildAxisPlan(cell, nextExtraYAxisNumber, stacked);
+        const primarySeries = findPrimarySeries(cell);
+        // Group traces retain the primary-axis scale of their unsplit Color reference.
+        const primaryAxisSeries =
+            primarySeries.group_column_name != null && primarySeries.group_primary_log_scale_available != null
+                ? { ...primarySeries, is_log_scale_available: primarySeries.group_primary_log_scale_available }
+                : primarySeries;
+        const logScaleByAxis = new Map<YAxisName, boolean>([
+            [cell.primaryYAxis.trace, usesLogScale(primaryAxisSeries, graphSettings.yAxis)],
+        ]);
         const xAxisKey = axisLayoutKey('xaxis', cell.xAxisNumber);
         const xAxisRef = axisTraceRef('x', cell.xAxisNumber);
         const plotNo = cell.series[0]?.plot_no;
@@ -1335,9 +1435,19 @@ export const buildPlotFigure = (
             (plotNo === undefined ? undefined : options.xAxisLabelsByPlotNo?.[plotNo]) ??
             isLowestCellInColumn(cell, cells);
         nextExtraYAxisNumber = nextYAxisNumber;
-        const arrayX: any[] = cell.series[0]?.array_x;
-        const minX = Math.min(...arrayX) || 0;
-        const maxX = Math.max(...arrayX) || 1;
+        const xRangeSeries = cell.series.some((series) => series.group_column_name != null)
+            ? cell.series
+            : cell.series.slice(0, 1);
+        let minX = Infinity;
+        let maxX = -Infinity;
+        for (const series of xRangeSeries) {
+            for (const value of series.array_x) {
+                minX = Math.min(minX, Number(value));
+                maxX = Math.max(maxX, Number(value));
+            }
+        }
+        minX ||= 0;
+        maxX ||= 1;
         const span = isXAxisNumerics && maxX - minX;
         const isXValuedEncoded = cell.series[0].encoded_x_values;
         const showTickVals = isCategoryBoundaryAxis || isXValuedEncoded || isSortByDataOrder;
@@ -1410,11 +1520,11 @@ export const buildPlotFigure = (
         // Common y-range only applies to the plain/linear case — percent, stacked, and log-scale
         // axes already normalize or auto-range in their own meaningful way, so leave those alone.
         const commonYRange =
-            divRange && !percent && !stacked && !usesLogScale(findPrimarySeries(cell), graphSettings.yAxis)
+            divRange && !percent && !stacked && !usesLogScale(primaryAxisSeries, graphSettings.yAxis)
                 ? divRange.yRange
                 : null;
         layoutRecord[cell.primaryYAxis.layoutKey] = {
-            ...buildYAxis(findPrimarySeries(cell), graphSettings, true, cell.subPlotHeight, cell.yDomain),
+            ...buildYAxis(primaryAxisSeries, graphSettings, true, cell.subPlotHeight, cell.yDomain),
             ...(commonYRange ? { range: commonYRange, autorange: undefined } : {}),
             anchor: xAxisRef,
             side: 'left',
@@ -1427,9 +1537,12 @@ export const buildPlotFigure = (
         };
 
         plan.extraAxes.forEach(({ axis, series, order, visible }) => {
+            logScaleByAxis.set(axis.trace, usesLogScale(series, graphSettings.yAxis));
             layoutRecord[axis.layoutKey] = {
                 ...buildYAxis(series, graphSettings, visible, cell.subPlotHeight),
                 overlaying: cell.primaryYAxis.trace,
+                // Overlay axes default to synced ticks; auto keeps each scale's ticks readable.
+                tickmode: 'auto',
                 anchor: 'free',
                 side: 'right',
                 position: Math.min(cell.xDomain[1] + extraYAxisOffset * order, 0.99),
@@ -1483,7 +1596,9 @@ export const buildPlotFigure = (
             const colorGroupKey = getColorGroupKey(series);
             // Div mode: dedupe on the same (end_col_id, key) grouping used for the trace's own
             // legendgroup, so a primary variable split across div sub-panels shows one legend entry.
-            const dedupeKey = colorGroupKey ?? (isDivMode ? getLegendGroup(series, true) : null);
+            const dedupeKey =
+                colorGroupKey ??
+                (isDivMode || series.group_column_name != null ? getLegendGroup(series, isDivMode) : null);
             const shouldShowLegend = showLegend && (!dedupeKey || !visibleColorLegendGroups.has(dedupeKey));
             if (showLegend && dedupeKey) {
                 visibleColorLegendGroups.add(dedupeKey);
@@ -1497,6 +1612,9 @@ export const buildPlotFigure = (
                     graphSettings,
                     stackedValues?.get(series) ?? series.array_y,
                     coloraxis,
+                    series.group_column_name != null
+                        ? logScaleByAxis.get(plan.axisBySeriesIndex[index].trace)
+                        : undefined,
                 ),
                 showlegend: shouldShowLegend,
             } as Data);
@@ -1509,7 +1627,7 @@ export const buildPlotFigure = (
         }
 
         const { yaxis = 'y', xaxis = 'x' } =
-            (data.find((d: ScatterData) => d.uid === `${series.end_col_id}-${series.plot_no}`) as ScatterData) ?? {};
+            (data.find((d: ScatterData) => d.uid === getTraceUid(series)) as ScatterData) ?? {};
         const chartInfos = series.chart_infos_ci;
         chartInfos.forEach((chartInfo) => {
             const ref = { xaxis: xaxis, yaxis: yaxis };

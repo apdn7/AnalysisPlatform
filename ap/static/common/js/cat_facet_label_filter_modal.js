@@ -552,6 +552,10 @@ const pagination = (columnId, dataSource) => {
                          </div>`;
     const pageSize = 20;
     if (container.length) {
+        let pager = container.children('.category-filter-pagination');
+        if (!pager.length) {
+            pager = $('<div class="category-filter-pagination"></div>').appendTo(container);
+        }
         container.pagination({
             dataSource,
             pageSize,
@@ -560,21 +564,16 @@ const pagination = (columnId, dataSource) => {
             callback(data, pagi) {
                 const html = data.map((value) => genCheckBox(columnId, value));
                 dataContainer.html(allCheckbox + html.join(' '));
-                const thisEL = $(pagi.el[0]);
-                const ul = thisEL.find('.paginationjs-pages ul');
-                const totalPageNum = thisEL.find('.paginationjs-nav.J-paginationjs-nav').text().split('/')[1].trim();
-                const isDisibleNext = ul.find('.paginationjs-next').hasClass('disabled');
-                const isDisiblePre = ul.find('.paginationjs-prev').hasClass('disabled');
-
-                const goToFirstHtml = `
-            <li class="paginationjs-page paginationjs-first J-paginationjs-page${isDisiblePre ? ' disabled' : ''}" data-num="1"><a><i class="fa fa-step-backward"></i></a></li>
-            `;
-                const goToLastHtml = `
-            <li class="paginationjs-page paginationjs-last J-paginationjs-page${isDisibleNext ? ' disabled' : ''}" data-num="${totalPageNum}"><a><i class="fa fa-step-forward"></i></a></li>
-            `;
-
-                ul.append(goToLastHtml);
-                ul.prepend(goToFirstHtml);
+                renderProcessPagination(pager[0], {
+                    page: pagi.pageNumber,
+                    pageSize,
+                    total: dataSource.length,
+                    onPageChange(page) {
+                        container.pagination('go', page);
+                    },
+                });
+                // Keep pagination.js DOM and delegated handlers alive for its native paging lifecycle.
+                pagi.el.prop('hidden', true);
             },
             afterPaging() {
                 searchRegEx(currentRegexVal, null, dataContainerId);

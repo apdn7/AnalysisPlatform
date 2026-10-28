@@ -7,9 +7,10 @@ interface Props {
     onChange?: (value: string) => void;
     activeValue?: string;
     labels?: string[];
+    disabled?: boolean;
 }
 
-export default function GroupButton({ onChange, group = [], labels = [], activeValue = '' }: Props) {
+export default function GroupButton({ onChange, group = [], labels = [], activeValue = '', disabled = false }: Props) {
     const [active, setActive] = useState(activeValue);
 
     useEffect(() => {
@@ -26,6 +27,7 @@ export default function GroupButton({ onChange, group = [], labels = [], activeV
                 return (
                     <button
                         type="button"
+                        disabled={disabled}
                         onClick={() => setActive(value)}
                         className={`btn btn-sm ${styles['group-btn']} ${activeClass}`}
                         data-active={active === value}

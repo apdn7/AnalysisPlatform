@@ -103,7 +103,17 @@ const getOverlayKeysInSubplot = (
     });
 
 // ═══ Validation rules ═══
-const SINGLE_USE_FIELDS = new Set(['x_axis', 'lab', 'lab_x', 'color', 'color_x', 'color_imb', 'color_imb_x', 'step']);
+const SINGLE_USE_FIELDS = new Set([
+    'x_axis',
+    'lab',
+    'lab_x',
+    'color',
+    'color_x',
+    'color_imb',
+    'color_imb_x',
+    'group',
+    'step',
+]);
 
 const EXCLUSIVE_GROUPS = [
     ['x_axis', 'lab_x', 'color_x', 'color_imb_x'], // X-axis

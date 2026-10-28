@@ -28,7 +28,8 @@ from ap.common.constants import (
     JobType,
 )
 from ap.common.disk_usage import get_disk_capacity_once
-from ap.common.jobs.job_info_schema import JobInfoUnion
+from ap.common.error_hints import ErrorDetailsPayload, build_error_payload
+from ap.common.jobs.job_info_schema import CsvImportJobInfo, JobInfoUnion
 from ap.common.jobs.jobs import RunningJobs
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import (
@@ -71,6 +72,18 @@ class JobSerializedOutput(BaseModel):
     data_type_error: bool = False
     info: JobInfoUnion | None
 
+    @computed_field
+    @property
+    def error(self) -> ErrorDetailsPayload | None:
+        record = getattr(self.info, 'error_record', None)
+        if record is None:
+            return None
+        return build_error_payload(record, error_id=self.id).error
+
+    @field_serializer('error')
+    def serialize_error(self, error: ErrorDetailsPayload | None) -> dict | None:
+        return error.model_dump(mode='json') if error is not None else None
+
     @field_serializer('duration')
     def round_duration(self, duration: float) -> float:
         return round(duration, 2)
@@ -92,7 +105,9 @@ class JobSerializedOutput(BaseModel):
 
     @computed_field
     @property
-    def process_master_name(self) -> str:
+    def process_master_name(self) -> str | None:
+        if self.job_type == JobType.CSV_PREVIEW.name and self.process_id is None:
+            return None
         return self.process_name
 
     @computed_field
@@ -153,6 +168,9 @@ def get_all_proc_shown_names():
 def get_background_jobs_service(search_params: SearchParamsDTO) -> tuple[list[JobSerializedOutput], QueryPagination]:
     """Get background jobs from JobManagement table"""
     jobs = JobManagement.query
+    if search_params.db_code is not None:
+        jobs = jobs.filter(JobManagement.db_code == search_params.db_code)
+
     if search_params.error_page:
         jobs = jobs.filter(JobManagement.status.in_(JobStatus.failed_statuses()))
 
@@ -168,6 +186,8 @@ def get_background_jobs_service(search_params: SearchParamsDTO) -> tuple[list[Jo
     if search_params.sort != '':
         sort_by_col = JobManagement.job_sorts(search_params.order)
         jobs = jobs.order_by(sort_by_col[search_params.sort])
+        if search_params.db_code is not None and search_params.sort == 'start_tm':
+            jobs = jobs.order_by(sort_by_col['job_id'])
     else:
         jobs = jobs.order_by(JobManagement.id.desc())
 
@@ -177,7 +197,12 @@ def get_background_jobs_service(search_params: SearchParamsDTO) -> tuple[list[Jo
     for _job in jobs.items:
         job = JobSerializedOutput.model_validate(_job.as_dict())
 
-        if not search_params.error_page and job.process_id is not None and job.process_id not in dic_procs:
+        if (
+            search_params.db_code is None
+            and not search_params.error_page
+            and job.process_id is not None
+            and job.process_id not in dic_procs
+        ):
             # do not show deleted process in job normal page -> show only job error page
             continue
 
@@ -316,6 +341,10 @@ def send_processing_info(
         except Exception as e:
             # update job status
             db.session.rollback()
+            if job_type is JobType.CSV_IMPORT:
+                if job_management.info is None:
+                    job_management.info = CsvImportJobInfo()
+                job_management.info.capture_error(e)
             message = error_msg_handler.msg_from_exception(exception=e)
             job_management = update_job_management(job_management, message)
             logger.exception(e)
@@ -600,6 +629,9 @@ def update_job_management_status_n_error(
     job: JobManagement,
     job_info: JobInfo,
 ) -> tuple[JobManagement, JobInfo]:
+    if isinstance(job.info, CsvImportJobInfo) and job_info.exception is not None:
+        job.info.capture_error(job_info.exception)
+
     if not job.status or job_info.status.value > JobStatus[job.status].value:
         job.status = job_info.status.name
 

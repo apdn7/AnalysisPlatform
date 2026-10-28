@@ -13,17 +13,18 @@ const SHARED_FIELDS = [
     { value: 'lab', label: 'Lab' },
     { value: 'color', label: 'Color' },
     { value: 'color_imb', label: 'ColImb' },
+    { value: 'group', label: 'Group' },
 ];
 
-const PER_PLOT_FIELDS = [
+const LABEL_STEP_FIELDS = [
     { field: 'lab', label: 'i-Lab' },
     { field: 'step', label: 'i-Step' },
 ];
 
 const OVERLAY_FIELDS = [
-    { field: 'main', label: 'i-Main' },
-    { field: 'sub', label: 'i-2nd' },
-    { field: 'add', label: 'i-Auto' },
+    { field: 'main', label: 'i-Main', descriptionKey: 'Main axis' },
+    { field: 'sub', label: 'i-2nd', descriptionKey: 'Secondary axis' },
+    { field: 'add', label: 'i-Auto', descriptionKey: 'No axis' },
 ];
 
 const COLOR_FIELDS = [
@@ -61,6 +62,7 @@ function ToggleButton({
 function SubplotButtonRow({
     field,
     label,
+    description,
     availableNumbers,
     currentValue,
     disabled = false,
@@ -68,6 +70,7 @@ function SubplotButtonRow({
 }: {
     field: string;
     label: string;
+    description?: string;
     availableNumbers: number[];
     currentValue: string;
     disabled?: boolean;
@@ -75,7 +78,10 @@ function SubplotButtonRow({
 }) {
     return (
         <div className={`layout-subplot-row ${disabled ? 'layout-subplot-row--disabled' : ''}`}>
-            <span className="layout-subplot-row__label">{label}</span>
+            <span className={`layout-subplot-row__label ${description ? 'layout-subplot-row__label--annotated' : ''}`}>
+                {label}
+                {description && <span className="layout-subplot-row__description">{description}</span>}
+            </span>
             <div className="layout-subplot-row__buttons">
                 {availableNumbers.map((num) => {
                     const value = `${num}${field}`;
@@ -115,7 +121,8 @@ export default function LayoutPanelContent({
     datatype,
     onSelect,
 }: LayoutVariablePanelProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const isJapanese = i18n.language === 'ja';
     if (selected) {
         const maxSelectable = Math.min(maxOrder, 6);
         return (
@@ -190,28 +197,29 @@ export default function LayoutPanelContent({
             <div className="layout-variable-panel__section">
                 <h3 className="layout-variable-panel__section-title">{t('Per-plot settings')}</h3>
                 <div className="layout-variable-panel__divider" />
-                {PER_PLOT_FIELDS.map((item) => (
-                    <SubplotButtonRow
-                        key={item.field}
-                        field={item.field}
-                        label={item.label}
-                        availableNumbers={availableNumbers}
-                        currentValue={currentValue}
-                        onSelect={onSelect}
-                    />
-                ))}
             </div>
 
             {/*OVERLAY_FIELDS*/}
             <div className="layout-variable-panel__section">
-                <p style={{ color: '#c1c1c1', textTransform: 'none' }} className="layout-variable-panel__section-title">
-                    {t('Overlay on Main/Secondary/Auto-scaled Axis')}
-                </p>
+                <div className="layout-variable-panel__overlay-heading">
+                    <p
+                        style={{ color: '#c1c1c1', textTransform: 'none' }}
+                        className="layout-variable-panel__section-title"
+                    >
+                        {t('Overlay on Main/Secondary/Auto-scaled Axis')}
+                    </p>
+                    {isJapanese && (
+                        <span className="layout-variable-panel__overlay-note">
+                            {t('No axis: Auto-scaled series with hidden axis')}
+                        </span>
+                    )}
+                </div>
                 {OVERLAY_FIELDS.map((item) => (
                     <SubplotButtonRow
                         key={item.field}
                         field={item.field}
                         label={item.label}
+                        description={isJapanese ? t(item.descriptionKey) : undefined}
                         disabled={item.field === 'main' && isMainDisabled}
                         availableNumbers={availableNumbers}
                         currentValue={currentValue}
@@ -226,6 +234,23 @@ export default function LayoutPanelContent({
                     {t('Color by category')}
                 </p>
                 {COLOR_FIELDS.map((item) => (
+                    <SubplotButtonRow
+                        key={item.field}
+                        field={item.field}
+                        label={item.label}
+                        availableNumbers={availableNumbers}
+                        currentValue={currentValue}
+                        onSelect={onSelect}
+                    />
+                ))}
+            </div>
+
+            {/*LABEL/STEP_FIELDS*/}
+            <div className="layout-variable-panel__section">
+                <p style={{ color: '#c1c1c1', textTransform: 'none' }} className="layout-variable-panel__section-title">
+                    {t('Label Step')}
+                </p>
+                {LABEL_STEP_FIELDS.map((item) => (
                     <SubplotButtonRow
                         key={item.field}
                         field={item.field}

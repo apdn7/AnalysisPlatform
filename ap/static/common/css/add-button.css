@@ -1,0 +1,19 @@
+/* Limit the new color to formerly green add buttons. */
+.btn.btn-add {
+    color: #fff;
+    background-color: rgb(55, 90, 127);
+    border-color: rgb(55, 90, 127);
+}
+
+.btn.btn-add:not(:disabled):not(.disabled):hover,
+.btn.btn-add:not(:disabled):not(.disabled):focus,
+.btn.btn-add:not(:disabled):not(.disabled):active {
+    background-color: rgb(55, 90, 127);
+    border-color: rgb(55, 90, 127);
+}
+
+.btn.btn-add:disabled,
+.btn.btn-add.disabled {
+    background-color: rgb(55, 90, 127);
+    border-color: rgb(55, 90, 127);
+}

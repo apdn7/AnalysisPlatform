@@ -102,8 +102,10 @@ from ap.common.log import log_execution_time
 from ap.common.memoize import CustomCache, OptionalCacheConfig
 from ap.common.path_utils import (
     filter_files_by_select_condition,
+    get_csv_source_extensions,
     get_sorted_files,
     get_sorted_files_by_size,
+    resolve_csv_custom_extension,
 )
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_common import add_double_quote, gen_select_col_str
@@ -123,7 +125,7 @@ from ap.common.services.data_type import (
     gen_data_types_from_prepared,
     prepare_data_type_values,
 )
-from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, to_romaji, to_romaji_en
+from ap.common.services.jp_to_romaji_utils import change_duplicated_columns, has_japanese_text, to_romaji, to_romaji_en
 from ap.common.services.normalization import (
     NORMALIZE_FORM_NFKC,
     ColumnRenamer,
@@ -219,6 +221,7 @@ def load_external_preview_source_data(context: PreviewRequestContext) -> Externa
     file_name_exclude = None
     subfolder_include = None
     subfolder_exclude = None
+    custom_extension = None
 
     if context.data_source_id is not None:
         data_source = CfgDataSource.query.get(context.data_source_id)
@@ -246,6 +249,7 @@ def load_external_preview_source_data(context: PreviewRequestContext) -> Externa
             file_name_exclude = csv_detail.file_name_exclude
             subfolder_include = csv_detail.subfolder_include
             subfolder_exclude = csv_detail.subfolder_exclude
+            custom_extension = resolve_csv_custom_extension(csv_detail.custom_extension, etl_func)
     else:
         is_csv_or_v2 = True
 
@@ -267,6 +271,8 @@ def load_external_preview_source_data(context: PreviewRequestContext) -> Externa
                 process_name=filtered_process_name,
                 file_name=file_name,
                 show_file_name_column=True,
+                custom_extension=custom_extension,
+                etl_func=etl_func,
             )
         else:
             preview_data = preview_csv_data(
@@ -291,6 +297,7 @@ def load_external_preview_source_data(context: PreviewRequestContext) -> Externa
                 file_name_exclude=file_name_exclude,
                 subfolder_include=subfolder_include,
                 subfolder_exclude=subfolder_exclude,
+                custom_extension=custom_extension,
             )
         headers = [normalize_str(column) for column in normalize_list(preview_data.get('header'))]
         return ExternalPreviewSourceData(
@@ -1276,13 +1283,16 @@ def preview_csv_data(
     subfolder_include=None,
     subfolder_exclude=None,
     auto_encoding: bool | None = None,
+    raise_on_preview_error: bool = False,
+    custom_extension: str | None = None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
+    custom_extension = resolve_csv_custom_extension(custom_extension, etl_func)
     temp_files: list[str] = []
 
     try:
         if not file_name:
-            sorted_files = get_sorted_files(folder_url)
+            sorted_files = get_sorted_files(folder_url, custom_extension=custom_extension)
             # apply File Select Condition (file name / subfolder include-exclude), same as
             # the actual import job. Not applied when `file_name` is set (a specific file
             # was chosen directly), matching the "disabled in that mode" behavior in the UI.
@@ -1299,15 +1309,20 @@ def preview_csv_data(
         else:
             sorted_files = [file_name]
             file_name_samples = [os.path.basename(file_name)]
+            if custom_extension and not file_name.lower().endswith(
+                tuple(get_csv_source_extensions(custom_extension=custom_extension))
+            ):
+                raise ValueError('Source file does not match the configured custom extension')
 
         previewed_files = sorted_files.copy()
-        sorted_files, temp_files = expand_archive_sources_to_temp_files(
-            source_files=sorted_files,
-            target_extensions={CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value},
-            max_files=ARCHIVE_MAX_FILES_DEFAULT,
-            include_non_archive_sources=True,
-            return_metadata=False,
-        )
+        if not etl_func:
+            sorted_files, temp_files = expand_archive_sources_to_temp_files(
+                source_files=sorted_files,
+                target_extensions={CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value},
+                max_files=ARCHIVE_MAX_FILES_DEFAULT,
+                include_non_archive_sources=True,
+                return_metadata=False,
+            )
         temp_file_set = set(temp_files)
         sorted_files = _prioritize_preview_files_with_data(sorted_files, temp_file_set)
 
@@ -1317,6 +1332,8 @@ def preview_csv_data(
         data_details = []
         same_values = []
         if not sorted_files:
+            if raise_on_preview_error:
+                raise FileNotFoundError('No matching CSV files were found in the source')
             return {
                 'directory': folder_url,
                 'file_name': csv_file,
@@ -1349,6 +1366,7 @@ def preview_csv_data(
         skip_tail = 0
         skip_head_detected = None
         is_gen_cols = []
+        last_read_error = None
         for preview_file_group in preview_file_groups:
             try:
                 (
@@ -1375,13 +1393,19 @@ def preview_csv_data(
                     auto_encoding=auto_encoding,
                     selected_columns=selected_columns,
                 )
-            except Exception:
+            except Exception as error:
+                last_read_error = error
                 logger.exception('Failed to read CSV preview files: {}', preview_file_group)
                 continue
 
             if data_details:
                 csv_file = preview_file_group[0]
                 break
+
+        if raise_on_preview_error and not data_details:
+            if last_read_error is not None:
+                raise last_read_error
+            raise ValueError('The matching CSV files contain no preview data')
 
         # Keep deferred normalization internal to dataframe-based preview callers.
         # List callers expect preview_csv_data to return fully normalized values.
@@ -1575,12 +1599,26 @@ def preview_v2_data(
     show_file_name_column=False,
     is_show_raw_data=False,
     is_convert_datetime=False,
+    raise_on_preview_error: bool = False,
+    custom_extension: str | None = None,
+    etl_func: str | None = None,
 ):
     csv_delimiter = get_csv_delimiter(csv_delimiter)
-    sorted_files = get_sorted_files_by_size(folder_url) if not file_name else [file_name]
+    custom_extension = resolve_csv_custom_extension(custom_extension, etl_func)
+    sorted_files = (
+        get_sorted_files_by_size(folder_url, custom_extension=custom_extension) if not file_name else [file_name]
+    )
+    if (
+        file_name
+        and custom_extension
+        and not file_name.lower().endswith(tuple(get_csv_source_extensions(custom_extension=custom_extension)))
+    ):
+        raise ValueError('Source file does not match the configured custom extension')
     file_name_samples = [
         os.path.basename(path)
-        for path in (get_sorted_files(folder_url) if not file_name else sorted_files)[:PREVIEW_DISPLAY_LIMIT]
+        for path in (
+            get_sorted_files(folder_url, custom_extension=custom_extension) if not file_name else sorted_files
+        )[:PREVIEW_DISPLAY_LIMIT]
     ]
     encoding = None
     csv_file = ''
@@ -1592,6 +1630,8 @@ def preview_v2_data(
     same_values = []
     v2_process_names = []
     if not sorted_files:
+        if raise_on_preview_error:
+            raise FileNotFoundError('No matching V2 files were found in the source')
         return {
             'file_name': csv_file,
             'header': header_names,
@@ -1619,6 +1659,8 @@ def preview_v2_data(
         sorted_files = _prioritize_preview_files_with_data(sorted_files, temp_file_set)
 
         if not sorted_files:
+            if raise_on_preview_error:
+                raise FileNotFoundError('No matching V2 files were found in the source')
             return {
                 'file_name': csv_file,
                 'header': header_names,
@@ -1634,6 +1676,7 @@ def preview_v2_data(
 
         is_abnormal_v2 = None
         datasource_type = None
+        last_read_error = None
         if process_name:
             # V2 preview with the largest file
             file_data_idx = 0
@@ -1661,7 +1704,8 @@ def preview_v2_data(
                     else:
                         file_data_idx += 1
                         continue
-                except Exception:
+                except Exception as error:
+                    last_read_error = error
                     logger.exception('Failed to preview V2 data file: {}', largest_file)
                     file_data_idx += 1
                     continue
@@ -1703,7 +1747,8 @@ def preview_v2_data(
                     )
                     header_names, data_details = file_reader.read(target_file=csv_file)
                     encoding = file_reader.encoding
-                except Exception:
+                except Exception as error:
+                    last_read_error = error
                     logger.exception('Failed to read V2 preview file: {}', candidate_file)
                     header_names = []
                     data_details = []
@@ -1711,7 +1756,11 @@ def preview_v2_data(
                 if data_details:
                     break
 
-        if not header_names:
+        if not header_names or (raise_on_preview_error and len(data_details) == 0):
+            if raise_on_preview_error:
+                if last_read_error is not None:
+                    raise last_read_error
+                raise ValueError('The matching files contain no supported V2 preview data')
             return {
                 'file_name': csv_file,
                 'v2_processes': v2_process_names,
@@ -1955,6 +2004,7 @@ def gen_cols_with_types(
     filter_systems_map = {}
 
     is_software_workshop = master_type is not None and MasterDBType.is_software_workshop(master_type.name)
+    is_fill_ja_name = any(has_japanese_text(col_name) for col_name in extracted_col_names_with_suffix)
     for idx, (
         col_name,
         col_raw_name,
@@ -2020,7 +2070,7 @@ def gen_cols_with_types(
                 if not is_wellknown_col:
                     name_en = to_romaji(name_en) if not is_v2_history else gen_v2_history_sub_part_no_column(name_en)
             else:
-                name_jp = ''
+                name_jp = '' if not is_fill_ja_name else column_name_extracted
                 name_en, is_wellknown_col = convert_wellknown_col_name(column_name_extracted)
                 name_local = to_romaji_en(name_en)
                 if not is_wellknown_col:
@@ -2151,6 +2201,8 @@ def gen_v2_columns_with_types(v2_datasrc):
         return_df=True,
         process_name=v2_csv_detail.get('process_name'),
         file_name=v2_csv_detail.get('directory') if v2_csv_detail.get('is_file_path') else None,
+        custom_extension=v2_csv_detail.get('custom_extension'),
+        etl_func=v2_csv_detail.get('etl_func'),
     )
     for i, column in enumerate(v2_data_preview.get('header')):
         data_type = int(v2_data_preview.get('dataType')[i])
@@ -2434,10 +2486,19 @@ def parse_unique_as_int_cat(data):
 def check_datasource_connection(data_source: CfgDataSource):
     if data_source.is_csv_or_v2():
         data_source_csv_detail = data_source.csv_detail
+        custom_extension = resolve_csv_custom_extension(
+            data_source_csv_detail.custom_extension, data_source_csv_detail.etl_func
+        )
         if data_source_csv_detail.is_file_path:
             connection_result = os.path.isfile(data_source_csv_detail.directory)
+            if connection_result and custom_extension:
+                connection_result = data_source_csv_detail.directory.lower().endswith(
+                    tuple(get_csv_source_extensions(custom_extension=custom_extension))
+                )
         else:
-            connection_result = len(get_sorted_files(data_source_csv_detail.directory)) > 0
+            connection_result = (
+                len(get_sorted_files(data_source_csv_detail.directory, custom_extension=custom_extension)) > 0
+            )
         if not connection_result:
             raise FileNotFoundError('File not found')
         return connection_result

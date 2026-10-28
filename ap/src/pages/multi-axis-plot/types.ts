@@ -17,9 +17,12 @@ export type PlotSeries = {
     class: PlotPriority;
     color: string;
     is_log_scale_available?: boolean;
+    group_primary_log_scale_available?: boolean | null;
     marker_size?: number;
     line_width?: number;
     color_group?: string | number | null;
+    group_value?: string | number | null;
+    group_column_name?: string | null;
     // Backend supplies aligned Color values only for non-category columns, regardless of data_type.
     array_color?: (number | null)[] | null;
     color_data_type?: string | null;
@@ -51,6 +54,7 @@ export type PlotSeries = {
     x_bin_mins?: Datum[] | null;
     x_bin_maxs?: Datum[] | null;
     category_hover_values?: string[] | null;
+    category_hover_values_unplotted?: string[] | null;
     encoded_x_values?: boolean;
     y_fmt?: string;
     y_axis_category?: boolean;

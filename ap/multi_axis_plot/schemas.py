@@ -63,6 +63,7 @@ class MAPPrimary(MAPOverlay, MAPGroupByCategoryValues):
 class MAPLayoutRequest(MAPSharedConfig):
     """MAP Layout Request Schema"""
 
+    group: int | None = None
     # Use Field(default_factory=list) to avoid mutable default argument issues in Pydantic v2
     sub_plots: list[MAPPrimary] = Field(default_factory=list)
 
@@ -83,6 +84,7 @@ class MAPDataResponse(BaseModel):
     text: list[int | str | float] | None = None
     class_: str | None = Field(alias='class')
     is_log_scale_available: bool = False
+    group_primary_log_scale_available: bool | None = None
     marker_size: float | None = None
     line_width: float | None = None
     is_numeric_dtype: bool = False
@@ -92,6 +94,8 @@ class MAPDataResponse(BaseModel):
     x_process_name: str
     y_process_name: str
     color_group: str | int | None = None
+    group_value: str | None = None
+    group_column_name: str | None = None
     array_color: list[float | None] | None = None
     color_data_type: str | None = None
     color_column_id: int | None = None
@@ -111,6 +115,7 @@ class MAPDataResponse(BaseModel):
     x_bin_mins: list[Any] | None = None
     x_bin_maxs: list[Any] | None = None
     category_hover_values: list[str] | None = None
+    category_hover_values_unplotted: list[str] | None = None
     encoded_x_values: bool = False
     is_sort_by_data_order: bool = False
     y_fmt: str = ''

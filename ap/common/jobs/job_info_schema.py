@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, TypeAdapter, computed_field
 from sqlalchemy.types import String, TypeDecorator
 
 from ap.common.constants import JobType
+from ap.common.error_hints import ErrorRecord
 
 
 class JobInfoLevel(StrEnum):
@@ -318,6 +319,8 @@ class CsvImportJobInfo(BaseJobInfo):
         Total number of rows successfully imported across all files.
     is_abnormal : bool
         Flag indicating whether abnormal conditions were detected during import.
+    error_record : ErrorRecord | None
+        First original exception, retained for localized hints and diagnostics.
     created_at : datetime
         Timestamp when the job was created.
     """
@@ -337,6 +340,12 @@ class CsvImportJobInfo(BaseJobInfo):
     import_targets: list[CsvImportTargetInfo] = Field(default_factory=list)
     imported_row: int = Field(default=0, ge=0)
     is_abnormal: bool = Field(default=False)
+    error_record: ErrorRecord | None = None
+
+    def capture_error(self, error: BaseException) -> None:
+        """Keep the first original failure across all files in this job."""
+        if self.error_record is None:
+            self.error_record = ErrorRecord.capture(error)
 
     @computed_field
     @property
@@ -891,6 +900,32 @@ class CleanupJobHistoryJobInfo(BaseJobInfo):
         return self.deleted_files
 
 
+class CsvPreviewJobInfo(BaseJobInfo):
+    """Language-neutral outcome and optional diagnostics for a Show preview."""
+
+    error_record: ErrorRecord | None = None
+    source_path: str | None = None
+    source_name: str | None = None
+    stage: str
+    preview_id: str | None = None
+    previewed_files: list[str] = Field(default_factory=list)
+
+    @computed_field
+    @property
+    def summary(self) -> str:
+        return self.error_record.message if self.error_record else self.source_path or ''
+
+    @computed_field
+    @property
+    def details(self) -> list:
+        detail: dict[str, object] = {'stage': self.stage, 'source_path': self.source_path}
+        if self.error_record:
+            detail['exception'] = self.error_record.exception
+        else:
+            detail['previewed_files'] = self.previewed_files
+        return [detail]
+
+
 JobInfoUnion = Union[
     UserRestoreDatabaseJobInfo,
     UserBackupDatabaseJobInfo,
@@ -914,6 +949,7 @@ JobInfoUnion = Union[
     VacuumDbJobInfo,
     BackupJobHistoryJobInfo,
     CleanupJobHistoryJobInfo,
+    CsvPreviewJobInfo,
 ]
 JobTypeUnionAdapter = TypeAdapter(Annotated[JobInfoUnion, Field(discriminator='type')])
 JobMappingByJobType = {

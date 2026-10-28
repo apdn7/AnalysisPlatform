@@ -521,6 +521,17 @@ export default function MultiAxisPlot() {
     const [labLimitActualRecordNumber, setLabLimitActualRecordNumber] = useState<number | null>(null);
     const [isShowCategoryAggregate, setIsShowCategoryAggregate] = useState<boolean>(false);
     const pendingYAxisRef = useRef<YAxisShowModes | null>(null);
+    const useDefaultPlotStyleRef = useRef(true);
+    const selectedXAxis = layout.x_axis ?? layout.lab_x ?? layout.color_x ?? layout.color_imb_x;
+
+    // Track the column as well as its datatype so numeric-to-numeric changes reset the default.
+    useEffect(() => {
+        const isNumericX = layout.x_datatype === 'INTEGER' || layout.x_datatype === 'REAL';
+        useDefaultPlotStyleRef.current = !isNumericX;
+        if (isNumericX) {
+            setGraphSettings((prev) => ({ ...prev, plotStyle: 'markers' }));
+        }
+    }, [selectedXAxis, layout.x_datatype]);
 
     useEffect(() => {
         const nextXDatatype = layout.x_datatype ?? 'DATETIME';
@@ -559,7 +570,7 @@ export default function MultiAxisPlot() {
             setGraphSettings((prev) => ({
                 ...prev,
                 showProcess: showProcessName,
-                plotStyle: getDefaultPlotStyle(nextPlotDataGroups),
+                plotStyle: useDefaultPlotStyleRef.current ? getDefaultPlotStyle(nextPlotDataGroups) : prev.plotStyle,
                 divSize: meta?.divSize,
                 numPrimaries: meta?.numPrimaries,
                 divOrientation: meta?.divOrientation,
@@ -608,6 +619,11 @@ export default function MultiAxisPlot() {
 
     const handleOnchange = (value) => {
         setXOption(value);
+    };
+
+    const handlePlotStyleChange = (plotStyle: string) => {
+        useDefaultPlotStyleRef.current = false;
+        setGraphSettings((prev) => ({ ...prev, plotStyle }));
     };
 
     const handleYAxisChange = (yAxis: YAxisShowModes, shouldReloadPlotData: boolean) => {
@@ -659,6 +675,7 @@ export default function MultiAxisPlot() {
                 xOptionValue={xOption}
                 onXAxisChange={setXOption}
                 onYAxisChange={handleYAxisChange}
+                onPlotStyleChange={handlePlotStyleChange}
                 visiblePlotDataGroups={plotDataGroups}
                 layout={layout}
             />

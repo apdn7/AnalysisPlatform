@@ -18,7 +18,7 @@ import flask_migrate
 import pandas as pd
 import sqlalchemy as sa
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import Flask, Response, g, render_template
+from flask import Flask, Response, g, has_request_context, render_template
 from flask_apscheduler import STATE_STOPPED
 from flask_babel import Babel
 from flask_compress import Compress
@@ -377,6 +377,8 @@ def create_app(object_name=None, is_main=False):
         return f'{port}_{key}'
 
     def get_locale():
+        if not has_request_context():
+            return lang
         return request.cookies.get(key_port('locale')) or lang
 
     Babel(app, locale_selector=get_locale)
