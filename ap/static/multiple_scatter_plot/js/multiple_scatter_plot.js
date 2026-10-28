@@ -140,6 +140,7 @@ $(() => {
             } else {
                 lastUsedFormData.delete('order_array_formval');
                 multipleScatterPlot(resultData, false);
+                onApplyStyleSetting();
                 loadingHide();
             }
         },
@@ -702,6 +703,7 @@ const handleChangeScaleOption = (type = 'x', e) => {
 
     if (resultData) {
         multipleScatterPlot(resultData, false);
+        onApplyStyleSetting();
     }
 };
 

@@ -20,6 +20,7 @@ from ap.common.constants import (
     ProcessStatus,
 )
 from ap.common.cryptography_utils import encrypt
+from ap.common.path_utils import normalize_csv_custom_extension
 from ap.common.services.jp_to_romaji_utils import to_romaji
 from ap.conversion_formula import JudgeFormula, conversion_formula
 from ap.setting_module.models import (
@@ -354,6 +355,15 @@ class DataSourceCsvSchema(BaseSchema):
     id = fields.Integer(allow_none=True)
 
     csv_columns = fields.Nested('CsvColumnSchema', many=True)
+
+    @pre_load
+    def normalize_custom_extension(self, data, **_kwargs: Mapping[Any, Any]):
+        if 'custom_extension' in data:
+            try:
+                data = {**data, 'custom_extension': normalize_csv_custom_extension(data['custom_extension'])}
+            except ValueError as error:
+                raise marshmallow.ValidationError({'custom_extension': [str(error)]}) from error
+        return data
 
 
 class DataSourceSchema(BaseSchema):

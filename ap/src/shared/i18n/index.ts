@@ -34,6 +34,7 @@ export const initI18n = async (): Promise<void> => {
             },
         },
         keySeparator: false,
+        nsSeparator: false,
         interpolation: {
             escapeValue: false, // React already escapes
         },

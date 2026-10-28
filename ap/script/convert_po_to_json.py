@@ -22,6 +22,8 @@ def convert_po_to_json():
         data = {}
 
         for entry in po:
+            if entry.obsolete:
+                continue
             if entry.msgstr.strip():  # ignore empty translations
                 data[entry.msgid] = entry.msgstr
 

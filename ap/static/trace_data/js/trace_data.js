@@ -1615,18 +1615,11 @@ const goToGraphConfigPageFPP = (url) => {
 
 /**
  * Re-apply the current FppPlotStyleSetting to every Plotly and Chart.js chart.
- * Routes through the window bridge so Plotly relayout and the Chart.js custom-event
- * listeners share a single execution path. Gracefully no-ops when the lazy React
- * component has not yet exposed the required window functions.
+ * Chart.js receives its style before the first draw and skips unchanged style updates.
+ * The bridge no-ops before the lazy component mounts.
  */
 const reapplyFppStyle = () => {
     if (typeof window.getStyleLayout !== 'function') return;
-    const { theme, size } = window.getStyleLayout();
-    if (typeof window.handleOnchangeTheme === 'function') {
-        window.handleOnchangeTheme(theme);
-    }
-    if (typeof window.handleOnchangeFontsize === 'function') {
-        window.handleOnchangeFontsize(size);
-    }
+    onApplyStyleSetting();
     adjustCatetoryTableLength();
 };

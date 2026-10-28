@@ -6,9 +6,11 @@ from ap.common.path_utils import gen_duckdb_file_name
 class DuckDBLock:
     """File-based lock duckdb, this manages multiple processes. We must sort `processes` to avoid deadlock."""
 
-    def __init__(self, process_ids: list[int]) -> None:
+    def __init__(self, process_ids: list[int], timeout: float = -1) -> None:
         self.process_ids: list[int] = process_ids
         self.process_ids.sort()
+        # Seconds to wait for each lock file; a negative value waits forever.
+        self.timeout = timeout
         self.lock_files: list[FileLock] = []
 
     def __repr__(self) -> str:
@@ -25,10 +27,15 @@ class DuckDBLock:
         return f'{gen_duckdb_file_name(process_id)}.lock'
 
     def acquire(self) -> None:
-        for process_id in self.process_ids:
-            lock_file = FileLock(self.gen_lock_file_name(process_id))
-            self.lock_files.append(lock_file)
-            lock_file.acquire()
+        """Acquire every lock file, raising `filelock.Timeout` (with nothing left held) when one is busy too long."""
+        try:
+            for process_id in self.process_ids:
+                lock_file = FileLock(self.gen_lock_file_name(process_id))
+                lock_file.acquire(timeout=self.timeout)
+                self.lock_files.append(lock_file)
+        except BaseException:
+            self.release()
+            raise
 
     def release(self) -> None:
         while self.lock_files:

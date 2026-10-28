@@ -2677,7 +2677,10 @@ msgstr ""
 "・ScP: Lv1,Lv2と同様にプロットが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたプロットが並びます。\n"
 "・WfP: 選択した変数の値ごとの波形が描画されます。\n"
 "・MAP: 選択した変数毎にプロットが並びます(最大6面なので必要に応じて適宜フィルタで絞ってください)。\n"
-"          ☑が一つ([1]のみある状態)の時した選択できません。\n"
+"          ☑が3まで([1]から[3]のみある状態)の時した選択できません。\n"
+"          Div2は2画面分割で最大2つのカテゴリでの比較ができます。[1][2][3]までで使用できます。\n"
+"          Div3は3画面分割で最大3つのカテゴリでの比較ができます。[1][2]までで使用できます。\n"
+"          Div6は6画面分割で最大6つのカテゴリでの比較ができます。[1]のみ使用できます。\n"
 
 #: ap/templates/trace_data/trace_data.html
 msgid "Exception Estimation"
@@ -5273,6 +5276,27 @@ msgstr "出力列名"
 msgid "System Name"
 msgstr "システム名"
 
+msgid "Process Detail"
+msgstr "プロセス詳細"
+
+msgid "Link Process"
+msgstr "リンクプロセス"
+
+msgid "Variable List"
+msgstr "変数一覧"
+
+msgid "Reference"
+msgstr "参照ファイル"
+
+msgid "Option"
+msgstr "オプション"
+
+msgid "Rows"
+msgstr "データ件数"
+
+msgid "Failed to fetch process details."
+msgstr "プロセス詳細の取得に失敗しました。"
+
 #: ap/templates/i18n.html
 msgid "Once per week"
 msgstr "1週に1回"
@@ -5661,7 +5685,9 @@ msgstr ""
 "ColorX：X軸カテゴリ値で色分け\n"
 "ColImb：極端に小さい値のカテゴリを副軸に分けて表示\n"
 "ColImbX：副軸に分けたカテゴリ値で色分け\n"
-"※カテゴリに含まれるデータ数Top16のみ表示（同数は日時順）\n"
+"Group：選択した変数のカテゴリ値で線を分割（色は変更せず、Colorと併用可能）\n"
+"※Groupは表示対象データの全カテゴリで線を分割します。Top16の制限はなく、Othersにもまとめません。\n"
+"※Colorはカテゴリに含まれるデータ数Top16のみ表示（同数は日時順）\n"
 "※Color(Imb)を選択した場合、主変数毎の設定はできません\n"
 "\n"
 "主変数ごとに追加・分割するデータ:\n"
@@ -5725,10 +5751,7 @@ msgid "Per-plot settings"
 msgstr "プロット毎の設定"
 
 msgid "Overlay on Main/Secondary/Auto-scaled Axis"
-msgstr "重ね合わせ対主軸Main/副軸2nd/自動スケール"
-
-msgid "Color by category"
-msgstr "カテゴリ値で色分け"
+msgstr "重ね合わせ"
 
 msgid "layout.error.alreadyUsed"
 msgstr "「{{value}}」は既に他の項目で使用されています。"
@@ -5996,30 +6019,645 @@ msgstr "データソース"
 msgid "ProcReferenceFileLabel"
 msgstr "参照ファイル"
 
-#~ msgid ""
-#~ "Category expansion is performed to "
-#~ "divide the graph using the data of"
-#~ " the selected item."
-#~ msgstr ""
-#~ "選択した変数の中身の種類ごとにグラフを分割します。データ型(Type)がカテゴリ(Cat)と文字列(Str)の項目を選択できます。\n"
-#~ "Lv1あるいはLv2だけ選択すると、選択された変数の種類ごとにグラフが分割されます。\n"
-#~ "Lv1,Lv2両方選択すると、選択された2変数の中身の種類の組み合わせでグラフが分割されます。\n"
-#~ "\n"
-#~ "*RLP,AgP,ScP,WfPページではLv1,Lv2の他にDivが選択できます。Divの役割は以下の通りです\n"
-#~ "・RLP,AgP:選択した変数が横軸に使用され、変数の中身の種類ごとに集約もしくは集計されます\n"
-#~ "・ScP:Lv1,Lv2と同様にグラフが分割されますが、Lv1,Lv2は縦方向、Divは横方向に分割されたグラフが並びます。\n"
-#~ "・WfP:選択した変数の値ごとの波形が描画されます。"
+#: ap/api/setting_module/controllers.py
+msgid "ReferenceFileOutsideSource"
+msgstr ""
+"参照ファイルに外部のパスは設定できません。\n"
+"参照先内のパスに変更してください。"
 
-#~ msgid "Data export confirm msg with periodic"
-#~ msgstr ""
-#~ "以下のスケジュールに従ってデータが出力されます。\n"
-#~ "\n"
-#~ "直近3回分\n"
-#~ "\n"
+#: ap/api/setting_module/controllers.py
+msgid "ReferenceFileOutsideSourceOnSave"
+msgstr "参照先フォルダ外のファイルは設定できません。"
 
-#~ msgid "Data export confirm msg with once"
-#~ msgstr "EXPORT_FROM から EXPORT_TO までのデータを出力します。"
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Load History"
+msgstr "読込履歴"
 
-#~ msgid "Data export run now"
-#~ msgstr "EXPORT_FROM から現在までのデータを今すぐ出力"
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Normal end"
+msgstr "正常終了"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Job Time"
+msgstr "時刻"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Details"
+msgstr "詳細"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Group"
+msgstr "Group"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Error Name"
+msgstr "Name"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Cause"
+msgstr "Cause"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Hint"
+msgstr "Hint"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "File: OS Error"
+msgstr "ファイル: OSエラー"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "The specified file does not exist."
+msgstr "指定されたファイルが存在しません"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Check the file name, path, and current directory."
+msgstr "ファイル名、パス、カレントディレクトリを確認してください"
+
+#: ap/templates/setting_module/db_config_modals.html
+#, python-format
+msgid "Valid Data: %(count)s records; Empty Files: %(files)s"
+msgstr "Valid Data: %(count)s records; Empty Files: %(files)s"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "sec"
+msgstr "sec"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config_modals.html
+msgid "No data"
+msgstr "データがありません。"
+
+#: ap/templates/i18n.html ap/templates/setting_module/db_config_modals.html
+msgid "ErrorMsgCommon"
+msgstr "エラーが発生しました。もう一度お試しください。"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Target Files"
+msgstr "読込対象"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Loading target files..."
+msgstr "読込対象ファイルを取得中..."
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "No target files found."
+msgstr "読込対象ファイルが見つかりません。"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Unable to list target files."
+msgstr "読込対象ファイルを取得できません。"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Showing the first 100 target files."
+msgstr "先頭100件の読込対象ファイルを表示しています。"
+
+#: ap/templates/setting_module/db_config_modals.html
+msgid "Other Ext."
+msgstr "Other Ext."
+
+#: ap/common/error_hints/catalog.py
+msgid "Other"
+msgstr "その他"
+
+#: ap/common/error_hints/catalog.py
+msgid "Unclassified Error"
+msgstr "未分類エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "This exception is not registered"
+msgstr "登録されていない例外です"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check detailed logs"
+msgstr "詳細ログを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Syntax Error"
+msgstr "構文エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "The code contains invalid syntax"
+msgstr "コードの構文が正しくありません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check parentheses, colons, and quotation marks"
+msgstr "括弧、コロン、引用符などを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Indentation Error"
+msgstr "インデントエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "The indentation is invalid"
+msgstr "インデントが正しくありません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check indentation level and spacing"
+msgstr "スペース数や字下げ位置を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Tab Error"
+msgstr "タブ混在エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Tabs and spaces are mixed"
+msgstr "タブとスペースが混在しています"
+
+#: ap/common/error_hints/catalog.py
+msgid "Use a consistent indentation style"
+msgstr "インデント方法を統一してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Name and Variable Error"
+msgstr "名前・変数エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Undefined Variable"
+msgstr "未定義変数"
+
+#: ap/common/error_hints/catalog.py
+msgid "A variable is referenced before definition"
+msgstr "存在しない変数を参照しています"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the variable name and definition"
+msgstr "変数名のスペルや定義位置を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Uninitialized Local Variable"
+msgstr "未初期化ローカル変数"
+
+#: ap/common/error_hints/catalog.py
+msgid "A local variable was referenced before assignment"
+msgstr "代入前のローカル変数を参照しています"
+
+#: ap/common/error_hints/catalog.py
+msgid "Ensure the variable is assigned in all branches"
+msgstr "すべての分岐で代入されるか確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Type Error"
+msgstr "型エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Type Mismatch"
+msgstr "型不一致"
+
+#: ap/common/error_hints/catalog.py
+msgid "An unexpected type was supplied"
+msgstr "想定外の型が渡されました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check variable and argument types"
+msgstr "引数や変数の型を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Value Error"
+msgstr "値エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Invalid Value"
+msgstr "不正な値"
+
+#: ap/common/error_hints/catalog.py
+msgid "A value is outside the accepted range"
+msgstr "値が許容範囲外です"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input and configuration values"
+msgstr "入力値や設定値を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Attribute Error"
+msgstr "属性エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Missing Attribute"
+msgstr "属性未検出"
+
+#: ap/common/error_hints/catalog.py
+msgid "The attribute or method does not exist"
+msgstr "存在しない属性やメソッドを参照しています"
+
+#: ap/common/error_hints/catalog.py
+msgid "Verify the object type"
+msgstr "オブジェクト型を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Index and Key Error"
+msgstr "添字・キーエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Index Out of Range"
+msgstr "範囲外アクセス"
+
+#: ap/common/error_hints/catalog.py
+msgid "An invalid index was referenced"
+msgstr "存在しない位置を参照しています"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check element count and index value"
+msgstr "要素数とインデックスを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Missing Key"
+msgstr "キー未検出"
+
+#: ap/common/error_hints/catalog.py
+msgid "The key or column does not exist"
+msgstr "キーまたは列名が存在しません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the key or column name"
+msgstr "キー名や列名を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Arithmetic Error"
+msgstr "算術演算エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Division by Zero"
+msgstr "ゼロ除算"
+
+#: ap/common/error_hints/catalog.py
+msgid "A division by zero was attempted"
+msgstr "0で除算しようとしました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Ensure the divisor is not zero"
+msgstr "除数が0でないことを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Overflow Error"
+msgstr "オーバーフロー"
+
+#: ap/common/error_hints/catalog.py
+msgid "A numeric overflow occurred"
+msgstr "数値範囲を超えました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input values and data types"
+msgstr "入力値や型を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "File and OS Error"
+msgstr "ファイル・OSエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "File Not Found"
+msgstr "ファイル未検出"
+
+#: ap/common/error_hints/catalog.py
+msgid "The specified file does not exist"
+msgstr "指定されたファイルが存在しません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check filename, path, and working directory"
+msgstr "ファイル名、パス、カレントディレクトリを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Permission Denied"
+msgstr "アクセス権限不足"
+
+#: ap/common/error_hints/catalog.py
+msgid "Access to the file was denied"
+msgstr "アクセスが拒否されました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check permissions and file usage"
+msgstr "権限やファイル使用状況を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "OS Error"
+msgstr "OSエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "An operating system error occurred"
+msgstr "OSレベルの処理に失敗しました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check the detailed error message"
+msgstr "詳細メッセージを確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Module and Library Error"
+msgstr "モジュール・ライブラリエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Import Failed"
+msgstr "Import失敗"
+
+#: ap/common/error_hints/catalog.py
+msgid "Importing a module failed"
+msgstr "モジュールの読込に失敗しました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check libraries and import statements"
+msgstr "ライブラリや import 文を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Module Not Found"
+msgstr "モジュール未検出"
+
+#: ap/common/error_hints/catalog.py
+msgid "The module could not be found"
+msgstr "モジュールが見つかりません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check installation and environment"
+msgstr "インストール状態を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Memory Error"
+msgstr "メモリエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Out of Memory"
+msgstr "メモリ不足"
+
+#: ap/common/error_hints/catalog.py
+msgid "Insufficient memory available"
+msgstr "メモリを確保できません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Reduce data size or memory usage"
+msgstr "データ量を減らしてください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Runtime Error"
+msgstr "実行時エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Runtime Failure"
+msgstr "実行時異常"
+
+#: ap/common/error_hints/catalog.py
+msgid "A runtime error occurred"
+msgstr "実行中に異常が発生しました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Maximum Recursion Depth Exceeded"
+msgstr "再帰回数超過"
+
+#: ap/common/error_hints/catalog.py
+msgid "Too many recursive calls were made"
+msgstr "再帰呼出しが深すぎます"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check termination conditions"
+msgstr "終了条件を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Communication and Network Error"
+msgstr "通信・ネットワークエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Connection Failed"
+msgstr "接続失敗"
+
+#: ap/common/error_hints/catalog.py
+msgid "A connection could not be established"
+msgstr "通信を確立できません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check network and destination"
+msgstr "ネットワークや接続先を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Timeout"
+msgstr "タイムアウト"
+
+#: ap/common/error_hints/catalog.py
+msgid "Response time exceeded the limit"
+msgstr "応答待ち時間を超過しました"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check timeout settings and connectivity"
+msgstr "接続先やタイムアウト設定を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Data Conversion Error"
+msgstr "データ変換エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Text Decoding Error"
+msgstr "文字コード読込失敗"
+
+#: ap/common/error_hints/catalog.py
+msgid "The file encoding does not match the reading encoding"
+msgstr "読込文字コードが一致していません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check utf-8, utf-8-sig, or cp932"
+msgstr "utf-8、utf-8-sig、cp932 を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Text Encoding Error"
+msgstr "文字コード保存失敗"
+
+#: ap/common/error_hints/catalog.py
+msgid "The output encoding cannot represent the text"
+msgstr "保存文字コードが一致していません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check output encoding settings"
+msgstr "保存時のencoding設定を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Assertion Error"
+msgstr "アサーションエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "Assertion Failed"
+msgstr "前提条件違反"
+
+#: ap/common/error_hints/catalog.py
+msgid "An assertion condition was not satisfied"
+msgstr "assert 条件を満たしていません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check input data and assumptions"
+msgstr "入力データや前提条件を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "File Format Error"
+msgstr "ファイルフォーマットエラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "CSV Parse Error"
+msgstr "CSV解析エラー"
+
+#: ap/common/error_hints/catalog.py
+msgid "The CSV or TSV format is invalid"
+msgstr "CSVやTSV形式が不正です"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check delimiter and header settings"
+msgstr "区切り文字やヘッダー行を確認してください"
+
+#: ap/common/error_hints/catalog.py
+msgid "Empty File"
+msgstr "空ファイル"
+
+#: ap/common/error_hints/catalog.py
+msgid "No readable data exists"
+msgstr "読み込み可能なデータがありません"
+
+#: ap/common/error_hints/catalog.py
+msgid "Check file contents"
+msgstr "ファイル内容を確認してください"
+
+msgid "Show idx"
+msgstr "表示するidx"
+
+msgid "Show items"
+msgstr "表示する項目"
+
+msgid "Display"
+msgstr "表示数"
+
+msgid "Variable Select"
+msgstr "変数選択"
+
+msgid "Show selected only"
+msgstr "選択項目のみ表示"
+
+msgid "Show unselected only"
+msgstr "非選択項目のみ表示"
+
+msgid "Show DataLink items only"
+msgstr "DataLink項目のみ表示"
+
+msgid "Select all"
+msgstr "すべて選択"
+
+msgid "Exclude key"
+msgstr "Key除く"
+
+msgid "Selected"
+msgstr "選択数"
+
+msgid "Variable select remaining"
+msgstr "残り{{count}}"
+
+msgid "Simple filter"
+msgstr "簡易絞込"
+
+msgid "All same values"
+msgstr "全て同じ値"
+
+msgid "All empty (NA)"
+msgstr "全て空(NA)"
+
+msgid "Failed to select process columns."
+msgstr "プロセス変数の選択に失敗しました。"
+
+msgid "Failed to fetch process columns."
+msgstr "プロセス変数の取得に失敗しました。"
+
+msgid "Retry"
+msgstr "再試行"
+
+msgid "Variable name"
+msgstr "変数名"
+
+msgid "Clear search"
+msgstr "検索をクリア"
+
+msgid "Clear"
+msgstr "クリア"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Jump"
+msgstr "Jump"
+
+msgid "Loading..."
+msgstr "読み込み中..."
+
+msgid "idx"
+msgstr "idx"
+
+msgid "Function"
+msgstr "関数"
+
+msgid "System"
+msgstr "システム"
+
+msgid "Local"
+msgstr "ローカル"
+
+msgid "Formula"
+msgstr "交換式"
+
+msgid "Note"
+msgstr "備考"
+
+msgid "Assignment"
+msgstr "割り当て"
+
+msgid "No."
+msgstr "No."
+
+msgid "Record"
+msgstr "レコード"
+
+msgid "Unique"
+msgstr "ユニーク値"
+
+msgid "Variable select All hover"
+msgstr "すべてのIdxを表示します。（「表示するIdx」を開始1件、件数0、間隔1にリセットします）"
+
+msgid "Variable select Set hover"
+msgstr "表示されているIdxのPlotをチェック✔にします。（他ページ含む）"
+
+msgid "Variable select Exclude key hover"
+msgstr "シリアルや日時を除きます。（SkD、PCP等でデフォルトで除いたほうが良い項目）"
+
+msgid "Variable select Simple filter hover"
+msgstr "サンプルデータのみの少数判定ですので、かなりラフな判定です。"
+
+msgid "Variable select Plot hover"
+msgstr ""
+"チェックをつけた変数をプロットします。\n"
+"フィルタ値は、0：設定なし、1：設定あり、2：設定可能項目を表示します。"
+
+msgid "Variable select Process header hover"
+msgstr ""
+"☑ プロットする変数\n"
+"◉ 起点プロセス（このプロセスの日時列が共通のx軸として使用されます）"
+
+msgid "Label Step"
+msgstr "ラベル・ステップ(閾値／制御値)表示"
+
+msgid "Main axis"
+msgstr "主軸"
+
+msgid "Secondary axis"
+msgstr "副軸"
+
+msgid "No axis"
+msgstr "無軸"
+
+msgid "No axis: Auto-scaled series with hidden axis"
+msgstr "※ 無軸：軸非表示のオートスケール系列"
+
+msgid "Color by category"
+msgstr "カテゴリ値で色分け ／ 数値で連続色表示"
+
+#: ap/templates/header.html
+msgid "Shortkey List"
+msgstr "ショートカットリスト"
+
+#: ap/templates/header.html
+msgid "Open sidebar menu"
+msgstr "サイドバーメニューを開く"
+
+#: ap/templates/header.html
+msgid "Open Bookmark list"
+msgstr "ブックマーク一覧を開く"
+
+#: ap/templates/header.html
+msgid "Open configuration page in a new tab"
+msgstr "設定ページを新しいタブで開く"
 

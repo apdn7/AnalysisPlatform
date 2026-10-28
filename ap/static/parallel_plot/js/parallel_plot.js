@@ -1335,13 +1335,13 @@ const getSelectedValues = () => {
                 if (selectedDimension.naDumVal <= upperValue && selectedDimension.naDumVal >= lowerValue) {
                     selectedNaInfValues.push('NA');
                 }
-                // when both upper and lower values are below yMin, keep their values
+                // when both upper and lower values are above yMax, keep their values
                 // in that case, the resulting numeric range is completely outside of df range so no values should be returned
                 // 7403#note_2997971842
-                range[0] =
-                    upperValue > selectedDimension.yMin && lowerValue < selectedDimension.yMin
-                        ? selectedDimension.yMin
-                        : lowerValue;
+                range[1] =
+                    lowerValue < selectedDimension.yMax && upperValue > selectedDimension.yMax
+                        ? selectedDimension.yMax
+                        : upperValue;
                 return range;
             });
         }
@@ -1360,11 +1360,12 @@ const getSelectedValues = () => {
                         // this looks for the corresponding tick text using tick values
                         // however, NA should not be treated this way
                         // TODO: Can we make it less complicated?
-                        if (val > selectedDimension.naDumVal) {
+                        if (val < selectedDimension.naDumVal) {
                             const indexTickVal = selectedDimension.tickvals.indexOf(val);
                             return selectedDimension.ticktext[indexTickVal];
                         } else {
-                            return val;
+                            // NA is selected separately, never send its positive plotting dummy as a category value.
+                            return null;
                         }
                     })
                     .filter((v) => v);

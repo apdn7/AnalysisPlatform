@@ -10,6 +10,262 @@
     data-keyboard="false"
 >
     <style>
+        #modal-db-csv #alertMsgCheckFolder-content {
+            white-space: pre-line;
+        }
+        #modal-db-csv .csv-config-with-targets {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(28rem, 34%);
+            gap: 20px;
+            align-items: start;
+        }
+        #modal-db-csv .csv-file-panels,
+        #modal-db-csv .csv-file-panel {
+            min-width: 0;
+        }
+        #modal-db-csv .csv-file-panels {
+            grid-column: 2;
+            grid-row: 1 / span 2;
+            align-self: stretch;
+        }
+        #modal-db-csv .csv-preview-section {
+            grid-column: 1;
+            grid-row: 2;
+            align-self: stretch;
+            min-width: 0;
+        }
+        #modal-db-csv .csv-input-section {
+            grid-column: 1;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0;
+        }
+        #modal-db-csv .csv-preview-controls,
+        #modal-db-csv .csv-preview-data {
+            grid-column: 1;
+            min-width: 0;
+            margin-bottom: 0;
+        }
+        #modal-db-csv .csv-load-history-panel:not([hidden]) {
+            display: flex;
+            flex-direction: column;
+        }
+        #modal-db-csv #csvLoadHistory {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: subgrid;
+            gap: 20px;
+            min-height: 0;
+        }
+        #modal-db-csv #csvLoadHistory > .csv-file-panel {
+            grid-column: 1;
+            grid-row: 1;
+            min-height: 0;
+            contain: size;
+            overflow: auto;
+        }
+        #modal-db-csv #csvLoadHistory > .csv-file-panel:not([hidden]) {
+            display: flex;
+            flex-direction: column;
+        }
+        #modal-db-csv #csvLoadHistory > .csv-file-panel[hidden] {
+            display: none;
+        }
+        #modal-db-csv .csv-file-list {
+            min-height: 0;
+            margin-bottom: 0 !important;
+            overflow: auto;
+            white-space: pre;
+            overflow-wrap: normal;
+            word-break: normal;
+            font-family: inherit;
+            flex: 1;
+        }
+        #modal-db-csv #csvTargetFilesStatus {
+            min-height: 1.5em;
+            flex-shrink: 0;
+        }
+        #modal-db-csv .csv-load-history-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        #modal-db-csv .csv-load-history-header h5 {
+            margin: 0 auto 0 0;
+        }
+        #modal-db-csv #btnCopyCsvLoadHistory {
+            color: #fff;
+        }
+        #modal-db-csv .csv-load-history-filter {
+            flex-shrink: 0;
+            margin: 0;
+            font-size: 0.8rem;
+        }
+        #modal-db-csv .csv-load-history-filter .custom-control-label {
+            cursor: pointer;
+        }
+        #modal-db-csv .csv-load-history-log {
+            grid-column: 1;
+            grid-row: 2;
+            min-height: 8rem;
+            contain: size;
+            align-self: stretch;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        #modal-db-csv .csv-load-history-log table {
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+        #modal-db-csv .csv-load-history-log th,
+        #modal-db-csv .csv-load-history-log td {
+            padding: 0.4rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #modal-db-csv .csv-load-history-log th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        #modal-db-csv .csv-load-history-time-column {
+            width: 9rem;
+        }
+        #modal-db-csv .csv-load-history-duration-column {
+            width: 3rem;
+        }
+        #modal-db-csv .csv-load-history-status-column {
+            width: 5.5rem;
+        }
+        #modal-db-csv .csv-load-history-details {
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            font-size: 0.85rem;
+        }
+        #modal-db-csv .csv-load-history-details[hidden],
+        #modal-db-csv .csv-load-history-details [hidden] {
+            display: none;
+        }
+        #modal-db-csv .csv-load-history-log tr[aria-selected='true'] {
+            outline: 1px solid #80bdff;
+            outline-offset: -1px;
+        }
+        #modal-db-csv .csv-load-history-fields {
+            display: grid;
+            grid-template-columns: 4.5rem minmax(0, 1fr);
+            gap: 0.15rem 0.5rem;
+            margin: 0;
+            padding: 0.75rem;
+        }
+        #modal-db-csv .csv-load-history-fields dt {
+            font-weight: normal;
+        }
+        #modal-db-csv .csv-load-history-fields dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+        #modal-db-csv .csv-load-history-fields .csv-load-history-process-name,
+        #modal-db-csv .csv-load-history-log .csv-load-history-process-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #modal-db-csv .csv-load-history-error {
+            border-top: 1px dashed rgba(255, 255, 255, 0.35);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.35);
+        }
+        #modal-db-csv .csv-load-history-trace {
+            margin: 0.5rem;
+            padding: 0.5rem;
+            max-height: 10rem;
+            overflow: auto;
+            background-color: #101319;
+            color: #d7dce4;
+            font-size: 0.75rem;
+            white-space: pre;
+        }
+        #modal-db-csv .csv-load-history-trace-trigger {
+            cursor: pointer;
+        }
+        #modal-db-csv .csv-load-history-trace-trigger:focus-visible {
+            outline: 2px solid #80bdff;
+            outline-offset: -2px;
+        }
+        #modal-csv-load-history-trace .modal-dialog {
+            width: 90%;
+            max-width: 100rem;
+        }
+        #modal-csv-load-history-trace .modal-content {
+            max-height: calc(100vh - 3.5rem);
+        }
+        #modal-csv-load-history-trace .modal-body {
+            min-height: 0;
+            overflow: auto;
+            background-color: #101319;
+        }
+        #csvLoadHistoryFullTrace {
+            margin: 0;
+            overflow: visible;
+            color: #d7dce4;
+            font-size: 0.9rem;
+            white-space: pre;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
+        #modal-db-csv .csv-load-history-exception {
+            color: #e69a55;
+        }
+        @media (min-width: 1200px) {
+            #modal-db-csv .modal-dialog {
+                width: calc(100% - 3rem);
+                max-width: 100rem;
+            }
+        }
+        @media (max-width: 1199.98px) {
+            #modal-db-csv .csv-config-with-targets {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            #modal-db-csv .csv-file-panels {
+                grid-column: 1;
+                grid-row: 3;
+            }
+            #modal-db-csv #csvLoadHistory {
+                grid-template-rows: auto minmax(8rem, 18rem);
+                gap: 0.75rem;
+            }
+            #modal-db-csv #csvLoadHistory > .csv-file-panel,
+            #modal-db-csv .csv-load-history-log {
+                contain: none;
+            }
+            #modal-db-csv #csvLoadHistory > .csv-file-panel {
+                max-height: 22rem;
+            }
+        }
+        @media (max-width: 575.98px) {
+            #modal-db-csv .csv-load-history-log table {
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+            #modal-db-csv .csv-load-history-time-column {
+                width: 35%;
+            }
+            #modal-db-csv .csv-load-history-duration-column {
+                width: 12%;
+            }
+            #modal-db-csv .csv-load-history-status-column {
+                width: 23%;
+            }
+        }
         /* Unifies "left" fields (Data Source Name, Comment, Source, ...) and "right"
            fields (Select Files, File Name, Subfolder, ...) into ONE 5-column
            grid: [left-label][left-input][right-label][right-col1][right-col2].
@@ -19,8 +275,8 @@
         #modal-db-csv .csv-two-col-grid {
             display: grid;
             grid-template-columns: 148px minmax(0, 2fr) 28px 150px minmax(0, 1fr) minmax(0, 1fr);
-            column-gap: 20px;
-            row-gap: 14px;
+            column-gap: 4px;
+            row-gap: 4px;
             align-items: center;
         }
         #modal-db-csv .csv-two-col-grid > * {
@@ -30,7 +286,7 @@
             margin-bottom: 0;
         }
         #modal-db-csv .csv-grid-sub-label {
-            padding-left: 2.25rem;
+            padding-left: 2rem;
         }
         #modal-db-csv .csv-grid-full-row {
             grid-column: 1 / -1;
@@ -53,11 +309,38 @@
         #modal-db-csv .csv-grid-span-2 {
             grid-column: span 2;
         }
+        #modal-db-csv .csv-soft-wrap-field {
+            box-sizing: border-box;
+            /* Keep the original Bootstrap input height while fitting two text lines. */
+            height: calc(1.5em + 0.75rem + 2px);
+            padding: 0 0.75rem;
+            line-height: 1.1;
+            resize: none;
+            overflow-x: hidden;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
         /* Slightly compact rows in CSV preview table. */
         #modal-db-csv #csvDataTable .table th,
         #modal-db-csv #csvDataTable .table td {
             padding: 0.55rem 0.65rem;
             line-height: 1.15;
+        }
+        #modal-db-csv #csvDataTable .table td {
+            padding: 0.48rem 0.65rem;
+        }
+        #modal-db-csv #csvDataTable {
+            overflow-y: auto;
+        }
+        #modal-db-csv #csvDataTable .table {
+            margin-bottom: 0;
+        }
+        #modal-db-csv #csvDataTable .table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
     </style>
     <div class="modal-dialog modal-xl" role="document">
@@ -79,283 +362,540 @@
                         {{ macros.alert_message("alert-msg-csvDbname", on_top=True) }}
                     </div>
                 </div>
-                <div class="csv-two-col-grid">
-                    <label for="csvDBSourceName" class="csv-grid-label"><h5>{{ _("Data Source Name") }}</h5></label>
-                    <div class="csv-grid-input">
-                        <input
-                            type="text"
-                            name="csvDBSourceName"
-                            class="form-control"
-                            id="csvDBSourceName"
-                            data-observer
-                        />
-                    </div>
-                    <div></div>
-                    <label class="csv-grid-label"
-                        ><h5 id="selectFilesLabel"><u>{{ _("Select Files") }}</u></h5></label
-                    >
-                    <div><small class="text-muted">{{ _("Include") }}</small></div>
-                    <div><small class="text-muted">{{ _("Exclude") }}</small></div>
-
-                    <label for="csvComment" class="csv-grid-label"><h5>{{ _("Comment") }}</h5></label>
-                    <div class="csv-grid-input">
-                        <input type="text" name="csvComment" class="form-control" id="csvComment" data-observer />
-                    </div>
-                    <div></div>
-                    <label class="csv-grid-label csv-grid-sub-label" for="fileNameInclude"
-                        ><h5>{{ _("File Name") }}</h5></label
-                    >
-                    <div>
-                        <input
-                            type="text"
-                            class="form-control file-select-condition-input"
-                            id="fileNameInclude"
-                            name="fileNameInclude"
-                            data-observer
-                        />
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            class="form-control file-select-condition-input"
-                            id="fileNameExclude"
-                            name="fileNameExclude"
-                            data-observer
-                        />
-                    </div>
-
-                    <label for="folderUrl" class="csv-grid-label"><h5>{{ _("Source") }}</h5></label>
-                    <div class="csv-grid-input">
-                        <input
-                            type="text"
-                            name="folderUrl"
-                            class="form-control already-convert-hankaku"
-                            id="folderUrl"
-                            placeholder="Z:\path\to\directory"
-                            data-observer
-                        />
-                        <input type="hidden" id="isFilePath" data-observer />
-                    </div>
-                    <div></div>
-                    <label class="csv-grid-label csv-grid-sub-label" for="subfolderInclude"
-                        ><h5>{{ _("Subfolder") }}</h5></label
-                    >
-                    <div>
-                        <input
-                            type="text"
-                            class="form-control file-select-condition-input"
-                            id="subfolderInclude"
-                            name="subfolderInclude"
-                            data-observer
-                        />
-                    </div>
-                    <div>
-                        <input
-                            type="text"
-                            class="form-control file-select-condition-input"
-                            id="subfolderExclude"
-                            name="subfolderExclude"
-                            data-observer
-                        />
-                    </div>
-
-                    <div class="csv-grid-full-row" id="v2ProcessDiv" style="display: none;">
-                        <div class="csv-grid-label">
-                            <h5 title="{{ _('Select V2 Process') }}">
-                                <span class="hint-text">{{ _("V2 Process") }}</span>
-                            </h5>
-                        </div>
-                        <div class="csv-grid-input" id="v2ProcessSelection"></div>
-                    </div>
-
-                    <label for="optionalFunction" class="csv-grid-label">
-                        <h5 title="{{ _('Optional function Hover') }}">
-                            <span class="hint-text">{{ _("Optional function") }}</span>
-                        </h5>
-                    </label>
-                    <div class="csv-grid-input">
-                        <select
-                            type="select"
-                            name="optionalFunction"
-                            class="form-control select2-selection--single"
-                            id="optionalFunction"
-                            data-observer
-                        >
-                            <option value="">{{ _("---") }}</option>
-                            {% for script in etl_scripts %}
-                                <option value="{{ script }}">{{ script }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div></div>
-                    <label class="csv-grid-label"><h5>{{ _("File type") }}</h5></label>
-                    <div class="csv-grid-span-2 file-type-area">
-                        <div class="mb-2">
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="fileTypeAuto"
-                                    name="fileType"
-                                    value="Auto"
+                <div class="csv-config-with-targets">
+                    <div class="csv-input-section">
+                        <div class="csv-two-col-grid">
+                            <label for="csvDBSourceName" class="csv-grid-label"
+                                ><h5>{{ _("Data Source Name") }}</h5></label
+                            >
+                            <div class="csv-grid-input">
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    name="csvDBSourceName"
+                                    class="form-control csv-soft-wrap-field"
+                                    id="csvDBSourceName"
                                     data-observer
-                                />
-                                <label class="custom-control-label" for="fileTypeAuto">Auto</label>
+                                ></textarea>
                             </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="fileTypeCSV"
-                                    name="fileType"
-                                    value="CSV"
-                                    data-observer
-                                />
-                                <label class="custom-control-label" for="fileTypeCSV">CSV (,)</label>
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="fileTypeTSV"
-                                    name="fileType"
-                                    value="TSV"
-                                    data-observer
-                                />
-                                <label class="custom-control-label" for="fileTypeTSV">TSV (Tab)</label>
-                            </div>
-                            <div class="custom-control custom-radio custom-control-inline">
-                                <input
-                                    type="radio"
-                                    class="custom-control-input"
-                                    id="fileTypeSMC"
-                                    name="fileType"
-                                    value="SMC"
-                                    data-observer
-                                />
-                                <label class="custom-control-label" for="fileTypeSMC">SSV (;)</label>
-                            </div>
-                        </div>
-                    </div>
+                            <div></div>
+                            <label class="csv-grid-label"
+                                ><h5 id="selectFilesLabel"><u>{{ _("Select Files") }}</u></h5></label
+                            >
+                            <div><small class="text-muted">{{ _("Include") }}</small></div>
+                            <div><small class="text-muted">{{ _("Exclude") }}</small></div>
 
-                    <label for="" class="csv-grid-label"><h5>{{ _("Load Settings") }}</h5></label>
-                    <div class="csv-grid-input load-settings-area">
-                        <div class="d-flex flex-wrap" style="gap: 0.75rem">
-                            <div class="custom-control custom-control-inline line-skip-group skip-div">
-                                <label
-                                    class="line-skip mr-2 mb-0"
-                                    title="{{ _('Skip line hover msg') }}"
-                                    for="skipHead"
+                            <label for="csvComment" class="csv-grid-label"><h5>{{ _("Comment") }}</h5></label>
+                            <div class="csv-grid-input">
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    name="csvComment"
+                                    class="form-control csv-soft-wrap-field"
+                                    id="csvComment"
+                                    data-observer
+                                ></textarea>
+                            </div>
+                            <div></div>
+                            <label class="csv-grid-label csv-grid-sub-label" for="fileNameInclude"
+                                ><h5>{{ _("File Name") }}</h5></label
+                            >
+                            <div>
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    class="form-control file-select-condition-input csv-soft-wrap-field"
+                                    id="fileNameInclude"
+                                    name="fileNameInclude"
+                                    data-observer
+                                ></textarea>
+                            </div>
+                            <div>
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    class="form-control file-select-condition-input csv-soft-wrap-field"
+                                    id="fileNameExclude"
+                                    name="fileNameExclude"
+                                    data-observer
+                                ></textarea>
+                            </div>
+
+                            <label for="folderUrl" class="csv-grid-label"><h5>{{ _("Source") }}</h5></label>
+                            <div class="csv-grid-input">
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    name="folderUrl"
+                                    class="form-control already-convert-hankaku csv-soft-wrap-field"
+                                    id="folderUrl"
+                                    placeholder="Z:\path\to\directory"
+                                    data-observer
+                                ></textarea>
+                                <input type="hidden" id="isFilePath" data-observer />
+                            </div>
+                            <div></div>
+                            <label class="csv-grid-label csv-grid-sub-label" for="subfolderInclude"
+                                ><h5>{{ _("Subfolder") }}</h5></label
+                            >
+                            <div>
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    class="form-control file-select-condition-input csv-soft-wrap-field"
+                                    id="subfolderInclude"
+                                    name="subfolderInclude"
+                                    data-observer
+                                ></textarea>
+                            </div>
+                            <div>
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    class="form-control file-select-condition-input csv-soft-wrap-field"
+                                    id="subfolderExclude"
+                                    name="subfolderExclude"
+                                    data-observer
+                                ></textarea>
+                            </div>
+
+                            <label for="csvReferenceFile" class="csv-grid-label">
+                                <h5>{{ _("ProcReferenceFileLabel") }}</h5>
+                            </label>
+                            <div class="csv-grid-input">
+                                <textarea
+                                    rows="2"
+                                    wrap="soft"
+                                    name="csvReferenceFile"
+                                    class="form-control already-convert-hankaku csv-soft-wrap-field"
+                                    id="csvReferenceFile"
+                                    placeholder="{{ _('ShowPreviewByFile') }}"
+                                    disabled
+                                    data-observer
+                                ></textarea>
+                            </div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+
+                            <div class="csv-grid-full-row" id="v2ProcessDiv" style="display: none;">
+                                <div class="csv-grid-label">
+                                    <h5 title="{{ _('Select V2 Process') }}">
+                                        <span class="hint-text">{{ _("V2 Process") }}</span>
+                                    </h5>
+                                </div>
+                                <div class="csv-grid-input" id="v2ProcessSelection"></div>
+                            </div>
+
+                            <label for="optionalFunction" class="csv-grid-label">
+                                <h5 title="{{ _('Optional function Hover') }}">
+                                    <span class="hint-text">{{ _("Optional function") }}</span>
+                                </h5>
+                            </label>
+                            <div class="csv-grid-input">
+                                <select
+                                    type="select"
+                                    name="optionalFunction"
+                                    class="form-control select2-selection--single"
+                                    id="optionalFunction"
+                                    data-observer
                                 >
-                                    <span class="hint-text">Skip</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    id="skipHead"
-                                    name="skip_head"
-                                    class="form-control"
-                                    min="0"
-                                    max="99"
-                                    data-observer=""
-                                />
-                                <input type="hidden" name="isDummyHeader" value="" />
-                                <input type="hidden" name="isFileChecker" value="" />
+                                    <option value="">{{ _("---") }}</option>
+                                    {% for script in etl_scripts %}
+                                        <option value="{{ script }}">{{ script }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
-                            <div class="custom-control custom-control-inline line-skip-group nrows-div">
-                                <label class="line-skip mr-2 mb-0" title="{{ _('Num rows hover msg') }}" for="csvNRows">
-                                    <span class="hint-text">nRows</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    id="csvNRows"
-                                    name="csvNRows"
-                                    class="form-control csvNRows"
-                                    min="0"
-                                    data-observer=""
-                                />
+                            <div></div>
+                            <label class="csv-grid-label"><h5>{{ _("File type") }}</h5></label>
+                            <div class="csv-grid-span-2 file-type-area">
+                                <div class="mb-2">
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="fileTypeAuto"
+                                            name="fileType"
+                                            value="Auto"
+                                            data-observer
+                                        />
+                                        <label class="custom-control-label" for="fileTypeAuto">Auto</label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="fileTypeCSV"
+                                            name="fileType"
+                                            value="CSV"
+                                            data-observer
+                                        />
+                                        <label class="custom-control-label" for="fileTypeCSV">CSV (,)</label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="fileTypeTSV"
+                                            name="fileType"
+                                            value="TSV"
+                                            data-observer
+                                        />
+                                        <label class="custom-control-label" for="fileTypeTSV">TSV (Tab)</label>
+                                    </div>
+                                    <div class="custom-control custom-radio custom-control-inline">
+                                        <input
+                                            type="radio"
+                                            class="custom-control-input"
+                                            id="fileTypeSMC"
+                                            name="fileType"
+                                            value="SMC"
+                                            data-observer
+                                        />
+                                        <label class="custom-control-label" for="fileTypeSMC">SSV (;)</label>
+                                    </div>
+                                </div>
+                                <div class="csv-other-extension d-none">
+                                    {# Source extension filter; independent of the CSV parsing delimiter. #}
+                                    <div class="d-flex align-items-center">
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input
+                                                type="radio"
+                                                class="custom-control-input"
+                                                id="fileTypeOther"
+                                                name="targetFileType"
+                                                value="Other"
+                                                data-observer
+                                            />
+                                            <label class="custom-control-label" for="fileTypeOther"
+                                                >{{ _('Other Ext.') }}</label
+                                            >
+                                        </div>
+                                        <label class="sr-only" for="csvCustomExtension">{{ _('Other Ext.') }}</label>
+                                        <input
+                                            type="text"
+                                            class="form-control col-4"
+                                            id="csvCustomExtension"
+                                            value="zip"
+                                            name="target_custom_extension"
+                                            data-observer
+                                            pattern="[.]?[A-Za-z0-9][A-Za-z0-9_-]*([.][A-Za-z0-9][A-Za-z0-9_-]*)*"
+                                            disabled
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                            <div class="custom-control custom-checkbox custom-control-inline transpose-div">
-                                <input
-                                    type="checkbox"
-                                    class="custom-control-input already-convert-hankaku"
-                                    id="csvIsTranspose"
-                                    name="csvIsTranspose"
+
+                            <label for="" class="csv-grid-label csv-standard-settings"
+                                ><h5>{{ _("Load Settings") }}</h5></label
+                            >
+                            <div class="csv-grid-input load-settings-area csv-standard-settings">
+                                <div class="d-flex flex-wrap align-items-center" style="gap: 0.75rem">
+                                    <div class="custom-control-inline line-skip-group skip-div">
+                                        <label
+                                            class="line-skip mr-2 mb-0"
+                                            title="{{ _('Skip line hover msg') }}"
+                                            for="skipHead"
+                                        >
+                                            <span class="hint-text">Skip</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="skipHead"
+                                            name="skip_head"
+                                            class="form-control"
+                                            min="0"
+                                            max="99"
+                                            data-observer=""
+                                        />
+                                        <input type="hidden" name="isDummyHeader" value="" />
+                                        <input type="hidden" name="isFileChecker" value="" />
+                                    </div>
+                                    <div class="custom-control-inline line-skip-group nrows-div">
+                                        <label
+                                            class="line-skip mr-2 mb-0"
+                                            title="{{ _('Num rows hover msg') }}"
+                                            for="csvNRows"
+                                        >
+                                            <span class="hint-text">nRows</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="csvNRows"
+                                            name="csvNRows"
+                                            class="form-control csvNRows"
+                                            min="0"
+                                            data-observer=""
+                                        />
+                                    </div>
+                                    <div
+                                        class="custom-control custom-checkbox custom-control-inline transpose-div pl-0"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="custom-control-input already-convert-hankaku"
+                                            id="csvIsTranspose"
+                                            name="csvIsTranspose"
+                                            data-observer
+                                        />
+                                        <label
+                                            class="custom-control-label"
+                                            for="csvIsTranspose"
+                                            title="{{ _('Transpose hover msg') }}"
+                                            >{{ _('Transpose') }}</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="csv-standard-settings"></div>
+                            <label class="csv-grid-label csv-standard-settings"
+                                ><h5>{{ _("EncodingLabel") }}</h5></label
+                            >
+                            <div id="dsEncoding" class="csv-standard-settings">
+                                <select
+                                    type="select"
+                                    name="encodingSelect"
+                                    class="form-control data-not-allow-clear function-var select2-selection--single select-n-columns col-md-5 select2-hidden-accessible"
+                                    id="dsEncodingSelect"
                                     data-observer
-                                />
-                                <label
-                                    class="custom-control-label"
-                                    for="csvIsTranspose"
-                                    title="{{ _('Transpose hover msg') }}"
-                                    >{{ _('Transpose') }}</label
                                 >
+                                    {% for key, value in encoding.items() %}
+                                        <option
+                                            class="encoding-option"
+                                            value="{{ value.code }}"
+                                            title="{{ value.language }}"
+                                        >
+                                            {{ value.code }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label id="guessEncoding" class="csv-grid-label csv-standard-settings"> </label>
+                        </div>
+                        <div class="form-group row align-items-center csv-preview-controls">
+                            <div class="col-sm-3 d-flex align-items-center">
+                                <h5 class="mb-0">{{ _("Data Preview") }}</h5>
+                            </div>
+                            <div class="col-sm-6 text-center">
+                                <button class="btn btn-primary" id="showResources" disabled>{{ _("Show") }}</button>
+                                <div
+                                    id="resourceLoading"
+                                    class="spinner-border spinner-border-sm text-primary hide align-middle ml-2"
+                                    role="status"
+                                >
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                                <span id="fileName" style="word-break: break-all; display: none;"></span>
+                            </div>
+                            <div class="col-sm-3 text-right">
+                                <button
+                                    type="button"
+                                    onclick="saveCSVInfo();"
+                                    class="btn btn-secondary saveDBInfoBtn"
+                                    data-csv="1"
+                                    data-item-id=""
+                                    {% if not is_authorized %}
+                                        disabled
+                                    {% endif %}
+                                >
+                                    {{ _("OK") }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    onclick="handleCloseDSConfigModal(this)"
+                                >
+                                    {{ _("Cancel") }}
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div></div>
-                    <label class="csv-grid-label"><h5>{{ _("EncodingLabel") }}</h5></label>
-                    <div id="dsEncoding">
-                        <select
-                            type="select"
-                            name="encodingSelect"
-                            class="form-control data-not-allow-clear function-var select2-selection--single select-n-columns col-md-5 select2-hidden-accessible"
-                            id="dsEncodingSelect"
-                            data-observer
+                    <div id="csvLoadHistory" class="csv-file-panels">
+                        <aside
+                            id="csvLoadHistoryPanel"
+                            class="csv-file-panel csv-load-history-panel"
+                            aria-labelledby="csvLoadHistoryLabel"
                         >
-                            {% for key, value in encoding.items() %}
-                                <option class="encoding-option" value="{{ value.code }}" title="{{ value.language }}">
-                                    {{ value.code }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <label id="guessEncoding" class="csv-grid-label"> </label>
-                </div>
-                <div class="form-group row align-items-center mt-3">
-                    <div class="col-sm-3 d-flex align-items-center">
-                        <h5 class="mb-0">{{ _("Data Preview") }}</h5>
-                    </div>
-                    <div class="col-sm-6 text-center">
-                        <button class="btn btn-primary" id="showResources">{{ _("Show") }}</button>
-                        <div
-                            id="resourceLoading"
-                            class="spinner-border spinner-border-sm text-primary hide align-middle ml-2"
-                            role="status"
+                            <div class="csv-load-history-header">
+                                <h5 id="csvLoadHistoryLabel">{{ _("Load History") }}</h5>
+                                <div class="custom-control custom-checkbox csv-load-history-filter">
+                                    <input
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="csvLoadHistoryNormalEnd"
+                                        name="csvLoadHistoryNormalEnd"
+                                        checked
+                                    />
+                                    <label class="custom-control-label" for="csvLoadHistoryNormalEnd">
+                                        {{ _("Normal end") }}
+                                    </label>
+                                </div>
+                                <div class="custom-control custom-checkbox csv-load-history-filter">
+                                    <input
+                                        type="checkbox"
+                                        class="custom-control-input"
+                                        id="csvLoadHistoryError"
+                                        name="csvLoadHistoryError"
+                                        checked
+                                    />
+                                    <label class="custom-control-label" for="csvLoadHistoryError">
+                                        {{ _("Error") }}
+                                    </label>
+                                </div>
+                                <button
+                                    id="btnCopyCsvLoadHistory"
+                                    type="button"
+                                    class="btn btn-sm btn-link p-0"
+                                    aria-label="{{ _('Copy') }}"
+                                    disabled
+                                >
+                                    <i class="fa fa-copy" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div aria-labelledby="csvLoadHistoryLabel">
+                                <div id="csvLoadHistoryEmpty" role="status">{{ _("No data") }}</div>
+                                <div class="csv-load-history-details" hidden>
+                                    <dl class="csv-load-history-fields">
+                                        <dt>{{ _("Process") }}</dt>
+                                        <dd class="csv-load-history-process-name" data-history-field="process"></dd>
+                                        <dt>{{ _("Job Time") }}</dt>
+                                        <dd data-history-field="time"></dd>
+                                        <dt>{{ _("Status") }}</dt>
+                                        <dd data-history-field="status"></dd>
+                                        <dt>{{ _("Details") }}</dt>
+                                        <dd data-history-field="details"></dd>
+                                    </dl>
+                                    <dl class="csv-load-history-fields csv-load-history-error" hidden>
+                                        <dt>{{ _("Group") }}</dt>
+                                        <dd data-history-field="group"></dd>
+                                        <dt>{{ _("Error Name") }}</dt>
+                                        <dd data-history-field="name"></dd>
+                                        <dt>{{ _("Cause") }}</dt>
+                                        <dd data-history-field="cause"></dd>
+                                        <dt>{{ _("Hint") }}</dt>
+                                        <dd data-history-field="hint"></dd>
+                                    </dl>
+                                    <div
+                                        id="csvLoadHistoryTraceTrigger"
+                                        class="csv-load-history-trace-trigger"
+                                        role="button"
+                                        tabindex="0"
+                                        aria-haspopup="dialog"
+                                        aria-controls="modal-csv-load-history-trace"
+                                        aria-label="{{ _('Load History') }}: Trace"
+                                        hidden
+                                    >
+                                        <pre class="csv-load-history-trace"></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </aside>
+                        <aside
+                            id="csvTargetFilesPanel"
+                            class="csv-file-panel csv-target-files-panel"
+                            aria-labelledby="csvTargetFilesLabel"
+                            hidden
                         >
-                            <span class="sr-only">Loading...</span>
-                        </div>
-                        <span id="fileName" style="word-break: break-all; display: none;"></span>
-                    </div>
-                    <div class="col-sm-3 text-right">
-                        <button
-                            type="button"
-                            onclick="saveCSVInfo();"
-                            class="btn btn-secondary saveDBInfoBtn"
-                            data-csv="1"
-                            data-item-id=""
-                            {% if not is_authorized %}
-                                disabled
-                            {% endif %}
-                        >
-                            {{ _("OK") }}
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="handleCloseDSConfigModal(this)">
-                            {{ _("Cancel") }}
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-sm-12">
-                        <div id="csvDataTable" class="table-responsive" style="display: none;">
-                            <input id="skipTail" value="" hidden />
-                            <table class="table bg-secondary table-striped table-hover table-hover-light" name="" id="">
+                            <h5 id="csvTargetFilesLabel">{{ _("Target Files") }}</h5>
+                            <pre
+                                id="csvTargetFiles"
+                                class="form-control csv-file-list csv-target-files-list"
+                                tabindex="0"
+                                aria-labelledby="csvTargetFilesLabel"
+                                aria-busy="false"
+                            ></pre>
+                            <div
+                                id="csvTargetFilesStatus"
+                                class="small text-muted"
+                                role="status"
+                                aria-live="polite"
+                                data-loading="{{ _('Loading target files...') }}"
+                                data-empty="{{ _('No target files found.') }}"
+                                data-error="{{ _('Unable to list target files.') }}"
+                                data-truncated="{{ _('Showing the first 100 target files.') }}"
+                            ></div>
+                        </aside>
+                        <div class="csv-load-history-log" tabindex="0">
+                            <table class="table table-sm bg-secondary table-striped table-hover table-hover-light">
+                                <colgroup>
+                                    <col />
+                                    <col class="csv-load-history-time-column" />
+                                    <col class="csv-load-history-duration-column" />
+                                    <col class="csv-load-history-status-column" />
+                                </colgroup>
                                 <thead class="thead-dark">
-                                    <tr></tr>
+                                    <tr>
+                                        <th scope="col">{{ _("Process Name") }}</th>
+                                        <th scope="col">{{ _("Time") }}</th>
+                                        <th scope="col">[{{ _("sec") }}]</th>
+                                        <th scope="col">{{ _("Status") }}</th>
+                                    </tr>
                                 </thead>
                                 <tbody class="table-info table-active"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td
+                                            colspan="4"
+                                            role="status"
+                                            aria-live="polite"
+                                            data-loading="{{ _('Loading') }}"
+                                            data-empty="{{ _('No data') }}"
+                                            data-error="{{ _('ErrorMsgCommon') }}"
+                                        ></td>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
                     </div>
+                    <div class="csv-preview-section">
+                        <div class="form-group row csv-preview-data">
+                            <div class="col-sm-12">
+                                <div id="csvDataTable" class="table-responsive" style="display: none;">
+                                    <input id="skipTail" value="" hidden />
+                                    <table
+                                        class="table bg-secondary table-striped table-hover table-hover-light"
+                                        name=""
+                                        id=""
+                                    >
+                                        <thead class="thead-dark">
+                                            <tr></tr>
+                                        </thead>
+                                        <tbody class="table-info table-active"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    id="modal-csv-load-history-trace"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="csvLoadHistoryTraceLabel"
+    aria-hidden="true"
+    data-backdrop="static"
+>
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="csvLoadHistoryTraceLabel" class="modal-title">{{ _("Load History") }}: Trace</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ _('Close') }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" tabindex="0" aria-labelledby="csvLoadHistoryTraceLabel">
+                <pre id="csvLoadHistoryFullTrace"></pre>
+            </div>
+            <div class="modal-footer">
+                <button id="btnCloseCsvLoadHistoryTrace" type="button" class="btn btn-secondary" data-dismiss="modal">
+                    {{ _("Close") }}
+                </button>
             </div>
         </div>
     </div>

@@ -106,6 +106,11 @@ function updateStyleButtonByCheckingValid(isExternalValid = undefined) {
     btn.removeAttr('disable');
     btn.removeAttr('style');
     const isValid = (isExternalValid !== undefined ? isExternalValid : checkValidations()) && checkHasDiv();
+    const $endProcDiv = $(currentFormID).find('.end-proc');
+    if (!checkObjectiveVar || getValueRadio('objectiveVar')) {
+        $endProcDiv.filter('.invalid-message').removeClass('invalid invalid-message');
+        $endProcDiv.find('.objective-item h6').removeClass('blink');
+    }
     if (!isValid) {
         btn.addClass('btn-secondary');
         btn.removeClass('btn-primary valid-show-graph');
@@ -113,7 +118,6 @@ function updateStyleButtonByCheckingValid(isExternalValid = undefined) {
         btn.addClass('btn-primary valid-show-graph');
         btn.removeClass('btn-secondary');
         // update validation message after reselect an objective variable
-        const $endProcDiv = $('.end-proc');
         const isInvalidMsgShown = $endProcDiv.hasClass('invalid');
         if (isInvalidMsgShown) {
             $endProcDiv.removeClass('invalid').removeClass('invalid-message');
@@ -168,7 +172,7 @@ function updateStyleOfInvalidElements() {
     updateStyleButtonByCheckingValid();
     findValidationInputs('.invalid').removeClass('invalid invalid-message');
     for (let i = 0; i < invalids.length; i++) {
-        const { name, id } = invalids[i];
+        const { name } = invalids[i];
         if (/VALS_SELECT/.test(name)) {
             const index = name.match(/\d+/g);
             setClass(`#end-proc-process-div-${index[1]}-parent`, 'invalid');
@@ -188,9 +192,10 @@ function updateStyleOfInvalidElements() {
         if (name === 'objectiveVar' && checkObjectiveVar) {
             const parentEl = $(currentFormID)
                 .find('.card.end-proc')
-                .filter((_, card) => findValidationInputs(`#${id}`, card).length > 0);
+                .filter((_, card) => findValidationInputs('input[name=objectiveVar]', card).length > 0);
             parentEl.addClass('invalid invalid-message');
             parentEl.attr('data-content', $('#i18nInvalidObjectiveVar').text());
+            parentEl.find('.objective-item h6').addClass('blink');
         }
     }
     if (invalids.length) {

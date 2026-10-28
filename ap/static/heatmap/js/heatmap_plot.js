@@ -285,7 +285,7 @@ const generateHeatmapPlot = (prop, option, zoomRange) => {
         style: { width: '100%', height: '100%' },
     };
 
-    Plotly.react(prop.canvasId, data, layout, config);
+    return Plotly.react(prop.canvasId, data, layout, config);
 };
 
 const makeHeatmapHoverInfoBox = (prop, xVal, yVal, option, x, y, pointIndex, isUseOriginalColorValue = false) => {

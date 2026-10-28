@@ -47,6 +47,9 @@ UU_RE = re.compile(r'Uu|uu')
 # `Mm` in English Name should be replaced into `mm`.
 MM_RE = re.compile(r'Mm')
 
+JAPANESE_TEXT_RE = re.compile(r'[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uFF66-\uFF9F]')
+ja_name_search = JAPANESE_TEXT_RE.search
+
 
 def normalized_column_name(input_str, convert_irregular_chars=True):
     normalized_input = input_str
@@ -77,6 +80,12 @@ def to_romaji(input_str, convert_irregular_chars=True):
 
 def to_romaji_en(input_str) -> str:
     return normalized_column_name(input_str, True)
+
+
+def has_japanese_text(input_str) -> bool:
+    if not isinstance(input_str, str) or input_str.isascii():
+        return False  # ASCIIのみなら正規表現を実行しない
+    return ja_name_search(input_str) is not None
 
 
 def replace_special_symbols(input_str):

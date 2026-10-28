@@ -315,7 +315,7 @@ class JobManagement(db.Model):  # TODO change to new modal and edit job
             'duration': sort(cls.duration),
             'progress': sort(cls.done_percent),
             'status': sort(cls.status),
-            'detail': sort(cls.error_msg),
+            'detail': sort(cls.info),
         }
 
     def as_dict(self):
@@ -1155,6 +1155,7 @@ class CfgProcessColumn(db.Model):
         delete_by_ids: Deletes columns by IDs.
         get_primary_keys: Gets primary key columns.
         get_by_column_types: Gets columns by column types.
+        get_normal_column_selection_summaries: Counts selected and total normal columns by process.
         get_table_name: Gets table name.
         from_dict: Creates instance from dictionary.
         get_function_col_ids: Gets IDs of function columns for a process.
@@ -1164,7 +1165,12 @@ class CfgProcessColumn(db.Model):
     """
 
     __tablename__ = 'cfg_process_column'
-    __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
+    __table_args__: ClassVar[tuple] = (
+        # Single-column on purpose: rows of one process keep being returned in id (rowid) order,
+        # which existing queries without ORDER BY rely on.
+        sa.Index('ix_cfg_process_column_process_id', 'process_id'),
+        {'sqlite_autoincrement': True},
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     process_id: Mapped[int] = mapped_column(ForeignKey('cfg_process.id', ondelete='CASCADE'))
@@ -1353,6 +1359,54 @@ class CfgProcessColumn(db.Model):
         )
         ids = [rec.id for rec in recs]
         return ids
+
+    @classmethod
+    def get_normal_column_selection_summaries(
+        cls,
+        meta_session: scoped_session,
+        process_ids: set[int],
+        selected_ids: set[int],
+    ) -> dict[int, dict[str, int]]:
+        """Count selected and total normal columns for the requested parent processes.
+
+        Args:
+            meta_session: Metadata database session that owns the surrounding read transaction.
+            process_ids: Parent process IDs whose summaries are required.
+            selected_ids: Draft-selected column IDs across every page and filter.
+
+        Returns:
+            A summary keyed by process ID with selected and total normal-column counts.
+        """
+        if not process_ids:
+            return {}
+
+        # Function columns are excluded because Variable Select renders them in a separate summary row.
+        normal_column_condition = or_(
+            cls.column_type.is_(None),
+            cls.column_type != DataColumnType.GENERATED_EQUATION.value,
+        )
+        selected_count = func.sum(sa.case((cls.id.in_(selected_ids), 1), else_=0))
+        rows = (
+            meta_session.query(
+                cls.process_id,
+                func.count(cls.id),
+                selected_count,
+            )
+            .join(CfgProcess, CfgProcess.id == cls.process_id)
+            .filter(
+                CfgProcess.parent_id.is_(None),
+                cls.process_id.in_(process_ids),
+                normal_column_condition,
+            )
+            .group_by(cls.process_id)
+            .all()
+        )
+
+        # Preserve zero counts when the current page contains only Function columns for a process.
+        summaries = {process_id: {'selected': 0, 'total': 0} for process_id in process_ids}
+        for process_id, total, selected in rows:
+            summaries[process_id] = {'selected': int(selected or 0), 'total': int(total)}
+        return summaries
 
     @classmethod
     def remove_by_col_ids(cls, ids, session=None):
@@ -2329,7 +2383,10 @@ class CfgProcessFunctionColumn(db.Model):
     """
 
     __tablename__ = 'cfg_process_function_column'
-    __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
+    __table_args__: ClassVar[tuple] = (
+        sa.Index('ix_cfg_process_function_column_process_column_id', 'process_column_id'),
+        {'sqlite_autoincrement': True},
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     process_column_id: Mapped[int] = mapped_column(ForeignKey('cfg_process_column.id', ondelete='CASCADE'))
@@ -3224,6 +3281,7 @@ class CfgDataSourceCSV(db.Model):
         is_transpose: Flag to transpose data during import.
         delimiter: CSV delimiter type (default: CSV).
         etl_func: ETL function for data transformation (optional).
+        custom_extension: Source suffix filter for optional functions, independent of the parsing delimiter.
         process_name: Process name for CSV import (optional).
         dummy_header: Flag indicating dummy header usage.
         is_file_checker: Flag for file validation.
@@ -3250,12 +3308,14 @@ class CfgDataSourceCSV(db.Model):
     __table_args__: ClassVar[dict[str, bool]] = {'sqlite_autoincrement': True}
     id: Mapped[int] = mapped_column(ForeignKey('cfg_data_source.id', ondelete='CASCADE'), primary_key=True)
     directory: Mapped[str]
+    reference_file: Mapped[Optional[str]]
     skip_head: Mapped[Optional[int]]
     skip_tail: Mapped[int] = mapped_column(default=0)
     n_rows: Mapped[Optional[int]]
     is_transpose: Mapped[bool] = mapped_column(default=False)
     delimiter: Mapped[str] = mapped_column(default=CsvDelimiter.Auto.name)
     etl_func: Mapped[Optional[str]]
+    custom_extension: Mapped[Optional[str]]
     process_name: Mapped[Optional[str]]
     encoding: Mapped[Optional[str]] = mapped_column(default=Encoding.UTF8.code)
     auto_encoding: Mapped[Optional[bool]] = mapped_column(default=True)

@@ -67,7 +67,7 @@ export default function Sidebar() {
                             <a
                                 href="/ap/fpp"
                                 className="go-to-page"
-                                title="'Plot all data points with time axis or ID axis.'"
+                                title={t('Plot all data points with time axis or ID axis.')}
                             >
                                 <span className="page-character">FPP</span>
                                 <span className="nav-text hint-text">{t('Full-points Plot')}</span>
@@ -77,14 +77,16 @@ export default function Sidebar() {
                             <a
                                 href="/ap/stp"
                                 className="go-to-page"
-                                title="'Compare data distribution with histograms and estimated density lines. Split the graph with  stratified variables.'"
+                                title={t(
+                                    'Compare data distribution with histograms and estimated density lines. Split the graph with  stratified variables.',
+                                )}
                             >
                                 <span className="page-character">StP</span>
                                 <span className="nav-text hint-text">{t('Stratified Plot')}</span>
                             </a>
                         </li>
                         <li data-search="RLP Ridgeline Plot 'Ridgeline Plot'">
-                            <a href="/ap/rlp" title="'RidgeLine Plot Hover'" className="go-to-page">
+                            <a href="/ap/rlp" title={t('RidgeLine Plot Hover')} className="go-to-page">
                                 <span className="page-character">RLP</span>
                                 <span className="nav-text hint-text">{t('Ridgeline Plot')}</span>
                             </a>
@@ -93,14 +95,16 @@ export default function Sidebar() {
                             <a
                                 href="/ap/chm"
                                 className="go-to-page"
-                                title="'Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.'"
+                                title={t(
+                                    'Visualize long-term data such as annual variations in processes and parameters that can vary depending on days of the week or shifts, etc.',
+                                )}
                             >
                                 <span className="page-character">CHM</span>
                                 <span className="nav-text hint-text">{t('Calendar Heat Map')}</span>
                             </a>
                         </li>
                         <li data-search="AgP Aggregation Plot 'Aggregation Plot'">
-                            <a href="/ap/agp" className="go-to-page" title="'Aggregation Plot info'">
+                            <a href="/ap/agp" className="go-to-page" title={t('Aggregation Plot info')}>
                                 <span className="page-character">AgP</span>
                                 <span className="nav-text hint-text">{t('Aggregation Plot')}</span>
                             </a>
@@ -109,26 +113,28 @@ export default function Sidebar() {
                             <a
                                 href="/ap/msp"
                                 className="go-to-page"
-                                title="'Displays a scatter chart matrix. You can create a matrix between up to four target variables.'"
+                                title={t(
+                                    'Displays a scatter chart matrix. You can create a matrix between up to four target variables.',
+                                )}
                             >
                                 <span className="page-character">MSP</span>
                                 <span className="nav-text hint-text">{t('Multi Scatter Plot')}</span>
                             </a>
                         </li>
                         <li data-search="ScP Scatter Plot 'Scatter Plot'">
-                            <a href="/ap/scp" className="go-to-page" title="'SCP Page title description'">
+                            <a href="/ap/scp" className="go-to-page" title={t('SCP Page title description')}>
                                 <span className="page-character">ScP</span>
                                 <span className="nav-text hint-text">{t('Scatter Plot')}</span>
                             </a>
                         </li>
                         <li data-search="HMp Heatmap Plot 'Heatmap Plot Page Title'">
-                            <a href="/ap/hmp" className="go-to-page" title="'Heatmap Page title description'">
+                            <a href="/ap/hmp" className="go-to-page" title={t('Heatmap Page title description')}>
                                 <span className="page-character">HMp</span>
                                 <span className="nav-text hint-text">{t('Heatmap Plot Page Title')}</span>
                             </a>
                         </li>
                         <li data-search="WfP waveform plot 'Waveform plot'">
-                            <a href="/ap/wfp" className="go-to-page" title="'Waveform Plot Description'">
+                            <a href="/ap/wfp" className="go-to-page" title={t('Waveform Plot Description')}>
                                 <span className="page-character">WfP</span>
                                 <span className="nav-text hint-text">{t('Waveform plot')}</span>
                             </a>
@@ -137,7 +143,9 @@ export default function Sidebar() {
                             <a
                                 href="/ap/pcp"
                                 className="go-to-page"
-                                title="'Visualize the correlation between a large number of variables with respect to target variable.'"
+                                title={t(
+                                    'Visualize the correlation between a large number of variables with respect to target variable.',
+                                )}
                             >
                                 <span className="page-character">PCP</span>
                                 <span className="nav-text hint-text">{t('Parallel Coordinates Plot')}</span>
@@ -147,7 +155,9 @@ export default function Sidebar() {
                             <a
                                 href="/ap/skd"
                                 className="go-to-page"
-                                title="'Identify and visualize directly/indirectly correlated variables of objective(s)'"
+                                title={t(
+                                    'Identify and visualize directly/indirectly correlated variables of objective(s)',
+                                )}
                             >
                                 <span className="page-character">SkD</span>
                                 <span className="nav-text hint-text">{t('Sankey Diagram')}</span>
@@ -157,7 +167,9 @@ export default function Sidebar() {
                             <a
                                 href="/ap/cog"
                                 className="go-to-page"
-                                title="'Visualize co-occurrence (relationships that focus on how often one phenomenon and another occur at the same time) of faults/alarms.'"
+                                title={t(
+                                    'Visualize co-occurrence (relationships that focus on how often one phenomenon and another occur at the same time) of faults/alarms.',
+                                )}
                             >
                                 <span className="page-character">COG</span>
                                 <span className="nav-text hint-text">{t('Co-occurrence Graph')}</span>
@@ -198,7 +210,9 @@ export default function Sidebar() {
                                     <a
                                         href="/ap/analyze/anomaly_detection/pca"
                                         className="go-to-page"
-                                        title="'This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.'"
+                                        title={t(
+                                            'This function visualizes “unusual” and analyzes its factors by Principal Component Analysis.',
+                                        )}
                                     >
                                         <span className="page-character">PCA</span>
                                         <span className="nav-text hint-text">{t('Principal Component Analysis')}</span>
@@ -221,7 +235,7 @@ export default function Sidebar() {
                                     <a
                                         href="/ap/analyze/structure_learning/gl"
                                         className="go-to-page"
-                                        title="'GL Page Title'"
+                                        title={t('GL Page Title')}
                                     >
                                         <span className="page-character">GL</span>
                                         <span className="nav-text hint-text">{t('Graphical Lasso')}</span>
@@ -240,7 +254,9 @@ export default function Sidebar() {
                         data-tog="cfgSm"
                     >
                         <i className="fas fa-cog"></i>
-                        <span className="nav-text">{t('Config')}</span>
+                        <span className="nav-text hotkey-button" data-hotkey="Ctrl + ,">
+                            {t('Config')}
+                        </span>
                     </a>
                     <ul className="list-unstyled collapse show" id="pageSubmenu">
                         <li data-search="Data Source Config 'Data Source Config'">
@@ -269,7 +285,7 @@ export default function Sidebar() {
                             </a>
                         </li>
                         <li data-search="Display Config 'Threshold/Graph Config'">
-                            <a href="/ap/config/master" title="'Master Config Hover'" className="go-to-page">
+                            <a href="/ap/config/master" title={t('Master Config Hover')} className="go-to-page">
                                 <span className="nav-text hint-text">{t('Threshold/Graph Config')}</span>
                             </a>
                         </li>

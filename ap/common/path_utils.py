@@ -26,6 +26,25 @@ from ap.common.constants import (
 from ap.common.log import log_execution_time
 
 
+class ReferenceFileOutsideSourceError(ValueError):
+    """A reference file is outside its configured source folder."""
+
+
+def is_reference_file_in_source(source_directory, file_path, *, require_exists=True, source_is_file=False):
+    if not isinstance(source_directory, str) or not isinstance(file_path, str):
+        return False
+    if not source_directory or not file_path:
+        return False
+    try:
+        source = Path(source_directory).resolve()
+        reference = Path(file_path).resolve()
+        if source_is_file or source.is_file():
+            return reference == source and (not require_exists or reference.is_file())
+        return reference.is_relative_to(source) and (not require_exists or (source.is_dir() and reference.is_file()))
+    except (OSError, ValueError, RuntimeError):
+        return False
+
+
 def check_exist(file_path):
     return os.path.exists(file_path)
 
@@ -124,7 +143,7 @@ def get_cookie_policy_md_file(current_locale):
 
 
 def get_user_scripts_path():
-    folder_names = ['ap', 'script', 'user_scripts']
+    folder_names = ['user', 'scripts_etl']
     return resource_path(*folder_names, level=AbsPath.SHOW)
 
 
@@ -134,7 +153,7 @@ def get_wrapr_path():
     Returns:
         [type] -- [description]
     """
-    folder_names = ['ap', 'script', 'r_scripts', 'wrapr']
+    folder_names = ['user', 'scripts_r', 'wrapr']
     return resource_path(*folder_names, level=AbsPath.SHOW)
 
 
@@ -307,17 +326,53 @@ def get_dummy_data_path():
     return resource_path(*folder_names, level=AbsPath.SHOW)
 
 
-def get_sorted_files(root_name, is_allow_zip: bool = True) -> list[str]:
+def normalize_csv_custom_extension(extension: str | None) -> str | None:
+    if extension is None:
+        return None
+    if not isinstance(extension, str):
+        raise ValueError('File not valid')
+    extension = extension.strip()
+    if not extension:
+        return None
+    extension = extension.removeprefix('.').lower()
+    if not re.fullmatch(r'[a-z0-9][a-z0-9_-]*(?:\.[a-z0-9][a-z0-9_-]*)*', extension):
+        raise ValueError('File not valid')
+    return extension
+
+
+def resolve_csv_custom_extension(extension: str | None, etl_func: str | None) -> str | None:
+    """Apply custom source suffixes only when an optional function is configured."""
+    return normalize_csv_custom_extension(extension) if etl_func else None
+
+
+def get_csv_source_extensions(is_allow_zip: bool = True, *, custom_extension: str | None = None) -> list[str]:
+    custom_extension = normalize_csv_custom_extension(custom_extension)
+    if custom_extension:
+        return [f'.{custom_extension}']
+    extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
+    if is_allow_zip:
+        extension.extend([CSVExtTypes.ZIP.value, CSVExtTypes.SEVEN_Z.value])
+    return extension
+
+
+def get_sorted_files(
+    root_name, is_allow_zip: bool = True, *, raise_on_error: bool = False, custom_extension: str | None = None
+) -> list[str]:
+    """Discover sources in reverse path order; strict callers receive filesystem errors."""
     try:
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
-        if is_allow_zip:
-            extension.append(CSVExtTypes.ZIP.value)
-            extension.append(CSVExtTypes.SEVEN_Z.value)
-        latest_files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
+        latest_files = get_files(
+            root_name,
+            depth_from=1,
+            depth_to=100,
+            extension=get_csv_source_extensions(is_allow_zip, custom_extension=custom_extension),
+            raise_on_error=raise_on_error,
+        )
         latest_files = [file_path.replace(os.sep, '/') for file_path in latest_files]
         latest_files.sort(reverse=True)
         return latest_files
     except Exception as e:
+        if raise_on_error:
+            raise
         raise FileNotFoundError('File not found') from e
 
 
@@ -333,12 +388,11 @@ def get_sorted_files_in_list(files: list[str]) -> list[str]:
     return sorted_files
 
 
-def get_sorted_files_by_size(root_name: str, is_allow_zip: bool = True) -> list[str]:
+def get_sorted_files_by_size(
+    root_name: str, is_allow_zip: bool = True, *, custom_extension: str | None = None
+) -> list[str]:
     try:
-        extension = [CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value]
-        if is_allow_zip:
-            extension.append(CSVExtTypes.ZIP.value)
-            extension.append(CSVExtTypes.SEVEN_Z.value)
+        extension = get_csv_source_extensions(is_allow_zip, custom_extension=custom_extension)
         files = get_files(root_name, depth_from=1, depth_to=100, extension=extension)
         largest_files = get_largest_files_in_list(files)
         return largest_files
@@ -393,7 +447,7 @@ def split_path_to_list(file_path):
 
 
 @log_execution_time()
-def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False):
+def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_only=False, *, raise_on_error=False):
     """Get files in folder
 
     Arguments:
@@ -402,6 +456,7 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
     Keyword Arguments:
         depth_limit {int} -- [description] (default: 2)
         extension {list} -- [description] (default: [''])
+        raise_on_error {bool} -- propagate traversal errors and prune beyond the requested depth
 
     Returns:
         [type] -- [description]
@@ -410,13 +465,21 @@ def get_files(directory, depth_from=1, depth_to=2, extension=[''], file_name_onl
     if not directory:
         return output_files
 
-    if not check_exist(directory):
+    if raise_on_error:
+        Path(directory).stat()
+    elif not check_exist(directory):
         raise FileNotFoundError('Folder not found!')
 
+    def onerror(error):
+        raise error
+
     root_depth = directory.count(os.path.sep)
-    for root, _, files in os.walk(directory):
+    for root, directories, files in os.walk(directory, onerror=onerror if raise_on_error else None):
         # limit depth of recursion
         current_depth = root.count(os.path.sep) + 1
+        if raise_on_error and current_depth >= root_depth + depth_to:
+            # Strict listings must not scan (or fail on) paths outside their discovery depth.
+            directories.clear()
         # assume that directory depth is 1, sub folders are 2, 3, ...
         # default is to just read children sub folder, depth from 1 to 2
         if (current_depth < root_depth + depth_from) or (current_depth > root_depth + depth_to):
@@ -548,19 +611,13 @@ def is_normal_zip(f_name: Union[str, Path]) -> bool:
     return Path(f_name).suffix == '.zip'
 
 
-def get_latest_files(root_name: Union[Path, str]) -> list[str]:
+def get_latest_files(root_name: Union[Path, str], *, custom_extension: str | None = None) -> list[str]:
     try:
         files = get_files(
             str(root_name),
             depth_from=1,
             depth_to=100,
-            extension=[
-                CSVExtTypes.CSV.value,
-                CSVExtTypes.TSV.value,
-                CSVExtTypes.SSV.value,
-                CSVExtTypes.ZIP.value,
-                CSVExtTypes.SEVEN_Z.value,
-            ],
+            extension=get_csv_source_extensions(custom_extension=custom_extension),
         )
         files.sort(key=lambda x: os.path.getmtime(x), reverse=True)
         files = [f.replace(os.sep, '/') for f in files]
@@ -600,10 +657,11 @@ def copy_file(source, target):
     return True
 
 
-def get_etl_scripts(etl_path):
+def get_etl_scripts(etl_path, extension: str = ''):
     """Get etl (r and python) scripts"""
     try:
-        return get_files(directory=etl_path, depth_from=1, depth_to=1, file_name_only=True) or []
+        files = get_files(directory=etl_path, depth_from=1, depth_to=1, file_name_only=True)
+        return [file for file in files if file.endswith(extension)]
     except (Exception, FileNotFoundError):
         return []
 

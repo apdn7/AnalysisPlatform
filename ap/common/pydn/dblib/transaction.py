@@ -81,9 +81,9 @@ class TxnDataConnectionLock(ABC):
 class TxnDataConnection(TxnDataConnectionLock):
     """Context manager for single process"""
 
-    def __init__(self, *, process_id: int, readonly_transaction: bool) -> None:
+    def __init__(self, *, process_id: int, readonly_transaction: bool, lock_timeout: float = -1) -> None:
         self.db_instance = DuckDB(gen_duckdb_file_name(process_id), readonly_transaction)
-        self.lock = DuckDBLock([process_id])
+        self.lock = DuckDBLock([process_id], timeout=lock_timeout)
 
     def connect(self) -> DuckDB | None:
         if self.db_instance.connect() is None:

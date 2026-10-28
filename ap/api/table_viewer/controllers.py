@@ -12,7 +12,12 @@ from ap.api.setting_module.services.v2_etl_services import (
 )
 from ap.common.common_utils import get_csv_delimiter
 from ap.common.constants import DBType, MasterDBType
-from ap.common.path_utils import get_latest_files, get_sorted_files_by_size
+from ap.common.path_utils import (
+    get_csv_source_extensions,
+    get_latest_files,
+    get_sorted_files_by_size,
+    resolve_csv_custom_extension,
+)
 from ap.common.pydn.dblib import mssqlserver, oracle
 from ap.common.pydn.dblib.db_proxy_read_only import ReadOnlyDbProxy
 from ap.common.services.csv_content import get_delimiter_encoding
@@ -134,7 +139,10 @@ def query_data(db_instance, table_name, sort_column, sort_order, limit):
 
 @MessageAnnouncer.notify_progress(50)
 def get_v2_data(csv_detail, sort_colum, sort_order, limit):
-    sorted_files = get_sorted_files_by_size(csv_detail.directory)
+    custom_extension = resolve_csv_custom_extension(csv_detail.custom_extension, csv_detail.etl_func)
+    sorted_files = get_sorted_files_by_size(csv_detail.directory, custom_extension=custom_extension)
+    if not sorted_files:
+        raise FileNotFoundError('No matching V2 files were found in the source')
     process_name = csv_detail.process_name
     # V2 preview with the largest file
     file_data_idx = 0
@@ -189,8 +197,18 @@ def get_v2_data(csv_detail, sort_colum, sort_order, limit):
 def get_csv_data(csv_detail, sort_colum, sort_order, limit):
     """Load, normalize, sort, and limit records from the latest CSV file."""
     # Preview the latest configured file so table viewer results follow the current data source.
-    latest_file = [csv_detail.directory] if csv_detail.is_file_path else get_latest_files(csv_detail.directory)
-    latest_file = latest_file[0:1][0]
+    custom_extension = resolve_csv_custom_extension(csv_detail.custom_extension, csv_detail.etl_func)
+    if csv_detail.is_file_path:
+        latest_files = [csv_detail.directory]
+        if custom_extension:
+            extensions = tuple(get_csv_source_extensions(custom_extension=custom_extension))
+            if not csv_detail.directory.lower().endswith(extensions):
+                raise ValueError('Source file does not match the configured custom extension')
+    else:
+        latest_files = get_latest_files(csv_detail.directory, custom_extension=custom_extension)
+    if not latest_files:
+        raise FileNotFoundError('No matching CSV files were found in the source')
+    latest_file = latest_files[0]
     csv_delimiter = get_csv_delimiter(csv_detail.delimiter)
     skip_head = csv_detail.skip_head
 

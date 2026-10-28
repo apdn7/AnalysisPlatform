@@ -6,14 +6,16 @@ const labels = ['Base', 'S', 'M', 'L', 'XL'];
 interface Props {
     fontSizeValue?: string;
     onChange?: (fontSizeValue: string) => void;
+    disabled?: boolean;
 }
 
-export default function FontSizeBlock({ fontSizeValue, onChange }: Props) {
+export default function FontSizeBlock({ fontSizeValue, onChange, disabled }: Props) {
     return (
         <GroupButton
             group={SwitchList}
             activeValue={fontSizeValue}
             labels={labels}
+            disabled={disabled}
             onChange={(active) => {
                 onChange?.(active);
             }}

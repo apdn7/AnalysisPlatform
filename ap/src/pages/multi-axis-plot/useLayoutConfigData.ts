@@ -20,6 +20,7 @@ export type LayoutData = {
     color_x: number | null;
     color_imb: number | null;
     color_imb_x: number | null;
+    group: number | null;
     y_axis_mode?: string;
     sub_plots: SubPlot[];
     x_datatype: any;
@@ -54,6 +55,7 @@ const COMMON_FIELD_MAP: Record<string, keyof Omit<LayoutData, 'sub_plots' | 'x_d
     color_x: 'color_x',
     color_imb: 'color_imb',
     color_imb_x: 'color_imb_x',
+    group: 'group',
 };
 
 const X_AXIS_LAYOUT_FIELDS = ['x_axis', 'lab_x', 'color_x', 'color_imb_x'] as const;

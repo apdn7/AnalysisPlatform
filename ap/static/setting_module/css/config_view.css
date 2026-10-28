@@ -418,10 +418,12 @@ td.pr-row {
 
 #procSettingModal .modal-content {
     max-height: 90vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 #procSettingModal #procSettingModalBody {
+    --proc-columns-min-height: 150px;
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
@@ -433,12 +435,12 @@ td.pr-row {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 0;
+    min-height: var(--proc-columns-min-height);
 }
 #procSettingModal #processColumnsTable .jexcel_content {
     flex: 1 1 auto;
     overflow: auto;
-    min-height: 0;
+    min-height: var(--proc-columns-min-height);
 }
 #procSettingModal #processColumnsTable .jexcel_pagination {
     flex: 0 0 auto;
@@ -500,83 +502,6 @@ td.pr-row {
 #procSettingModal .proc-column-tools {
     grid-column: 1;
     gap: 0.25rem 0;
-}
-
-#procPaginationToolbar {
-    --proc-pagination-height: calc(1.2 * 0.9375rem + 0.75rem);
-    flex-wrap: wrap;
-    gap: 4px;
-    font-size: 0.9375rem;
-}
-
-#procPaginationToolbar .jexcel_pagination > div:first-child {
-    display: none;
-}
-
-#procPaginationToolbar .jexcel_pagination > div {
-    padding: 0;
-    align-items: center;
-    gap: 4px;
-}
-
-#procPaginationToolbar .jexcel_page {
-    width: var(--proc-pagination-height);
-    height: var(--proc-pagination-height);
-    line-height: 1.5;
-    flex-shrink: 0;
-    font-size: inherit;
-}
-
-#procPaginationJump {
-    width: 56px;
-    min-width: 0;
-    padding: 0 4px;
-    text-align: center;
-}
-
-#procPaginationJump::-webkit-inner-spin-button {
-    opacity: 1;
-}
-
-#procPaginationJumpBtn {
-    height: var(--proc-pagination-height);
-    padding: 0 6px;
-    border: 1px solid #58717d;
-    border-radius: 0;
-    background: #303d44;
-    color: #acd4eb;
-    font-size: inherit;
-    line-height: 1.5;
-}
-
-#procPaginationToolbar button.jexcel_page {
-    padding: 0;
-    margin: 0;
-    border: 1px solid #58717d;
-    border-radius: 0;
-    background: #303d44;
-    color: #acd4eb;
-    cursor: pointer;
-}
-
-#procPaginationToolbar button.jexcel_page_selected {
-    border-color: #82b2cf;
-    background: #4e87ad;
-    color: #fff;
-}
-
-#procPaginationToolbar button.jexcel_page:not(:disabled):hover,
-#procPaginationJumpBtn:not(:disabled):hover {
-    background: #4e87ad;
-}
-
-#procPaginationToolbar button.jexcel_page:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-#procPaginationToolbar .proc-pagination-ellipsis {
-    color: #acd4eb;
 }
 
 .proc-general-info-col {

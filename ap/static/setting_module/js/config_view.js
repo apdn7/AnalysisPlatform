@@ -5,7 +5,8 @@ const csvResourceElements = {
     apiCheckFolderUrl: '/ap/api/setting/check_folder',
     apiLoadDetail: '/ap/api/setting/ds_load_detail',
     dataTbl: '#csvDataTable',
-    folderUrlInput: 'input[name="folderUrl"]',
+    referenceFileInput: '#csvReferenceFile',
+    folderUrlInput: '#modal-db-csv #folderUrl',
     isFilePathHidden: '#isFilePath',
     fileName: '#fileName',
     i18nDirExist: 'i18nFileExist',
@@ -38,6 +39,8 @@ const csvResourceElements = {
     changeAllFreqSameDSFlag: '#changeAllFreqSameDSFlag',
     delimiter: 'input[type="radio"][name="fileType"]:checked',
     fileTypeAuto: '#fileTypeAuto',
+    fileTypeOther: '#fileTypeOther',
+    customExtension: '#csvCustomExtension',
     csv: '#fileTypeCSV',
     tsv: '#fileTypeTSV',
     smc: '#fileTypeSMC',
@@ -129,12 +132,15 @@ const DB = new Databases();
 const clearOldValue = () => {
     // reset old datasource name
     $(dbConfigElements.csvDBSourceName).val('');
+    refreshCsvSoftWrapFields();
     $('span[id^="msg-test-db-conn-"]').text('');
     $(csvResourceElements.sqlInputFile).val('');
     // reset all test db connection messages before toggle edit connfiguration modals
     $('.check-db-msg').html('');
 
     // reset optional function
+    $(csvResourceElements.customExtension).val('zip');
+    $(csvResourceElements.fileTypeOther).prop('checked', false);
     $(csvResourceElements.optionalFunction).select2().val('').trigger('change');
 
     // hide loading
@@ -174,6 +180,25 @@ const getDBItems = () => {
         Object.assign(dtItems, item);
     });
     return dtItems;
+};
+
+const getCsvCustomExtension = () => {
+    if (!$(csvResourceElements.optionalFunction).val() || !$(csvResourceElements.fileTypeOther).is(':checked')) {
+        return null;
+    }
+    return $(csvResourceElements.customExtension).val().trim() || null;
+};
+
+const updateCsvOptionalFunctionSettings = () => {
+    const hasOptionalFunction = !!$(csvResourceElements.optionalFunction).val();
+    $('.csv-standard-settings').toggleClass('d-none', hasOptionalFunction);
+    $('.csv-other-extension').toggleClass('d-none', !hasOptionalFunction);
+    if (!hasOptionalFunction && $(csvResourceElements.fileTypeOther).is(':checked')) {
+        $(csvResourceElements.fileTypeOther).prop('checked', false);
+    }
+    const useCustomExtension = hasOptionalFunction && $(csvResourceElements.fileTypeOther).is(':checked');
+    $(csvResourceElements.fileTypeOther).data('wasChecked', useCustomExtension);
+    $(csvResourceElements.customExtension).prop('disabled', !useCustomExtension);
 };
 
 // Update polling freq

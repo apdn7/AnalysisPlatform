@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import FontSizeBlock from '@/pages/multi-axis-plot/components/FontSizeBlock.tsx';
 import ThemeBlock from '@/pages/multi-axis-plot/components/ThemeBlock.tsx';
 import { fontSize } from '@/pages/multi-axis-plot/plotBuilder.ts';
+import { type PlotStyleUpdate, usePlotStyleUpdate } from '@/shared/hooks/usePlotStyleUpdate';
 
 const themeColor = {
     background: {
@@ -30,8 +31,23 @@ export default function MultiScatterPlotStyleSetting() {
     const sizeRef = useRef('base');
     const themeRef = useRef('dark');
     const titleParentWidthsRef = useRef(new WeakMap<Element, number>());
+    const { isUpdating, runStyleUpdate, cancelStyleUpdate } = usePlotStyleUpdate();
 
-    const handleOnchangeFontSize = (sizeKey: string) => {
+    const getLayoutUpdateJobs = (layoutUpdate: Record<string, unknown>): PlotStyleUpdate[] => {
+        const plots = document.querySelectorAll<HTMLElement>('.js-plotly-plot');
+        return Array.from(plots, (plotDOM) => () => {
+            if (plotDOM.isConnected === false) return;
+            return window.Plotly.relayout(plotDOM, layoutUpdate);
+        });
+    };
+
+    const applyLayoutUpdate = (layoutUpdate: Record<string, unknown>) => {
+        getLayoutUpdateJobs(layoutUpdate).forEach((update) => {
+            void update();
+        });
+    };
+
+    const updateFontStyle = (sizeKey: string) => {
         sizeRef.current = sizeKey;
 
         const labelSize = fontSize.label[sizeKey] ?? fontSize.label.base;
@@ -39,7 +55,7 @@ export default function MultiScatterPlotStyleSetting() {
 
         const scale = labelSize / fontSize.label.base;
 
-        const layoutUpdate = {
+        return {
             'font.size': tickSize,
             'xaxis.tickfont.size': tickSize,
             'legend.font.size': labelSize,
@@ -50,13 +66,9 @@ export default function MultiScatterPlotStyleSetting() {
             'margin.b': Math.round(20 * scale),
             'margin.t': Math.round(25 * scale),
         };
-        const plots = document.querySelectorAll('.js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            window.Plotly.relayout(plotDOM, layoutUpdate);
-        });
     };
 
-    const handleOnchangeTheme = (newTheme: string) => {
+    const updateThemeStyle = (newTheme: string) => {
         themeRef.current = newTheme;
         const colors = {
             background: themeColor.background[newTheme],
@@ -72,7 +84,7 @@ export default function MultiScatterPlotStyleSetting() {
             });
         }
 
-        const layoutUpdate = {
+        return {
             'paper_bgcolor': colors.background,
             'plot_bgcolor': colors.background,
             'font.color': colors.text,
@@ -80,11 +92,28 @@ export default function MultiScatterPlotStyleSetting() {
             'xaxis.tickfont.color': colors.text,
             'yaxis.tickfont.color': colors.text,
         };
+    };
 
-        const plots = document.querySelectorAll('.js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            window.Plotly.relayout(plotDOM, layoutUpdate);
-        });
+    const handleOnchangeFontSize = (sizeKey: string) => {
+        cancelStyleUpdate();
+        applyLayoutUpdate(updateFontStyle(sizeKey));
+    };
+
+    const handleOnchangeTheme = (newTheme: string) => {
+        cancelStyleUpdate();
+        applyLayoutUpdate(updateThemeStyle(newTheme));
+    };
+
+    const changeFontSize = (sizeKey: string) => {
+        if (sizeKey === sizeRef.current) return handleOnchangeFontSize(sizeKey);
+        sizeRef.current = sizeKey;
+        void runStyleUpdate(() => getLayoutUpdateJobs(updateFontStyle(sizeKey)));
+    };
+
+    const changeTheme = (themeKey: string) => {
+        if (themeKey === themeRef.current) return handleOnchangeTheme(themeKey);
+        themeRef.current = themeKey;
+        void runStyleUpdate(() => getLayoutUpdateJobs(updateThemeStyle(themeKey)));
     };
 
     useEffect(() => {
@@ -101,17 +130,26 @@ export default function MultiScatterPlotStyleSetting() {
             handleOnchangeFontSize(sizeKey);
         };
 
+        window.applyPlotStyle = () => {
+            cancelStyleUpdate();
+            applyLayoutUpdate({
+                ...updateThemeStyle(themeRef.current),
+                ...updateFontStyle(sizeRef.current),
+            });
+        };
+
         return () => {
             delete window.getStyleLayout;
             delete window.handleOnchangeFontsize;
             delete window.handleOnchangeTheme;
+            delete window.applyPlotStyle;
         };
     }, []);
 
     return (
         <div className="d-flex flex-row justify-content-center align-items-center">
-            <FontSizeBlock onChange={handleOnchangeFontSize} fontSizeValue={sizeRef.current} />
-            <ThemeBlock onChange={handleOnchangeTheme} themeValue={themeRef.current} />
+            <FontSizeBlock onChange={changeFontSize} fontSizeValue={sizeRef.current} disabled={isUpdating} />
+            <ThemeBlock onChange={changeTheme} themeValue={themeRef.current} disabled={isUpdating} />
         </div>
     );
 }

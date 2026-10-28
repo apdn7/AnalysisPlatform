@@ -2413,6 +2413,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
     destroyVirtualLists(variableContainer);
     $(variableContainer).find('*').off().empty();
     $(`#end-proc-val-${count}`).remove();
+    $(`#end-proc-search-${count}`).empty();
     document.dispatchEvent(new CustomEvent('processChanged', { detail: { groupId: count } }));
     if (procInfo == null) {
         await checkIfProcessesAreLinked();
@@ -2507,6 +2508,7 @@ const endProcMultiSelectOnChange = async (count, props) => {
         const listGroupProps = {
             checkedIds,
             name: `GET02_VALS_SELECT${count}`,
+            searchContainerId: `end-proc-search-${count}`,
             noFilter: false,
             itemNames: names,
             itemDataTypes: props.showDataType ? dataTypes : null,
@@ -2632,20 +2634,23 @@ const addEndProcMultiSelect = (procIds, procNames, props = endProcessProps, posi
                         <span class="pull-right clickable close-icon" data-effect="fadeOut">
                             <i class="fa fa-times"></i>
                         </span>
-                        <div class="d-flex align-items-center" id="end-proc-process-div-${count}">
-                            <span class="mr-2 text-nowrap">${i18nCommon.process}</span>
-                            <div class="w-auto flex-grow-1 position-relative min-width-0">
-                                <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 50px;"></i>
-                                <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
-                                <select class="form-control select2-selection--single
-                                    ${props.isRequired ? 'required-input' : ''}
-                                    select-n-columns process-selector" name="end_proc${count}"
-                                    id="${processSelectId}" 
-                                    data-id="${count}"
-                                    data-gen-btn="btn-add-end-proc">
-                                    ${genProcessSelectOptions(procIds, procNames)}
-                                </select>
+                        <div class="end-proc-header">
+                            <div class="end-proc-process d-flex align-items-center" id="end-proc-process-div-${count}">
+                                <span class="mr-2 text-nowrap">${i18nCommon.process}</span>
+                                <div class="w-auto flex-grow-1 position-relative min-width-0">
+                                    <i id="no-link-warning-sign-${count}" class="fas fa-triangle-exclamation blink no-link-warning-sign" style="right: 50px;"></i>
+                                    <span class="position-absolute count-variable-label" style="top: 7px; right: 40px; z-index: 1;" id="count-variables-${count}">0</span>
+                                    <select class="form-control select2-selection--single
+                                        ${props.isRequired ? 'required-input' : ''}
+                                        select-n-columns process-selector" name="end_proc${count}"
+                                        id="${processSelectId}"
+                                        data-id="${count}"
+                                        data-gen-btn="btn-add-end-proc">
+                                        ${genProcessSelectOptions(procIds, procNames)}
+                                    </select>
+                                </div>
                             </div>
+                            <div class="end-proc-search" id="end-proc-search-${count}"></div>
                         </div>
                         <div id="end-proc-val-div-${count}">
                         </div>
@@ -3727,6 +3732,267 @@ const bindCategoryParams = (formData) => {
     }
     return formData;
 };
+
+// One Bootstrap anchor keeps title hovers separate from clipboard/validation instances on real controls.
+const initTitleTooltips = () => {
+    initTitleTooltips.dispose?.();
+    const controller = new AbortController();
+    const { signal } = controller;
+    let active = null;
+    let hovered = null;
+    let focused = null;
+    let showTimer;
+    const bootstrapTooltips = new Map();
+    const anchor = document.createElement('span');
+    anchor.className = 'app-title-tooltip-anchor';
+    anchor.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(anchor);
+    $(anchor).tooltip({
+        container: 'body',
+        placement: 'top',
+        boundary: 'window',
+        html: false,
+        animation: false,
+        trigger: 'manual',
+        title: () => active?.text || '',
+        template: '<div class="tooltip app-title-tooltip" role="tooltip"><div class="tooltip-inner"></div></div>',
+    });
+    const tip = () => $(anchor).data('bs.tooltip').tip;
+    const insideTip = (node) => node instanceof Element && tip()?.contains(node);
+    const prepareBootstrap = (event) => {
+        for (let el = event.target; el instanceof Element; el = el.parentElement) {
+            const instance = $(el).data('bs.tooltip');
+            if (!instance?.config || instance.config.html || !instance.config.trigger.split(' ').includes('hover'))
+                continue;
+            if (!bootstrapTooltips.has(instance)) {
+                bootstrapTooltips.set(instance, {
+                    delay: instance.config.delay,
+                    animation: instance.config.animation,
+                });
+            }
+            instance.config.delay = { show: event.type === 'focusin' ? 0 : 500, hide: 0 };
+            instance.config.animation = false;
+            if (event.type === 'focusin' && !instance.tip?.classList.contains('show')) {
+                clearTimeout(instance._timeout);
+                instance._hoverState = '';
+            }
+        }
+    };
+    const hideBootstrap = (instance) => {
+        clearTimeout(instance._timeout);
+        if (instance.config) instance.hide();
+    };
+    // Bootstrap's mouseenter/focus handlers run during bubbling, after these delay settings.
+    document.addEventListener('mouseover', prepareBootstrap, { signal, capture: true });
+    document.addEventListener('focusin', prepareBootstrap, { signal, capture: true });
+    document.addEventListener(
+        'mouseout',
+        (event) => {
+            for (const instance of bootstrapTooltips.keys()) {
+                if (instance.element?.contains(event.target) && !instance.element.contains(event.relatedTarget))
+                    hideBootstrap(instance);
+            }
+        },
+        { signal, capture: true },
+    );
+    const findTitle = (node) => {
+        if (!(node instanceof Element) || node.closest('.tooltip, [role="tooltip"], .hoverlayer, .hovertext'))
+            return null;
+        for (let el = node; el; el = el.parentElement) {
+            // Existing Bootstrap behavior owns its own content, triggers and show/hide lifecycle.
+            if ($(el).data('bs.tooltip') || el.matches('[data-bs-toggle="tooltip"]')) return null;
+            if (el.hasAttribute('title')) {
+                const text = el === active?.target ? active.text : el.getAttribute('title');
+                return text ? { target: el, text } : null; // Empty titles stop native ancestor inheritance.
+            }
+        }
+        return null;
+    };
+    const hide = (restoreTitle = true) => {
+        clearTimeout(showTimer);
+        if (!active) return;
+        const { target, text, label } = active;
+        const id = active.tipId;
+        $(anchor).tooltip('hide');
+        active = null;
+        // Preserve newer React/legacy attributes and remove only our description token.
+        if (restoreTitle && target.getAttribute('title') === '') target.setAttribute('title', text);
+        const descriptions = target.getAttribute('aria-describedby')?.split(/\s+/) || [];
+        if (descriptions.includes(id)) {
+            const remaining = descriptions.filter((value) => value && value !== id).join(' ');
+            if (remaining) target.setAttribute('aria-describedby', remaining);
+            else target.removeAttribute('aria-describedby');
+        }
+        if (label && target.getAttribute('aria-label') === text) target.removeAttribute('aria-label');
+    };
+    const show = () => {
+        clearTimeout(showTimer);
+        if (!active) return;
+        const { target } = active;
+        if (!target.isConnected || target.getAttribute('title') !== '' || $(target).data('bs.tooltip')) {
+            hide();
+            return;
+        }
+        const rect = target.getBoundingClientRect();
+        Object.assign(anchor.style, {
+            left: `${Math.max(16, Math.min(rect.left, window.innerWidth - 16))}px`,
+            top: `${Math.max(16, Math.min(rect.top, window.innerHeight - 16))}px`,
+            width: `${Math.max(0, Math.min(rect.right, window.innerWidth - 16) - Math.max(16, rect.left))}px`,
+            height: `${Math.max(0, Math.min(rect.bottom, window.innerHeight - 16) - Math.max(16, rect.top))}px`,
+        });
+        $(anchor).tooltip('show');
+        active.tipId = tip().id;
+        target.setAttribute(
+            'aria-describedby',
+            [target.getAttribute('aria-describedby'), active.tipId].filter(Boolean).join(' '),
+        );
+    };
+    const schedule = (candidate, delay = 500) => {
+        if (candidate?.target === active?.target && candidate?.text === active?.text) {
+            if (!delay && active && !active.tipId) show();
+            return;
+        }
+        hide();
+        if (!candidate?.target.isConnected) return;
+        // Earlier title mutations belong to the previous hover/focus lifecycle.
+        observer.takeRecords();
+        active = candidate;
+        const { target, text } = active;
+        // Suppress the native tooltip throughout the wait, not just after Bootstrap shows.
+        target.setAttribute('title', '');
+        // Keep title-only controls named while their native popup is suppressed.
+        active.label =
+            target.matches('button, input, select, textarea, a, img, [role="button"], [role="img"]') &&
+            !target.textContent.trim() &&
+            !target.getAttribute('aria-label') &&
+            !target.getAttribute('aria-labelledby') &&
+            !target.getAttribute('alt') &&
+            !target.labels?.length;
+        if (active.label) target.setAttribute('aria-label', text);
+        if (delay) showTimer = setTimeout(show, delay);
+        else show();
+    };
+    const update = () => {
+        const candidate = findTitle(hovered) || findTitle(focused);
+        schedule(candidate, hovered ? 500 : 0);
+    };
+    document.addEventListener(
+        'pointerover',
+        (event) => {
+            if (event.pointerType === 'touch') return;
+            hovered = event.target;
+            const candidate = findTitle(hovered);
+            schedule(candidate);
+        },
+        { signal },
+    );
+    document.addEventListener(
+        'pointerout',
+        (event) => {
+            if (event.pointerType === 'touch') return;
+            hovered = event.relatedTarget;
+            if (active?.target.contains(hovered)) return;
+            hide();
+        },
+        { signal },
+    );
+    document.addEventListener(
+        'focusin',
+        (event) => {
+            focused = event.target;
+            schedule(findTitle(focused), 0);
+        },
+        { signal },
+    );
+    document.addEventListener(
+        'focusout',
+        (event) => {
+            focused = event.relatedTarget;
+            if (!active?.target.contains(focused)) hide();
+        },
+        { signal },
+    );
+    const dismiss = () => {
+        hovered = null;
+        focused = null;
+        hide();
+        for (const instance of bootstrapTooltips.keys()) hideBootstrap(instance);
+    };
+    document.addEventListener(
+        'keydown',
+        (event) => {
+            if (event.key === 'Escape') dismiss();
+        },
+        { signal },
+    );
+    document.addEventListener(
+        'scroll',
+        (event) => {
+            if (!insideTip(event.target)) dismiss();
+        },
+        { signal, capture: true },
+    );
+    window.addEventListener('resize', dismiss, { signal });
+    window.addEventListener('blur', dismiss, { signal });
+    $(document)
+        .on('show.bs.tooltip.appTitleTooltips', (event) => {
+            if (event.target !== anchor) {
+                hovered = null;
+                focused = null;
+                hide();
+            }
+        })
+        .on('inserted.bs.tooltip.appTitleTooltips', (event) => {
+            const instance = $(event.target).data('bs.tooltip');
+            if (!instance.config.html && instance.config.trigger.split(' ').includes('hover')) {
+                instance.tip.classList.add('app-title-tooltip');
+            }
+        });
+    const observer = new MutationObserver((records) => {
+        for (const instance of bootstrapTooltips.keys()) {
+            if (!instance.element?.isConnected) {
+                hideBootstrap(instance);
+                if (instance.config) Object.assign(instance.config, bootstrapTooltips.get(instance));
+                bootstrapTooltips.delete(instance);
+            }
+        }
+        if (!active) return;
+        if (!active.target.isConnected || (active.tipId && !tip()?.isConnected)) dismiss();
+        else if (active.target.getAttribute('title') !== '' || $(active.target).data('bs.tooltip')) {
+            hide();
+            update();
+        } else if (
+            records.some(
+                (record) =>
+                    record.target === active.target && record.attributeName === 'title' && record.oldValue === '',
+            )
+        ) {
+            // An explicit empty-title update must not resurrect the previous text on cleanup.
+            hide(false);
+        }
+    });
+    observer.observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['title'],
+        attributeOldValue: true,
+    });
+    initTitleTooltips.dispose = () => {
+        observer.disconnect();
+        controller.abort();
+        $(document).off('.appTitleTooltips');
+        dismiss();
+        for (const [instance, config] of bootstrapTooltips) {
+            if (instance.config) Object.assign(instance.config, config);
+        }
+        bootstrapTooltips.clear();
+        $(anchor).tooltip('dispose');
+        anchor.remove();
+    };
+};
+
+$(() => initTitleTooltips());
 
 const hideTooltip = (selector, timeOut = 1000) => {
     setTimeout(() => {
@@ -5373,6 +5639,8 @@ const updateDatetimeInputs = (value) => {
             const currentVal = $(datetimeInput).val();
             if (currentVal) {
                 $(datetimeInput).val(value).change();
+                // Keep the "default" marker in sync: a system-set dummy range must not count as a user selection.
+                $(datetimeInput).attr('data-default-datetime-range', value);
             }
         });
     }
@@ -5425,17 +5693,173 @@ const roundMinute = (dateStr, option = 'up', unit = 5) => {
     const newMinute = divideUnit * unit;
     return moment(moment(dateStr).format('YYYY-MM-DD HH:00')).add(newMinute, 'minutes').format(DATE_TIME_FMT);
 };
+// The sensor-list virtualizer owns <li> nodes; this table keeps only visible <tr> nodes.
+const initProblematicVirtualTable = (table, rows) => {
+    const body = table.tBodies[0];
+    const scroller = table.closest('.scroll-body');
+    const modal = $(domEles.problematicModal);
+    const overscan = 5;
+    let rowHeight = 36;
+    let frame = null;
+    let destroyed = false;
+    let rendered = new Map();
+
+    const spacer = () => {
+        const row = document.createElement('tr');
+        row.className = 'variance-spacer';
+        row.setAttribute('aria-hidden', 'true');
+        row.insertCell().colSpan = 4;
+        return row;
+    };
+    const top = spacer();
+    const bottom = spacer();
+    body.replaceChildren(top, bottom);
+    table.setAttribute('aria-rowcount', rows.length + 1);
+
+    const createRow = (item, index) => {
+        const row = document.createElement('tr');
+        row.className = 'variance-row';
+        row.setAttribute('aria-rowindex', index + 2);
+        const control = document.createElement('div');
+        control.className = 'custom-control custom-radio';
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.className = 'custom-control-input';
+        input.id = `selectedVar_${item.id}`;
+        input.name = input.id;
+        input.value = item.id;
+        input.checked = item.checked;
+        input.setAttribute('aria-label', item.name || item.id);
+        input.addEventListener('click', () => {
+            // Native radio activation checks the input before click; toggle the saved state instead.
+            input.checked = !item.checked;
+            item.checked = input.checked;
+        });
+        input.addEventListener('change', () => {
+            item.checked = input.checked;
+        });
+        // Keep keyboard navigation usable across the virtual window boundary.
+        input.addEventListener('keydown', (event) => {
+            if (event.key === ' ') {
+                event.preventDefault();
+                if (!event.repeat) input.click();
+                return;
+            }
+            const next = index + (event.shiftKey ? -1 : 1);
+            if (event.key !== 'Tab' || next < 0 || next >= rows.length) return;
+            event.preventDefault();
+            const bodyTop =
+                body.getBoundingClientRect().top -
+                scroller.getBoundingClientRect().top +
+                scroller.scrollTop -
+                scroller.clientTop;
+            const nextTop = bodyTop + next * rowHeight;
+            if (nextTop < scroller.scrollTop || nextTop + rowHeight > scroller.scrollTop + scroller.clientHeight) {
+                scroller.scrollTop = nextTop;
+            }
+            render();
+            rendered.get(next)?.querySelector('input').focus({ preventScroll: true });
+        });
+        const label = document.createElement('label');
+        label.className = 'custom-control-label';
+        label.htmlFor = input.id;
+        control.append(input, label);
+        row.insertCell().append(control);
+        const name = row.insertCell();
+        name.textContent = item.name;
+        name.title = item.name;
+        row.insertCell().textContent = item.zeroVar ? '〇' : '';
+        row.insertCell().textContent = `${item.naRate}%`;
+        return row;
+    };
+
+    const render = () => {
+        if (destroyed) return;
+        const scrollTop = scroller.scrollTop;
+        const measured = body.querySelector('.variance-row')?.getBoundingClientRect().height;
+        if (measured) rowHeight = measured;
+        const bodyTop =
+            body.getBoundingClientRect().top -
+            scroller.getBoundingClientRect().top +
+            scroller.scrollTop -
+            scroller.clientTop;
+        const first = Math.min(rows.length, Math.floor(Math.max(0, scroller.scrollTop - bodyTop) / rowHeight));
+        const start = Math.max(0, first - overscan);
+        const end = Math.min(rows.length, first + Math.ceil(scroller.clientHeight / rowHeight) + overscan);
+        top.firstChild.style.height = `${start * rowHeight}px`;
+        bottom.firstChild.style.height = `${(rows.length - end) * rowHeight}px`;
+        // Retain overlapping nodes so scrolling does not reset input focus or click state.
+        const next = new Map();
+        for (const [index, row] of rendered) {
+            if (index < start || index >= end) row.remove();
+        }
+        let previous = top;
+        for (let index = start; index < end; index++) {
+            const row = rendered.get(index) || createRow(rows[index], index);
+            if (previous.nextSibling !== row) body.insertBefore(row, previous.nextSibling);
+            next.set(index, row);
+            previous = row;
+        }
+        rendered = next;
+        // Removing old rows can temporarily shrink the table and clamp scrollTop.
+        scroller.scrollTop = scrollTop;
+    };
+    const scheduleRender = () => {
+        if (frame !== null || destroyed) return;
+        frame = requestAnimationFrame(() => {
+            frame = null;
+            render();
+        });
+    };
+    const resize = new ResizeObserver(scheduleRender);
+    const api = {
+        rows,
+        destroy() {
+            if (destroyed) return;
+            destroyed = true;
+            scroller.removeEventListener('scroll', scheduleRender);
+            resize.disconnect();
+            if (frame !== null) cancelAnimationFrame(frame);
+            modal.off('.varianceVirtualTable');
+            body.replaceChildren();
+            rendered.clear();
+            table.removeAttribute('aria-rowcount');
+            delete table._varianceVirtualList;
+        },
+    };
+    table._varianceVirtualList = api;
+    scroller.scrollTop = 0;
+    scroller.addEventListener('scroll', scheduleRender, { passive: true });
+    resize.observe(scroller);
+    modal.on('shown.bs.modal.varianceVirtualTable', scheduleRender);
+    modal.on('hidden.bs.modal.varianceVirtualTable', () => api.destroy());
+    render();
+    return api;
+};
+
 const reselectVariablesToShowGraph = () => {
-    const guiInputs = findValidationInputs('input[name^=GET02_VALS_SELECT]', document);
-    $('input[name^=selectedVar]').each((_v, el) => {
-        const elStatus = $(el).is(':checked');
-        guiInputs
-            .filter((_, input) => input.value === $(el).val())
-            .each((_, input) => {
-                if (elStatus !== input.checked) {
-                    $(input).prop('checked', elStatus).trigger('change');
-                }
-            });
+    const virtualTable = document.querySelector(domEles.problematicTbl)._varianceVirtualList;
+    const selections = virtualTable
+        ? virtualTable.rows
+        : Array.from($(domEles.problematicPCATbl).find('input[name^=selectedVar]'), (el) => ({
+              id: el.value,
+              checked: el.checked,
+          }));
+    const selector = 'input[name^=GET02_VALS_SELECT]';
+    const inputs = new Set(document.querySelectorAll(selector));
+    // The form's sensor lists also contain detached virtual rows.
+    document.querySelectorAll('.grouplist-checkbox-with-search').forEach((list) => {
+        list._virtualList?.querySelectorAll(selector).forEach((input) => inputs.add(input));
+    });
+    const inputsById = new Map();
+    inputs.forEach((input) => {
+        if (!inputsById.has(input.value)) inputsById.set(input.value, []);
+        inputsById.get(input.value).push(input);
+    });
+    selections.forEach(({ id, checked }) => {
+        (inputsById.get(id) || []).forEach((input) => {
+            if (input.checked !== checked) $(input).prop('checked', checked).trigger('change');
+        });
     });
     // revalidate form before call show_graph
     const isValid = checkValidations({ max: MAX_NUMBER_OF_SENSOR });
@@ -5444,9 +5868,7 @@ const reselectVariablesToShowGraph = () => {
         loadingShow(false, true);
         const jumpKey = getParamFromUrl('jump_key');
         if (jumpKey) {
-            const excludedColumns = [...$(domEles.problematicTbl).find('input[name^=selectedVar]:not(:checked)')].map(
-                (el) => Number($(el).val()),
-            );
+            const excludedColumns = virtualTable ? selections.filter((row) => !row.checked).map((row) => row.id) : [];
             const url = new URL(window.location.href);
             url.searchParams.set('excluded_columns', excludedColumns.join(','));
             window.history.replaceState(null, null, url);
@@ -5458,9 +5880,11 @@ const reselectVariablesToShowGraph = () => {
 const genProblematicContent = (plotData, multipleTimeRange = false) => {
     const problematicTblBody = $(domEles.problematicTbl).find('tbody');
     const problematicPCATblBody = $(domEles.problematicPCATbl).find('tbody');
+    document.querySelector(domEles.problematicTbl)._varianceVirtualList?.destroy();
     problematicTblBody.html('');
     problematicPCATblBody.html('');
     if (multipleTimeRange) {
+        // for pca page
         $(domEles.problematicPCATbl).show();
         $(domEles.problematicTbl).hide();
 
@@ -5516,26 +5940,15 @@ const genProblematicContent = (plotData, multipleTimeRange = false) => {
         const selectedVars = Object.keys(plotData.selected_vars).length ? Object.keys(plotData.selected_vars) : null;
         const nullPercent = Object.keys(plotData.null_percent).length ? Object.keys(plotData.null_percent) : null;
 
-        const selectedCols = selectedVars || nullPercent;
-        selectedCols.forEach((colID) => {
+        const selectedCols = selectedVars || nullPercent || [];
+        const zeroVariance = new Set(plotData.zero_variance.map(String));
+        const rows = selectedCols.map((colID) => {
             const colName = plotData.selected_vars[colID] || '';
-            const zeroVar = plotData.zero_variance.map((i) => String(i)).includes(String(colID));
+            const zeroVar = zeroVariance.has(colID);
             const naRate = nullPercent ? applySignificantDigit(plotData.null_percent[colID]) : 0;
-            const selected = naRate <= 50 && !zeroVar ? ' checked' : '';
-            const rowContent = `<tr>
-                <td>
-                    <div class="custom-control custom-radio">
-                      <input type="radio" id="selectedVar_${colID}" name="selectedVar_${colID}" 
-                        class="custom-control-input" ${selected} value="${colID}">
-                        <label class="custom-control-label" onclick="uncheckRadioEvent(this);" for="selectedVar_${colID}"></label>
-                    </div>
-                </td>
-                <td style="text-align: left; padding-left: 4px">${colName}</td>
-                <td>${zeroVar ? '〇' : ''}</td>
-                <td>${naRate}%</td>
-            </tr>`;
-            problematicTblBody.append(rowContent);
+            return { id: colID, name: colName, zeroVar, naRate, checked: naRate <= 50 && !zeroVar };
         });
+        initProblematicVirtualTable(document.querySelector(domEles.problematicTbl), rows);
     }
 };
 
@@ -6066,6 +6479,7 @@ async function checkShowingWarningMessageForUpdatingMainSerialInTraceConfig(from
  * - true: no warning message
  */
 async function checkShowingWarningMessageForUpdatingMainSerialInShowGraph(processId) {
+    if (processSelectionBatchDepth > 0) return false;
     const inner = async function inner(processId) {
         if (
             processId === '' ||
@@ -6295,6 +6709,20 @@ const addFilterProcessByProcessId = (processId) => {
     if (!parentCondCardDivs.length) {
         // add by trigger click add button
         [...$('button[name=btnAddCondProc]')].forEach((el) => $(el).trigger('click'));
+    }
+
+    if (processSelectionBatchDepth > 0) {
+        // Cards are inserted synchronously. Do not leave a delayed change outside
+        // modal OK's batch, where it would restart all-process validation.
+        parentCondCardDivs = getEmptyCondCards(selectName);
+        if (parentCondCardDivs.length) {
+            const pending = [];
+            const event = $.Event('change');
+            event.waitUntil = (task) => pending.push(Promise.resolve(task));
+            parentCondCardDivs[0].find(selectName).val(processId).trigger(event);
+            return Promise.all(pending);
+        }
+        return;
     }
 
     // Adding a condition card is synchronous; a delayed callback can restore an obsolete process.

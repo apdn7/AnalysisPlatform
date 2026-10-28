@@ -270,6 +270,14 @@ const getSortKeys = (targetEle, isSimple = null, layoutPriorities = null) => {
         keys.push(2);
     }
 
+    const list = targetEle._virtualListOwner ?? targetEle.closest('.grouplist-checkbox-with-search');
+    if (list?.id.startsWith('list-end-proc-val')) {
+        const hasLayout = layoutPriorities !== null ? !!priorityOrder : !!layoutElm.val();
+        const isSelected =
+            checkboxs.toArray().some((checkbox) => checkbox.checked) || isSecondaryRoleSelected || hasLayout;
+        keys.push(isSelected ? 0 : targetEle.dataset.recentlyUnchecked === 'true' ? 1 : 2);
+    }
+
     if (isSimple) {
         keys.push(isChecked === null ? lastPosNumber : isChecked ? 0 : 1);
         return keys;
@@ -347,7 +355,7 @@ const getLayoutSortPrioritiesForList = (list, emptyMapFallback = null) => {
         return null;
     }
     const layoutPriorities = window.getLayoutSortPriorities?.();
-    // Preserve the default null contract; virtual lists opt into false for empty MAP state.
+    // Virtual lists pass an empty map to ignore stale layout inputs after the final role is cleared.
     return layoutPriorities && Object.keys(layoutPriorities).length > 0 ? layoutPriorities : emptyMapFallback;
 };
 
@@ -642,6 +650,10 @@ const saveLoadUserInput = (
         let isCheckedShowCycleTime = false;
 
         queryFormElements('input, textarea, select').forEach((el) => {
+            // Keep the destination graph's template defaults when jumping.
+            if (isEventJumpOKBtn && el.closest('#cleansing-content, #cleansing-selection')) {
+                return;
+            }
             const data = {
                 id: el.id,
                 name: el.name,

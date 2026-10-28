@@ -3,8 +3,15 @@ import { useEffect, useRef } from 'react';
 import FontSizeBlock from '@/pages/multi-axis-plot/components/FontSizeBlock.tsx';
 import ThemeBlock from '@/pages/multi-axis-plot/components/ThemeBlock.tsx';
 import { fontSize } from '@/pages/multi-axis-plot/plotBuilder.ts';
+import { type PlotStyleUpdate, usePlotStyleUpdate } from '@/shared/hooks/usePlotStyleUpdate';
 
 // Calendar heatmaps belong to the legacy Plotly instance, not the React bundle's version.
+
+type CalendarHeatmapElement = HTMLElement & {
+    layout: { width?: number; height?: number };
+    _fullLayout: { width: number; height: number };
+    data: { colorbar: { thickness: number } }[];
+};
 
 const preserveResponsiveSize = (
     plot: HTMLElement & { layout: { width?: number; height?: number } },
@@ -54,10 +61,9 @@ const themeColor = {
 export default function CalendarHeatmapPlotStyleSetting() {
     const sizeRef = useRef('base');
     const themeRef = useRef('dark');
+    const { isUpdating, runStyleUpdate, cancelStyleUpdate } = usePlotStyleUpdate();
 
-    const handleOnchangeFontSize = (sizeKey: string) => {
-        sizeRef.current = sizeKey;
-
+    const getFontStyle = (sizeKey: string) => {
         const scale = (fontSize.label[sizeKey] ?? fontSize.label.base) / fontSize.label.base;
         const tickScale = (fontSize.tick[sizeKey] ?? fontSize.tick.base) / fontSize.tick.base;
         const isBase = scale === 1;
@@ -83,29 +89,10 @@ export default function CalendarHeatmapPlotStyleSetting() {
             'margin.b': Math.round(35 * scale),
             'margin.t': Math.round(3 * scale),
         };
-        const plots = document.querySelectorAll('#heatmapCard .js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            const appliedSize = isBase ? 'base' : sizeKey;
-            if (plotDOM.dataset.chmSize === appliedSize) return;
-            const compact = plotDOM.data[0].colorbar.thickness === 7;
-            const traceUpdate = {
-                'colorbar.tickfont.size': (compact ? 9 : 10) * tickScale,
-                'colorbar.title.font.size': isBase ? null : (compact ? 11 : 12) * scale,
-            };
-            preserveResponsiveSize(plotDOM, () => {
-                return window.Plotly.update(
-                    plotDOM,
-                    traceUpdate,
-                    { ...updateFont, width: plotDOM._fullLayout.width, height: plotDOM._fullLayout.height },
-                    [0],
-                );
-            });
-            plotDOM.dataset.chmSize = appliedSize;
-        });
+        return { appliedSize: isBase ? 'base' : sizeKey, scale, tickScale, isBase, layoutUpdate: updateFont };
     };
 
-    const handleOnchangeTheme = (newTheme: string) => {
-        themeRef.current = newTheme;
+    const getThemeStyle = (newTheme: string) => {
         const colors = {
             background: themeColor.background[newTheme],
             text: themeColor.text[newTheme],
@@ -120,7 +107,7 @@ export default function CalendarHeatmapPlotStyleSetting() {
             });
         }
 
-        const layoutUpdate = {
+        return {
             'paper_bgcolor': colors.background,
             'plot_bgcolor': colors.background,
             'font.color': colors.text,
@@ -128,21 +115,79 @@ export default function CalendarHeatmapPlotStyleSetting() {
             'xaxis.tickfont.color': colors.text,
             'yaxis.tickfont.color': colors.text,
         };
+    };
 
-        const plots = document.querySelectorAll('#heatmapCard .js-plotly-plot');
-        Array.from(plots).forEach((plotDOM: any) => {
-            if (plotDOM.dataset.chmTheme === newTheme) return;
+    const getStyleUpdateJobs = (
+        themeKey?: string,
+        sizeKey?: string,
+        deferDatasetUpdates = false,
+    ): PlotStyleUpdate[] => {
+        const themeStyle = themeKey === undefined ? undefined : getThemeStyle(themeKey);
+        const fontStyle = sizeKey === undefined ? undefined : getFontStyle(sizeKey);
+        const plots = document.querySelectorAll<CalendarHeatmapElement>('#heatmapCard .js-plotly-plot');
+        return Array.from(plots, (plotDOM) => () => {
+            if (plotDOM.isConnected === false) return;
+            const updateTheme = themeStyle && plotDOM.dataset.chmTheme !== themeKey;
+            const updateSize = fontStyle && plotDOM.dataset.chmSize !== fontStyle.appliedSize;
+            if (!updateTheme && !updateSize) return;
+
+            const layoutUpdate = {
+                ...(updateTheme ? themeStyle : {}),
+                ...(updateSize ? fontStyle.layoutUpdate : {}),
+                width: plotDOM._fullLayout.width,
+                height: plotDOM._fullLayout.height,
+            };
             // The process border is added after the initial plot. Changing colors must not
             // autosize against that smaller frame; Plotly's responsive resize still owns resizing.
-            preserveResponsiveSize(plotDOM, () => {
-                return window.Plotly.relayout(plotDOM, {
-                    ...layoutUpdate,
-                    width: plotDOM._fullLayout.width,
-                    height: plotDOM._fullLayout.height,
-                });
+            const update = preserveResponsiveSize(plotDOM, () => {
+                if (updateSize) {
+                    const compact = plotDOM.data[0].colorbar.thickness === 7;
+                    const traceUpdate = {
+                        'colorbar.tickfont.size': (compact ? 9 : 10) * fontStyle.tickScale,
+                        'colorbar.title.font.size': fontStyle.isBase ? null : (compact ? 11 : 12) * fontStyle.scale,
+                    };
+                    return window.Plotly.update(plotDOM, traceUpdate, layoutUpdate, [0]);
+                }
+                return window.Plotly.relayout(plotDOM, layoutUpdate);
             });
-            plotDOM.dataset.chmTheme = newTheme;
+            const markApplied = () => {
+                if (updateTheme) plotDOM.dataset.chmTheme = themeKey;
+                if (updateSize) plotDOM.dataset.chmSize = fontStyle.appliedSize;
+            };
+            if (deferDatasetUpdates) return update.then(markApplied);
+            markApplied();
+            return update;
         });
+    };
+
+    const applyStyle = (themeKey?: string, sizeKey?: string) => {
+        getStyleUpdateJobs(themeKey, sizeKey).forEach((update) => {
+            void update();
+        });
+    };
+
+    const handleOnchangeFontSize = (sizeKey: string) => {
+        cancelStyleUpdate();
+        sizeRef.current = sizeKey;
+        applyStyle(undefined, sizeKey);
+    };
+
+    const handleOnchangeTheme = (themeKey: string) => {
+        cancelStyleUpdate();
+        themeRef.current = themeKey;
+        applyStyle(themeKey);
+    };
+
+    const changeFontSize = (sizeKey: string) => {
+        if (sizeKey === sizeRef.current) return handleOnchangeFontSize(sizeKey);
+        sizeRef.current = sizeKey;
+        void runStyleUpdate(() => getStyleUpdateJobs(undefined, sizeKey, true));
+    };
+
+    const changeTheme = (themeKey: string) => {
+        if (themeKey === themeRef.current) return handleOnchangeTheme(themeKey);
+        themeRef.current = themeKey;
+        void runStyleUpdate(() => getStyleUpdateJobs(themeKey, undefined, true));
     };
 
     useEffect(() => {
@@ -159,17 +204,23 @@ export default function CalendarHeatmapPlotStyleSetting() {
             handleOnchangeFontSize(sizeKey);
         };
 
+        window.applyPlotStyle = () => {
+            cancelStyleUpdate();
+            applyStyle(themeRef.current, sizeRef.current);
+        };
+
         return () => {
             delete window.getStyleLayout;
             delete window.handleOnchangeFontsize;
             delete window.handleOnchangeTheme;
+            delete window.applyPlotStyle;
         };
     }, []);
 
     return (
         <div className="d-flex flex-row justify-content-center align-items-center">
-            <FontSizeBlock onChange={handleOnchangeFontSize} fontSizeValue={sizeRef.current} />
-            <ThemeBlock onChange={handleOnchangeTheme} themeValue={themeRef.current} />
+            <FontSizeBlock onChange={changeFontSize} fontSizeValue={sizeRef.current} disabled={isUpdating} />
+            <ThemeBlock onChange={changeTheme} themeValue={themeRef.current} disabled={isUpdating} />
         </div>
     );
 }

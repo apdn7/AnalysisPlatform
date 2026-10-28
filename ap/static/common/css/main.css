@@ -1127,8 +1127,9 @@ li.list-group-item {
 }
 
 li.list-group-item .jp-name {
-    flex: 1;
-    width: auto;
+    width: 75px;
+    flex: unset;
+    text-align: right;
 }
 
 li.list-group-item:hover {
@@ -2240,26 +2241,6 @@ table.table-hover-light {
     border-spacing: 1px;
 }
 
-.paginationjs-nav.J-paginationjs-nav {
-    margin-left: 4px !important;
-    line-height: unset !important;
-    height: 22px;
-}
-
-.paginationjs .paginationjs-pages li > a {
-    min-width: 20px !important;
-    height: 22px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-}
-
-.paginationjs-last svg,
-.paginationjs-first svg {
-    font-size: 10px;
-    color: #5b5b5b;
-}
-
 .blink_btn {
     animation: blinker 3s linear infinite;
 }
@@ -2289,11 +2270,6 @@ table.table-hover-light {
 .custom-control-input:checked ~ .custom-checkbox .custom-control-label::before,
 .custom-checkbox .custom-control-input:checked ~ .custom-checkbox .custom-control-label::after {
     margin-top: -2px;
-}
-
-.paginationjs .paginationjs-pages li.disabled > a:hover {
-    background-color: #eee !important;
-    color: #333 !important;
 }
 
 #copyClipboardContent {
@@ -2346,6 +2322,51 @@ table.table-hover-light {
 #cols-variance-tbl td:first-child,
 #cols-variance-tbl-multiple-range td:first-child {
     padding-left: 10px;
+}
+
+/* Fixed row geometry keeps the virtual scroll offsets stable for long names. */
+#cols-variance-tbl {
+    table-layout: fixed;
+}
+
+#removeErrorColumnMdl .scroll-body {
+    overflow-anchor: none;
+}
+
+#cols-variance-tbl th:first-child {
+    width: 38px;
+}
+
+#cols-variance-tbl th:nth-child(3),
+#cols-variance-tbl th:nth-child(4) {
+    width: 20%;
+}
+
+#cols-variance-tbl .variance-row td {
+    height: 27px;
+    line-height: 24px;
+    padding-top: 0;
+    padding-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#cols-variance-tbl .variance-row td:nth-child(2) {
+    text-align: left;
+    padding-left: 4px;
+}
+
+#cols-variance-tbl .variance-row .custom-control-label {
+    display: block;
+    min-height: 24px;
+    cursor: pointer;
+}
+
+#cols-variance-tbl .variance-spacer td {
+    padding: 0;
+    border: 0;
+    line-height: 0;
 }
 
 @media (max-width: 1510px) {
@@ -2785,6 +2806,80 @@ table#tblImportCondition td {
 
 .hotkey-button.show-hint::after {
     opacity: 1;
+}
+
+#baseHeader .shortkey-list {
+    position: relative;
+}
+
+#baseHeader .shortkey-list-toggle {
+    cursor: default;
+}
+
+#baseHeader .shortkey-list-popup {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 100%;
+    z-index: 1;
+    width: 22rem;
+    padding: 0.75rem;
+    color: #fff;
+    background-color: #303030;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+    font-size: 0.875rem;
+    white-space: normal;
+}
+
+#baseHeader .shortkey-list.is-open > .shortkey-list-popup {
+    display: block;
+}
+
+#baseHeader .shortkey-list-keys {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+#baseHeader .shortkey-list-keys dt,
+#baseHeader .shortkey-list-keys dd {
+    margin: 0;
+}
+
+#baseHeader .shortkey-list-keys kbd {
+    white-space: nowrap;
+}
+
+#baseHeader .shortkey-list-keys dd {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 575.98px) {
+    #baseHeader .tour-guide > .dropdown-menu {
+        min-width: 0;
+        max-width: 50vw;
+    }
+
+    #baseHeader .tour-guide > .dropdown-menu > .dropdown-item {
+        white-space: normal;
+    }
+
+    #baseHeader .shortkey-list-popup {
+        padding: 0.5rem;
+    }
+
+    #baseHeader .shortkey-list-keys {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.25rem;
+    }
+
+    #baseHeader .shortkey-list-keys dd:not(:last-child) {
+        margin-bottom: 0.5rem;
+    }
 }
 
 .modal-msg {

@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import pandas as pd
 from pandas import Series
+from werkzeug.exceptions import BadRequest
 
 from ap.common.common_utils import as_list
 from ap.common.constants import (
@@ -329,6 +330,22 @@ def parse_multi_filter_into_one(dic_form):
     # NUM_ELEMENT + 数字の形式のキーを取得
     for key in dic_form:
         raw_value = dic_form[key]
+
+        # Graph requests pack selected columns into one multipart part per process.
+        # Also accept legacy repeated fields and scalar values from query parameters.
+        if re.fullmatch(rf'{GET02_VALS_SELECT}\d+', key):
+            packed_value = raw_value
+            if isinstance(raw_value, (list, tuple)) and len(raw_value) == 1:
+                packed_value = raw_value[0]
+            if isinstance(packed_value, str) and packed_value.lstrip().startswith('['):
+                try:
+                    raw_value = json.loads(packed_value)
+                except ValueError as exc:
+                    raise BadRequest(f'Invalid selection array: {key}') from exc
+                if not isinstance(raw_value, list) or any(
+                    val is not None and type(val) not in (str, int) for val in raw_value
+                ):
+                    raise BadRequest(f'Invalid selection array: {key}')
 
         value = remove_const_keyword(raw_value, [SELECT_ALL, None, ''])
         # filter-line-machine-id

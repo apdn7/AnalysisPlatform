@@ -7,8 +7,13 @@ from loguru import logger
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.orm.attributes import set_committed_value
+from sqlalchemy.sql.elements import ColumnElement
 
 from ap import db
+from ap.api.setting_module.services.preview_cleanup import (
+    cleanup_datasource_preview_after_deletion,
+    cleanup_process_preview_after_deletion,
+)
 from ap.common.common_utils import chunks
 from ap.common.constants import SQL_IN_MAX, AnnounceEvent, CacheType, CfgConstantType, JobType, ProcessStatus
 from ap.common.jobs.job_info_schema import (
@@ -31,6 +36,7 @@ from ap.setting_module.models import (
     CfgProcessColumn,
     CfgTraceKey,
     JobManagement,
+    ProcLinkCount,
     make_session,
 )
 from ap.setting_module.services.background_process import send_processing_info
@@ -166,10 +172,24 @@ def _mark_processes_for_deletion(session: Session, processes: list[CfgProcess]) 
     with session.no_autoflush:
         for process in processes:
             session.delete(process)
+        for process_id_chunk in chunks([process.id for process in processes], SQL_IN_MAX):
+            _delete_job_history(session, JobManagement.process_id.in_(process_id_chunk))
 
 
-def _cleanup_deleted_processes(process_ids: list[int]) -> None:
-    delete_process_data_files(process_ids)
+def _delete_job_history(session: Session, condition: ColumnElement[bool]) -> None:
+    jobs = session.query(JobManagement).filter(condition)
+    with session.no_autoflush:
+        # Link counts can outlive their originating job; retain counts without its provenance.
+        session.query(ProcLinkCount).filter(ProcLinkCount.job_id.in_(jobs.with_entities(JobManagement.id))).update(
+            {ProcLinkCount.job_id: None}, synchronize_session='fetch'
+        )
+        jobs.delete(synchronize_session='fetch')
+
+
+def _cleanup_deleted_processes(process_data_source_ids: dict[int, int]) -> None:
+    delete_process_data_files(list(process_data_source_ids))
+    for process_id, data_source_id in process_data_source_ids.items():
+        cleanup_process_preview_after_deletion(data_source_id, process_id)
 
 
 def _get_processes_for_deletion(session: Session, proc_id: int, child_only: bool) -> list[CfgProcess]:
@@ -195,9 +215,10 @@ def _delete_process_and_relate_jobs(proc_id, child_only, reload_related_process_
         if reload_related_process_data:
             parent = CfgProcess.get_parent(proc_id, session=session)
             parent_id = parent.id if parent is not None else None
+        process_data_source_ids = {process.id: process.data_source_id for process in processes}
         _mark_processes_for_deletion(session, processes)
 
-    _cleanup_deleted_processes(process_ids)
+    _cleanup_deleted_processes(process_data_source_ids)
     if parent_id is not None:
         reinitialize_and_reimport_merged_process(parent_id)
     return process_ids
@@ -466,10 +487,13 @@ def del_data_source(ds_id):
         processes = _get_datasource_delete_processes(session, ds)
         if {process.id for process in processes} != set(process_ids):
             raise RuntimeError('Data source processes changed while stopping jobs; retry deletion')
+        process_data_source_ids = {process.id: process.data_source_id for process in processes}
         _mark_processes_for_deletion(session, processes)
+        _delete_job_history(session, JobManagement.db_code == ds_id)
         session.delete(ds)
 
-    _cleanup_deleted_processes(process_ids)
+    _cleanup_deleted_processes(process_data_source_ids)
+    cleanup_datasource_preview_after_deletion(ds_id)
     return process_ids
 
 

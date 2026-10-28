@@ -21,6 +21,7 @@
         {% assets "js_all" %}
             <script type="text/javascript" src="{{ ASSET_URL }}"></script>
         {% endassets %}
+        <script src="{{ url_for('static', filename='common/js/pagination_toolbar.js') }}"></script>
         <script
             type="text/javascript"
             src="{{ url_for('static', filename = 'common/js/libs/all.min.js') }}"
@@ -30,6 +31,8 @@
             <link rel="stylesheet" href="{{ ASSET_URL }}" />
         {% endassets %}
         <link rel="stylesheet" href="{{ url_for('static', filename='dist/style.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='common/css/pagination-theme.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='common/css/add-button.css') }}" />
         <script type="module" src="/static/common/js/cookieconsent-config.js"></script>
         <script>
             //Dictionaryを生成する。

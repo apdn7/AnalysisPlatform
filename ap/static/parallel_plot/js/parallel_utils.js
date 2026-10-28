@@ -197,6 +197,7 @@ class ParallelPlot {
             if (!this.fromJump || !latestSortColIds) {
                 bindChangeDimColor(this.objective, isParacat);
             }
+            this.adjustAxisTitleSpacing();
         });
         // bind hover event
         plotDOM.on('plotly_hover', (data) => {
@@ -235,6 +236,34 @@ class ParallelPlot {
                 $('#contextMenuParallelPlot .menu-item').attr('data-target-dim', dimInfo);
             }
             selectTargetDimHandler(e);
+        });
+    }
+
+    adjustAxisTitleSpacing() {
+        const plotDOM = document.getElementById(this.plotDOMId);
+        const axes = Array.from(plotDOM.querySelectorAll('g.y-axis')).flatMap((axis) => {
+            const title = axis.querySelector('.axis-title');
+            return title ? [{ axis, title }] : [];
+        });
+        // Restore Plotly/fine-select positioning before measuring, so redraws cannot accumulate offsets.
+        axes.forEach(({ title }) => title.style.removeProperty('transform'));
+        const adjustments = axes.map(({ axis, title }) => {
+            const tickTop = Math.min(
+                ...Array.from(
+                    axis.querySelectorAll('.axis .tick text, .axis-extent-top-text'),
+                    (tick) => tick.getBoundingClientRect().top,
+                ),
+            );
+            return {
+                title,
+                offset: Math.max(0, Math.ceil(title.getBoundingClientRect().bottom + 6 - tickTop)),
+                transform: window.getComputedStyle(title).transform,
+            };
+        });
+        adjustments.forEach(({ title, offset, transform }) => {
+            if (offset > 0) {
+                title.style.transform = `translateY(-${offset}px) ${transform === 'none' ? '' : transform}`;
+            }
         });
     }
 
@@ -496,10 +525,12 @@ class ParallelPlot {
         const [minText, maxText] = [yMin, yMax];
         const rangeVals = maxText - minText;
         const stepVals = rangeVals / 9;
+        // Abnormal ticks are one third of a major step apart, with a two-thirds gap above the numeric maximum.
+        const abnormalStep = (stepVals || Math.max(Math.abs(maxText) * 0.1, 1)) / 3;
         const fractionDigit = rangeVals <= 1 ? 4 : 2; // change 3 => 4 to fix 0.0000
         const irrNum = maxText?.toString().includes('e') || minText?.toString().includes('e');
-        let tickVals = Array(
-            ...new Set(
+        let tickVals = Array.from(
+            new Set(
                 Array(...Array(10)).map((v, i) => {
                     const tickVal = minText + stepVals * i;
                     if (dataType === DataTypes.INTEGER.name) {
@@ -514,56 +545,59 @@ class ParallelPlot {
             ),
         );
 
-        // check inf/-inf
-
-        const naPosition =
-            infIDX.length > 0 && minfIDX.length > 0 ? 3 : infIDX.length > 0 || minfIDX.length > 0 ? 2 : 1;
-        // inf position
-        const infDumVal = minText - stepVals;
-        const minfDumVal = minText - 2 * stepVals;
-        let naVals = false;
-        // check dim have na values
-        // for category columns, NA values in the ranking dictionary is -1, naDumVal should be kept as -1 in that case
-        // this is safe for now because category columns import -Inf and Inf as NA
-        const naDumVal = isCategory(dataType, columnType) ? -1 : minText - naPosition * stepVals;
-        // if fine select on -> do not transform values
+        const naVals = dimValues.some((v, i) => CONST.NAV.includes(v) && !infIDX.includes(i) && !minfIDX.includes(i));
+        const hasInf = infIDX.length > 0;
+        const hasMinf = minfIDX.length > 0;
+        // Allocate only present groups above the numeric maximum: -Inf, Inf, NA from bottom to top.
+        const minfDumVal = hasMinf ? maxText + 2 * abnormalStep : undefined;
+        const infDumVal = hasInf ? maxText + (hasMinf ? 3 : 2) * abnormalStep : undefined;
+        const naDumVal = naVals ? maxText + (2 + Number(hasInf) + Number(hasMinf)) * abnormalStep : undefined;
         const transDim = dimValues.map((v, i) => {
-            if (CONST.NAV.includes(v) && !fineSelect) {
+            if (CONST.NAV.includes(v)) {
                 if (infIDX.includes(i)) {
                     return infDumVal;
                 } else if (minfIDX.includes(i)) {
                     return minfDumVal;
                 } else {
-                    naVals = true;
                     return naDumVal;
                 }
-            }
-            if (CONST.NAV.includes(v) && fineSelect) {
-                return null;
             }
             return v;
         });
 
-        // fix PA does not show NA in PCP
-        const isNAShowAbove = naDumVal > tickVals[0] && naVals;
-        if (isNAShowAbove) {
-            tickVals.splice(0, 1);
-        }
-
         let tickText = tickVals;
-        if (infIDX.length > 0) {
+        if (hasMinf) {
+            tickText = [...tickText, COMMON_CONSTANT.MINF];
+            tickVals = [...tickVals, minfDumVal];
+        }
+        if (hasInf) {
             tickText = [...tickText, COMMON_CONSTANT.INF];
             tickVals = [...tickVals, infDumVal];
-            // tickText = [COMMON_CONSTANT.INF, ...tickText];
-            // tickVals = [infDumVal, ...tickVals];
-        }
-        if (minfIDX.length > 0) {
-            tickText = [COMMON_CONSTANT.MINF, ...tickText];
-            tickVals = [minfDumVal, ...tickVals];
         }
         if (naVals) {
-            tickText = [COMMON_CONSTANT.NA, ...tickText];
-            tickVals = [naDumVal, ...tickVals];
+            tickText = [...tickText, COMMON_CONSTANT.NA];
+            tickVals = [...tickVals, naDumVal];
+        }
+        if (fineSelect && !isCategory(dataType, columnType)) {
+            const FINE_SELECT_PX_PER_TICK = 2;
+            const layout = this.genLayout();
+            // Plotly defaults to top/bottom margins of 100/80px and 2px axis padding per end.
+            const axisHeightPx =
+                this.plotHeight - (layout.margin.t ?? 100) - (layout.margin.b ?? 80) - (layout.padding.t ?? 0) - 4;
+            const nTicks = Math.max(2, Math.floor(axisHeightPx / FINE_SELECT_PX_PER_TICK));
+            const labelByValue = new Map(tickVals.map((val, i) => [Number(val), tickText[i]]));
+            // Abnormal values are separate groups, not part of the numeric fine-select scale.
+            const fineTicks = Array.from({ length: nTicks }, (_, i) => {
+                const tickVal = minText + (rangeVals * i) / (nTicks - 1);
+                return dataType === DataTypes.INTEGER.name ? parseInt(tickVal, 10) : tickVal;
+            });
+            // Preserve the normal major ticks exactly; additional ticks only provide brush snap points.
+            tickVals = [...new Set([...tickVals.map(Number), ...fineTicks])];
+            // Plotly keys its ordinal label scale by ticktext, so hidden labels must be unique too.
+            tickText = tickVals.map(
+                (val, i) =>
+                    labelByValue.get(Number(val)) ?? i.toString(2).replace(/0/g, '\u200b').replace(/1/g, '\u200c'),
+            );
         }
         return {
             values: transDim,
@@ -688,7 +722,7 @@ class ParallelPlot {
         dim.ticktext = sortIndex.map((idx) => dim.ticktext[idx]);
         dim.tickvals = sortIndex.map((idx) => dim.tickvals[idx]);
 
-        if (isCategoryCol && Object.keys(colData.rank_value).length) {
+        if (asPCat && isCategoryCol && Object.keys(colData.rank_value).length) {
             if (dim.ticktext.includes('NA')) {
                 const naIdx = dim.ticktext.indexOf('NA');
                 dim.values = dim.values.map((i) => (i == naIdx ? -1 : i));
@@ -764,6 +798,10 @@ class ParallelPlot {
             }
             dim.tickvals = dim.tickvals.map((i) => Number(i));
             dim.ticktext = dim.tickvals.map((i) => colData.rank_value[i]);
+            // Only the plotted position changes; the backend category NA code remains -1.
+            dim.naDumVal = Math.max(...ranking.map(Number)) + 1;
+            dim.values = dim.values.map((val) => (val === -1 ? dim.naDumVal : val));
+            dim.tickvals = dim.tickvals.map((val) => (val === -1 ? dim.naDumVal : val));
         }
         dim.tickvals = dim.tickvals.map((i) => Number(i));
         dim = this.rearrangeDimValue(colData, dim, false);
@@ -781,7 +819,6 @@ class ParallelPlot {
         }
         let corr = getCorrelation(this.traceData.corrs, colData.col_detail.col_id, this.objective.id);
         dim.ticktext = dim.ticktext.map((i) => String(i));
-        const notShowTicks = this.settings.fineSelect && !colData.col_detail.is_category;
         // store calculated values of objectiveDimension only for colorbar calculation
         if (colData.col_detail.col_id === this.objective.id) {
             this.objectiveDimInfo = {
@@ -794,8 +831,8 @@ class ParallelPlot {
         const unit = colData.col_detail.unit ? ` [${colData.col_detail.unit}]` : '';
         return {
             values: dim.values,
-            ticktext: notShowTicks ? null : dim.ticktext,
-            tickvals: notShowTicks ? null : dim.tickvals,
+            ticktext: dim.ticktext,
+            tickvals: dim.tickvals,
             label: this.genPCPDimLabel(colData, corr),
             process: colData.col_detail.proc_id,
             is_judge: colData.col_detail.is_judge,
@@ -810,6 +847,7 @@ class ParallelPlot {
             infDumVal: dim.infDumVal,
             minfDumVal: dim.minfDumVal,
             yMin: yMin,
+            yMax: yMax,
         };
     }
     // gen dimension data

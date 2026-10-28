@@ -13,7 +13,14 @@
                     <div class="col-xl-2 col-3 d-flex flex-column">
                         <div class="d-flex justify-content-between">
                             {{ macros.label(_('Show value'), title=_('PCA Target Variable Explain')) }}
-                            {{ macros.paste_btn(with_count=True) }}
+                            <div class="d-flex flex-column">
+                                {{ macros.paste_btn(with_count=True) }}
+                                <div
+                                    class="react-root"
+                                    data-component="VariableSelectPage"
+                                    data-props='{"pageType":"pca"}'
+                                ></div>
+                            </div>
                         </div>
                         <div class="mt-auto pl-3 pt-3">
                             <!-- start proc  -->

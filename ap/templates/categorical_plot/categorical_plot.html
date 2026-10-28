@@ -17,7 +17,14 @@
                     <div class="col-xl-2 col-3 d-flex flex-column">
                         <div class="d-flex justify-content-between">
                             {{ macros.label(_("Show value"), title=_('Enter target item of data (quantitative variable like measurement value) to create data distributions. This data is plotted on the graph.')) }}
-                            {{ macros.paste_btn(with_count=True) }}
+                            <div class="d-flex flex-column">
+                                {{ macros.paste_btn(with_count=True) }}
+                                <div
+                                    class="react-root"
+                                    data-component="VariableSelectPage"
+                                    data-props='{"pageType":"stp"}'
+                                ></div>
+                            </div>
                         </div>
                         <div class="mt-auto pl-3 pt-3">{{ macros.start_proc_select(procs, no_link_data=true) }}</div>
                     </div>

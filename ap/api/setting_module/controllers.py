@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import itertools
 import json
 import os
@@ -29,6 +30,7 @@ from ap.api.common.services.show_graph_services import check_path_exist, sorted_
 from ap.api.common.services.web_apis import APIConnection, check_web_con
 from ap.api.efa.services.etl import ETLException
 from ap.api.setting_module.schemas.export_config import ExportConfigSave
+from ap.api.setting_module.schemas.process_columns import ProcessColumnsRequest
 from ap.api.setting_module.services.autolink import Autolink
 from ap.api.setting_module.services.common import (
     delete_user_setting_by_id,
@@ -39,6 +41,13 @@ from ap.api.setting_module.services.common import (
     is_title_exist,
     save_user_settings,
 )
+from ap.api.setting_module.services.csv_preview_errors import (
+    prepare_csv_preview_save,
+    preview_validation_response,
+    save_csv_preview_outcomes,
+    track_csv_preview,
+)
+from ap.api.setting_module.services.csv_target_files import list_csv_target_files
 from ap.api.setting_module.services.data_import import (
     DbConnectionParam,
     WebConnectionParam,
@@ -139,7 +148,6 @@ from ap.common.constants import (
     AnnounceEvent,
     AppEnv,
     CfgConstantType,
-    CSVExtTypes,
     DataColumnType,
     DBType,
     DefinedLabel,
@@ -158,7 +166,19 @@ from ap.common.db_maintenance import backup_config_db
 from ap.common.memoize import clear_cache
 from ap.common.multiprocess_sharing import EventAddJob, EventBackgroundAnnounce, EventQueue, EventRemoveJobs
 from ap.common.multiprocess_sharing.events import EventKillJobs
-from ap.common.path_utils import get_error_trace_path, get_export_setting_path, get_files, get_log_path, make_dir
+from ap.common.path_utils import (
+    ReferenceFileOutsideSourceError,
+    get_csv_source_extensions,
+    get_error_trace_path,
+    get_export_setting_path,
+    get_files,
+    get_log_path,
+    make_dir,
+    resolve_csv_custom_extension,
+)
+from ap.common.path_utils import (
+    is_reference_file_in_source as _is_reference_file_in_source,
+)
 from ap.common.scheduler import run_after_request
 from ap.common.services.http_content import json_dumps, orjson_dumps
 from ap.common.services.import_export_config_and_master_data import (
@@ -212,14 +232,19 @@ from ap.setting_module.services.background_process import get_background_jobs_se
 from ap.setting_module.services.backup_and_restore.jobs import add_backup_data_job, add_restore_data_job
 from ap.setting_module.services.process_config import (
     create_or_update_process_cfg,
+    get_all_process_columns_paginated,
     get_ct_range,
+    get_datasource_reference_file,
     get_line_grp_info,
     get_or_create_label,
     get_process_cfg,
     get_process_columns,
+    get_process_detail,
+    get_process_detail_columns,
     get_process_filters,
     get_process_visualizations,
     query_database_tables,
+    validate_process_reference_file,
 )
 from ap.setting_module.services.quick_plot import QuickPlotUploadError, store_quick_plot_upload
 from ap.setting_module.services.register_from_file import (
@@ -278,19 +303,33 @@ def update_polling_freq():
     return jsonify(flask_message=message), 200
 
 
+def _validate_datasource_reference_file(config):
+    detail = config.get('csv_detail') or {}
+    reference = detail.get('reference_file')
+    if reference and not _is_reference_file_in_source(
+        detail.get('directory'), reference, source_is_file=bool(detail.get('is_file_path'))
+    ):
+        raise ReferenceFileOutsideSourceError(_('ReferenceFileOutsideSourceOnSave'))
+
+
 @api_setting_module_blueprint.route('/data_source_save', methods=['POST'])
 @login_required
 def save_datasource_cfg():
     """Expected: ds_config = {"db_0001": {"master-name": name, "host": localhost, ...}}"""
     try:
-        data_src_req: CfgDataSource = DataSourceSchema().load(request.json)
+        config, pending_previews = prepare_csv_preview_save(request.json)
+        _validate_datasource_reference_file(config)
+        data_src_req: CfgDataSource = DataSourceSchema().load(config)
         is_polling_freq_changed, is_pull_from_changed = has_important_changes(data_src_req)
 
         with make_session() as meta_session:
             data_src = meta_session.merge(data_src_req)
+            preview_history = save_csv_preview_outcomes(meta_session, data_src, pending_previews)
 
         with_import_option = request.json.get(WITH_IMPORT_OPTIONS) or is_pull_from_changed
         handle_update_polling(data_src, with_import_option, is_polling_freq_changed)
+    except ReferenceFileOutsideSourceError as error:
+        return jsonify(flask_message={'message': str(error), 'is_error': True}), 400
     except Exception as e:
         logger.exception(e)
         message = {'message': _('Database Setting failed to save'), 'is_error': True}
@@ -302,7 +341,13 @@ def save_datasource_cfg():
     if data_src and data_src.id:
         ds = DataSourcePublicSchema().dumps(data_src)
 
-    return jsonify(id=data_src.id, data_source=ds, flask_message=message), 200
+    response = {'id': data_src.id, 'data_source': ds, 'flask_message': message}
+    if pending_previews:
+        response['preview_history'] = preview_history
+        errors = [entry for entry in preview_history if 'error' in entry]
+        if errors:
+            response['preview_errors'] = errors
+    return jsonify(response), 200
 
 
 @api_setting_module_blueprint.route('/v2_data_source_save', methods=['POST'])
@@ -310,9 +355,13 @@ def save_datasource_cfg():
 def save_v2_datasource_cfg():
     """Expected: ds_config = [{"db_0001": {"master-name": name, "host": localhost, ...}}]"""
     try:
-        datasources = request.json
+        # Authenticate all tokens before the first datasource transaction.
+        datasources = [prepare_csv_preview_save(config) for config in request.json]
+        # Validate the entire batch before the first datasource can be committed.
+        for config, _pending_previews in datasources:
+            _validate_datasource_reference_file(config)
         v2_datasources = []
-        for v2_data_src in datasources:
+        for v2_data_src, pending_previews in datasources:
             v2_columns = gen_v2_columns_with_types(v2_data_src)
             # update data_source columns
             v2_data_src['csv_detail']['csv_columns'] = v2_columns
@@ -324,19 +373,27 @@ def save_v2_datasource_cfg():
             with make_session() as meta_session:
                 # data source
                 data_src_rec = meta_session.merge(data_src)
+                preview_history = save_csv_preview_outcomes(meta_session, data_src_rec, pending_previews)
 
             if data_src_rec and data_src_rec.id:
                 ds_schema = DataSourceSchema()
                 ds = CfgDataSource.get_ds(data_src_rec.id)
                 ds = ds_schema.dumps(ds)
-                v2_datasources.append({'id': data_src_rec.id, 'data_source': ds})
+                saved_source = {'id': data_src_rec.id, 'data_source': ds}
+                if pending_previews:
+                    saved_source['preview_history'] = preview_history
+                    errors = [entry for entry in preview_history if 'error' in entry]
+                    if errors:
+                        saved_source['preview_errors'] = errors
+                v2_datasources.append(saved_source)
 
             with_import_option = v2_data_src.get(WITH_IMPORT_OPTIONS) or is_pull_from_changed
             handle_update_polling(data_src_rec, with_import_option, is_polling_freq_changed)
 
         message = {'message': _('Database Setting saved.'), 'is_error': False}
         return jsonify(data=v2_datasources, flask_message=message), 200
-
+    except ReferenceFileOutsideSourceError as error:
+        return jsonify(flask_message={'message': str(error), 'is_error': True}), 400
     except Exception as e:
         logger.exception(e)
         message = {'message': _('Database Setting failed to save'), 'is_error': True}
@@ -483,6 +540,15 @@ def _build_external_preview_context(
     resolved_data_source_id = parse_int_value(data_source_id)
     data_source = CfgDataSource.query.get(resolved_data_source_id) if resolved_data_source_id is not None else None
     csv_detail = getattr(data_source, 'csv_detail', None) if data_source else None
+    # Cached/imported previews remain available when the source is temporarily offline.
+    if (
+        file_name
+        and csv_detail
+        and not _is_reference_file_in_source(
+            csv_detail.directory, file_name, require_exists=False, source_is_file=bool(csv_detail.is_file_path)
+        )
+    ):
+        raise ReferenceFileOutsideSourceError(_('ReferenceFileOutsideSource'))
     resolved_encoding = encoding or getattr(csv_detail, 'encoding', None)
     resolved_delimiter = delimiter or getattr(csv_detail, 'delimiter', None)
     return PreviewRequestContext(
@@ -713,6 +779,9 @@ def show_latest_records():
             return json_dumps(result), response_code
         result = json_dumps(result)
         return result, response_code, {'X-Preview-Generation': generation}
+    except ReferenceFileOutsideSourceError as error:
+        result['message'] = str(error)
+        return json_dumps(result), 400
     except ETLException as e:
         result['transform_error'] = e.get_message()
         response_code = e.status_code
@@ -804,6 +873,9 @@ def show_latest_records_function_sample():
         result['processing_stage'] = (
             function_preview.processing_stage.value if function_preview.processing_stage else None
         )
+    except ReferenceFileOutsideSourceError as error:
+        result['message'] = str(error)
+        return json_response(result, 400)
     except ETLException as e:
         result['transform_error'] = e.get_message()
         log_timing('source_etl_exception')
@@ -874,6 +946,9 @@ def show_latest_records_unique_sample():
             requested_raw_column_names=requested_raw_column_names,
         )
         result = resolve_unique_preview(context, generation)
+    except ReferenceFileOutsideSourceError as error:
+        result['message'] = str(error)
+        response_code = 400
     except PreviewGenerationMismatch:
         response_code = 409
     except ETLException as e:
@@ -885,10 +960,69 @@ def show_latest_records_unique_sample():
     return json_dumps(result), response_code
 
 
+@api_setting_module_blueprint.route('/csv_target_files', methods=['POST'])
+def csv_target_files():
+    """Return at most 100 relative source paths without reading or importing data."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({'err_msg': _('File not valid')}), 400
+
+    url = data.get('url')
+    filter_keys = (
+        'file_name_include',
+        'file_name_exclude',
+        'subfolder_include',
+        'subfolder_exclude',
+        'file_type',
+        'custom_extension',
+        'etl_func',
+    )
+    if (
+        not isinstance(url, str)
+        or not url.strip()
+        or '\x00' in url
+        or any(data.get(key) is not None and not isinstance(data[key], str) for key in filter_keys)
+    ):
+        return jsonify({'err_msg': _('File not valid')}), 400
+
+    try:
+        files, truncated = list_csv_target_files(url, **{key: data.get(key) for key in filter_keys})
+        return jsonify({'files': files, 'truncated': truncated}), 200
+    except (FileNotFoundError, NotADirectoryError):
+        logger.exception('CSV target file source does not exist or is not a valid path')
+        return jsonify({'err_msg': _('File not found')}), 400
+    except ValueError:
+        logger.exception('Invalid CSV target file source')
+        return jsonify({'err_msg': _('File not valid')}), 400
+    except PermissionError:
+        logger.exception('Access denied while listing CSV target files')
+        return jsonify({'err_msg': _('Access denied')}), 403
+    except OSError as error:
+        logger.exception('Could not access CSV target files')
+        if error.errno in (errno.EINVAL, errno.ENAMETOOLONG):
+            return jsonify({'err_msg': _('File not valid')}), 400
+        return jsonify({'err_msg': _(OSERR.get(error.errno, 'Error Msg Common'))}), 500
+    except Exception:
+        logger.exception('Could not list CSV target files')
+        return jsonify({'err_msg': _('Error Msg Common')}), 500
+
+
 @api_setting_module_blueprint.route('/get_csv_resources', methods=['POST'])
+@track_csv_preview
 def get_csv_resources():
     folder_url = request.json.get('url')
+    source_directory = request.json.get('source_directory')
+    if source_directory is not None and not _is_reference_file_in_source(source_directory, folder_url):
+        return preview_validation_response(
+            ValueError('Reference file is outside the source directory'),
+            {'err_msg': _('ReferenceFileOutsideSource')},
+            400,
+        )
     etl_func = request.json.get('etl_func')
+    try:
+        custom_extension = resolve_csv_custom_extension(request.json.get('custom_extension'), etl_func)
+    except ValueError as error:
+        return preview_validation_response(error, {'err_msg': _('File not valid')}, 400)
     csv_delimiter = request.json.get('delimiter')
     is_v2 = request.json.get('isV2')
     skip_head = request.json.get('skip_head')
@@ -897,6 +1031,19 @@ def get_csv_resources():
     n_rows = None if n_rows is None else int(n_rows)
     is_transpose = request.json.get('is_transpose')
     is_file = request.json.get('is_file')
+    if (
+        is_file
+        and custom_extension
+        and (
+            not isinstance(folder_url, str)
+            or not folder_url.lower().endswith(tuple(get_csv_source_extensions(custom_extension=custom_extension)))
+        )
+    ):
+        return preview_validation_response(
+            ValueError('Source file does not match the configured custom extension'),
+            {'err_msg': _('File not valid')},
+            400,
+        )
     is_file_checker = request.json.get('is_file_checker') or False
     datasource_id = request.json.get('db_code')
     file_name_include = request.json.get('file_name_include')
@@ -914,13 +1061,17 @@ def get_csv_resources():
             is_file_checker = csv_resource.is_file_checker
 
     # todo: is_show_raw_data to handle raw data for datasource preview, but datetime is wrong <- check it again
+    preview_limit = 20
     if is_v2:
         dic_output = preview_v2_data(
             folder_url,
             csv_delimiter,
-            5,
+            preview_limit,
             file_name=folder_url if is_file else None,
             is_show_raw_data=False,
+            custom_extension=custom_extension,
+            etl_func=etl_func,
+            raise_on_preview_error='preview_context' in request.json,
         )
     else:
         dic_output = preview_csv_data(
@@ -930,7 +1081,8 @@ def get_csv_resources():
             skip_head=skip_head,
             n_rows=n_rows,
             is_transpose=is_transpose,
-            limit=5,
+            limit=preview_limit,
+            max_records=preview_limit,
             file_name=folder_url if is_file else None,
             is_show_raw_data=False,
             is_file_checker=is_file_checker,
@@ -939,6 +1091,8 @@ def get_csv_resources():
             file_name_exclude=file_name_exclude,
             subfolder_include=subfolder_include,
             subfolder_exclude=subfolder_exclude,
+            custom_extension=custom_extension,
+            raise_on_preview_error='preview_context' in request.json,
         )
     rows = dic_output['content']
     previewed_files = dic_output['previewed_files']
@@ -964,18 +1118,37 @@ def listen_background_job(uuid: str):
 
 
 @api_setting_module_blueprint.route('/check_folder', methods=['POST'])
+@track_csv_preview
 def check_folder():
     try:
         data = request.json.get('url')
+        source_directory = request.json.get('source_directory')
+        custom_extension = request.json.get('custom_extension')
+        etl_func = request.json.get('etl_func')
+        process_source_id = request.json.get('process_data_source_id')
+        if process_source_id:
+            source = CfgDataSource.get_ds(process_source_id)
+            if source and source.csv_detail:
+                source_directory = source.csv_detail.directory
+                custom_extension = source.csv_detail.custom_extension
+                etl_func = source.csv_detail.etl_func
+        if source_directory is not None and not _is_reference_file_in_source(source_directory, data):
+            return preview_validation_response(
+                ValueError('Reference file is outside the source directory'),
+                {'is_valid': False, 'err_msg': _('ReferenceFileOutsideSource')},
+            )
+        if 'preview_context' in request.json and (not isinstance(data, str) or not data.strip() or '\x00' in data):
+            return preview_validation_response(
+                ValueError('Source path must be a nonempty path without null characters'),
+                {'is_valid': False, 'err_msg': _('File not valid')},
+            )
         is_file = request.json.get('isFile') or False
         is_existing = os.path.isfile(data) if is_file else (os.path.isdir(data) and os.path.exists(data))
-        extension = [
-            CSVExtTypes.CSV.value,
-            CSVExtTypes.TSV.value,
-            CSVExtTypes.SSV.value,
-            CSVExtTypes.ZIP.value,
-            CSVExtTypes.SEVEN_Z.value,
-        ]
+        try:
+            custom_extension = resolve_csv_custom_extension(custom_extension, etl_func)
+        except ValueError as error:
+            return preview_validation_response(error, {'is_valid': False, 'err_msg': _('File not valid')}, 400)
+        extension = get_csv_source_extensions(custom_extension=custom_extension)
         is_valid_file = True
         if not is_file:
             os.listdir(data)
@@ -989,43 +1162,59 @@ def check_folder():
             is_valid_file = any(data.lower().endswith(ext) for ext in extension)
             is_not_empty = os.path.isfile(data)
 
-        is_valid = is_existing and is_not_empty
+        is_valid = is_existing and is_not_empty and is_valid_file
         err_msg = _('File not found')  # empty folder
         file_not_valid = _('File not valid')
-        return jsonify(
-            {
-                'status': 200,
-                'url': data,
-                'is_exists': is_existing,
-                'dir': os.path.dirname(data),
-                'not_empty_dir': is_not_empty,
-                'is_valid': is_valid,
-                'err_msg': err_msg if not is_valid else file_not_valid if not is_valid_file else '',
-                'is_valid_file': is_valid_file,
-            },
-        )
+        response = {
+            'status': 200,
+            'url': data,
+            'is_exists': is_existing,
+            'dir': os.path.dirname(data),
+            'not_empty_dir': is_not_empty,
+            'is_valid': is_valid,
+            'err_msg': file_not_valid if not is_valid_file else err_msg if not is_valid else '',
+            'is_valid_file': is_valid_file,
+        }
+        if not is_valid or not is_valid_file:
+            error = (
+                ValueError('Source file type is not supported')
+                if not is_valid_file
+                else FileNotFoundError('No matching CSV files were found in the source')
+            )
+            return preview_validation_response(error, response)
+        return jsonify(response)
     except OSError as e:
-        # raise
-        return jsonify({'status': 500, 'err_msg': _(OSERR[e.errno]), 'is_valid': False})
+        if 'preview_context' in request.json:
+            raise
+        return jsonify({'status': 500, 'err_msg': _(OSERR.get(e.errno, 'Error Msg Common')), 'is_valid': False})
 
 
 @api_setting_module_blueprint.route('/check_folder_or_file', methods=['POST'])
+@track_csv_preview
 def check_folder_or_file():
     try:
         data = request.json.get('path')
-        return jsonify(
-            {
-                'status': 200,
-                'isFile': os.path.isfile(data),
-                'isFolder': os.path.isdir(data),
-            },
-        )
+        if 'preview_context' in request.json and (not isinstance(data, str) or not data.strip() or '\x00' in data):
+            return preview_validation_response(
+                ValueError('Source path must be a nonempty path without null characters'),
+                {'status': 200, 'isFile': False, 'isFolder': False, 'err_msg': _('File not valid')},
+            )
+        response = {
+            'status': 200,
+            'isFile': os.path.isfile(data),
+            'isFolder': os.path.isdir(data),
+        }
+        if 'preview_context' in request.json and not response['isFile'] and not response['isFolder']:
+            response['err_msg'] = _('File not found')
+            return preview_validation_response(FileNotFoundError('Source path does not exist'), response)
+        return jsonify(response)
     except OSError as e:
-        # raise
+        if 'preview_context' in request.json:
+            raise
         return jsonify(
             {
                 'status': 500,
-                'err_msg': _(OSERR[e.errno]),
+                'err_msg': _(OSERR.get(e.errno, 'Error Msg Common')),
                 'isFile': False,
                 'isFolder': False,
             },
@@ -1387,6 +1576,7 @@ def post_proc_config():
 
     try:
         # initialize data before import
+        validate_process_reference_file(request_process)
         if init_parent and request_process.parent_id:
             # to initialize parent
             # remove all jobs of parent process in this step
@@ -1498,6 +1688,8 @@ def post_proc_config():
             ),
             200,
         )
+    except ReferenceFileOutsideSourceError as error:
+        return jsonify(status=400, message=str(error)), 400
     except Exception as e:
         logger.exception(e)
         return (
@@ -1557,7 +1749,10 @@ def save_trace_configs():
 def ds_load_detail(ds_id):
     ds_schema = DataSourcePublicSchema()
     ds = CfgDataSource.get_ds(ds_id)
-    return ds_schema.dumps(ds), 200
+    output = ds_schema.dump(ds)
+    if ds and ds.type in (DBType.CSV.name, DBType.V2.name):
+        output['preview_reference_file'] = get_datasource_reference_file(ds)
+    return jsonify(output), 200
 
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>', methods=['DELETE'])
@@ -1703,6 +1898,40 @@ def get_proc_column_config(proc_id):
             ),
             200,
         )
+
+
+@api_setting_module_blueprint.route('/process_columns', methods=['GET', 'POST'])
+def get_all_process_columns():
+    payload = request.get_json() if request.method == 'POST' else request.args.to_dict()
+    try:
+        params = ProcessColumnsRequest.model_validate(payload)
+    except ValidationError as exc:
+        return jsonify({'status': 400, 'message': str(exc)}), 400
+
+    response = get_all_process_columns_paginated(
+        page=params.page,
+        limit=params.limit,
+        search_params=params.model_dump(exclude={'page', 'limit'}),
+    )
+    return jsonify({'status': 200, **response}), 200
+
+
+@api_setting_module_blueprint.route('/process_detail/<int:proc_id>', methods=['GET'])
+@login_required
+def get_variable_select_process_detail(proc_id: int):
+    detail = get_process_detail(proc_id)
+    if detail is None:
+        return jsonify({'status': 404, 'data': None}), 404
+    return jsonify({'status': 200, 'data': detail}), 200
+
+
+@api_setting_module_blueprint.route('/process_detail/<int:proc_id>/columns', methods=['GET'])
+@login_required
+def get_variable_select_process_detail_columns(proc_id: int):
+    columns = get_process_detail_columns(proc_id)
+    if columns is None:
+        return jsonify({'status': 404, 'data': None}), 404
+    return jsonify({'status': 200, **columns}), 200
 
 
 @api_setting_module_blueprint.route('/proc_config/<proc_id>/get_ct_range', methods=['GET'])
@@ -2047,7 +2276,13 @@ def get_autolink_groups():
 
 @api_setting_module_blueprint.route('/get_jobs', methods=['GET'])
 def get_jobs():
-    params = SearchParamsDTO(**request.args)
+    try:
+        params = SearchParamsDTO(**request.args)
+    except ValidationError as exc:
+        if any(err['loc'][0] == 'db_code' for err in exc.errors()):
+            return jsonify(errors=['db_code']), 400
+        raise
+
     if not params.show_past_import_job or params.show_past_import_job is False:
         params.ignore_job_types.append(JobType.FACTORY_PAST_IMPORT.name)
 

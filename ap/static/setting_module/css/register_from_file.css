@@ -1,6 +1,6 @@
 .section {
     background-color: #303030;
-    padding: 20px 2vw 20px 6vw;
+    padding: 20px 1vw;
 }
 
 .section table {
@@ -14,6 +14,14 @@
 
 .data-source-config {
     flex: 1;
+    min-width: 0;
+    max-width: none;
+    padding-left: 0;
+}
+
+.config-section > .row {
+    margin-right: 0;
+    margin-left: 0;
 }
 
 .file-folder-browser {
@@ -28,10 +36,13 @@
 }
 
 .progress-display {
+    flex: 0 0 clamp(250px, 20vw, 340px);
+    max-width: 340px;
     height: fit-content;
     margin-top: 37px;
-    padding: 20px;
+    padding: 12px;
     min-height: 105px;
+    overflow-wrap: anywhere;
 }
 
 .folder-browser {
@@ -218,21 +229,15 @@
     color: #ffb3b3;
 }
 
-@media (max-width: 1660px) {
-    .section {
-        padding: 20px 2vw 20px 2vw;
-    }
-}
-
 /* Stack the panels before source controls become too narrow for translated labels. */
-@media (max-width: 1200px) {
+@media (max-width: 1280px) {
     .quick-plot-layout {
         grid-template-columns: 1fr;
     }
 }
 
 /* Only constrain the drop area when the viewport is narrow or short. */
-@media (max-width: 1200px), (max-height: 650px) {
+@media (max-width: 1280px), (max-height: 650px) {
     .quick-plot-drop-area {
         min-height: 0;
         max-height: 60vh;
@@ -240,15 +245,16 @@
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991.98px) {
     .data-source-config {
         padding-right: 0;
     }
 
     #progressDisplay {
         margin-top: 0;
-        margin-left: 2vw;
-        flex: 0 0 calc(100% - 2vw);
+        margin-left: 0;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }
 

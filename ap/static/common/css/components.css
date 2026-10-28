@@ -1,5 +1,5 @@
 .grouplist-checkbox-with-search {
-    max-height: 150px;
+    max-height: 201px;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -71,6 +71,14 @@
     text-overflow: ellipsis;
 }
 
+.truncate-from-left {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    direction: rtl;
+    text-align: left;
+}
+
 .objective-item {
     max-width: 80px !important;
 }
@@ -105,6 +113,50 @@ h6 {
 .card .cond-proc .list-item {
     margin-bottom: 0px !important;
     margin-top: 3px;
+}
+
+.card.end-proc {
+    width: 100%;
+    max-width: 100%;
+}
+
+.end-proc .end-proc-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.end-proc .end-proc-process {
+    flex: 2 1 320px;
+    min-width: 0;
+}
+
+.end-proc .end-proc-search {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.end-proc .end-proc-search:empty {
+    display: none;
+}
+
+.end-proc .end-proc-process > .flex-grow-1 {
+    flex-basis: 0;
+}
+
+.end-proc .end-proc-search .deleteicon {
+    min-width: 0;
+}
+
+.end-proc .end-proc-search .form-control {
+    min-width: 0;
+}
+
+.end-proc .grouplist-checkbox-with-search:not(.disable-max-height) {
+    max-height: 225px;
 }
 
 .close-icon {
@@ -167,6 +219,42 @@ h6 {
 
 /* End tooltip CSS */
 
+.app-title-tooltip-anchor {
+    position: fixed;
+    pointer-events: none;
+}
+
+.app-title-tooltip {
+    pointer-events: auto;
+    padding: 4px;
+}
+
+.app-title-tooltip.show {
+    opacity: 1;
+}
+
+.app-title-tooltip .arrow {
+    display: none;
+}
+
+.app-title-tooltip .tooltip-inner {
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    box-sizing: border-box;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-align: left;
+    background-color: #fff;
+    color: #222;
+    border: 1px solid #888;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px #0003;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
 /* limit */
 .num-sensor-limit {
     display: grid;
@@ -214,7 +302,7 @@ h6 {
     transform: translateX(-50%);
     cursor: pointer;
     border-left: 20px solid transparent;
-    border-top: 10px solid #444;
+    border-top: 10px solid #666;
     border-right: 20px solid transparent;
 }
 
@@ -256,6 +344,7 @@ h6 {
 
 .fit-xy {
     max-width: 20px;
+    text-align: center;
 }
 
 .small-col {
@@ -345,11 +434,13 @@ h6 {
 }
 
 .default-width-sys-name {
-    width: 20%;
+    width: auto;
+    flex: 1;
 }
 
 .extended-width-sys-name {
-    flex: 1;
+    flex: unset;
+    width: 100px;
 }
 #btn-extend-toggle-container {
     display: inline-block;

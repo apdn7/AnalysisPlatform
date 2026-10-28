@@ -169,10 +169,11 @@ def import_data(
     # update actual imported rows
     job_info.committed_count = df.shape[0]
     # insert import history
+    committed_at = get_current_timestamp()
     if child_cfg_proc:
-        save_import_history(child_cfg_proc.id, job_info=job_info)
+        save_import_history(child_cfg_proc.id, job_info=job_info, committed_at=committed_at)
     else:
-        save_import_history(target_cfg_process.id, job_info=job_info)
+        save_import_history(target_cfg_process.id, job_info=job_info, committed_at=committed_at)
 
     EventQueue.put(EventExpireCache(cache_type=CacheType.TRANSACTION_DATA))
 
@@ -1442,7 +1443,7 @@ def get_proc_data_count_df(df, *, get_date_col, decrease: bool, is_db: bool):
 
 
 @log_execution_time()
-def save_import_history(proc_id: int, job_info):
+def save_import_history(proc_id: int, job_info, *, committed_at: str | None = None):
     if not job_info.dic_imported_row:
         job_info.dic_imported_row = {0: (job_info.target, job_info.committed_count)}
 
@@ -1485,13 +1486,14 @@ def save_import_history(proc_id: int, job_info):
             import_history.import_to = job_info.import_to
             import_history.imported_row = job_info.committed_count
 
-        table = ImportHistoryTable.table(proc_id=proc_id)
-        insert_stmt = table.insert().values(**import_history.model_dump())
+        table = ImportHistoryTable.table(proc_id=proc_id, include_committed_at=True)
+        insert_stmt = table.insert().values(**import_history.model_dump(), committed_at=committed_at)
         sql, params = gen_sql_and_params(insert_stmt)
         sql_params.append(params)
 
     if sql is not None:
         with TxnMetaConnection(process_id=proc_id) as meta_con:
+            ImportHistoryTable.ensure_committed_at_column(meta_con, proc_id)
             meta_con.execute_sql_in_transaction(sql, sql_params)
 
 

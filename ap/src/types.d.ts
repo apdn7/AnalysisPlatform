@@ -27,6 +27,12 @@ declare const require: {
 // define some old global js function so tsx can understand
 declare const sidebarCollapse: () => void;
 
+declare const fppChartStyle: {
+    fontSize: { tick: Record<string, number>; label: Record<string, number> };
+    themeColor: Record<'background' | 'text' | 'grid' | 'line' | 'border' | 'tick', Record<string, string>>;
+    getUpdates: (sizeKey?: string, theme?: string) => (() => void)[];
+};
+
 declare const sidebarCollapseHandle: () => void;
 
 declare const setUpEvents: () => void;
@@ -59,6 +65,8 @@ declare const detectLocalTimezone: () => string;
 
 declare const getStartProcId: () => string;
 
+declare const withProcessSelectionBatch: (applySelection: () => Promise<void>) => Promise<void>;
+
 declare const trimQuotesSpacesAndUpdate: (inputEl: any = '') => any;
 
 declare const MAX_NUMBER_OF_SENSOR: number;
@@ -78,6 +86,7 @@ interface HTMLLIElement {
 interface HTMLElement {
     _virtualList?: {
         destroy: () => void;
+        querySelectorAll: (selector: string) => Element[];
     };
 }
 
@@ -106,6 +115,8 @@ interface Window {
     };
     handleOnchangeTheme?: (themeKey) => void;
     handleOnchangeFontsize?: (sizeKey) => void;
+    // Legacy redraws apply both settings through one update per chart.
+    applyPlotStyle?: () => void;
     mountLayoutDropdowns?: (root?: ParentNode) => void;
     unmountReactComponents?: (root: ParentNode) => void;
     collectLayoutData?: () => Partial<LayoutData>;
@@ -156,6 +167,10 @@ declare const initIndexModal: () => void;
 
 declare const trimTextLengthByPixel: (text: string, length: number = 150, textSize: number = 14) => string;
 
+declare const visualTextLength: (input: string, fontSize?: number, fontFamily?: string) => number;
+
+declare const ctx: CanvasRenderingContext2D;
+
 declare const CONST;
 
 declare const DataTypes: any;
@@ -175,5 +190,11 @@ declare const FontAwesome: {
 };
 
 declare const Chart: any;
+
+declare const loadingHandler: (selector?: string) => {
+    show: () => void;
+    hide: () => void;
+    forceHide: () => void;
+};
 
 declare const adjustCatetoryTableLength: () => void;

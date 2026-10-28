@@ -1,0 +1,822 @@
+.variable-select-modal {
+    max-width: calc(100vw - 30px) !important;
+    height: 92vh;
+    min-height: 92vh;
+    max-height: 92vh;
+    margin: 12px auto;
+    padding-left: 37px !important;
+}
+
+.variable-select-modal {
+    .simple-btn,
+    .btn {
+        font-size: 13px;
+    }
+    .modal-content {
+        height: 92vh;
+        min-height: 92vh;
+        max-height: 92vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 1rem;
+    }
+
+    .modal-body {
+        position: relative;
+        padding: 0;
+        height: calc(92vh - 56px);
+        max-height: calc(92vh - 56px);
+        min-height: 0;
+        overflow: hidden;
+    }
+}
+
+.variable-select-close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+        color: #fff;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #73a9d0;
+        outline-offset: 2px;
+    }
+}
+
+.variable-select-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    height: 100%;
+    min-height: 0;
+    padding: 0px 10px;
+
+    &.is-process-mode {
+        .variable-select-expand-actions {
+            display: none;
+        }
+
+        .variable-select-table thead tr:first-child th:not(:first-child) {
+            color: #999;
+        }
+    }
+}
+
+.variable-select-main {
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+}
+
+.variable-select-toolbar {
+    padding: 0px 4px;
+    color: #efefef;
+    flex: 1;
+}
+
+.variable-select-top {
+    display: flex;
+    justify-content: start;
+    flex-direction: row;
+    margin-bottom: 5px;
+    margin-top: 2px;
+    // Align both rows without stretching the buttons beyond their content.
+    &--button-wrap {
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        justify-items: start;
+        gap: 0;
+        flex-shrink: 0;
+        width: max-content;
+        height: 53px;
+        margin-top: 4px;
+
+        > .variable-select-mode-actions {
+            display: inline-flex;
+            grid-column: 1 / -1;
+            justify-self: stretch;
+        }
+
+        > .variable-select-expand-actions {
+            display: contents;
+        }
+
+        > .variable-select-mode-actions > button,
+        > .variable-select-expand-actions > button {
+            padding: 2px 3px;
+            white-space: nowrap;
+            width: 75px;
+        }
+    }
+    .variable-select-mode-actions {
+        > .variable-select-mode-button {
+            border: 1px solid #375a7f;
+            border-radius: 0;
+            background: #375a7f;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            height: 26px;
+            min-width: 75px;
+
+            &:first-child {
+                border-radius: 6px 0 0 6px;
+            }
+
+            &:last-child {
+                border-radius: 0 6px 6px 0;
+            }
+
+            &.is-active {
+                border-color: #00bc8c;
+                background: #00bc8c;
+                color: #fff;
+                cursor: default;
+            }
+
+            &:focus-visible {
+                outline: 2px solid #fff;
+                outline-offset: 2px;
+            }
+        }
+    }
+}
+
+.variable-select-toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+
+    .label {
+        font-weight: 600;
+    }
+
+    .ml-auto {
+        margin-left: auto;
+    }
+
+    > label {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 0;
+    }
+
+    .variable-select-range-label {
+        font-size: 10px;
+        margin-left: 8px;
+        margin-right: 4px;
+    }
+
+    .custom-control {
+        margin-bottom: 0;
+    }
+
+    .custom-control-label .variable-select-hover-help {
+        // Legacy label span styles shift tooltip-wrapped text below plain checkbox labels.
+        vertical-align: baseline;
+    }
+}
+
+.variable-select-hover-help {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: help;
+}
+
+.variable-select-tooltip .tooltip-inner {
+    max-width: 430px;
+    text-align: left;
+    white-space: pre-line;
+}
+
+.step {
+    width: 1px;
+    height: 20px;
+    background: #6a6a6a;
+    margin: 0 4px;
+}
+
+.variable-select-toolbar .small-number {
+    width: calc(5ch + 8px);
+    min-width: 0;
+    height: 26px;
+    padding: 2px 3px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+    appearance: textfield;
+
+    &--size {
+        width: calc(4ch + 8px);
+    }
+
+    &--step {
+        width: calc(3ch + 8px);
+    }
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+        margin: 0;
+        appearance: none;
+    }
+}
+
+.variable-select-toolbar .search-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    .search-input {
+        padding-right: 25px;
+    }
+
+    .btn-clear-search {
+        position: absolute;
+        right: 4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #888;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+
+        &:hover {
+            color: #aaa;
+        }
+
+        &:focus-visible {
+            outline: 2px solid #73a9d0;
+            outline-offset: 2px;
+        }
+    }
+}
+
+.variable-select-toolbar .search-input {
+    width: 125px;
+    min-width: 0;
+    max-width: 140px;
+    height: 26px;
+    border-radius: 0.25rem;
+    padding: 0 8px;
+    font-size: 12px;
+
+    &.invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 1px #dc3545 inset;
+    }
+}
+
+.variable-select-toolbar .app-pagination {
+    .app-pagination__button {
+        &:focus {
+            outline: none;
+        }
+    }
+}
+
+.variable-select-table-shell,
+.table-shell {
+    position: relative;
+    min-height: 0;
+    height: 100%;
+    max-height: 100%;
+    overflow: auto;
+    background: #292929;
+}
+
+.variable-select-loading-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 45%);
+    color: #fff;
+    pointer-events: auto;
+}
+
+.variable-select-loading-content {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.variable-select-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgb(255 255 255 / 25%);
+    border-top-color: #73a9d0;
+    border-radius: 50%;
+    animation: variable-select-loading-spin 0.8s linear infinite;
+}
+
+@keyframes variable-select-loading-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.variable-select-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-left: 1px solid #555;
+    border-top: 1px solid #555;
+    table-layout: fixed;
+
+    th,
+    td {
+        border-right: 1px solid #555;
+        border-bottom: 1px solid #555;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    th {
+        padding: 2px 6px;
+    }
+    td {
+        padding: 0px 3px;
+        font-size: 12px;
+    }
+
+    td {
+        background: #303030;
+        color: #eee;
+    }
+
+    thead th {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        background: #343434;
+        color: #fff;
+        font-weight: 600;
+        height: 27px;
+    }
+
+    thead tr.filter-row th {
+        top: 27px;
+        z-index: 19;
+        background: #2e2e2e;
+        padding: 2px 4px;
+    }
+
+    .filter-input:disabled {
+        background: #444;
+        color: #999;
+        cursor: not-allowed;
+
+        &::placeholder {
+            color: #999;
+            opacity: 1;
+        }
+    }
+
+    .process-row td {
+        font-weight: 600;
+        background: #292929;
+        color: #efefef;
+        padding: 3px;
+        font-size: 13px;
+    }
+
+    .process-row.process-selectable {
+        cursor: pointer;
+    }
+
+    .function-head td {
+        background: #292929;
+        color: #efefef;
+        font-weight: 700;
+    }
+
+    .plot-cell {
+        text-align: center;
+        padding: 0;
+    }
+
+    .english-name-cell {
+        text-align: right;
+    }
+
+    .plot-cell .custom-control {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    .plot-cell .custom-control-input {
+        margin: 0;
+    }
+
+    .plot-cell .custom-control-label {
+        margin: 0;
+        padding: 0;
+    }
+
+    .plot-cell {
+        .custom-control-label {
+            &::before,
+            &::after {
+                top: 50%;
+                right: 50%;
+                transform: translateY(-50%);
+                margin-left: 5px;
+                margin-top: -3px;
+            }
+        }
+    }
+    tbody tr.active-row:hover,
+    tbody tr.process-row:hover {
+        outline: white solid thin !important;
+    }
+
+    tbody tr.function-head:hover td {
+        border-top-color: #555;
+        border-bottom-color: #555;
+    }
+
+    tbody tr.function-head:hover td:first-child {
+        border-left: 1px solid #555;
+    }
+}
+
+.filter-input {
+    width: 100%;
+    height: 20px;
+    border: 1px solid #555;
+    background: #1c1c1c;
+    color: #ddd;
+    padding: 1px 4px;
+    font-size: 11px;
+}
+
+.filter-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .filter-input {
+        // Reserve room for the clear (×) button only when it is shown (input has a value).
+        padding-right: 18px;
+
+        &:placeholder-shown {
+            padding-right: 4px;
+        }
+    }
+
+    .btn-clear-filter {
+        position: absolute;
+        right: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #666;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+
+        &:hover {
+            color: #999;
+        }
+
+        &:focus-visible {
+            outline: 1px solid #73a9d0;
+            outline-offset: 1px;
+        }
+    }
+}
+
+.process-row-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    & .custom-checkbox {
+        margin-top: 5px;
+    }
+
+    > .custom-control {
+        min-height: 0;
+        padding-left: 0;
+
+        // Icon-only labels need a real click target; Bootstrap paints the control with pseudo-elements.
+        .custom-control-label {
+            display: block;
+            width: 1rem;
+            height: 1rem;
+
+            &::before,
+            &::after {
+                top: 0;
+                left: 0;
+            }
+        }
+    }
+
+    .process-summary {
+        color: #c9c9c9;
+        margin-right: auto;
+    }
+
+    button,
+    select {
+        height: 28px;
+    }
+}
+
+.process-pager {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 8px;
+}
+
+.small-select {
+    width: 100%;
+    height: 26px;
+    border: 1px solid #555;
+    background: #222;
+    color: #fff;
+    padding: 0 4px;
+}
+
+// MAP layout cell. It reuses the end process trigger/panel styling and only adapts the size to
+// the table row. The conflict dialog is rendered inside the modal, so it needs to stack above it.
+.variable-select-layout-cell {
+    height: 21px;
+    font-size: 12px;
+}
+
+.variable-select-modal .modal {
+    z-index: 1060;
+}
+
+.page-size {
+    height: 23px;
+    border: 1px solid #555;
+    background: #202020;
+    color: #eee;
+}
+
+.page-size-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #eee;
+    font-size: 11px;
+}
+
+.simple-filter {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.selected-count .over-limit {
+    color: #ff4d4f;
+    font-weight: 700;
+}
+
+.chevron {
+    width: 16px;
+    display: inline-block;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    line-height: 1;
+    color: #ddd;
+}
+
+.variable-select-detail {
+    padding: 0px 12px;
+    overflow: hidden;
+    min-height: 0;
+    background: #303030;
+    color: #efefef;
+
+    .detail-head {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        padding: 9px 12px;
+        margin: -12px -12px 10px;
+        font-size: 15px;
+        font-weight: 700;
+        background: #292929;
+        border-bottom: 1px solid #555;
+    }
+
+    .detail-type {
+        color: #9ecbf0;
+        font-size: 11px;
+        font-weight: 400;
+    }
+
+    .detail-body {
+        padding: 2px 2px 10px;
+    }
+
+    .detail-block {
+        margin-bottom: 10px;
+    }
+
+    .kv {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr);
+        gap: 2px;
+        line-height: 1.25;
+        margin-top: 4px;
+    }
+
+    .secondary {
+        color: #cfcfcf;
+        margin-left: 78px;
+        margin-top: 4px;
+    }
+
+    .assignment {
+        margin-top: 9px;
+        border-top: 1px solid #999;
+    }
+
+    .assignment-title {
+        background: #8a8a8a;
+        color: #fff;
+        padding: 3px 5px;
+        font-weight: 700;
+    }
+
+    .assignment .kv {
+        padding: 6px 4px;
+    }
+
+    .sample-block {
+        margin-top: 14px;
+    }
+
+    .sample-title {
+        background: #8a8a8a;
+        color: #fff;
+        padding: 3px 5px;
+        font-weight: 700;
+    }
+
+    .sample-mini {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    .sample-mini th,
+    .sample-mini td {
+        border: 1px solid #555;
+        padding: 2px 4px;
+        text-align: right;
+        font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sample-mini th {
+        background: #383838;
+        color: #ddd;
+    }
+
+    .sample-mini td {
+        background: #2a2a2a;
+    }
+}
+
+.small-search-select {
+    width: 100%;
+    min-width: 0;
+}
+
+.process-detail {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: 12px;
+
+    > .detail-head {
+        flex-shrink: 0;
+        margin: 0 -12px 6px;
+    }
+
+    > .detail-body {
+        display: grid;
+        grid-template-rows: auto minmax(0, max-content) minmax(0, 1fr);
+        gap: 8px;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .process-detail-metadata .kv > div:nth-child(even) {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+    }
+
+    .process-detail-links,
+    .process-detail-columns {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: 0;
+    }
+
+    .process-detail-scroll {
+        min-height: 0;
+        overflow: auto;
+    }
+
+    .process-detail-links .process-detail-scroll {
+        min-height: 7.5em;
+        max-height: 7.5em;
+        line-height: 1.5;
+    }
+
+    .process-detail-columns .process-detail-scroll {
+        overflow-anchor: none;
+    }
+
+    .process-detail-spacer td {
+        padding: 0;
+        border: 0;
+    }
+
+    .process-detail-links ul {
+        padding-left: 18px;
+        margin: 0;
+    }
+
+    .process-detail-links li {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .sample-mini th,
+    .sample-mini td {
+        text-align: left;
+    }
+
+    .sample-mini th {
+        position: sticky;
+        top: 0;
+    }
+
+    .sample-mini th:last-child {
+        width: 70px;
+    }
+}

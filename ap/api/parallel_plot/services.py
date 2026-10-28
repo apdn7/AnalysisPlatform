@@ -30,11 +30,9 @@ from ap.common.constants import (
     CATEGORIZED_SUFFIX,
     CATEGORY_COLS,
     CATEGORY_DATA,
-    COMMON,
     DATA_SIZE,
     DATETIME,
     END_PROC,
-    FINE_SELECT,
     FMT,
     GET02_VALS_SELECT,
     MATCHED_FILTER_IDS,
@@ -94,12 +92,6 @@ def gen_graph_paracords(graph_param, dic_param, df=None):
         )
         dic_param[ACTUAL_RECORD_NUMBER] = actual_record_number
         dic_param[UNIQUE_SERIAL] = unique_serial
-
-    # remove NA, -inf, inf in mode fine select
-    fine_select = bool(int(dic_param[COMMON][FINE_SELECT])) if FINE_SELECT in dic_param[COMMON] else False
-    if fine_select:
-        # replace inf, -inf to nan and drop nan any
-        df = df.replace({float('inf'): np.nan, float('-inf'): np.nan}).dropna(how='any')
 
     # check filter match or not ( for GUI show )
     (

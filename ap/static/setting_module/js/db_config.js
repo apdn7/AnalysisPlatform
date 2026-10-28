@@ -253,6 +253,7 @@ const toggleFileSelectConditionInputs = (isFilePath) => {
     $inputs.prop('disabled', !!isFilePath);
     if (isFilePath) {
         $inputs.val('');
+        refreshCsvSoftWrapFields();
     }
 };
 
@@ -263,6 +264,7 @@ let csvPreviewVirtualRafId = null;
 
 const CSV_PREVIEW_COLUMN_WIDTH = 180;
 const CSV_PREVIEW_OVERSCAN = 10;
+const CSV_PREVIEW_VISIBLE_ROWS = 8;
 const CSV_PREVIEW_COLUMN_STYLE = `box-sizing:border-box;min-width:${CSV_PREVIEW_COLUMN_WIDTH}px;width:${CSV_PREVIEW_COLUMN_WIDTH}px;max-width:${CSV_PREVIEW_COLUMN_WIDTH}px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis`;
 
 const escapeCsvPreviewTitle = (value) =>
@@ -319,6 +321,14 @@ const renderVirtualCsvPreview = (force = false) => {
         })
         .join('');
     tbody.innerHTML = rowsHtml;
+
+    // Measure rendered rows so the eight-row viewport follows font size and browser zoom.
+    const visibleRows = Array.from(tbody.rows).slice(0, CSV_PREVIEW_VISIBLE_ROWS);
+    const contentHeight =
+        headerRow.getBoundingClientRect().height +
+        visibleRows.reduce((height, row) => height + row.getBoundingClientRect().height, 0);
+    const scrollbarHeight = container.offsetHeight - container.clientHeight;
+    container.style.maxHeight = `${Math.ceil(contentHeight + scrollbarHeight)}px`;
 };
 
 const initVirtualCsvPreview = () => {
@@ -339,6 +349,7 @@ const initVirtualCsvPreview = () => {
     // A previous data source may have left the grid scrolled to the right; without this the
     // first window is computed from that stale offset and the user sees empty spacers.
     container.scrollLeft = 0;
+    container.scrollTop = 0;
     renderVirtualCsvPreview(true);
 };
 
@@ -455,15 +466,17 @@ const genColSuffix = (agree = true) => {
  * @param {string} originFolderUrl - an origin Url string
  * @return {Promise<boolean>} - true: is file path, false: is not file path
  */
-async function checkIsFilePath(folderUrl, originFolderUrl) {
+async function checkIsFilePath(folderUrl, originFolderUrl, previewContext) {
     const $filePathHiddenEl = $(csvResourceElements.isFilePathHidden);
     let folderInfoPromise;
-    if ($filePathHiddenEl.val() === '') {
-        // in case of new data source and first time checking, always call api to check
-        folderInfoPromise = checkFolderOrFile(folderUrl);
-    } else if (folderUrl !== originFolderUrl) {
-        // in case of Url changed, call api to check
-        folderInfoPromise = checkFolderOrFile(folderUrl);
+    if ($filePathHiddenEl.val() === '' || folderUrl !== originFolderUrl) {
+        folderInfoPromise = previewContext
+            ? fetchData(
+                  '/ap/api/setting/check_folder_or_file',
+                  JSON.stringify({ path: folderUrl, preview_context: previewContext }),
+                  'POST',
+              )
+            : checkFolderOrFile(folderUrl);
     } else {
         // in other cases, get value of isFilePath hidden input
         folderInfoPromise = new Promise((resolve) =>
@@ -474,151 +487,227 @@ async function checkIsFilePath(folderUrl, originFolderUrl) {
     }
 
     const folderInfo = await folderInfoPromise;
-    $filePathHiddenEl.val(folderInfo.isFile);
+    if (folderInfo.error) {
+        const error = new Error('CSV source validation failed');
+        error.responseJSON = folderInfo;
+        throw error;
+    }
+    if (folderUrl === $(csvResourceElements.folderUrlInput).val()) {
+        $filePathHiddenEl.val(folderInfo.isFile);
+    }
     return folderInfo.isFile;
 }
 
-const showResources = async (isFilePath = undefined, isValidFolder = undefined, dataSrcId = undefined) => {
+let csvPreviewSequence = 0;
+
+const showResources = async (
+    isFilePath = undefined,
+    isValidFolder = undefined,
+    dataSrcId = undefined,
+    trackHistory = false,
+) => {
+    const sequence = ++csvPreviewSequence;
     $('#resourceLoading').show();
     const folderUrl = $(csvResourceElements.folderUrlInput).val();
+    const referenceFile = $(csvResourceElements.referenceFileInput).val().trim();
+    const previewUrl = referenceFile || folderUrl;
     const originFolderUrl = $(csvResourceElements.folderUrlInput).data('originValue');
-    if (isFilePath == undefined) {
-        isFilePath = await checkIsFilePath(folderUrl, originFolderUrl);
-    }
-    // Enable/disable the File Select Condition inputs based on the (possibly just
-    // re-detected) isFilePath. This used to only happen inside checkFolderResources(),
-    // which was called by the old "Connect" button; after that button was removed and
-    // showResources() became the single entry point, this call was missing, so the
-    // filter inputs stayed enabled even when the source pointed directly at a file.
-    toggleFileSelectConditionInputs(isFilePath);
-    const dbCode = $(csvResourceElements.showResourcesBtnId).data('data-ds-id');
-    const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
-    if (isValidFolder == undefined) {
-        const checkFolderAPI = '/ap/api/setting/check_folder';
-        const checkFolderRes = await fetchData(
-            checkFolderAPI,
-            JSON.stringify({ url: folderUrl, isFile: isFilePath }),
-            'POST',
-        );
-        if (checkFolderRes && !checkFolderRes.is_valid) {
-            displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                message: checkFolderRes.err_msg,
-                is_error: true,
-            });
-            // hide loading
-            $('#resourceLoading').hide();
-
-            // hide preview table
-            $(csvResourceElements.dataTbl).hide();
-            clearCsvPreviewState();
-            disabledSaveDBBtn();
+    const dbCode = dataSrcId || $(csvResourceElements.showResourcesBtnId).attr('data-ds-id');
+    const sourceId = Number(dbCode);
+    const previewContext = trackHistory
+        ? {
+              db_code: Number.isSafeInteger(sourceId) && sourceId > 0 ? sourceId : null,
+              db_name: $(dbConfigElements.csvDBSourceName).val(),
+          }
+        : undefined;
+    const historyGeneration = trackHistory ? csvLoadHistory?.generation : undefined;
+    const isCurrentSource = () =>
+        folderUrl === $(csvResourceElements.folderUrlInput).val() &&
+        referenceFile === $(csvResourceElements.referenceFileInput).val().trim() &&
+        (!trackHistory || historyGeneration === csvLoadHistory?.generation);
+    const appendError = (response) => {
+        if (trackHistory && response?.error && isCurrentSource()) {
+            if (csvLoadHistory?.appendPreview(response, historyGeneration)) csvLoadHistory.refresh();
+        }
+    };
+    const handleFailure = (error) => {
+        appendError(error.responseJSON);
+        if (!isCurrentSource() || sequence !== csvPreviewSequence) {
+            if (sequence === csvPreviewSequence) $('#resourceLoading').hide();
             return;
         }
-        if (checkFolderRes.is_valid) {
-            displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                message: i18nDBCfg.dirExist,
-                is_error: false,
-            });
+        $('#resourceLoading').hide();
+        disabledSaveDBBtn();
+        $(csvResourceElements.dataTbl).hide();
+        clearCsvPreviewState();
+        hideAlertMessages();
+        displayRegisterMessage(csvResourceElements.alertInternalError, {
+            message: i18nDBCfg.couldNotReadData.html(),
+            is_error: true,
+        });
+        if (!error.responseJSON?.error) console.error('CSV preview request failed', error);
+    };
+    try {
+        if (isFilePath == undefined) {
+            isFilePath = await checkIsFilePath(folderUrl, originFolderUrl, previewContext);
         }
-    }
-    // get line skipping config
-    const csvSkipHead = $('input[name=skip_head]').val() || null;
-    const csvNRows = $(csvResourceElements.csvNRows).val() || null;
-    const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
-    const isFileChecked = $(csvResourceElements.isFileChecker).val() == 'true';
-    const encoding = $(csvResourceElements.dsEncodingSelect).val();
-    // File Select Condition: not sent (backend treats missing as "no filter") when the
-    // source is a direct file path, matching the disabled state of these inputs in that mode.
-    const fileNameInclude = isFilePath ? null : $(csvResourceElements.fileNameInclude).val() || null;
-    const fileNameExclude = isFilePath ? null : $(csvResourceElements.fileNameExclude).val() || null;
-    const subfolderInclude = isFilePath ? null : $(csvResourceElements.subfolderInclude).val() || null;
-    const subfolderExclude = isFilePath ? null : $(csvResourceElements.subfolderExclude).val() || null;
-    $.ajax({
-        url: csvResourceElements.apiUrl,
-        method: 'POST',
-        data: JSON.stringify({
-            db_code: dataSrcId || dbCode,
-            url: folderUrl,
-            etl_func: $('[name=optionalFunction]').val(),
-            delimiter: $(csvResourceElements.delimiter).val(),
-            isV2,
-            skip_head: csvSkipHead,
-            n_rows: csvNRows,
-            is_transpose: csvIsTranspose,
-            is_file: isFilePath,
-            is_file_checker: isFileChecked,
-            encoding: encoding,
-            file_name_include: fileNameInclude,
-            file_name_exclude: fileNameExclude,
-            subfolder_include: subfolderInclude,
-            subfolder_exclude: subfolderExclude,
-        }),
-        contentType: 'application/json',
-        success: (res) => {
-            $(csvResourceElements.alertInternalError).hide();
-            showToastrMsgFailLimit(res);
-
-            // save dummy header flag
-            if (Object.keys(res).includes('is_dummy_header')) {
-                $(csvResourceElements.isDummyHeader).val(res.is_dummy_header);
+        if (!isCurrentSource() || sequence !== csvPreviewSequence) {
+            if (sequence === csvPreviewSequence) $('#resourceLoading').hide();
+            return;
+        }
+        // Enable/disable the File Select Condition inputs based on the (possibly just
+        // re-detected) isFilePath. This used to only happen inside checkFolderResources(),
+        // which was called by the old "Connect" button; after that button was removed and
+        // showResources() became the single entry point, this call was missing, so the
+        // filter inputs stayed enabled even when the source pointed directly at a file.
+        toggleFileSelectConditionInputs(isFilePath);
+        const previewIsFile = Boolean(referenceFile) || isFilePath;
+        const isV2 = $(csvResourceElements.showResourcesBtnId).attr('data-isV2') === 'true' || false;
+        if (referenceFile || isValidFolder == undefined) {
+            const checkFolderAPI = '/ap/api/setting/check_folder';
+            const checkFolderRes = await fetchData(
+                checkFolderAPI,
+                JSON.stringify({
+                    url: previewUrl,
+                    isFile: previewIsFile,
+                    custom_extension: getCsvCustomExtension(),
+                    etl_func: $(csvResourceElements.optionalFunction).val(),
+                    preview_context: previewContext,
+                }),
+                'POST',
+            );
+            if (!isCurrentSource() || sequence !== csvPreviewSequence) {
+                appendError(checkFolderRes);
+                if (sequence === csvPreviewSequence) $('#resourceLoading').hide();
+                return;
             }
-
-            // No file matched the directory/extension or File Select Condition: show a
-            // clear error instead of falling through to the dummy-datetime confirmation
-            // flow (which was wrongly triggered before, since an empty result has no
-            // datetime column to report on either way).
-            if (!res.previewed_files || res.previewed_files.length === 0) {
-                $('#resourceLoading').hide();
+            if (checkFolderRes && (checkFolderRes.error || !checkFolderRes.is_valid)) {
+                appendError(checkFolderRes);
                 displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
-                    message: i18nDBCfg.fileNotFound.text(),
+                    message: checkFolderRes.err_msg,
                     is_error: true,
                 });
+                // hide loading
+                $('#resourceLoading').hide();
+
+                // hide preview table
                 $(csvResourceElements.dataTbl).hide();
-                $(csvResourceElements.fileName).hide();
                 clearCsvPreviewState();
                 disabledSaveDBBtn();
                 return;
             }
-
-            if (!res.has_ct_col) {
-                showDummyDatetimeModal(res);
-                latestRecords = res;
-            } else if (res.has_dupl_cols) {
-                showDuplColModal();
-                latestRecords = res;
-            } else {
-                showLatestRecordsFromDS(res, true, true);
+            if (checkFolderRes.is_valid) {
+                displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
+                    message: i18nDBCfg.dirExist,
+                    is_error: false,
+                });
             }
+        }
+        // get line skipping config
+        const csvSkipHead = $('input[name=skip_head]').val() || null;
+        const csvNRows = $(csvResourceElements.csvNRows).val() || null;
+        const csvIsTranspose = $(csvResourceElements.csvIsTranspose).is(':checked');
+        const isFileChecked = $(csvResourceElements.isFileChecker).val() == 'true';
+        const encoding = $(csvResourceElements.dsEncodingSelect).val();
+        // A specific preview file bypasses directory filters without changing the import source.
+        const fileNameInclude = previewIsFile ? null : $(csvResourceElements.fileNameInclude).val() || null;
+        const fileNameExclude = previewIsFile ? null : $(csvResourceElements.fileNameExclude).val() || null;
+        const subfolderInclude = previewIsFile ? null : $(csvResourceElements.subfolderInclude).val() || null;
+        const subfolderExclude = previewIsFile ? null : $(csvResourceElements.subfolderExclude).val() || null;
+        $.ajax({
+            url: csvResourceElements.apiUrl,
+            method: 'POST',
+            data: JSON.stringify({
+                db_code: dataSrcId || dbCode,
+                url: previewUrl,
+                etl_func: $('[name=optionalFunction]').val(),
+                custom_extension: getCsvCustomExtension(),
+                delimiter: $(csvResourceElements.delimiter).val(),
+                isV2,
+                skip_head: csvSkipHead,
+                n_rows: csvNRows,
+                is_transpose: csvIsTranspose,
+                is_file: previewIsFile,
+                is_file_checker: isFileChecked,
+                encoding: encoding,
+                file_name_include: fileNameInclude,
+                file_name_exclude: fileNameExclude,
+                subfolder_include: subfolderInclude,
+                subfolder_exclude: subfolderExclude,
+                preview_context: previewContext,
+            }),
+            contentType: 'application/json',
+            success: (res) => {
+                if (res.error) {
+                    handleFailure({ responseJSON: res });
+                    return;
+                }
+                if (trackHistory && res.load_history && isCurrentSource()) {
+                    if (csvLoadHistory?.appendPreview(res, historyGeneration)) csvLoadHistory.refresh();
+                }
+                if (!isCurrentSource() || sequence !== csvPreviewSequence) {
+                    if (sequence === csvPreviewSequence) $('#resourceLoading').hide();
+                    return;
+                }
+                $(csvResourceElements.alertInternalError).hide();
+                showToastrMsgFailLimit(res);
 
-            if (isV2 && res.is_process_null) {
-                res.v2_processes = [DUMMY_V2_PROCESS_NAME];
-                res.v2_processes_shown_name = [$(dbConfigElements.csvDBSourceName).val()];
-            }
-            // update process of V2
-            if (res.v2_processes && res.v2_processes.length) {
-                const v2ProcessList = res.v2_processes;
-                const v2ProcessShownNameList = res.v2_processes_shown_name || res.v2_processes;
+                // save dummy header flag
+                if (Object.keys(res).includes('is_dummy_header')) {
+                    $(csvResourceElements.isDummyHeader).val(res.is_dummy_header);
+                }
 
-                addProcessList(v2ProcessList, v2ProcessShownNameList);
+                // No file matched the directory/extension or File Select Condition: show a
+                // clear error instead of falling through to the dummy-datetime confirmation
+                // flow (which was wrongly triggered before, since an empty result has no
+                // datetime column to report on either way).
+                if (!res.previewed_files || res.previewed_files.length === 0) {
+                    $('#resourceLoading').hide();
+                    displayRegisterMessage(csvResourceElements.alertMsgCheckFolder, {
+                        message: i18nDBCfg.fileNotFound.text(),
+                        is_error: true,
+                    });
+                    $(csvResourceElements.dataTbl).hide();
+                    $(csvResourceElements.fileName).hide();
+                    clearCsvPreviewState();
+                    disabledSaveDBBtn();
+                    return;
+                }
 
-                // update observer
-                inputMutationObserver = new InputChangeObserver(document.getElementById('modal-db-csv'));
-                inputMutationObserver.startObserving();
-            }
-            $('#resourceLoading').hide();
-        },
-        error: (jqXHR, textStatus, errorThrown) => {
-            $('#resourceLoading').hide();
-            // disabled OK Button
-            disabledSaveDBBtn();
+                if (!res.has_ct_col) {
+                    showDummyDatetimeModal(res);
+                    latestRecords = res;
+                } else if (res.has_dupl_cols) {
+                    showDuplColModal();
+                    latestRecords = res;
+                } else {
+                    showLatestRecordsFromDS(res, true, true);
+                }
 
-            hideAlertMessages();
-            displayRegisterMessage(csvResourceElements.alertInternalError, {
-                message: i18nDBCfg.couldNotReadData.html(),
-                is_error: true,
-            });
-        },
-    });
+                if (isV2 && res.is_process_null) {
+                    res.v2_processes = [DUMMY_V2_PROCESS_NAME];
+                    res.v2_processes_shown_name = [$(dbConfigElements.csvDBSourceName).val()];
+                }
+                // update process of V2
+                if (res.v2_processes && res.v2_processes.length) {
+                    const v2ProcessList = res.v2_processes;
+                    const v2ProcessShownNameList = res.v2_processes_shown_name || res.v2_processes;
+
+                    addProcessList(v2ProcessList, v2ProcessShownNameList);
+
+                    // update observer
+                    inputMutationObserver = new InputChangeObserver(document.getElementById('modal-db-csv'));
+                    inputMutationObserver.startObserving();
+                }
+                $('#resourceLoading').hide();
+            },
+            error: (jqXHR, textStatus, errorThrown) => {
+                handleFailure(jqXHR);
+            },
+        });
+    } catch (error) {
+        handleFailure(error);
+    }
 };
 
 const addProcessList = (
@@ -825,11 +914,27 @@ const saveSWDatasource = (dsCode, dsConfig, isDirectlyImport = false) => {
 };
 
 let tmpResource;
+let csvSaveInProgress = false;
+
+const lockCsvDataSourceSave = () => {
+    if (csvSaveInProgress) return null;
+    csvSaveInProgress = true;
+    const button = $(csvResourceElements.csvSubmitBtn);
+    const wasDisabled = button.prop('disabled');
+    button.prop('disabled', true);
+    return () => {
+        csvSaveInProgress = false;
+        button.prop('disabled', wasDisabled);
+    };
+};
 
 // call backend API to save
 const saveDataSource = (dsCode, dsConfig, isDirectlyImport = false) => {
+    const releaseSave = dsConfig.csv_detail ? lockCsvDataSourceSave() : undefined;
+    if (releaseSave === null) return Promise.resolve(false);
     const endPoint = 'api/setting/data_source_save';
-    fetch(endPoint, {
+    const dataSourceRow = currentDSTR;
+    return fetch(endPoint, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -837,24 +942,35 @@ const saveDataSource = (dsCode, dsConfig, isDirectlyImport = false) => {
         },
         body: JSON.stringify(dsConfig),
     })
-        .then((response) => response.clone().json())
+        .then(async (response) => {
+            const json = await response.json();
+            if (!response.ok || json.flask_message?.is_error) {
+                displayRegisterMessage(
+                    dsConfig.csv_detail ? csvResourceElements.alertInternalError : '#alert-msg-db',
+                    json.flask_message ?? { message: $('#i18nCommonErrorMsg').text(), is_error: true },
+                );
+                return null;
+            }
+            return json;
+        })
         .then((json) => {
+            if (!json) return false;
             displayRegisterMessage('#alert-msg-db', json.flask_message);
 
             // 新規アイテムのattrを設定する。
             const itemName = 'name';
             if (!dsCode) {
-                currentDSTR.attr('id', csvResourceElements.dsId + json.id);
-                currentDSTR.attr(csvResourceElements.dataSrcId, json.id);
+                dataSourceRow.attr('id', csvResourceElements.dsId + json.id);
+                dataSourceRow.attr(csvResourceElements.dataSrcId, json.id);
                 // itemName = "master-name"
             }
 
             // データソース名とコメントの値を設定する。
-            currentDSTR.find(`input[name="${itemName}"]`).val(dsConfig.name);
-            currentDSTR.find(`input[name="${itemName}"]`).closest('td').attr('title', dsConfig.name);
-            currentDSTR.find('textarea[name="comment"]').val(dsConfig.comment);
+            dataSourceRow.find(`input[name="${itemName}"]`).val(dsConfig.name);
+            dataSourceRow.find(`input[name="${itemName}"]`).closest('td').attr('title', dsConfig.name);
+            dataSourceRow.find('textarea[name="comment"]').val(dsConfig.comment);
             PollingFrequencyOption.updateOptionsPollingFre(
-                currentDSTR,
+                dataSourceRow,
                 dsConfig.type,
                 dsConfig.id,
                 dsConfig.polling_frequency / 60,
@@ -885,17 +1001,27 @@ const saveDataSource = (dsCode, dsConfig, isDirectlyImport = false) => {
                     );
                 }
             }
-            handleChangeSelectToInputForDBType();
+            handleChangeSelectToInputForDBType(dataSourceRow);
+            return true;
         })
-        .catch((json) => {
-            displayRegisterMessage('#alert-msg-db', json.flask_message);
-        });
+        .catch((error) => {
+            console.error('Failed to save datasource', error);
+            displayRegisterMessage(dsConfig.csv_detail ? csvResourceElements.alertInternalError : '#alert-msg-db', {
+                message: $('#i18nCommonErrorMsg').text(),
+                is_error: true,
+            });
+            return false;
+        })
+        .finally(() => releaseSave?.());
 };
 
 const saveV2DataSource = (dsConfig) => {
+    const releaseSave = lockCsvDataSourceSave();
+    if (!releaseSave) return Promise.resolve(false);
+    const historyGeneration = csvLoadHistory?.generation;
     const loadingObj = loadingHandler();
     loadingObj.show();
-    fetch('api/setting/v2_data_source_save', {
+    return fetch('api/setting/v2_data_source_save', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -903,14 +1029,21 @@ const saveV2DataSource = (dsConfig) => {
         },
         body: JSON.stringify(dsConfig),
     })
-        .then((response) => response.clone().json())
-        .then((json) => {
-            $('#modal-db-csv').modal('hide');
-            displayRegisterMessage('#alert-msg-db', json.flask_message);
-            if (json.flask_message.is_error) {
-                loadingObj.hide();
-                return;
+        .then(async (response) => {
+            const json = await response.json();
+            if (!response.ok || json.flask_message?.is_error) {
+                displayRegisterMessage(
+                    csvResourceElements.alertInternalError,
+                    json.flask_message ?? { message: $('#i18nCommonErrorMsg').text(), is_error: true },
+                );
+                return null;
             }
+            return json;
+        })
+        .then((json) => {
+            if (!json) return false;
+            if (historyGeneration === csvLoadHistory?.generation) $('#modal-db-csv').modal('hide');
+            displayRegisterMessage('#alert-msg-db', json.flask_message);
             const dataSources = json.data.map((da) => JSON.parse(da.data_source));
             let index = 0;
             for (const dbs of dataSources) {
@@ -947,11 +1080,23 @@ const saveV2DataSource = (dsConfig) => {
             v2DataSources = null;
             // show toastr message to guide user to proceed to Process config
             showToastrToProceedProcessConfig();
-            loadingObj.hide();
 
             // show v2 process config automatically
             const dbsIds = json.data.map((da) => da.id);
             showAllV2ProcessConfigModal(dbsIds);
+            return true;
+        })
+        .catch((error) => {
+            console.error('Failed to save V2 datasources', error);
+            displayRegisterMessage(csvResourceElements.alertInternalError, {
+                message: $('#i18nCommonErrorMsg').text(),
+                is_error: true,
+            });
+            return false;
+        })
+        .finally(() => {
+            loadingObj.hide();
+            releaseSave();
         });
 };
 
@@ -1130,11 +1275,13 @@ const genCsvInfo = async () => {
     const dictCsvDetail = {
         id: dbItemId,
         directory,
+        reference_file: $(csvResourceElements.referenceFileInput).val().trim() || null,
         skip_head: skipHead,
         skip_tail: skipTail,
         n_rows: csvNRows,
         is_transpose: csvIsTranspose,
         etl_func: optionalFunction,
+        custom_extension: getCsvCustomExtension(),
         delimiter,
         csv_columns: csvColumns,
         dummy_header: isDummyHeader,
@@ -1187,8 +1334,12 @@ const validateV2CSVDBSources = async (dbs) => {
 };
 
 const saveCSVDataSource = async (isV2 = false) => {
+    const historyGeneration = csvLoadHistory?.generation;
     const dataSrcId = currentDSTR.attr(csvResourceElements.dataSrcId);
     const dictDataSrc = await genCsvInfo();
+    if (historyGeneration !== csvLoadHistory?.generation) return;
+    const pendingTokens = csvLoadHistory?.getSaveTokens() ?? [];
+    if (pendingTokens.length) dictDataSrc.preview_tokens = pendingTokens;
 
     // save
     if (isV2) {
@@ -1202,11 +1353,11 @@ const saveCSVDataSource = async (isV2 = false) => {
             $(dbElements.saveDataSourceModal).modal('show');
             v2DataSources = v2DatasourceByProcess;
         } else if (v2DatasourceByProcess.length == 1) {
-            saveV2DataSource(v2DatasourceByProcess);
+            if (!(await saveV2DataSource(v2DatasourceByProcess))) return;
         }
     } else {
-        saveDataSource(dataSrcId, dictDataSrc);
-        $('#modal-db-csv').modal('hide');
+        if (!(await saveDataSource(dataSrcId, dictDataSrc))) return;
+        if (historyGeneration === csvLoadHistory?.generation) $('#modal-db-csv').modal('hide');
     }
 
     // show toast after save
@@ -1220,7 +1371,7 @@ const saveCSVDataSource = async (isV2 = false) => {
 
 const handleSaveV2DataSources = () => {
     if (v2DataSources) {
-        saveV2DataSource(v2DataSources);
+        return saveV2DataSource(v2DataSources);
     }
 };
 
@@ -1361,8 +1512,8 @@ const genDBInfo = () => {
 };
 
 // change select2 to input element for DB Type
-const handleChangeSelectToInputForDBType = () => {
-    const $selectDBType = currentDSTR.find('select[name="type"]');
+const handleChangeSelectToInputForDBType = (dataSourceRow = currentDSTR) => {
+    const $selectDBType = dataSourceRow.find('select[name="type"]');
     const $selectDisplayName = $selectDBType.find('option:selected').text();
     const DBTypeValue = $selectDBType.val();
     const $newInputEl = $('<input>', {
@@ -1910,12 +2061,15 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             // Clear old input data
             $(csvResourceElements.isFilePathHidden).val('');
             $(csvResourceElements.folderUrlInput).val('');
+            $(csvResourceElements.referenceFileInput).val('').attr('data-observer', '');
             $(csvResourceElements.folderUrlInput).data('originValue', '');
             $(csvResourceElements.fileName).text('');
             $(csvResourceElements.fileNameInclude).val('');
             $(csvResourceElements.fileNameExclude).val('');
             $(csvResourceElements.subfolderInclude).val('');
             $(csvResourceElements.subfolderExclude).val('');
+            $(csvResourceElements.customExtension).val('zip').attr('data-observer', 'zip');
+            $(csvResourceElements.fileTypeOther).prop('checked', false).attr('data-observer', 'false');
 
             // clear observer of old input:
             $(csvResourceElements.isFilePathHidden).attr('data-observer', '');
@@ -1928,6 +2082,8 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
             $(csvResourceElements.subfolderExclude).attr('data-observer', '');
 
             if (dictDataSrc.csv_detail) {
+                const referenceFile = dictDataSrc.preview_reference_file ?? dictDataSrc.csv_detail.reference_file ?? '';
+                $(csvResourceElements.referenceFileInput).val(referenceFile).attr('data-observer', referenceFile);
                 if (dictDataSrc.csv_detail.directory) {
                     $(csvResourceElements.folderUrlInput).val(dictDataSrc.csv_detail.directory);
                     $(csvResourceElements.folderUrlInput).data('originValue', dictDataSrc.csv_detail.directory);
@@ -2007,6 +2163,14 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
                         .trigger('change');
                     $(dictDataSrc.csv_detail.etl_func).attr('data-observer', dictDataSrc.csv_detail.etl_func);
                 }
+                const customExtension = dictDataSrc.csv_detail.custom_extension || '';
+                $(csvResourceElements.customExtension)
+                    .val(customExtension || 'zip')
+                    .attr('data-observer', customExtension || 'zip');
+                $(csvResourceElements.fileTypeOther)
+                    .prop('checked', !!customExtension)
+                    .attr('data-observer', String(!!customExtension));
+                updateCsvOptionalFunctionSettings();
 
                 if (dictDataSrc.csv_detail.auto_encoding) {
                     $(csvResourceElements.dsEncodingSelect).select2().val('auto-detect');
@@ -2059,6 +2223,7 @@ const bindDBItemToModal = (selectedDatabaseType, dictDataSrc) => {
                 // show transpose
                 $(csvResourceElements.csvIsTranspose).parent().show();
             }
+            refreshCsvSoftWrapFields();
             break;
         }
         case DB_CONFIGS.WEB.configs.type:
@@ -2332,7 +2497,7 @@ const loadDetail = (self) => {
             }
         }
         bindDBItemToModal(dsType, jsonDictDataSrc);
-        $(`#modal-db-${domModalPrefix}`).modal('show');
+        $(`#modal-db-${domModalPrefix}`).off('shown.bs.modal.csvResources').modal('show');
     } else {
         const url = new URL(`${csvResourceElements.apiLoadDetail}/${dataSrcId}`, window.location.href).href;
         fetch(url, {
@@ -2346,12 +2511,12 @@ const loadDetail = (self) => {
             .then((json) => {
                 if (json) {
                     bindDBItemToModal(dsType, json);
-                    $(`#modal-db-${domModalPrefix}`).modal('show');
                     $(`#modal-db-${domModalPrefix}`)
-                        .off('shown.bs.modal')
-                        .on('shown.bs.modal', () => {
+                        .off('shown.bs.modal.csvResources')
+                        .one('shown.bs.modal.csvResources', () => {
                             showResources(undefined, undefined, dataSrcId);
-                        });
+                        })
+                        .modal('show');
                 }
             });
     }
@@ -2414,7 +2579,210 @@ const disabledSaveDBBtn = () => {
     $(csvResourceElements.csvSubmitBtn).removeClass(' btn-primary').addClass('btn saveDBInfoBtn btn-secondary');
 };
 
+let csvSoftWrapCleanup = () => {};
+const csvSoftWrapSelector = 'textarea.csv-soft-wrap-field';
+
+const refreshCsvSoftWrapField = (field) => {
+    const rect = field.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    const lineHeight = parseFloat(window.getComputedStyle(field).lineHeight);
+    const padding = Math.max(0, (field.clientHeight - lineHeight) / 2);
+    const scrollTop = field.scrollTop;
+    const overflowY = field.style.overflowY;
+    // Remove a previous scrollbar so exact-fit text is measured at the full width.
+    field.style.overflowY = 'hidden';
+    field.style.paddingTop = `${padding}px`;
+    field.style.paddingBottom = `${padding}px`;
+    // scrollHeight includes padding and is integer-rounded.
+    const singleLine = field.scrollHeight <= field.clientHeight + 1;
+    if (!singleLine) {
+        field.style.paddingTop = '0px';
+        field.style.paddingBottom = '0px';
+    }
+    field.style.overflowY = overflowY;
+    field.scrollTop = singleLine ? 0 : scrollTop;
+};
+
+const refreshCsvSoftWrapFields = () => {
+    $(dbConfigElements.csvModal)
+        .find(csvSoftWrapSelector)
+        .each((_, field) => refreshCsvSoftWrapField(field));
+};
+
+const initializeCsvSoftWrapFields = () => {
+    csvSoftWrapCleanup();
+    const modal = $(dbConfigElements.csvModal);
+    const resizeObserver =
+        typeof ResizeObserver === 'undefined'
+            ? null
+            : new ResizeObserver((entries) => entries.forEach(({ target }) => refreshCsvSoftWrapField(target)));
+    const disconnect = () => resizeObserver?.disconnect();
+    const observe = () => {
+        disconnect();
+        modal.find(csvSoftWrapSelector).each((_, field) => {
+            // Observe the fixed border box, not the content box changed by padding.
+            resizeObserver?.observe(field, { box: 'border-box' });
+        });
+        refreshCsvSoftWrapFields();
+    };
+    const sanitizeTransfer = (event) => {
+        const field = event.target;
+        if (
+            !field.matches(csvSoftWrapSelector) ||
+            field.readOnly ||
+            field.disabled ||
+            event.isComposing ||
+            !event.cancelable ||
+            !['insertFromPaste', 'insertFromDrop'].includes(event.inputType)
+        ) {
+            return;
+        }
+        const text = event.dataTransfer?.getData('text/plain') ?? event.data;
+        if (text == null || !/[\r\n]/.test(text)) return;
+        event.preventDefault();
+        const value = text.replace(/[\r\n]/g, '');
+        if (!value && field.selectionStart === field.selectionEnd) return;
+        try {
+            // Chrome/Edge need native editing commands to preserve undo; rewriting value after input corrupts redo.
+            // Delete an empty replacement natively: insertText with an empty string can fail.
+            if (!document.execCommand(value ? 'insertText' : 'delete', false, value)) {
+                throw new Error('Native paste/drop insertion failed.');
+            }
+        } catch (error) {
+            showToastPasteFromClipboardFailed(error);
+        }
+    };
+    // Cancel before insertion so direct preview/observer input listeners only receive the cleaned edit.
+    modal[0]?.addEventListener('beforeinput', sanitizeTransfer, true);
+    csvSoftWrapCleanup = () => {
+        disconnect();
+        modal[0]?.removeEventListener('beforeinput', sanitizeTransfer, true);
+    };
+    modal
+        .off('shown.bs.modal.csvSoftWrap hidden.bs.modal.csvSoftWrap')
+        .on('shown.bs.modal.csvSoftWrap', observe)
+        .on('hidden.bs.modal.csvSoftWrap', disconnect);
+    if (modal[0]?.getClientRects().length) observe();
+
+    const events = 'keydown.csvSoftWrap beforeinput.csvSoftWrap';
+    modal
+        .off('input.csvSoftWrap change.csvSoftWrap', csvSoftWrapSelector)
+        .on('input.csvSoftWrap change.csvSoftWrap', csvSoftWrapSelector, (event) => {
+            refreshCsvSoftWrapField(event.target);
+        })
+        .off(events, csvSoftWrapSelector)
+        .on(events, csvSoftWrapSelector, (event) => {
+            const nativeEvent = event.originalEvent || event;
+            // IME uses Enter to confirm text, not to insert a newline.
+            if (nativeEvent.isComposing || nativeEvent.keyCode === 229 || event.isComposing || event.keyCode === 229) {
+                return;
+            }
+            if (
+                (event.type === 'keydown' && event.key === 'Enter') ||
+                (event.type === 'beforeinput' && ['insertLineBreak', 'insertParagraph'].includes(nativeEvent.inputType))
+            ) {
+                event.preventDefault();
+            }
+        });
+};
+
+const updateCsvSourceControls = () => {
+    const hasSource = $(csvResourceElements.folderUrlInput).val().trim().length > 0;
+    $(csvResourceElements.showResourcesBtnId).prop('disabled', !hasSource);
+    $(csvResourceElements.referenceFileInput).prop('disabled', !hasSource);
+    if (hasSource) {
+        $(`${dbConfigElements.csvModal} label[for="folderUrl"]`).removeClass('blink');
+    }
+    return hasSource;
+};
+
+const initializeCsvSourceControls = () => {
+    const modal = $(dbConfigElements.csvModal);
+    const source = $(csvResourceElements.folderUrlInput);
+    const label = $(`${dbConfigElements.csvModal} label[for="folderUrl"]`);
+    let active = modal.hasClass('show');
+
+    source
+        .off('.csvSourceControls')
+        .on('input.csvSourceControls change.csvSourceControls', () => {
+            updateCsvSourceControls();
+        })
+        .on('blur.csvSourceControls', () => {
+            if (active) label.toggleClass('blink', !updateCsvSourceControls());
+        });
+    modal
+        .off('.csvSourceControls')
+        .on('show.bs.modal.csvSourceControls', () => {
+            active = true;
+            label.removeClass('blink');
+            updateCsvSourceControls();
+        })
+        .on('shown.bs.modal.csvSourceControls', () => {
+            if (!Number($(csvResourceElements.showResourcesBtnId).attr('data-ds-id'))) {
+                source.trigger('focus');
+            }
+        })
+        .on('hide.bs.modal.csvSourceControls', () => {
+            active = false;
+            label.removeClass('blink');
+        });
+    updateCsvSourceControls();
+};
+
+const initializeCsvLoadHistoryTrace = () => {
+    const parentModal = $(dbConfigElements.csvModal);
+    const traceModal = $('#modal-csv-load-history-trace');
+    let trigger;
+
+    parentModal.on('click.csvLoadHistoryTrace keydown.csvLoadHistoryTrace', '#csvLoadHistoryTraceTrigger', (event) => {
+        if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+        trigger = event.currentTarget;
+        $('#csvLoadHistoryFullTrace').text(trigger.querySelector('.csv-load-history-trace').textContent);
+        traceModal.modal('show');
+    });
+
+    traceModal.on('shown.bs.modal.csvLoadHistoryTrace', () => {
+        traceModal.find('.modal-body').scrollTop(0).scrollLeft(0);
+    });
+
+    traceModal.on('hidden.bs.modal.csvLoadHistoryTrace', () => {
+        if (parentModal.hasClass('show')) {
+            // Bootstrap removes the parent focus trap when a second modal opens.
+            parentModal.data('bs.modal')._enforceFocus();
+            $(document.body).addClass('modal-open');
+            trigger.focus({ preventScroll: true });
+        }
+        $('#csvLoadHistoryFullTrace').empty();
+    });
+};
+
+const initializeCsvLoadHistoryCopy = () => {
+    $('#btnCopyCsvLoadHistory').tooltip({
+        trigger: 'click',
+        placement: 'bottom',
+    });
+
+    const clipboard = new ClipboardJS('#btnCopyCsvLoadHistory', {
+        container: document.getElementById('modal-db-csv'),
+        text: () => document.querySelector('#csvLoadHistory .csv-load-history-trace').textContent,
+    });
+
+    clipboard.on('success', (event) => {
+        setTooltip(event.trigger, 'Copied!');
+    });
+    clipboard.on('error', (event) => {
+        setTooltip(event.trigger, 'Failed!');
+    });
+};
+
 $(() => {
+    initializeCsvSoftWrapFields();
+    initializeCsvSourceControls();
+    initializeCsvLoadHistoryCopy();
+    initializeCsvLoadHistoryTrace();
+
     // drag & drop for tables
     $(`#${dbElements.tblDbConfig} tbody`).sortable({
         helper: dragDropRowInTable.fixHelper,
@@ -2428,12 +2796,17 @@ $(() => {
     setFileSelectConditionHoverText();
 
     $(csvResourceElements.showResourcesBtnId).on('click', () => {
+        if ($(csvResourceElements.showResourcesBtnId).prop('disabled')) return;
         $('#resourceLoading').show();
         const isFile = $(csvResourceElements.showResourcesBtnId).data('is_file');
         const isValidFolder = $(csvResourceElements.showResourcesBtnId).data('is_valid_folder');
-        showResources(isFile, isValidFolder);
+        showResources(isFile, isValidFolder, undefined, true);
         $(csvResourceElements.showResourcesBtnId).removeData('is_file');
         $(csvResourceElements.showResourcesBtnId).removeData('is_valid_folder');
+    });
+    $(dbConfigElements.csvModal).on('hide.bs.modal.csvPreview', () => {
+        csvPreviewSequence += 1;
+        $('#resourceLoading').hide();
     });
 
     $(csvResourceElements.csvConfirmRegister).on('click', (e) => {
@@ -2473,10 +2846,12 @@ $(() => {
                 $(csvResourceElements.dataTbl).hide();
                 clearCsvPreviewState();
                 $(dbConfigElements.csvDBSourceName).val('');
+                refreshCsvSoftWrapFields();
                 return;
             }
 
             trimQuotesSpacesAndUpdate(e.target);
+            updateCsvSourceControls();
             const fileName = e.target.value;
             const dbsName = $(dbConfigElements.csvDBSourceName).val();
             const existingDSID = $(dbConfigElements.csvDBSourceName).data('itemId');
@@ -2486,15 +2861,29 @@ $(() => {
                 // autogen datasource name by latest folder name
                 $(dbConfigElements.csvDBSourceName).val(lastFolderName);
             }
-            // handle show data when enter a path to the input in Data Source Config
+            refreshCsvSoftWrapFields();
             $(csvResourceElements.showResourcesBtnId).trigger('click');
         }, 300); // delay input 300ms
     });
 
+    let fileSelectConditionDebounceTimer;
+    $(csvResourceElements.referenceFileInput)
+        .on('input', (e) => {
+            e.target.title = e.target.value;
+        })
+        .on('change', (e) => {
+            trimQuotesSpacesAndUpdate(e.target);
+            $(csvResourceElements.showResourcesBtnId).trigger('click');
+        })
+        .on('keydown', (e) => {
+            if (e.key === 'Enter' && !e.isComposing && !e.originalEvent?.isComposing) {
+                e.preventDefault();
+                e.target.blur();
+            }
+        });
     // Auto-refresh the Data Preview whenever a File Select Condition input changes
     // (File Name / Subfolder Include-Exclude), so the preview always reflects the
     // currently entered filter without needing to press "Show" again.
-    let fileSelectConditionDebounceTimer;
     $(csvResourceElements.fileSelectConditionInputs).on('input', () => {
         clearTimeout(fileSelectConditionDebounceTimer);
         fileSelectConditionDebounceTimer = setTimeout(() => {
@@ -2523,6 +2912,17 @@ $(() => {
     });
 
     PollingFrequencyOption.handleOnChangeMainPollingFrequency();
+
+    $(csvResourceElements.optionalFunction).on('change', updateCsvOptionalFunctionSettings).trigger('change');
+    $(csvResourceElements.fileTypeOther).on('change', updateCsvOptionalFunctionSettings);
+    $(csvResourceElements.fileTypeOther).on('click', function () {
+        if ($(this).data('wasChecked')) {
+            $(this).prop('checked', false).trigger('change');
+        }
+    });
+    $('input[name="fileType"]').on('change', () => {
+        updateCsvOptionalFunctionSettings();
+    });
 
     // event on change encoding
     $(csvResourceElements.dsEncodingSelect).on('change', () => {

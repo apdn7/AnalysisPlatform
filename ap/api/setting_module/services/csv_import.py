@@ -6,9 +6,11 @@ import os.path
 import re
 import uuid
 from collections.abc import Generator, Iterable, Iterator
+from contextlib import suppress
 from datetime import datetime
 from io import BytesIO
 from itertools import chain
+from pathlib import Path
 
 import pandas as pd
 
@@ -93,7 +95,13 @@ from ap.common.disk_usage import get_ip_address
 from ap.common.jobs.job_info_schema import CsvImportJobInfo
 from ap.common.log import log_execution_time
 from ap.common.multiprocess_sharing import EventBackgroundAnnounce, EventQueue
-from ap.common.path_utils import filter_files_by_select_condition, get_basename, get_files
+from ap.common.path_utils import (
+    filter_files_by_select_condition,
+    get_basename,
+    get_csv_source_extensions,
+    get_files,
+    resolve_csv_custom_extension,
+)
 from ap.common.pydn.dblib.sqlite import SQLite3
 from ap.common.pydn.dblib.transaction import TxnDataConnection, TxnMetaConnection
 from ap.common.scheduler import scheduler_app_context
@@ -225,6 +233,7 @@ def import_csv(
     # Isolate object that not link to SQLAlchemy to avoid changes in other session
     proc_cfg = proc_cfg.clone()
     data_src: CfgDataSourceCSV = proc_cfg.data_source.csv_detail
+    is_python_etl = bool(data_src.etl_func and data_src.etl_func.endswith('.py'))
     is_v2_datasource = is_v2_data_source(ds_type=proc_cfg.data_source.type)
     cfg_parent_proc: CfgProcess | None = CfgProcess.get_proc_by_id(proc_cfg.parent_id) if proc_cfg.parent_id else None
 
@@ -248,11 +257,20 @@ def import_csv(
     t_job_management: JobManagement = JobManagement.get_last_job_of_process(proc_id, JobType.CSV_IMPORT.name)
     job_id = int(t_job_management.id) if t_job_management else None
 
-    import_target_iter = _iter_import_targets_for_processing(proc_id, job_id, import_targets)
+    import_target_iter = _iter_import_targets_for_processing(
+        proc_id,
+        job_id,
+        import_targets,
+        etl_func=data_src.etl_func,
+    )
     # Get a single file path to detect/check CSV structure before the main loop.
     # This helper may consume the first streamed item (archive-only case) and then
     # prepend it back, so iteration order/data is preserved.
-    import_target_iter, check_structure_target = _resolve_check_structure_target(import_targets, import_target_iter)
+    import_target_iter, check_structure_target = _resolve_check_structure_target(
+        import_targets,
+        import_target_iter,
+        etl_func=data_src.etl_func,
+    )
 
     # csv delimiter
     csv_delimiter = get_csv_delimiter(data_src.delimiter)
@@ -299,8 +317,12 @@ def import_csv(
         auto_encoding=data_src.auto_encoding,
     )
     # To preview data
-    if check_structure_target:
-        file_reader.read(target_file=check_structure_target)
+    if check_structure_target is not None:
+        # Python ETL outputs are checked in the per-file loop so one unreadable
+        # output is recorded as failed without preventing later files from loading.
+        if not is_python_etl:
+            file_reader.read(target_file=check_structure_target)
+        check_structure_target = None
 
     is_invalid_csv = import_targets and not file_reader.is_valid and not data_src.etl_func
     is_same_number_of_rows_and_headers = not file_reader.is_mismatched_cols
@@ -379,7 +401,7 @@ def import_csv(
         # can still mark this archive entry as success/failed reliably.
         archive_context_manager.register(idx, archive_processor, archive_entry)
 
-        # R error check
+        # Transformation or archive expansion error
         if isinstance(transformed_file, Exception):
             if str(transformed_file) == EMPTY_ARCHIVE_ERROR_MSG:
                 job_info.status = JobStatus.DONE
@@ -389,6 +411,7 @@ def import_csv(
                 job_info.empty_files = []
                 continue
 
+            job_management.info.capture_error(transformed_file)
             yield from yield_job_info(job_info, csv_file_name, err_msgs=str(transformed_file))
             import_target_info.error = str(transformed_file)
             error_type = DATA_TYPE_ERROR_MSG
@@ -406,6 +429,8 @@ def import_csv(
                     else file_reader.read_data_normal_file(transformed_file)
                 )
             except (EncodingException, UnicodeDecodeError, Exception) as e:
+                job_management.info.capture_error(e)
+                import_target_info.error = str(e)
                 # get error_info job
                 error_info = JobInfo()
                 error_info.job_id = job_id
@@ -484,7 +509,7 @@ def import_csv(
                     missing_cols.remove(dummy_datetime_col)
 
                 if missing_cols and not is_v2_datasource:
-                    err_msg = f"File {transformed_file} doesn't contain expected columns: {list(set(dic_use_cols))}"
+                    err_msg = f"File {csv_file_name} doesn't contain expected columns: {list(set(dic_use_cols))}"
 
                     import_target_info.error = err_msg
 
@@ -674,6 +699,9 @@ def import_csv(
                     # remove unused columns
                     df_one_file = df_one_file[list(dic_use_cols_for_abnormal)]
 
+                # No more reads of the ETL output are needed after parsing.
+                _cleanup_import_temp_file(transformed_file, bool(data_src.etl_func))
+
                 if use_dummy_datetime and dummy_datetime_col not in df_one_file.columns:
                     df_one_file = gen_dummy_datetime(
                         df_one_file,
@@ -774,6 +802,7 @@ def import_csv(
                 df = pd.DataFrame()
                 dic_imported_row = {}
         except Exception as ex:
+            job_management.info.capture_error(ex)
             err_msg = str(ex)
             import_target_info.error = err_msg
             job_management.info.error(err_msg)
@@ -784,7 +813,7 @@ def import_csv(
             yield from yield_job_info(job_info, csv_file_name, err_msgs=err_msg)
             continue
         finally:
-            _cleanup_import_temp_file(transformed_file, is_temp_target)
+            _cleanup_import_temp_file(transformed_file, is_temp_target or bool(data_src.etl_func))
 
     job_info.dic_imported_row = dic_imported_row
 
@@ -854,6 +883,7 @@ def import_csv(
             for context_idx in list(dic_imported_row):
                 archive_context_manager.mark_success(context_idx)
         except Exception as ex:
+            job_management.info.capture_error(ex)
             err_msg = str(ex)
             archive_context_manager.mark_all_failed(dic_imported_row.keys(), err_msg)
             raise
@@ -902,6 +932,7 @@ def _cleanup_import_temp_file(file_path: str | Exception, is_temp_file: bool) ->
 def _resolve_check_structure_target(
     import_targets: list[tuple[str, str | Exception]],
     import_target_iter: Iterator[StreamedImportFileResult],
+    etl_func: str | None = None,
 ) -> tuple[Iterator[StreamedImportFileResult], str | None]:
     """Resolve file path used for structure check without losing iterator items.
 
@@ -917,7 +948,7 @@ def _resolve_check_structure_target(
         ),
         None,
     )
-    if check_structure_target is not None:
+    if check_structure_target is not None and not (etl_func and etl_func.endswith('.py')):
         return import_target_iter, check_structure_target
 
     first_item = next(import_target_iter, None)
@@ -927,6 +958,8 @@ def _resolve_check_structure_target(
     _, transformed_file, *_ = first_item
     if isinstance(transformed_file, str) and not _is_archive_file_path(transformed_file):
         check_structure_target = transformed_file
+    else:
+        check_structure_target = None
 
     return chain([first_item], import_target_iter), check_structure_target
 
@@ -953,6 +986,7 @@ def _iter_import_targets_for_processing(
     proc_id: int,
     job_id: int | None,
     import_targets: list[tuple[str, str | Exception]],
+    etl_func: str | None = None,
 ) -> Generator[StreamedImportFileResult, None, None]:
     """Yield import targets lazily.
 
@@ -963,8 +997,44 @@ def _iter_import_targets_for_processing(
     # Ensure schema exists before any archive signature checks.
     init_processed_signature_table(proc_id)
 
+    if etl_func:
+        is_python_etl = etl_func.endswith('.py')
+        # R outputs already exist from filtering, including targets not yet read.
+        r_outputs = {target for _, target in import_targets if isinstance(target, str)} if not is_python_etl else set()
+        output_dirs = {os.path.dirname(target) for target in r_outputs} if proc_id else set()
+        try:
+            for csv_file_name, target in import_targets:
+                try:
+                    transformed_file = csv_transform(csv_file_name, etl_func, proc_id) if is_python_etl else target
+                except Exception as ex:
+                    yield csv_file_name, ex, False, None, None
+                    continue
+
+                if proc_id and isinstance(transformed_file, str):
+                    output_dirs.add(os.path.dirname(transformed_file))
+                try:
+                    yield csv_file_name, transformed_file, False, None, None
+                finally:
+                    _cleanup_import_temp_file(transformed_file, True)
+        finally:
+            for output in r_outputs:
+                _cleanup_import_temp_file(output, True)
+            # Remove empty leaf folders, then their process folders, after all ETL reads finish.
+            # Keep shared roots and folders containing existing output files.
+            for output_dir in output_dirs:
+                # Optional cleanup must not fail an import (e.g. non-empty or locked folder).
+                with suppress(OSError):
+                    Path(output_dir).rmdir()
+            process_dirs = {Path(output_dir).parent for output_dir in output_dirs}
+            for process_dir in process_dirs:
+                if process_dir.name == str(proc_id):
+                    with suppress(OSError):
+                        process_dir.rmdir()
+        return
+
     target_extensions = {CSVExtTypes.CSV.value, CSVExtTypes.TSV.value, CSVExtTypes.SSV.value}
-    for csv_file_name, transformed_file in import_targets:
+    for csv_file_name, target in import_targets:
+        transformed_file = target
         if not _is_archive_file_path(transformed_file):
             yield csv_file_name, transformed_file, False, None, None
             continue
@@ -1049,7 +1119,7 @@ def filter_import_target_file(proc_id, all_files, dic_success_file: dict, dic_er
         # count all rows
         transformed_file = file_name
         # if custom user etl func specified, execute it
-        if etl_func:
+        if etl_func and not etl_func.endswith('.py'):
             transformed_file = csv_transform(file_name, etl_func, proc_id)
 
         if transformed_file:
@@ -1179,13 +1249,8 @@ def csv_to_df(
 @log_execution_time()
 def get_import_target_files(proc_id: int, data_src: CfgDataSourceCSV, trans_data: TransactionData, meta_con: SQLite3):
     dic_success_file, dic_error_file = get_last_csv_import_info(trans_data, meta_con)
-    valid_extensions = [
-        CSVExtTypes.CSV.value,
-        CSVExtTypes.TSV.value,
-        CSVExtTypes.SSV.value,
-        CSVExtTypes.ZIP.value,
-        CSVExtTypes.SEVEN_Z.value,
-    ]
+    custom_extension = resolve_csv_custom_extension(data_src.custom_extension, data_src.etl_func)
+    valid_extensions = get_csv_source_extensions(custom_extension=custom_extension)
     csv_files = []
     if data_src.is_file_path:
         if any(data_src.directory.lower().endswith(ext) for ext in valid_extensions):

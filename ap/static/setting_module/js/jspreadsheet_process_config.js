@@ -19,91 +19,36 @@ const spreadsheetProcConfig = (element) => {
 class SpreadSheetProcessConfig {
     setupPaginationToolbar() {
         const table = this.table.table;
-        if (table.el.id !== 'processColumnsTable') return;
+        let toolbar;
+        if (table.el.id !== 'processColumnsTable') {
+            if (!table.el.id.startsWith('processColumnsTable_') || table.el.querySelector('.spreadsheet-pagination')) {
+                return;
+            }
 
-        const toolbar = document.getElementById('procPaginationToolbar');
-        const input = document.getElementById('procPaginationJump');
-        const total = document.getElementById('procPaginationTotal');
-        const button = document.getElementById('procPaginationJumpBtn');
-        document.getElementById('procPaginationPages').replaceChildren(table.pagination);
-        toolbar.classList.remove('d-none');
+            // Each file-preview table keeps its own pager at the native footer position.
+            toolbar = document.createElement('div');
+            toolbar.className = 'spreadsheet-pagination';
+            table.pagination.after(toolbar);
+        } else {
+            toolbar = document.getElementById('procPaginationToolbar');
+            toolbar.classList.remove('d-none');
+        }
+        table.pagination.style.display = 'none';
+        toolbar.onmousedown = (event) => event.stopPropagation();
+        table.paginationDropdown.setAttribute('aria-label', document.getElementById('i18nPagination').dataset.pageSize);
 
         const updatePagination = table.updatePagination.bind(table);
         table.updatePagination = () => {
             updatePagination();
             const rows = (table.options.search || table.options.filters) && table.results ? table.results : table.rows;
-            const pages = Math.ceil(rows.length / table.options.pagination);
-            const links = table.pagination.children[1];
-            links.replaceChildren();
-            const visiblePages = new Set([1, pages]);
-            for (let page = table.pageNumber; page <= table.pageNumber + 2; page++) {
-                if (page >= 1 && page <= pages) visiblePages.add(page);
-            }
-            let previousPage = 0;
-            for (const page of [...visiblePages].filter((page) => page > 0 && page <= pages).sort((a, b) => a - b)) {
-                if (previousPage && page - previousPage > 1) {
-                    const ellipsis = document.createElement('span');
-                    ellipsis.className = 'proc-pagination-ellipsis';
-                    ellipsis.textContent = '...';
-                    links.append(ellipsis);
-                }
-                const link = document.createElement('button');
-                link.type = 'button';
-                link.className = 'jexcel_page';
-                link.textContent = String(page);
-                link.title = String(page);
-                if (page === table.pageNumber + 1) {
-                    link.classList.add('jexcel_page_selected');
-                    link.setAttribute('aria-current', 'page');
-                }
-                links.append(link);
-                previousPage = page;
-            }
-            const navigation = [];
-            for (const [label, page, disabled, text, ariaLabel] of [
-                ['first', 1, !pages || table.pageNumber <= 0, '<<', 'First page'],
-                ['previous', table.pageNumber, !pages || table.pageNumber <= 0, '<', 'Previous page'],
-                ['next', table.pageNumber + 2, !pages || table.pageNumber >= pages - 1, '>', 'Next page'],
-                ['last', pages, !pages || table.pageNumber >= pages - 1, '>>', 'Last page'],
-            ]) {
-                const arrow = document.createElement('button');
-                arrow.type = 'button';
-                arrow.className = 'jexcel_page';
-                arrow.textContent = text;
-                arrow.title = String(page);
-                arrow.setAttribute('aria-label', ariaLabel);
-                arrow.disabled = disabled;
-                if (label === 'first' || label === 'previous') navigation.push(arrow);
-                else links.append(arrow);
-            }
-            navigation.reverse().forEach((arrow) => links.prepend(arrow));
-            input.max = Math.max(1, pages);
-            input.value = pages ? table.pageNumber + 1 : 1;
-            input.disabled = button.disabled = !pages;
-            const start = rows.length ? table.pageNumber * table.options.pagination + 1 : 0;
-            const end = Math.min((table.pageNumber + 1) * table.options.pagination, rows.length);
-            total.textContent = `${start}-${end} / ${rows.length}`;
-        };
-
-        // The pager now lives outside the spreadsheet's delegated mouse handler.
-        table.pagination.onmousedown = (event) => event.stopPropagation();
-        table.pagination.onclick = (event) => {
-            const link = event.target.closest('.jexcel_page');
-            if (!link || link.disabled) return;
-            const page = Number(link.title || link.textContent);
-            table.page(page - 1);
-        };
-        const jump = () => {
-            if (!input.disabled && input.value !== '' && input.reportValidity()) {
-                table.page(Number(input.value) - 1);
-            }
-        };
-        button.onclick = jump;
-        input.onkeydown = (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                jump();
-            }
+            renderProcessPagination(toolbar, {
+                compact: true,
+                page: table.pageNumber + 1,
+                pageSize: table.options.pagination,
+                total: rows.length,
+                pageSizeControl: table.paginationDropdown,
+                onPageChange: (page) => table.page(page - 1),
+            });
         };
         table.updatePagination();
     }
@@ -522,6 +467,7 @@ class SpreadSheetProcessConfig {
             this.handleCheckboxStatus(cell, rowIndex, newValue, oldValue);
         }
 
+        this.updateTooltips(...this.table.getRowsByHeadersAndIndexes(undefined, [rowIndex]));
         this.handleChangeMark();
     }
 
@@ -1014,11 +960,16 @@ class SpreadSheetProcessConfig {
     }
 
     /**
-     * Update hint text for Data Type dropdown column.
+     * Update data type hints and full text for potentially truncated names.
      * @param {...ExcelTableRow} rows
      */
     updateTooltips(...rows) {
-        rows.map((r) => r.shown_data_type.td).forEach((r) => (r.title = dataTypeEventHints));
+        for (const row of rows) {
+            row.shown_data_type.td.title = dataTypeEventHints;
+            for (const name of ['column_raw_name', 'name_en', 'name_jp', 'name_local', 'unit']) {
+                row[name].td.title = row[name].data ?? '';
+            }
+        }
     }
 
     /**
@@ -1441,6 +1392,7 @@ class SpreadSheetProcessConfig {
             tableHeight: 'calc(100vh - 370px)',
             tableWidth: '100%',
             pagination: 100,
+            paginationOptions: [10, 25, 50, 100],
         };
         if (docCookies.isJaLocale()) {
             customOptions['text'] = {
@@ -1448,6 +1400,7 @@ class SpreadSheetProcessConfig {
             };
         }
 
+        let previousPageSize = customOptions.pagination;
         const customEvents = {
             onload: (instance) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
@@ -1498,7 +1451,10 @@ class SpreadSheetProcessConfig {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 spreadsheet.table.setPage(index);
                 const displayMode = getDisplayModeFromToolsBarsElement(instance);
-                if (!(index === oldPage)) {
+                const pageSize = spreadsheet.table.table.options.pagination;
+                const pageSizeChanged = pageSize !== previousPageSize;
+                previousPageSize = pageSize;
+                if (index !== oldPage || pageSizeChanged) {
                     if (displayMode === SAMPLE_DATA_DISPLAY_MODES.UNIQUE) {
                         await ensureUniqueSampleData(spreadsheet);
                     }
@@ -1567,6 +1523,7 @@ class SpreadSheetProcessConfig {
             onundo: (instance, historyRecord) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 if (historyRecord) {
+                    spreadsheet.updateTooltips(...spreadsheet.table.getRowsByHeadersAndIndexes());
                     spreadsheet.handleChangeMark();
                 }
             },
@@ -1579,6 +1536,7 @@ class SpreadSheetProcessConfig {
             onredo: (instance, historyRecord) => {
                 const spreadsheet = spreadsheetProcConfig(instance);
                 if (historyRecord) {
+                    spreadsheet.updateTooltips(...spreadsheet.table.getRowsByHeadersAndIndexes());
                     spreadsheet.handleChangeMark();
                 }
             },

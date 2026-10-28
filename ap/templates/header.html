@@ -146,6 +146,30 @@
                         {{ _('Github') }}
                         <i class="fa fa-external-link-alt"></i>
                     </a>
+                    <div class="shortkey-list" id="shortkeyList">
+                        <button
+                            type="button"
+                            class="dropdown-item shortkey-list-toggle"
+                            id="shortkeyListToggle"
+                            aria-expanded="false"
+                            aria-controls="shortkeyListPopup"
+                        >
+                            <i class="far fa-keyboard mr-1" aria-hidden="true"></i>
+                            {{ _('Shortkey List') }}
+                        </button>
+                        <div class="shortkey-list-popup" id="shortkeyListPopup">
+                            <dl class="shortkey-list-keys">
+                                <dt><kbd>Ctrl + /</kbd></dt>
+                                <dd>{{ _('Open sidebar menu') }}</dd>
+                                <dt><kbd>Ctrl + B</kbd></dt>
+                                <dd>{{ _('Open Bookmark list') }}</dd>
+                                <dt><kbd>Ctrl + Enter</kbd></dt>
+                                <dd>{{ _('Display graph') }}</dd>
+                                <dt><kbd>Ctrl + ,</kbd></dt>
+                                <dd>{{ _('Open configuration page in a new tab') }}</dd>
+                            </dl>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mr-2 filter-labels-group custom-selection-section-event">

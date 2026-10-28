@@ -613,6 +613,10 @@ $(document).on('keydown', function (event) {
         hideShortcutHints();
         sendGAForShortcutUsage(SHORTCUTKEYS_EVENT_CONST.B_OPENBOOKMARK);
     }
+    // for open config page in another tab
+    if (event.ctrlKey && event.key === ',') {
+        window.open('/ap/config#data_source', '_blank', 'noopener,noreferrer');
+    }
 });
 
 $(document).on('keyup', function (event) {
@@ -820,8 +824,103 @@ const bindHoverDropdown = (selector, { menuSelector = '.dropdown-menu', onOpen }
     });
 };
 
+const SHORTKEY_POPUP_VIEWPORT_MARGIN = 8;
+
+const positionShortkeyListPopup = (wrapper, popup) => {
+    const margin = SHORTKEY_POPUP_VIEWPORT_MARGIN;
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+    popup.css({ left: '', right: '', top: '', maxWidth: `${Math.max(viewportWidth - margin * 2, 0)}px` });
+
+    const wrapperRect = wrapper[0].getBoundingClientRect();
+    const popupWidth = popup.outerWidth();
+    const popupHeight = popup.outerHeight();
+    let left;
+    let top = 0;
+    if (wrapperRect.left - popupWidth >= margin) {
+        left = -popupWidth;
+    } else if (wrapperRect.right + popupWidth <= viewportWidth - margin) {
+        left = wrapperRect.width;
+    } else {
+        // Neither side fits: place below the item and keep it inside the viewport horizontally.
+        top = wrapperRect.height;
+        const maxLeft = Math.max(viewportWidth - margin - popupWidth, margin);
+        left = Math.min(Math.max(wrapperRect.left, margin), maxLeft) - wrapperRect.left;
+    }
+
+    const bottomOverflow = wrapperRect.top + top + popupHeight - (viewportHeight - margin);
+    if (bottomOverflow > 0) {
+        top -= bottomOverflow;
+    }
+    top = Math.max(top, margin - wrapperRect.top);
+    popup.css({ left: `${left}px`, right: 'auto', top: `${top}px` });
+};
+
+const bindShortkeyListPopup = () => {
+    const wrapper = $('#shortkeyList');
+    if (!wrapper.length) return;
+    const toggle = wrapper.children('.shortkey-list-toggle');
+    const popup = wrapper.children('.shortkey-list-popup');
+    const isOpen = () => wrapper.hasClass('is-open');
+    const position = () => positionShortkeyListPopup(wrapper, popup);
+
+    const openPopup = () => {
+        if (!isOpen()) {
+            wrapper.addClass('is-open');
+            toggle.attr('aria-expanded', 'true');
+            $(window).off('resize.shortkeyList').on('resize.shortkeyList', position);
+        }
+        position();
+    };
+    const closePopup = () => {
+        wrapper.removeClass('is-open');
+        toggle.attr('aria-expanded', 'false');
+        popup.css({ left: '', right: '', top: '', maxWidth: '' });
+        $(window).off('resize.shortkeyList');
+    };
+
+    wrapper
+        .off('.shortkeyList')
+        .on('mouseenter.shortkeyList', openPopup)
+        .on('mouseleave.shortkeyList', () => {
+            if (!toggle.is(':focus')) closePopup();
+        })
+        .on('focusout.shortkeyList', (event) => {
+            if (!wrapper[0].contains(event.relatedTarget) && !wrapper.is(':hover')) closePopup();
+        });
+    toggle
+        .off('.shortkeyList')
+        .on('focus.shortkeyList', openPopup)
+        .on('click.shortkeyList', (event) => {
+            // Keep the parent Bootstrap dropdown open when the item is clicked.
+            event.stopPropagation();
+            openPopup();
+        })
+        .on('keydown.shortkeyList', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.stopPropagation();
+                if (isOpen()) {
+                    closePopup();
+                } else {
+                    openPopup();
+                }
+            } else if (event.key === 'Escape' && isOpen()) {
+                // First Escape closes only the popup; the next one lets Bootstrap close the menu.
+                event.preventDefault();
+                event.stopPropagation();
+                closePopup();
+            }
+        });
+    wrapper
+        .closest('.tour-guide')
+        .off('hidden.bs.dropdown.shortkeyList')
+        .on('hidden.bs.dropdown.shortkeyList', closePopup);
+};
+
 $(async () => {
     bindHoverDropdown('#Bookmark');
+    bindShortkeyListPopup();
     $('#user-setting-toggle').on('click', () => {
         // Close any hover menu when the star button opens the bookmark modal.
         closeActiveHoverDropdown?.();
@@ -1689,6 +1788,28 @@ const setOutlierCount = (outliers) => {
     }
 };
 
+const serializeGraphFormData = (formData) => {
+    const requestData = new FormData();
+    const selections = new Map();
+    for (const [key, value] of formData.entries()) {
+        if (/^GET02_VALS_SELECT\d+$/.test(key)) {
+            if (!selections.has(key)) {
+                selections.set(key, []);
+            }
+            selections.get(key).push(value);
+        } else {
+            requestData.append(key, value);
+        }
+    }
+
+    // One multipart part per selection group avoids Werkzeug's form-part limit.
+    // Keep the original repeated fields intact for polling, exports and GUI state.
+    for (const [key, values] of selections) {
+        requestData.append(key, JSON.stringify(values));
+    }
+    return requestData;
+};
+
 const showGraphCallApi = async (url, formData, timeOut, callback, additionalOption = {}) => {
     if (!requestStartedAt) {
         requestStartedAt = performance.now();
@@ -1779,8 +1900,9 @@ const showGraphCallApi = async (url, formData, timeOut, callback, additionalOpti
 
     return $.ajax({
         ...option,
-        beforeSend: (jqXHR) => {
+        beforeSend: (jqXHR, settings) => {
             formData = handleBeforeSendRequestToShowGraph(jqXHR, formData);
+            settings.data = serializeGraphFormData(settings.data);
         },
         success: async (res) => {
             try {
@@ -2380,6 +2502,11 @@ const checkIsUpdateXY = (newXY, currentXY) => {
 };
 
 const onApplyStyleSetting = () => {
+    if (typeof window.applyPlotStyle === 'function') {
+        window.applyPlotStyle();
+        return;
+    }
+
     const setting = window.getStyleLayout?.();
 
     if (setting) {
